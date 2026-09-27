@@ -15,8 +15,8 @@
             "developedPi": 220,
             "stockWalls": 0,
             "developedWalls": 0,
-            "stockMs": 86485,
-            "developedMs": 86485,
+            "stockMs": 86500,
+            "developedMs": 86500,
             "stockFinished": true,
             "developedFinished": true,
             "developedLegal": true
@@ -28,8 +28,8 @@
             "developedPi": 245,
             "stockWalls": 0,
             "developedWalls": 0,
-            "stockMs": 85849,
-            "developedMs": 85849,
+            "stockMs": 85761,
+            "developedMs": 85761,
             "stockFinished": true,
             "developedFinished": true,
             "developedLegal": true
@@ -41,8 +41,8 @@
             "developedPi": 270,
             "stockWalls": 0,
             "developedWalls": 0,
-            "stockMs": 84620,
-            "developedMs": 84620,
+            "stockMs": 84592,
+            "developedMs": 84592,
             "stockFinished": true,
             "developedFinished": true,
             "developedLegal": true

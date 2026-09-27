@@ -35,7 +35,11 @@ namespace NightSignal.Front
                 DrivingPreferences.ResetCache();
             }
             var failures = new List<string>();
-            var report = new StringBuilder("race,course,cameras,drivingCameras,vehicleViews,raceHuds,speedLines,prefListeners,lights,managedMB,frameMsMean,frameMsP99,raceFinished,playerResets,playerCheckpoints,playerFinishS\n");
+            var report = new StringBuilder("race,course,cameras,drivingCameras,vehicleViews,raceHuds,speedLines,prefListeners,lights,managedMB,meshes,materials,textures,audioClips,gameObjects,frameMsMean,frameMsP99,raceFinished,playerResets,playerCheckpoints,playerFinishS\n");
+            // Loaded Unity objects of the kinds a race creates at run time (including assets outside any scene), to find what
+            // the managed-heap growth holds on to.
+            string Objects() => string.Join(",", Resources.FindObjectsOfTypeAll<Mesh>().Length, Resources.FindObjectsOfTypeAll<Material>().Length,
+                Resources.FindObjectsOfTypeAll<Texture>().Length, Resources.FindObjectsOfTypeAll<AudioClip>().Length, Resources.FindObjectsOfTypeAll<GameObject>().Length);
             void Note(string s) => Debug.Log("[NightSignal.SoakTour] " + s);
             string[] courses = { "C01", "C08", "C12", "C03" };
             var ai = new List<string> { "R01", "R02", "R03", "R05", "R06", "R07", "R09", "ai-8", "ai-9", "ai-10", "ai-11" };
@@ -116,8 +120,10 @@ namespace NightSignal.Front
                 var c = Census();
                 frameMs.Sort();
                 float mean = frameMs.Count > 0 ? frameMs.Average() : 0f, p99 = frameMs.Count > 0 ? frameMs[(int)(frameMs.Count * 0.99f)] : 0f;
+                string objects = Objects();
+                Note($"race {n + 1} {course}: objects (meshes, materials, textures, clips, GameObjects) {objects}");
                 report.AppendLine(string.Join(",", n + 1, course, c.cams, c.driving, c.views, c.huds, c.lines, c.listeners, c.lights, c.mb.ToString("F1"),
-                    mean.ToString("F2"), p99.ToString("F2"), finished, playerResets, checkpoints, finishS.ToString("F1")));
+                    objects, mean.ToString("F2"), p99.ToString("F2"), finished, playerResets, checkpoints, finishS.ToString("F1")));
                 Note($"race {n + 1} {course}: {resetsRequested} reset requests → {playerResets} resets, {checkpoints} gates; then cameras {c.cams}, driving cameras {c.driving}, views {c.views}, HUDs {c.huds}, speed lines {c.lines}, listeners {c.listeners}, lights {c.lights}, managed {c.mb:F1} MB; frame {mean:F2}/{p99:F2} ms");
                 if (c.driving > baseline.driving || c.views > baseline.views || c.huds > baseline.huds || c.lines > baseline.lines || c.listeners > baseline.listeners || c.cams > baseline.cams + 1)
                     failures.Add($"race {n + 1}: something accumulated (cameras {c.cams}, driving {c.driving}, views {c.views}, HUDs {c.huds}, lines {c.lines}, listeners {c.listeners})");

@@ -846,7 +846,11 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   (autopilot start to finish, no corridor cuts), `TunnelShellTests` 7/7, `BridgeTests` 6/6, `RecoveryPhysicalTests` 4/4
   (C25 fall, simultaneous recoveries, roof, stopped), `DriftAttackTests` 3/3, `FullGridContactTests` 2/2 — **80/80**;
   EditMode 238/238.
-- Also: a second soak with the same car every race showed the same early managed-heap growth (7.3 → 7.9 MB after two
-  races), so it is not per-car caching; no growing static collection was found; still open.
-- Not yet: `ReferenceRunTests` (30 campaign reference runs) on the new geometry — running next; benchmark certification
-  stays deferred (Addendum 03 §9).
+- Soak follow-up: 10 races with the same car every race — PASS, managed heap 7.3 → 11.3 MB (~0.44 MB per race), so not
+  per-car caching; no growing static collection found. A census of loaded Unity objects after each of 6 races (built
+  `-nsSoakTour 6 -nsSoakSameCar`) stays flat — meshes 206, materials 113–114, textures 126, audio clips 0, GameObjects
+  246 — so no scene, car, HUD or asset leaks; only the managed heap creeps (~0.5 MB/race; Mono's collector is
+  conservative and non-moving, retention cause unidentified). A 40-race soak is running to see whether it plateaus.
+- `ReferenceRunTests` (30 Normal campaign reference runs, stock and intended build, autopilot) on the new geometry:
+  **30/30 pass** (every stage finished in both builds, legal PI); 20 of the 30 evidence files changed (times on the
+  reshaped courses). Benchmark certification stays deferred (Addendum 03 §9).
