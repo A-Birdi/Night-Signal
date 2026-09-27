@@ -41,7 +41,7 @@ public sealed class ContentService
                 throw new InvalidOperationException($"Content file missing: generated/{file} (looked in the configured content directory).");
             docs[file] = File.ReadAllText(path);
         }
-        foreach (string file in ContentCatalogue.OptionalFiles)
+        foreach (string file in ContentCatalogue.AuthoredFiles)
         {
             string path = Path.Combine(root, "authored", file);
             if (File.Exists(path)) docs[file] = File.ReadAllText(path);

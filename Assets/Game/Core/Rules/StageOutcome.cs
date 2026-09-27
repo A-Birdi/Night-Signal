@@ -15,6 +15,13 @@ namespace NightSignal.Core.Rules
         public long RawDriftTarget;
         /// <summary>Published hard timeout for the whole event (ms); must be ≥ the support envelope.</summary>
         public long HardTimeoutMs;
+        /// <summary>
+        /// Lieutenant, penultimate and finale encounters (Addendum 01 §1.3): a qualifying human must ALSO beat the
+        /// featured live rival. A tie at measurement precision does not beat the rival.
+        /// </summary>
+        public bool RequiresBeatingFeaturedRival;
+
+        public static bool IsFeaturedEncounter(string stageType) => stageType == "lieutenant" || stageType == "penultimate" || stageType == "finale";
     }
 
     /// <summary>Server-observed facts for one human entrant (H is frozen at allocation, DQs included).</summary>
@@ -28,6 +35,11 @@ namespace NightSignal.Core.Rules
         public long RawDriftScore;
         /// <summary>S29 only: number of the four contracts passed (0..4).</summary>
         public int ContractsPassed;
+        /// <summary>
+        /// Server-observed: this human legally finished ahead of the featured live rival, or the rival legally failed to
+        /// finish. Only consulted when the benchmark requires beating the featured rival.
+        /// </summary>
+        public bool BeatFeaturedRival;
     }
 
     public sealed class PlayerStageVerdict
@@ -56,7 +68,7 @@ namespace NightSignal.Core.Rules
 
         public static int RequiredQualifiers(CampaignMode mode, int frozenHumanCount)
         {
-            if (frozenHumanCount < 1 || frozenHumanCount > Limits.MaxRaceEntrants)
+            if (frozenHumanCount < 1 || frozenHumanCount > Limits.MaxEventHumanEntrants)
                 throw new ArgumentOutOfRangeException(nameof(frozenHumanCount));
             return mode == CampaignMode.Normal ? 1 : Math.Max(1, (frozenHumanCount + 1) / 2);
         }
@@ -75,11 +87,17 @@ namespace NightSignal.Core.Rules
             return Math.Min(hardTimeoutMs, Math.Max(firstValidHumanFinishMs + Limits.FirstFinishGraceMs, supportEnvelopeMs));
         }
 
+        /// <param name="featuredRivalStarted">
+        /// False when the featured rival failed to spawn/initialise: that is a broken event (abort, retry without fees), never
+        /// a free win, so resolution refuses it.
+        /// </param>
         public static StageResolution Resolve(CampaignMode mode, StageBenchmark benchmark, int frozenHumanCount,
-            IReadOnlyList<HumanStageResult> humans)
+            IReadOnlyList<HumanStageResult> humans, bool featuredRivalStarted = true)
         {
             if (benchmark == null) throw new ArgumentNullException(nameof(benchmark));
             if (humans == null) throw new ArgumentNullException(nameof(humans));
+            if (!featuredRivalStarted)
+                throw new InvalidOperationException("The featured rival never started: the event is broken and must be aborted, not resolved");
             if (humans.Count != frozenHumanCount)
                 throw new ArgumentException("Every allocated human needs a result, including DQs");
 
@@ -98,7 +116,7 @@ namespace NightSignal.Core.Rules
             {
                 v.EarnedClear = res.TeamSuccess && v.WithinSupport;
                 if (!res.TeamSuccess)
-                    v.Reason = $"Team goal missed: {res.Qualifiers} of {res.RequiredQualifiers} required qualifying drivers.";
+                    v.Reason = $"Team goal missed: {res.Qualifiers} of {res.RequiredQualifiers} required qualifying drivers. {v.Reason}";
             }
             res.Players = verdicts;
             return res;
@@ -130,6 +148,12 @@ namespace NightSignal.Core.Rules
                     v.Qualified = h.ContractsPassed == 4 && h.FinishTimeMs <= b.TargetTimeMs;
                     v.WithinSupport = v.Qualified || (h.ContractsPassed >= 3 && inTime);
                     break;
+            }
+            if (v.Qualified && b.RequiresBeatingFeaturedRival && !h.BeatFeaturedRival)
+            {
+                v.Qualified = false;
+                v.Reason = "Target met, but the featured rival finished ahead.";
+                return v;
             }
             v.Reason = v.Qualified ? "Qualified." : v.WithinSupport ? "Supporting finish." : "Outside the support envelope.";
             return v;

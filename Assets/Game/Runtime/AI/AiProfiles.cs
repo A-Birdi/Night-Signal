@@ -11,6 +11,20 @@ namespace NightSignal.AI
     /// </summary>
     public static class AiProfiles
     {
+        /// <summary>Freeplay opponents without a rival identity ("ai-N"): neutral, mildly varied profiles.</summary>
+        public static DriverProfile Generic(int index)
+        {
+            float t = (index % 6) / 5f;
+            return new DriverProfile
+            {
+                CornerSpeedFactor = Mathf.Lerp(0.83f, 0.88f, t),
+                BrakingDecel = Mathf.Lerp(6.5f, 7.1f, 1f - t),
+                LineAggression = Mathf.Lerp(0.35f, 0.55f, t),
+                LookaheadSeconds = 0.9f,
+                MinLookahead = 10f,
+            };
+        }
+
         public static DriverProfile For(RivalDef rival, int stageNumber)
         {
             float progress = Mathf.Clamp01((stageNumber - 1) / 29f);

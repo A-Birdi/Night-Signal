@@ -1,0 +1,86 @@
+# Effective rules and Addendum 01 impact map
+
+Authority order: later explicit user decisions → `docs/brief/Night_Signal_Addendum_01.txt` (Revision 1, stored
+verbatim, sha256 `92a2d99c…d8d42c`) → `SPECIFICATION.md` (master) → the content catalogue (an authoring seed only;
+it may not reintroduce superseded rules). This page records what changed and where it lands; it does not restate the
+master.
+
+## Decisions adopted (Addendum D01–D10)
+
+| ID | Rule | Constant / contract |
+|---|---|---|
+| D01 | ≤ 6 humans per convoy and per driving event; ≤ 12 total race vehicles (humans + friendly AI + opposing AI) | `Limits.MaxConvoyHumans = 6`, `MaxEventHumanEntrants = 6`, `MaxRaceVehicles = 12` |
+| D02 | A meet instance admits ≤ 6 humans (12 bays remain scenery) | `Limits.MaxMeetHumans = 6` |
+| D03 | +3 currency-only Freeplay courses FP01–FP03; 29 distinct base courses; still 30 stages per mode | catalogue overlay `courses.addendum.json` |
+| D04 | Any active convoy member with permanent access sponsors a Freeplay course; others get event-scoped guest passes | `CourseAccess.ConvoySponsors` |
+| D05 | Offline = full separate Local progression domain; never uploaded as online state | `ProgressionDomain { Online, Local }` |
+| D06 | Three repeatable Team Trials (TT_MEAN, TT_BEST, TT_DRIFT); no mastery RP; not in the 75 | `TeamTrials` |
+| D07 | Freeplay vote: 30 s default (15/30/45/60), one changeable ballot per active member, one ticket each | `Ballot` rules |
+| D08 | Email/password via provider; unique public @handle for identity/lookup only | `Handles.Validate/Canonical` |
+| D09 | Rejoin grant survives disconnect until leadership epoch changes, disband, or explicit revocation; no seat reserved | `RejoinGrant`, `LeadershipEpoch` |
+| D10 | No visible or mechanical damage, ever; contact affects motion and scoring only | no damage state anywhere |
+
+## Superseded master rules
+
+| Master rule | Replaced by | Status |
+|---|---|---|
+| Six TOTAL entrants (humans + AI) | D01: 1–6 humans, ≤ 12 vehicles, authored opposition (not "fill to N") | Core done in this revision; server/allocation in progress |
+| Six humans race a benchmark replay of the featured rival | Featured rival is always a LIVE solid car; finales are H + 1 | Core `RosterPlanner` removes the replay path |
+| Ghosted campaign/ordinary races, "Ghosted standard race" option | Bounded Light Contact by default; Time Attack is the explicit non-contact ruleset | `ContactPolicy`; vehicle contact solver in progress |
+| Temporary cosmetic damage | D10: none | nothing to remove (never implemented) |
+| Practice access to every course | Course-access ledger per domain: T00, C01–C04 start; C05–C24 buy 45,000 or clear the course's REGULAR Normal stage; C25 by first Normal S30 clear; FP01/02/03 buy 45,000/54,000/63,000 | Core `CourseAccess` |
+| Tutorial-only unauthenticated offline | Full Local domain + Go Online boundary | planned (Priority B) |
+| 60 s reserved convoy seat | Confirmed disconnect removes active membership; server rejoin grant keyed to leadership epoch | control plane (in progress) |
+| Meet 12 humans | D02: 6 | `Limits.MaxMeetHumans` |
+| R40/R48 appear only as finale leads (implicit) | Explicitly finale-only: rejected server-side in Freeplay, random pools, supports, friendly AI, Team Trials, Cup, ghost targets, challenge opponents | Core `FinalRivals`; catalogue audit found no misuse |
+| Destination consent → event ready | Intent (Campaign/Freeplay/Challenges + detail) → Mode Ready (revisioned) → [vote] → Event Ready | control plane (in progress) |
+| Placement 1.35/1.20/1.10/1.00 for places 1–6 | Same values, 4th–12th at 1.00; AI get no transactions | Core `Economy.PlacementX100` |
+
+## Opposition authoring (Addendum §1.2)
+
+`Assets/Content/Data/authored/stages.opposition.json` lists the live opponents per stage and mode (featured first);
+it replaces "featured + support pool until six". Rules used for the initial authoring:
+
+- Act I regular stages: the featured rival alone on odd stages, featured + one support on even stages.
+- Acts II–IV regular stages: two or three opponents total (alternating).
+- Lieutenant and penultimate encounters: featured + two supports.
+- Normal/Hard finale: the final rival alone (a live H + 1 duel at every party size).
+- Lieutenant, penultimate and finale encounters add a live-rival condition: a qualifying human must meet the
+  published target AND beat the featured rival (Normal ≥ 1, Hard ≥ ceil(H/2)). A featured rival that legally fails to
+  finish is beaten by any valid finisher; a rival that failed to spawn makes the event broken (aborted), never a win.
+
+## Course → free-unlock stage mapping (derived from the catalogue's regular stages)
+
+C05 S05 · C06 S06 · C07 S08 · C08 S09 · C09 S10 · C10 S11 · C11 S12 · C12 S13 · C13 S15 · C14 S16 · C15 S17 ·
+C16 S18 · C17 S19 · C18 S20 · C19 S22 · C20 S23 · C21 S24 · C22 S25 · C23 S26 · C24 S27. Lieutenant/penultimate
+reuses (S07 C04, S14 C08, S21 C12, S28 C20, S29 C24) never unlock a course. Generated by
+`CourseAccess.Build(catalogue)`, not course-number arithmetic; a test pins the table.
+
+## Impact map
+
+| Area | Files | Change | State |
+|---|---|---|---|
+| Capacity constants | `Core/Rules/Limits.cs` | split the overloaded cap into four named limits | revision 1 |
+| Roster | `Core/Rules/GridPlanner.cs` → `RosterPlanner` | typed entries (kind, team, role, driver id), H ≤ 6, total ≤ 12, authored opposition, Team Trial 6 v 6, finale-only rivals | revision 1 |
+| Stage outcome | `Core/Rules/StageOutcome.cs` | live-rival victory condition for encounter stages | revision 1 |
+| Economy | `Core/Rules/Economy.cs` | placements 1–12 | revision 1 |
+| Classification | `Core/Rules/RaceClassification.cs` | up to 12 entrants | revision 1 |
+| Course access | `Core/Rules/CourseAccess.cs` (new) | access table, sponsor/guest rules, purchase-vs-unlock idempotency contract | revision 1 |
+| Ballot | `Core/Rules/Ballot.cs` (new) | weighted draw over accepted ballots, frozen once | revision 1 |
+| Handles | `Core/Rules/Handles.cs` (new) | 3–20 ASCII, letter first, canonical lowercase, reserved words | revision 1 |
+| Catalogue | `authored/stages.opposition.json`, `authored/courses.addendum.json`, `CatalogueValidator` | overlay so a re-import cannot restore six-total or finale misuse | revision 1 |
+| Course grid | `Track/Generation/CourseGenerator.cs`, every `route.json` | 12 staggered slots; `startMetres ≥ 62` | generator done; C01 route + others in progress |
+| Vehicle contact | `Vehicle/VehicleContact.cs` (new), `RaceServer`, `RaceClient` | bounded server-side car–car contact; client prediction against remote cars; Time Attack non-contact | in progress |
+| Race server | `Runtime/Net/RaceServer.cs` | 12 vehicles, typed roster, friendly/opposing teams, no replay | in progress |
+| Control plane | `Services/ControlPlane/**` | roster planner, contact default, course ledger + purchases + guest passes, rejoin grants + epochs, intent/mode-ready/ballot, handles, friends, final-rival validation | in progress |
+| Offline | `Runtime/Offline/**` (new) | local profile store, in-process race, Go Online | planned |
+| UI | campaign map + right panel, records, friends, voting strip, main menu | planned |
+| Audio | `Assets/Content/Audio/**` (agent) | 24 cues, music manifest; unlocks + boombox by coordinator | in progress |
+| Tests | Core EditMode, Services tests, PlayMode | new capacity/roster/access/ballot/handle tests; old six-cap assertions rewritten, not deleted silently | revision 1 |
+
+## Evidence that remains valid
+
+- Vehicle handling harness, course generation, C01 autopilot drives, ticket verification, settlement/ledger tests.
+- `Evidence/net/run-20260927-001253-h2` proves the network spine (sign-in → convoy → allocation → tickets → race →
+  signed results → receipts) but ran under the superseded six-total / non-contact rules; it is not evidence for
+  twelve-vehicle contact races.

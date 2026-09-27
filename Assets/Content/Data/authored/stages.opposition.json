@@ -1,0 +1,357 @@
+{
+  "schema": "night-signal/stage-opposition@1",
+  "addendum": "Addendum 01 §1.2 / §12",
+  "rules": "Act I regular: featured alone on odd stages, featured + one support on even stages. Acts II–IV regular: two (odd) or three (even) opponents. Lieutenant and penultimate: featured + two supports. Finale: the final rival alone. R40/R48 appear only as their own finale lead. Opponents are live, solid, server-controlled cars; humans never displace them.",
+  "stages": [
+    {
+      "id": "S01",
+      "normal": [
+        "R01"
+      ],
+      "hard": [
+        "R05"
+      ]
+    },
+    {
+      "id": "S02",
+      "normal": [
+        "R02",
+        "R05"
+      ],
+      "hard": [
+        "R06",
+        "R05"
+      ]
+    },
+    {
+      "id": "S03",
+      "normal": [
+        "R03"
+      ],
+      "hard": [
+        "R07"
+      ]
+    },
+    {
+      "id": "S04",
+      "normal": [
+        "R04",
+        "R05"
+      ],
+      "hard": [
+        "R01",
+        "R05"
+      ]
+    },
+    {
+      "id": "S05",
+      "normal": [
+        "R09"
+      ],
+      "hard": [
+        "R13"
+      ]
+    },
+    {
+      "id": "S06",
+      "normal": [
+        "R10",
+        "R13"
+      ],
+      "hard": [
+        "R14",
+        "R13"
+      ]
+    },
+    {
+      "id": "S07",
+      "normal": [
+        "R08",
+        "R05",
+        "R06"
+      ],
+      "hard": [
+        "R08",
+        "R05",
+        "R06"
+      ]
+    },
+    {
+      "id": "S08",
+      "normal": [
+        "R11",
+        "R13",
+        "R14"
+      ],
+      "hard": [
+        "R15",
+        "R13",
+        "R14"
+      ]
+    },
+    {
+      "id": "S09",
+      "normal": [
+        "R12",
+        "R13"
+      ],
+      "hard": [
+        "R09",
+        "R13"
+      ]
+    },
+    {
+      "id": "S10",
+      "normal": [
+        "R17",
+        "R21",
+        "R22"
+      ],
+      "hard": [
+        "R21",
+        "R17",
+        "R22"
+      ]
+    },
+    {
+      "id": "S11",
+      "normal": [
+        "R18",
+        "R21"
+      ],
+      "hard": [
+        "R22",
+        "R21"
+      ]
+    },
+    {
+      "id": "S12",
+      "normal": [
+        "R19",
+        "R21",
+        "R22"
+      ],
+      "hard": [
+        "R23",
+        "R21",
+        "R22"
+      ]
+    },
+    {
+      "id": "S13",
+      "normal": [
+        "R20",
+        "R21"
+      ],
+      "hard": [
+        "R17",
+        "R21"
+      ]
+    },
+    {
+      "id": "S14",
+      "normal": [
+        "R16",
+        "R13",
+        "R14"
+      ],
+      "hard": [
+        "R16",
+        "R13",
+        "R14"
+      ]
+    },
+    {
+      "id": "S15",
+      "normal": [
+        "R25",
+        "R29"
+      ],
+      "hard": [
+        "R29",
+        "R25"
+      ]
+    },
+    {
+      "id": "S16",
+      "normal": [
+        "R26",
+        "R29",
+        "R30"
+      ],
+      "hard": [
+        "R30",
+        "R29",
+        "R26"
+      ]
+    },
+    {
+      "id": "S17",
+      "normal": [
+        "R27",
+        "R29"
+      ],
+      "hard": [
+        "R31",
+        "R29"
+      ]
+    },
+    {
+      "id": "S18",
+      "normal": [
+        "R28",
+        "R29",
+        "R30"
+      ],
+      "hard": [
+        "R25",
+        "R29",
+        "R30"
+      ]
+    },
+    {
+      "id": "S19",
+      "normal": [
+        "R33",
+        "R37"
+      ],
+      "hard": [
+        "R37",
+        "R33"
+      ]
+    },
+    {
+      "id": "S20",
+      "normal": [
+        "R34",
+        "R37",
+        "R38"
+      ],
+      "hard": [
+        "R38",
+        "R37",
+        "R34"
+      ]
+    },
+    {
+      "id": "S21",
+      "normal": [
+        "R24",
+        "R21",
+        "R22"
+      ],
+      "hard": [
+        "R24",
+        "R21",
+        "R22"
+      ]
+    },
+    {
+      "id": "S22",
+      "normal": [
+        "R35",
+        "R37",
+        "R38"
+      ],
+      "hard": [
+        "R39",
+        "R37",
+        "R38"
+      ]
+    },
+    {
+      "id": "S23",
+      "normal": [
+        "R36",
+        "R37"
+      ],
+      "hard": [
+        "R33",
+        "R37"
+      ]
+    },
+    {
+      "id": "S24",
+      "normal": [
+        "R41",
+        "R45",
+        "R46"
+      ],
+      "hard": [
+        "R45",
+        "R41",
+        "R46"
+      ]
+    },
+    {
+      "id": "S25",
+      "normal": [
+        "R42",
+        "R45"
+      ],
+      "hard": [
+        "R46",
+        "R45"
+      ]
+    },
+    {
+      "id": "S26",
+      "normal": [
+        "R43",
+        "R45",
+        "R46"
+      ],
+      "hard": [
+        "R47",
+        "R45",
+        "R46"
+      ]
+    },
+    {
+      "id": "S27",
+      "normal": [
+        "R44",
+        "R45"
+      ],
+      "hard": [
+        "R41",
+        "R45"
+      ]
+    },
+    {
+      "id": "S28",
+      "normal": [
+        "R32",
+        "R29",
+        "R30"
+      ],
+      "hard": [
+        "R32",
+        "R29",
+        "R30"
+      ]
+    },
+    {
+      "id": "S29",
+      "normal": [
+        "R39",
+        "R37",
+        "R38"
+      ],
+      "hard": [
+        "R47",
+        "R37",
+        "R38"
+      ]
+    },
+    {
+      "id": "S30",
+      "normal": [
+        "R40"
+      ],
+      "hard": [
+        "R48"
+      ]
+    }
+  ]
+}

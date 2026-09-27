@@ -33,7 +33,7 @@ namespace NightSignal.Net
 
     public sealed class MatchInfo
     {
-        public string MatchId, CourseId, Kind, Mode, StageId, Weather, BenchmarkReplayRival, GridNote;
+        public string MatchId, CourseId, Kind, Mode, StageId, Weather, GridNote, Contact;
         public int YourIndex = -1;
         public List<RosterEntry> Roster = new List<RosterEntry>();
     }
@@ -123,7 +123,16 @@ namespace NightSignal.Net
             track = course.Track;
             tracker = new RaceProgressTracker(track);
             Physics.SyncTransforms();
-            BuildEntrants();
+            try
+            {
+                BuildEntrants();
+            }
+            catch (Exception e)
+            {
+                // A roster that cannot be built (e.g. featured rival missing) is a broken event, never a free win.
+                Abort("roster could not be built: " + e.Message);
+                yield break;
+            }
 
             nm = NetBootstrap.Ensure();
             nm.ConnectionApprovalCallback = Approve;
@@ -148,15 +157,36 @@ namespace NightSignal.Net
             ContentCatalogue cat = lib.Catalogue;
             var world = new PhysicsVehicleWorld(Physics.defaultPhysicsScene, GameLayers.DrivableMask, GameLayers.BarrierMask);
             int slot = 0;
-            foreach (AssignmentEntrant h in assignment.Entrants.Where(x => x.Role == "racer"))
+            List<AssignmentEntrant> humans = assignment.Entrants.Where(x => x.Role == "racer").ToList();
+            int vehicles = humans.Count + assignment.AiEntrants.Count;
+            // Addendum 01 D01: ≤ 6 humans, ≤ 12 vehicles. The control plane validated this; refuse rather than trim.
+            if (humans.Count < 1 || humans.Count > Limits.MaxEventHumanEntrants || vehicles > Limits.MaxRaceVehicles)
+                throw new InvalidOperationException($"roster of {humans.Count} humans / {vehicles} vehicles is outside the limits");
+            if (vehicles > track.Grid.Length)
+                throw new InvalidOperationException($"course {assignment.CourseId} has {track.Grid.Length} grid slots for {vehicles} vehicles");
+            foreach (AssignmentEntrant h in humans)
                 entrants.Add(CreateEntrant(slot++, h.AccountId, h.DisplayName, true, h.CarId, world));
-            foreach (string rivalId in assignment.AiEntrants)
+            int generic = 0;
+            foreach (string aiId in assignment.AiEntrants)
             {
-                if (slot >= Limits.MaxRaceEntrants) break; // never more than six registered racers
-                RivalDef rival = cat.Rival(rivalId);
-                string car = LegalCarFor(cat, rival.PrimaryCar, assignment.CarCapPi);
-                Entrant e = CreateEntrant(slot++, rival.Id, rival.Name, false, car, world);
-                e.Ai = new RouteFollower(track, e.Params, AiProfiles.For(rival, assignment.StageNumber));
+                Entrant e;
+                if (cat.TryRival(aiId, out RivalDef rival))
+                {
+                    if (!FinalRivals.Allowed(rival.Id, assignment.Kind == "campaign" ? AiPlacementContext.CampaignEncounter : AiPlacementContext.FreeplayOpponent,
+                            assignment.StageId, assignment.Mode == "hard" ? CampaignMode.Hard : CampaignMode.Normal))
+                        throw new InvalidOperationException($"{rival.Id} is campaign-finale-only and cannot race in this event");
+                    string car = LegalCarFor(cat, rival.PrimaryCar, assignment.CarCapPi);
+                    e = CreateEntrant(slot++, rival.Id, rival.Name, false, car, world);
+                    e.Ai = new RouteFollower(track, e.Params, AiProfiles.For(rival, assignment.StageNumber));
+                }
+                else
+                {
+                    // Freeplay opponents without a rival identity: a legal car under the cap, neutral profile.
+                    CarDef car = cat.Cars.Where(c => assignment.CarCapPi <= 0 || c.BasePI <= assignment.CarCapPi)
+                        .OrderByDescending(c => c.BasePI).Skip(generic % 3).FirstOrDefault() ?? cat.Cars.OrderBy(c => c.BasePI).First();
+                    e = CreateEntrant(slot++, aiId, $"Driver {aiId.ToUpperInvariant()}", false, car.Id, world);
+                    e.Ai = new RouteFollower(track, e.Params, AiProfiles.Generic(generic++));
+                }
                 e.Status = EntrantStatus.Loaded;
                 entrants.Add(e);
             }
@@ -229,7 +259,7 @@ namespace NightSignal.Net
             var info = new MatchInfo
             {
                 MatchId = assignment.MatchId, CourseId = assignment.CourseId, Kind = assignment.Kind, Mode = assignment.Mode,
-                StageId = assignment.StageId, Weather = assignment.Weather, BenchmarkReplayRival = assignment.BenchmarkReplayRival,
+                StageId = assignment.StageId, Weather = assignment.Weather, Contact = assignment.Collision,
                 GridNote = assignment.GridNote, YourIndex = e.Roster.Index, Roster = entrants.Select(x => x.Roster).ToList(),
             };
             FastBufferWriter w = Wire.JsonWriter(JsonConvert.SerializeObject(info));

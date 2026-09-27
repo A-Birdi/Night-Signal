@@ -190,8 +190,6 @@ namespace NightSignal.Net
                     : c.Status == EntrantStatus.DqDisconnected ? "DQ" : c.Status == EntrantStatus.Dnf ? "DNF" : c.Roster.Human ? "" : "AI";
                 hudState.Field.Add(new UI.HudEntrant { Name = c.Roster.DisplayName, Status = status, Position = pos, IsYou = me, Distance = c.RaceDistance });
             }
-            if (!string.IsNullOrEmpty(Info.BenchmarkReplayRival))
-                hudState.Field.Add(new UI.HudEntrant { Name = Info.BenchmarkReplayRival, IsReplay = true });
             Car mine = cars[Info.YourIndex];
             hudState.SpeedKmh = ownState.SpeedKmh;
             hudState.Gear = ownState.Gear;

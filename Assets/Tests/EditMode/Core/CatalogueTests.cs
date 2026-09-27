@@ -10,8 +10,7 @@ namespace NightSignal.Tests.Core
     {
         const string GeneratedDir = "Assets/Content/Data/generated";
 
-        static Dictionary<string, string> LoadDocuments() =>
-            ContentCatalogue.RequiredFiles.ToDictionary(f => f, f => File.ReadAllText(Path.Combine(GeneratedDir, f)));
+        static Dictionary<string, string> LoadDocuments() => AddendumRulesTests.LoadDocuments();
 
         [Test]
         public void GeneratedCatalogue_LoadsAndPassesAppendixGValidation()
@@ -19,7 +18,7 @@ namespace NightSignal.Tests.Core
             ContentCatalogue c = ContentCatalogue.Load(LoadDocuments());
             ValidationReport report = CatalogueValidator.Validate(c);
             Assert.That(report.Errors.Select(e => e.ToString()), Is.Empty);
-            Assert.That(report.Counts["courses"], Is.EqualTo(26));
+            Assert.That(report.Counts["courses"], Is.EqualTo(29)); // 26 original + FP01–FP03 (Addendum 01 D03)
             Assert.That(report.Counts["regularCourses"], Is.EqualTo(24));
             Assert.That(report.Counts["stages"], Is.EqualTo(30));
             Assert.That(report.Counts["cars"], Is.EqualTo(18));

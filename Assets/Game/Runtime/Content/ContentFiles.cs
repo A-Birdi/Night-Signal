@@ -14,7 +14,7 @@ namespace NightSignal.Content
             var docs = new Dictionary<string, string>();
             foreach (string f in ContentCatalogue.RequiredFiles)
                 docs[f] = File.ReadAllText(Path.Combine(dataRoot, "generated", f));
-            foreach (string f in ContentCatalogue.OptionalFiles)
+            foreach (string f in ContentCatalogue.AuthoredFiles)
             {
                 string path = Path.Combine(dataRoot, "authored", f);
                 if (File.Exists(path)) docs[f] = File.ReadAllText(path);

@@ -169,7 +169,7 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
         {
             "circuit" => EventKind.FreeplayCircuit,
             "drift-attack" => EventKind.FreeplayDriftAttack,
-            "time-trial" => EventKind.FreeplayTimeTrial,
+            "time-attack" => EventKind.FreeplayTimeTrial,
             _ => EventKind.FreeplaySprint,
         };
         List<EntrantFacts> humanFacts = s.Entrants.Where(e => e.Human).ToList();

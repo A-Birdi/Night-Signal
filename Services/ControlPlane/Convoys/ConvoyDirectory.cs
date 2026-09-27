@@ -97,7 +97,7 @@ public sealed class ConvoyDirectory(TimeProvider clock, ContentService content, 
 
     // ------------------------------------------------------------------ connection lifecycle
 
-    /// <summary>Control channel opened. A reconnect within the 60 s hold restores the member (leadership is not restored).</summary>
+    /// <summary>Control channel opened. A leader reconnecting inside the 15 s grace is still a member (leadership kept).</summary>
     public void Connected(string accountId, ClientVersion? version)
     {
         lock (gate)
@@ -118,7 +118,7 @@ public sealed class ConvoyDirectory(TimeProvider clock, ContentService content, 
         }
     }
 
-    /// <summary>Control channel closed: reserve the slot, withdraw readiness, start the leader-transfer timer.</summary>
+    /// <summary>Control channel closed: withdraw readiness; the next tick removes the member (leader after the grace).</summary>
     public void Disconnected(string accountId)
     {
         lock (gate)
@@ -231,14 +231,14 @@ public sealed class ConvoyDirectory(TimeProvider clock, ContentService content, 
     {
         lock (gate)
             return convoys.Values
-                .Where(c => c.Privacy == ConvoyPrivacy.Discoverable && c.Members.Count < Limits.MaxConvoyMembers)
+                .Where(c => c.Privacy == ConvoyPrivacy.Discoverable && c.Members.Count < Limits.MaxConvoyHumans)
                 .OrderBy(c => c.Id, StringComparer.Ordinal)
                 .Select(c => (object)new
                 {
                     convoyId = c.Id,
                     leaderName = c.Find(c.LeaderId)?.DisplayName,
                     members = c.Members.Count,
-                    maxMembers = Limits.MaxConvoyMembers,
+                    maxMembers = Limits.MaxConvoyHumans,
                     privacy = c.Privacy.Wire(),
                     privacyLabel = c.Privacy.Label(),
                     phase = c.Phase.ToString(),
@@ -248,8 +248,8 @@ public sealed class ConvoyDirectory(TimeProvider clock, ContentService content, 
 
     ConvoyResult Join(Convoy convoy, string accountId, MemberInfo info)
     {
-        if (convoy.Members.Count >= Limits.MaxConvoyMembers)
-            return ConvoyResult.Fail("convoy_full", $"A convoy holds at most {Limits.MaxConvoyMembers} members.");
+        if (convoy.Members.Count >= Limits.MaxConvoyHumans)
+            return ConvoyResult.Fail("convoy_full", $"A convoy holds at most {Limits.MaxConvoyHumans} members.");
         AddMember(convoy, accountId, info);
         // Joining during a match makes this member a spectator until the next event (spec §4.4).
         if (convoy.Phase is ConvoyPhase.Allocating or ConvoyPhase.InMatch)
@@ -467,9 +467,9 @@ public sealed class ConvoyDirectory(TimeProvider clock, ContentService content, 
     ConvoyResult BuildSettings(Convoy convoy, Destination destination, EventRequest r)
     {
         string weather = r.Weather ?? "stage-default";
-        string collision = r.Collision ?? "off"; // campaign contact defaults off (spec §2.6)
         if (!ConvoyRules.Weathers.Contains(weather)) return ConvoyResult.Fail("invalid_request", "Unknown weather preset.");
-        if (!ConvoyRules.CollisionRules.Contains(collision)) return ConvoyResult.Fail("invalid_request", "Unknown collision rule.");
+        if (r.Collision is not null && r.Collision != ConvoyRules.CollisionFor(r.FreeplayMode))
+            return ConvoyResult.Fail("invalid_request", "Contact follows the mode: Time Attack is non-contact, every other event uses light contact.");
 
         if (destination == Destination.Freeplay)
         {
@@ -479,12 +479,12 @@ public sealed class ConvoyDirectory(TimeProvider clock, ContentService content, 
             if (!ConvoyRules.FreeplayModes.Contains(mode)) return ConvoyResult.Fail("invalid_request", "Unknown Freeplay mode.");
             int ai = r.AiCount ?? 0;
             int cap = r.CarCapPi ?? PerformanceIndex.Max;
-            if (ai < 0 || ai >= Limits.MaxRaceEntrants) return ConvoyResult.Fail("invalid_request", "AI count must be 0–5.");
+            if (ai < 0 || ai > Limits.MaxRaceVehicles - 1) return ConvoyResult.Fail("invalid_request", $"AI count must be 0–{Limits.MaxRaceVehicles - 1}.");
             if (cap < PerformanceIndex.Min || cap > PerformanceIndex.Max) return ConvoyResult.Fail("invalid_request", "Car cap must be a PI 100–999.");
             return ConvoyResult.Success(new EventSettings
             {
-                Kind = "freeplay", CourseId = course.Id, FreeplayMode = mode, Weather = weather, AiCount = mode == "time-trial" ? 0 : ai,
-                CarCapPi = cap, Collision = mode == "drift-attack" ? "off" : collision,
+                Kind = "freeplay", CourseId = course.Id, FreeplayMode = mode, Weather = weather, AiCount = mode == "time-attack" ? 0 : ai,
+                CarCapPi = cap, Collision = ConvoyRules.CollisionFor(mode),
             });
         }
 
@@ -499,8 +499,8 @@ public sealed class ConvoyDirectory(TimeProvider clock, ContentService content, 
         {
             Kind = "campaign", Mode = campaignMode == CampaignMode.Hard ? "hard" : "normal", StageId = stage.Id,
             StageNumber = stage.Number, StageType = stage.Type, CourseId = stage.Course, Weather = weather,
-            AiCount = Limits.MaxRaceEntrants - Math.Min(Limits.MaxRaceEntrants, ConnectedMembers(convoy).Count()),
-            CarCapPi = stage.MaxPI, Collision = collision, BenchmarkTargetMs = benchmark.Benchmark.TargetTimeMs,
+            AiCount = (campaignMode == CampaignMode.Hard ? stage.Hard : stage.Normal).Opponents.Count,
+            CarCapPi = stage.MaxPI, Collision = ConvoyRules.CollisionFor(null), BenchmarkTargetMs = benchmark.Benchmark.TargetTimeMs,
             BenchmarkProvisional = benchmark.Provisional, BenchmarkSource = benchmark.Source,
         });
     }
@@ -581,7 +581,7 @@ public sealed class ConvoyDirectory(TimeProvider clock, ContentService content, 
                     return (new ConvoyError("stale_revision", "Progress changed; try again."), null);
 
             IReadOnlyList<string> ai;
-            string? replay = null, note = null;
+            string? note = null;
             bool purePvP = false;
             EventSettings settings = p.Settings;
             if (settings.Kind == "campaign")
@@ -592,18 +592,24 @@ public sealed class ConvoyDirectory(TimeProvider clock, ContentService content, 
                     return (new ConvoyError("stage_locked", access.Explanation), null);
                 StageDef stage = content.Catalogue.Stage(settings.StageId!);
                 StageSide side = mode == CampaignMode.Hard ? stage.Hard : stage.Normal;
-                CampaignGrid grid = GridPlanner.PlanCampaign(entrants.Count, side.Lead, side.Support);
-                ai = grid.LiveAiRivals;
-                replay = grid.BenchmarkReplayRival;
+                RaceRoster roster = RosterPlanner.PlanCampaign(entrants.Select(m => m.AccountId).ToList(), side.Opponents, stage.Id, mode);
+                ai = roster.Entries.Where(e => e.Kind == ActorKind.Ai).Select(e => e.DriverId).ToList();
                 settings = settings with { AiCount = ai.Count };
             }
             else
             {
-                FreeplayGrid grid = GridPlanner.ValidateFreeplay(entrants.Count, settings.AiCount);
-                ai = Enumerable.Range(1, grid.LiveAi).Select(i => $"ai-{i}").ToList();
-                note = grid.WasClamped ? grid.Explanation : null;
-                purePvP = grid.Flavor == FreeplayFlavor.PurePvP && settings.FreeplayMode is "sprint" or "circuit";
-                settings = settings with { AiCount = grid.LiveAi };
+                EventFormat format = settings.FreeplayMode switch
+                {
+                    "circuit" => EventFormat.FreeplayCircuit,
+                    "drift-attack" => EventFormat.DriftAttack,
+                    "time-attack" => EventFormat.TimeAttack,
+                    _ => EventFormat.FreeplaySprint,
+                };
+                RaceRoster roster = RosterPlanner.PlanFreeplay(entrants.Select(m => m.AccountId).ToList(), format, settings.AiCount, null);
+                ai = roster.Entries.Where(e => e.Kind == ActorKind.Ai).Select(e => e.EntrantId).ToList();
+                note = roster.WasClamped ? roster.Explanation : null;
+                purePvP = roster.OpposingAi == 0 && roster.Humans >= 2 && settings.FreeplayMode is "sprint" or "circuit";
+                settings = settings with { AiCount = roster.OpposingAi };
             }
 
             var plan = new MatchPlan
@@ -611,7 +617,7 @@ public sealed class ConvoyDirectory(TimeProvider clock, ContentService content, 
                 PlanId = Hashing.RandomId("plan_", 8), ConvoyId = convoy.Id, ProposalRevision = p.Revision,
                 RosterRevision = convoy.RosterRevision, Settings = settings,
                 Entrants = entrants.Select(m => new PlannedEntrant(m.AccountId, m.DisplayName, m.Loadout!, m.LoadoutRevision)).ToList(),
-                AiEntrants = ai, BenchmarkReplayRival = replay, GridNote = note, PurePvP = purePvP, Version = version,
+                AiEntrants = ai, GridNote = note, PurePvP = purePvP, Version = version,
             };
             convoy.Phase = ConvoyPhase.Allocating;
             convoy.PendingPlanId = plan.PlanId;
@@ -696,7 +702,7 @@ public sealed class ConvoyDirectory(TimeProvider clock, ContentService content, 
 
     // ------------------------------------------------------------------ time-based rules
 
-    /// <summary>Invite expiry, Away detection (120 s), leader transfer (15 s) and slot release (60 s).</summary>
+    /// <summary>Invite expiry, Away detection (120 s), disconnect removal and leader transfer (15 s).</summary>
     public void Tick()
     {
         lock (gate)
@@ -705,9 +711,13 @@ public sealed class ConvoyDirectory(TimeProvider clock, ContentService content, 
             PurgeExpiredInvites();
             foreach (Convoy convoy in convoys.Values.ToList())
             {
-                // Reserved slots expire after 60 s (RemoveMember publishes its own snapshot).
-                foreach (Member m in convoy.Members.Where(m => !m.Session.Connected && now - m.Session.DisconnectedAt >= ConvoyRules.SlotHold).ToList())
-                    RemoveMember(convoy, m.AccountId, "reservation_expired");
+                // Addendum 01 §10: a confirmed disconnect removes ACTIVE membership (no reserved seat). The leader keeps a
+                // short leader-unavailable grace before the seat is released and leadership passes on.
+                foreach (Member m in convoy.Members.Where(m => !m.Session.Connected).ToList())
+                {
+                    TimeSpan grace = m.AccountId == convoy.LeaderId ? ConvoyRules.LeaderTransferAfter : TimeSpan.Zero;
+                    if (now - m.Session.DisconnectedAt >= grace) RemoveMember(convoy, m.AccountId, "disconnected");
+                }
                 bool changed = false;
                 if (!convoys.ContainsKey(convoy.Id)) continue;
 
@@ -862,7 +872,7 @@ public sealed class ConvoyDirectory(TimeProvider clock, ContentService content, 
             rosterRevision = c.RosterRevision,
             leaderId = c.LeaderId,
             leaderLabel = ConvoyRules.LeaderLabel,
-            maxMembers = Limits.MaxConvoyMembers,
+            maxMembers = Limits.MaxConvoyHumans,
             members = c.Members.Select((m, slot) => new
             {
                 slot,

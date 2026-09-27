@@ -1,0 +1,102 @@
+{
+  "schema": "night-signal/courses-addendum@1",
+  "addendum": "Addendum 01 §5 (D03)",
+  "courses": [
+    {
+      "id": "FP01",
+      "name": "Kisaragi Dock Loop",
+      "region": "freeplay-venues",
+      "kind": "freeplay",
+      "format": "circuit",
+      "laps": 2,
+      "formatDescription": "Two-lap closed dockside circuit",
+      "targetLengthKm": 6.8,
+      "targetNetElevationM": 0,
+      "expectedSeconds": 260,
+      "sectorsBrief": "Container-yard switchback; broad freight-apron carousel; elevated loading-ramp crest; waterfront braking zone",
+      "landmarks": [
+        "Retired harbor crane",
+        "Illuminated ferry terminal",
+        "Dry-dock gantry"
+      ],
+      "defaultConditions": "Night, dry",
+      "designNote": "Supports Circuit, Drift Attack zones and Time Attack. No shipping traffic, pedestrians or borrowed logos. Initial authoring target (3.4 km per lap)."
+    },
+    {
+      "id": "FP02",
+      "name": "Hoshino Switchback Park",
+      "region": "freeplay-venues",
+      "kind": "freeplay",
+      "format": "sprint",
+      "laps": 1,
+      "formatDescription": "Uphill sprint on a former service road",
+      "targetLengthKm": 5.1,
+      "targetNetElevationM": 240,
+      "expectedSeconds": 220,
+      "sectorsBrief": "Linked medium-radius uphill bends; short tunnel; technical five-hairpin climb; fast final ridge",
+      "landmarks": [
+        "Timber cable-station shell",
+        "Terraced lookout",
+        "Illuminated retaining-wall mural"
+      ],
+      "defaultConditions": "Dusk, dry",
+      "designNote": "Supports Sprint, selected drift zones and Time Attack. Believable grading, barriers and safe runoff. Initial authoring target."
+    },
+    {
+      "id": "FP03",
+      "name": "Aobane Airfield Circuit",
+      "region": "freeplay-venues",
+      "kind": "freeplay",
+      "format": "circuit",
+      "laps": 2,
+      "formatDescription": "Two-lap circuit at a closed regional airfield",
+      "targetLengthKm": 8.6,
+      "targetNetElevationM": 0,
+      "expectedSeconds": 285,
+      "sectorsBrief": "Runway braking zones; taxiway technical esses; banked maintenance-road turn; hangar-perimeter sequence",
+      "landmarks": [
+        "Control tower",
+        "Large numbered hangars",
+        "Windsock and sculpture plaza"
+      ],
+      "defaultConditions": "Afternoon, dry",
+      "designNote": "Supports Circuit, large drift zones and Time Attack. Not cones on an empty plane. Initial authoring target (4.3 km per lap)."
+    }
+  ],
+  "access": {
+    "starterCourses": [
+      "T00",
+      "C01",
+      "C02",
+      "C03",
+      "C04"
+    ],
+    "campaignCoursePrice": 45000,
+    "campaignCourseRange": [
+      "C05",
+      "C24"
+    ],
+    "rewardOnly": [
+      {
+        "course": "C25",
+        "stage": "S30",
+        "mode": "normal"
+      }
+    ],
+    "purchaseOnly": [
+      {
+        "course": "FP01",
+        "price": 45000
+      },
+      {
+        "course": "FP02",
+        "price": 54000
+      },
+      {
+        "course": "FP03",
+        "price": 63000
+      }
+    ],
+    "priceBasis": "Initial reference ~9,000 Credits per ordinary completed race (≈5/6/7 races for FP01/02/03). Balancing assumption, not measured economy evidence."
+  }
+}

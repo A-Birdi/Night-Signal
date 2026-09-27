@@ -24,7 +24,7 @@ namespace NightSignal.Editor.ContentTools
             var docs = new List<TextAsset>();
             foreach (string f in ContentCatalogue.RequiredFiles)
                 docs.Add(Load($"Assets/Content/Data/generated/{f}"));
-            foreach (string f in ContentCatalogue.OptionalFiles)
+            foreach (string f in ContentCatalogue.AuthoredFiles)
             {
                 string path = $"Assets/Content/Data/authored/{f}";
                 if (File.Exists(path)) docs.Add(Load(path));

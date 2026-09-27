@@ -7,63 +7,121 @@ namespace NightSignal.Tests.Core
 {
     public sealed class RaceRulesTests
     {
-        // ---------------- six-entrant cap ----------------
+        // ---------------- capacity and rosters (Addendum 01 §1, supersedes the six-TOTAL cap) ----------------
+
+        static string[] Humans(int n) => Enumerable.Range(1, n).Select(i => $"acct-{i}").ToArray();
 
         [Test]
-        public void Freeplay_EveryLegalCombinationIsAccepted()
+        public void Capacity_EveryLegalHumanAndAiCombinationIsAccepted_UpToTwelveVehicles()
         {
-            for (int humans = 1; humans <= 6; humans++)
-            for (int ai = 0; ai <= 6 - humans; ai++)
+            for (int h = 1; h <= Limits.MaxEventHumanEntrants; h++)
+            for (int ai = 0; ai <= Limits.MaxRaceVehicles - h; ai++)
             {
-                FreeplayGrid g = GridPlanner.ValidateFreeplay(humans, ai);
-                Assert.That(g.WasClamped, Is.False, $"H={humans} AI={ai}");
-                Assert.That(g.Humans + g.LiveAi, Is.LessThanOrEqualTo(Limits.MaxRaceEntrants));
+                RaceRoster r = RosterPlanner.PlanFreeplay(Humans(h), EventFormat.FreeplaySprint, ai, null);
+                Assert.That(r.WasClamped, Is.False, $"H={h} AI={ai}");
+                Assert.That(r.Humans, Is.EqualTo(h));
+                Assert.That(r.OpposingAi, Is.EqualTo(ai));
+                Assert.That(r.Vehicles, Is.LessThanOrEqualTo(Limits.MaxRaceVehicles));
             }
+            // Maximum AI with one human and with six humans.
+            Assert.That(RosterPlanner.PlanFreeplay(Humans(1), EventFormat.FreeplayCircuit, 11, null).Vehicles, Is.EqualTo(12));
+            Assert.That(RosterPlanner.PlanFreeplay(Humans(6), EventFormat.FreeplayCircuit, 6, null).Vehicles, Is.EqualTo(12));
+        }
+
+        [Test]
+        public void Capacity_SevenHumansAndThirteenVehiclesAreRejected()
+        {
+            Assert.Throws<ArgumentOutOfRangeException>(() => RosterPlanner.ValidateCounts(7, 0, 0));
+            Assert.Throws<ArgumentOutOfRangeException>(() => RosterPlanner.ValidateCounts(0, 0, 3));
+            Assert.Throws<ArgumentOutOfRangeException>(() => RosterPlanner.ValidateCounts(6, 0, 7));
+            Assert.Throws<ArgumentOutOfRangeException>(() => RosterPlanner.ValidateCounts(1, 6, 6));
+            Assert.DoesNotThrow(() => RosterPlanner.ValidateCounts(6, 0, 6));
+            Assert.Throws<ArgumentOutOfRangeException>(() => RosterPlanner.PlanFreeplay(Humans(7), EventFormat.FreeplaySprint, 0, null));
         }
 
         [Test]
         public void Freeplay_OverCapAiIsClampedWithExplanation_HumansNeverEjected()
         {
-            FreeplayGrid g = GridPlanner.ValidateFreeplay(4, 5);
-            Assert.That(g.Humans, Is.EqualTo(4));
-            Assert.That(g.LiveAi, Is.EqualTo(2));
-            Assert.That(g.WasClamped, Is.True);
-            Assert.That(g.Explanation, Does.Contain("six entrants"));
-            Assert.Throws<ArgumentOutOfRangeException>(() => GridPlanner.ValidateFreeplay(7, 0));
-            Assert.Throws<ArgumentOutOfRangeException>(() => GridPlanner.ValidateFreeplay(0, 3));
+            RaceRoster r = RosterPlanner.PlanFreeplay(Humans(4), EventFormat.FreeplaySprint, 11, null);
+            Assert.That(r.Humans, Is.EqualTo(4));
+            Assert.That(r.OpposingAi, Is.EqualTo(8));
+            Assert.That(r.WasClamped, Is.True);
+            Assert.That(r.Explanation, Does.Contain("12 cars"));
         }
 
         [Test]
-        public void Freeplay_Flavors()
+        public void TimeAttack_IsHumansOnlyAndNonContact_StaleAiRequestCannotSlipIn()
         {
-            Assert.That(GridPlanner.ValidateFreeplay(2, 0).Flavor, Is.EqualTo(FreeplayFlavor.PurePvP));
-            Assert.That(GridPlanner.ValidateFreeplay(1, 0).Flavor, Is.EqualTo(FreeplayFlavor.TimeTrial));
-            Assert.That(GridPlanner.ValidateFreeplay(1, 5).Flavor, Is.EqualTo(FreeplayFlavor.SoloVersusAi));
-            Assert.That(GridPlanner.ValidateFreeplay(3, 1).Flavor, Is.EqualTo(FreeplayFlavor.MixedGrid));
-        }
-
-        [Test]
-        public void Campaign_FillsFeaturedRivalFirstUpToSix()
-        {
-            string[] pool = { "R05", "R06", "R07", "R02" };
-            for (int humans = 1; humans <= 5; humans++)
+            for (int h = 1; h <= 6; h++)
             {
-                CampaignGrid g = GridPlanner.PlanCampaign(humans, "R01", pool);
-                Assert.That(g.Entrants, Is.EqualTo(6), $"H={humans}");
-                Assert.That(g.LiveAiRivals[0], Is.EqualTo("R01"));
-                Assert.That(g.BenchmarkReplayRival, Is.Null);
+                RaceRoster r = RosterPlanner.PlanFreeplay(Humans(h), EventFormat.TimeAttack, 5, new[] { "R01" });
+                Assert.That(r.Contact, Is.EqualTo(ContactPolicy.NonContact));
+                Assert.That(r.Entries.Any(e => e.Kind == ActorKind.Ai), Is.False, $"H={h}");
+                Assert.That(r.WasClamped, Is.True);
             }
-            Assert.That(GridPlanner.PlanCampaign(1, "R01", pool).LiveAiRivals, Is.EqualTo(new[] { "R01", "R05", "R06", "R07", "R02" }));
+            Assert.That(RosterPlanner.PlanFreeplay(Humans(2), EventFormat.FreeplaySprint, 2, null).Contact, Is.EqualTo(ContactPolicy.LightContact));
         }
 
         [Test]
-        public void Campaign_SixHumansGetLabelledReplay_NeverASeventhRacer()
+        public void Campaign_AuthoredOppositionIsLive_FeaturedFirst_NoReplaySubstitute()
         {
-            CampaignGrid g = GridPlanner.PlanCampaign(6, "R40", new[] { "R33", "R34" });
-            Assert.That(g.LiveAiRivals, Is.Empty);
-            Assert.That(g.Entrants, Is.EqualTo(6));
-            Assert.That(g.BenchmarkReplayRival, Is.EqualTo("R40"));
-            Assert.That(GridPlanner.BenchmarkReplayLabel, Is.EqualTo("Rival benchmark — replay, not an entrant"));
+            for (int h = 1; h <= 6; h++)
+            {
+                RaceRoster r = RosterPlanner.PlanCampaign(Humans(h), new[] { "R01", "R05" }, "S02", CampaignMode.Normal);
+                Assert.That(r.Humans, Is.EqualTo(h));
+                Assert.That(r.OpposingAi, Is.EqualTo(2), "humans never displace authored opponents");
+                Assert.That(r.FeaturedRival, Is.EqualTo("R01"));
+                Assert.That(r.Contact, Is.EqualTo(ContactPolicy.LightContact));
+            }
+        }
+
+        [Test]
+        public void Finales_HaveALiveSolidFinalRival_AtOneAndSixHumans()
+        {
+            foreach (int h in new[] { 1, 6 })
+            {
+                RaceRoster normal = RosterPlanner.PlanCampaign(Humans(h), new[] { "R40" }, "S30", CampaignMode.Normal);
+                RaceRoster hard = RosterPlanner.PlanCampaign(Humans(h), new[] { "R48" }, "S30", CampaignMode.Hard);
+                Assert.That(normal.Vehicles, Is.EqualTo(h + 1));
+                Assert.That(normal.FeaturedRival, Is.EqualTo("R40"));
+                Assert.That(hard.FeaturedRival, Is.EqualTo("R48"));
+                Assert.That(normal.Entries.Count(e => e.DriverId == "R40"), Is.EqualTo(1), "no duplicate final IDs");
+            }
+            Assert.Throws<ArgumentException>(() => RosterPlanner.PlanCampaign(Humans(1), new[] { "R48" }, "S30", CampaignMode.Normal));
+        }
+
+        [Test]
+        public void FinaleOnlyRivals_AreRejectedEverywhereElse()
+        {
+            foreach (string id in new[] { "R40", "R48" })
+            {
+                foreach (AiPlacementContext ctx in Enum.GetValues(typeof(AiPlacementContext)))
+                    if (ctx != AiPlacementContext.CampaignEncounter)
+                        Assert.That(FinalRivals.Allowed(id, ctx), Is.False, $"{id} as {ctx}");
+                Assert.That(FinalRivals.Allowed(id, AiPlacementContext.CampaignEncounter, "S29", CampaignMode.Hard), Is.False);
+            }
+            Assert.That(FinalRivals.Allowed("R40", AiPlacementContext.CampaignEncounter, "S30", CampaignMode.Normal), Is.True);
+            Assert.That(FinalRivals.Allowed("R48", AiPlacementContext.CampaignEncounter, "S30", CampaignMode.Hard), Is.True);
+            Assert.Throws<ArgumentException>(() => RosterPlanner.PlanFreeplay(Humans(1), EventFormat.FreeplaySprint, 2, new[] { "R12", "R40" }));
+            Assert.Throws<ArgumentException>(() => RosterPlanner.PlanCampaign(Humans(1), new[] { "R33", "R48" }, "S29", CampaignMode.Hard));
+            Assert.Throws<ArgumentException>(() => RosterPlanner.PlanTeamTrial(Humans(2), new[] { "R01", "R02", "R03", "R40" }, new[] { "R05", "R06", "R07", "R09", "R10", "R11" }));
+            Assert.That(FinalRivals.Allowed("R08", AiPlacementContext.FreeplayOpponent), Is.True, "defeated lieutenants follow normal rules");
+        }
+
+        [Test]
+        public void TeamTrial_IsSixVersusSix_ForEveryHumanCount()
+        {
+            string[] allies = { "R01", "R02", "R03", "R04", "R05", "R06" };
+            string[] opponents = { "R09", "R10", "R11", "R12", "R13", "R14" };
+            for (int h = 1; h <= 6; h++)
+            {
+                RaceRoster r = RosterPlanner.PlanTeamTrial(Humans(h), allies, opponents);
+                Assert.That(r.Humans + r.FriendlyAi, Is.EqualTo(6), $"H={h}");
+                Assert.That(r.OpposingAi, Is.EqualTo(6));
+                Assert.That(r.Vehicles, Is.EqualTo(12));
+                Assert.That(r.Entries.Where(e => e.Kind == ActorKind.Ai).All(e => !e.DriverId.StartsWith("acct-")), Is.True, "AI never carry account identities");
+            }
+            Assert.Throws<ArgumentException>(() => RosterPlanner.PlanTeamTrial(Humans(1), allies.Take(3).ToArray(), opponents));
         }
 
         // ---------------- drift scoring ----------------

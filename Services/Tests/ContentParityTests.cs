@@ -23,7 +23,7 @@ public sealed class ContentParityTests
         string root = RepoDataRoot();
         var docs = new Dictionary<string, string>();
         foreach (string f in ContentCatalogue.RequiredFiles) docs[f] = File.ReadAllText(Path.Combine(root, "generated", f));
-        foreach (string f in ContentCatalogue.OptionalFiles)
+        foreach (string f in ContentCatalogue.AuthoredFiles)
             if (File.Exists(Path.Combine(root, "authored", f))) docs[f] = File.ReadAllText(Path.Combine(root, "authored", f));
 
         ContentCatalogue project = ContentCatalogue.Load(docs);

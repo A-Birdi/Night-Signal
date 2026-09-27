@@ -53,7 +53,8 @@ namespace NightSignal.Tests.Core
         [Test]
         public void Placement_OutOfRange_Throws()
         {
-            Assert.Throws<ArgumentOutOfRangeException>(() => Economy.PlacementX100(7));
+            for (int place = 4; place <= 12; place++) Assert.That(Economy.PlacementX100(place), Is.EqualTo(100), $"place {place}");
+            Assert.Throws<ArgumentOutOfRangeException>(() => Economy.PlacementX100(13));
             Assert.Throws<ArgumentOutOfRangeException>(() => Economy.PlacementX100(0));
         }
 

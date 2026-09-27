@@ -61,8 +61,8 @@ namespace NightSignal.Core.Rules
         {
             if (members == null || members.Count == 0)
                 throw new ArgumentException("A convoy needs at least one member");
-            if (members.Count > Limits.MaxConvoyMembers)
-                throw new ArgumentException($"A convoy holds at most {Limits.MaxConvoyMembers} members");
+            if (members.Count > Limits.MaxConvoyHumans)
+                throw new ArgumentException($"A convoy holds at most {Limits.MaxConvoyHumans} members");
 
             var access = new ConvoyStageAccess();
             if (mode == CampaignMode.Hard)

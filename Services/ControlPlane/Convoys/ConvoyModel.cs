@@ -27,13 +27,14 @@ public static class ConvoyRules
 
     public static readonly TimeSpan ReadyRequestCooldown = TimeSpan.FromMilliseconds(Limits.ReadyRequestCooldownMs);
     public static readonly TimeSpan AwayAfter = TimeSpan.FromMilliseconds(Limits.ProposalAwayAfterMs);
-    public static readonly TimeSpan SlotHold = TimeSpan.FromMilliseconds(Limits.ConvoySlotHoldMs);
     public static readonly TimeSpan LeaderTransferAfter = TimeSpan.FromMilliseconds(Limits.LeaderTransferMs);
 
     // Provisional value sets until the content catalogue defines weather presets and Freeplay rules.
     public static readonly string[] Weathers = { "stage-default", "dry-night", "wet-night", "dawn", "blue-hour", "fog" };
-    public static readonly string[] FreeplayModes = { "sprint", "circuit", "drift-attack", "time-trial" };
-    public static readonly string[] CollisionRules = { "off", "light-contact" };
+    public static readonly string[] FreeplayModes = { "sprint", "circuit", "drift-attack", "time-attack" };
+    /// <summary>Derived from the mode, never chosen freely (Addendum 01 §2): Time Attack is non-contact, all else light contact.</summary>
+    public static readonly string[] CollisionRules = { "light-contact", "non-contact" };
+    public static string CollisionFor(string? freeplayMode) => freeplayMode == "time-attack" ? "non-contact" : "light-contact";
 
     public const string LeaderLabel = "Convoy leader";
 
@@ -124,7 +125,6 @@ public sealed class MatchPlan
     public required IReadOnlyList<PlannedEntrant> Entrants { get; init; }
     /// <summary>Live AI entrant IDs (campaign: rival IDs, featured first; Freeplay: ai-1..ai-n).</summary>
     public required IReadOnlyList<string> AiEntrants { get; init; }
-    public string? BenchmarkReplayRival { get; init; }
     public string? GridNote { get; init; }
     public bool PurePvP { get; init; }
     public required ClientVersion Version { get; init; }

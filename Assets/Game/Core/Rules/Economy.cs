@@ -70,7 +70,7 @@ namespace NightSignal.Core.Rules
 
         public static int PlacementX100(int placement)
         {
-            if (placement < 1 || placement > Limits.MaxRaceEntrants)
+            if (placement < 1 || placement > Limits.MaxRaceVehicles) // 4th–12th all 1.00 (Addendum 01 §14)
                 throw new ArgumentOutOfRangeException(nameof(placement));
             switch (placement)
             {

@@ -14,7 +14,7 @@ namespace NightSignal.Track
 
     /// <summary>
     /// Baked, versioned course data used identically by the authoritative server and clients: 1 m centreline
-    /// samples, checkpoints, sectors, judged gates and the six-slot grid. Produced by the course baker from
+    /// samples, checkpoints, sectors, judged gates and the twelve-slot grid. Produced by the course baker from
     /// route.json; <see cref="SourceHash"/> ties it to the exact source revision.
     /// </summary>
     [CreateAssetMenu(menuName = "Night Signal/Track Data")]

@@ -166,7 +166,7 @@ public sealed class EndToEndTests : IDisposable
 
             // Server-observed facts. C01 expects 180 s; provisional Normal benchmark = 180,000 ms, support envelope 270 s.
             string[] ai = assignment.GetProperty("aiEntrants").EnumerateArray().Select(x => x.GetString()!).ToArray();
-            Assert.Equal(4, ai.Length);
+            Assert.Equal(TestData.Content.Catalogue.Stage("S01").Normal.Opponents, ai); // authored live opposition (Addendum 01 §1.2)
             object Human(string id, long seconds, int place, bool clean, string[] challenges) => new
             {
                 entrantId = id, human = true, outcome = "Finished", finishTimeMicros = seconds * 1_000_000, placement = place, clean,
@@ -184,8 +184,8 @@ public sealed class EndToEndTests : IDisposable
                 matchId, contentHash, aborted = false,
                 entrants = new[]
                 {
+                    // S01 Normal is authored as a duel with its featured rival (stages.opposition.json).
                     Human(a.AccountId, 170, 1, clean: true, new[] { "CH01" }), Ai(ai[0], 175, 2), Human(b.AccountId, 200, placeB, clean: false, Array.Empty<string>()),
-                    Ai(ai[1], 210, 4), Ai(ai[2], 220, 5), Ai(ai[3], 230, 6),
                 },
             };
             byte[] body = JsonSerializer.SerializeToUtf8Bytes(Body(3));

@@ -30,7 +30,6 @@ namespace NightSignal.Net
         public int StageNumber, CarCapPi, Protocol;
         public List<AssignmentEntrant> Entrants = new List<AssignmentEntrant>();
         public List<string> AiEntrants = new List<string>();
-        public string BenchmarkReplayRival;
         public AssignmentBenchmark Benchmark;
         public bool PurePvP;
         public string GridNote, Build, ContentHash, ResultsUrl, TicketIssuer, TicketAudience, ResultsSecret;

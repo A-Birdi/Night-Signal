@@ -37,8 +37,8 @@ namespace NightSignal.Core.Rules
         public static IReadOnlyList<Placing> Classify(IReadOnlyList<EntrantFinish> entrants)
         {
             if (entrants == null) throw new ArgumentNullException(nameof(entrants));
-            if (entrants.Count > Limits.MaxRaceEntrants)
-                throw new ArgumentException($"At most {Limits.MaxRaceEntrants} entrants");
+            if (entrants.Count > Limits.MaxRaceVehicles)
+                throw new ArgumentException($"At most {Limits.MaxRaceVehicles} entrants");
 
             var result = new List<Placing>();
             var finishers = entrants.Where(e => e.Outcome == RunOutcome.Finished)

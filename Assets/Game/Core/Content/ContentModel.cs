@@ -116,6 +116,11 @@ namespace NightSignal.Core.Content
         public string StoryBeat;
         public string Variation;
         public string SupportDerivation;
+        /// <summary>
+        /// Live opponents for this stage side, featured first (authored/stages.opposition.json, Addendum 01 §1.2).
+        /// Humans never displace them; the support pool above is authoring reference only.
+        /// </summary>
+        public List<string> Opponents = new List<string>();
     }
 
     public sealed class StageDef
@@ -155,6 +160,33 @@ namespace NightSignal.Core.Content
     }
 
     // File envelopes (header fields are informational; the loader checks the schema string).
+    public sealed class StageOppositionEntry
+    {
+        public string Id;
+        public List<string> Normal = new List<string>();
+        public List<string> Hard = new List<string>();
+    }
+
+    public sealed class StageOppositionFile { public string Schema; public string Rules; public List<StageOppositionEntry> Stages = new List<StageOppositionEntry>(); }
+
+    public sealed class RewardOnlyCourse { public string Course; public string Stage; public string Mode; }
+
+    public sealed class PurchaseOnlyCourse { public string Course; public long Price; }
+
+    /// <summary>Course-access table (Addendum 01 §5.1); the regular-stage unlock mapping is derived from the stages.</summary>
+    public sealed class CourseAccessRules
+    {
+        public List<string> StarterCourses = new List<string>();
+        public long CampaignCoursePrice;
+        /// <summary>Inclusive first/last course IDs that may be bought early or unlocked by their regular Normal stage.</summary>
+        public List<string> CampaignCourseRange = new List<string>();
+        public List<RewardOnlyCourse> RewardOnly = new List<RewardOnlyCourse>();
+        public List<PurchaseOnlyCourse> PurchaseOnly = new List<PurchaseOnlyCourse>();
+        public string PriceBasis;
+    }
+
+    public sealed class CoursesAddendumFile { public string Schema; public List<CourseDef> Courses = new List<CourseDef>(); public CourseAccessRules Access = new CourseAccessRules(); }
+
     public sealed class CoursesFile { public string Schema; public string SourceSha256; public List<CourseDef> Courses = new List<CourseDef>(); }
     public sealed class CarsFile { public string Schema; public string SourceSha256; public List<CarDef> Cars = new List<CarDef>(); }
     public sealed class CrewsFile { public string Schema; public string SourceSha256; public List<CrewDef> Crews = new List<CrewDef>(); public List<TendencyDef> Tendencies = new List<TendencyDef>(); }

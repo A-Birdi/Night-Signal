@@ -375,7 +375,7 @@ public sealed class ConvoyDirectoryTests
         (ConvoyError? error, MatchPlan? plan) = dir.BeginStart(Id(1), rev, Fresh(2));
         Assert.Null(error);
         Assert.Equal(2, plan!.Entrants.Count);
-        Assert.Equal(Limits.MaxRaceEntrants - 2, plan.AiEntrants.Count);
+        Assert.Equal(TestData.Content.Catalogue.Stage("S01").Normal.Opponents, plan.AiEntrants); // authored live opposition (Addendum 01 §1.2)
         Assert.Equal(TestData.Content.Catalogue.Stage("S01").Normal.Lead, plan.AiEntrants[0]); // featured rival first
         Assert.Equal("Allocating", State(1).GetProperty("phase").GetString());
         Assert.Equal("event_frozen", dir.UpdateLoadout(Id(2), Car(perf: "perf-10")).Error?.Code);
@@ -394,14 +394,16 @@ public sealed class ConvoyDirectoryTests
     }
 
     [Fact]
-    public void SixHumans_GetABenchmarkReplay_NotASeventhRacer()
+    public void SixHumans_RaceTheLiveFeaturedRival_NoReplaySubstitute()
     {
+        // Addendum 01 §1.3 supersedes the six-human benchmark replay: the featured rival is always a live car.
         Convoy(6);
         long rev = OpenEvent(6);
         ReadyAll(6, rev);
         MatchPlan plan = dir.BeginStart(Id(1), rev, Fresh(6)).Plan!;
-        Assert.Empty(plan.AiEntrants);
-        Assert.Equal(TestData.Content.Catalogue.Stage("S01").Normal.Lead, plan.BenchmarkReplayRival);
+        Assert.Equal(6, plan.Entrants.Count);
+        Assert.Equal(TestData.Content.Catalogue.Stage("S01").Normal.Lead, plan.AiEntrants[0]);
+        Assert.True(plan.Entrants.Count + plan.AiEntrants.Count <= Limits.MaxRaceVehicles);
     }
 
     [Fact]
@@ -431,19 +433,20 @@ public sealed class ConvoyDirectoryTests
     }
 
     [Fact]
-    public void Freeplay_ClampsAiToTheSixEntrantCap_WithAnExplanation_AndFlagsPurePvP()
+    public void Freeplay_AllowsAiUpToTwelveVehicles_ClampsStaleOverflow_AndFlagsPurePvP()
     {
+        // Addendum 01 D01: 1–6 humans, at most 12 vehicles. 11 AI is the most any request may ask for.
         Convoy(2);
         long d = Value(dir.ProposeDestination(Id(1), Destination.Freeplay), "proposalRevision");
         dir.Consent(Id(2), d, true);
         dir.CommitDestination(Id(1), d);
         clock.Advance(TimeSpan.FromSeconds(15));
-        Assert.Equal("invalid_request", dir.ProposeEvent(Id(1), new EventRequest(null, "C05", "sprint", null, 6, null, null)).Error?.Code);
-        long rev = Value(dir.ProposeEvent(Id(1), new EventRequest(null, "C05", "sprint", null, 5, null, null)), "proposalRevision");
+        Assert.Equal("invalid_request", dir.ProposeEvent(Id(1), new EventRequest(null, "C05", "sprint", null, 12, null, null)).Error?.Code);
+        long rev = Value(dir.ProposeEvent(Id(1), new EventRequest(null, "C05", "sprint", null, 11, null, null)), "proposalRevision");
         ReadyAll(2, rev);
         MatchPlan plan = dir.BeginStart(Id(1), rev, Fresh(2)).Plan!;
-        Assert.Equal(4, plan.AiEntrants.Count);
-        Assert.Contains("six entrants", plan.GridNote);
+        Assert.Equal(10, plan.AiEntrants.Count); // 2 humans + 10 AI = 12 vehicles; the stale request for 11 is clamped
+        Assert.Contains("12 cars", plan.GridNote);
         Assert.False(plan.PurePvP);
 
         dir.FailStart(plan, "test");

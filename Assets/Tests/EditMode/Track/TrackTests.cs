@@ -1,5 +1,6 @@
 using NightSignal.Track;
 using NightSignal.Track.Generation;
+using NightSignal.Core.Rules;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -27,14 +28,19 @@ namespace NightSignal.Tests.Track
         }
 
         [Test]
-        public void Grid_HasSixSeparatedSlotsBehindTheStartLine()
+        public void Grid_HasTwelveSeparatedSlotsOnTheRoadBehindTheStartLine()
         {
+            // Addendum 01 D01: every counted course supports a safe twelve-car start (replaces the six-slot test).
             TrackData t = Build("C01");
-            Assert.That(t.Grid.Length, Is.EqualTo(6));
-            for (int i = 0; i < 6; i++)
+            Assert.That(t.Grid.Length, Is.EqualTo(Limits.MaxRaceVehicles));
+            for (int i = 0; i < t.Grid.Length; i++)
             {
                 Assert.That(t.Grid[i].Distance, Is.LessThan(t.StartMetres));
-                for (int j = i + 1; j < 6; j++)
+                Assert.That(t.Grid[i].Distance, Is.GreaterThan(2f), $"slot {i} falls off the start of the route");
+                TrackSample s = t.SampleAt(t.Grid[i].Distance);
+                float lateral = Mathf.Abs(Vector3.Dot(t.Grid[i].Position - s.Position, s.Right));
+                Assert.That(lateral + 1.0f, Is.LessThan(s.Width * 0.5f), $"slot {i} is too close to the road edge");
+                for (int j = i + 1; j < t.Grid.Length; j++)
                     Assert.That(Vector3.Distance(t.Grid[i].Position, t.Grid[j].Position), Is.GreaterThan(4f), $"slots {i}/{j} overlap");
             }
         }

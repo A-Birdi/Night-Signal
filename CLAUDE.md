@@ -6,6 +6,8 @@ an ASP.NET Core control plane, and Supabase Auth/PostgreSQL.
 ## Read first
 
 1. `SPECIFICATION.md` — the master specification, verbatim (sha256 `5e2d0141…d149`). Authoritative.
+   **Revised by `docs/brief/Night_Signal_Addendum_01.txt`** (Revision 1): where they conflict the addendum wins —
+   see `docs/EFFECTIVE_RULES.md` for the decisions D01–D10, the superseded rules and the impact map.
 2. `docs/DECISIONS.md` — approved decisions that refine/override the specification
    (notably **D-001: editor baseline is Unity 6000.6.3f1, not 6.3 LTS**).
 3. `HANDOFF.md` — current state, blockers, next action. Update it at every checkpoint.

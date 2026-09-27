@@ -48,16 +48,22 @@ namespace NightSignal.Core.Content
             ValidateRivals(c, r);
             ValidateStages(c, r);
             ValidateChallenges(c, r);
+            ValidateOpposition(c, r);
+            ValidateCourseAccess(c, r);
             return r;
         }
 
         static void ValidateCourses(ContentCatalogue c, ValidationReport r)
         {
-            var expected = new List<string> { "T00" };
+            // Addendum 01 D03: 26 original courses + FP01–FP03 currency-only Freeplay courses = 29 distinct places.
+            var expected = new List<string> { "T00", "FP01", "FP02", "FP03" };
             for (int i = 1; i <= 25; i++) expected.Add("C" + i.ToString("00"));
             r.Counts["courses"] = c.Courses.Count;
-            if (!c.Courses.Select(x => x.Id).OrderBy(x => x).SequenceEqual(expected.OrderBy(x => x)))
-                r.Error("COURSE_IDS", "Course IDs must be exactly T00 and C01–C25 (26 base courses).");
+            if (!c.Courses.Select(x => x.Id).OrderBy(x => x, StringComparer.Ordinal).SequenceEqual(expected.OrderBy(x => x, StringComparer.Ordinal)))
+                r.Error("COURSE_IDS", "Course IDs must be exactly T00, C01–C25 and FP01–FP03 (29 base courses).");
+            int freeplayOnly = c.Courses.Count(x => x.Kind == "freeplay");
+            r.Counts["freeplayOnlyCourses"] = freeplayOnly;
+            if (freeplayOnly != 3) r.Error("COURSE_FREEPLAY", $"Expected 3 Freeplay-only courses FP01–FP03, found {freeplayOnly}.");
             int regular = c.Courses.Count(x => x.Kind == "regular");
             r.Counts["regularCourses"] = regular;
             if (regular != 24) r.Error("COURSE_REGULAR", $"Expected 24 regular courses C01–C24, found {regular}.");
@@ -167,15 +173,13 @@ namespace NightSignal.Core.Content
                     if (!c.TryCourse(s.Course, out _)) r.Error("STAGE_COURSE", $"{s.Id} references unknown course {s.Course}.");
                     if (!c.TryRival(side.Lead, out _)) r.Error("STAGE_LEAD", $"{mode} {s.Id} lead {side.Lead} is unknown.");
                     if (side.Support.Contains(side.Lead)) r.Error("STAGE_SUPPORT_LEAD", $"{mode} {s.Id} lists its lead in the support pool.");
-                    if (side.Support.Count < Limits.MaxRaceEntrants - 2)
-                        r.Error("STAGE_SUPPORT_SIZE", $"{mode} {s.Id} support pool cannot fill a solo grid (needs 4).");
                     foreach (string support in side.Support)
                     {
                         if (!c.TryRival(support, out RivalDef sr)) { r.Error("STAGE_SUPPORT", $"{mode} {s.Id} support {support} unknown."); continue; }
                         if (sr.Role != "crew" && !introduced.Contains(support))
                             r.Error("STAGE_SUPPORT_EARLY", $"{mode} {s.Id} uses {sr.Role} {support} as support before their featured stage.");
-                        if (sr.Id == "R48" && !(hard && s.Type == "finale"))
-                            r.Error("STAGE_SHIORI_EARLY", $"R48 must never be drawn as an early opponent ({mode} {s.Id}).");
+                        if (FinalRivals.IsFinaleOnly(sr.Id))
+                            r.Error("STAGE_FINAL_SUPPORT", $"{sr.Id} is campaign-finale-only and may not be a support draw ({mode} {s.Id}).");
                     }
                     introduced.Add(side.Lead);
                     if (c.TryRival(side.Lead, out RivalDef lead) && c.TryCar(lead.PrimaryCar, out CarDef leadCar) && leadCar.BasePI > s.MaxPI)
@@ -225,6 +229,72 @@ namespace NightSignal.Core.Content
             r.Counts["rp.total"] = RankPoints.NormalBudget + RankPoints.HardBudget + challengeRp;
             if (challengeRp != RankPoints.ChallengeBudget) r.Error("RP_CHALLENGES", $"Challenge RP is {challengeRp}, expected 6,000.");
             if (r.Counts["rp.total"] != RankPoints.MaximumTotal) r.Error("RP_TOTAL", $"Total RP is {r.Counts["rp.total"]}, expected 15,000.");
+        }
+
+        /// <summary>Addendum 01 §1.2 and §12: authored live opposition, finale duels, finale-only rivals.</summary>
+        static void ValidateOpposition(ContentCatalogue c, ValidationReport r)
+        {
+            int maxOpponents = Limits.MaxRaceVehicles - Limits.MaxEventHumanEntrants;
+            foreach (StageDef s in c.Stages)
+                foreach (bool hard in new[] { false, true })
+                {
+                    StageSide side = hard ? s.Hard : s.Normal;
+                    string where = $"{(hard ? "Hard" : "Normal")} {s.Id}";
+                    List<string> opp = side.Opponents ?? new List<string>();
+                    if (opp.Count == 0) { r.Error("OPPOSITION_MISSING", $"{where} has no authored live opposition."); continue; }
+                    if (opp[0] != side.Lead) r.Error("OPPOSITION_FEATURED", $"{where}: the featured rival {side.Lead} must be the first live opponent.");
+                    if (opp.Distinct().Count() != opp.Count) r.Error("OPPOSITION_DUPLICATE", $"{where} lists an opponent twice.");
+                    if (opp.Count > maxOpponents) r.Error("OPPOSITION_SIZE", $"{where}: {opp.Count} opponents cannot fit beside six humans (max {maxOpponents}).");
+                    foreach (string id in opp)
+                    {
+                        if (!c.TryRival(id, out _)) r.Error("OPPOSITION_UNKNOWN", $"{where} references unknown rival {id}.");
+                        bool ownFinale = s.Type == "finale" && id == side.Lead && id == (hard ? FinalRivals.HardFinal : FinalRivals.NormalFinal);
+                        if (FinalRivals.IsFinaleOnly(id) && !ownFinale)
+                            r.Error("OPPOSITION_FINAL_ONLY", $"{id} is campaign-finale-only; it cannot race in {where}.");
+                    }
+                    switch (s.Type)
+                    {
+                        case "finale":
+                            if (opp.Count != 1) r.Warn("OPPOSITION_FINALE_DUEL", $"{where}: the finale is authored as a live duel with the final rival.");
+                            break;
+                        case "lieutenant":
+                        case "penultimate":
+                            if (opp.Count > 3) r.Error("OPPOSITION_ENCOUNTER", $"{where}: a featured encounter has at most two supports.");
+                            break;
+                        default:
+                            if (s.Act == 1 && opp.Count > 2) r.Warn("OPPOSITION_EARLY", $"{where}: early races normally field one or two opponents.");
+                            if (s.Act > 1 && (opp.Count < 2 || opp.Count > 3)) r.Warn("OPPOSITION_LATER", $"{where}: later regular races normally field two or three opponents.");
+                            break;
+                    }
+                }
+        }
+
+        /// <summary>Addendum 01 §5.1: course-access table and its derived stage mapping.</summary>
+        static void ValidateCourseAccess(ContentCatalogue c, ValidationReport r)
+        {
+            CourseAccessRules a = c.CourseAccess;
+            if (a == null) { r.Error("ACCESS_MISSING", "Course-access table missing."); return; }
+            foreach (string id in a.StarterCourses)
+                if (!c.TryCourse(id, out _)) r.Error("ACCESS_STARTER", $"Starter course {id} is unknown.");
+            IReadOnlyDictionary<string, string> unlock;
+            try { unlock = CourseAccess.RegularStageUnlocks(c); }
+            catch (ContentLoadException e) { r.Error("ACCESS_UNLOCK_MAP", e.Message); return; }
+            r.Counts["access.campaignPurchasable"] = unlock.Count;
+            if (unlock.Count != 20) r.Error("ACCESS_UNLOCK_COUNT", $"Expected 20 courses (C05–C24) with a regular-stage unlock, found {unlock.Count}.");
+            if (a.CampaignCoursePrice <= 0 || a.CampaignCoursePrice > Limits.MaxCosmeticPrice)
+                r.Error("ACCESS_PRICE", $"Campaign course price {a.CampaignCoursePrice} is out of range.");
+            foreach (RewardOnlyCourse ro in a.RewardOnly)
+                if (!c.TryCourse(ro.Course, out _) || c.Stages.All(s => s.Id != ro.Stage))
+                    r.Error("ACCESS_REWARD", $"Reward-only access {ro.Course} ← {ro.Stage} references unknown content.");
+            foreach (PurchaseOnlyCourse po in a.PurchaseOnly)
+            {
+                if (!c.TryCourse(po.Course, out CourseDef course) || course.Kind != "freeplay")
+                    r.Error("ACCESS_PURCHASE_ONLY", $"Purchase-only course {po.Course} must be a Freeplay-only course.");
+                if (po.Price <= 0 || po.Price > Limits.MaxCosmeticPrice) r.Error("ACCESS_PRICE", $"{po.Course} price {po.Price} is out of range.");
+            }
+            foreach (CourseDef course in c.Courses)
+                if (CourseAccess.RuleFor(c, course.Id).Kind == CourseAccessKind.None)
+                    r.Error("ACCESS_UNDEFINED", $"Course {course.Id} has no access rule.");
         }
 
         static ChallengeTier ParseTier(string tier)

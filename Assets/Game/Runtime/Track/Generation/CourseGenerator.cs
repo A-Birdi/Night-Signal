@@ -34,9 +34,10 @@ namespace NightSignal.Track.Generation
             cps.Add(finish);
             t.CheckpointMetres = cps.ToArray();
 
-            // Six staggered grid slots behind the start line: two columns, three rows.
-            var grid = new GridSlot[6];
-            for (int k = 0; k < 6; k++)
+            // Twelve staggered grid slots behind the start line (Addendum 01 D01): two columns, six rows, 9 m row pitch,
+            // 4.5 m column stagger. The last slot sits ~55 m back, so routes need startMetres >= 62 (docs/COURSES.md).
+            var grid = new GridSlot[Core.Rules.Limits.MaxRaceVehicles];
+            for (int k = 0; k < grid.Length; k++)
             {
                 int row = k / 2, col = k % 2;
                 float d = t.StartMetres - 5f - row * 9f - col * 4.5f;

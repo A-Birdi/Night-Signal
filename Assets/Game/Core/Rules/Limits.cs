@@ -7,10 +7,16 @@ namespace NightSignal.Core.Rules
     /// </summary>
     public static class Limits
     {
-        // Capacities (spec §1, §4, §12) — binding.
-        public const int MaxRaceEntrants = 6;          // humans + live AI; replays never count
-        public const int MaxConvoyMembers = 6;
-        public const int MaxMeetOccupants = 12;
+        // Capacities — binding (Addendum 01 D01/D02 supersedes the master's six-TOTAL entrant cap).
+        // Separate named limits; never one overloaded "max players" value.
+        public const int MaxConvoyHumans = 6;
+        public const int MaxEventHumanEntrants = 6;
+        /// <summary>Humans + friendly AI + opposing AI on track. Spectators and replays never count.</summary>
+        public const int MaxRaceVehicles = 12;
+        public const int MaxMeetHumans = 6;
+        /// <summary>Authored meet bays (scenery); not an admission limit.</summary>
+        public const int MeetBays = 12;
+        public const int TeamTrialSideSize = 6;
         public const int MaxReplayOverlays = 3;
         public const int CampaignStages = 30;
 
@@ -28,11 +34,17 @@ namespace NightSignal.Core.Rules
         public const int InputStarvationCoastMs = 250;
         public const int LoadingTimeoutMs = 90_000;
         public const int LoadingExtensionMs = 30_000;
-        public const int ConvoySlotHoldMs = 60_000;
         public const int LeaderTransferMs = 15_000;
         public const int ReadyRequestCooldownMs = 15_000;
         public const int ProposalAwayAfterMs = 120_000;
         public const int FriendMeetReservationMs = 30_000;
+
+        // Freeplay voting (Addendum D07).
+        public const int BallotDefaultSeconds = 30;
+        public static readonly int[] BallotSecondsChoices = { 15, 30, 45, 60 };
+
+        // Team Trials (Addendum §3): a DNF/DQ contributes the hard timeout plus this penalty to the team mean.
+        public const int TeamTrialFailurePenaltyMs = 30_000;
 
         // Race rules (spec §5.2, §6.1).
         public const int FirstFinishGraceMs = 90_000;

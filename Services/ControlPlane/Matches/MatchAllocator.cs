@@ -33,7 +33,6 @@ public sealed record MatchAssignment
     public required int CarCapPi { get; init; }
     public required IReadOnlyList<AssignedEntrant> Entrants { get; init; }
     public required IReadOnlyList<string> AiEntrants { get; init; }
-    public string? BenchmarkReplayRival { get; init; }
     public AssignedBenchmark? Benchmark { get; init; }
     public bool PurePvP { get; init; }
     public string? GridNote { get; init; }
@@ -99,7 +98,7 @@ public sealed class MatchAllocator(GameServerRegistry registry, IResultLedger le
             FreeplayMode = s.FreeplayMode, Weather = s.Weather, Collision = s.Collision, CarCapPi = s.CarCapPi,
             Entrants = plan.Entrants.Select(e => new AssignedEntrant(e.AccountId, e.DisplayName, "racer", e.Loadout.CarId,
                 e.Loadout.CarPi, e.Loadout.PerformanceHash, e.Loadout.CosmeticHash, e.LoadoutRevision)).ToList(),
-            AiEntrants = plan.AiEntrants, BenchmarkReplayRival = plan.BenchmarkReplayRival, Benchmark = benchmark,
+            AiEntrants = plan.AiEntrants, Benchmark = benchmark,
             PurePvP = plan.PurePvP, GridNote = plan.GridNote, Build = plan.Version.Build, Protocol = plan.Version.Protocol,
             ContentHash = plan.Version.ContentHash, Seed = RandomNumberGenerator.GetInt32(int.MaxValue),
             ResultsUrl = $"/v1/matches/{matchId}/results", TicketIssuer = tickets.Issuer,
