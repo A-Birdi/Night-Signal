@@ -214,6 +214,8 @@ namespace NightSignal.Front
             if (onlineRace != null) yield break;
             OnlineSession session = OnlineSession.Current;
             string matchId = (string)allocation["matchId"];
+            // The server has already paused the toys at the match commit; leave the table view so nothing renders under the race.
+            if (Router.Current == PocketCircuit) PocketCircuit.CloseNow();
             _ = session?.Request("presence.set", new { presence = "LoadingRace" }, quiet: true);
             Canvas.gameObject.SetActive(false);
             if (backdropCamera != null) backdropCamera.SetActive(false);
@@ -345,6 +347,22 @@ namespace NightSignal.Front
             yield return Until(() => (bool?)OnlineSession.Current.MyMember?["eventReady"] == true, 10f, "event ready");
             yield return new WaitForSeconds(0.8f);
             Shot("06-event-ready");
+
+            // While We Wait: sit at the convoy's shared Pocket Circuit table while Event Ready (Addendum 02 §1-2).
+            Click("WhileWeWait");
+            yield return new WaitForSeconds(2.5f);
+            PocketCircuit.AutoThrottle = TourThrottle;
+            double before = PocketCircuit.MyCarProgress;
+            yield return new WaitForSeconds(12f);
+            double after = PocketCircuit.MyCarProgress;
+            Shot("06b-table-while-ready");
+            if (!PocketCircuit.OnlineTable) failures.Add("the table was not the convoy's shared table");
+            if (after <= before + 0.5) failures.Add($"toy car did not move on the shared table ({before:F2} -> {after:F2})");
+            if ((bool?)OnlineSession.Current.MyMember?["eventReady"] != true) failures.Add("using the diversion cleared Event Ready");
+            Note($"shared table: progress {before:F2} -> {after:F2}, still event ready {(bool?)OnlineSession.Current.MyMember?["eventReady"]}");
+            PocketCircuit.AutoThrottle = null;
+            Click("Back");
+            yield return new WaitForSeconds(1.5f);
             Click("StartEvent");
             yield return Until(() => onlineRace != null, 30f, "match allocated");
             yield return Until(() => onlineRace == null || onlineRace.Phase == MatchPhase.Racing, 60f, "race started");

@@ -284,3 +284,16 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   Screenshots `Evidence/ui/campaign/10…12`. Automation, not a human playtest.
 - Not yet: the online table (client `toy.*` handling against the hosted session), the other four diversions' views,
   the While We Wait selector on the convoy screen.
+
+## V-030 — The convoy's shared Pocket Circuit table while ready (2026-09-27)
+- Client side of the hosted diversions: `toy.state` / `toy.activity` pushes, `toy.command` in the Core envelope
+  (convoy session id, activity epoch, membership generation, strictly increasing sequence, unique request id),
+  `toy.snapshot` on entry, `diversion.set` on entering/leaving. The client mirrors the server's table with the same
+  Core types and dead-reckons cars between pushes with the shared `SlotSim`; every push replaces the mirror. A compact
+  convoy strip on the table shows the pending ready check and toggles Mode/Event Ready without leaving the table.
+- Online tour (`ui-tour-online.ps1`): after Event Ready for S04 the player opened "While We Wait: Pocket Circuit" from
+  the convoy screen → **the shared table** (server-hosted session) → the car completed its out lap (progress
+  7.14 → 1005.60) → **Event Ready still set** → back → Start → S04 P1 of 3 02:16.422, first clear +22,651 cr → Continue
+  → Advance. PASS. Screenshot `Evidence/ui/online/06b-table-while-ready.png`.
+- A match start closes the table view on the client; the server pauses the toys at the match commit (V-028 tests).
+  Not yet exercised end to end with several humans sharing one table at once.

@@ -33,7 +33,7 @@ namespace NightSignal.Front
 
         TextMeshProUGUI heading, status, error, rosterText, lastResult, intentLine, proposalLine, postLine, inviteLine;
         Button create, createPrivate, joinCode, refresh, rejoin, notNow, chooseStarter;
-        Button proposeIntent, modeReady, enterMode, proposeEvent, eventReady, start, cont, serviceBreak, advance, invite, leave, signOut;
+        Button proposeIntent, modeReady, enterMode, proposeEvent, eventReady, start, cont, serviceBreak, advance, invite, leave, signOut, table;
         TMP_InputField codeField;
         Stepper starter, intent, stage, course, aiCount;
         readonly List<Button> listButtons = new List<Button>();
@@ -117,6 +117,8 @@ namespace NightSignal.Front
             }, 620, 48);
             inviteLine = UIFactory.Row("InviteLine", col, "", SignalTheme.Small, SignalTheme.Label, 1000, 26);
             inviteLine.richText = true;
+            // While We Wait (Addendum 02 §1): the convoy's shared Pocket Circuit table; readiness is kept while playing.
+            table = UIFactory.Button("WhileWeWait", col, "While We Wait: Pocket Circuit", () => App.Router.Show(App.PocketCircuit), 620, 52);
             leave = UIFactory.Button("Leave", col, "Leave Convoy", () => Send("convoy.leave"), 620, 48);
             signOut = UIFactory.Button("SignOut", col, "Sign Out", SignOut, 620, 48);
         }
@@ -212,6 +214,8 @@ namespace NightSignal.Front
                 g.SetActive(inConvoy);
             invite.gameObject.SetActive(inConvoy && (leader || (string)c["privacy"] == "discoverable"));
             signOut.gameObject.SetActive(!inConvoy);
+            string phaseNow = inConvoy ? (string)c["phase"] : "";
+            table.gameObject.SetActive(inConvoy && phaseNow != "Allocating" && phaseNow != "InMatch");
 
             string phase = inConvoy ? (string)c["phase"] : "";
             JObject intentObj = inConvoy ? c["intent"] as JObject : null;

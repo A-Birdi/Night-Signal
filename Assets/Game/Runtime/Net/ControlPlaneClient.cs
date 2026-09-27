@@ -45,6 +45,9 @@ namespace NightSignal.Net
         /// <summary>convoy.closed {convoyId, reason}: this account is no longer in that convoy.</summary>
         public event Action<JObject> ConvoyClosed;
         public bool Connected => socket != null && socket.State == WebSocketState.Open;
+        /// <summary>While We Wait: coalesced toy overview (toy.state) and per-toy state (toy.activity) pushes.</summary>
+        public event Action<JObject> ToyState;
+        public event Action<JObject> ToyActivity;
 
         public ControlPlaneClient(string baseUrl)
         {
@@ -162,6 +165,8 @@ namespace NightSignal.Net
                         RejoinChanged?.Invoke(payload);
                         break;
                     case "convoy.notice": Notice?.Invoke(payload); break;
+                    case "toy.state": ToyState?.Invoke(payload); break;
+                    case "toy.activity": ToyActivity?.Invoke(payload); break;
                     case "convoy.closed":
                         ConvoyState = null;
                         ConvoyRevision = -1;

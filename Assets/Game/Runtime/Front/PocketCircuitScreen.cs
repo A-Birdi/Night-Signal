@@ -23,8 +23,11 @@ namespace NightSignal.Front
         public override string ScreenName => "Pocket Circuit";
         public override string MusicCue => "MUS_GARAGE";
 
-        LocalToyHost host;
+        IPocketCircuitSource source;
+        ToyContent content;
         PocketCircuitView view;
+        TextMeshProUGUI convoyLine;
+        Button readyButton;
         TextMeshProUGUI title, layoutLine, lapText, boardText, status, help;
         Button[] laneButtons;
         Button[] layoutButtons;
@@ -32,8 +35,7 @@ namespace NightSignal.Front
         InputAction throttleAction, viewAction;
         InputAction[] laneKeys;
         float heldKey, lastSent = -1f, nextSend;
-        string lastMessage = "";
-        PocketCircuitTable Table => host?.Session.PocketCircuit;
+        PocketCircuitTable Table => source?.Table;
 
         protected override void OnBuild(RectTransform root)
         {
@@ -50,6 +52,9 @@ namespace NightSignal.Front
 
             // Right column: lanes, layouts, view, back.
             RectTransform right = UIFactory.Column("Controls", root, new Vector2(0.78f, 0.08f), new Vector2(0.99f, 0.97f), Vector2.zero, Vector2.zero, 8f);
+            convoyLine = UIFactory.Row("ConvoyLine", right, "", SignalTheme.Small, SignalTheme.Label, 380, 64);
+            convoyLine.richText = true;
+            readyButton = UIFactory.Button("TableReady", right, "Ready", ToggleReady, 380, 46);
             UIFactory.Row("LanesHeading", right, "LANES", SignalTheme.Small, SignalTheme.LabelDim, 380, 26, true);
             laneButtons = new Button[6];
             for (int i = 0; i < 6; i++)
@@ -94,24 +99,37 @@ namespace NightSignal.Front
 
         public override void OnShow()
         {
-            LocalSession s = LocalSession.Current;
-            ToyContent content = ContentLibrary.Load()?.Toys;
-            if (s?.Profile == null || content == null)
+            shownAt = Time.unscaledTime;
+            content = ContentLibrary.Load()?.Toys;
+            if (content == null)
             {
-                status.text = content == null ? "Toy content is missing from this build." : "Open a Local profile first.";
+                status.text = "Toy content is missing from this build.";
                 return;
             }
-            host = new LocalToyHost(content, s.Profile.ProfileId, s.ToySnapshot(LocalToyHost.DocumentKey));
-            host.Advance();
+            OnlineSession online = OnlineSession.Current;
+            if (App.Domain == SessionDomain.Online && online != null && online.InConvoy)
+                source = new OnlineCircuitSource(online.Client, () => online.Convoy, content); // the convoy's shared table
+            else
+            {
+                LocalSession s = LocalSession.Current;
+                if (s?.Profile == null)
+                {
+                    status.text = "Open a Local profile first.";
+                    return;
+                }
+                var host = new LocalToyHost(content, s.Profile.ProfileId, s.ToySnapshot(LocalToyHost.DocumentKey));
+                source = new LocalCircuitSource(host, json => s.SaveToys(LocalToyHost.DocumentKey, LocalToyHost.DocumentSchema, json, out _));
+            }
+            convoyLine.gameObject.SetActive(source.Online);
+            readyButton.gameObject.SetActive(source.Online);
             view = PocketCircuitView.Create(Table.Track);
             App.SetBackdropVisible(false);
             throttleAction.Enable();
             viewAction.Enable();
             foreach (InputAction a in laneKeys) a.Enable();
-            // Returning to the table: take the lane held last time, or the first free lane.
-            SlotCarState mine = Table.Car(host.Member);
-            if (mine == null) TakeLane(Enumerable.Range(1, Table.Track.Lanes.Length).First(l => Table.Board.Cars.All(c => c.Lane != l)));
-            else Show(host.Do(ToyActivityId.PocketCircuit, "throttle", new JObject { ["value"] = 0 }));
+            // Returning to the table: take the lane held last time, or the first free lane (online: once the state arrives).
+            laneChosen = false;
+            ChooseLaneIfNeeded();
             for (int i = 0; i < layoutButtons.Length; i++)
             {
                 SlotLayoutDef def = i < content.PocketCircuit.Layouts.Count ? content.PocketCircuit.Layouts[i] : null;
@@ -120,27 +138,25 @@ namespace NightSignal.Front
             }
         }
 
+        /// <summary>Leaves the table at once (a race is starting); safe to call again from the router.</summary>
+        public void CloseNow() => OnHide();
+
         public override void OnHide()
         {
             throttleAction.Disable();
             viewAction.Disable();
             foreach (InputAction a in laneKeys) a.Disable();
-            if (host != null)
-            {
-                host.Close(ToyActivityId.PocketCircuit); // parks this car; the board and records are kept
-                host.Advance();
-                if (!LocalSession.Current.SaveToys(LocalToyHost.DocumentKey, LocalToyHost.DocumentSchema, host.SnapshotJson(), out string msg))
-                    Debug.LogWarning("[NightSignal.Toys] toy table not saved: " + msg);
-            }
+            source?.Leave(); // parks this car; the board and records are kept (Local: saved in the profile)
             if (view != null) Object.Destroy(view.gameObject);
             view = null;
-            host = null;
+            source = null;
             App.SetBackdropVisible(true);
         }
 
         public override void Tick()
         {
-            if (host == null) return;
+            if (source == null) return;
+            ChooseLaneIfNeeded();
             for (int i = 0; i < laneKeys.Length; i++) if (laneKeys[i].WasPressedThisFrame()) TakeLane(i + 1);
             if (viewAction.WasPressedThisFrame()) ToggleView();
 
@@ -149,18 +165,24 @@ namespace NightSignal.Front
             bool key = kb != null && (kb.wKey.isPressed || kb.upArrowKey.isPressed || kb.spaceKey.isPressed);
             heldKey = Mathf.MoveTowards(heldKey, key ? 0.72f : 0f, Time.unscaledDeltaTime * (key ? 1.4f : 4f));
             float u = Mathf.Max(throttleAction.ReadValue<float>(), heldKey);
-            if (AutoThrottle != null) u = AutoThrottle(Table, host.Member);
+            if (AutoThrottle != null) u = AutoThrottle(Table, source.Member);
+            source.PredictThrottle(u);
             // ~20 commands/s (Core's per-member budget is 40/s) or at once on a clear change; a hold expires after 0.5 s.
             if (Time.unscaledTime >= nextSend || Mathf.Abs(u - lastSent) > 0.15f)
             {
                 nextSend = Time.unscaledTime + 0.05f;
                 lastSent = u;
-                Show(host.Do(ToyActivityId.PocketCircuit, "throttle", new JObject { ["value"] = System.Math.Round(u, 3) }));
+                source.Send("throttle", new JObject { ["value"] = System.Math.Round(u, 3) });
             }
-            host.Advance();
-            view.Render(Table, host.Member);
+            source.Tick();
+            view.Render(Table, source.Member);
             Render();
         }
+
+        /// <summary>This member's car progress (laps × 1000 + distance), −1 without a car (tour evidence).</summary>
+        public double MyCarProgress => source != null && Table?.Car(source.Member) is SlotCarState c ? c.Lap * 1000 + c.S : -1;
+
+        public bool OnlineTable => source?.Online == true;
 
         /// <summary>Completed toy laps on the current board (tour evidence).</summary>
         public int CompletedLaps => Table?.Board.RecentLaps.Count ?? 0;
@@ -171,7 +193,7 @@ namespace NightSignal.Front
         void Render()
         {
             PocketCircuitTable t = Table;
-            SlotCarState car = t.Car(host.Member);
+            SlotCarState car = t.Car(source.Member);
             SlotLayoutDef layout = t.ActiveLayout;
             title.text = "POCKET CIRCUIT";
             layoutLine.text = layout.Name + (layout.Summary != null ? "  ·  " + layout.Summary : "");
@@ -183,8 +205,8 @@ namespace NightSignal.Front
                 string mode = car.Mode == SlotCarMode.DeSlotted ? "<color=#F2A541>DE-SLOTTED — returning to the last piece</color>"
                     : car.Mode == SlotCarMode.Orienting ? "<color=#3EC6D8>Getting ready…</color>"
                     : car.Mode == SlotCarMode.Parked ? "Parked" : car.Lap == 0 ? "Out lap (not timed)" : $"Lap {car.Lap}";
-                SlotLap last = t.Board.RecentLaps.LastOrDefault(l => l.Member == host.Member);
-                SlotLaneBest best = t.Board.Bests.FirstOrDefault(b => b.Member == host.Member && b.Lane == car.Lane);
+                SlotLap last = t.Board.RecentLaps.LastOrDefault(l => l.Member == source.Member);
+                SlotLaneBest best = t.Board.Bests.FirstOrDefault(b => b.Member == source.Member && b.Lane == car.Lane);
                 lapText.text = $"Lane <b>{car.Lane}</b>   {mode}\n" +
                                $"<size=150%><mspace=0.58em>{Fmt(car.Lap >= 1 ? lapMs : 0)}</mspace></size>\n" +
                                $"Last {(last != null ? Fmt(last.ActiveMs) + "  " + Category(last.Category) : "—")}\n" +
@@ -203,25 +225,75 @@ namespace NightSignal.Front
                 bool exists = i < t.Track.Lanes.Length;
                 laneButtons[i].gameObject.SetActive(exists);
                 SlotCarState holder = t.Board.Cars.FirstOrDefault(c => c.Lane == i + 1);
-                laneButtons[i].GetComponentInChildren<TextMeshProUGUI>().text = holder == null ? $"Lane {i + 1}" : holder.Member == host.Member ? $"Lane {i + 1}  (you)" : $"Lane {i + 1}  (taken)";
+                laneButtons[i].GetComponentInChildren<TextMeshProUGUI>().text = holder == null ? $"Lane {i + 1}" : holder.Member == source.Member ? $"Lane {i + 1}  (you)" : $"Lane {i + 1}  (taken)";
             }
             for (int i = 0; i < layoutButtons.Length; i++)
                 if (layoutButtons[i].gameObject.activeSelf)
-                    layoutButtons[i].interactable = host.Session.Content.PocketCircuit.Layouts[i].Id != layout.Id;
-            status.text = lastMessage;
+                    layoutButtons[i].interactable = content.PocketCircuit.Layouts[i].Id != layout.Id;
+            status.text = source.Status;
+            if (source.Online) RenderConvoyStrip();
         }
 
         static string Category(LapCategory c) => c == LapCategory.Clean ? "<color=#3EC6D8>clean</color>" : "<color=#F2A541>" + c.ToString().ToLowerInvariant() + "</color>";
 
         static string Fmt(long ms) => $"{ms / 60000}:{ms / 1000 % 60:00}.{ms % 1000:000}";
 
-        void TakeLane(int lane) => Show(host?.Do(ToyActivityId.PocketCircuit, "lane.take", new JObject { ["lane"] = lane }));
+        bool laneChosen;
+
+        void ChooseLaneIfNeeded()
+        {
+            if (laneChosen || source == null) return;
+            PocketCircuitTable t = Table;
+            if (source.Online && t.Board.Cars.Count == 0 && Time.unscaledTime - shownAt < 1.5f) return; // wait for the shared state
+            laneChosen = true;
+            SlotCarState mine = t.Car(source.Member);
+            if (mine != null) { source.Send("throttle", new JObject { ["value"] = 0 }); return; }
+            int free = Enumerable.Range(1, t.Track.Lanes.Length).FirstOrDefault(l => t.Board.Cars.All(c => c.Lane != l));
+            if (free > 0) TakeLane(free);
+        }
+
+        float shownAt;
+
+        void TakeLane(int lane) => source?.Send("lane.take", new JObject { ["lane"] = lane });
 
         void ProposeLayout(int index)
         {
-            if (host == null) return;
-            string id = host.Session.Content.PocketCircuit.Layouts[index].Id;
-            Show(host.Do(ToyActivityId.PocketCircuit, "layout.select", new JObject { ["layout"] = id }));
+            if (source == null) return;
+            source.Send("layout.select", new JObject { ["layout"] = content.PocketCircuit.Layouts[index].Id });
+        }
+
+        /// <summary>Online: the convoy's state at a glance and one Ready control — using the table never unreadies anyone.</summary>
+        void RenderConvoyStrip()
+        {
+            OnlineSession o = OnlineSession.Current;
+            JObject c = o?.Convoy;
+            if (c == null) { convoyLine.text = "Not in a convoy."; readyButton.gameObject.SetActive(false); return; }
+            JToken me = o.MyMember;
+            bool proposal = c["eventProposal"] is JObject;
+            bool modeOpen = c["intent"] is JObject && (bool?)c["modeEntered"] != true;
+            bool ready = proposal ? (bool?)me?["eventReady"] == true : (bool?)me?["modeReady"] == true;
+            string phase = proposal ? "Event: " + ((string)c["eventProposal"]?["settings"]?["stageId"] ?? (string)c["eventProposal"]?["settings"]?["courseId"])
+                : modeOpen ? "Mode: " + (string)c["intent"]?["label"] : (string)c["phase"];
+            convoyLine.text = $"<color=#9A968D>CONVOY</color>  {phase}\n" + (proposal || modeOpen ? (ready ? "<color=#3EC6D8>You are ready.</color>" : "<color=#F2A541>Ready check waiting for you.</color>") : "Nothing to ready yet.");
+            readyButton.gameObject.SetActive(proposal || modeOpen);
+            readyButton.GetComponentInChildren<TextMeshProUGUI>().text = ready ? "Unready" : "Ready";
+        }
+
+        async void ToggleReady()
+        {
+            OnlineSession o = OnlineSession.Current;
+            JObject c = o?.Convoy;
+            if (c == null) return;
+            JToken me = o.MyMember;
+            if (c["eventProposal"] is JObject p)
+            {
+                if (me?["carId"]?.Type != JTokenType.String && o.StarterCarId != null)
+                    await o.Request("loadout.set", new { carId = o.StarterCarId, performanceHash = "stock", cosmeticHash = "default" });
+                me = o.MyMember;
+                await o.Request("event.ready", new { proposalRevision = (long)p["revision"], loadoutRevision = (long?)me?["loadoutRevision"] ?? 0, ready = (bool?)me?["eventReady"] != true });
+            }
+            else if (c["intent"] is JObject)
+                await o.Request("mode.ready", new { modeRevision = (long)c["modeRevision"], ready = (bool?)me?["modeReady"] != true });
         }
 
         void ToggleView()
@@ -229,14 +301,6 @@ namespace NightSignal.Front
             if (view == null) return;
             view.ChaseView = !view.ChaseView;
             viewButton.GetComponentInChildren<TextMeshProUGUI>().text = view.ChaseView ? "Table View" : "Chase View";
-        }
-
-        void Show(ToyResult? r)
-        {
-            if (r == null) return;
-            ToyResult v = r.Value;
-            if (v.Accepted) { if (lastMessage.StartsWith("Rejected")) lastMessage = ""; return; }
-            lastMessage = $"{v.Verdict}: {v.Reason}" + (v.Detail != null ? " — " + v.Detail : "");
         }
     }
 }
