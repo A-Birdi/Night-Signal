@@ -1,6 +1,6 @@
 # Handoff
 
-_Last updated: 2026-09-27 — Addendum 03 slice 2: instruments, five driving views with a fitted cockpit on all 18 cars, arcade camera, remappable controls, recovery prompts (V-050)._
+_Last updated: 2026-09-27 — Addendum 03: soak memory (V-059), Spectate the Race through the real screens (V-060)._
 
 **Rules revision:** `docs/brief/Night_Signal_Addendum_01.txt` supersedes parts of the master (six humans + up to
 twelve vehicles, live finale rivals, light contact, course access, offline domain, rejoin grants, voting, friends,
@@ -100,6 +100,10 @@ Render Cockpit Sheets* renders the mounted views of every car.
   bounded impacts, speed FOV, perimeter speed lines, Arcade/Comfort/Custom, Reduced Motion); Settings → Controls
   remapping; typing never drives; recovery offers/countdowns on the HUD, overturned rescue, physical fall/roof tests;
   Test Yard on the same camera/HUD.
+- **Addendum 03 after slice 2**: tunnels (V-051), camera timing/occlusion and six-client views (V-052), readability and
+  bridges (V-053), online recovery/impairment/soak (V-054), relief pass (V-055), instrument extremes (V-056), R11
+  (V-057), spectating (V-058), soak memory (V-059: generated course assets released in play), Spectate the Race through
+  the real screens with two clients and the NaN-after-disconnect fix (V-060).
 
 ## Next actions
 

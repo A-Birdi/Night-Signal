@@ -470,6 +470,8 @@ namespace NightSignal.Front
 
         void Update() => OnlineSession.Current?.Tick();
 
+        bool onlineRaceAborted;
+
         /// <summary>An online race (racing or spectating) is running.</summary>
         public bool InOnlineRace => onlineRace != null;
 
@@ -510,13 +512,16 @@ namespace NightSignal.Front
                 yield return null;
             }
             Net.MatchResults results = onlineRace.Results;
+            onlineRaceAborted = onlineRace.Phase == MatchPhase.Aborted;
             yield return new WaitForSeconds(results != null ? 4f : 1.5f); // let the finish banner read
             Destroy(go);
             onlineRace = null;
 
             var sb = new System.Text.StringBuilder("<color=#9A968D>LAST RACE</color>\n");
             Net.ResultEntrant mine = results?.Entrants.FirstOrDefault(e => e.EntrantId == session?.AccountId);
-            if (results == null) sb.Append("The race ended without results (aborted or disconnected): nothing was settled.\n");
+            bool aborted = onlineRaceAborted;
+            if (results == null && aborted) sb.Append("The race was aborted: nothing was settled.\n");
+            else if (results == null) sb.Append("You left the race before the finish: the server counts a lost connection as a disqualification.\n");
             else if (mine == null) sb.Append("You spectated this race.\n");
             else sb.Append((mine.Outcome == "Finished" ? $"P{mine.Placement} of {results.Entrants.Count}   {ResultsScreen.FormatRaceTime(mine.FinishTimeMicros)}" : mine.Outcome)
                            + (mine.RawDriftScore > 0 ? $"   <color=#3EC6D8>drift {mine.RawDriftScore:N0} pts</color>" : "") + "\n");
@@ -525,7 +530,8 @@ namespace NightSignal.Front
             yield return LoadBackdrop();
             Router.Show(Convoy, false);
             _ = session?.Request("presence.set", new { presence = "InMenus" }, quiet: true);
-            if (session != null && results != null) StartCoroutine(FetchReceipt(session, matchId));
+            // A departed entrant is settled too (as a disqualification): its receipt arrives the same way.
+            if (session != null && (results != null || !onlineRaceAborted) && OnlineSession.Current == session) StartCoroutine(FetchReceipt(session, matchId));
         }
 
         /// <summary>The server-settled receipt (money, clears, unlocks) — shown as the server states it.</summary>

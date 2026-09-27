@@ -59,6 +59,26 @@ namespace NightSignal.Net
         public int Watching => watching;
         /// <summary>Evidence: target switches, targets lost (the watched car left), and a short log.</summary>
         public int SpectateSwitches, SpectateTargetLosses;
+        /// <summary>
+        /// Evidence: own-car frames/ticks with a non-finite value (seen as NaN wheel transforms at race starts in rendered
+        /// clients), by where it first appeared. Each source is logged the first few times; nothing non-finite is drawn.
+        /// </summary>
+        public int NonFiniteEvents;
+        readonly Dictionary<string, int> nonFiniteBySource = new Dictionary<string, int>();
+
+        static bool Finite(float f) => !float.IsNaN(f) && !float.IsInfinity(f);
+        static bool Finite(in VehicleState s) =>
+            Finite(s.Position.x) && Finite(s.Position.y) && Finite(s.Position.z) && Finite(s.Velocity.x) && Finite(s.Velocity.y) && Finite(s.Velocity.z)
+            && Finite(s.Rotation.x) && Finite(s.Rotation.y) && Finite(s.Rotation.z) && Finite(s.Rotation.w) && Finite(s.SteerAngle)
+            && Finite(s.C0) && Finite(s.C1) && Finite(s.C2) && Finite(s.C3);
+
+        void NoteNonFinite(string source, string detail)
+        {
+            NonFiniteEvents++;
+            nonFiniteBySource.TryGetValue(source, out int n);
+            nonFiniteBySource[source] = n + 1;
+            if (n < 3) Debug.LogWarning($"[NightSignal.Client] non-finite own-car value from {source}: {detail}");
+        }
         public readonly List<string> SpectateLog = new List<string>();
         public MatchInfo Info { get; private set; }
         long driftBanked, driftUnbanked, driftLost;
@@ -623,6 +643,7 @@ namespace NightSignal.Net
             float velError = havePrediction ? Vector3.Distance(states[slot].Velocity, server.Velocity) : float.MaxValue;
             if (error < 0.03f && velError < 0.2f) return;
 
+            if (!Finite(server)) NoteNonFinite("server snapshot", $"tick {tick}");
             Vector3 before = ownState.Position;
             VehicleState replay = server;
             for (int t = tick + 1; t <= lastPredictedTick; t++)
@@ -674,8 +695,12 @@ namespace NightSignal.Net
             ticks[slot] = tick;
             if (racing)
             {
+                VehicleState before = ownState;
                 ownSim.Step(ref ownState, input);
+                if (!Finite(ownState)) NoteNonFinite("prediction step", $"tick {tick}, steer {input.Steer}, throttle {input.Throttle}, from finite {Finite(before)}");
+                VehicleState stepped = ownState;
                 PredictContacts(ref ownState, tick);
+                if (Finite(stepped) && !Finite(ownState)) NoteNonFinite("contact prediction", $"tick {tick}");
             }
             states[slot] = ownState;
             lastPredictedTick = tick;
@@ -739,6 +764,9 @@ namespace NightSignal.Net
             }
             if (loaded && Spectating) EnsureWatchTarget(); // headless spectators keep their target too
             if (!loaded || headless) return;
+            // After the connection closes (left, lost, the server finished and shut down) the network clock is gone: its
+            // partial tick reads NaN, which drew NaN wheel transforms for the last second on screen. Hold the last frame.
+            if (nm == null || !nm.IsListening || nm.ShutdownInProgress) return;
             // Critically damped: the drawn car eases onto the corrected state without a velocity jump, so the chase camera
             // shows no kick when a correction lands (Addendum 03 C11 measured the old exponential decay as hitches).
             visualOffset = Vector3.SmoothDamp(visualOffset, Vector3.zero, ref visualOffsetVelocity, 0.2f, Mathf.Infinity, Time.deltaTime);
@@ -754,7 +782,16 @@ namespace NightSignal.Net
                     VehicleState cur = ownState, prev = ownState;
                     int prevSlot = (lastPredictedTick - 1) & 255;
                     if (lastPredictedTick > 0 && ticks[prevSlot] == lastPredictedTick - 1) prev = states[prevSlot];
-                    float alpha = Mathf.Clamp01((float)(nm.LocalTime.TickWithPartial + InputLeadTicks - lastPredictedTick));
+                    double localTick = nm.LocalTime.TickWithPartial;
+                    float alpha = Mathf.Clamp01((float)(localTick + InputLeadTicks - lastPredictedTick));
+                    if (!Finite(alpha)) { NoteNonFinite("render alpha", $"local tick {localTick}, last predicted {lastPredictedTick}"); alpha = 1f; }
+                    if (!Finite(visualOffset.x) || !Finite(visualOffset.y) || !Finite(visualOffset.z))
+                    {
+                        NoteNonFinite("correction blend", $"offset {visualOffset}, velocity {visualOffsetVelocity}");
+                        visualOffset = visualOffsetVelocity = Vector3.zero;
+                    }
+                    if (!Finite(prev)) { NoteNonFinite("previous predicted tick", $"tick {lastPredictedTick - 1}"); prev = cur; }
+                    if (!Finite(cur)) { NoteNonFinite("latest predicted tick", $"tick {lastPredictedTick}"); continue; }
                     prev.Position += visualOffset;
                     cur.Position += visualOffset;
                     car.View.Render(prev, cur, alpha, ownSim.Telemetry, Time.deltaTime);
@@ -808,6 +845,7 @@ namespace NightSignal.Net
         public int Rtt()
         {
             if (rttSmoothedMs >= 0) return Mathf.RoundToInt(rttSmoothedMs);
+            if (Spectating) return -1; // a spectator sends no inputs to time, and the transport's figure goes stale (read 2092 ms on loopback)
             return nm != null && nm.IsConnectedClient ? (int)nm.NetworkConfig.NetworkTransport.GetCurrentRtt(NetworkManager.ServerClientId) : -1;
         }
 

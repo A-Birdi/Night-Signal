@@ -67,7 +67,7 @@ lists the superseded rules and where each lands. Rows marked _(A01)_ carry the r
 | R4.3 | §4.1 | Persistent convoy header UI | not started |
 | R4.4 | §4.2 | Two revisioned ready checks, invalidation, 15 s / 120 s rules | verified in control plane (V-013) |
 | R4.5 | §4.3 | Loading barrier (90 s + 30 s), server start tick, 3-2-1-GO | implemented (RaceServer) — run pending |
-| R4.6 | §4.4 | Heartbeats, 250 ms coast, DQ, spectate, slot hold, leader transfer | partial: coast/DQ implemented; spectating (server, client mode, target cycling/loss, empty state, convoy button) and refused mid-race re-entry verified on real processes (V-057/V-058); reconnect-to-convoy UI flow not driven by automation |
+| R4.6 | §4.4 | Heartbeats, 250 ms coast, DQ, spectate, slot hold, leader transfer | partial: coast/DQ implemented; spectating (server, client mode, target cycling/loss, empty state, convoy button) and refused mid-race re-entry verified on real processes (V-057/V-058); the UI path — mid-race crash, sign in, Rejoin, Spectate the Race — driven on two built clients with a human still racing (V-060) |
 | R5.1 | §5.1 | Ordered frontier, shared selection, server validation | verified (V-009, V-013) |
 | R5.2 | §5.2 | Team success, support envelopes, deadlines | verified rules (V-009); server deadline implemented |
 | R5.3 | §5.3 | Acts, stage beats, intros/quips, skip rules | in progress (all text authored; presentation not built) |

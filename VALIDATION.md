@@ -924,3 +924,33 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   rose 228 → 340 MB (~9–10 MB per race, steady) inside an unchanged 822–826 MB reservation; working set 536 → 691 MB.
   **Native growth not yet explained** (open): no counted object type, static, handler, texture, graphics or physics body
   accumulates.
+
+## V-060 — Spectate the Race through the real screens; NaN wheels after a disconnect (2026-09-27)
+- Revision: working tree on `182ac6e` (committed in the next checkpoint). Two windowed development clients (development
+  accounts 0 and 1 from the project's seed file), a dedicated game server process and the local control plane — all on
+  this machine (loopback). `Tools/run/ui-tour-social.ps1 -Race` (`-nsUiTourSocialRace`). Automation, not a human session.
+- A solo attempt first (`ui-tour-online.ps1`, one human) could not work and was removed: the server settles a race the
+  moment no human can still finish (`RaceSimulation`, by design), so a lone driver who leaves has nothing to come back
+  and watch. The UI also offers Sign Out only outside a convoy, so the tour simulates the crash itself (race and convoy
+  connections closed, back at the title as a relaunch would be); every later step uses the real buttons.
+- **Run** (`Evidence/ui/online/spectate`): host and guest form a convoy through Friends (invite from the friend list,
+  join from the invitation), Campaign · Normal → both Mode Ready → Enter Mode → Propose Event (S02 Mizuhana Switchback,
+  2 drivers + 2 AI) → both Event Ready → Start. 12 s into the race the guest's game "crashes"; the server records
+  `DqDisconnected` and the race continues for the host. The guest signs in again, is offered "Rejoin Driver 1's convoy",
+  rejoins (`spectator: true`, convoy phase `InMatch`, notice "rejoined as a spectator until the next event"), presses
+  **Spectate the Race**, is admitted by the server as a spectator (1 watching), follows Driver 1 (the human, preferred),
+  then the next target (an AI) — 2 target changes. Host: P1 of 4, Stage cleared, +10,248 credits. Guest: settled once as
+  `DisqualifiedDisconnect`, stage not cleared, +0 — **PASS** on both clients.
+- **Found and fixed on the way:**
+  - *NaN wheel transforms* — after the race connection closes (left, lost, or the server finished and shut down) the
+    client kept drawing for its short exit delay from Netcode's local clock, whose partial tick then reads NaN (logged:
+    "local tick NaN, last predicted 1163"): 267 frames of NaN wheel positions/front-wheel rotations in the first run, and
+    the same errors at the end of the rendered six-client runs of V-052/V-054 (626–803 lines per run). Now the client holds
+    its last frame once the connection is gone; non-finite own-car values (prediction, contact prediction, server
+    snapshot, render factor, correction blend) are logged by source and never drawn. Final run: **0** invalid-transform
+    errors and **0** non-finite events on both clients.
+  - *Spectator "CONNECTION 2092 MS"* — a spectator sends no inputs to time and the transport's own figure goes stale; the
+    indicator is now hidden for spectators.
+  - *"The race ended without results … nothing was settled"* after leaving — untrue (the server settles a departure as a
+    disqualification); now "You left the race before the finish: the server counts a lost connection as a
+    disqualification", and the receipt is fetched when the session is still signed in.

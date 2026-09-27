@@ -8,6 +8,7 @@ using NightSignal.Race;
 using NightSignal.UI;
 using NightSignal.Vehicle;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace NightSignal.Front
 {
@@ -111,9 +112,33 @@ namespace NightSignal.Front
             Dictionary<string, int> staticsAfterFirst = null;
             Note($"baseline in the menus: cameras {baseline.cams}, driving cameras {baseline.driving}, views {baseline.views}, HUDs {baseline.huds}, speed lines {baseline.lines}, listeners {baseline.listeners}, lights {baseline.lights}, managed {baseline.mb:F1} MB");
 
+            // -nsSoakLoadsOnly: the course scenes alone (generation, terrain, colliders, back to the menus), no cars or race —
+            // separates native growth from course loading from growth from racing.
+            bool loadsOnly = System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-nsSoakLoadsOnly") >= 0;
+            // -nsSoakPlain: races without the view/look-back/speedometer switching (resets kept) — separates presentation
+            // switching from the race itself.
+            bool plain = System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-nsSoakPlain") >= 0;
+            // -nsSoakAi N: only the first N AI rivals (0 = the player's car alone) — separates per-car growth.
+            int aiArg = System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-nsSoakAi");
+            if (aiArg >= 0) ai = ai.Take(int.Parse(System.Environment.GetCommandLineArgs()[aiArg + 1])).ToList();
             for (int n = 0; n < races; n++)
             {
                 string course = courses[n % courses.Length];
+                if (loadsOnly)
+                {
+                    AsyncOperation load = SceneManager.LoadSceneAsync(course, LoadSceneMode.Single);
+                    while (!load.isDone) yield return null;
+                    yield return new WaitForSeconds(2f);
+                    yield return LoadBackdrop();
+                    yield return new WaitForSeconds(1f);
+                    var lc = Census();
+                    string lo = Objects();
+                    Note($"load {n + 1} {course}: objects {lo}; managed {lc.mb:F1} MB");
+                    report.AppendLine(string.Join(",", n + 1, course, lc.cams, lc.driving, lc.views, lc.huds, lc.lines, lc.listeners, lc.lights, lc.mb.ToString("F1"),
+                        lo, 0, 0, false, 0, 0, -1));
+                    if (n == 0) staticsAfterFirst = StaticCensus();
+                    continue;
+                }
                 bool over = false;
                 List<RaceEntrantResult> results = null;
                 var rules = new RaceEventRules { Kind = "freeplay", Contact = ContactPolicy.LightContact, StageNumber = 10 };
@@ -145,7 +170,7 @@ namespace NightSignal.Front
                     if (race.Phase != MatchPhase.Racing) continue;
                     float now = Time.realtimeSinceStartup;
                     if (raceStart < 0f) raceStart = now;
-                    if (now - lastCycle > 1.5f)
+                    if (!plain && now - lastCycle > 1.5f)
                     {
                         lastCycle = now;
                         cam.SetView((DrivingView)(((int)cam.View + 1) % 5), save: false);
