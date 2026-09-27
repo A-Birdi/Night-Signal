@@ -62,7 +62,7 @@ public sealed class Addendum01SettlementTests
         for (int i = 1; i <= 6; i++) roster.Add(new RosterSlot($"opp-{i}", "ai", "opposing", "opposing-ai", $"R1{i}"));
         return new MatchAssignment
         {
-            MatchId = "m_t", ConvoyId = "cv", ServerId = "srv", Kind = "trial", CourseId = kind == "drift" ? "C02" : "C03",
+            MatchId = "m_t", ConvoyId = "cv", ServerId = "srv", Kind = "trial", CourseId = kind == "drift" ? "C01" : "C03",
             FreeplayMode = kind == "drift" ? "drift-attack" : "circuit", Weather = "stage-default", Collision = "light-contact", CarCapPi = 999,
             Entrants = Enumerable.Range(1, humans).Select(i => Entrant(H(i))).ToList(),
             AiEntrants = roster.Where(r => r.Kind == "ai").Select(r => r.EntrantId).ToList(), Roster = roster,

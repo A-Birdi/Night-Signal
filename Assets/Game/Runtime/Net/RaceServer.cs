@@ -20,6 +20,8 @@ namespace NightSignal.Net
     public sealed class MatchInfo
     {
         public string MatchId, CourseId, Kind, Mode, StageId, Weather, GridNote, Contact;
+        /// <summary>sprint | circuit | drift-attack | time-attack … (drift-attack: the HUD and autopilot drift the judged zones).</summary>
+        public string FreeplayMode;
         public int YourIndex = -1;
         public List<RosterEntry> Roster = new List<RosterEntry>();
     }
@@ -164,6 +166,7 @@ namespace NightSignal.Net
                 StageNumber = Math.Max(1, assignment.StageNumber),
                 CarCapPi = assignment.CarCapPi,
                 Contact = assignment.Collision == "non-contact" ? ContactPolicy.NonContact : ContactPolicy.LightContact,
+                DriftRanking = assignment.FreeplayMode == "drift-attack",
                 BenchmarkTargetMs = assignment.Benchmark?.TargetTimeMs ?? 0,
                 HardTimeoutMs = assignment.Benchmark?.HardTimeoutMs ?? assignment.Trial?.HardTimeoutMs ?? 0,
                 RequiresBeatingFeaturedRival = assignment.Kind == "campaign" && StageBenchmark.IsFeaturedEncounter(assignment.StageType),
@@ -241,7 +244,7 @@ namespace NightSignal.Net
             var info = new MatchInfo
             {
                 MatchId = assignment.MatchId, CourseId = assignment.CourseId, Kind = assignment.Kind, Mode = assignment.Mode,
-                StageId = assignment.StageId, Weather = assignment.Weather, Contact = assignment.Collision,
+                StageId = assignment.StageId, Weather = assignment.Weather, Contact = assignment.Collision, FreeplayMode = assignment.FreeplayMode,
                 GridNote = assignment.GridNote, YourIndex = l.Entrant.Roster.Index, Roster = Entrants.Select(x => x.Roster).ToList(),
             };
             FastBufferWriter w = Wire.JsonWriter(JsonConvert.SerializeObject(info));
@@ -331,6 +334,25 @@ namespace NightSignal.Net
                     break;
             }
             if (phase >= MatchPhase.Countdown && phase <= MatchPhase.Results && tick % 3 == 0) BroadcastSnapshot(tick);
+            if (phase == MatchPhase.Racing && sim.Rules.DriftRanking && tick % 6 == 0) SendDrift();
+        }
+
+        /// <summary>Drift formats: each driver's own banked/unbanked/lost figures and chain for the HUD (the result counts).</summary>
+        void SendDrift()
+        {
+            foreach (KeyValuePair<ulong, Link> kv in byClient)
+            {
+                if (!kv.Value.Connected) continue;
+                Core.Rules.DriftScorer d = kv.Value.Entrant.Drift;
+                using (var w = new FastBufferWriter(32, Allocator.Temp))
+                {
+                    w.WriteValueSafe((long)d.BankedRaw);
+                    w.WriteValueSafe((long)d.UnbankedRaw);
+                    w.WriteValueSafe((long)d.LostRaw);
+                    w.WriteValueSafe((float)d.ChainMultiplier);
+                    nm.CustomMessagingManager.SendNamedMessage(Wire.MsgDrift, kv.Key, w, NetworkDelivery.UnreliableSequenced);
+                }
+            }
         }
 
         /// <summary>Periodic headless-server trace: where every entrant is and how its commands are arriving.</summary>
@@ -391,6 +413,7 @@ namespace NightSignal.Net
                     ActiveProgressVerified = c.ActiveProgressVerified,
                     ActivelyDroveLegalCourse = c.ActivelyDroveLegalCourse,
                     LegalProgressMetres = c.LegalProgressMetres,
+                    RawDriftScore = c.RawDriftScore,
                 };
                 if (c.Entrant.Human && c.Outcome == RunOutcome.Finished)
                     r.ChallengesCompleted.AddRange(ChallengePredicates.Evaluate(assignment, c.Entrant.Progress));

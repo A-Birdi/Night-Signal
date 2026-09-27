@@ -30,6 +30,11 @@ namespace NightSignal.UI
         /// <summary>Seconds left before the event closes after the first human finish; negative when not running.</summary>
         public float FinishWindowSeconds = -1f;
         public bool UseMph;
+        /// <summary>Drift formats: banked raw score, the running chain and its multiplier, and a short bank/loss note.</summary>
+        public bool DriftEvent;
+        public long DriftBanked, DriftUnbanked;
+        public float DriftChain = 1f;
+        public string DriftNote = "";
         public readonly List<HudEntrant> Field = new List<HudEntrant>();
     }
 
@@ -42,7 +47,7 @@ namespace NightSignal.UI
         /// <summary>Player preference: display mph instead of km/h (never changes the simulation).</summary>
         public static bool UseMphGlobal;
 
-        TextMeshProUGUI position, time, speed, unit, gear, banner, progress, incidents, connection;
+        TextMeshProUGUI position, time, speed, unit, gear, banner, progress, incidents, connection, drift;
         Image revFill;
         RawImage minimap;
         RectTransform minimapRect;
@@ -74,6 +79,10 @@ namespace NightSignal.UI
             time.rectTransform.anchorMin = time.rectTransform.anchorMax = new Vector2(0.5f, 1);
             time.rectTransform.sizeDelta = new Vector2(360, 50);
             time.rectTransform.anchoredPosition = new Vector2(0, -44);
+            drift = UIFactory.Label("Drift", root, "", SignalTheme.Subheading, SignalTheme.Label, TextAlignmentOptions.Top, true);
+            drift.rectTransform.anchorMin = drift.rectTransform.anchorMax = new Vector2(0.5f, 1);
+            drift.rectTransform.sizeDelta = new Vector2(760, 80);
+            drift.rectTransform.anchoredPosition = new Vector2(0, -130);
             banner = UIFactory.Label("Banner", root, "", SignalTheme.HudNumeral * 1.2f, SignalTheme.Label, TextAlignmentOptions.Center, true);
             banner.rectTransform.anchorMin = banner.rectTransform.anchorMax = new Vector2(0.5f, 0.66f);
             banner.rectTransform.sizeDelta = new Vector2(1400, 140);
@@ -146,6 +155,10 @@ namespace NightSignal.UI
                 + (s.FinishWindowSeconds >= 0 ? $"\n<color=#{ColorUtility.ToHtmlStringRGB(SignalTheme.Caution)}>FINISH WINDOW {FormatClock(s.FinishWindowSeconds)}</color>" : "");
             time.text = Tabular(FormatTime(s.RaceSeconds));
             banner.text = s.Banner;
+            drift.text = !s.DriftEvent ? ""
+                : $"DRIFT {Tabular(s.DriftBanked.ToString("N0"))}"
+                  + (s.DriftUnbanked > 0 ? $"   <color=#{ColorUtility.ToHtmlStringRGB(SignalTheme.Caution)}>+{Tabular(s.DriftUnbanked.ToString("N0"))}  ×{s.DriftChain:0.00}</color>" : "")
+                  + (s.DriftNote.Length > 0 ? "\n<size=80%>" + s.DriftNote + "</size>" : "");
             incidents.text = s.WallIncidents > 0 || s.Resets > 0 ? $"WALL CONTACTS {s.WallIncidents}   RESETS {s.Resets}" : "";
             connection.text = s.RttMs > 180 ? $"CONNECTION  {s.RttMs} MS" : "";
 

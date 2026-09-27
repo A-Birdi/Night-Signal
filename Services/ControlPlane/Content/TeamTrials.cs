@@ -118,7 +118,8 @@ public sealed partial class TeamTrialCatalog
                 HardTimeoutMs = 480_000, ParticipationEnvelopeMs = 345_000, Provisional = true, Difficulties = Difficulties() },
             new() { Id = "TT_BEST", Name = "Team Trial — Best Time", Kind = "best", Course = "C01", Format = "sprint",
                 HardTimeoutMs = 390_000, ParticipationEnvelopeMs = 270_000, Provisional = true, Difficulties = Difficulties() },
-            new() { Id = "TT_DRIFT", Name = "Team Trial — Combined Drift", Kind = "drift", Course = "C02", Format = "drift-attack",
+            // C01 carries three judged drift zones (C02 has none, so a drift trial there could never score).
+            new() { Id = "TT_DRIFT", Name = "Team Trial — Combined Drift", Kind = "drift", Course = "C01", Format = "drift-attack",
                 HardTimeoutMs = 420_000, ParticipationEnvelopeMs = 322_500, Provisional = true, Difficulties = Difficulties() },
         };
         Validate(trials, catalogue);

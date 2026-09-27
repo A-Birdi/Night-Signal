@@ -17,6 +17,7 @@ namespace NightSignal.Net
         public const string MsgLoaded = "ns.loaded";       // client → server, reliable: loading progress / ready
         public const string MsgPhase = "ns.phase";         // server → client, reliable: phase + start tick
         public const string MsgResults = "ns.results";     // server → client, reliable: results summary (JSON)
+        public const string MsgDrift = "ns.drift";         // server → client, unreliable sequenced, 10 Hz: the driver's own drift figures
         public const int InputRedundancy = 8;
 
         public static void Write(FastBufferWriter w, in VehicleState s)

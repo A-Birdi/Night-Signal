@@ -48,6 +48,12 @@ namespace NightSignal.Net
 
         public bool Autopilot;
         public MatchInfo Info { get; private set; }
+        long driftBanked, driftUnbanked, driftLost;
+        float driftChain = 1f;
+        bool driftSeen;
+        readonly UI.DriftHudFeed driftFeed = new UI.DriftHudFeed();
+        /// <summary>This driver's banked raw drift score as the server last reported it (drift formats; 0 otherwise).</summary>
+        public long DriftBanked => driftBanked;
         /// <summary>This client's own car as drawn (null before the views exist or headless).</summary>
         public VehicleView MyView => Info != null && cars.TryGetValue(Info.YourIndex, out Car c) ? c.View : null;
         public MatchPhase Phase { get; private set; } = MatchPhase.WaitingForEntrants;
@@ -113,6 +119,14 @@ namespace NightSignal.Net
             nm.CustomMessagingManager.RegisterNamedMessageHandler(Wire.MsgPhase, OnPhase);
             nm.CustomMessagingManager.RegisterNamedMessageHandler(Wire.MsgSnapshot, OnSnapshot);
             nm.CustomMessagingManager.RegisterNamedMessageHandler(Wire.MsgResults, (id, r) => Results = JsonConvert.DeserializeObject<MatchResults>(Wire.ReadJson(r)));
+            nm.CustomMessagingManager.RegisterNamedMessageHandler(Wire.MsgDrift, (id, r) =>
+            {
+                r.ReadValueSafe(out driftBanked);
+                r.ReadValueSafe(out driftUnbanked);
+                r.ReadValueSafe(out driftLost);
+                r.ReadValueSafe(out driftChain);
+                driftSeen = true;
+            });
             nm.NetworkTickSystem.Tick += OnTick;
             if (!Autopilot)
             {
@@ -158,7 +172,12 @@ namespace NightSignal.Net
             ownSim = new VehicleSimulation(ownParams, world);
             GridSlot slot = track.Grid[me.GridSlot];
             ownState = VehicleState.AtRest(slot.Position, slot.Rotation);
-            autopilot = new RouteFollower(track, ownParams, DriverProfile.Validator);
+            autopilot = new RouteFollower(track, ownParams, DriverProfile.Validator)
+            {
+                // Drift formats: the automation drifts the judged zones like a player would have to.
+                DriftZones = Info.FreeplayMode == "drift-attack" && new DriftJudge(track).Zones.Count > 0 ? new DriftJudge(track).Zones : null,
+                ResetWhenStuck = true,
+            };
             if (!headless)
             {
                 var camGo = CameraRig.EnsureMain("RaceCamera").gameObject;
@@ -216,6 +235,7 @@ namespace NightSignal.Net
             long raceMicros = NetBootstrap.RaceMicros(serverTick, startTick);
             hudState.FinishWindowSeconds = deadlineMicros > 0 && Phase == MatchPhase.Racing ? Mathf.Max(0f, (deadlineMicros - raceMicros) / 1e6f) : -1f;
             hudState.RttMs = Rtt();
+            if (driftSeen) driftFeed.Update(hudState, driftBanked, driftUnbanked, driftLost, driftChain, Time.unscaledTime);
             string countdown = Phase == MatchPhase.Countdown || Phase == MatchPhase.Racing ? UI.HudHelpers.Countdown((startTick - serverTick) / 60f) : "";
             hudState.Banner = Phase == MatchPhase.Loading ? "LOADING — WAITING FOR ALL DRIVERS"
                 : Results != null ? "RESULTS" + ResultLine()

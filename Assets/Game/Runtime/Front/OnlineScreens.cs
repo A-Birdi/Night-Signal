@@ -30,6 +30,7 @@ namespace NightSignal.Front
             ("Freeplay · Circuit", new { kind = "freeplay", submode = "circuit" }, "freeplay", null, "circuit"),
             ("Freeplay · Time Attack", new { kind = "freeplay", submode = "time-attack" }, "freeplay", null, "time-attack"),
             ("Challenges · Team Trial", new { kind = "challenges" }, "challenges", null, null),
+            ("Freeplay · Drift Attack", new { kind = "freeplay", submode = "drift-attack" }, "freeplay", null, "drift-attack"),
         };
 
         TextMeshProUGUI heading, status, error, rosterText, lastResult, intentLine, proposalLine, postLine, inviteLine;
@@ -455,6 +456,16 @@ namespace NightSignal.Front
 
         /// <summary>Automation hook (UI tours): choose an intent row as a player would with the stepper.</summary>
         public void SelectIntent(int index) => intent.Set(index);
+
+        /// <summary>Selects a freeplay course in the event setup once the snapshot offers it (tours).</summary>
+        public bool SelectCourse(string courseId)
+        {
+            int i = courseIds.IndexOf(courseId);
+            if (i < 0) return false;
+            course.Set(i);
+            dirty = true;
+            return true;
+        }
 
         /// <summary>Selects a Team Trial (and its difficulty) in the event setup once the snapshot lists them (tours).</summary>
         public bool SelectTrial(string trialId, string difficultyId)

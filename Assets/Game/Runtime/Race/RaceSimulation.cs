@@ -31,6 +31,11 @@ namespace NightSignal.Race
         public int AutoRecoveries;
         /// <summary>Continuous seconds an AI has been effectively stationary while racing.</summary>
         public float StuckSeconds;
+        /// <summary>Core drift scoring for this car (every event; only drift formats rank by it).</summary>
+        public readonly DriftScorer Drift = new DriftScorer();
+        public int DriftWallsSeen, DriftSector = -1;
+        /// <summary>How the last chain ended (banked or lost) — for the HUD.</summary>
+        public ChainEnd LastChainEnd;
         public bool Collides => Status == EntrantStatus.Racing || Status == EntrantStatus.Finished;
     }
 
@@ -51,6 +56,8 @@ namespace NightSignal.Race
         public bool RequiresBeatingFeaturedRival;
         /// <summary>dry | damp | wet — one grip rule for races and the Garage Test Yard (CourseRuntime.SurfaceGrip).</summary>
         public string Surface = "dry";
+        /// <summary>Drift Attack (freeplay, or a drift Team Trial): finishers rank by banked raw drift score, not time.</summary>
+        public bool DriftRanking;
     }
 
     public sealed class HumanSlot
@@ -79,6 +86,8 @@ namespace NightSignal.Race
         public float LegalProgressMetres;
         /// <summary>Finished ahead of the featured live rival, or the rival legally failed to finish (a tie does not beat).</summary>
         public bool BeatFeaturedRival;
+        /// <summary>Banked raw drift score (whole points; every event reports it, drift formats rank by it).</summary>
+        public long RawDriftScore;
     }
 
     /// <summary>
@@ -93,6 +102,7 @@ namespace NightSignal.Race
         public readonly TrackData Track;
         public readonly RaceProgressTracker Tracker;
         public readonly RaceEventRules Rules;
+        public readonly DriftJudge Drift;
         public readonly List<RaceEntrant> Entrants = new List<RaceEntrant>();
         /// <summary>
         /// Record ruleset versions (personal records only compare within one version). Bump PhysicsVersion whenever the
@@ -116,6 +126,7 @@ namespace NightSignal.Race
             Track = track;
             Rules = rules;
             Tracker = new RaceProgressTracker(track);
+            Drift = new DriftJudge(track);
         }
 
         public long RaceMicros(int tick) => (long)(tick - StartTick) * 1_000_000L / VehicleSimulation.TickRate;
@@ -159,7 +170,7 @@ namespace NightSignal.Race
             {
                 FinalRivals.Require(rival.Id, ctx, Rules.StageId, Rules.Mode);
                 e = Add(lib, world, slot, rival.Id, rival.Name, false, LegalCarFor(cat, rival.PrimaryCar, Rules.CarCapPi), team, role, null);
-                e.Ai = new RouteFollower(Track, e.Params, AiProfiles.For(rival, Rules.StageNumber));
+                e.Ai = new RouteFollower(Track, e.Params, AiProfiles.For(rival, Rules.StageNumber)) { DriftZones = DriftZonesForAi };
             }
             else
             {
@@ -167,7 +178,7 @@ namespace NightSignal.Race
                 CarDef car = cat.Cars.Where(c => Rules.CarCapPi <= 0 || c.BasePI <= Rules.CarCapPi)
                     .OrderByDescending(c => c.BasePI).Skip(generic % 3).FirstOrDefault() ?? cat.Cars.OrderBy(c => c.BasePI).First();
                 e = Add(lib, world, slot, id, $"Driver {id.ToUpperInvariant()}", false, car.Id, team, role, null);
-                e.Ai = new RouteFollower(Track, e.Params, AiProfiles.Generic(generic++));
+                e.Ai = new RouteFollower(Track, e.Params, AiProfiles.Generic(generic++)) { DriftZones = DriftZonesForAi };
             }
         }
 
@@ -232,11 +243,13 @@ namespace NightSignal.Race
                 Tracker.Step(e.Progress, prev, e.State, e.Sim.Telemetry, raceMicros, VehicleSimulation.TickDt);
 
                 e.ResetHeld = input.ResetHeld ? e.ResetHeld + VehicleSimulation.TickDt : 0f;
+                bool reset = false;
                 if (e.ResetHeld >= 0.7f && !e.Progress.Finished)
                 {
                     e.State = Tracker.ResetPose(e.Progress, e.Params);
                     e.ResetHeld = 0f;
                     e.GhostUntilTick = tick + GhostWindowTicks;
+                    reset = true;
                 }
                 else if (!e.Progress.Finished && (ClearlyOffCourse(e) || AiStuck(e)))
                 {
@@ -247,7 +260,9 @@ namespace NightSignal.Race
                     e.OffCourseSeconds = 0f;
                     e.StuckSeconds = 0f;
                     e.AutoRecoveries++;
+                    reset = true;
                 }
+                Drift.Step(e, reset, e.Progress.Finished);
                 if (e.Progress.Finished)
                 {
                     e.Status = EntrantStatus.Finished;
@@ -278,6 +293,9 @@ namespace NightSignal.Race
                 e.Status = EntrantStatus.Dnf;
             Complete = true;
         }
+
+        /// <summary>In drift formats the AI drifts the judged zones like the humans must (null otherwise: race the line).</summary>
+        public IReadOnlyList<RouteGateDef> DriftZonesForAi => Rules.DriftRanking && Drift.Zones.Count > 0 ? Drift.Zones : null;
 
         static int GhostWindowTicks => Limits.ResetGhostMaxMs * VehicleSimulation.TickRate / 1000;
 
@@ -392,7 +410,9 @@ namespace NightSignal.Race
                 FinishTimeMicros = e.Progress.FinishTimeMicros,
                 LegalProgressMetres = e.Progress.RaceDistance - Track.StartMetres,
             }).ToList();
-            Dictionary<string, Placing> placings = RaceClassification.Classify(finishes).ToDictionary(p => p.EntrantId);
+            Dictionary<string, Placing> placings = Rules.DriftRanking
+                ? DriftPlacings(finishes, Entrants.ToDictionary(e => e.Roster.EntrantId, DriftJudge.Reported))
+                : RaceClassification.Classify(finishes).ToDictionary(p => p.EntrantId);
             RaceEntrant rival = Entrants.FirstOrDefault(e => e.Roster.Role == "featured");
             bool rivalFinished = rival != null && OutcomeOf(rival) == RunOutcome.Finished;
             var results = new List<RaceEntrantResult>();
@@ -412,9 +432,35 @@ namespace NightSignal.Race
                     ActivelyDroveLegalCourse = finished && !e.Progress.CorridorCut && e.Progress.OutOfCorridorSeconds < 5f,
                     LegalProgressMetres = Math.Max(0, e.Progress.RaceDistance - Track.StartMetres),
                     BeatFeaturedRival = e.Human && finished && rival != null && (!rivalFinished || e.Progress.FinishTimeMicros < rival.Progress.FinishTimeMicros),
+                    RawDriftScore = DriftJudge.Reported(e),
                 });
             }
             return results;
+        }
+
+        /// <summary>
+        /// Drift Attack placings, exactly as the control plane recomputes them: finishers by banked raw score (equal scores
+        /// share a place), then non-finishers by legal progress, disqualifications unplaced.
+        /// </summary>
+        static Dictionary<string, Placing> DriftPlacings(List<EntrantFinish> finishes, Dictionary<string, long> scores)
+        {
+            var result = new Dictionary<string, Placing>();
+            List<EntrantFinish> finishers = finishes.Where(f => f.Outcome == RunOutcome.Finished).OrderByDescending(f => scores[f.EntrantId]).ToList();
+            foreach (EntrantFinish f in finishers)
+            {
+                long score = scores[f.EntrantId];
+                result[f.EntrantId] = new Placing
+                {
+                    EntrantId = f.EntrantId, Outcome = RunOutcome.Finished,
+                    Place = 1 + finishers.Count(o => scores[o.EntrantId] > score), Tied = finishers.Count(o => scores[o.EntrantId] == score) > 1,
+                };
+            }
+            int next = finishers.Count;
+            foreach (EntrantFinish dnf in finishes.Where(f => f.Outcome == RunOutcome.DidNotFinish).OrderByDescending(f => f.LegalProgressMetres))
+                result[dnf.EntrantId] = new Placing { EntrantId = dnf.EntrantId, Place = ++next, Outcome = RunOutcome.DidNotFinish };
+            foreach (EntrantFinish other in finishes.Where(f => !result.ContainsKey(f.EntrantId)))
+                result[other.EntrantId] = new Placing { EntrantId = other.EntrantId, Place = 0, Outcome = other.Outcome };
+            return result;
         }
     }
 }

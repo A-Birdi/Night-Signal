@@ -65,6 +65,7 @@ namespace NightSignal.Race
         ChaseCamera chase;
         UI.RaceHud hud;
         readonly UI.HudState hudState = new UI.HudState();
+        readonly UI.DriftHudFeed driftFeed = new UI.DriftHudFeed();
         double accumulator, tickMsSum;
         int ticksMeasured;
         bool latchUp, latchDown;
@@ -88,7 +89,7 @@ namespace NightSignal.Race
             Player.Status = EntrantStatus.Loaded;
             Sim.HumanInput = LocalInput;
             Sim.StartTick = CountdownTicks;
-            pilot = new RouteFollower(course.Track, Player.Params, DriverProfile.Validator);
+            pilot = new RouteFollower(course.Track, Player.Params, DriverProfile.Validator) { DriftZones = Sim.DriftZonesForAi, ResetWhenStuck = true };
             foreach (RaceEntrant e in Sim.Entrants) previous[e] = e.State;
 
             if (!Headless)
@@ -231,6 +232,9 @@ namespace NightSignal.Race
             hudState.TotalCheckpoints = Sim.Tracker.TotalCheckpoints;
             hudState.WallIncidents = Player.Progress.WallIncidents;
             hudState.Resets = Player.Progress.Resets;
+            if (Sim.Rules.DriftRanking)
+                driftFeed.Update(hudState, (long)Player.Drift.BankedRaw, (long)Player.Drift.UnbankedRaw, (long)Player.Drift.LostRaw,
+                    (float)Player.Drift.ChainMultiplier, Time.unscaledTime);
             hudState.FinishWindowSeconds = Sim.DeadlineMicros != long.MaxValue && Phase == MatchPhase.Racing
                 ? Mathf.Max(0f, (Sim.DeadlineMicros - Sim.RaceMicros(CurrentTick)) / 1e6f) : -1f;
             string countdown = Phase != MatchPhase.Results ? UI.HudHelpers.Countdown((Sim.StartTick - CurrentTick) / 60f) : "";

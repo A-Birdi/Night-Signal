@@ -10,7 +10,7 @@
     races with the validator autopilot through normal inputs. Screenshots: Builds/Screenshots/tour-online. Raw logs stay
     under Builds/ (git-ignored: they contain local paths).
 #>
-param([int]$DevAccount = 0, [int]$Port = 7777, [int]$TimeoutSeconds = 600, [switch]$Freeplay, [switch]$Garage, [switch]$Appearance, [int]$Intent = -1, [string]$Trial = "")
+param([int]$DevAccount = 0, [int]$Port = 7777, [int]$TimeoutSeconds = 600, [switch]$Freeplay, [switch]$Garage, [switch]$Appearance, [int]$Intent = -1, [string]$Trial = "", [string]$Course = "")
 
 $ErrorActionPreference = 'Stop'
 $repo = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
@@ -32,6 +32,7 @@ if ($Freeplay) { $clientArgs += '-nsUiTourFreeplay' } # Freeplay sprint decided 
 if ($Garage) { $clientArgs += "-nsUiTourGarage" } # online Garage tyre change before the event
 if ($Appearance) { $clientArgs += "-nsUiTourAppearance" } # online livery applied before the event, checked on the race car
 if ($Intent -ge 0) { $clientArgs += @('-nsUiTourIntent', "$Intent") } # 4 = Freeplay Time Attack (group, non-contact)
+if ($Course) { $clientArgs += @('-nsUiTourCourse', $Course) }       # freeplay course, e.g. C01 for Drift Attack
 if ($Trial) { $clientArgs += @('-nsUiTourTrial', $Trial) }          # Team Trial id, e.g. TT_BEST
 $client = Start-Process -FilePath $exe -PassThru -WorkingDirectory $repo -ArgumentList $clientArgs
 

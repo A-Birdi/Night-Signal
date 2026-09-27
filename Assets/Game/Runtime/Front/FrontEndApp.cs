@@ -492,7 +492,8 @@ namespace NightSignal.Front
             Net.ResultEntrant mine = results?.Entrants.FirstOrDefault(e => e.EntrantId == session?.AccountId);
             if (results == null) sb.Append("The race ended without results (aborted or disconnected): nothing was settled.\n");
             else if (mine == null) sb.Append("You spectated this race.\n");
-            else sb.Append(mine.Outcome == "Finished" ? $"P{mine.Placement} of {results.Entrants.Count}   {ResultsScreen.FormatRaceTime(mine.FinishTimeMicros)}\n" : $"{mine.Outcome}\n");
+            else sb.Append((mine.Outcome == "Finished" ? $"P{mine.Placement} of {results.Entrants.Count}   {ResultsScreen.FormatRaceTime(mine.FinishTimeMicros)}" : mine.Outcome)
+                           + (mine.RawDriftScore > 0 ? $"   <color=#3EC6D8>drift {mine.RawDriftScore:N0} pts</color>" : "") + "\n");
             LastOnlineResult = sb.ToString();
             Canvas.gameObject.SetActive(true);
             yield return LoadBackdrop();
@@ -723,6 +724,13 @@ namespace NightSignal.Front
             {
                 // Readiness requests are rate-limited (15 s): wait until the button says it is available, like a player would.
                 yield return Until(() => GameObject.Find("ProposeEvent")?.GetComponent<Button>()?.interactable == true, 20f, "propose available");
+                int courseArg = Array.IndexOf(tourArgs, "-nsUiTourCourse");
+                if (courseArg >= 0 && courseArg + 1 < tourArgs.Length)
+                {
+                    string tourCourse = tourArgs[courseArg + 1];
+                    yield return Until(() => Convoy.SelectCourse(tourCourse), 10f, "course " + tourCourse + " offered");
+                    yield return new WaitForSeconds(0.5f);
+                }
                 if (tourTrial != null)
                 {
                     yield return Until(() => Convoy.SelectTrial(tourTrial, "standard"), 10f, "team trial listed");

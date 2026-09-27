@@ -131,6 +131,7 @@ namespace NightSignal.Front
                 CheckpointFraction = me.CheckpointFraction,
                 ActiveProgressVerified = me.ActiveProgressVerified,
                 ActivelyDroveLegalCourse = me.ActivelyDroveLegalCourse,
+                RawDriftScore = me.RawDriftScore,
                 CarModelId = plan.Car.ModelId,
                 CarInstanceId = plan.Car.InstanceId,
                 Loaner = plan.Car.Loaner,

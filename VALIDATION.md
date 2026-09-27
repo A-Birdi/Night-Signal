@@ -558,3 +558,32 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - Limits: the pearl flip tint is not rendered (URP Lit has no view-dependent tint); decal opacity is a blend toward the
   primary paint, not transparency; TMP plate text also shows mirrored from the front at steep top views; a second human
   seeing another's livery in the same race was not run (the roster path is the same for every entrant).
+
+## V-047 — Drift scoring in the race, AI that drifts, Drift Attack and the drift Team Trial online (2026-09-27)
+- **Scoring:** `Race/DriftJudge.cs` feeds Core `DriftScorer` every tick for every entrant in the shared race simulation
+  (server and offline): the route's judged drift zones and intended lines, route sectors (a chain banks at a sector end
+  or finish), road contact, legal direction, debounced wall impacts and resets (they lose the unbanked chain). Results
+  report the banked raw score (whole points); Drift Attack ranks finishers by it exactly as the control plane recomputes
+  (ties share a place, then DNFs by distance) — the control plane's placement cross-check accepted every drift event
+  below. Local results carry the score into Local progression facts.
+- **AI drift driving** (`RouteFollower` drift mode, drift formats only): per zone visit, a handbrake flick toward the bend
+  when up to speed and straight in the first half of the zone, then countersteer holding ~28° of slip (the handling
+  harness' drifter) with the target leaning with the road; the attempt ends before the predicted path reaches the road
+  edge, on a spin or wrong-way slide (the racing line catches it), and a zone that went wrong is not retried after a
+  reset. Autopilots (tours) also hold reset when wedged, as a player would.
+- **PlayMode `DriftAttackTests`** (validator autopilot V04 + three AI, 30× speed, `Evidence/courses/drift/*.json`), all
+  four cars finish and finishers rank by score — **PASS** on C01 (8,071 / 5,538 / 1,468 / 293 pts), C08 (2,749 / 1,124 /
+  1,063 / 11) and C12 (2,118 / 1,374 / 1,273 / 1,100). `FullGridContactTests` 2/2 still pass; EditMode **211/211**.
+- **HUD:** drift readout under the clock (banked score, the running chain with its multiplier, a short BANKED / CHAIN
+  LOST note) — offline from the simulation, online from a 10 Hz per-driver server message (`ns.drift`; the snapshot format
+  and protocol version are unchanged). The match message now carries the freeplay format.
+- **Online** (control plane + game server + client, `ui-tour-online.ps1`): convoy screen "Freeplay · Drift Attack" on
+  C01 (`-Intent 6 -Course C01`): 1 human + 3 AI, the autopilot banked **6,983 pts**, P4 of 4 by drift, settled as
+  `FreeplayDriftAttack` — **PASS**. `-Trial TT_DRIFT`: 1 human + 5 friendly AI vs 6 opposing AI on C01, autopilot
+  **2,545 pts** (P5 of 12 by drift), **Team Trial DEFEAT 10,900 vs 18,668 pts** settled — **PASS**. Screenshots
+  `Evidence/ui/online/drift/`.
+- Found and fixed: the provisional TT_DRIFT fixture used C02, which has no judged drift zones (it could never score);
+  it now uses C01 (three zones). Control plane tests 335/335.
+- Limits: the AI's drift is a scripted controller (no difficulty scaling of drift skill yet); drift targets for
+  campaign benchmarks were not exercised here; the convoy screen does not yet restrict Drift Attack to courses with
+  judged zones (C01, C04, C08, C12, C15, C16, C23–C25, FP01 have them).
