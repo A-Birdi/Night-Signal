@@ -137,8 +137,10 @@ namespace NightSignal.Front
 
         static string CarLabel(LocalCarChoice c)
         {
-            CarDef def = LocalSession.Current.Catalogue.Car(c.ModelId);
-            return $"{def.Name}  PI {def.BasePI} {def.Drive}";
+            LocalSession s = LocalSession.Current;
+            CarDef def = s.Catalogue.Car(c.ModelId);
+            OwnedCar owned = c.Loaner ? null : s.Profile.FindCar(c.InstanceId);
+            return $"{def.Name}  PI {(owned != null ? s.AppliedPi(owned) : def.BasePI)} {def.Drive}";
         }
 
         public override void OnShow()
@@ -155,7 +157,7 @@ namespace NightSignal.Front
             LocalProfile p = s.Profile;
             profileLine.text = $"{p.DisplayName}   ·   {p.ComputeRank().Name}   ·   {p.WalletBalance:N0} cr   ·   {p.Cars.Count} car(s)";
             cars.Clear();
-            foreach (OwnedCar c in p.Cars.OrderByDescending(c => s.Catalogue.Car(c.ModelId).BasePI))
+            foreach (OwnedCar c in p.Cars.OrderByDescending(c => s.AppliedPi(c)))
                 cars.Add(new LocalCarChoice { ModelId = c.ModelId, InstanceId = c.InstanceId });
             car.SetCount(Math.Max(1, cars.Count));
             course.Set(course.Index); // re-label locks for this profile
@@ -180,9 +182,11 @@ namespace NightSignal.Front
             if (!start.interactable) return;
             bool timeAttack = format.Index == 1;
             LocalCarChoice chosen = cars[car.Index];
-            CarDef def = LocalSession.Current.Catalogue.Car(chosen.ModelId);
-            // Opponents in the player's class, not the fastest cars in the game.
-            LocalEventPlan plan = LocalEvents.Freeplay(playable[course.Index], timeAttack, ai.Index, ClassCeiling(def.BasePI), chosen);
+            LocalSession s = LocalSession.Current;
+            OwnedCar owned = chosen.Loaner ? null : s.Profile.FindCar(chosen.InstanceId);
+            int pi = owned != null ? s.AppliedPi(owned) : s.Catalogue.Car(chosen.ModelId).BasePI;
+            // Opponents in the class of the player's APPLIED build, not the fastest cars in the game.
+            LocalEventPlan plan = LocalEvents.Freeplay(playable[course.Index], timeAttack, ai.Index, ClassCeiling(pi), chosen);
             App.StartLocalEvent(plan, this);
         }
 

@@ -352,7 +352,8 @@ namespace NightSignal.Front
         string CarLabel(LocalCarChoice c)
         {
             CarDef car = Session.Catalogue.Car(c.ModelId);
-            return (c.Loaner ? "Loaner  " : "") + $"{car.Name}  PI {car.BasePI}";
+            OwnedCar owned = c.Loaner ? null : Session.Profile.FindCar(c.InstanceId);
+            return (c.Loaner ? "Loaner  " : "") + $"{car.Name}  PI {(owned != null ? Session.AppliedPi(owned) : car.BasePI)}";
         }
 
         void Select(string id)
@@ -472,8 +473,9 @@ namespace NightSignal.Front
         {
             LocalProfile p = Session.Profile;
             ContentCatalogue cat = Session.Catalogue;
-            foreach (OwnedCar car in p.Cars.OrderByDescending(c => cat.Car(c.ModelId).BasePI))
-                if (capPi <= 0 || cat.Car(car.ModelId).BasePI <= capPi)
+            // Cap checks use each instance's APPLIED build (an upgraded car may exceed a stage cap its model meets stock).
+            foreach (OwnedCar car in p.Cars.OrderByDescending(c => Session.AppliedPi(c)))
+                if (capPi <= 0 || Session.AppliedPi(car) <= capPi)
                     carChoices.Add(new LocalCarChoice { ModelId = car.ModelId, InstanceId = car.InstanceId });
             if (carChoices.Count == 0)
             {

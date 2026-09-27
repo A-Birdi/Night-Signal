@@ -63,14 +63,21 @@ namespace NightSignal.Vehicle
             }
         }
 
-        static float Brake(VehicleParams p)
+        static float Brake(VehicleParams p) => BrakeDistance(p, 1f);
+
+        /// <summary>
+        /// 100 → 0 km/h on the flat plane holding a fixed brake pedal (0–1), ABS as configured. Full pedal is the report's
+        /// figure (tyre-limited with ABS); a partial pedal shows how much deceleration the brake hardware gives for the same
+        /// input — what a brake upgrade changes.
+        /// </summary>
+        public static float BrakeDistance(VehicleParams p, float pedal)
         {
             var sim = new VehicleSimulation(p, PlaneVehicleWorld.Flat);
             VehicleState s = Settled(sim);
             s.Velocity = s.Rotation * Vector3.forward * (100f / 3.6f);
             s.Gear = 3;
             Vector3 start = s.Position;
-            DriverInput brake = DriverInput.Quantize(0f, 0f, 1f, InputButtons.None);
+            DriverInput brake = DriverInput.Quantize(0f, 0f, pedal, InputButtons.None);
             for (int tick = 0; tick < 60 * 20 && s.Velocity.magnitude > 0.1f; tick++)
                 sim.Step(ref s, brake);
             return Vector3.Distance(s.Position, start);

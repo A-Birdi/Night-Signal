@@ -103,18 +103,18 @@ namespace NightSignal.Front
 
             // Right: draft vs applied, actions, loadouts and references.
             RectTransform rcol = UIFactory.Column("Draft", root, new Vector2(0.64f, 0.02f), new Vector2(0.99f, 0.95f), Vector2.zero, Vector2.zero, 6f);
-            compare = UIFactory.Row("Compare", rcol, "", SignalTheme.Small, SignalTheme.Label, 660, 250);
+            compare = UIFactory.Row("Compare", rcol, "", SignalTheme.Small, SignalTheme.Label, 660, 200);
             compare.richText = true;
             apply = UIFactory.Button("ApplyDraft", rcol, "Apply", ApplyDraft, 660, 50);
             buyApply = UIFactory.Button("BuyAndApply", rcol, "Buy & Apply", BuyAndApply, 660, 50);
             discard = UIFactory.Button("DiscardDraft", rcol, "Revert Draft to Applied", Discard, 660, 42);
             saveLoadout = UIFactory.Button("SaveLoadout", rcol, "Save Draft as Loadout", SaveLoadout, 660, 42);
-            message = UIFactory.Row("Message", rcol, "", SignalTheme.Small, SignalTheme.Caution, 660, 44);
+            message = UIFactory.Row("Message", rcol, "", SignalTheme.Small, SignalTheme.Caution, 660, 40);
             UIFactory.Row("LoadoutsTitle", rcol, "LOADOUTS  (select to load into the draft)", SignalTheme.Small, SignalTheme.LabelDim, 660, 24);
             for (int i = 0; i < LoadoutRows; i++)
             {
                 int index = i;
-                Button b = UIFactory.Button("Loadout" + i, rcol, "", () => LoadLoadout(index), 660, 36);
+                Button b = UIFactory.Button("Loadout" + i, rcol, "", () => LoadLoadout(index), 660, 34);
                 b.GetComponentInChildren<TextMeshProUGUI>().fontSize = SignalTheme.Small * SignalTheme.TextScale;
                 b.GetComponentInChildren<TextMeshProUGUI>().richText = true;
                 loadoutButtons.Add(b);
@@ -123,7 +123,7 @@ namespace NightSignal.Front
             foreach (BuildReferenceKind k in ReferenceOrder)
             {
                 BuildReferenceKind captured = k;
-                Button b = UIFactory.Button("Ref-" + BuildReferenceKinds.Id(k), rcol, "", () => LoadReference(captured), 660, 36);
+                Button b = UIFactory.Button("Ref-" + BuildReferenceKinds.Id(k), rcol, "", () => LoadReference(captured), 660, 34);
                 b.GetComponentInChildren<TextMeshProUGUI>().fontSize = SignalTheme.Small * SignalTheme.TextScale;
                 referenceButtons[k] = b;
             }
@@ -169,7 +169,13 @@ namespace NightSignal.Front
 
         OwnedCar Car => cars.Count == 0 ? null : cars[Mathf.Clamp(carStep.Index, 0, cars.Count - 1)];
 
-        string CarName(OwnedCar c) => cat != null && cat.TryCar(c.ModelId, out CarDef d) ? $"{d.Name}  <size=70%>{c.InstanceId}</size>" : c.ModelId;
+        /// <summary>Plain text (the stepper label is not rich text); a second instance of the same model is numbered.</summary>
+        string CarName(OwnedCar c)
+        {
+            string name = cat != null && cat.TryCar(c.ModelId, out CarDef d) ? d.Name : c.ModelId;
+            int same = cars.Count(x => x.ModelId == c.ModelId);
+            return same > 1 ? $"{name}  #{cars.Where(x => x.ModelId == c.ModelId).ToList().IndexOf(c) + 1}" : name;
+        }
 
         /// <summary>Selects a car instance by model (tours).</summary>
         public void SelectModel(string modelId)
@@ -254,7 +260,8 @@ namespace NightSignal.Front
                 string inApplied = s == PartSlot.Utility ? ws.Applied.Build.UtilityPartId : ws.Applied.Build.PartIn(s);
                 bool changed = !string.Equals(inDraft ?? "", inApplied ?? "", StringComparison.Ordinal);
                 bool preview = inDraft != null && !ctx.Ownership.Owns(ws.Car.InstanceId, inDraft);
-                string label = inDraft == null ? "<color=#9A968D>stock</color>" : Esc(PartName(inDraft)) + (preview ? " <color=#F2A541>(not owned)</color>" : "");
+                // A preview (not owned) part shows in amber; the draft panel lists what it would cost.
+                string label = inDraft == null ? "<color=#9A968D>stock</color>" : preview ? $"<color=#F2A541>{Esc(PartName(inDraft))}</color>" : Esc(PartName(inDraft));
                 string mark = s == slot ? "<color=#E5484D>›</color> " : "";
                 slotButtons[s].GetComponentInChildren<TextMeshProUGUI>().text =
                     $"{mark}<size=80%>{SlotLabel(s).ToUpperInvariant()}</size>  {label}{(changed ? "  <color=#3EC6D8>●</color>" : "")}";

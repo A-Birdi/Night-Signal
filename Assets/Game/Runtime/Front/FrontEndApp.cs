@@ -257,6 +257,86 @@ namespace NightSignal.Front
             yield return new WaitForSeconds(1.2f);
             Click("Back");
             yield return new WaitForSeconds(1.2f);
+
+            // Garage: tyres into the draft → Buy & Apply (quote, then the confirming press) → save a loadout → restore the
+            // protected "before last apply" build into the draft → revert; then re-open the profile FROM DISK and check it.
+            Click("Garage");
+            yield return new WaitForSeconds(1.5f);
+            Shot("20-garage");
+            Click("Slot-tyres");
+            yield return new WaitForSeconds(0.6f);
+            Click("Part1"); // the cheapest compatible tyre (stock is row 0)
+            yield return new WaitForSeconds(0.8f);
+            string tyre = Garage.Workspace?.Draft?.Build.PartIn(Core.Builds.PartSlot.Tyres);
+            Shot("21-garage-draft");
+            Click("BuyAndApply");
+            yield return new WaitForSeconds(0.8f);
+            Shot("22-garage-quote");
+            yield return new WaitForSeconds(0.5f); // the capture happens at the end of the frame: let it land first
+            long walletBefore = LocalSession.Current.Profile.WalletBalance;
+            Click("BuyAndApply");
+            yield return new WaitForSeconds(1f);
+            Shot("23-garage-bought");
+            string applied = Garage.Workspace?.Applied.Build.PartIn(Core.Builds.PartSlot.Tyres);
+            long walletAfter = LocalSession.Current.Profile.WalletBalance;
+            Debug.Log($"[NightSignal.UiTour] garage: {tyre} applied={applied} wallet {walletBefore} -> {walletAfter} ({Garage.Message})");
+            if (tyre == null || applied != tyre || walletAfter >= walletBefore) failures.Add("Garage: buy-and-apply did not apply " + tyre);
+            Click("SaveLoadout");
+            yield return new WaitForSeconds(0.8f);
+            Click("Ref-before-last-apply");
+            yield return new WaitForSeconds(0.8f);
+            Shot("24-garage-restore");
+            bool restoredStock = Garage.Workspace?.Draft?.Build.PartIn(Core.Builds.PartSlot.Tyres) == null;
+            if (!restoredStock) failures.Add("Garage: before-last-apply did not restore the stock tyres into the draft");
+            Click("DiscardDraft");
+            yield return new WaitForSeconds(0.8f);
+            Click("Back");
+            yield return new WaitForSeconds(1.2f);
+            string profileId = LocalSession.Current.Profile.ProfileId;
+            string instance = LocalSession.Current.Profile.Cars[0].InstanceId;
+            if (!LocalSession.Current.Open(profileId, out string reopenMessage)) failures.Add("re-open profile: " + reopenMessage);
+            Core.Profiles.OwnedCar reCar = LocalSession.Current.Profile.Cars.FirstOrDefault(c => c.InstanceId == instance);
+            var reload = Core.Profiles.LocalGarage.LoadWorkspace(LocalSession.Current.Profile, LocalSession.Current.Catalogue,
+                NightSignal.Content.ContentLibrary.Load().Parts, instance, DateTime.UtcNow);
+            bool persisted = reCar != null && tyre != null && reCar.OwnsPart(tyre) && reload.Ok && reload.Workspace.Applied.Build.PartIn(Core.Builds.PartSlot.Tyres) == tyre
+                             && reload.Workspace.Loadouts.Count == 1 && reload.Workspace.LoadoutCapacity >= 8 && reload.Workspace.Reference(Core.Builds.BuildReferenceKind.BeforeLastApply) != null;
+            Debug.Log($"[NightSignal.UiTour] garage persisted: {persisted} (loadouts {reload.Workspace?.Loadouts.Count}/{reload.Workspace?.LoadoutCapacity}, owns {tyre}: {reCar?.OwnsPart(tyre)})");
+            if (!persisted) failures.Add("Garage: the bought part, applied build, loadout or reference was not persisted");
+
+            // Race S02 with the upgraded car: the race must use the APPLIED build and record it as Last Race Build.
+            Click("Campaign");
+            until = Time.realtimeSinceStartup + 30f;
+            while (Time.realtimeSinceStartup < until && Router.Current != CampaignMap) yield return null;
+            yield return new WaitForSeconds(2f);
+            Click("Node-S02");
+            yield return new WaitForSeconds(0.8f);
+            Shot("25-stage-upgraded-car");
+            Click("Race");
+            until = Time.realtimeSinceStartup + 30f;
+            while (activeRace == null && Time.realtimeSinceStartup < until) yield return null;
+            string racedHash = activeRace?.PlayerSpec?.BuildHash; // what the session builds the player's car from
+            if (activeRace != null)
+            {
+                activeRace.Autopilot = true;
+                activeRace.SimulationSpeed = 12;
+            }
+            else failures.Add("the upgraded-car race did not start");
+            until = Time.realtimeSinceStartup + 180f;
+            while (Router.Current != Results && Time.realtimeSinceStartup < until) yield return null;
+            yield return new WaitForSeconds(1.5f);
+            Shot("26-results-upgraded");
+            var afterRace = Core.Profiles.LocalGarage.LoadWorkspace(LocalSession.Current.Profile, LocalSession.Current.Catalogue,
+                NightSignal.Content.ContentLibrary.Load().Parts, instance, DateTime.UtcNow);
+            Core.Builds.BuildReference lastRace = afterRace.Workspace?.Reference(Core.Builds.BuildReferenceKind.LastRaceBuild);
+            bool recorded = lastRace != null && lastRace.Build.PartIn(Core.Builds.PartSlot.Tyres) == tyre;
+            Debug.Log($"[NightSignal.UiTour] upgraded race: spec {(racedHash ?? "none").Substring(0, Math.Min(12, (racedHash ?? "none").Length))}, last race build recorded {recorded} ({lastRace?.Context})");
+            if (racedHash == null) failures.Add("the upgraded car raced without its applied build");
+            if (!recorded) failures.Add("Last Race Build was not recorded with the bought tyres");
+            Click("Continue");
+            yield return new WaitForSeconds(2.5f);
+            Click("Back");
+            yield return new WaitForSeconds(1.2f);
+
             string summary = failures.Count == 0 ? "PASS" : "FAILED: " + string.Join("; ", failures);
             bool toySaved = LocalSession.Current?.ToySnapshot(Toys.LocalToyHost.DocumentKey) != null;
             Debug.Log($"[NightSignal.UiTour] {summary} (profile wallet {s?.Profile?.WalletBalance}, S01 cleared {cleared}, toy table saved {toySaved})");
@@ -636,8 +716,22 @@ namespace NightSignal.Front
         {
             string courseRevision = "";
             List<RaceEntrantResult> results = null;
+            // An owned car races its frozen APPLIED build (Addendum 02 §10): bought parts change the physics; a loaner is stock.
+            LocalSession local = LocalSession.Current;
+            Core.Builds.AppliedVehicleBuild frozen = null;
+            string buildProblem = null;
+            Core.Builds.ResolvedCarSpec spec = plan.Car.Loaner ? null : local?.RaceSpec(plan.Car.InstanceId, out frozen, out buildProblem);
+            if (buildProblem != null) Debug.LogWarning("[NightSignal.Local] " + buildProblem);
+            Debug.Log($"[NightSignal.Local] {plan.EventId}: {plan.Car.ModelId} races build {(spec != null ? spec.BuildHash.Substring(0, 12) : "stock")} (PI {frozen?.Pi})");
             yield return RunOfflineRace(plan.CourseId, plan.Car.ModelId, plan.Rules, plan.OpposingAi, false,
-                (r, rev) => { results = r; courseRevision = rev; });
+                (r, rev) => { results = r; courseRevision = rev; }, spec, () =>
+                {
+                    // Driving began with this build: record Last Race Build (Test Yard and toys never do).
+                    if (frozen == null || local?.Profile == null) return;
+                    Core.Profiles.LocalProgressionResult rec = Core.Profiles.LocalGarage.RecordLocalRaceBuild(local.Profile, local.Catalogue,
+                        NightSignal.Content.ContentLibrary.Load().Parts, plan.Car.InstanceId, frozen, plan.EventId, DateTime.UtcNow);
+                    if (rec.Changed && !local.Commit(rec, out string note)) Debug.LogWarning("[NightSignal.Local] Last Race Build not saved: " + note);
+                });
             LocalSession session = LocalSession.Current;
             Core.Profiles.LocalProgressionResult applied = null;
             string saveNote = "";
@@ -668,7 +762,7 @@ namespace NightSignal.Front
         }
 
         IEnumerator RunOfflineRace(string courseId, string carId, RaceEventRules rules, List<string> opposingAi, bool showResults,
-            Action<List<RaceEntrantResult>, string> onResults)
+            Action<List<RaceEntrantResult>, string> onResults, Core.Builds.ResolvedCarSpec playerSpec = null, Action onRacing = null)
         {
             Canvas.gameObject.SetActive(false);
             if (backdropCamera != null) backdropCamera.SetActive(false);
@@ -680,10 +774,20 @@ namespace NightSignal.Front
             var go = new GameObject("OfflineRace");
             activeRace = go.AddComponent<OfflineRaceSession>();
             activeRace.CarId = carId;
+            activeRace.PlayerSpec = playerSpec;
             activeRace.PlayerName = string.IsNullOrEmpty(DisplayName) ? "You" : DisplayName;
             activeRace.Rules = rules;
             activeRace.OpposingAi = opposingAi;
-            while (activeRace != null && activeRace.Phase != MatchPhase.Results) yield return null;
+            bool began = false;
+            while (activeRace != null && activeRace.Phase != MatchPhase.Results)
+            {
+                if (!began && activeRace.Phase == MatchPhase.Racing)
+                {
+                    began = true;
+                    onRacing?.Invoke();
+                }
+                yield return null;
+            }
             yield return new WaitForSeconds(2.5f); // let the finish banner read before the results page
             List<RaceEntrantResult> results = activeRace != null ? activeRace.Results : null;
             string revision = CourseRuntime.Active != null ? CourseRuntime.Active.SourceHash : "";

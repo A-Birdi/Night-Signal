@@ -382,3 +382,24 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   snapshot) — fixed; the Friends screen kept errors only until the next list refresh — action results now persist.
 - Not covered by this run: block/unblock UI (server endpoints exist), invitations to offline friends, rejoin through a
   friend row.
+
+## V-038 — Local Garage through the UI; upgrades race and are measurably meaningful (2026-09-27)
+- Garage screen (Offline hub → Garage) on Core `GarageOperations`/`LocalGarage` (profile schema 2): slots with the
+  draft's parts (preview parts in amber), compatible parts by tier with owned / price / shop-act lock, draft vs race
+  build (PI estimate and class, top speed, power/weight, grip, braking, every changed part/tune), Apply, Buy & Apply
+  (Core quote, then a confirming press; settled once), 8 loadout slots, the three protected references restored into
+  the draft (a dirty draft asks before being replaced), workshop session on enter/leave.
+- Local races now drive the car's frozen APPLIED build (resolved parts → `VehicleFactory.Build(spec)`), cap checks and
+  Freeplay class ceilings use the applied build's PI, and Last Race Build is recorded when driving begins.
+- Local UI tour (`-nsUiTour`) — **PASS**: after S01 and the five diversions, Garage → tyres → TYR-T1-TOURING →
+  Buy & Apply (**29,157 → 21,157 cr**) → Save loadout → restore "Before last apply" (stock tyres in the draft) → revert;
+  profile re-opened from disk: part owned by that instance, applied build, 1/8 loadouts, reference present. Then **S02
+  raced with build `ab6c3d46f265` (PI 240)**, cleared, Last Race Build recorded under that event id. Screenshots
+  `Evidence/ui/campaign/20…26`.
+- EditMode `Tier2Upgrades_MeasurablyImproveTheStarters` (flat-plane harness, identical inputs), V01 / V02 / V03:
+  T2 engine 0–100 7.52→7.32 / 6.90→6.57 / 6.23→5.65 s and +6 km/h at 1,000 m; T2 tyres skidpad 0.992→1.082 /
+  1.027→1.110 / 1.056→1.142 g; brake kit at a 60 % pedal 52.4→47.2 / 52.8→47.6 / 53.1→47.7 m; all three: full ABS
+  stop 38.6→35.8 / 36.2→33.7 / 36.5→33.7 m. BuildParity 22/22.
+- Honest limitation: a brake kit does not shorten a full-pedal ABS stop (tyre-limited, see docs/EFFECTIVE_RULES.md
+  builds §5); an ABS-hold-point change was tried and rejected (noisier, sometimes longer stops). No brake fade yet.
+  Tuning controls, the Test Yard and the online Garage are not built yet.

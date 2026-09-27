@@ -22,6 +22,8 @@ namespace NightSignal.Race
     public sealed class OfflineRaceSession : MonoBehaviour
     {
         public string CarId = "V01";
+        /// <summary>The player's frozen applied build (null = stock), resolved by Core before the race.</summary>
+        public Core.Builds.ResolvedCarSpec PlayerSpec;
         public string PlayerName = "You";
         public bool Autopilot;
         /// <summary>Simulation ticks per real tick (tests fast-forward; 1 = real time).</summary>
@@ -76,7 +78,7 @@ namespace NightSignal.Race
             }
             Headless |= Application.isBatchMode;
             var world = new PhysicsVehicleWorld(Physics.defaultPhysicsScene, GameLayers.DrivableMask, GameLayers.BarrierMask);
-            var humans = new List<HumanSlot> { new HumanSlot { EntrantId = "local", DisplayName = PlayerName, CarId = CarId } };
+            var humans = new List<HumanSlot> { new HumanSlot { EntrantId = "local", DisplayName = PlayerName, CarId = CarId, Spec = PlayerSpec } };
             Sim = RaceSimulation.Build(course.Track, lib, Rules, humans, OpposingAi, world, FriendlyAi);
             Player = Sim.Entrants[0];
             Player.Status = EntrantStatus.Loaded;

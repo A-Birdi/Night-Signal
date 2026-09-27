@@ -58,6 +58,8 @@ namespace NightSignal.Race
         public string EntrantId;
         public string DisplayName;
         public string CarId;
+        /// <summary>The frozen applied build this human races (parts resolved by Core); null = the model's stock car.</summary>
+        public Core.Builds.ResolvedCarSpec Spec;
     }
 
     public sealed class RaceEntrantResult
@@ -133,7 +135,7 @@ namespace NightSignal.Race
             ContentCatalogue cat = lib.Catalogue;
             int slot = 0, generic = 0;
             foreach (HumanSlot h in humans)
-                sim.Add(lib, world, slot++, h.EntrantId, h.DisplayName, true, h.CarId, "player", "driver", null);
+                sim.Add(lib, world, slot++, h.EntrantId, h.DisplayName, true, h.CarId, "player", "driver", null, h.Spec);
             foreach (string id in friendlyAi)
                 sim.AddAi(cat, lib, world, slot++, id, "player", "friendly", AiPlacementContext.FriendlyAi, ref generic);
             for (int i = 0; i < opposingAi.Count; i++)
@@ -165,9 +167,11 @@ namespace NightSignal.Race
             }
         }
 
-        RaceEntrant Add(ContentLibrary lib, IVehicleWorld world, int slot, string id, string name, bool human, string carId, string team, string role, float[] paint)
+        RaceEntrant Add(ContentLibrary lib, IVehicleWorld world, int slot, string id, string name, bool human, string carId, string team, string role, float[] paint,
+            Core.Builds.ResolvedCarSpec spec = null)
         {
-            VehicleParams p = lib.Params(carId, AssistSettings.Default);
+            if (spec != null && spec.CarModelId != carId) throw new InvalidOperationException($"build for {spec.CarModelId} used on {carId}");
+            VehicleParams p = spec != null ? VehicleFactory.Build(spec, AssistSettings.Default, lib.Body(carId).WheelRadius) : lib.Params(carId, AssistSettings.Default);
             GridSlot g = Track.Grid[slot];
             var e = new RaceEntrant
             {

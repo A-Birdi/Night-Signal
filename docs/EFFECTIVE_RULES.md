@@ -143,3 +143,10 @@ owner decides otherwise; nothing below changes a written rule.
 4. **Content hash.** `music.unlocks.json` is now part of the hashed catalogue documents. `parts.json`,
    `build-recipes.json` and the `toys/` documents are not yet; they must join before builds or toys affect an online
    event.
+5. **What a brake upgrade changes (measured, V-038).** With ABS and a full pedal every car's stop is tyre-limited in
+   the simulation (stock brake force is already above tyre grip, as on real cars), so brake kits do not shorten a
+   full-pedal ABS stop — tyres do (T2 tyres + engine + brakes on the starters: −7 %). Brake kits give more
+   deceleration for the same pedal (about −10 % stopping distance at a 60 % pedal) and bias/pressure tuning. Raising
+   the ABS hold point for upgraded brakes was tried and rejected: in the per-tick friction model it made stops noisier
+   and sometimes longer. Brake fade (heat) is not modelled; if the owner wants brake kits to matter in repeated
+   full-pedal stops, fade is the physically honest mechanism (a new vehicle-state value on the wire).

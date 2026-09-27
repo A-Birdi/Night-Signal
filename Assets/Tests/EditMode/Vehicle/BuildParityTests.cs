@@ -78,5 +78,56 @@ namespace NightSignal.Tests.Vehicle
                 }
             Assert.That(tried, Is.GreaterThan(10));
         }
+
+        /// <summary>
+        /// Addendum 02 "meaningful upgrades", measured in the real vehicle simulation (flat-plane harness, identical inputs):
+        /// on each starter the best compatible tier-2 engine, tyre and brake parts must each improve what they exist for by
+        /// a margin a driver feels, and the three together must improve all of it. Brakes are measured at a 60 % pedal: with
+        /// full pedal and ABS every car is tyre-limited (only tyres shorten that stop — see docs/EFFECTIVE_RULES.md).
+        /// </summary>
+        static VehicleParams Params(CarDef car, CarTuningDef tuning, MechanicalSnapshot build)
+        {
+            ResolveResult r = BuildResolver.Resolve(car, tuning, Parts, build);
+            Assert.That(r.Ok, Is.True, string.Join("; ", r.Issues));
+            return VehicleFactory.Build(r.Spec, AssistSettings.Default);
+        }
+
+        [Test]
+        public void Tier2Upgrades_MeasurablyImproveTheStarters([Values("V01", "V02", "V03")] string carId)
+        {
+            CarDef car = Catalogue.Car(carId);
+            CarTuningDef tuning = Catalogue.CarTunings[carId];
+            HandlingReport Measure(MechanicalSnapshot build) => HandlingHarness.Measure(Params(car, tuning, build));
+            string Best(PartSlot slot) => Parts.CompatibleParts(car, tuning, slot).Where(p => p.Tier <= 2 && !p.Retired)
+                .OrderByDescending(p => p.Tier).ThenByDescending(p => p.Price).Select(p => p.Id).FirstOrDefault();
+
+            string engine = Best(PartSlot.Engine), tyres = Best(PartSlot.Tyres), brakes = Best(PartSlot.Brakes);
+            Assert.That(engine, Is.Not.Null, "no tier ≤ 2 engine part");
+            Assert.That(tyres, Is.Not.Null, "no tier ≤ 2 tyre part");
+            Assert.That(brakes, Is.Not.Null, "no tier ≤ 2 brake part");
+            HandlingReport stock = Measure(MechanicalSnapshot.Stock());
+            HandlingReport eng = Measure(MechanicalSnapshot.Stock().With(PartSlot.Engine, engine));
+            HandlingReport tyr = Measure(MechanicalSnapshot.Stock().With(PartSlot.Tyres, tyres));
+            HandlingReport brk = Measure(MechanicalSnapshot.Stock().With(PartSlot.Brakes, brakes));
+            HandlingReport all = Measure(MechanicalSnapshot.Stock().With(PartSlot.Engine, engine).With(PartSlot.Tyres, tyres).With(PartSlot.Brakes, brakes));
+            TestContext.WriteLine($"{carId}  0-100 s / skidpad g / 100-0 m");
+            TestContext.WriteLine($"  stock            {stock.ZeroTo100Seconds:F2} / {stock.SkidpadLateralG:F3} / {stock.Brake100To0Metres:F1}");
+            TestContext.WriteLine($"  {engine,-16} {eng.ZeroTo100Seconds:F2}   (1000 m: {stock.SpeedAfter1000mKmh:F1} → {eng.SpeedAfter1000mKmh:F1} km/h)");
+            TestContext.WriteLine($"  {tyres,-16}        {tyr.SkidpadLateralG:F3}");
+            float stockPartial = HandlingHarness.BrakeDistance(Params(car, tuning, MechanicalSnapshot.Stock()), 0.6f);
+            float kitPartial = HandlingHarness.BrakeDistance(Params(car, tuning, MechanicalSnapshot.Stock().With(PartSlot.Brakes, brakes)), 0.6f);
+            TestContext.WriteLine($"  {brakes,-16}                {brk.Brake100To0Metres:F1}   (60 % pedal: {stockPartial:F1} → {kitPartial:F1} m)");
+            TestContext.WriteLine($"  all three        {all.ZeroTo100Seconds:F2} / {all.SkidpadLateralG:F3} / {all.Brake100To0Metres:F1}");
+
+            // Launch is partly traction- and shift-limited; the power shows over distance.
+            Assert.That(eng.ZeroTo100Seconds, Is.LessThan(stock.ZeroTo100Seconds), $"{engine}: 0-100 {stock.ZeroTo100Seconds:F2} → {eng.ZeroTo100Seconds:F2} s");
+            Assert.That(eng.SpeedAfter1000mKmh, Is.GreaterThan(stock.SpeedAfter1000mKmh * 1.02f), $"{engine}: 1000 m {stock.SpeedAfter1000mKmh:F1} → {eng.SpeedAfter1000mKmh:F1} km/h");
+            Assert.That(tyr.SkidpadLateralG, Is.GreaterThan(stock.SkidpadLateralG * 1.02f), $"{tyres}: skidpad {stock.SkidpadLateralG:F3} → {tyr.SkidpadLateralG:F3} g");
+            Assert.That(kitPartial, Is.LessThan(stockPartial * 0.95f), $"{brakes}: 100-0 at 60 % pedal {stockPartial:F1} → {kitPartial:F1} m");
+            Assert.That(brk.Brake100To0Metres, Is.LessThan(stock.Brake100To0Metres * 1.03f), $"{brakes}: a full ABS stop must not get meaningfully longer");
+            Assert.That(all.ZeroTo100Seconds, Is.LessThan(stock.ZeroTo100Seconds), "package: acceleration");
+            Assert.That(all.SkidpadLateralG, Is.GreaterThan(stock.SkidpadLateralG), "package: grip");
+            Assert.That(all.Brake100To0Metres, Is.LessThan(stock.Brake100To0Metres), "package: braking (the tyres shorten the ABS stop)");
+        }
     }
 }
