@@ -1,11 +1,11 @@
 {
     "course": "C25",
-    "sourceHash": "f766566149c877cab7aa426e0cc7f82c0274ed35d27e0d60df2a2833937c56cf",
+    "sourceHash": "bee98677541460699a8178e0a3a37824089a6473d50ac9f16c669bf6545b7964",
     "unityVersion": "6000.6.3f1",
     "note": "Measured from the generated centreline (TrackData) and the road collider; authored values are targets, not measurements.",
     "closedLoop": false,
     "laps": 1,
-    "revision": 2,
+    "revision": 3,
     "sampleCount": 10547,
     "surfaceProbes": 2110,
     "surfaceOnCentreline": 2110,

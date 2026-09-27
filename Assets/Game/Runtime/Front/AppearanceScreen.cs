@@ -229,7 +229,7 @@ namespace NightSignal.Front
             r.anchorMin = r.anchorMax = new Vector2(0, 0.5f);
             r.pivot = new Vector2(0, 0.5f);
             r.anchoredPosition = new Vector2(x, 0);
-            btn.GetComponentInChildren<TextMeshProUGUI>().fontSize = SignalTheme.Small * SignalTheme.TextScale;
+            UIFactory.Resize(btn.GetComponentInChildren<TextMeshProUGUI>(), SignalTheme.Small * SignalTheme.TextScale);
         }
 
         public override void OnShow()

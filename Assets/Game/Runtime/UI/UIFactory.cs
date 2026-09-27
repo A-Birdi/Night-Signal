@@ -71,17 +71,36 @@ namespace NightSignal.UI
             var t = go.AddComponent<TextMeshProUGUI>();
             t.text = text;
             t.fontSize = size * SignalTheme.TextScale;
+            // Larger text sizes must never make a label vanish (TMP drops a whole line that overflows its box vertically)
+            // or cut a word: shrink to fit the box, down to 55 %, before truncating (Addendum 03 G06).
+            t.enableAutoSizing = true;
+            t.fontSizeMax = size * SignalTheme.TextScale;
+            t.fontSizeMin = Mathf.Max(9f, size * SignalTheme.TextScale * 0.5f);
             t.color = color;
             t.alignment = align;
             t.raycastTarget = false;
             t.textWrappingMode = TextWrappingModes.NoWrap;
-            t.overflowMode = TextOverflowModes.Truncate; // the bundled font has no ellipsis glyph
+            // Last resort when even the smallest size does not fit: overflow (visible) rather than truncate (a truncated
+            // line that is too tall disappears completely). The bundled font has no ellipsis glyph.
+            t.overflowMode = TextOverflowModes.Overflow;
             if (heading)
             {
                 t.fontStyle = FontStyles.Bold | FontStyles.UpperCase;
                 t.characterSpacing = 2f;
             }
             return t;
+        }
+
+        /// <summary>
+        /// Sets a factory label's size after creation (the label shrinks to fit from this size; <paramref name="exact"/> keeps
+        /// the size fixed — e.g. scaled Canvas lettering).
+        /// </summary>
+        public static void Resize(TMP_Text t, float size, bool exact = false)
+        {
+            t.enableAutoSizing = !exact;
+            t.fontSizeMax = size;
+            t.fontSizeMin = Mathf.Min(t.fontSizeMin, Mathf.Max(6f, size * 0.55f));
+            t.fontSize = size;
         }
 
         /// <summary>Tabular numerals for timing (monospaced digits so values don't jitter).</summary>
@@ -91,6 +110,10 @@ namespace NightSignal.UI
             t.fontStyle = FontStyles.Bold;
             t.text = "";
             t.characterSpacing = 0f;
+            // Live figures (clock, speed, gear) change every frame: fixed size, and allowed to overflow rather than vanish.
+            t.enableAutoSizing = false;
+            t.fontSize = size * SignalTheme.TextScale;
+            t.overflowMode = TextOverflowModes.Overflow;
             return t;
         }
 

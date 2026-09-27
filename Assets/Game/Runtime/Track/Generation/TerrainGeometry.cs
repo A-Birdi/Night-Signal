@@ -39,7 +39,7 @@ namespace NightSignal.Track.Generation
         const int CoarseRes = 129;
 
         public static GameObject Build(TrackData track, Transform parent, CourseMaterialSet mats, TerrainStyle style,
-            List<TerrainCarve> carves, GenerationProfile profile, List<TerrainPad> pads = null)
+            List<TerrainCarve> carves, GenerationProfile profile, List<TerrainPad> pads = null, List<BridgeGeometry.Span> spans = null)
         {
             TrackSample[] all = track.Samples;
             Vector2 min = new Vector2(float.MaxValue, float.MaxValue), max = new Vector2(float.MinValue, float.MinValue);
@@ -147,6 +147,7 @@ namespace NightSignal.Track.Generation
                 Vector3 flatRight = new Vector3(s.Right.x, 0f, s.Right.z).normalized;
                 float lateral = (wx - s.Position.x) * flatRight.x + (wz - s.Position.z) * flatRight.z;
                 float h = HeightAt(wx, wz, s, dist, lateral, style, carves);
+                if (spans != null && spans.Count > 0) h = UnderSpan(h, s, dist, lateral, spans);
                 if (pads != null && dist > Corridor(s, lateral) + 0.5f) h = AreaGeometry.ApplyPads(wx, wz, h, pads);
                 heights[z, x] = Mathf.Clamp01((h - baseY) / heightRange);
                 edgeDist[k] = dist - Corridor(s, lateral);
@@ -219,6 +220,21 @@ namespace NightSignal.Track.Generation
                 }
             }
             return h;
+        }
+
+        /// <summary>
+        /// Under a free bridge or viaduct the ground drops away (a valley under the deck, easing out at the abutments and
+        /// back to the natural slope some 45 m to either side) instead of an embankment carrying the road.
+        /// </summary>
+        static float UnderSpan(float h, TrackSample s, float dist, float lateral, List<BridgeGeometry.Span> spans)
+        {
+            float depth = 0f;
+            foreach (BridgeGeometry.Span sp in spans) depth = Mathf.Max(depth, sp.DepthAt(s.Distance));
+            if (depth <= 0f) return h;
+            float corridor = Corridor(s, lateral);
+            float side = 1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(corridor + 8f, corridor + 45f, dist));
+            float roadY = s.Position.y + s.Right.y * Mathf.Clamp(lateral, -corridor, corridor) - 0.45f;
+            return Mathf.Min(h, roadY - depth * side);
         }
 
         static float[,,] Splat(TerrainData data, float[] edgeDist, TerrainStyle style)

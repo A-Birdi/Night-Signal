@@ -769,3 +769,29 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   no field can carry a forged pose, lap, checkpoint or penalty. No fuzz test of the input channel yet.
 - Not yet: authoritative-correction stress (packet loss/latency) on camera jitter; spectator target loss; R11 (recovery then
   network loss/rejoin); bridges/viaducts.
+
+## V-053 — Readability at 720p/ultrawide with large text and HUD (G06); bridges and viaducts built (2026-09-27)
+- Revision: working tree on `dd6402f` (committed in the next checkpoint). Windows development players; Unity 6000.6.3f1.
+- **G06** built `-nsInstrumentTour` at 1280×720 and 2560×1080 with Text size 150 % and HUD size 130 % (seeded isolated
+  preferences), and at 1920×1080 defaults. The first 720p/ultrawide runs FAILED on inspection (the automated tour passed):
+  the race position and clock vanished, the dial lost its scale numbers, Settings row labels were cut mid-word and the
+  preview caption overlapped its note (screenshots not kept — replaced by the rerun). Causes: every factory label clipped
+  with TMP Truncate, which drops a whole line that is too tall for its box; and the HUD size setting was stored but never
+  applied. Fixed: labels shrink to fit (to 50 %) and overflow rather than vanish as a last resort; live figures (clock,
+  speed, gear) keep a fixed size and never clip; instrument figures follow HUD size, not menu text size; the HUD canvas
+  scales with HUD size; position and progress have separate bands; a backing panel behind the standings (names were faint
+  on a bright sky); post-creation size changes go through `UIFactory.Resize`. Reruns at 720p, ultrawide and 1080p —
+  **PASS**, with every HUD element present and legible on inspection (`Evidence/ui/instruments/g06/`). `-nsUiTour` (all
+  offline screens) — **PASS** after the label change.
+- **Bridges/viaducts** (`BridgeGeometry`): each route section of kind `bridge`/`viaduct` (previously parsed, not built)
+  gets a deck girder under the road, piers to the ground (Barrier colliders on every profile; a pier that would land on
+  another road is moved along to the next station that can stand), and truss sides for steel styles; free spans get
+  ground carved away beneath them (13 m bridges, 16 m viaducts, easing out over 45 m at the abutments); the C03 overpass
+  and C25's two-level bridge keep the terrain the road below needs. Route revisions of C03, C11, C13, C17, C20 bumped to
+  2 and C25 to 3. PlayMode `BridgeTests` (6 courses, 7 sections): deck drivable at every 5 m probe, **0** bridge colliders
+  in the driving corridor, **0** in the corridor of the road passing under the C03 overpass (8 probes) and the C25 upper
+  deck (7), open ground ≥ 11.7 m under free spans, 2–102 piers per course — **6/6 pass** (found: the C03 overpass first had
+  no piers — every slot landed on the lower road). Renders in `Evidence/courses/bridges/`. Regression: `CourseSweepTests`
+  29/29 and `CourseProfileTests` 29/29 (only route hashes changed), `TunnelShellTests` 7/7. EditMode 237/237.
+- Not yet: bridge approaches drive-tested in the built camera tour; the C25 lower deck stands on its embankment (the upper
+  road's two-level structure is not modelled as one bridge).

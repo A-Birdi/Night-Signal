@@ -1,0 +1,13 @@
+C03 bridge raised-steel-overpass 1468–1673 m: drivable 41/41, corridor intrusions 0, over another road (terrain kept), other road under it at 8 probes, blocked 0
+C03: 2 pier columns
+C11 viaduct service-viaduct 1833–2705 m: drivable 174/174, corridor intrusions 0, ground ≥ 6 m below the deck at 156 inner probes (min 14.7 m), other road under it at 0 probes, blocked 0
+C11: 54 pier columns
+C13 viaduct sea-viaduct-rust-truss 135–1787 m: drivable 330/330, corridor intrusions 0, ground ≥ 6 m below the deck at 312 inner probes (min 14.7 m), other road under it at 0 probes, blocked 0
+C13: 102 pier columns
+C17 bridge quarry-span-steel 3746–4006 m: drivable 52/52, corridor intrusions 0, ground ≥ 6 m below the deck at 34 inner probes (min 11.7 m), other road under it at 0 probes, blocked 0
+C17: 12 pier columns
+C20 bridge steel-lattice-gorge-bridge 3944–4174 m: drivable 46/46, corridor intrusions 0, ground ≥ 6 m below the deck at 28 inner probes (min 11.7 m), other road under it at 0 probes, blocked 0
+C20: 10 pier columns
+C25 bridge two-level-valley-bridge-upper-deck 6351–6671 m: drivable 64/64, corridor intrusions 0, over another road (terrain kept), other road under it at 7 probes, blocked 0
+C25 viaduct two-level-valley-bridge-lower-deck 7707–7995 m: drivable 57/57, corridor intrusions 0, over another road (terrain kept), other road under it at 0 probes, blocked 0
+C25: 2 pier columns

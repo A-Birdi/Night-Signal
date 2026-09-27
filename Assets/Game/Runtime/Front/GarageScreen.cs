@@ -93,14 +93,14 @@ namespace NightSignal.Front
                 PartSlot captured = s;
                 Button b = UIFactory.Button("Slot-" + PartSlots.Id(s), lcol, "", () => { slot = captured; tuning = false; partPage = 0; dirty = true; }, 520, 44);
                 b.GetComponentInChildren<TextMeshProUGUI>().richText = true;
-                b.GetComponentInChildren<TextMeshProUGUI>().fontSize = SignalTheme.Small * SignalTheme.TextScale;
+                UIFactory.Resize(b.GetComponentInChildren<TextMeshProUGUI>(), SignalTheme.Small * SignalTheme.TextScale);
                 slotButtons[s] = b;
             }
             tuneSlot = UIFactory.Button("Slot-tuning", lcol, "", () => { tuning = true; dirty = true; }, 520, 44);
             tuneSlot.GetComponentInChildren<TextMeshProUGUI>().richText = true;
-            tuneSlot.GetComponentInChildren<TextMeshProUGUI>().fontSize = SignalTheme.Small * SignalTheme.TextScale;
+            UIFactory.Resize(tuneSlot.GetComponentInChildren<TextMeshProUGUI>(), SignalTheme.Small * SignalTheme.TextScale);
             appearance = UIFactory.Button("OpenAppearance", lcol, "Appearance  (body kit, wheels, paint, decals)", OpenAppearance, 520, 44);
-            appearance.GetComponentInChildren<TextMeshProUGUI>().fontSize = SignalTheme.Small * SignalTheme.TextScale;
+            UIFactory.Resize(appearance.GetComponentInChildren<TextMeshProUGUI>(), SignalTheme.Small * SignalTheme.TextScale);
 
             // Middle: parts for the chosen slot.
             RectTransform mcol = UIFactory.Column("Parts", root, new Vector2(0.31f, 0.02f), new Vector2(0.62f, 0.95f), Vector2.zero, Vector2.zero, 6f);
@@ -111,7 +111,7 @@ namespace NightSignal.Front
                 int index = i;
                 Button b = UIFactory.Button("Part" + i, mcol, "", () => ChoosePart(index), 580, 50);
                 b.GetComponentInChildren<TextMeshProUGUI>().richText = true;
-                b.GetComponentInChildren<TextMeshProUGUI>().fontSize = SignalTheme.Small * SignalTheme.TextScale;
+                UIFactory.Resize(b.GetComponentInChildren<TextMeshProUGUI>(), SignalTheme.Small * SignalTheme.TextScale);
                 partButtons.Add(b);
             }
             for (int i = 0; i < PartRows; i++)
@@ -165,7 +165,7 @@ namespace NightSignal.Front
             {
                 int index = i;
                 Button b = UIFactory.Button("Loadout" + i, rcol, "", () => LoadLoadout(index), 660, 34);
-                b.GetComponentInChildren<TextMeshProUGUI>().fontSize = SignalTheme.Small * SignalTheme.TextScale;
+                UIFactory.Resize(b.GetComponentInChildren<TextMeshProUGUI>(), SignalTheme.Small * SignalTheme.TextScale);
                 b.GetComponentInChildren<TextMeshProUGUI>().richText = true;
                 loadoutButtons.Add(b);
             }
@@ -174,7 +174,7 @@ namespace NightSignal.Front
             {
                 BuildReferenceKind captured = k;
                 Button b = UIFactory.Button("Ref-" + BuildReferenceKinds.Id(k), rcol, "", () => LoadReference(captured), 660, 34);
-                b.GetComponentInChildren<TextMeshProUGUI>().fontSize = SignalTheme.Small * SignalTheme.TextScale;
+                UIFactory.Resize(b.GetComponentInChildren<TextMeshProUGUI>(), SignalTheme.Small * SignalTheme.TextScale);
                 referenceButtons[k] = b;
             }
             UIFactory.Button("Back", rcol, "Back", () => App.Router.Back(), 300, 42);
@@ -199,7 +199,7 @@ namespace NightSignal.Front
             r.anchorMin = r.anchorMax = new Vector2(0, 0.5f);
             r.pivot = new Vector2(0, 0.5f);
             r.anchoredPosition = new Vector2(x, 0);
-            btn.GetComponentInChildren<TextMeshProUGUI>().fontSize = SignalTheme.Small * SignalTheme.TextScale;
+            UIFactory.Resize(btn.GetComponentInChildren<TextMeshProUGUI>(), SignalTheme.Small * SignalTheme.TextScale);
         }
 
         static void Bind(Button b, string label, Action action)

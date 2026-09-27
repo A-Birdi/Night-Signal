@@ -60,7 +60,7 @@ namespace NightSignal.Front
                 Button b = UIFactory.Button("Task" + i, col, "", () => Claim(index), 560, 44);
                 TextMeshProUGUI l = b.GetComponentInChildren<TextMeshProUGUI>();
                 l.fontStyle = FontStyles.Normal;
-                l.fontSize = SignalTheme.Small * SignalTheme.TextScale;
+                UIFactory.Resize(l, SignalTheme.Small * SignalTheme.TextScale);
                 l.richText = false;
                 taskButtons.Add(b);
             }

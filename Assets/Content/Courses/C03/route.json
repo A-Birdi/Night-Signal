@@ -1,7 +1,7 @@
 {
   "schema": "night-signal/route@1",
   "course": "C03",
-  "revision": 1,
+  "revision": 2,
   "closedLoop": true,
   "startMetres": 70,
   "checkpointSpacingMetres": 100,

@@ -103,9 +103,9 @@ Render Cockpit Sheets* renders the mounted views of every car.
 
 ## Next actions
 
-0. Addendum 03 remaining (before benchmark certification): bridge/viaduct decks for the authored sections (tunnels and
-   galleries are built, V-051; camera timing/occlusion and six-client views measured, V-052); correction stress under
-   packet loss; online off-route countdown and R11 (recovery then network loss/rejoin); G04–G06 instrument checks in built races and at 720p/ultrawide;
+0. Addendum 03 remaining (before benchmark certification; tunnels V-051, camera timing/occlusion and six-client views
+   V-052, readability and bridges V-053 are done): correction stress under
+   packet loss; online off-route countdown and R11 (recovery then network loss/rejoin); G04/G05 instrument checks in built races;
    counter-slopes on the long descents; soak and record migration report (A3.8); then F08 and benchmark certification.
 1. Customization follow-ups: two humans in one race seeing each other's liveries; meet refresh of liveries; pearl flip
    tint; rename/delete presets in the UI (the ops exist).

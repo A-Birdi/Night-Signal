@@ -431,7 +431,7 @@ namespace NightSignal.Front
             l.rectTransform.pivot = new Vector2(0, 0);
             l.rectTransform.sizeDelta = new Vector2(1200, 200);
             l.rectTransform.localRotation = Quaternion.Euler(0, 0, -o.Rot / 100f);
-            l.fontSize = o.Size * (o.Scale / 1000f) * sheetImage.rectTransform.rect.height / CanvasLimits.SheetHeight;
+            UIFactory.Resize(l, o.Size * (o.Scale / 1000f) * sheetImage.rectTransform.rect.height / CanvasLimits.SheetHeight, exact: true);
             labels.Add(l);
         }
     }

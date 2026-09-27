@@ -61,6 +61,8 @@ namespace NightSignal.UI
         GameObject recoveryPanel;
         RectTransform recoveryBar;
         SpeedCluster cluster;
+        CanvasScaler scaler;
+        Image standingsPanel;
         RawImage minimap;
         RectTransform minimapRect;
         readonly List<RectTransform> dots = new List<RectTransform>();
@@ -73,6 +75,7 @@ namespace NightSignal.UI
         {
             Canvas canvas = UIFactory.Root("RaceHud", 10);
             var hud = canvas.gameObject.AddComponent<RaceHud>();
+            hud.scaler = canvas.GetComponent<CanvasScaler>();
             hud.Build(canvas.transform);
             return hud;
         }
@@ -81,10 +84,15 @@ namespace NightSignal.UI
         {
             // Top-left: position and progress.
             Image posPanel = UIFactory.Panel("Position", root, new Vector2(0, 1), new Vector2(0, 1), new Vector2(32, -150), new Vector2(300, -32), new Color(0, 0, 0, 0.55f));
+            // Position above, progress below: separate bands so larger text shrinks within its own band, never over the other.
             position = UIFactory.Label("Pos", posPanel.transform, "P–", SignalTheme.HudNumeral, SignalTheme.Label, TextAlignmentOptions.TopLeft, true);
             UIFactory.Stretch(position.rectTransform, 12);
+            position.rectTransform.anchorMin = new Vector2(0f, 0.36f);
+            position.rectTransform.offsetMin = new Vector2(12f, 0f);
             progress = UIFactory.Label("Progress", posPanel.transform, "", SignalTheme.Small, SignalTheme.LabelDim, TextAlignmentOptions.BottomLeft);
             UIFactory.Stretch(progress.rectTransform, 12);
+            progress.rectTransform.anchorMax = new Vector2(1f, 0.36f);
+            progress.textWrappingMode = TextWrappingModes.Normal; // the finish-window line goes under the checkpoint count
 
             // Top-centre: race clock and banner.
             time = UIFactory.Numeral("Time", root, SignalTheme.Numeral, SignalTheme.Timing, TextAlignmentOptions.Top);
@@ -131,6 +139,9 @@ namespace NightSignal.UI
             UIFactory.Stretch(raw.rectTransform, 4);
             raw.raycastTarget = false;
             minimap = raw;
+            // A backing panel so the names read against a bright sky as well as a night one (G06).
+            standingsPanel = UIFactory.Panel("StandingsPanel", root, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-272, -284 - 7 * 26), new Vector2(-32, -276), new Color(0, 0, 0, 0.45f));
+            standingsPanel.raycastTarget = false;
             for (int i = 0; i < 7; i++)
             {
                 TextMeshProUGUI s = UIFactory.Label("Standing" + i, root, "", SignalTheme.Small, SignalTheme.Label, TextAlignmentOptions.TopLeft);
@@ -150,6 +161,8 @@ namespace NightSignal.UI
         public void Render(HudState s)
         {
             DrivingPreferences prefs = DrivingPreferences.Current;
+            // HUD size: the whole race HUD scales about its anchors (a smaller reference resolution = larger elements).
+            if (scaler != null) scaler.referenceResolution = new Vector2(1920f, 1080f) / Mathf.Clamp(prefs.HudScale, 0.8f, 1.4f);
             SpeedUnit u = s.UseMph ? SpeedUnit.Mph : prefs.Unit;
             cluster.Configure(prefs.Dial, SpeedDisplay.ScaleFor(s.EnvelopeMps, u));
             cluster.Render(s.RoadSpeedMps, s.Rpm, s.Redline, s.Gear, s.SpeedAvailable, Time.unscaledDeltaTime);
@@ -191,6 +204,12 @@ namespace NightSignal.UI
                 dots[i].anchorMin = dots[i].anchorMax = p;
                 dots[i].GetComponent<Image>().color = e.IsYou ? SignalTheme.Signal : e.IsReplay ? SignalTheme.Timing : SignalTheme.Label;
                 dots[i].sizeDelta = e.IsYou ? new Vector2(14, 14) : new Vector2(10, 10);
+            }
+            if (standingsPanel != null)
+            {
+                int rows = Mathf.Min(standings.Count, s.Field.Count);
+                standingsPanel.gameObject.SetActive(rows > 0);
+                standingsPanel.rectTransform.offsetMin = new Vector2(-272, -284 - rows * 26); // rows are 26 px, the first centred at -292
             }
             for (int i = 0; i < standings.Count; i++)
             {

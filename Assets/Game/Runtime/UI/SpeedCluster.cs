@@ -175,6 +175,7 @@ namespace NightSignal.UI
 
             number = UIFactory.Numeral("Speed", face, SignalTheme.HudNumeral * 0.72f, SignalTheme.Text, TextAlignmentOptions.Center);
             number.overflowMode = TextOverflowModes.Overflow; // a clipped line would vanish entirely
+            UIFactory.Resize(number, SignalTheme.HudNumeral * 0.72f, exact: true); // the instrument grows with HUD size, not menu text size
             number.rectTransform.anchorMin = number.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
             number.rectTransform.sizeDelta = new Vector2(160, 64);
             number.rectTransform.anchoredPosition = new Vector2(0, -36);
@@ -195,6 +196,7 @@ namespace NightSignal.UI
             bg.raycastTarget = false;
             number = UIFactory.Numeral("Speed", face, SignalTheme.HudNumeral * 1.1f, SignalTheme.Text);
             number.overflowMode = TextOverflowModes.Overflow; // a clipped line would vanish entirely
+            UIFactory.Resize(number, SignalTheme.HudNumeral * 1.1f, exact: true);
             number.rectTransform.anchorMin = new Vector2(0, 0.3f);
             number.rectTransform.anchorMax = new Vector2(0.72f, 1f);
             number.rectTransform.offsetMin = number.rectTransform.offsetMax = Vector2.zero;
@@ -221,6 +223,7 @@ namespace NightSignal.UI
             built.Add(rev.gameObject);
             Image bg = UIFactory.Panel("RevPanel", rev, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, new Color(0, 0, 0, 0.55f));
             gearLabel = UIFactory.Numeral("Gear", rev, SignalTheme.Numeral * 1.2f, SignalTheme.Caution, TextAlignmentOptions.Center);
+            UIFactory.Resize(gearLabel, SignalTheme.Numeral * 1.2f, exact: true);
             gearLabel.rectTransform.anchorMin = new Vector2(0, 0);
             gearLabel.rectTransform.anchorMax = new Vector2(0.18f, 1);
             gearLabel.rectTransform.offsetMin = gearLabel.rectTransform.offsetMax = Vector2.zero;

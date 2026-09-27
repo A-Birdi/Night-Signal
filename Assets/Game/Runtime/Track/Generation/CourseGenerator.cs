@@ -78,11 +78,12 @@ namespace NightSignal.Track.Generation
             if (route.Areas != null)
                 foreach (RouteAreaDef a in route.Areas)
                     if (a.Size != null && a.Size.Length >= 2 && a.Centre != null && a.Centre.Length >= 3) pads.Add(AreaGeometry.PadOf(a));
-            GameObject terrain = TerrainGeometry.Build(track, root, mats, style, plan.Carves, profile, pads);
+            GameObject terrain = TerrainGeometry.Build(track, root, mats, style, plan.Carves, profile, pads, BridgeGeometry.Spans(route));
             AreaGeometry.Build(route, root, mats, profile);
             var ground = terrain.GetComponent<TerrainCollider>();
             Physics.SyncTransforms();
             TunnelGeometry.Build(track, route, root, mats, ground, profile);
+            BridgeGeometry.Build(track, route, root, mats, ground, profile);
 
             var landmarks = new GameObject("Landmarks").transform;
             landmarks.SetParent(root, false);
