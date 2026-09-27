@@ -1,0 +1,25 @@
+{
+  "targetFps": 120,
+  "measuredFps": 117.0,
+  "frameMsP95": 8.35,
+  "frames": 13111,
+  "speedStyle": "dial",
+  "units": "mph",
+  "savedView": "hood",
+  "motionPreset": "arcade",
+  "scriptedCycle": "none",
+  "timeline": [
+    "25.7s Hood"
+  ],
+  "views": {
+    "Hood": {
+      "frames": 13111,
+      "seconds": 112.1,
+      "jitterMeanPx": null,
+      "jitterP99Px": null,
+      "occludedFrames": 0,
+      "insideColliderFrames": 0,
+      "maxImpactOffsetM": 0.0
+    }
+  }
+}

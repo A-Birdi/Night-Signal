@@ -1,0 +1,25 @@
+{
+  "targetFps": 60,
+  "measuredFps": 58.6,
+  "frameMsP95": 16.68,
+  "frames": 7191,
+  "speedStyle": "strip",
+  "units": "kmh",
+  "savedView": "bumper",
+  "motionPreset": "arcade",
+  "scriptedCycle": "none",
+  "timeline": [
+    "24.9s Bumper"
+  ],
+  "views": {
+    "Bumper": {
+      "frames": 7191,
+      "seconds": 122.8,
+      "jitterMeanPx": null,
+      "jitterP99Px": null,
+      "occludedFrames": 0,
+      "insideColliderFrames": 6,
+      "maxImpactOffsetM": 0.037
+    }
+  }
+}

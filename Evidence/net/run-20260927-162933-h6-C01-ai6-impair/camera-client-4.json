@@ -1,0 +1,25 @@
+{
+  "targetFps": 30,
+  "measuredFps": 29.3,
+  "frameMsP95": 33.35,
+  "frames": 3598,
+  "speedStyle": "dial",
+  "units": "kmh",
+  "savedView": "cockpit",
+  "motionPreset": "arcade",
+  "scriptedCycle": "none",
+  "timeline": [
+    "24.3s Cockpit"
+  ],
+  "views": {
+    "Cockpit": {
+      "frames": 3598,
+      "seconds": 122.6,
+      "jitterMeanPx": null,
+      "jitterP99Px": null,
+      "occludedFrames": 0,
+      "insideColliderFrames": 0,
+      "maxImpactOffsetM": 0.0
+    }
+  }
+}

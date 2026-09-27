@@ -973,3 +973,18 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   - *"The race ended without results … nothing was settled"* after leaving — untrue (the server settles a departure as a
     disqualification); now "You left the race before the finish: the server counts a lost connection as a
     disqualification", and the receipt is fetched when the session is still signed in.
+
+## V-061 — Correction blend A/B under impairment; NaN fix under six rendered clients (2026-09-27)
+- Revision: working tree on `321e83e`. The V-054 configuration on this machine (loopback + application-level impairment):
+  dedicated server, 6 rendered camera clients (30/60/120 fps, own views) + 6 AI on C01, 80 ± 20 ms each way, 3 % loss.
+  Same build twice: the new correction blend (position **and** velocity kept continuous when a correction lands, the
+  velocity difference clamped to 3 m/s) — `Evidence/net/run-20260927-162645-h6-C01-ai6-impair` — and the old one
+  (`-nsCorrectionBlend position`) — `run-20260927-162933-h6-C01-ai6-impair`.
+- Chase Far on-screen jitter, mean / p99 px (reconciliations): new — client 0 (60 fps) 5.31 / 79.2 (185), client 1
+  (30 fps) 6.03 / 151.8 (160), client 5 (120 fps) 0.12 / 0.63 (28); old — 10.33 / 73.7 (568), 11.51 / 170.1 (343),
+  0.16 / 1.62 (104). All finished; 0 occluded, 0 inside-collider frames.
+- **Inconclusive:** contact load differed between the runs (reconciliations 2–4× higher in the old one), and the p99 tail
+  is set by real contacts in both. The new blend is kept (continuous by construction, clamped, lower means, no sign of
+  harm) but it is **not shown** to fix the heavy-contact hitch; that limitation stands.
+- **NaN fix confirmed under load:** 0 invalid-transform errors and 0 non-finite events on all six clients in both runs
+  (the V-052/V-054 six-client runs logged 626–803 such lines each).
