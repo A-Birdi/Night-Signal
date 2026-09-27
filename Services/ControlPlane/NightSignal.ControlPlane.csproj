@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>NightSignal.ControlPlane</AssemblyName>
+    <RootNamespace>NightSignal.ControlPlane</RootNamespace>
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <!-- "dotnet run" from any folder uses this folder as content root (appsettings, .data, .devkeys). -->
+    <RunWorkingDirectory>$(MSBuildProjectDirectory)</RunWorkingDirectory>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../SharedCore/NightSignal.Core.csproj" />
+  </ItemGroup>
+
+  <!-- Trusted content catalogue: the same JSON documents the Unity game loads (ContentHash must match).
+       Layout mirrors Assets/Content/Data: generated/ (required) and authored/ (optional overlays). -->
+  <ItemGroup>
+    <None Include="../../Assets/Content/Data/generated/*.json" Link="content/generated/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../Assets/Content/Data/authored/*.json" Link="content/authored/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!-- Schema migrations live in Backend/migrations and are embedded so the service can apply them. -->
+  <ItemGroup>
+    <EmbeddedResource Include="../../Backend/migrations/sqlite/*.sql" LogicalName="migrations.sqlite.%(Filename)%(Extension)" />
+    <EmbeddedResource Include="../../Backend/migrations/postgres/*.sql" LogicalName="migrations.postgres.%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="NightSignal.Services.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.12" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.12" />
+    <PackageReference Include="Npgsql" Version="10.0.3" />
+  </ItemGroup>
+
+</Project>

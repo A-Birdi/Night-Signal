@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="SharedCore/NightSignal.Core.csproj" />
+  <Project Path="TicketValidation/NightSignal.TicketValidation.csproj" />
+  <Project Path="ControlPlane/NightSignal.ControlPlane.csproj" />
+  <Project Path="Tests/NightSignal.Services.Tests.csproj" />
+</Solution>

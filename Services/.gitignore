@@ -1,0 +1,18 @@
+# The repository root .gitignore (Unity template) ignores *.csproj, *.sln and *.slnx because Unity
+# regenerates its own project files at the root. The service projects below are hand-written source,
+# so re-include them here.
+!*.csproj
+!*.sln
+!*.slnx
+
+# Build output
+bin/
+obj/
+TestResults/
+
+# Development-only runtime material: generated signing keys, dev server keys, local SQLite databases.
+.devkeys/
+.data/
+*.db
+*.db-shm
+*.db-wal

@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Match-ticket validation for the authoritative game server. netstandard2.1 + C# 9 so the same source can be
+    ported into (or referenced by) the Unity dedicated server. No ASP.NET or IdentityModel dependency: the ES256
+    JWS check uses System.Security.Cryptography.ECDsa and Newtonsoft.Json (already used by NightSignal.Core).
+  -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <AssemblyName>NightSignal.TicketValidation</AssemblyName>
+    <RootNamespace>NightSignal.TicketValidation</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+</Project>

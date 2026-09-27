@@ -1,0 +1,11 @@
+{
+  "_comment": "DEVELOPMENT-ONLY example accounts for the local DevAuth issuer (Development environment, loopback binding only; the service refuses to start DevAuth otherwise). These are synthetic test identities, not real users. devOnlyPassword is recorded here so developers can sign in locally; the service itself only reads passwordHash (PBKDF2-SHA256). Never reuse these passwords anywhere, never point a production endpoint at this file. Regenerate a hash with: echo <password> | dotnet run --project Services/ControlPlane --no-launch-profile -- hash-password",
+  "accounts": [
+    { "accountId": "00000000-0000-4000-8000-000000000001", "email": "driver1@devauth.localhost", "devOnlyPassword": "ns-dev-zZ0KGqMhhjSq", "passwordHash": "pbkdf2-sha256$210000$lmRafYjuhyzCoUebmJ8z9w==$SiH3nnKjpJTUr7eRQNUM+71JQvNhbEME2UChhbiuPhI=" },
+    { "accountId": "00000000-0000-4000-8000-000000000002", "email": "driver2@devauth.localhost", "devOnlyPassword": "ns-dev-eWPrFeJKEuP", "passwordHash": "pbkdf2-sha256$210000$5skKbaj4BYZTVT+SLpAIlw==$m/id/Eiba/sRN62mv6vayFO7iC3jdoAAiDUISgDR4Mc=" },
+    { "accountId": "00000000-0000-4000-8000-000000000003", "email": "driver3@devauth.localhost", "devOnlyPassword": "ns-dev-juPg9kwMBq0i", "passwordHash": "pbkdf2-sha256$210000$Ipjj9qIQ315sPef0Hamw6Q==$hNdI1EKm9EiIfaNLCa7edZQEvoDtjAH6Fz96BaiT6NM=" },
+    { "accountId": "00000000-0000-4000-8000-000000000004", "email": "driver4@devauth.localhost", "devOnlyPassword": "ns-dev-xtpHOZMOOrW8", "passwordHash": "pbkdf2-sha256$210000$yLBR9e1KhZWg/OZTtFu9Jg==$12+ljAATOsVY5clxDm4jmHJ1wu9+zAHVlsxo0nYpMg4=" },
+    { "accountId": "00000000-0000-4000-8000-000000000005", "email": "driver5@devauth.localhost", "devOnlyPassword": "ns-dev-CNEoblwdE2en", "passwordHash": "pbkdf2-sha256$210000$J5SiyR1sU1VxvmQP12OoBw==$h9TAZTmDR6Y5zN/a2ckj2PXukMDferOwN558Eszud7E=" },
+    { "accountId": "00000000-0000-4000-8000-000000000006", "email": "driver6@devauth.localhost", "devOnlyPassword": "ns-dev-eq9VHmNqB3vN", "passwordHash": "pbkdf2-sha256$210000$/MrQvhCH0+YRcx15nkZ5fQ==$6Ah/ev6EYCEWcGae/JzUhbem6LhLY6qrpNwEr4zQ6ds=" }
+  ]
+}

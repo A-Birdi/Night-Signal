@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    The engine-free rules and content model shared with the Unity game (Assets/Game/Core, asmdef
+    "NightSignal.Core", noEngineReferences). The source is LINKED, never copied, so the control plane
+    and the game compile exactly the same rules. Do not add .cs files to this folder.
+  -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <AssemblyName>NightSignal.Core</AssemblyName>
+    <RootNamespace>NightSignal.Core</RootNamespace>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="../../Assets/Game/Core/**/*.cs" Link="Core/%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+</Project>
