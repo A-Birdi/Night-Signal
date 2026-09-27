@@ -1,6 +1,6 @@
 # Handoff
 
-_Last updated: 2026-09-27 — online Garage end to end; build data in the content hash; Test Yard; shared diversions._
+_Last updated: 2026-09-27 — Team Trials + Time Attack online; customization renderer and Core model; all five diversions online._
 
 **Rules revision:** `docs/brief/Night_Signal_Addendum_01.txt` supersedes parts of the master (six humans + up to
 twelve vehicles, live finale rivals, light contact, course access, offline domain, rejoin grants, voting, friends,
@@ -47,7 +47,7 @@ powershell -ExecutionPolicy Bypass -File Tools/run/net-race.ps1 -Humans 2 -Stage
 3. **Hosted services / internet test** — a Supabase project, a reachable server and a budget are needed for
    WAN acceptance (§3.5, Gate 5). Not approved; stays BLOCKED, not faked.
 
-## Done since the addenda (VALIDATION V-015 … V-041)
+## Done since the addenda (VALIDATION V-015 … V-045)
 
 - Addendum 01 Core rules and data overlays; control plane for Addendum 01 + 02 incl. hosted diversions (307 .NET
   tests); light car contact, shared RaceSimulation (server + offline), protocol 2 per-client snapshots.
@@ -72,16 +72,24 @@ powershell -ExecutionPolicy Bypass -File Tools/run/net-race.ps1 -Humans 2 -Stage
   Cap Clash, Pit-Crew and Canvas; control requests now go through one ordered send loop (V-040).
 - **Online Garage UI** on the same screen (backend switch); a part bought online races with a server-verified hash;
   parts and recipes are in the content hash (V-041).
+- **Customization renderer** (V-042): body-kit variants per family, two-tone, finishes, 8 rims, decals conformed to the
+  body, plate text; evidence sheets in `Evidence/art/customization/`.
+- **All five diversions online** with two humans; the client compares its toy-document hash with the control plane at
+  sign-in and keeps the shared tables closed on a mismatch (V-043).
+- **Team Trials + Time Attack online** through the convoy screen: TT_BEST, TT_MEAN (1 human + 5 friendly AI vs 6),
+  Freeplay Time Attack (V-044). TT_DRIFT needs race-server drift scoring (not built).
+- **Customization Core** (V-045): `Core/Customization` + `authored/customization.json` — catalogue, livery document and
+  hash, validation with ownership, editor (undo, 64 layers), resolver, wire form. Not yet wired to the Garage.
 
 ## Next actions
 
-1. Visual presets / customization UI; F08–F10 starter progression runs with upgrades; toy documents' hash check
-   between client and control plane; Time Attack / Team Trials online.
-2. Online convoy extras: block UI, Local course purchases, Time Attack/Team Trials,
-   reconnect/rejoin and DQ under load; the other four diversions against the hosted session with several humans;
-   controller cursor for the Canvas.
+1. Customization integration: Core `ResolvedAppearance` → renderer `CarAppearance`; Garage Appearance page (presets,
+   apply/cancel, undo, decals) with Local/online ownership; livery wire in the roster; `customization.json` in the
+   content hash (needs a coordinated control-plane restart).
+2. F08–F10 starter progression runs with upgrades; drift scoring on the race server (TT_DRIFT, Drift Attack); group
+   Time Attack and toy tables with 3–6 humans; block UI, reconnect/rejoin and DQ under load; Canvas controller cursor.
 3. Generator: bridge decks/piers, tunnel shells, `crossing`/`water`/`field`/`structure` kits; visual pass per biome.
-4. Visible customization; car art; meet + boombox; release builds and evidence.
+4. Car art; meet + boombox; release builds and evidence.
 
 ## Recovery notes
 

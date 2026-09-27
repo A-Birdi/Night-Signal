@@ -504,8 +504,9 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   trial's hard timeout; the results line shows the team verdict and both team values.
 - `ui-tour-online.ps1 -Trial TT_BEST` (C01 sprint, best time): "Team Trial TT_BEST (standard): 1 human + 5 friendly AI
   vs 6 opposing AI", 12 cars, P1 of 12, settled, `MUS_TT_BEST` unlocked — **PASS**. `-Trial TT_MEAN` (C03 circuit, team
-  mean): P1 of 12, **Team Trial VICTORY** (team mean 3:07.480), `MUS_TT_MEAN` unlocked — **PASS**. Screenshots
-  `Evidence/ui/online/team-trial/`.
+  mean): P1 of 12, **Team Trial VICTORY**, `MUS_TT_MEAN` unlocked — **PASS**; rerun after the results line divided the
+  opponents' total by the side size: "your team 3:07.480 mean, opponents 3:11.443 mean, provisional targets" — **PASS**.
+  Screenshots `Evidence/ui/online/team-trial/`.
 - `ui-tour-online.ps1 -Intent 4` (Freeplay Time Attack): 1 human, 0 AI, non-contact, settled — **PASS** (group Time
   Attack with several humans uses the same path; not yet run with more than one).
 - Limits: the Combined Drift trial (TT_DRIFT) and Freeplay Drift Attack need drift scoring in the race server, which is
