@@ -7,9 +7,14 @@
 // RouteIO.Measure. It runs in double precision; the C# runs in float, so values agree to within centimetres.
 //
 // Usage: node Tools/authoring/route-check.mjs [--quiet] [--no-overlap] [--only C05,C06]
-//   Checks every course against docs/COURSES.md and Appendix A targets (Assets/Content/Data/generated/courses.json),
-//   the challenge gates each course must carry (Appendix E), writes Evidence/courses/route-stats.json and prints a
-//   table. Exit code 1 if any course fails.
+//   Checks every Assets/Content/Courses/*/route.json against docs/COURSES.md and the Appendix A targets
+//   (Assets/Content/Data/generated/courses.json; provisional targets for the Addendum 01 Freeplay courses): length
+//   +/-5%, net elevation +/-3 m (0 for loops), max grade over 10 m windows, min radius and where, min width, the
+//   twelve-slot grid zone, sector order, gate/landmark/section/area validity, the Appendix E challenge gates each
+//   course must carry, the S29 contract layout on C24, plan-view self-intersection (with declared tunnel/bridge
+//   crossings and their vertical clearance), loop closure, and a copy/reuse heuristic across courses. Also re-checks
+//   the sampler port against the C# reference stats of C01 revision 1. Writes Evidence/courses/route-stats.json and
+//   prints a table; exit code 1 if anything fails (--only runs without writing the evidence file).
 //
 // The module also exports sampleRoute/measure so authoring scripts can reuse the exact same sampler.
 
@@ -217,7 +222,8 @@ export const KITS = {
 };
 
 // Appendix E challenge gates each course must carry: [course, challenge, kind, minimum count, where].
-// where = "route" (gates[]), "area" (areas[].gates[] on T00) or "overlay" (C01 gates.overlay.json).
+// where = "route" (gates[]), "area" (areas[].gates[] on T00), "overlay" (a gates.overlay.json beside route.json)
+// or "route+overlay" (either).
 export const REQUIRED_GATES = [
   ["T00", "CH02", "brake-zone", 1, "area"],
   ["T00", "CH07", "brake-zone", 1, "route"],
@@ -229,7 +235,7 @@ export const REQUIRED_GATES = [
   ["T00", "CH49", "timing", 3, "route"],
   ["T00", "CH52", "timing", 4, "route"],
   ["T00", "CH58", "timing", 6, "route"],
-  ["C01", "CH20", "drift-zone", 3, "overlay"],
+  ["C01", "CH20", "drift-zone", 3, "route+overlay"],
   ["C02", "CH04", "exit-speed", 3, "route"],
   ["C02", "CH34", "overtake-zone", 1, "route"],
   ["C03", "CH03", "apex", 3, "route"],
@@ -266,6 +272,9 @@ const MIN_CLEARANCE = 7; // vertical clearance at declared tunnel/bridge crossin
 const MAX_GRADE = 12;
 const MIN_RADIUS = 12;
 const MIN_WIDTH = 6;
+const GRID_SLOTS = 12; // Addendum 01: up to 12 vehicles
+const GRID_MIN_START = 62;
+const GRID_ZONE_BEHIND = 57; // last slot ~54.5 m behind the line plus half a car
 
 // ---------------------------------------------------------------------------------------------- helpers
 function sampleAt(samples, d, loop, total) {
@@ -369,7 +378,8 @@ function checkGate(g, where, lengthLimit, errors, sampleFn) {
   if (!(g.startMetres >= 0 && g.endMetres <= lengthLimit)) errors.push(`${tag}: ${g.startMetres}..${g.endMetres} outside 0..${lengthLimit.toFixed(0)}`);
   if (g.endMetres < g.startMetres) errors.push(`${tag}: endMetres before startMetres`);
   if ((g.kind === "apex" || g.kind === "precision") && g.startMetres !== g.endMetres) errors.push(`${tag}: apex/precision gates need startMetres == endMetres`);
-  if (g.kind !== "apex" && g.kind !== "precision" && g.endMetres - g.startMetres < 5) errors.push(`${tag}: zone shorter than 5 m`);
+  const lineKinds = ["apex", "precision", "timing", "exit-speed"]; // may be a single line across the road
+  if (!lineKinds.includes(g.kind) && g.endMetres - g.startMetres < 5) errors.push(`${tag}: zone shorter than 5 m`);
   if (!(g.lineTolerance > 0)) errors.push(`${tag}: lineTolerance must be > 0`);
   if (!(g.targetSpeedKmh >= 0)) errors.push(`${tag}: targetSpeedKmh must be >= 0`);
   if (sampleFn && g.kind !== "contract" && g.kind !== "timing") {
@@ -429,12 +439,34 @@ export function checkCourse(route, meta, overlay) {
     if (Math.abs(gap) > 0.05 || kink > 2) errors.push(`loop closure gap ${gap.toFixed(3)} m / kink ${kink.toFixed(2)} deg`);
   }
 
-  // Start grid: six slots need >= 34 m behind the start and a >= 10 m wide area for ~45 m.
-  if (!(route.startMetres >= 34)) errors.push(`startMetres ${route.startMetres} < 34`);
-  let gridMinWidth = Infinity;
-  for (let d = route.startMetres - 40; d <= route.startMetres + 5; d += 1) gridMinWidth = Math.min(gridMinWidth, sAt(d).width);
-  if (gridMinWidth < 10 - 1e-6) errors.push(`grid area narrower than 10 m (${gridMinWidth.toFixed(1)} m)`);
-  if (!loop && route.startMetres - 40 < 0) warnings.push("grid area starts before the route start");
+  // Start grid (Addendum 01): twelve staggered slots, 2 columns x 6 rows, 9 m rows, 4.5 m column stagger, first slot
+  // 5 m behind the start line, so the last slot sits ~54.5 m behind it. startMetres >= 62; every slot must be on a
+  // >= 10 m wide road (or its lateral offset min(2.4, width/4) must clear the paved edge by >= 1.3 m); the grid zone
+  // must be straight (radius >= 150 m) with no crest/dip (grade <= 4%, grade variation <= 2%).
+  if (!(route.startMetres >= GRID_MIN_START)) errors.push(`startMetres ${route.startMetres} < ${GRID_MIN_START} (twelve-slot grid)`);
+  const gridSlots = [];
+  for (let k = 0; k < GRID_SLOTS; k++) {
+    const row = Math.floor(k / 2), col = k % 2;
+    const d = route.startMetres - 5 - row * 9 - col * 4.5;
+    const s = sAt(d);
+    const lateral = Math.min(2.4, s.width * 0.25);
+    const clearance = s.width / 2 - lateral;
+    gridSlots.push({ slot: k + 1, d, width: s.width, clearance });
+    if (s.width < 10 - 1e-6 && clearance < 1.3) errors.push(`grid slot ${k + 1} at ${d} m: width ${s.width.toFixed(1)} m, edge clearance ${clearance.toFixed(2)} m`);
+    else if (s.width < 10 - 1e-6) warnings.push(`grid slot ${k + 1} at ${d} m narrower than 10 m (${s.width.toFixed(1)} m)`);
+  }
+  let gridMinWidth = Infinity, gridMaxK = 0, gridMaxGrade = 0, gridMinGrade = Infinity;
+  for (let d = route.startMetres - GRID_ZONE_BEHIND; d <= route.startMetres + 5; d += 1) {
+    const s = sAt(d);
+    gridMinWidth = Math.min(gridMinWidth, s.width);
+    gridMaxK = Math.max(gridMaxK, Math.abs(s.curvature));
+    const g = ((sAt(d + 5).pos.y - sAt(d - 5).pos.y) / 10) * 100;
+    gridMaxGrade = Math.max(gridMaxGrade, g);
+    gridMinGrade = Math.min(gridMinGrade, g);
+  }
+  if (gridMaxK > 1 / 150) errors.push(`grid zone curves (radius ${(1 / gridMaxK).toFixed(0)} m < 150 m)`);
+  if (Math.max(Math.abs(gridMaxGrade), Math.abs(gridMinGrade)) > 4 || gridMaxGrade - gridMinGrade > 2) errors.push(`grid zone not level enough (grade ${gridMinGrade.toFixed(1)}..${gridMaxGrade.toFixed(1)}%)`);
+  if (!loop && route.startMetres - GRID_ZONE_BEHIND < 0) errors.push("grid zone starts before the route start");
 
   // Sectors.
   const sectors = route.sectors || [];
@@ -453,11 +485,12 @@ export function checkCourse(route, meta, overlay) {
   for (const g of gates) {
     if (gateIds.has(g.id)) errors.push(`duplicate gate id ${g.id}`);
     gateIds.add(g.id);
-    checkGate(g, route.course, length, errors, sAt);
+    checkGate(g, route.course, loop ? length : length - 20, errors, sAt); // sprints finish 20 m before the end
   }
   if (route.course === "C24") {
     const secStart = (n) => sectors.find((s) => s.name === n)?.startMetres ?? NaN;
-    const secEnd = (n) => { const i = sectors.findIndex((s) => s.name === n); return i >= 0 && i + 1 < sectors.length ? sectors[i + 1].startMetres : length; };
+    const finish = loop ? length : length - 20; // CourseGenerator.FinishMetres
+    const secEnd = (n) => { const i = sectors.findIndex((s) => s.name === n); return i >= 0 && i + 1 < sectors.length ? sectors[i + 1].startMetres : finish; };
     const inSec = (g, n) => g.startMetres >= secStart(n) && g.endMetres <= secEnd(n);
     for (const n of ["Entry", "Arc", "Descent", "Horizon"]) {
       const c = gates.find((g) => g.kind === "contract" && g.id === n);
@@ -557,14 +590,14 @@ export function checkCourse(route, meta, overlay) {
     for (const g of overlayGates) {
       if (gateIds.has(g.id)) errors.push(`duplicate gate id ${g.id}`);
       gateIds.add(g.id);
-      checkGate(g, "overlay", length, errors, sAt);
+      checkGate(g, "overlay", loop ? length : length - 20, errors, sAt);
     }
   }
 
   // Required challenge gates.
   const required = REQUIRED_GATES.filter((r) => r[0] === route.course);
   const areaGates = areas.flatMap((a) => a.gates || []);
-  const pool = { route: gates, area: areaGates, overlay: overlayGates };
+  const pool = { route: gates, area: areaGates, overlay: overlayGates, "route+overlay": [...gates, ...overlayGates] };
   const challenges = {};
   for (const [, ch, kind, n, where] of required) {
     const have = pool[where].filter((g) => g.challenge === ch && g.kind === kind).length;
@@ -585,6 +618,7 @@ export function checkCourse(route, meta, overlay) {
     course: route.course,
     name: meta?.name ?? route.course,
     format: meta?.format ?? (loop ? "loop" : "sprint"),
+    provisionalTargets: !!meta?.provisional,
     closedLoop: loop,
     revision: route.revision,
     controlPoints: route.controlPoints.length,
@@ -600,6 +634,9 @@ export function checkCourse(route, meta, overlay) {
     minRadiusAtMetres: st.minRadiusAt,
     minWidthMetres: +st.minWidthMetres.toFixed(2),
     gridMinWidthMetres: +gridMinWidth.toFixed(2),
+    gridSlots: gridSlots.length,
+    gridMinSlotClearanceMetres: +Math.min(...gridSlots.map((g) => g.clearance)).toFixed(2),
+    gridZoneMinRadiusMetres: gridMaxK > 0 ? +(1 / gridMaxK).toFixed(0) : null,
     elevationSpanMetres: +(maxY - minY).toFixed(1),
     boundingBoxMetres: [+(maxX - minX).toFixed(0), +(maxZ - minZ).toFixed(0)],
     closestApproachMetres: Number.isFinite(sep.minSep) ? +sep.minSep.toFixed(1) : null,
@@ -625,11 +662,13 @@ export function checkCourse(route, meta, overlay) {
 }
 
 // ---------------------------------------------------------------------------------------------- uniqueness
-// Heuristic geometry-overlap check (spec §14: >= 70% of a counted course's centreline exclusive). Each course's
-// signed curvature is sampled every 5 m; every 200 m window with real cornering (mean |k| >= 1/400 m) is compared
-// with every window of every other course at 5 m offsets, forward, mirrored, reversed and reversed-mirrored. A
-// window "matches" when the RMS curvature difference is under 20% of its own RMS curvature and the grade profile
-// agrees within 2 %. Exclusive % = share of active windows with no match anywhere else.
+// Heuristic copy/reuse detector (spec §14: >= 70% of a counted course's centreline exclusive). Courses live in
+// separate scenes, so literal overlap is impossible; what matters is re-using the same corner sequence. Each course's
+// signed curvature is sampled every 5 m; every window (default 400 m, stepped 25 m) with real cornering (mean
+// |k| >= 1/400 m) is compared with every window of every other course at 5 m offsets, forward, mirrored, reversed
+// and reversed-mirrored. A window "matches" when the RMS curvature difference is under THRESHOLD of its own RMS
+// curvature (default 20%) and the mean grade difference is under 1.5 %. Exclusive % = share of active windows with no
+// match anywhere else. It flags a copied, mirrored or reversed stretch of road, not merely similar single corners.
 function curvatureProfile(samples, step = 5) {
   const k = [], g = [];
   for (let i = 0; i + step < samples.length; i += step) {
@@ -641,8 +680,9 @@ function curvatureProfile(samples, step = 5) {
   return { k: Float64Array.from(k), g: Float64Array.from(g) };
 }
 
-export function uniqueness(results) {
-  const W = 40, STRIDE = 5; // 200 m windows every 25 m
+export const UNIQUE = { windowMetres: 400, threshold: 0.2, gradeTolerance: 1.5 };
+export function uniqueness(results, opts = UNIQUE) {
+  const W = Math.round(opts.windowMetres / 5), STRIDE = 5; // windows every 25 m
   const profs = results.map((r) => {
     const p = curvatureProfile(r._samples);
     const n = p.k.length;
@@ -660,7 +700,7 @@ export function uniqueness(results) {
       for (let i = 0; i < W; i++) { e += kA[s + i] * kA[s + i]; act += Math.abs(kA[s + i]); }
       if (act / W < 1 / 400) continue;
       active++;
-      const limit = 0.04 * e; // (20%)^2 of the window's energy
+      const limit = opts.threshold * opts.threshold * e;
       let found = null;
       outer: for (const B of profs) {
         if (B === A) continue;
@@ -676,7 +716,7 @@ export function uniqueness(results) {
               }
               if (i < W) continue;
               for (i = 0; i < W; i++) gd += Math.abs(gA[s + i] - gB[o + i]);
-              if (gd / W > 2) continue;
+              if (gd / W > opts.gradeTolerance) continue;
               found = B.id;
               break outer;
             }
@@ -691,6 +731,14 @@ export function uniqueness(results) {
 }
 
 // ---------------------------------------------------------------------------------------------- main
+// Addendum 01 Freeplay-only courses: provisional targets used until catalogue rows exist (FP02's net elevation is
+// not given by the addendum; +230 m is the authored value and should be copied into its catalogue row).
+export const PROVISIONAL = {
+  FP01: { id: "FP01", name: "Kisaragi Dock Loop", format: "circuit", targetLengthKm: 3.4, targetNetElevationM: 0, provisional: true },
+  FP02: { id: "FP02", name: "Hoshino Switchback Park", format: "sprint", targetLengthKm: 5.1, targetNetElevationM: 230, provisional: true },
+  FP03: { id: "FP03", name: "Aobane Airfield Circuit", format: "circuit", targetLengthKm: 4.3, targetNetElevationM: 0, provisional: true },
+};
+
 function loadAll(only) {
   const catalogue = JSON.parse(readFileSync(CATALOGUE, "utf8")).courses;
   const list = [];
@@ -702,11 +750,23 @@ function loadAll(only) {
     const route = JSON.parse(readFileSync(file, "utf8"));
     const ovFile = join(COURSES_DIR, dir.name, "gates.overlay.json");
     const overlay = existsSync(ovFile) ? JSON.parse(readFileSync(ovFile, "utf8")) : null;
-    list.push({ route, meta: catalogue.find((c) => c.id === route.course), overlay });
+    list.push({ route, meta: catalogue.find((c) => c.id === route.course) ?? PROVISIONAL[route.course], overlay });
   }
-  const order = catalogue.map((c) => c.id);
-  list.sort((a, b) => order.indexOf(a.route.course) - order.indexOf(b.route.course));
+  const order = [...catalogue.map((c) => c.id), ...Object.keys(PROVISIONAL).filter((k) => !catalogue.some((c) => c.id === k))];
+  const rank = (id) => (order.includes(id) ? order.indexOf(id) : order.length);
+  list.sort((a, b) => rank(a.route.course) - rank(b.route.course) || a.route.course.localeCompare(b.route.course));
   return { list, catalogue };
+}
+
+function parityFixture() {
+  // [x, y, z, width, bank, shoulderLeft, shoulderRight] of C01 revision 1.
+  const P = [[0,80,0,11.5,0,2.5,2.5],[0,79.5,90,10,0,2.5,2.5],[-5,78,190,9,-1,2.5,2.5],[-40,76,300,9,-3,2.5,3],[-110,74,380,9,-3.5,2.5,3],
+    [-210,71.5,430,8.5,-1.5,2.5,2.5],[-330,68,455,8.5,0,2.5,2.5],[-450,65,490,8.5,1.5,2.5,2.5],[-550,62,570,8.5,2,2.5,2.5],[-610,59,680,8.5,-1,2.5,2.5],
+    [-690,56,780,8.5,-2,2.5,2.5],[-800,53,830,8,0,1.8,1.8],[-920,50,850,8,0,1.8,1.8],[-1030,47,900,8.5,1.5,2.5,2.5],[-1100,44,990,8.5,2,2.5,2.5],
+    [-1130,41,1110,8.5,0.5,2.5,2.5],[-1140,37,1250,8.5,0,2.5,2.5],[-1140,34,1340,9,0,3,3],[-1130,32,1395,9.5,3,3.5,3],[-1105,31,1418,10,5,4,3],
+    [-1078,30,1412,10,5,4,3],[-1065,29,1385,9.5,3,3.5,3],[-1050,26,1320,9,0.5,2.5,2.5],[-1010,20,1240,8.5,-1,2.5,2.5],[-940,14,1180,8.5,-1,2.5,2.5],
+    [-850,9,1150,8.5,0,2.5,2.5],[-740,5,1130,9,0,2.5,2.5],[-620,2,1125,9,0,2.5,2.5],[-500,0.5,1120,9,0,2.5,2.5],[-380,0,1120,10,0,2.5,2.5],[-260,0,1118,11,0,2.5,2.5]];
+  return { closedLoop: false, controlPoints: P.map((q, i) => ({ id: `c01-p${String(i).padStart(2, "0")}`, p: [q[0], q[1], q[2]], width: q[3], bank: q[4], shoulderLeft: q[5], shoulderRight: q[6] })) };
 }
 
 function pad(s, n, right = false) {
@@ -722,17 +782,18 @@ function main() {
   const { list, catalogue } = loadAll(only);
   const results = list.map(({ route, meta, overlay }) => checkCourse(route, meta, overlay));
 
-  // Sampler parity with the C# reference values for C01 (recorded from the Unity measure of revision 1).
-  const c01 = results.find((r) => r.course === "C01");
-  let parity = null;
-  if (c01) {
-    parity = {
-      reference: { lengthMetres: 3079, netElevationMetres: -80.0, minRadiusMetres: 19.8, maxGradePercent: 7.0 },
-      port: { lengthMetres: c01.lengthMetres, netElevationMetres: c01.netElevationMetres, minRadiusMetres: c01.minRadiusMetres, maxGradePercent: c01.maxGradePercent },
-    };
-    parity.pass = Math.abs(c01.lengthMetres - 3079) <= 1 && Math.abs(c01.netElevationMetres + 80) <= 0.05 && Math.abs(c01.minRadiusMetres - 19.8) <= 0.1 && Math.abs(c01.maxGradePercent - 7.0) <= 0.1;
-    if (!parity.pass) c01.errors.push("sampler port does not reproduce the C# reference stats for C01");
-  }
+  // Sampler parity: C01 revision 1 (fixture below) measured in Unity by RouteSampler/RouteIO.Measure gave
+  // length 3079 m, net -80.0 m, min radius ~19.8 m, max grade ~7.0%. The fixture is fixed so later C01 revisions
+  // (e.g. the twelve-slot grid rollout) do not disturb the parity check.
+  const fixture = parityFixture();
+  const fs0 = measure(sampleRoute(fixture, 1).samples);
+  const parity = {
+    fixture: "C01 revision 1 control points (embedded)",
+    reference: { lengthMetres: 3079, netElevationMetres: -80.0, minRadiusMetres: 19.8, maxGradePercent: 7.0 },
+    port: { lengthMetres: +fs0.lengthMetres.toFixed(1), netElevationMetres: +fs0.netElevationMetres.toFixed(2), minRadiusMetres: +fs0.minRadiusMetres.toFixed(2), maxGradePercent: +fs0.maxGradePercent.toFixed(2) },
+  };
+  parity.pass = Math.abs(fs0.lengthMetres - 3079) <= 1 && Math.abs(fs0.netElevationMetres + 80) <= 0.05 && Math.abs(fs0.minRadiusMetres - 19.8) <= 0.1 && Math.abs(fs0.maxGradePercent - 7.0) <= 0.1;
+  if (!parity.pass) process.exitCode = 1;
 
   let uniq = null;
   if (!args.includes("--no-overlap") && results.length > 1) {
@@ -772,13 +833,13 @@ function main() {
   console.log(line(header));
   console.log(widths.map((w) => "-".repeat(w)).join(" "));
   for (const row of rows) console.log(line(row));
-  if (parity) console.log(`\nC# parity (C01): length ${parity.port.lengthMetres} m (ref 3079), net ${parity.port.netElevationMetres} m (ref -80.0), min radius ${parity.port.minRadiusMetres} m (ref ~19.8), max grade ${parity.port.maxGradePercent}% (ref ~7.0) -> ${parity.pass ? "MATCH" : "MISMATCH"}`);
+  if (parity) console.log(`\nC# parity (C01 revision-1 fixture): length ${parity.port.lengthMetres} m (ref 3079), net ${parity.port.netElevationMetres} m (ref -80.0), min radius ${parity.port.minRadiusMetres} m (ref ~19.8), max grade ${parity.port.maxGradePercent}% (ref ~7.0) -> ${parity.pass ? "MATCH" : "MISMATCH"}`);
   if (missing.length) console.log(`Missing route.json: ${missing.join(", ")}`);
   for (const r of results) {
     if (r.errors.length) for (const e of r.errors) console.log(`  ${r.course} ERROR: ${e}`);
     if (!quiet) for (const w of r.warnings) console.log(`  ${r.course} warn: ${w}`);
   }
-  const allPass = results.every((r) => r.pass) && missing.length === 0;
+  const allPass = results.every((r) => r.pass) && missing.length === 0 && parity.pass;
   console.log(`\n${results.filter((r) => r.pass).length}/${results.length} courses pass${missing.length ? `, ${missing.length} missing` : ""}.`);
 
   if (!only) {
@@ -788,7 +849,7 @@ function main() {
       schema: "night-signal/route-stats@1",
       note: "Measured from route.json with a double-precision port of RouteSampler.cs / RouteIO.Measure (1 m samples). Lengths are centreline metres; circuits are per lap.",
       samplerParity: parity,
-      rules: { lengthTolerancePercent: 5, netElevationToleranceMetres: 3, maxGradePercent: MAX_GRADE, minRadiusMetres: MIN_RADIUS, minWidthMetres: MIN_WIDTH, minSeparationMetres: MIN_SEPARATION, minAlongMetres: MIN_ALONG, minCrossingClearanceMetres: MIN_CLEARANCE, exclusiveWindowPercent: 70 },
+      rules: { lengthTolerancePercent: 5, netElevationToleranceMetres: 3, maxGradePercent: MAX_GRADE, minRadiusMetres: MIN_RADIUS, minWidthMetres: MIN_WIDTH, minSeparationMetres: MIN_SEPARATION, minAlongMetres: MIN_ALONG, minCrossingClearanceMetres: MIN_CLEARANCE, exclusiveWindowPercent: 70, overlapHeuristic: UNIQUE, gridSlots: GRID_SLOTS, gridMinStartMetres: GRID_MIN_START, gridMinWidthMetres: 10, gridSlotEdgeClearanceMetres: 1.3 },
       allPass,
       courses: results.map(({ _samples, ...r }) => r),
     };

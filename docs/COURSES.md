@@ -11,7 +11,7 @@ between courses.
 |---|---|
 | `schema`, `course`, `revision` | `night-signal/route@1`, course ID, integer revision (bump on any geometry change) |
 | `closedLoop` | `true` for circuits (two laps; start = finish line) and the T00 loop |
-| `startMetres` | start line distance; the six-slot grid sits behind it (needs ≥ 34 m before it) |
+| `startMetres` | start line distance; the twelve-slot grid (up to 12 vehicles: 2 columns × 6 rows, 9 m rows, 4.5 m column stagger, first slot 5 m behind the line, last ≈ 55 m behind) sits behind it, so `startMetres` ≥ 62. The grid zone must be straight (no hairpin, radius ≥ 150 m), level (no crest/dip) and 10–12 m wide at every slot |
 | `checkpointSpacingMetres` | normally 100 |
 | `biome` | region/biome key: `mizuhana-foothills`, `kasumi-forest`, `kurogawa-reservoir`, `akebono-coast`, `hoshimi-uplands`, `tsukishiro-highland`, `amanagi-finale`, `hinode-campus` |
 | `timeOfDay`, `surface` | Normal conditions: LightingPresets id (`day, late-afternoon, sunset, dusk, blue-hour, evening, night, pre-dawn, dawn, first-light`) and `dry/damp/wet` |
@@ -25,7 +25,9 @@ between courses.
 Geometry rules checked by the validator: length within ±5% of the brief target; net elevation within ±3 m
 (0 for closed loops); max sustained grade ≤ 12%; minimum centreline radius ≥ 12 m (hairpins) unless the brief
 asks for less; minimum width ≥ 6 m; no self-intersection except at declared tunnel/bridge crossings (vertical
-clearance ≥ 7 m); circuits close smoothly.
+clearance ≥ 7 m); circuits close smoothly; `startMetres` ≥ 62 with each of the twelve grid slots on ≥ 10 m of paved
+width (or its lateral offset min(2.4, width/4) clearing the edge by ≥ 1.3 m) inside a straight, level grid zone.
+`node Tools/authoring/route-check.mjs` runs these checks and writes `Evidence/courses/route-stats.json`.
 
 ## Gate kinds
 
