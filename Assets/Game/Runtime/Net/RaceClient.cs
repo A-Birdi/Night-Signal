@@ -811,6 +811,13 @@ namespace NightSignal.Net
             return nm != null && nm.IsConnectedClient ? (int)nm.NetworkConfig.NetworkTransport.GetCurrentRtt(NetworkManager.ServerClientId) : -1;
         }
 
+        /// <summary>The player's game leaves the race (quit, crash, lost link): the server disqualifies the entry.</summary>
+        public void Leave(string reason)
+        {
+            Disconnect();
+            if (DisconnectReason == null) DisconnectReason = reason;
+        }
+
         public void Disconnect()
         {
             if (nm != null && nm.IsListening)

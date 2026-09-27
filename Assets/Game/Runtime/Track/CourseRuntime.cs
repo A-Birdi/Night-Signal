@@ -43,6 +43,16 @@ namespace NightSignal.Track
             if (!Application.isPlaying) Clear();
         }
 
+        /// <summary>
+        /// Leaving the course in play: release what generation created (road/terrain meshes, the ~24 MB terrain data, the
+        /// track data). They are runtime assets, not scene objects, so unloading the scene alone kept every course ever
+        /// loaded in memory (found by the soak: native memory grew ~20 MB per race).
+        /// </summary>
+        void OnDestroy()
+        {
+            if (Application.isPlaying) Clear();
+        }
+
         public void Generate()
         {
             if (RouteJson == null || Materials == null) return;

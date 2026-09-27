@@ -902,3 +902,25 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   and was credited 6,460; the three AI finished 1–3). Clients 0 and 1 settled once each as DisqualifiedDisconnect with 0
   payout — **PASS**. Localhost only; the Spectate button itself was not driven by automation (the protocol path it calls
   was).
+
+## V-059 — Soak memory: generated course assets released; managed growth gone, native growth measured (2026-09-27)
+- Revision: working tree on `6c69aa0` (committed in the next checkpoint). Built Windows development players on this machine,
+  `-nsSoakTour N -nsSoakSameCar` (the V-054 soak: twelve cars, light contact, view cycled every 1.5 s, look-back, style/units
+  switched, a held reset every 12 s, then back to the menus), working set sampled every 15 s from outside the process.
+- **Before:** the 40-race run of `6c69aa0` was stopped at race 20 to fix what it showed: managed heap after a full
+  collection 7.2 → 16.0 MB (+0.46 MB every race, never levelling) and working set ~497 → ~892 MB, while the object census
+  (meshes, materials, textures, clips, GameObjects) stayed flat.
+- **Cause and fix:** `CourseRuntime` released its generated road/terrain meshes, terrain data and `TrackData` only in edit
+  mode; in play they were left to scene unloading and asset garbage collection. `OnDestroy` now destroys them explicitly
+  in play too (the exact reference that had kept them alive was not traced; the growth stopped with the change). The census gained terrain data, ScriptableObjects, Unity's
+  allocated/reserved memory, Mono heap, graphics-driver memory and rigidbodies, and a reflection census of every static
+  collection and static event in the game's assemblies (by field name, race 1 vs the end).
+- **After, 8 races** (`soak-fix`): **PASS** — every accumulation check clear, 48/48 reset requests → one reset each, 9–10
+  gates per race; managed **7.1–7.4 MB flat**; terrain data 1 (the menu backdrop's), ScriptableObjects 98 throughout;
+  frame 1.83–2.50 ms mean, 3.61–4.48 ms p99; working set 516 → 678 MB.
+- **After, 12 races** (`soak-native`; races 1–3 overlapped an online tour and two editor builds on the same machine, so
+  their frame times are not clean): **PASS**; managed 7.0–7.7 MB; 84 non-empty static collections/handlers, **none grew**;
+  Mono heap 90 MB, graphics driver 121 MB and 0 live rigidbodies in the menus throughout — but Unity's own allocated memory
+  rose 228 → 340 MB (~9–10 MB per race, steady) inside an unchanged 822–826 MB reservation; working set 536 → 691 MB.
+  **Native growth not yet explained** (open): no counted object type, static, handler, texture, graphics or physics body
+  accumulates.

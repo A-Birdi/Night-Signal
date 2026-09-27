@@ -1,0 +1,18 @@
+[NightSignal.SoakTour] baseline in the menus: cameras 1, driving cameras 0, views 0, HUDs 0, speed lines 0, listeners 0, lights 1, managed 3.8 MB
+[NightSignal.SoakTour] race 1 C01: objects (meshes, materials, textures, clips, GameObjects, terrain data, ScriptableObjects) 206,113,126,0,246,1,98
+[NightSignal.SoakTour] race 1 C01: 6 reset requests → 6 resets, 10 gates; then cameras 1, driving cameras 0, views 0, HUDs 0, speed lines 0, listeners 0, lights 1, managed 7.1 MB; frame 2.04/3.86 ms
+[NightSignal.SoakTour] race 2 C08: objects (meshes, materials, textures, clips, GameObjects, terrain data, ScriptableObjects) 206,114,126,0,246,1,98
+[NightSignal.SoakTour] race 2 C08: 6 reset requests → 6 resets, 10 gates; then cameras 1, driving cameras 0, views 0, HUDs 0, speed lines 0, listeners 0, lights 1, managed 7.4 MB; frame 2.01/3.84 ms
+[NightSignal.SoakTour] race 3 C12: objects (meshes, materials, textures, clips, GameObjects, terrain data, ScriptableObjects) 206,114,126,0,246,1,98
+[NightSignal.SoakTour] race 3 C12: 6 reset requests → 6 resets, 10 gates; then cameras 1, driving cameras 0, views 0, HUDs 0, speed lines 0, listeners 0, lights 1, managed 7.4 MB; frame 2.43/4.48 ms
+[NightSignal.SoakTour] race 4 C03: objects (meshes, materials, textures, clips, GameObjects, terrain data, ScriptableObjects) 206,114,126,0,246,1,98
+[NightSignal.SoakTour] race 4 C03: 6 reset requests → 6 resets, 9 gates; then cameras 1, driving cameras 0, views 0, HUDs 0, speed lines 0, listeners 0, lights 1, managed 7.2 MB; frame 1.90/3.74 ms
+[NightSignal.SoakTour] race 5 C01: objects (meshes, materials, textures, clips, GameObjects, terrain data, ScriptableObjects) 206,113,126,0,246,1,98
+[NightSignal.SoakTour] race 5 C01: 6 reset requests → 6 resets, 10 gates; then cameras 1, driving cameras 0, views 0, HUDs 0, speed lines 0, listeners 0, lights 1, managed 7.2 MB; frame 2.10/3.96 ms
+[NightSignal.SoakTour] race 6 C08: objects (meshes, materials, textures, clips, GameObjects, terrain data, ScriptableObjects) 206,114,126,0,246,1,98
+[NightSignal.SoakTour] race 6 C08: 6 reset requests → 6 resets, 10 gates; then cameras 1, driving cameras 0, views 0, HUDs 0, speed lines 0, listeners 0, lights 1, managed 7.3 MB; frame 2.50/4.32 ms
+[NightSignal.SoakTour] race 7 C12: objects (meshes, materials, textures, clips, GameObjects, terrain data, ScriptableObjects) 206,114,126,0,246,1,98
+[NightSignal.SoakTour] race 7 C12: 6 reset requests → 6 resets, 10 gates; then cameras 1, driving cameras 0, views 0, HUDs 0, speed lines 0, listeners 0, lights 1, managed 7.4 MB; frame 2.39/4.23 ms
+[NightSignal.SoakTour] race 8 C03: objects (meshes, materials, textures, clips, GameObjects, terrain data, ScriptableObjects) 206,114,126,0,246,1,98
+[NightSignal.SoakTour] race 8 C03: 6 reset requests → 6 resets, 9 gates; then cameras 1, driving cameras 0, views 0, HUDs 0, speed lines 0, listeners 0, lights 1, managed 7.2 MB; frame 1.83/3.61 ms
+[NightSignal.SoakTour] PASS

@@ -22,6 +22,50 @@ namespace NightSignal.Front
         /// and per race the frame time and the player's authoritative progress. Isolated preferences/profiles.
         /// Automation, not a human session.
         /// </summary>
+        /// <summary>
+        /// Soak diagnostic: element counts of every non-empty static collection and handler count of every static delegate in
+        /// the game's own assemblies, by field name — anything that accumulates between races and is reachable from a
+        /// static shows up by name.
+        /// </summary>
+        static Dictionary<string, int> StaticCensus()
+        {
+            var counts = new Dictionary<string, int>();
+            foreach (System.Reflection.Assembly asm in System.AppDomain.CurrentDomain.GetAssemblies())
+            {
+                if (!asm.GetName().Name.StartsWith("NightSignal")) continue;
+                System.Type[] types;
+                try { types = asm.GetTypes(); }
+                catch (System.Reflection.ReflectionTypeLoadException e) { types = e.Types.Where(t => t != null).ToArray(); }
+                foreach (System.Type t in types)
+                {
+                    if (t.ContainsGenericParameters) continue;
+                    foreach (System.Reflection.FieldInfo f in t.GetFields(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic))
+                    {
+                        if (f.IsLiteral) continue;
+                        object v;
+                        try { v = f.GetValue(null); }
+                        catch { continue; }
+                        int c = -1;
+                        if (v is System.Delegate d) c = d.GetInvocationList().Length;
+                        else if (v is IEnumerable && !(v is string))
+                        {
+                            object count = v.GetType().GetProperty("Count")?.GetValue(v);
+                            if (count is int i) c = i;
+                            else if (v is System.Array a) c = a.Length;
+                        }
+                        if (c > 0) counts[t.FullName + "." + f.Name] = c;
+                    }
+                }
+            }
+            return counts;
+        }
+
+        static readonly string[] MemoryCounters =
+        {
+            "System Used Memory", "Profiler Used Memory", "Audio Used Memory", "Video Used Memory", "Gfx Used Memory", "Texture Memory",
+            "Mesh Memory", "Material Memory", "Object Count", "Asset Count", "Scene Object Count", "Material Count",
+        };
+
         IEnumerator SoakTour(int races)
         {
             string dir = System.IO.Path.GetFullPath(System.IO.Path.Combine("Builds", "Screenshots", "soak"));
@@ -35,11 +79,23 @@ namespace NightSignal.Front
                 DrivingPreferences.ResetCache();
             }
             var failures = new List<string>();
-            var report = new StringBuilder("race,course,cameras,drivingCameras,vehicleViews,raceHuds,speedLines,prefListeners,lights,managedMB,meshes,materials,textures,audioClips,gameObjects,frameMsMean,frameMsP99,raceFinished,playerResets,playerCheckpoints,playerFinishS\n");
+            var report = new StringBuilder("race,course,cameras,drivingCameras,vehicleViews,raceHuds,speedLines,prefListeners,lights,managedMB,meshes,materials,textures,audioClips,gameObjects,terrainData,scriptableObjects,unityAllocatedMB,unityReservedMB,monoHeapMB,gfxDriverMB,physicsBodies," + string.Join(",", MemoryCounters.Select(m => m.Replace(" ", ""))) + ",frameMsMean,frameMsP99,raceFinished,playerResets,playerCheckpoints,playerFinishS\n");
             // Loaded Unity objects of the kinds a race creates at run time (including assets outside any scene), to find what
             // the managed-heap growth holds on to.
+            // Unity's per-category memory counters (Memory Profiler module), read between races.
+            var recorders = MemoryCounters.Select(m => Unity.Profiling.ProfilerRecorder.StartNew(Unity.Profiling.ProfilerCategory.Memory, m)).ToList();
+            string Counters() => string.Join(",", recorders.Select((r, i) => !r.Valid ? "-1"
+                : MemoryCounters[i].EndsWith("Memory") ? (r.LastValue / 1048576f).ToString("F1") : r.LastValue.ToString()));
             string Objects() => string.Join(",", Resources.FindObjectsOfTypeAll<Mesh>().Length, Resources.FindObjectsOfTypeAll<Material>().Length,
-                Resources.FindObjectsOfTypeAll<Texture>().Length, Resources.FindObjectsOfTypeAll<AudioClip>().Length, Resources.FindObjectsOfTypeAll<GameObject>().Length);
+                Resources.FindObjectsOfTypeAll<Texture>().Length, Resources.FindObjectsOfTypeAll<AudioClip>().Length, Resources.FindObjectsOfTypeAll<GameObject>().Length,
+                Resources.FindObjectsOfTypeAll<TerrainData>().Length, Resources.FindObjectsOfTypeAll<ScriptableObject>().Length,
+                // Unity's own allocators (native memory the object census cannot see), the Mono heap's reserved size and
+                // the graphics driver's share, plus live physics bodies.
+                (UnityEngine.Profiling.Profiler.GetTotalAllocatedMemoryLong() / 1048576f).ToString("F0"),
+                (UnityEngine.Profiling.Profiler.GetTotalReservedMemoryLong() / 1048576f).ToString("F0"),
+                (UnityEngine.Profiling.Profiler.GetMonoHeapSizeLong() / 1048576f).ToString("F0"),
+                (UnityEngine.Profiling.Profiler.GetAllocatedMemoryForGraphicsDriver() / 1048576f).ToString("F0"),
+                FindObjectsByType<Rigidbody>().Length, Counters());
             void Note(string s) => Debug.Log("[NightSignal.SoakTour] " + s);
             string[] courses = { "C01", "C08", "C12", "C03" };
             var ai = new List<string> { "R01", "R02", "R03", "R05", "R06", "R07", "R09", "ai-8", "ai-9", "ai-10", "ai-11" };
@@ -52,6 +108,7 @@ namespace NightSignal.Front
                     FindObjectsByType<Light>().Length, System.GC.GetTotalMemory(true) / (1024f * 1024f));
             }
             var baseline = Census();
+            Dictionary<string, int> staticsAfterFirst = null;
             Note($"baseline in the menus: cameras {baseline.cams}, driving cameras {baseline.driving}, views {baseline.views}, HUDs {baseline.huds}, speed lines {baseline.lines}, listeners {baseline.listeners}, lights {baseline.lights}, managed {baseline.mb:F1} MB");
 
             for (int n = 0; n < races; n++)
@@ -121,7 +178,7 @@ namespace NightSignal.Front
                 frameMs.Sort();
                 float mean = frameMs.Count > 0 ? frameMs.Average() : 0f, p99 = frameMs.Count > 0 ? frameMs[(int)(frameMs.Count * 0.99f)] : 0f;
                 string objects = Objects();
-                Note($"race {n + 1} {course}: objects (meshes, materials, textures, clips, GameObjects) {objects}");
+                Note($"race {n + 1} {course}: objects (meshes, materials, textures, clips, GameObjects, terrain data, ScriptableObjects; Unity allocated/reserved, Mono heap, graphics driver MB; rigidbodies) {objects}");
                 report.AppendLine(string.Join(",", n + 1, course, c.cams, c.driving, c.views, c.huds, c.lines, c.listeners, c.lights, c.mb.ToString("F1"),
                     objects, mean.ToString("F2"), p99.ToString("F2"), finished, playerResets, checkpoints, finishS.ToString("F1")));
                 Note($"race {n + 1} {course}: {resetsRequested} reset requests → {playerResets} resets, {checkpoints} gates; then cameras {c.cams}, driving cameras {c.driving}, views {c.views}, HUDs {c.huds}, speed lines {c.lines}, listeners {c.listeners}, lights {c.lights}, managed {c.mb:F1} MB; frame {mean:F2}/{p99:F2} ms");
@@ -129,6 +186,14 @@ namespace NightSignal.Front
                     failures.Add($"race {n + 1}: something accumulated (cameras {c.cams}, driving {c.driving}, views {c.views}, HUDs {c.huds}, lines {c.lines}, listeners {c.listeners})");
                 if (playerResets <= 0 || playerResets > resetsRequested) failures.Add($"race {n + 1}: {resetsRequested} reset requests gave {playerResets} resets");
                 if (checkpoints <= 0) failures.Add($"race {n + 1}: no authoritative progress");
+                if (n == 0) staticsAfterFirst = StaticCensus();
+            }
+            if (staticsAfterFirst != null)
+            {
+                Dictionary<string, int> now = StaticCensus();
+                var grew = now.Where(kv => kv.Value > (staticsAfterFirst.TryGetValue(kv.Key, out int b) ? b : 0))
+                    .Select(kv => $"{kv.Key} {(staticsAfterFirst.TryGetValue(kv.Key, out int b2) ? b2 : 0)}→{kv.Value}").ToList();
+                Note($"static collections/handlers after race 1 vs the end ({now.Count} non-empty): " + (grew.Count == 0 ? "none grew" : "grew: " + string.Join("; ", grew)));
             }
             var end = Census();
             if (end.mb > baseline.mb + 64f) failures.Add($"managed memory grew {baseline.mb:F1} → {end.mb:F1} MB");

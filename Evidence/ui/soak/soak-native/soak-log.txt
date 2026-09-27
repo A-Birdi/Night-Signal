@@ -1,0 +1,27 @@
+[NightSignal.SoakTour] baseline in the menus: cameras 1, driving cameras 0, views 0, HUDs 0, speed lines 0, listeners 0, lights 1, managed 3.8 MB
+[NightSignal.SoakTour] race 1 C01: objects (meshes, materials, textures, clips, GameObjects, terrain data, ScriptableObjects; Unity allocated/reserved, Mono heap, graphics driver MB; rigidbodies) 206,113,126,0,246,1,98,228,822,90,121,0
+[NightSignal.SoakTour] race 1 C01: 6 reset requests → 6 resets, 10 gates; then cameras 1, driving cameras 0, views 0, HUDs 0, speed lines 0, listeners 0, lights 1, managed 7.0 MB; frame 2.74/4.84 ms
+[NightSignal.SoakTour] race 2 C08: objects (meshes, materials, textures, clips, GameObjects, terrain data, ScriptableObjects; Unity allocated/reserved, Mono heap, graphics driver MB; rigidbodies) 206,114,126,0,246,1,98,240,824,90,121,0
+[NightSignal.SoakTour] race 2 C08: 6 reset requests → 6 resets, 10 gates; then cameras 1, driving cameras 0, views 0, HUDs 0, speed lines 0, listeners 0, lights 1, managed 7.5 MB; frame 3.25/6.62 ms
+[NightSignal.SoakTour] race 3 C12: objects (meshes, materials, textures, clips, GameObjects, terrain data, ScriptableObjects; Unity allocated/reserved, Mono heap, graphics driver MB; rigidbodies) 206,114,126,0,246,1,98,248,824,90,121,0
+[NightSignal.SoakTour] race 3 C12: 6 reset requests → 6 resets, 10 gates; then cameras 1, driving cameras 0, views 0, HUDs 0, speed lines 0, listeners 0, lights 1, managed 7.6 MB; frame 3.34/5.35 ms
+[NightSignal.SoakTour] race 4 C03: objects (meshes, materials, textures, clips, GameObjects, terrain data, ScriptableObjects; Unity allocated/reserved, Mono heap, graphics driver MB; rigidbodies) 206,114,126,0,246,1,98,262,824,90,121,0
+[NightSignal.SoakTour] race 4 C03: 6 reset requests → 6 resets, 9 gates; then cameras 1, driving cameras 0, views 0, HUDs 0, speed lines 0, listeners 0, lights 1, managed 7.4 MB; frame 2.77/4.72 ms
+[NightSignal.SoakTour] race 5 C01: objects (meshes, materials, textures, clips, GameObjects, terrain data, ScriptableObjects; Unity allocated/reserved, Mono heap, graphics driver MB; rigidbodies) 206,113,126,0,246,1,98,270,824,90,121,0
+[NightSignal.SoakTour] race 5 C01: 6 reset requests → 6 resets, 10 gates; then cameras 1, driving cameras 0, views 0, HUDs 0, speed lines 0, listeners 0, lights 1, managed 7.4 MB; frame 3.04/5.06 ms
+[NightSignal.SoakTour] race 6 C08: objects (meshes, materials, textures, clips, GameObjects, terrain data, ScriptableObjects; Unity allocated/reserved, Mono heap, graphics driver MB; rigidbodies) 206,114,126,0,246,1,98,279,824,90,121,0
+[NightSignal.SoakTour] race 6 C08: 6 reset requests → 6 resets, 10 gates; then cameras 1, driving cameras 0, views 0, HUDs 0, speed lines 0, listeners 0, lights 1, managed 7.6 MB; frame 3.06/4.99 ms
+[NightSignal.SoakTour] race 7 C12: objects (meshes, materials, textures, clips, GameObjects, terrain data, ScriptableObjects; Unity allocated/reserved, Mono heap, graphics driver MB; rigidbodies) 206,114,126,0,246,1,98,286,824,90,121,0
+[NightSignal.SoakTour] race 7 C12: 6 reset requests → 6 resets, 10 gates; then cameras 1, driving cameras 0, views 0, HUDs 0, speed lines 0, listeners 0, lights 1, managed 7.7 MB; frame 3.37/5.38 ms
+[NightSignal.SoakTour] race 8 C03: objects (meshes, materials, textures, clips, GameObjects, terrain data, ScriptableObjects; Unity allocated/reserved, Mono heap, graphics driver MB; rigidbodies) 206,114,126,0,246,1,98,299,824,90,121,0
+[NightSignal.SoakTour] race 8 C03: 6 reset requests → 6 resets, 9 gates; then cameras 1, driving cameras 0, views 0, HUDs 0, speed lines 0, listeners 0, lights 1, managed 7.4 MB; frame 2.47/4.79 ms
+[NightSignal.SoakTour] race 9 C01: objects (meshes, materials, textures, clips, GameObjects, terrain data, ScriptableObjects; Unity allocated/reserved, Mono heap, graphics driver MB; rigidbodies) 206,113,126,0,246,1,98,306,824,90,121,0
+[NightSignal.SoakTour] race 9 C01: 6 reset requests → 6 resets, 10 gates; then cameras 1, driving cameras 0, views 0, HUDs 0, speed lines 0, listeners 0, lights 1, managed 7.4 MB; frame 3.33/7.36 ms
+[NightSignal.SoakTour] race 10 C08: objects (meshes, materials, textures, clips, GameObjects, terrain data, ScriptableObjects; Unity allocated/reserved, Mono heap, graphics driver MB; rigidbodies) 206,114,126,0,246,1,98,315,824,90,121,0
+[NightSignal.SoakTour] race 10 C08: 6 reset requests → 6 resets, 10 gates; then cameras 1, driving cameras 0, views 0, HUDs 0, speed lines 0, listeners 0, lights 1, managed 7.5 MB; frame 3.05/5.37 ms
+[NightSignal.SoakTour] race 11 C12: objects (meshes, materials, textures, clips, GameObjects, terrain data, ScriptableObjects; Unity allocated/reserved, Mono heap, graphics driver MB; rigidbodies) 206,114,126,0,246,1,98,325,826,90,121,0
+[NightSignal.SoakTour] race 11 C12: 6 reset requests → 6 resets, 10 gates; then cameras 1, driving cameras 0, views 0, HUDs 0, speed lines 0, listeners 0, lights 1, managed 7.7 MB; frame 2.40/4.20 ms
+[NightSignal.SoakTour] race 12 C03: objects (meshes, materials, textures, clips, GameObjects, terrain data, ScriptableObjects; Unity allocated/reserved, Mono heap, graphics driver MB; rigidbodies) 206,114,126,0,246,1,98,340,826,90,121,0
+[NightSignal.SoakTour] race 12 C03: 6 reset requests → 6 resets, 9 gates; then cameras 1, driving cameras 0, views 0, HUDs 0, speed lines 0, listeners 0, lights 1, managed 7.6 MB; frame 1.91/3.78 ms
+[NightSignal.SoakTour] static collections/handlers after race 1 vs the end (84 non-empty): none grew
+[NightSignal.SoakTour] PASS

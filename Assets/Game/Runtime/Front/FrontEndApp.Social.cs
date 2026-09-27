@@ -17,7 +17,10 @@ namespace NightSignal.Front
         /// needs only the local control plane). Each client drives its own REAL screens: claim a username, the host sends a
         /// friend request by @username, the guest accepts it, the host creates a convoy and invites the guest from the
         /// friend list, the guest joins from the invitation, both see each other in the roster, then both leave.
-        /// Screenshots in Builds/Screenshots/tour-social. Automation, not a human playtest.
+        /// With <c>-nsUiTourSocialRace</c> (needs a registered game server too) the two race instead of the tables: Campaign
+        /// through Mode Ready / Enter Mode / Propose / Event Ready / Start on both clients, then the guest's game "crashes"
+        /// mid-race, it signs in again, rejoins the convoy (its entry stays disqualified) and presses Spectate the Race to
+        /// watch the host finish (spec §4.4). Screenshots in Builds/Screenshots/tour-social. Automation, not a human playtest.
         /// </summary>
         IEnumerator UiTourSocial(string role)
         {
@@ -56,6 +59,10 @@ namespace NightSignal.Front
                     if (string.Equals((string)list[i]["handle"], handle, StringComparison.OrdinalIgnoreCase)) return i;
                 return -1;
             }
+            bool raceTour = Array.IndexOf(Environment.GetCommandLineArgs(), "-nsUiTourSocialRace") >= 0;
+            JObject State() => S()?.Convoy;
+            bool Interactable(string name) => GameObject.Find(name)?.GetComponent<Button>()?.interactable == true;
+            bool AllMembers(string flag) => (State()?["members"] as JArray)?.All(m => (bool?)m[flag] == true) == true;
             bool Listed(string section, string handle) =>
                 ((Friends.Graph?[section] as JArray) ?? new JArray()).Any(p => string.Equals((string)p["handle"], handle, StringComparison.OrdinalIgnoreCase));
 
@@ -156,17 +163,109 @@ namespace NightSignal.Front
 
             NetConfig cfg = NetConfig.FromCommandLine();
             JToken account = JObject.Parse(System.IO.File.ReadAllText(cfg.DevSeedFile))["accounts"][cfg.DevAccount];
+
+            IEnumerator SignIn()
+            {
+                Click("OnlineLogin");
+                yield return new WaitForSeconds(1.2f);
+                GameObject.Find("Email").GetComponent<TMP_InputField>().text = (string)account["email"];
+                GameObject.Find("Password").GetComponent<TMP_InputField>().text = (string)account["devOnlyPassword"];
+                Click("SignIn");
+                yield return Until(() => Router.Current == Convoy && S() != null, 20f, "signed in");
+            }
+
+            // Two humans race one online event through the real convoy buttons; the guest then leaves mid-race, comes back and
+            // spectates the host.
+            IEnumerator RaceTogether(bool isHost)
+            {
+                OnlineAutopilot = true;
+                if (Router.Current != Convoy) Router.Show(Convoy, false);
+                yield return new WaitForSeconds(1f);
+                if (isHost)
+                {
+                    Convoy.SelectIntent(0); // Campaign · Normal
+                    Click("ProposeIntent");
+                    yield return Until(() => State()?["intent"]?.Type == JTokenType.Object, 20f, "intent set");
+                    yield return Until(() => AllMembers("modeReady"), 90f, "both mode ready");
+                    yield return new WaitForSeconds(0.8f);
+                    Click("EnterMode");
+                    yield return Until(() => (bool?)State()?["modeEntered"] == true, 10f, "mode entered");
+                    yield return Until(() => Interactable("ProposeEvent"), 30f, "propose available");
+                    Click("ProposeEvent");
+                    yield return Until(() => State()?["eventProposal"]?.Type == JTokenType.Object, 25f, "event proposed");
+                    yield return new WaitForSeconds(0.8f);
+                    if ((bool?)S().MyMember?["eventReady"] != true) Click("EventReady");
+                    yield return Until(() => Interactable("StartEvent"), 120f, "everyone event ready");
+                    yield return new WaitForSeconds(0.8f);
+                    Shot("08-both-ready");
+                    Click("StartEvent");
+                }
+                else
+                {
+                    yield return Until(() => State()?["intent"]?.Type == JTokenType.Object && Interactable("ModeReady"), 120f, "the host proposed a mode");
+                    yield return new WaitForSeconds(0.8f);
+                    Click("ModeReady");
+                    yield return Until(() => State()?["eventProposal"]?.Type == JTokenType.Object && Interactable("EventReady"), 150f, "the host proposed an event");
+                    yield return new WaitForSeconds(0.8f);
+                    Click("EventReady");
+                }
+                yield return Until(() => onlineRace != null, 60f, "match allocated");
+                yield return Until(() => onlineRace == null || onlineRace.Phase == NightSignal.Race.MatchPhase.Racing, 90f, "race started");
+                yield return new WaitForSeconds(12f);
+                Shot("09-racing");
+                if (!isHost)
+                {
+                    // The crash itself is simulated (both connections closed, back at the title as a relaunch would be);
+                    // everything after it goes through the real buttons.
+                    onlineRace?.Leave("left the race (tour)");
+                    yield return Until(() => onlineRace == null && Router.Current == Convoy, 20f, "back at the convoy after leaving the race");
+                    yield return new WaitForSeconds(1f);
+                    S()?.Dispose();
+                    Domain = SessionDomain.None;
+                    DisplayName = "";
+                    Router.Show(MainMenu, false);
+                    yield return new WaitForSeconds(2f);
+                    yield return SignIn();
+                    yield return Until(() => Interactable("Rejoin"), 20f, "rejoin offered");
+                    yield return new WaitForSeconds(0.8f);
+                    Shot("10-rejoin-offered");
+                    Click("Rejoin");
+                    yield return Until(() => S().InConvoy && Interactable("Spectate"), 20f, "spectate offered");
+                    yield return new WaitForSeconds(0.8f);
+                    Shot("11-spectate-offered");
+                    Note($"rejoined: spectator {(bool?)S().MyMember?["spectator"]}, convoy phase {(string)State()?["phase"]}");
+                    Click("Spectate");
+                    yield return Until(() => onlineRace != null && onlineRace.Spectating && onlineRace.Phase == NightSignal.Race.MatchPhase.Racing, 30f, "spectating the race");
+                    yield return new WaitForSeconds(4f);
+                    Shot("12-spectating");
+                    onlineRace?.SpectateNext(+1); // what the next-target binding does
+                    yield return new WaitForSeconds(3f);
+                    Shot("13-spectating-next");
+                    if (onlineRace == null || !onlineRace.Spectating) failures.Add("spectate: not watching the race");
+                    else
+                    {
+                        Note($"spectating: {onlineRace.SpectateSwitches} target changes; {string.Join(" | ", onlineRace.SpectateLog)}");
+                        if (onlineRace.SpectateSwitches < 2) failures.Add("spectate: the camera did not change targets");
+                    }
+                }
+                yield return Until(() => onlineRace == null && Router.Current == Convoy, 400f, "race over and back at the convoy");
+                yield return Until(() => (LastOnlineResult ?? "").Contains("Credits"), 25f, "settled receipt");
+                yield return new WaitForSeconds(1.5f);
+                Shot(isHost ? "10-after-race" : "14-after-race");
+                Note("last result: " + (LastOnlineResult ?? "").Replace("\n", " | "));
+                if (!isHost && !(LastOnlineResult ?? "").Contains("Disqualified")) failures.Add("the guest's left race was not settled as a disqualification");
+                if (isHost && !(LastOnlineResult ?? "").Contains(" of ")) failures.Add("the host's race was not settled with a placing");
+                // The post-event decision needs every member's choice: both continue.
+                yield return Until(() => State()?["postEvent"]?.Type == JTokenType.Object && Interactable("Continue"), 20f, "post-event decision");
+                Click("Continue");
+                yield return new WaitForSeconds(3f);
+            }
             string myHandle = "nsdriver" + cfg.DevAccount;
             string peer = Arg("-nsPeerHandle") ?? (host ? "nsdriver1" : "nsdriver0");
 
             // Sign in through the real Online Login screen.
             yield return new WaitForSeconds(3f);
-            Click("OnlineLogin");
-            yield return new WaitForSeconds(1.2f);
-            GameObject.Find("Email").GetComponent<TMP_InputField>().text = (string)account["email"];
-            GameObject.Find("Password").GetComponent<TMP_InputField>().text = (string)account["devOnlyPassword"];
-            Click("SignIn");
-            yield return Until(() => Router.Current == Convoy && S() != null, 20f, "signed in");
+            yield return SignIn();
             yield return new WaitForSeconds(1.5f);
             if (S()?.StarterCarId == null) { Click("ChooseStarter"); yield return Until(() => S().StarterCarId != null, 10f, "starter chosen"); }
             if (S().InConvoy) { Click("Leave"); yield return Until(() => !S().InConvoy, 10f, "left an earlier convoy"); }
@@ -230,8 +329,11 @@ namespace NightSignal.Front
                 yield return new WaitForSeconds(1.5f);
                 Shot("05-together");
                 Note("convoy members: " + string.Join(", ", ((JArray)S().Convoy["members"]).Select(m => (string)m["displayName"])));
-                yield return SharedToys(true);
-
+                if (raceTour) yield return RaceTogether(true);
+                else yield return SharedToys(true);
+            }
+            if (host && !raceTour)
+            {
                 // Course access: buy the first course this profile can afford and does not hold (in-game credits).
                 Click("OpenCourses");
                 yield return Until(() => Router.Current == Courses, 10f, "courses open");
@@ -260,7 +362,7 @@ namespace NightSignal.Front
                 yield return Until(() => Router.Current == Convoy, 10f, "back at the convoy");
                 yield return new WaitForSeconds(4f); // let the guest see the roster too
             }
-            else
+            else if (!host)
             {
                 if (FriendIndex(peer) < 0)
                 {
@@ -282,7 +384,8 @@ namespace NightSignal.Front
                 yield return new WaitForSeconds(2f);
                 Shot("04-joined");
                 Note("joined " + (string)S().Convoy?["leaderName"] + "'s convoy");
-                yield return SharedToys(false);
+                if (raceTour) yield return RaceTogether(false);
+                else yield return SharedToys(false);
                 yield return new WaitForSeconds(3f);
             }
 
