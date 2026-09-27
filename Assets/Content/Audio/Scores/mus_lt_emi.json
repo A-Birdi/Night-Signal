@@ -1,0 +1,94 @@
+{
+  "schema": "night-signal/score@1",
+  "id": "MUS_LT_EMI",
+  "title": "Barometer",
+  "description": "Second lieutenant theme — Emi Takanashi of the Rainline Atelier (S14, Rain Thread Pass). A courteous meteorologist who treats rain as information: 174 BPM breakbeat in C minor where the Rain Thread is inverted into rising 'pressure' cascades, a reese bass holds long tones, and a calm, exact melody floats over Cm9–Abmaj7–Fm9. A pad breakdown, a second verse with a higher counter-line, and a closing drop with a busier break keep it developing.",
+  "style": "breakbeat / drum and bass",
+  "key": "C minor (Dorian)",
+  "tempo": 174,
+  "timeSignature": [4, 4],
+  "stepsPerBeat": 4,
+  "motifs": ["M5 Rain Thread — inverted into rising cascades (Rainline lineage)"],
+  "cue": {
+    "displayTitle": "Kasumi Lieutenant",
+    "category": "lieutenant",
+    "contexts": ["encounter-S14", "boombox"]
+  },
+  "mix": {
+    "master": -5.8,
+    "reverb": { "size": 0.84, "damp": 0.35, "width": 1.0, "wet": 0.3 },
+    "delay": { "beats": 0.75, "feedback": 0.4, "damp": 2800, "wet": 0.5, "toReverb": 0.4 },
+    "duckRelease": 0.35
+  },
+  "tracks": [
+    { "id": "lead", "instrument": "lead_soft", "gain": 1, "reverb": 0.35, "delay": 0.3 },
+    { "id": "lead2", "instrument": "lead_whistle", "gain": -1, "pan": 0.15, "reverb": 0.35, "delay": 0.3 },
+    { "id": "rain", "instrument": "pluck_fm", "gain": -2, "pan": -0.25, "reverb": 0.35, "delay": 0.35 },
+    { "id": "pad", "instrument": "pad_glass", "gain": 1, "reverb": 0.4, "duck": 0.3 },
+    { "id": "air", "instrument": "pad_air", "gain": -2, "reverb": 0.4 },
+    { "id": "bass", "instrument": "bass_reese", "gain": 1, "duck": 0.3 },
+    { "id": "sub", "instrument": "bass_sub", "gain": -4, "duck": 0.3 },
+    { "id": "drums", "instrument": "kit_breaks", "gain": 0, "reverb": 0.1, "sidechain": true },
+    { "id": "riser", "instrument": "riser_noise", "gain": 0, "reverb": 0.35 }
+  ],
+  "patterns": {
+    "pad_A": { "track": "pad", "chords": { "progression": "Cm9 | Cm9 | Abmaj7 | Bb6", "octave": 4 } },
+    "rain_A": { "track": "rain", "bars": 4, "melody": [
+      "C4:1 Eb4:1 G4:1 Bb4:1 D5:1 Eb5:1 G5:1 Bb5:1 r:8 | r:8 D5:1 Eb5:1 G5:1 Bb5:1 C6:1 D6:1 Eb6:1 G6:1",
+      "Ab4:1 C5:1 Eb5:1 G5:1 Ab5:1 C6:1 Eb6:1 G6:1 r:8 | r:8 Bb4:1 D5:1 F5:1 G5:1 Bb5:1 D6:1 F6:1 G6:1"
+    ] },
+    "d_I": { "track": "drums", "bars": 8, "drums": {
+      "shaker": "................ ................ ................ ................ xoxoxoxoxoxoxoxo xoxoxoxoxoxoxoxo xoxoxoxoxoxoxoxo xoxoxoxoxoxoxoxo",
+      "rim": "................ ................ ....x.......x... ....x.......x... ....x.......x... ....x.......x... ....x.......x... ....x...x.x.xxxx"
+    } },
+    "riser4": { "track": "riser", "bars": 4, "notes": [[0, 64, "C4", 0.8]] },
+
+    "bass_A": { "track": "bass", "bass": { "progression": "Cm9 | Cm9 | Abmaj7 | Bb6", "rhythm": "R-------R-----5-", "octave": 2 } },
+    "sub_A": { "track": "sub", "bass": { "progression": "Cm9 | Cm9 | Abmaj7 | Bb6", "rhythm": "R---------------", "octave": 1 } },
+    "d_A": { "track": "drums", "bars": 2, "drums": {
+      "kick":  "x.........x..... x.x.......x...x.",
+      "snare": "....x.......x... ....x..o.o..x...",
+      "chh":   "x.xxx.xxx.xxx.xx",
+      "ohh":   "......x.......x."
+    } },
+    "d_fill": { "track": "drums", "bars": 1, "drums": { "kick": "x.........x.....", "snare": "....x..oxoxxoxXX" } },
+    "d_crash": { "track": "drums", "bars": 1, "drums": { "crash": "X..............." } },
+
+    "pad_B": { "track": "pad", "chords": { "progression": "Cm9 | Abmaj7 | Fm9 | Bb6 | Cm9 | Abmaj7 | Fm9 | G7sus4", "octave": 4 } },
+    "rain_B": { "track": "rain", "arp": { "progression": "Cm9 | Abmaj7 | Fm9 | Bb6 | Cm9 | Abmaj7 | Fm9 | G7sus4", "pattern": "0 1 2 3 4 5 6 7 . . . . . . . .", "rate": 1, "octave": 4, "gate": 0.5 } },
+    "bass_B": { "track": "bass", "bass": { "progression": "Cm9 | Abmaj7 | Fm9 | Bb6 | Cm9 | Abmaj7 | Fm9 | G7sus4", "rhythm": "R-------R-----5-", "octave": 2 } },
+    "sub_B": { "track": "sub", "bass": { "progression": "Cm9 | Abmaj7 | Fm9 | Bb6 | Cm9 | Abmaj7 | Fm9 | G7sus4", "rhythm": "R---------------", "octave": 1 } },
+    "melB": { "track": "lead", "bars": 8, "melody": [
+      "G5:8 Eb5:4 D5:4 | C5:8 Eb5:8 | Ab5:6 G5:2 F5:8 | D5:8 Bb4:8",
+      "G5:4 Bb5:4 D6:8 | C6:6 Bb5:2 G5:8 | Ab5:4 C6:4 F6:4 Eb6:4 | D6:8 F5:8"
+    ] },
+    "melD": { "track": "lead2", "bars": 8, "melody": [
+      "Eb6:4 D6:4 C6:4 G5:4 | Eb6:8 C6:8 | F6:4 Eb6:4 C6:4 Ab5:4 | F5:8 D6:8",
+      "G6:6 F6:2 Eb6:4 D6:4 | Eb6:8 G5:8 | C6:4 Ab5:4 F5:4 C6:4 | D6:16"
+    ] },
+
+    "air_C": { "track": "air", "chords": { "progression": "Abmaj7 | Gm7 | Fm9 | Gm7 | Abmaj7 | Gm7 | Fm9 | G7sus4", "octave": 4 } },
+    "pad_C": { "track": "pad", "chords": { "progression": "Abmaj7 | Gm7 | Fm9 | Gm7 | Abmaj7 | Gm7 | Fm9 | G7sus4", "octave": 5, "rhythm": "x-------x-------" } },
+    "rain_C": { "track": "rain", "arp": { "progression": "Abmaj7 | Gm7 | Fm9 | Gm7 | Abmaj7 | Gm7 | Fm9 | G7sus4", "pattern": "0 2 4 6 . . . . . . . . . . . .", "rate": 1, "octave": 5, "gate": 0.6 } },
+    "d_C": { "track": "drums", "bars": 1, "drums": { "shaker": "xoxoxoxoxoxoxoxo" } },
+    "air_A": { "track": "air", "chords": { "progression": "Cm9 | Cm9 | Abmaj7 | Bb6", "octave": 4 } },
+
+    "bass_E": { "track": "bass", "bass": { "progression": "Cm9 | Cm9 | Abmaj7 | Bb6", "rhythm": "R-----R-R-----5-", "octave": 2 } },
+    "d_E": { "track": "drums", "bars": 2, "drums": {
+      "kick":  "x.x.......x..x.. x.........x.....",
+      "snare": "....x..o....x..o ....x..o.o..x.xx",
+      "chh":   "xxxxxxxxxxxxxxxx",
+      "ohh":   "..............x."
+    } }
+  },
+  "sections": {
+    "intro": { "bars": 8, "play": [ "pad_A", "rain_A", "d_I", "riser4@4" ] },
+    "A": { "bars": 16, "play": [ "pad_A", "rain_A", "bass_A", "sub_A", "d_A*7", "d_fill@14*1", "d_A@15*1", "d_crash*1" ] },
+    "B": { "bars": 16, "play": [ "pad_B", "rain_B", "bass_B", "sub_B", "melB", "d_A*7", "d_fill@14*1", "d_A@15*1", "d_crash*1" ] },
+    "C": { "bars": 8, "play": [ "air_C", "pad_C", "rain_C", "d_C", "riser4@4" ] },
+    "D": { "bars": 16, "play": [ "pad_B", "rain_B", "bass_B", "sub_B", "melB*1", "melD@8*1", "d_A*7", "d_fill@14*1", "d_A@15*1", "d_crash*1" ] },
+    "E": { "bars": 16, "play": [ "pad_A", "rain_A", "air_A@8*1", "bass_E", "sub_A", "d_E*7", "d_fill@14*1", "d_E@15*1", "d_crash*1", "d_crash@8*1" ] }
+  },
+  "form": ["intro", "A", "B", "C", "D", "E"],
+  "loopFrom": "A"
+}

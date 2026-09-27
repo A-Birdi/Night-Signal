@@ -1,0 +1,89 @@
+{
+  "schema": "night-signal/score@1",
+  "id": "MUS_TT_MEAN",
+  "title": "Six Abreast",
+  "description": "Team Trial TT_MEAN — lowest team mean time, where every one of six positions counts. A steady, confident house-rock groove in G major: four-on-the-floor kit, ringing power chords and organ. The six-note Convoy Six figure is passed back and forth between a supersaw and a square lead like a relay, then both leads sing it in unison through the chorus.",
+  "style": "house-rock",
+  "key": "G major",
+  "tempo": 136,
+  "timeSignature": [4, 4],
+  "stepsPerBeat": 4,
+  "motifs": ["M8 Convoy Six — call-and-response between two leads, unison in the chorus"],
+  "cue": {
+    "displayTitle": "Six Abreast",
+    "category": "team-trial",
+    "contexts": ["trial-TT_MEAN", "boombox"]
+  },
+  "mix": {
+    "master": -6.4,
+    "reverb": { "size": 0.66, "damp": 0.45, "width": 1.0, "wet": 0.22 },
+    "delay": { "beats": 0.75, "feedback": 0.3, "damp": 3400, "wet": 0.45, "toReverb": 0.25 },
+    "duckRelease": 0.4
+  },
+  "tracks": [
+    { "id": "lead", "instrument": "lead_supersaw", "gain": 0, "pan": -0.1, "reverb": 0.22, "delay": 0.18, "duck": 0.1 },
+    { "id": "lead2", "instrument": "lead_square", "gain": 0, "pan": 0.15, "reverb": 0.2, "delay": 0.22 },
+    { "id": "gtrL", "instrument": "guitar_power", "gain": -2, "pan": -0.5, "drive": 0.7, "driveTone": 3200 },
+    { "id": "gtrR", "instrument": "guitar_power", "gain": -2, "pan": 0.5, "drive": 0.65, "driveTone": 3600 },
+    { "id": "organ", "instrument": "organ", "gain": 0, "reverb": 0.25, "duck": 0.35 },
+    { "id": "bells", "instrument": "bell_fm", "gain": -1, "pan": 0.25, "reverb": 0.35, "delay": 0.3 },
+    { "id": "bass", "instrument": "bass_octave", "gain": 0, "duck": 0.25 },
+    { "id": "drums", "instrument": "kit_rock", "gain": 0, "reverb": 0.1, "sidechain": true },
+    { "id": "riser", "instrument": "riser_noise", "gain": 0, "reverb": 0.3 }
+  ],
+  "patterns": {
+    "organ_I": { "track": "organ", "chords": { "progression": "G | D/F# | Em | C", "octave": 4 } },
+    "six_I": { "track": "bells", "bars": 4, "melody": "G5:2 A5:2 B5:2 D6:2 E6:2 G6:6 | r:16 | E5:2 F#5:2 G5:2 B5:2 C6:2 E6:6 | r:16" },
+    "bass_I": { "track": "bass", "bass": { "progression": "G | D/F# | Em | C", "style": "octave8", "octave": 2 } },
+    "d_I": { "track": "drums", "bars": 8, "drums": {
+      "kick": "x...x...x...x...",
+      "chh": "................ ................ ................ ................ x.x.x.x.x.x.x.x. x.x.x.x.x.x.x.x. x.x.x.x.x.x.x.x. x.x.x.x.x.x.x.x.",
+      "snare": "................ ................ ................ ................ ....x.......x... ....x.......x... ....x.......x... x.x.x.x.xxxxXXXX"
+    } },
+    "riser4": { "track": "riser", "bars": 4, "notes": [[0, 64, "G4", 0.8]] },
+
+    "gtr_A": { "track": "gtrL", "chords": { "progression": "G5 | D5 | E5 | C5 | G5 | D5 | C5 | D5", "octave": 3, "voicing": "close", "rhythm": "x-.x-.x-x-.x-.x-", "gate": 0.8 } },
+    "organ_A": { "track": "organ", "chords": { "progression": "G | D/F# | Em | C | G | D/F# | C | D", "octave": 4 } },
+    "bass_A": { "track": "bass", "bass": { "progression": "G | D/F# | Em | C | G | D/F# | C | D", "style": "octave8", "octave": 2 } },
+    "callA": { "track": "lead", "bars": 8, "melody": "G5:2 A5:2 B5:2 D6:2 E6:2 G6:6 | r:16 | E5:2 F#5:2 G5:2 B5:2 C6:2 E6:6 | r:16 | G5:2 A5:2 B5:2 D6:2 E6:2 G6:6 | r:16 | E6:4 D6:4 C6:4 G5:4 | A5:8 F#5:8" },
+    "respA": { "track": "lead2", "bars": 8, "melody": "r:16 | F#6:2 E6:2 D6:2 A5:2 F#5:2 D5:6 | r:16 | C6:2 B5:2 G5:2 E5:2 C5:2 G4:6 | r:16 | F#6:2 E6:2 D6:2 A5:2 F#5:2 D5:6 | r:16 | r:16" },
+    "d_A": { "track": "drums", "bars": 1, "drums": { "kick": "x...x...x...x...", "snare": "....x.......x...", "chh": "x.x.x.x.x.x.x.x.", "ohh": "..............x." } },
+    "d_fill": { "track": "drums", "bars": 1, "drums": { "kick": "x...x...x...x...", "snare": "....x...........", "tomh": "........x.x.....", "tomm": "............x.x.", "toml": "..............xx" } },
+    "d_crash": { "track": "drums", "bars": 1, "drums": { "crash": "X..............." } },
+
+    "gtr_B": { "track": "gtrR", "chords": { "progression": "A5 | B5 | C5 | D5 | A5 | B5 | C5 | D5", "octave": 3, "voicing": "close", "rhythm": "x.xxx.xxx.xxx.xx", "gate": 0.5 } },
+    "organ_B": { "track": "organ", "chords": { "progression": "Am | Bm | C | D | Am | Bm | C | Dsus4 D", "octave": 4 } },
+    "bass_B": { "track": "bass", "bass": { "progression": "Am | Bm | C | D | Am | Bm | C | Dsus4 D", "style": "pulse8", "octave": 2 } },
+    "pre": { "track": "lead", "bars": 8, "melody": "A5:4 C6:4 E6:4 A6:4 | F#6:4 D6:4 B5:8 | G5:4 C6:4 E6:4 G6:4 | F#6:8 A6:8 | E6:4 C6:4 A5:4 C6:4 | D6:4 F#6:4 B6:8 | C6:4 E6:4 G6:4 E6:4 | G6:8 F#6:8" },
+    "pre2": { "track": "lead2", "bars": 8, "melody": "A4:4 C5:4 E5:4 A5:4 | F#5:4 D5:4 B4:8 | G4:4 C5:4 E5:4 G5:4 | F#5:8 A5:8 | E5:4 C5:4 A4:4 C5:4 | D5:4 F#5:4 B5:8 | C5:4 E5:4 G5:4 E5:4 | G5:8 F#5:8" },
+    "d_B": { "track": "drums", "bars": 8, "drums": {
+      "kick": "x...x...x...x...",
+      "snare": "....x.......x... ....x.......x... ....x.......x... ....x.......x... ....x...x...x... ....x...x...x... x...x...x.x.x.x. xxxxxxxxXXXXXXXX",
+      "ride": "x.x.x.x.x.x.x.x."
+    } },
+
+    "gtr_C": { "track": "gtrL", "chords": { "progression": "C5 | D5 | B5 | E5 | C5 | D5 | G5 | G5", "octave": 3, "voicing": "close", "rhythm": "x-x-x-x-x-x-x-x-", "gate": 0.95 } },
+    "gtr_C2": { "track": "gtrR", "chords": { "progression": "C5 | D5 | B5 | E5 | C5 | D5 | G5 | G5", "octave": 3, "voicing": "close", "rhythm": "x-x-x-x-x-x-x-x-", "gate": 0.95 } },
+    "organ_C": { "track": "organ", "chords": { "progression": "C | D | Bm | Em | C | D | G | G", "octave": 4 } },
+    "bass_C": { "track": "bass", "bass": { "progression": "C | D | Bm | Em | C | D | G | G", "rhythm": "R.RoR.RoR.RoR.Ro", "octave": 2 } },
+    "chorus": { "track": "lead", "bars": 8, "melody": "E5:3 E5:3 G5:2 E5:4 D5:4 | F#5:3 F#5:3 A5:2 F#5:4 D5:4 | D5:3 D5:3 F#5:2 B5:4 A5:4 | G5:8 E5:8 | E5:2 G5:2 C6:4 B5:2 G5:2 E5:4 | F#5:2 A5:2 D6:4 C6:2 A5:2 F#5:4 | G5:2 A5:2 B5:2 D6:2 E6:2 G6:6 | G5:16" },
+    "chorus_u": { "track": "lead2", "bars": 8, "melody": "E5:3 E5:3 G5:2 E5:4 D5:4 | F#5:3 F#5:3 A5:2 F#5:4 D5:4 | D5:3 D5:3 F#5:2 B5:4 A5:4 | G5:8 E5:8 | E5:2 G5:2 C6:4 B5:2 G5:2 E5:4 | F#5:2 A5:2 D6:4 C6:2 A5:2 F#5:4 | G5:2 A5:2 B5:2 D6:2 E6:2 G6:6 | G5:16" },
+    "d_C": { "track": "drums", "bars": 1, "drums": { "kick": "x...x...x...x...", "snare": "....x.......x...", "ride": "x.x.x.x.x.x.x.x.", "ohh": "..x...x...x...x." } },
+
+    "organ_D": { "track": "organ", "chords": { "progression": "Em | C | G | D | Em | C | Am | D", "octave": 4 } },
+    "gtr_D": { "track": "gtrR", "chords": { "progression": "Em | C | G | D | Em | C | Am | D", "octave": 3, "rhythm": "x---------------", "gate": 0.98 } },
+    "bass_D": { "track": "bass", "bass": { "progression": "Em | C | G | D | Em | C | Am | D", "style": "whole", "octave": 2 } },
+    "bells_D": { "track": "bells", "bars": 8, "melody": "G5:2 A5:2 B5:2 D6:2 E6:2 G6:6 | E6:8 C6:8 | D6:2 E6:2 F#6:2 A6:2 B6:2 D7:6 | A6:8 F#6:8 | G5:2 A5:2 B5:2 D6:2 E6:2 G6:6 | E6:8 C6:8 | C6:4 E6:4 A6:8 | F#6:8 A6:8" },
+    "d_D": { "track": "drums", "bars": 1, "drums": { "kick": "x.......x.......", "rim": "....x.......x...", "chh": "..x...x...x...x." } }
+  },
+  "sections": {
+    "intro": { "bars": 8, "play": [ "organ_I", "six_I", "bass_I@4", "d_I", "riser4@4" ] },
+    "A": { "bars": 16, "play": [ "gtr_A", "organ_A", "bass_A", "callA", "respA", "d_A*15", "d_fill@15*1", "d_crash*1" ] },
+    "B": { "bars": 8, "play": [ "gtr_B", "organ_B", "bass_B", "pre", "pre2", "d_B", "d_crash*1" ] },
+    "C": { "bars": 16, "play": [ "gtr_C", "gtr_C2", "organ_C", "bass_C", "chorus", "d_C*15", "d_fill@15*1", "d_crash*1", "d_crash@8*1" ] },
+    "D": { "bars": 8, "play": [ "organ_D", "gtr_D", "bass_D", "bells_D", "d_D*7", "d_fill@7*1", "riser4@4" ] },
+    "C2": { "bars": 16, "play": [ "gtr_C", "gtr_C2", "organ_C", "bass_C", "chorus", "chorus_u", "d_C*15", "d_fill@15*1", "d_crash*1", "d_crash@8*1" ] }
+  },
+  "form": ["intro", "A", "B", "C", "D", "C2"],
+  "loopFrom": "A"
+}

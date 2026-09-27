@@ -1,0 +1,103 @@
+{
+  "schema": "night-signal/score@1",
+  "id": "MUS_FINAL_SHIORI",
+  "title": "Zero Signal",
+  "description": "Hard legendary-final theme — Shiori Kuze, 'Zero Signal' (Hard S30, Amanagi Dawnline). A separate composition from The Surveyor: restrained, patient and dawn-lit, in D major with a Lydian G#. It opens with a breathy whistle stating the Dawn Line over clean-guitar arpeggios and air pads, gathers momentum from a half-time pulse, widens with strings, and arrives at a full but unhurried groove where the Dawn Line and a major-key Call Sign finally answer each other. A bell-only dawn break precedes a last climb that loops back to the quiet momentum.",
+  "style": "dawn synth-pop / building anthem",
+  "key": "D major (Lydian)",
+  "tempo": 132,
+  "timeSignature": [4, 4],
+  "stepsPerBeat": 4,
+  "motifs": ["M3 Dawn Line — full theme", "M1 Call Sign — major-key answer in the full section"],
+  "cue": {
+    "displayTitle": "Final Encounter (Hard)",
+    "category": "final-hard",
+    "contexts": ["encounter-S30-hard", "boombox"]
+  },
+  "mix": {
+    "master": -2.6,
+    "reverb": { "size": 0.84, "damp": 0.38, "width": 1.0, "wet": 0.32 },
+    "delay": { "beats": 0.75, "feedback": 0.36, "damp": 2800, "wet": 0.5, "toReverb": 0.4 },
+    "duckRelease": 0.35
+  },
+  "tracks": [
+    { "id": "whistle", "instrument": "lead_whistle", "gain": 1, "reverb": 0.35, "delay": 0.3 },
+    { "id": "lead", "instrument": "lead_soft", "gain": 1, "pan": 0.05, "reverb": 0.3, "delay": 0.25 },
+    { "id": "bells", "instrument": "bell_fm", "gain": 0, "pan": 0.25, "reverb": 0.45, "delay": 0.35 },
+    { "id": "gtr", "instrument": "guitar_clean", "gain": -1, "pan": -0.3, "reverb": 0.3, "delay": 0.2 },
+    { "id": "pad", "instrument": "pad_air", "gain": 0, "reverb": 0.4, "duck": 0.25 },
+    { "id": "strings", "instrument": "strings", "gain": -1, "pan": 0.15, "reverb": 0.35, "duck": 0.2 },
+    { "id": "sub", "instrument": "bass_sub", "gain": -1, "duck": 0.2 },
+    { "id": "bass", "instrument": "bass_octave", "gain": -2, "duck": 0.25 },
+    { "id": "drums", "instrument": "kit_breaks", "gain": -1, "reverb": 0.1, "sidechain": true },
+    { "id": "soft", "instrument": "kit_soft", "gain": 0, "reverb": 0.15 },
+    { "id": "riser", "instrument": "riser_noise", "gain": -2, "reverb": 0.35 }
+  ],
+  "patterns": {
+    "pad_I": { "track": "pad", "chords": { "progression": "Dmaj7 | E/D | Dmaj7 | E/D | Bm7 | G6 | Em7 | A7sus4", "octave": 4 } },
+    "gtr_I": { "track": "gtr", "arp": { "progression": "Dmaj7 | E/D | Dmaj7 | E/D | Bm7 | G6 | Em7 | A7sus4", "pattern": "0 1 2 3 2 1 2 3", "rate": 2, "octave": 4, "gate": 0.9 } },
+    "dawn_I": { "track": "whistle", "bars": 8, "melody": [
+      "A4:6 D5:2 E5:2 F#5:6 | G#5:8 E5:8 | A4:6 D5:2 E5:2 F#5:6 | B5:8 G#5:8",
+      "F#5:8 D5:8 | E5:6 D5:2 B4:8 | G5:8 E5:8 | D5:16"
+    ] },
+    "bells_I": { "track": "bells", "bars": 8, "melody": [
+      "r:16 | r:16 | A5:6 D6:2 E6:2 F#6:6 | G#6:8 B5:8",
+      "A5:8 F#5:8 | G5:6 F#5:2 E5:8 | B5:8 G5:8 | A5:16"
+    ] },
+    "sub_I": { "track": "sub", "bass": { "progression": "Dmaj7 | E/D | Dmaj7 | E/D | Bm7 | G6 | Em7 | A7sus4", "style": "whole", "octave": 2 } },
+
+    "pad_A": { "track": "pad", "chords": { "progression": "Dmaj7 | E/D | Bm7 | A | Gmaj7 | E/G# | Asus4 | A", "octave": 4 } },
+    "gtr_A": { "track": "gtr", "arp": { "progression": "Dmaj7 | E/D | Bm7 | A | Gmaj7 | E/G# | Asus4 | A", "pattern": "0 1 2 3 2 1 2 3", "rate": 2, "octave": 4, "gate": 0.9 } },
+    "sub_A": { "track": "sub", "bass": { "progression": "Dmaj7 | E/D | Bm7 | A | Gmaj7 | E/G# | Asus4 | A", "rhythm": "R-------R---5---", "octave": 2 } },
+    "themeA1": { "track": "whistle", "bars": 8, "melody": [
+      "A4:6 D5:2 E5:2 F#5:6 | G#5:6 B5:2 E5:8 | F#5:4 D5:4 B4:8 | C#5:6 E5:2 A5:8",
+      "B5:6 A5:2 F#5:4 D5:4 | E5:6 G#5:2 B5:8 | A5:4 D5:4 E5:8 | C#5:16"
+    ] },
+    "themeA2": { "track": "whistle", "bars": 8, "melody": [
+      "A4:6 D5:2 E5:2 F#5:6 | G#5:6 B5:2 E5:8 | F#5:4 D5:4 B4:8 | C#5:6 E5:2 A5:8",
+      "D6:6 C#6:2 B5:4 A5:4 | B5:6 G#5:2 E5:8 | F#5:4 E5:4 D5:4 E5:4 | E5:16"
+    ] },
+    "soft_A": { "track": "soft", "bars": 1, "drums": { "kick": "x.........x.....", "rim": "........x.......", "shaker": "xoxoxoxoxoxoxoxo" } },
+
+    "pad_B": { "track": "pad", "chords": { "progression": "Gmaj7 | A | F#m7 | Bm7 | Gmaj7 | A | Bm7 | Asus4 A", "octave": 4 } },
+    "str_B": { "track": "strings", "chords": { "progression": "Gmaj7 | A | F#m7 | Bm7 | Gmaj7 | A | Bm7 | Asus4 A", "octave": 3, "voicing": "close" } },
+    "gtr_B": { "track": "gtr", "arp": { "progression": "Gmaj7 | A | F#m7 | Bm7 | Gmaj7 | A | Bm7 | Asus4 A", "pattern": "0 1 2 3 2 1 2 3", "rate": 1, "octave": 4, "gate": 0.8 } },
+    "bass_B": { "track": "sub", "bass": { "progression": "Gmaj7 | A | F#m7 | Bm7 | Gmaj7 | A | Bm7 | Asus4 A", "rhythm": "R.......R...R...", "octave": 2 } },
+    "themeB": { "track": "whistle", "bars": 8, "melody": "D5:8 F#5:8 | E5:8 A5:8 | C#6:8 A5:8 | D6:8 F#5:8 | B5:6 A5:2 F#5:8 | E5:6 C#5:2 A5:8 | D6:4 C#6:4 B5:4 A5:4 | A5:8 C#6:8" },
+    "soft_B": { "track": "soft", "bars": 1, "drums": { "kick": "x.......x.x.....", "snare": "........x.......", "shaker": "xoxoxoxoxoxoxoxo", "chh": "..x...x...x...x." } },
+    "riser4": { "track": "riser", "bars": 4, "notes": [[0, 64, "D4", 0.7]] },
+
+    "pad_C": { "track": "pad", "chords": { "progression": "D | A | Bm | G | D | Amaj7 | G | A", "octave": 4 } },
+    "str_C": { "track": "strings", "chords": { "progression": "D | A | Bm | G | D | Amaj7 | G | A", "octave": 4 } },
+    "gtr_C": { "track": "gtr", "arp": { "progression": "D | A | Bm | G | D | Amaj7 | G | A", "pattern": "0 1 2 3 4 3 2 1", "rate": 1, "octave": 4, "gate": 0.7 } },
+    "bass_C": { "track": "bass", "bass": { "progression": "D | A | Bm | G | D | Amaj7 | G | A", "style": "pulse8", "octave": 2 } },
+    "themeC": { "track": "lead", "bars": 8, "melody": [
+      "A5:6 D6:2 E6:2 F#6:6 | E6:8 C#6:4 A5:4 | D6:2 D6:2 A6:4 G6:2 F#6:2 E6:2 F#6:2 | D6:8 B5:8",
+      "A5:6 D6:2 E6:2 F#6:6 | G#6:8 E6:4 C#6:4 | D6:2 D6:2 A6:4 G6:2 F#6:2 E6:2 D6:2 | E6:16"
+    ] },
+    "d_C": { "track": "drums", "bars": 1, "drums": { "kick": "x...x...x...x...", "snare": "....x.......x...", "chh": "x.x.x.x.x.x.x.x.", "shaker": "xoxoxoxoxoxoxoxo" } },
+    "d_fill": { "track": "drums", "bars": 1, "drums": { "kick": "x...x...x...x...", "snare": "....x...o.o.xoxx", "chh": "x.x.x.x.x......." } },
+    "d_crash": { "track": "drums", "bars": 1, "drums": { "crash": "X..............." } },
+
+    "pad_D": { "track": "pad", "chords": { "progression": "Gmaj7#11 | Dmaj7/F# | Em9 | A7sus4 | Gmaj7#11 | Dmaj7/F# | Em9 | A7sus4", "octave": 4 } },
+    "bells_D": { "track": "bells", "bars": 8, "melody": "C#6:6 B5:2 A5:8 | F#5:8 A5:8 | G5:6 F#5:2 E5:8 | D5:16 | C#6:6 D6:2 E6:2 F#6:6 | E6:8 C#6:8 | B5:6 A5:2 F#5:8 | E5:16" },
+    "sub_D": { "track": "sub", "bass": { "progression": "Gmaj7#11 | Dmaj7/F# | Em9 | A7sus4 | Gmaj7#11 | Dmaj7/F# | Em9 | A7sus4", "style": "whole", "octave": 2 } },
+
+    "pad_E": { "track": "pad", "chords": { "progression": "Bm | G | D | A | Bm | G | Em7 | A", "octave": 4 } },
+    "str_E": { "track": "strings", "chords": { "progression": "Bm | G | D | A | Bm | G | Em7 | A", "octave": 4 } },
+    "gtr_E": { "track": "gtr", "arp": { "progression": "Bm | G | D | A | Bm | G | Em7 | A", "pattern": "0 1 2 3 4 3 2 1", "rate": 1, "octave": 4, "gate": 0.7 } },
+    "bass_E": { "track": "bass", "bass": { "progression": "Bm | G | D | A | Bm | G | Em7 | A", "style": "octave8", "octave": 2 } },
+    "themeE": { "track": "lead", "bars": 8, "melody": "F#5:4 B5:4 D6:8 | D6:4 B5:4 G5:8 | A5:4 D6:4 F#6:8 | E6:8 C#6:8 | F#6:4 D6:4 B5:8 | B5:4 D6:4 G6:8 | G6:4 E6:4 B5:4 G5:4 | A5:8 C#6:8" },
+    "whistleE": { "track": "whistle", "bars": 8, "melody": "r:16 | r:16 | r:16 | r:16 | B5:6 D6:2 E6:2 F#6:6 | G6:16 | E6:6 G6:2 A6:2 B6:6 | A6:16" }
+  },
+  "sections": {
+    "intro": { "bars": 16, "play": [ "pad_I", "gtr_I", "dawn_I*1", "bells_I@8*1", "sub_I@8*1" ] },
+    "A": { "bars": 16, "play": [ "pad_A", "gtr_A", "sub_A", "themeA1*1", "themeA2@8*1", "soft_A" ] },
+    "B": { "bars": 8, "play": [ "pad_B", "str_B", "gtr_B", "bass_B", "themeB", "soft_B", "riser4@4" ] },
+    "C": { "bars": 16, "play": [ "pad_C", "str_C", "gtr_C", "bass_C", "themeC", "d_C*15", "d_fill@15*1", "d_crash*1", "d_crash@8*1" ] },
+    "D": { "bars": 8, "play": [ "pad_D", "bells_D", "sub_D" ] },
+    "E": { "bars": 8, "play": [ "pad_E", "str_E", "gtr_E", "bass_E", "themeE", "whistleE", "d_C*7", "d_fill@7*1", "d_crash*1" ] }
+  },
+  "form": ["intro", "A", "B", "C", "D", "E"],
+  "loopFrom": "A"
+}

@@ -1,0 +1,103 @@
+{
+  "schema": "night-signal/score@1",
+  "id": "MUS_RACE_AKEBONO",
+  "title": "Tide Lantern Coast",
+  "description": "Akebono coast race theme (C13–C16). Night-market EDM with an italo-disco pulse at 128 BPM: off-beat octave bass, electric-piano house stabs, sidechained pads and sparkling FM arpeggios. The syncopated Tide Swing figure (3-3-2 over major sevenths) drives C#-minor verses and an E-major chorus; a bell breakdown slows it before the chorus returns with an organ layer.",
+  "style": "EDM / italo-disco house",
+  "key": "C# minor / E major",
+  "tempo": 128,
+  "timeSignature": [4, 4],
+  "stepsPerBeat": 4,
+  "motifs": ["M7 Tide Swing — syncopated major-seventh figure (verse, chorus bars 1 and 5, breakdown)"],
+  "cue": {
+    "displayTitle": "Tide Lantern Coast",
+    "category": "race-region",
+    "contexts": ["race-region-akebono", "boombox"]
+  },
+  "mix": {
+    "master": -4.0,
+    "reverb": { "size": 0.72, "damp": 0.45, "width": 1.0, "wet": 0.26 },
+    "delay": { "beats": 0.75, "feedback": 0.35, "damp": 3200, "wet": 0.5, "toReverb": 0.3 },
+    "duckRelease": 0.5
+  },
+  "tracks": [
+    { "id": "lead", "instrument": "lead_supersaw", "gain": 0, "reverb": 0.22, "delay": 0.2, "duck": 0.12 },
+    { "id": "verse", "instrument": "lead_saw_mono", "gain": -1, "reverb": 0.2, "delay": 0.25, "duck": 0.1 },
+    { "id": "keys", "instrument": "ep_fm", "gain": 0, "pan": -0.15, "reverb": 0.2, "duck": 0.35 },
+    { "id": "organ", "instrument": "organ", "gain": 0, "pan": 0.2, "reverb": 0.2, "duck": 0.4 },
+    { "id": "arp", "instrument": "pluck_fm", "gain": -2, "pan": 0.3, "reverb": 0.25, "delay": 0.3, "duck": 0.3 },
+    { "id": "pad", "instrument": "pad_warm", "gain": 1, "reverb": 0.3, "duck": 0.6 },
+    { "id": "bells", "instrument": "bell_fm", "gain": -1, "pan": -0.25, "reverb": 0.4, "delay": 0.3 },
+    { "id": "bass", "instrument": "bass_funk", "gain": 1, "duck": 0.3 },
+    { "id": "drums", "instrument": "kit_euro", "gain": 0, "reverb": 0.06, "sidechain": true },
+    { "id": "riser", "instrument": "riser_noise", "gain": 0, "reverb": 0.3 }
+  ],
+  "patterns": {
+    "keys_I": { "track": "keys", "chords": { "progression": "C#m7 | Amaj7 | Emaj7 | B", "octave": 4, "rhythm": "x..x..x...x..x.." } },
+    "arp_I": { "track": "arp", "arp": { "progression": "C#m7 | Amaj7 | Emaj7 | B", "pattern": "0 2 1 3 2 4 3 2", "rate": 1, "octave": 5, "gate": 0.5 } },
+    "d_I": { "track": "drums", "bars": 8, "drums": {
+      "kick": "................ ................ ................ ................ x...x...x...x... x...x...x...x... x...x...x...x... x...x...x...x...",
+      "chh": "..x...x...x...x.",
+      "clap": "................ ................ ................ ................ ................ ................ ....x.......x... ....x...x.x.xxxx"
+    } },
+    "bass_I": { "track": "bass", "bass": { "progression": "C#m7 | Amaj7 | Emaj7 | B", "rhythm": "..R...o...R...o.", "octave": 2 } },
+    "riser4": { "track": "riser", "bars": 4, "notes": [[0, 64, "C#4", 0.8]] },
+
+    "pad_A": { "track": "pad", "chords": { "progression": "C#m7 | Amaj7 | Emaj7 | B6", "octave": 4 } },
+    "keys_A": { "track": "keys", "chords": { "progression": "C#m7 | Amaj7 | Emaj7 | B6", "octave": 4, "rhythm": "x..x..x...x..x.." } },
+    "bass_A": { "track": "bass", "bass": { "progression": "C#m7 | Amaj7 | Emaj7 | B6", "rhythm": "..R...o...R...o.", "octave": 2 } },
+    "verse1": { "track": "verse", "bars": 8, "melody": [
+      "E5:3 E5:3 G#5:2 B5:4 G#5:4 | A5:3 G#5:3 E5:2 C#5:8 | B4:3 E5:3 G#5:2 D#5:4 E5:4 | F#5:8 D#5:8",
+      "E5:3 E5:3 G#5:2 C#6:4 B5:4 | A5:3 G#5:3 A5:2 C#6:8 | B5:3 G#5:3 E5:2 D#5:4 G#5:4 | F#5:12 r:4"
+    ] },
+    "d_A": { "track": "drums", "bars": 1, "drums": { "kick": "x...x...x...x...", "clap": "....x.......x...", "chh": "xoxoxoxoxoxoxoxo", "ohh": "..x...x...x...x." } },
+    "d_fill": { "track": "drums", "bars": 1, "drums": { "kick": "x...x...x...x...", "clap": "....x.......x...", "snare": "........x.x.xxXX", "chh": "xoxoxoxo........" } },
+    "d_crash": { "track": "drums", "bars": 1, "drums": { "crash": "X..............." } },
+
+    "pad_B": { "track": "pad", "chords": { "progression": "F#m7 | G#m7 | Amaj7 | B | F#m7 | G#m7 | Amaj7 | B", "octave": 4 } },
+    "keys_B": { "track": "keys", "chords": { "progression": "F#m7 | G#m7 | Amaj7 | B | F#m7 | G#m7 | Amaj7 | B", "octave": 4, "rhythm": "x-.x-.x-x-.x-.x-" } },
+    "bass_B": { "track": "bass", "bass": { "progression": "F#m7 | G#m7 | Amaj7 | B | F#m7 | G#m7 | Amaj7 | B", "rhythm": "R.o.R.o.R.o.R.o.", "octave": 2 } },
+    "pre": { "track": "lead", "bars": 8, "melody": [
+      "A5:4 C#6:4 E6:4 C#6:4 | B5:4 D#6:4 F#6:4 D#6:4 | C#6:4 E6:4 G#6:4 E6:4 | D#6:8 F#6:8",
+      "A5:2 C#6:2 E6:4 A5:2 C#6:2 E6:4 | B5:2 D#6:2 F#6:4 B5:2 D#6:2 F#6:4 | C#6:2 E6:2 G#6:4 A6:4 G#6:4 | F#6:16"
+    ] },
+    "d_B": { "track": "drums", "bars": 8, "drums": {
+      "kick": "x...x...x...x...",
+      "clap": "....x.......x... ....x.......x... ....x.......x... ....x.......x... ....x...x...x... ....x...x...x... x.x.x.x.x.x.x.x. xxxxxxxxXXXXXXXX",
+      "chh": "x.x.x.x.x.x.x.x."
+    } },
+
+    "pad_C": { "track": "pad", "chords": { "progression": "Emaj7 | B | C#m7 | Amaj7 | Emaj7 | B | Amaj7 | B7sus4 B", "octave": 4 } },
+    "keys_C": { "track": "keys", "chords": { "progression": "Emaj7 | B | C#m7 | Amaj7 | Emaj7 | B | Amaj7 | B7sus4 B", "octave": 4, "rhythm": "x..x..x...x..x.." } },
+    "organ_C": { "track": "organ", "chords": { "progression": "Emaj7 | B | C#m7 | Amaj7 | Emaj7 | B | Amaj7 | B7sus4 B", "octave": 4, "rhythm": "..x-..x-..x-..x-", "gate": 0.8 } },
+    "arp_C": { "track": "arp", "arp": { "progression": "Emaj7 | B | C#m7 | Amaj7 | Emaj7 | B | Amaj7 | B7sus4 B", "pattern": "0 1 2 3 4 3 2 1", "rate": 1, "octave": 5, "gate": 0.45 } },
+    "bass_C": { "track": "bass", "bass": { "progression": "Emaj7 | B | C#m7 | Amaj7 | Emaj7 | B | Amaj7 | B7sus4 B", "style": "octave8", "octave": 2 } },
+    "chorus1": { "track": "lead", "bars": 8, "melody": [
+      "E5:3 G#5:3 B5:2 D#6:3 B5:3 G#5:2 | F#5:6 D#5:2 F#5:4 B5:4 | C#6:3 B5:3 G#5:2 E5:4 G#5:4 | A5:8 G#5:4 E5:4",
+      "E5:3 G#5:3 B5:2 D#6:3 E6:3 F#6:2 | D#6:6 B5:2 F#5:8 | C#6:3 B5:3 A5:2 G#5:4 E5:4 | E5:8 D#5:8"
+    ] },
+    "chorus2": { "track": "lead", "bars": 8, "melody": [
+      "E5:3 G#5:3 B5:2 D#6:3 B5:3 G#5:2 | F#5:6 D#5:2 F#5:4 B5:4 | C#6:3 B5:3 G#5:2 E5:4 G#5:4 | A5:8 G#5:4 E5:4",
+      "E5:3 G#5:3 B5:2 D#6:3 E6:3 F#6:2 | D#6:6 B5:2 F#5:8 | C#6:3 B5:3 A5:2 G#5:4 E5:4 | E5:4 F#5:4 D#5:8"
+    ] },
+    "d_C": { "track": "drums", "bars": 1, "drums": { "kick": "x...x...x...x...", "clap": "....x.......x...", "snare": "....x.......x...", "chh": "x.x.x.x.x.x.x.x.", "ohh": "..x...x...x...x." } },
+
+    "pad_D": { "track": "pad", "chords": { "progression": "Amaj7 | G#m7 | F#m7 | B | Amaj7 | G#m7 | F#m7 | B", "octave": 4 } },
+    "bells_D": { "track": "bells", "bars": 8, "melody": [
+      "C#6:6 E6:6 G#6:4 | B5:16 | A5:6 C#6:6 E6:4 | D#6:16",
+      "C#6:6 E6:6 A6:4 | G#6:8 D#6:8 | F#6:6 E6:6 C#6:4 | D#6:8 F#6:8"
+    ] },
+    "bass_D": { "track": "bass", "bass": { "progression": "Amaj7 | G#m7 | F#m7 | B | Amaj7 | G#m7 | F#m7 | B", "style": "whole", "octave": 2 } },
+    "d_D": { "track": "drums", "bars": 1, "drums": { "kick": "x.......x.......", "chh": "..x...x...x...x.", "clap": "............x..." } }
+  },
+  "sections": {
+    "intro": { "bars": 8, "play": [ "keys_I", "arp_I", "bass_I@4", "d_I", "riser4@4" ] },
+    "A": { "bars": 16, "play": [ "pad_A", "keys_A", "bass_A", "verse1", "d_A*15", "d_fill@15*1", "d_crash*1" ] },
+    "B": { "bars": 8, "play": [ "pad_B", "keys_B", "bass_B", "pre", "d_B", "riser4@4", "d_crash*1" ] },
+    "C": { "bars": 16, "play": [ "pad_C", "keys_C", "arp_C", "bass_C", "chorus1*1", "chorus2@8*1", "d_C*15", "d_fill@15*1", "d_crash*1", "d_crash@8*1" ] },
+    "D": { "bars": 8, "play": [ "pad_D", "bells_D", "bass_D", "d_D*7", "d_fill@7*1", "riser4@4" ] },
+    "C2": { "bars": 16, "play": [ "pad_C", "keys_C", "organ_C", "arp_C", "bass_C", "chorus1*1", "chorus2@8*1", "d_C*15", "d_fill@15*1", "d_crash*1", "d_crash@8*1" ] }
+  },
+  "form": ["intro", "A", "B", "C", "D", "C2"],
+  "loopFrom": "A"
+}

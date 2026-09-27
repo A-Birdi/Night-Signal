@@ -1,0 +1,85 @@
+{
+  "schema": "night-signal/score@1",
+  "id": "MUS_MEET",
+  "title": "Cedar Lantern Terrace",
+  "description": "Default car-meet theme: an airy, inviting waltz at dusk. Breathing pads, a plucked FM arpeggio in 3/4, a warm sub bass and a soft triangle melody, with bells that slow the Call Sign to a lullaby and hint at the Dawn Line. A bridge brightens with a Lydian major-seventh sharp-eleven and a borrowed C major seventh. Light rim/shaker percussion only; it stays calm next to the racing cues.",
+  "style": "ambient waltz",
+  "key": "E major",
+  "tempo": 84,
+  "timeSignature": [3, 4],
+  "stepsPerBeat": 4,
+  "motifs": ["M1 Call Sign — augmented on bells", "M3 Dawn Line — first hint (bells, bar 5 of the bell chorus)"],
+  "cue": {
+    "displayTitle": "Cedar Lantern Terrace",
+    "category": "meet",
+    "contexts": ["meet", "boombox"]
+  },
+  "mix": {
+    "master": -3.0,
+    "reverb": { "size": 0.86, "damp": 0.4, "width": 1.0, "wet": 0.34 },
+    "delay": { "beats": 0.75, "feedback": 0.35, "damp": 2600, "wet": 0.45, "toReverb": 0.4 },
+    "duckRelease": 0.3
+  },
+  "tracks": [
+    { "id": "lead", "instrument": "lead_soft", "gain": 1, "reverb": 0.35, "delay": 0.25 },
+    { "id": "bells", "instrument": "bell_fm", "gain": 0, "pan": 0.25, "reverb": 0.45, "delay": 0.35 },
+    { "id": "arp", "instrument": "pluck_fm", "gain": -2, "pan": -0.25, "reverb": 0.35, "delay": 0.25 },
+    { "id": "pad", "instrument": "pad_air", "gain": 0, "reverb": 0.4 },
+    { "id": "glass", "instrument": "pad_glass", "gain": -3, "pan": 0.1, "reverb": 0.4 },
+    { "id": "bass", "instrument": "bass_sub", "gain": -2 },
+    { "id": "drums", "instrument": "kit_soft", "gain": -2, "reverb": 0.2 }
+  ],
+  "patterns": {
+    "pad_intro": { "track": "pad", "chords": { "progression": "E | Bsus4 B | C#m7 | Amaj7", "octave": 4 } },
+    "arp_intro": { "track": "arp", "arp": { "progression": "E | Bsus4 B | C#m7 | Amaj7", "pattern": "0 1 2 3 2 1", "rate": 2, "octave": 4, "gate": 0.8 } },
+
+    "pad_A": { "track": "pad", "chords": { "progression": "E | Bsus4 B | C#m7 | Amaj7 | E/G# | F#m7 | Asus2 | B7sus4", "octave": 4 } },
+    "pad_A2": { "track": "pad", "chords": { "progression": "E | Bsus4 B | C#m7 | Amaj7 | F#m7 | A/B | E | E", "octave": 4 } },
+    "arp_A": { "track": "arp", "arp": { "progression": "E | Bsus4 B | C#m7 | Amaj7 | E/G# | F#m7 | Asus2 | B7sus4", "pattern": "0 1 2 3 2 1", "rate": 2, "octave": 4, "gate": 0.8 } },
+    "arp_A2": { "track": "arp", "arp": { "progression": "E | Bsus4 B | C#m7 | Amaj7 | F#m7 | A/B | E | E", "pattern": "0 1 2 3 2 1", "rate": 2, "octave": 4, "gate": 0.8 } },
+    "bass_A": { "track": "bass", "bass": { "progression": "E | Bsus4 B | C#m7 | Amaj7 | E/G# | F#m7 | Asus2 | B7sus4", "rhythm": "R-------5---", "octave": 2 } },
+    "bass_A2": { "track": "bass", "bass": { "progression": "E | Bsus4 B | C#m7 | Amaj7 | F#m7 | A/B | E | E", "rhythm": "R-------5---", "octave": 2 } },
+    "melA": { "track": "lead", "bars": 8, "melody": [
+      "B4:6 G#5:2 F#5:2 E5:2 | E5:6 D#5:6 | C#5:4 E5:4 G#5:4 | G#5:8 A5:2 G#5:2",
+      "B5:6 G#5:2 E5:2 G#5:2 | A5:6 F#5:6 | E5:4 B4:4 C#5:4 | E5:12"
+    ] },
+    "melA2": { "track": "lead", "bars": 8, "melody": [
+      "B4:6 G#5:2 F#5:2 E5:2 | E5:6 D#5:6 | C#5:4 E5:4 B5:4 | A5:8 G#5:2 E5:2",
+      "F#5:4 A5:4 C#6:4 | B5:6 A5:2 G#5:2 F#5:2 | G#5:12 | r:12"
+    ] },
+    "d_A": { "track": "drums", "bars": 1, "drums": { "kick": "x...........", "rim": "........o...", "shaker": "x.o.x.o.x.o." } },
+
+    "pad_B": { "track": "pad", "chords": { "progression": "Amaj7#11 | G#m7 | F#m7 | Emaj7 | Cmaj7 | Bsus4 | F#m7 | B7sus4", "octave": 4 } },
+    "glass_B": { "track": "glass", "chords": { "progression": "Amaj7#11 | G#m7 | F#m7 | Emaj7 | Cmaj7 | Bsus4 | F#m7 | B7sus4", "octave": 5, "rhythm": "x-----x-----" } },
+    "arp_B": { "track": "arp", "arp": { "progression": "Amaj7#11 | G#m7 | F#m7 | Emaj7 | Cmaj7 | Bsus4 | F#m7 | B7sus4", "pattern": "0 2 4 3 1 2", "rate": 2, "octave": 4, "gate": 0.8 } },
+    "bass_B": { "track": "bass", "bass": { "progression": "Amaj7#11 | G#m7 | F#m7 | Emaj7 | Cmaj7 | Bsus4 | F#m7 | B7sus4", "rhythm": "R-----R---5-", "octave": 2 } },
+    "melB": { "track": "lead", "bars": 8, "melody": [
+      "D#6:6 C#6:3 B5:3 | B5:6 F#5:6 | A5:4 C#6:4 E6:4 | D#6:8 B5:4",
+      "E6:6 G5:3 B5:3 | E6:6 F#5:6 | C#6:4 A5:4 F#5:4 | E5:6 F#5:6"
+    ] },
+    "d_B": { "track": "drums", "bars": 1, "drums": { "kick": "x.....x.....", "rim": "....o...o...", "ride": "x...x...x...", "shaker": "x.o.x.o.x.o." } },
+
+    "pad_C": { "track": "pad", "chords": { "progression": "E | E | C#m7 | C#m7 | Amaj7 | F#9 | Bsus4 | B", "octave": 4 } },
+    "arp_C": { "track": "arp", "arp": { "progression": "E | E | C#m7 | C#m7 | Amaj7 | F#9 | Bsus4 | B", "pattern": "0 1 2 3 4 3", "rate": 2, "octave": 4, "gate": 0.7 } },
+    "bass_C": { "track": "bass", "bass": { "progression": "E | E | C#m7 | C#m7 | Amaj7 | F#9 | Bsus4 | B", "rhythm": "R-----------", "octave": 2 } },
+    "bellsC": { "track": "bells", "bars": 8, "melody": [
+      "E5:4 E5:4 B5:4 | A5:6 G#5:6 | F#5:6 G#5:6 | E5:12",
+      "B4:6 E5:2 F#5:2 G#5:2 | A#5:6 G#5:6 | E5:6 F#5:6 | D#5:12"
+    ] },
+    "bellsA": { "track": "bells", "bars": 8, "melody": [
+      "E6:4 E6:4 B6:4 | A6:6 G#6:6 | E6:12 | r:12",
+      "B5:4 B5:4 F#6:4 | E6:6 C#6:6 | B5:12 | r:12"
+    ] }
+  },
+  "sections": {
+    "intro": { "bars": 4, "play": [ "pad_intro", "arp_intro" ] },
+    "A": { "bars": 8, "play": [ "pad_A", "arp_A", "bass_A", "melA", "d_A" ] },
+    "A2": { "bars": 8, "play": [ "pad_A2", "arp_A2", "bass_A2", "melA2", "d_A" ] },
+    "B": { "bars": 8, "play": [ "pad_B", "glass_B", "arp_B", "bass_B", "melB", "d_B" ] },
+    "C": { "bars": 8, "play": [ "pad_C", "arp_C", "bass_C", "bellsC" ] },
+    "A3": { "bars": 8, "play": [ "pad_A2", "arp_A2", "bass_A2", "melA2", "bellsA", "d_A" ] },
+    "B2": { "bars": 8, "play": [ "pad_B", "glass_B", "bass_B", "melB", "d_B" ] }
+  },
+  "form": ["intro", "A", "A2", "B", "C", "A3", "B2"],
+  "loopFrom": "A"
+}

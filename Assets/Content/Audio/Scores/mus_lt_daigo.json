@@ -1,0 +1,106 @@
+{
+  "schema": "night-signal/score@1",
+  "id": "MUS_LT_DAIGO",
+  "title": "Brass Stopwatch",
+  "description": "First lieutenant theme — Daigo Ibuki of the Tea Hour Motor Club (S07, Bellmaker Descent). A generous, heavy-set teacher who brakes late and deep: a stopwatch-tick intro, a brass fanfare built on a minor turn of the Lantern Step, a square-lead 'lesson' verse over rock-eurobeat drums, and a broad Bb-major chorus. The breakdown is a braking lesson: ticking wood, held brass chords and hard stops before the chorus returns.",
+  "style": "rock-eurobeat with brass",
+  "key": "G minor / Bb major",
+  "tempo": 142,
+  "timeSignature": [4, 4],
+  "stepsPerBeat": 4,
+  "motifs": ["M4 Lantern Step — minor-key brass variant (Tea Hour lineage)"],
+  "cue": {
+    "displayTitle": "Mizuhana Lieutenant",
+    "category": "lieutenant",
+    "contexts": ["encounter-S07", "boombox"]
+  },
+  "mix": {
+    "master": -5.8,
+    "reverb": { "size": 0.66, "damp": 0.45, "width": 1.0, "wet": 0.22 },
+    "delay": { "beats": 0.75, "feedback": 0.3, "damp": 3200, "wet": 0.45, "toReverb": 0.25 },
+    "duckRelease": 0.35
+  },
+  "tracks": [
+    { "id": "lead", "instrument": "lead_square", "gain": 0, "reverb": 0.2, "delay": 0.22 },
+    { "id": "saw", "instrument": "lead_supersaw", "gain": -1, "reverb": 0.22, "delay": 0.15, "duck": 0.1 },
+    { "id": "brass", "instrument": "lead_fm_brass", "gain": 1, "pan": -0.1, "reverb": 0.25, "delay": 0.1 },
+    { "id": "organ", "instrument": "organ", "gain": 0, "pan": 0.2, "reverb": 0.25, "duck": 0.3 },
+    { "id": "gtr", "instrument": "guitar_power", "gain": -3, "pan": 0.45, "drive": 0.65, "driveTone": 3200 },
+    { "id": "tick", "instrument": "marimba_fm", "gain": -3, "pan": -0.3, "reverb": 0.2 },
+    { "id": "bass", "instrument": "bass_octave", "gain": 0, "duck": 0.2 },
+    { "id": "drums", "instrument": "kit_rock", "gain": 0, "reverb": 0.1, "sidechain": true }
+  ],
+  "patterns": {
+    "ticks": { "track": "tick", "bars": 1, "melody": "D6:1 r:3 G5:1 r:3 D6:1 r:3 G5:1 r:3" },
+    "fanfare": { "track": "brass", "bars": 8, "melody": [
+      "G5:1 A5:1 Bb5:2 D6:2 Eb6:2 D6:2 Bb5:2 A5:2 G5:2 | G5:4 Bb5:4 Eb6:8 | F5:1 G5:1 A5:2 C6:2 D6:2 C6:2 A5:2 F5:4 | F#5:8 A5:8",
+      "G5:1 A5:1 Bb5:2 D6:2 Eb6:2 D6:2 Bb5:2 A5:2 G5:2 | Bb5:4 Eb6:4 G6:8 | F6:4 Eb6:4 C6:4 A5:4 | F#6:8 D6:8"
+    ] },
+    "organ_I": { "track": "organ", "chords": { "progression": "Gm | Eb | F | D | Gm | Eb | F | D", "octave": 4 } },
+    "bass_I": { "track": "bass", "bass": { "progression": "Gm | Eb | F | D", "style": "octave8", "octave": 2 } },
+    "d_I": { "track": "drums", "bars": 8, "drums": {
+      "rim": "xoxoxoxoxoxoxoxo xoxoxoxoxoxoxoxo xoxoxoxoxoxoxoxo xoxoxoxoxoxoxoxo ................ ................ ................ ................",
+      "kick": "................ ................ ................ x.......x....... x...x...x...x... x...x...x...x... x...x...x...x... x...x...x...x...",
+      "snare": "................ ................ ................ ............x.x. ....x.......x... ....x.......x... ....x.......x... x.x.x.x.xxxxXXXX",
+      "crash": "................ ................ ................ ................ X............... ................ ................ ................"
+    } },
+
+    "organ_A": { "track": "organ", "chords": { "progression": "Gm | Gm | Eb | F | Gm | Gm | Cm | D", "octave": 4 } },
+    "gtr_A": { "track": "gtr", "chords": { "progression": "G5 | G5 | Eb5 | F5 | G5 | G5 | C5 | D5", "octave": 3, "voicing": "close", "rhythm": "x.x.x.x.x.x.x.x.", "gate": 0.55 } },
+    "bass_A": { "track": "bass", "bass": { "progression": "Gm | Gm | Eb | F | Gm | Gm | Cm | D", "rhythm": "R.R.o.R.R.R.o.R.", "octave": 2 } },
+    "lesson1": { "track": "lead", "bars": 8, "melody": [
+      "D5:4 G5:4 Bb5:4 A5:2 G5:2 | A5:6 Bb5:2 G5:8 | Eb5:4 G5:4 Bb5:4 C6:2 Bb5:2 | A5:8 F5:8",
+      "D5:4 G5:4 Bb5:4 D6:2 C6:2 | Bb5:6 A5:2 G5:8 | Eb6:4 D6:4 C6:4 G5:4 | F#5:8 A5:8"
+    ] },
+    "lesson2": { "track": "lead", "bars": 8, "melody": [
+      "D5:4 G5:4 Bb5:4 A5:2 G5:2 | A5:6 Bb5:2 G5:8 | Eb5:4 G5:4 Bb5:4 C6:2 Bb5:2 | A5:8 F5:8",
+      "D6:4 Bb5:4 G5:4 Bb5:2 D6:2 | G6:8 F6:4 D6:4 | Eb6:4 G6:4 C6:4 Eb6:4 | D6:8 F#6:8"
+    ] },
+    "d_A": { "track": "drums", "bars": 1, "drums": { "kick": "x.......x.x.....", "snare": "....x.......x...", "chh": "x.x.x.x.x.x.x.x." } },
+    "d_fill": { "track": "drums", "bars": 1, "drums": { "kick": "x.......x.......", "snare": "....x...........", "tomh": "........x.x.....", "tomm": "............x.x.", "toml": "..............xx" } },
+    "d_crash": { "track": "drums", "bars": 1, "drums": { "crash": "X..............." } },
+
+    "organ_B": { "track": "organ", "chords": { "progression": "Eb | F | Dm | Gm | Cm | F | Dsus4 | D", "octave": 4 } },
+    "brass_B": { "track": "brass", "chords": { "progression": "Eb | F | Dm | Gm | Cm | F | Dsus4 | D", "octave": 4, "rhythm": "x-----x-----x---", "gate": 0.9 } },
+    "bass_B": { "track": "bass", "bass": { "progression": "Eb | F | Dm | Gm | Cm | F | Dsus4 | D", "style": "pulse8", "octave": 2 } },
+    "pre": { "track": "lead", "bars": 8, "melody": "G5:4 Bb5:4 Eb6:8 | A5:4 C6:4 F6:8 | F5:4 A5:4 D6:8 | G5:4 Bb5:4 D6:8 | Eb6:4 C6:4 G5:4 C6:4 | F6:4 C6:4 A5:4 C6:4 | G6:8 A6:8 | F#6:16" },
+    "d_B": { "track": "drums", "bars": 8, "drums": {
+      "kick": "x...x...x...x...",
+      "snare": "....x.......x... ....x.......x... ....x.......x... ....x.......x... ....x.......x... ....x...x...x... x...x...x.x.x.x. xxxxxxxxXXXXXXXX",
+      "ride": "x.x.x.x.x.x.x.x."
+    } },
+
+    "organ_C": { "track": "organ", "chords": { "progression": "Bb | F | Gm | Eb | Bb | F | Cm | D", "octave": 4 } },
+    "gtr_C": { "track": "gtr", "chords": { "progression": "Bb5 | F5 | G5 | Eb5 | Bb5 | F5 | C5 | D5", "octave": 3, "voicing": "close", "rhythm": "x-x-x-x-x-x-x-x-", "gate": 0.95 } },
+    "brass_C": { "track": "brass", "chords": { "progression": "Bb | F | Gm | Eb | Bb | F | Cm | D", "octave": 4, "rhythm": "..x-..x-..x-x-..", "gate": 0.8 } },
+    "bass_C": { "track": "bass", "bass": { "progression": "Bb | F | Gm | Eb | Bb | F | Cm | D", "style": "octave8", "octave": 2 } },
+    "chorus1": { "track": "saw", "bars": 8, "melody": [
+      "D5:3 D5:3 F5:2 Bb5:4 A5:2 F5:2 | C6:6 A5:2 F5:4 A5:4 | Bb5:3 Bb5:3 D6:2 G6:4 F6:2 D6:2 | Eb6:8 Bb5:4 G5:4",
+      "D6:3 D6:3 F6:2 Bb6:4 A6:2 F6:2 | A6:6 F6:2 C6:8 | Eb6:4 D6:4 C6:4 G5:4 | F#5:8 A5:4 D6:4"
+    ] },
+    "chorus2": { "track": "saw", "bars": 8, "melody": [
+      "D5:3 D5:3 F5:2 Bb5:4 A5:2 F5:2 | C6:6 A5:2 F5:4 A5:4 | Bb5:3 Bb5:3 D6:2 G6:4 F6:2 D6:2 | Eb6:8 Bb5:4 G5:4",
+      "D6:3 D6:3 F6:2 Bb6:4 A6:2 F6:2 | A6:6 F6:2 C6:8 | Eb6:4 G6:4 C6:4 Eb6:4 | D6:12 r:4"
+    ] },
+    "d_C": { "track": "drums", "bars": 1, "drums": { "kick": "x...x...x...x...", "snare": "....x.......x...", "ride": "x.x.x.x.x.x.x.x.", "ohh": "..............x." } },
+
+    "brass_D": { "track": "brass", "chords": { "progression": "Cm | Gm | Ab | D | Cm | Gm | Ab | D", "octave": 4, "rhythm": "x-------......x.", "gate": 0.95 } },
+    "organ_D": { "track": "organ", "chords": { "progression": "Cm | Gm | Ab | D | Cm | Gm | Ab | D", "octave": 3 } },
+    "bass_D": { "track": "bass", "bass": { "progression": "Cm | Gm | Ab | D | Cm | Gm | Ab | D", "rhythm": "R-------......R.", "octave": 2 } },
+    "d_D": { "track": "drums", "bars": 2, "drums": {
+      "kick": "x.............x. x.............x.",
+      "crash": "X............... ................",
+      "rim": "..x...x...x..... ..x...x...x.x.x."
+    } }
+  },
+  "sections": {
+    "intro": { "bars": 8, "play": [ "ticks*4", "fanfare@4*1", "organ_I@4", "bass_I@4", "d_I" ] },
+    "A": { "bars": 16, "play": [ "organ_A", "gtr_A", "bass_A", "lesson1*1", "lesson2@8*1", "d_A*15", "d_fill@15*1", "d_crash*1" ] },
+    "B": { "bars": 8, "play": [ "organ_B", "brass_B", "bass_B", "pre", "d_B", "d_crash*1" ] },
+    "C": { "bars": 16, "play": [ "organ_C", "gtr_C", "brass_C", "bass_C", "chorus1*1", "chorus2@8*1", "d_C*15", "d_fill@15*1", "d_crash*1", "d_crash@8*1" ] },
+    "D": { "bars": 8, "play": [ "brass_D", "organ_D", "bass_D", "ticks*6", "d_D*3", "d_fill@7*1" ] },
+    "C2": { "bars": 16, "play": [ "organ_C", "gtr_C", "brass_C", "bass_C", "chorus1*1", "chorus2@8*1", "d_C*15", "d_fill@15*1", "d_crash*1", "d_crash@8*1" ] }
+  },
+  "form": ["intro", "A", "B", "C", "D", "C2"],
+  "loopFrom": "A"
+}

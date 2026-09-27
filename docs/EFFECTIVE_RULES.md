@@ -84,3 +84,42 @@ reuses (S07 C04, S14 C08, S21 C12, S28 C20, S29 C24) never unlock a course. Gene
 - `Evidence/net/run-20260927-001253-h2` proves the network spine (sign-in → convoy → allocation → tickets → race →
   signed results → receipts) but ran under the superseded six-total / non-contact rules; it is not evidence for
   twelve-vehicle contact races.
+
+---
+
+# Addendum 02 (Revision 1) — play while ready, service breaks, loadouts, Test Yard
+
+Stored verbatim at `docs/brief/Night_Signal_Addendum_02.txt` (sha256 `dbb4c9b8…c6399`). Supersedes only the areas it
+names; the master and Addendum 01 remain binding elsewhere.
+
+## Decisions adopted (D201–D210)
+
+| ID | Rule | Lands in |
+|---|---|---|
+| D201 | Five diversions — Cap Clash, Pit-Crew Project, Greenlight, Pocket Circuit, Convoy Canvas — each 1–6 humans with real network play and meaningful solo; no Mystery Garage, no card game | `Core/Toys` (simulation/state), control plane (authority host), Unity tabletop presentation |
+| D202 | Diversions are interruptible; a consented main transition pauses them at an explicit boundary and never waits | `DowntimeSession.Pause`, server allocation path |
+| D203 | Post-event: unanimous Continue enables leader Advance; any Service Break opens an intermission; silence ≠ consent; Event Ready still separate | control plane `PostEventDecision`, Results UI |
+| D204 | ≥ 8 named mechanical loadouts per owned car INSTANCE, ≥ 5 visual presets, protected BeforeWorkshop / BeforeLastApply / LastRaceBuild | `Core/Builds`, Local profile, control plane storage |
+| D205 | Garage Test Yard: private, drivable, same vehicle model; A/B; preview of unowned compatible parts; no progress or purchase from testing | Unity Test Yard scene + `Core/Builds` quotes |
+| D206 | Every favourite car has a legitimate Normal/Hard upgrade path; component upgrades meaningful; loaners stay as fallback | parts catalogue, upgrade recipes, calibration runs |
+| D207 | Shared downtime state belongs to a stable ConvoySessionId (not leader/race); survives events, disconnects, leadership changes | control plane convoy model |
+| D208 | All members lost to disconnection → Dormant ≤ 24 h (server clock), compact snapshot, grants kept; explicit disband / last voluntary leave still ends it. Replaces Addendum 01's immediate all-disconnected disband only | control plane (in progress) |
+| D209 | No Credits, RP, challenges, records, entitlements or music from toys or tests (explicit non-progression domain) | type separation in `Core/Toys`, settlement |
+| D210 | Content minimums: 2 Cap Clash tables, 3 Pit-Crew blueprints, 3 Greenlight variants, 3 Pocket Circuit layouts, Canvas with flat + display-hood views; none count toward 29 courses / 18 cars / 48 rivals / 75 challenges | authored `toys/` data |
+
+## Superseded or revised
+
+| Earlier rule | Now |
+|---|---|
+| Addendum 01: convoy with no active members disbands | D208 dormant grace for the all-disconnected case only |
+| Master §9: ≥ 3 tune presets per owned vehicle | ≥ 8 mechanical loadouts per owned instance + 3 protected references (≥ 5 visual presets unchanged) |
+| Readiness cleared by leaving the event screen (implicit) | Entering/leaving/changing a diversion never clears Mode/Event Ready; only real event/rules/roster changes or that player's applied performance change do |
+| Results → leader starts next event | Continue/Service Break decision; unanimous Continue + leader Advance → briefing → Event Ready → normal load/countdown |
+
+## Impact on existing work
+
+- Still valid: vehicle simulation and contact, RaceSimulation (server + offline), tickets, settlement, content catalogue,
+  rosters, course access, routes, audio.
+- New dependency discovered: there is no parts/tuning system yet; Addendum 02 §8–10 require it (spec §9 always did).
+  It is being built engine-free in `Core/Builds` and will feed `VehicleFactory`.
+- Test Yard needs generator support for training areas (also needed by T00).

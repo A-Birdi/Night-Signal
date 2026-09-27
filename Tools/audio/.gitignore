@@ -1,0 +1,7 @@
+# The repository root .gitignore (Unity template) ignores *.csproj; these tool projects are hand-written source.
+!*.csproj
+
+# Build output and rendered previews (WAV renders never go into Assets/ or the repository).
+bin/
+obj/
+out/

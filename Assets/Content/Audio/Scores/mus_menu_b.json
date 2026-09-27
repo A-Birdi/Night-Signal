@@ -1,0 +1,107 @@
+{
+  "schema": "night-signal/score@1",
+  "id": "MUS_MENU_B",
+  "title": "Map Room Overdrive",
+  "description": "Contrasting connected-menu theme with a rock arrangement: overdriven power-chord guitars, picked bass and a live-style kit under a square-wave lead. Verse call-and-answer phrases, a major-lift chorus, and a half-time bridge where the Call Sign head is sung by the lead in the subdominant before the last chorus.",
+  "style": "synth-rock",
+  "key": "D minor",
+  "tempo": 140,
+  "timeSignature": [4, 4],
+  "stepsPerBeat": 4,
+  "motifs": ["M1 Call Sign — head transposed to G minor in the bridge"],
+  "cue": {
+    "displayTitle": "Map Room Overdrive",
+    "category": "menu",
+    "contexts": ["menu", "campaign-map", "freeplay-lobby", "challenges", "boombox"]
+  },
+  "mix": {
+    "master": -7.2,
+    "reverb": { "size": 0.6, "damp": 0.5, "width": 0.9, "wet": 0.2 },
+    "delay": { "beats": 0.5, "feedback": 0.25, "damp": 3000, "wet": 0.45, "toReverb": 0.2 },
+    "duckRelease": 0.3
+  },
+  "tracks": [
+    { "id": "lead", "instrument": "lead_square", "gain": 0, "reverb": 0.2, "delay": 0.2 },
+    { "id": "gtrL", "instrument": "guitar_power", "gain": -1, "pan": -0.45, "drive": 0.7, "driveTone": 3400 },
+    { "id": "gtrR", "instrument": "guitar_power", "gain": -1, "pan": 0.45, "drive": 0.75, "driveTone": 3000 },
+    { "id": "organ", "instrument": "organ", "gain": 0, "reverb": 0.25 },
+    { "id": "bass", "instrument": "bass_pick", "gain": 0 },
+    { "id": "drums", "instrument": "kit_rock", "gain": 0, "reverb": 0.12, "sidechain": true },
+    { "id": "riser", "instrument": "riser_noise", "gain": -2, "reverb": 0.3 }
+  ],
+  "patterns": {
+    "riff_L": { "track": "gtrL", "chords": { "progression": "D5 | D5 | C5 | Bb5 C5", "octave": 3, "voicing": "close", "rhythm": "x.x.x.xxx.x.x.x.", "gate": 0.7 } },
+    "riff_R": { "track": "gtrR", "chords": { "progression": "D5 | D5 | C5 | Bb5 C5", "octave": 3, "voicing": "close", "rhythm": "x.x.x.xxx.x.x.x.", "gate": 0.7 } },
+    "bass_riff": { "track": "bass", "bass": { "progression": "D5 | D5 | C5 | Bb5 C5", "rhythm": "R.R.R.RRR.R.R.o.", "octave": 2 } },
+    "d_intro": { "track": "drums", "bars": 4, "drums": {
+      "kick": "x.......x.x..... x.......x.x..... x.......x.x..... x.......x.x.....",
+      "snare":"....x.......x... ....x.......x... ....x.......x... ....x...x.xxXXXX",
+      "chh":  "x.x.x.x.x.x.x.x."
+    } },
+    "riser4": { "track": "riser", "bars": 4, "notes": [[0, 64, "D4", 0.8]] },
+
+    "gtrL_A": { "track": "gtrL", "chords": { "progression": "Dm | Dm | C | C | Bb | Bb | C | A", "octave": 3, "voicing": "close", "rhythm": "x.x.x.x.x-x.x.x.", "gate": 0.6 } },
+    "gtrR_A": { "track": "gtrR", "chords": { "progression": "D5 | D5 | C5 | C5 | Bb5 | Bb5 | C5 | A5", "octave": 3, "voicing": "close", "rhythm": "x-------x---x---", "gate": 0.9 } },
+    "bass_A": { "track": "bass", "bass": { "progression": "Dm | Dm | C | C | Bb | Bb | C | A", "rhythm": "R.R.R.R.R.R.R.o.", "octave": 2 } },
+    "verse": { "track": "lead", "bars": 8, "melody": [
+      "D5:2 F5:2 A5:3 G5:3 F5:2 E5:2 F5:2 | D5:12 r:4 | C5:2 E5:2 G5:3 F5:3 E5:2 D5:2 E5:2 | C5:12 r:4",
+      "D5:2 F5:2 Bb5:3 A5:3 G5:2 F5:2 G5:2 | F5:6 D5:2 Bb4:8 | E5:4 G5:4 C6:4 Bb5:4 | A5:8 C#5:4 E5:4"
+    ] },
+    "verse_b": { "track": "lead", "bars": 8, "melody": [
+      "D5:2 F5:2 A5:3 G5:3 F5:2 E5:2 F5:2 | A5:6 G5:2 F5:8 | C5:2 E5:2 G5:3 F5:3 E5:2 D5:2 E5:2 | G5:6 F5:2 E5:8",
+      "D5:2 F5:2 Bb5:3 A5:3 G5:2 F5:2 G5:2 | D6:6 C6:2 Bb5:8 | C6:4 Bb5:4 G5:4 E5:4 | A5:12 r:4"
+    ] },
+    "d_verse": { "track": "drums", "bars": 1, "drums": { "kick": "x.......x.x.....", "snare": "....x.......x...", "chh": "x.x.x.x.x.x.x.x." } },
+    "d_fill": { "track": "drums", "bars": 1, "drums": {
+      "kick": "x.......x.......", "snare": "....x...........", "tomh": "........x.x.....", "tomm": "............x.x.", "toml": "..............xx"
+    } },
+    "d_crash": { "track": "drums", "bars": 1, "drums": { "crash": "X..............." } },
+
+    "organ_B": { "track": "organ", "chords": { "progression": "Gm | Gm | Bb | C | Gm | Bb | C | A7", "octave": 4 } },
+    "gtr_B": { "track": "gtrL", "chords": { "progression": "G5 | G5 | Bb5 | C5 | G5 | Bb5 | C5 | A5", "octave": 3, "voicing": "close", "rhythm": "x.xxx.xxx.xxx.xx", "gate": 0.5 } },
+    "gtr_B2": { "track": "gtrR", "chords": { "progression": "G5 | G5 | Bb5 | C5 | G5 | Bb5 | C5 | A5", "octave": 3, "voicing": "close", "rhythm": "x.xxx.xxx.xxx.xx", "gate": 0.5 } },
+    "bass_B": { "track": "bass", "bass": { "progression": "Gm | Gm | Bb | C | Gm | Bb | C | A7", "style": "pulse8", "octave": 2 } },
+    "pre": { "track": "lead", "bars": 8, "melody": [
+      "G5:4 Bb5:4 D6:4 Bb5:4 | A5:4 G5:4 D5:8 | F5:4 Bb5:4 D6:4 F6:4 | E6:8 C6:8",
+      "Bb5:4 G5:4 D5:4 G5:4 | F5:4 Bb5:4 D6:4 Bb5:4 | C6:4 E6:4 G6:4 E6:4 | C#6:8 E6:8"
+    ] },
+    "d_pre": { "track": "drums", "bars": 8, "drums": {
+      "kick": "x...x...x...x...",
+      "snare": "....x.......x... ....x.......x... ....x.......x... ....x.......x... ....x.......x... ....x...x...x... x...x...x.x.x.x. xxxxxxxxXXXXXXXX",
+      "ride": "x.x.x.x.x.x.x.x."
+    } },
+
+    "gtr_C": { "track": "gtrL", "chords": { "progression": "F5 | C5 | D5 | Bb5 | F5 | C5 | Bb5 | A5", "octave": 3, "voicing": "close", "rhythm": "x-x-x-x-x-x-x-x-", "gate": 0.95 } },
+    "gtr_C2": { "track": "gtrR", "chords": { "progression": "F5 | C5 | D5 | Bb5 | F5 | C5 | Bb5 | A5", "octave": 3, "voicing": "close", "rhythm": "x-x-x-x-x-x-x-x-", "gate": 0.95 } },
+    "organ_C": { "track": "organ", "chords": { "progression": "F | C | Dm | Bb | F | C | Bb | A", "octave": 4 } },
+    "bass_C": { "track": "bass", "bass": { "progression": "F | C | Dm | Bb | F | C | Bb | A", "rhythm": "R.RoR.RoR.RoR.Ro", "octave": 2 } },
+    "chorus": { "track": "lead", "bars": 8, "melody": [
+      "A5:4 C6:4 A5:2 G5:2 F5:4 | G5:6 E5:2 C5:8 | D5:2 F5:2 A5:2 D6:2 C6:4 A5:4 | Bb5:8 F5:4 D5:4",
+      "C6:4 A5:4 F5:2 A5:2 C6:4 | E6:4 D6:2 C6:2 G5:8 | F5:2 G5:2 Bb5:4 D6:4 F6:4 | E6:8 C#6:4 A5:4"
+    ] },
+    "chorus_end": { "track": "lead", "bars": 8, "melody": [
+      "A5:4 C6:4 A5:2 G5:2 F5:4 | G5:6 E5:2 C5:8 | D5:2 F5:2 A5:2 D6:2 C6:4 A5:4 | Bb5:8 F5:4 D5:4",
+      "C6:4 A5:4 F5:2 A5:2 C6:4 | E6:4 D6:2 C6:2 G5:8 | F5:2 G5:2 Bb5:4 D6:4 E6:4 | A5:12 r:4"
+    ] },
+    "d_chorus": { "track": "drums", "bars": 1, "drums": { "kick": "x.....x.x.x.....", "snare": "....x.......x...", "ride": "x.x.x.x.x.x.x.x.", "ohh": "..............x." } },
+
+    "organ_D": { "track": "organ", "chords": { "progression": "Gm | F | Eb | F | Gm | F | Eb | A", "octave": 4 } },
+    "gtr_D": { "track": "gtrR", "chords": { "progression": "Gm | F | Eb | F | Gm | F | Eb | A", "octave": 3, "rhythm": "x---------------", "gate": 0.98 } },
+    "bass_D": { "track": "bass", "bass": { "progression": "Gm | F | Eb | F | Gm | F | Eb | A", "rhythm": "R-------R---5---", "octave": 2 } },
+    "bridge": { "track": "lead", "bars": 8, "melody": [
+      "G5:2 G5:2 D6:4 C6:2 Bb5:2 A5:2 Bb5:2 | A5:8 F5:8 | G5:2 G5:2 Eb6:4 D6:2 C6:2 Bb5:2 C6:2 | C6:8 A5:8",
+      "Bb5:4 D6:4 G6:8 | F6:4 C6:4 A5:8 | G5:4 Bb5:4 Eb6:4 G6:4 | E6:8 C#6:8"
+    ] },
+    "d_half": { "track": "drums", "bars": 1, "drums": { "kick": "x.........x.....", "snare": "........x.......", "chh": "x.x.x.x.x.x.x.x." } }
+  },
+  "sections": {
+    "intro": { "bars": 8, "play": [ "riff_L", "riff_R@4", "bass_riff", "d_intro@4", "riser4@4" ] },
+    "A": { "bars": 16, "play": [ "gtrL_A", "gtrR_A", "bass_A", "verse*1", "verse_b@8*1", "d_verse*15", "d_fill@15*1", "d_crash*1" ] },
+    "B": { "bars": 8, "play": [ "organ_B", "gtr_B", "gtr_B2", "bass_B", "pre", "d_pre", "d_crash*1" ] },
+    "C": { "bars": 16, "play": [ "gtr_C", "gtr_C2", "organ_C", "bass_C", "chorus*1", "chorus_end@8*1", "d_chorus*15", "d_fill@15*1", "d_crash*1", "d_crash@8*1" ] },
+    "D": { "bars": 8, "play": [ "organ_D", "gtr_D", "bass_D", "bridge", "d_half*7", "d_fill@7*1", "riser4@4" ] },
+    "C2": { "bars": 16, "play": [ "gtr_C", "gtr_C2", "organ_C", "bass_C", "chorus*1", "chorus_end@8*1", "d_chorus*15", "d_fill@15*1", "d_crash*1", "d_crash@8*1" ] }
+  },
+  "form": ["intro", "A", "B", "C", "D", "C2"],
+  "loopFrom": "A"
+}

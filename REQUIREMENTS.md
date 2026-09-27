@@ -42,6 +42,12 @@ lists the superseded rules and where each lands. Rows marked _(A01)_ carry the r
 | R1.12 | A01 §9–10 _(A01)_ | @handles, friends panel, rejoin grants keyed to leadership epoch (no reserved seat) | in progress (handle rules; interim disconnect removal) |
 | R1.13 | A01 §11 _(A01)_ | 24 authored cues, unlock manifest, shared meet boombox | in progress (cue synthesis by audio worker) |
 | R1.14 | A01 §13 _(A01)_ | Visible per-car customization families, 8+ rim designs | not started |
+| R2.1 | A02 §1–6 _(A02)_ | Five diversions (Cap Clash, Pit-Crew, Greenlight, Pocket Circuit, Canvas), 1–6 humans + solo, preemption/resume, dormant persistence | in progress (engine-free simulation core being written) |
+| R2.2 | A02 §7 _(A02)_ | Continue / Service Break post-event flow | in progress (control plane) |
+| R2.3 | A02 §9 _(A02)_ | ≥ 8 mechanical loadouts per car instance, ≥ 5 visual presets, 3 protected references, atomic whole-build apply/restore | in progress (Core/Builds) |
+| R2.4 | A02 §10 _(A02)_ | Garage Test Yard: drivable, same controller, A/B, preview unowned parts, no progression | not started |
+| R2.5 | A02 §8, master §9 _(A02)_ | Parts/tuning system with real tradeoffs; favourite-car upgrade path for all 18 cars; calibrated pacing | in progress (Core/Builds parts catalogue) |
+| R2.6 | A02 D208 _(A02)_ | 24 h dormant convoy for all-disconnected case | in progress (control plane) |
 | R3.1 | §3.1 | URP, C#, Input System, uGUI+TMP single UI stack | in progress (UI stack not built; developer OnGUI HUDs only) |
 | R3.2 | §3.2 | Dedicated authoritative server process (NGO + Unity Transport) | implemented — run pending |
 | R3.3 | §3.2 | ASP.NET Core control plane (.NET 10 LTS), HTTP + authenticated control channel | verified (V-013) |

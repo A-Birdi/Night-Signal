@@ -1,0 +1,117 @@
+{
+  "schema": "night-signal/score@1",
+  "id": "MUS_RACE_TSUKISHIRO",
+  "title": "Highland Relay",
+  "description": "Tsukishiro highland race theme (C21–C24). The biggest regular-race anthem: 160 BPM eurobeat in D minor with brass and supersaw stating the Call Sign head, a driving verse, a sequence pre-chorus and a soaring chorus that ends on the Call Sign tag. A string bridge brightens into D major with the first full phrase of the Dawn Line, then the last chorus lifts to E minor; a two-bar turnaround returns to D minor for a clean loop.",
+  "style": "anthemic eurobeat",
+  "key": "D minor → E minor",
+  "tempo": 160,
+  "timeSignature": [4, 4],
+  "stepsPerBeat": 4,
+  "motifs": ["M1 Call Sign — intro hook and chorus tag", "M3 Dawn Line — bridge (foreshadowing the highland legend)"],
+  "cue": {
+    "displayTitle": "Highland Relay",
+    "category": "race-region",
+    "contexts": ["race-region-tsukishiro", "boombox"]
+  },
+  "mix": {
+    "master": -3.0,
+    "reverb": { "size": 0.75, "damp": 0.42, "width": 1.0, "wet": 0.26 },
+    "delay": { "beats": 0.75, "feedback": 0.3, "damp": 3500, "wet": 0.5, "toReverb": 0.3 },
+    "duckRelease": 0.4
+  },
+  "tracks": [
+    { "id": "lead", "instrument": "lead_supersaw_bright", "gain": 0, "reverb": 0.22, "delay": 0.18, "duck": 0.1 },
+    { "id": "verse", "instrument": "lead_saw_mono", "gain": -1, "reverb": 0.2, "delay": 0.2, "duck": 0.1 },
+    { "id": "brass", "instrument": "lead_fm_brass", "gain": 0, "pan": -0.1, "reverb": 0.25, "delay": 0.12, "duck": 0.15 },
+    { "id": "strings", "instrument": "strings", "gain": 0, "pan": 0.1, "reverb": 0.35, "duck": 0.25 },
+    { "id": "arp", "instrument": "pluck_saw", "gain": -3, "pan": 0.3, "reverb": 0.15, "delay": 0.25, "duck": 0.4 },
+    { "id": "pad", "instrument": "pad_warm", "gain": 1, "reverb": 0.3, "duck": 0.5 },
+    { "id": "bass", "instrument": "bass_octave", "gain": 0, "duck": 0.25 },
+    { "id": "drums", "instrument": "kit_euro", "gain": 0, "reverb": 0.06, "sidechain": true },
+    { "id": "riser", "instrument": "riser_noise", "gain": 0, "reverb": 0.3 }
+  ],
+  "patterns": {
+    "hook": { "track": "brass", "bars": 8, "melody": [
+      "D5:2 D5:2 A5:4 G5:2 F5:2 E5:2 F5:2 | D5:4 F5:4 Bb5:8 | C6:2 C6:2 G5:4 F5:2 E5:2 D5:2 E5:2 | C5:4 E5:4 A5:8",
+      "D6:2 D6:2 A5:4 G5:2 F5:2 E5:2 F5:2 | D5:4 F5:4 Bb5:4 D6:4 | E6:4 C6:4 G5:4 E5:4 | C#6:8 E6:8"
+    ] },
+    "hook_saw": { "track": "lead", "bars": 4, "melody": "D6:2 D6:2 A5:4 G5:2 F5:2 E5:2 F5:2 | D5:4 F5:4 Bb5:4 D6:4 | E6:4 C6:4 G5:4 E5:4 | C#6:8 E6:8" },
+    "str_I": { "track": "strings", "chords": { "progression": "Dm | Bb | C | Am | Dm | Bb | C | A", "octave": 4 } },
+    "bass_I": { "track": "bass", "bass": { "progression": "Dm | Bb | C | Am | Dm | Bb | C | A", "style": "octave8", "octave": 2 } },
+    "d_I": { "track": "drums", "bars": 8, "drums": {
+      "kick": "................ ................ ................ ................ x...x...x...x... x...x...x...x... x...x...x...x... x...x...x...x...",
+      "chh": "..x...x...x...x.",
+      "snare": "................ ................ ................ x...........x.x. ....x.......x... ....x.......x... ....x.......x... x.x.x.x.xxxxXXXX"
+    } },
+    "riser4": { "track": "riser", "bars": 4, "notes": [[0, 64, "D4", 0.8]] },
+
+    "pad_A": { "track": "pad", "chords": { "progression": "Dm | Bb | C | Dm | Gm | Bb | C | A", "octave": 4 } },
+    "arp_A": { "track": "arp", "arp": { "progression": "Dm | Bb | C | Dm | Gm | Bb | C | A", "pattern": "0 1 2 3 2 1 2 3", "rate": 1, "octave": 4, "gate": 0.45 } },
+    "bass_A": { "track": "bass", "bass": { "progression": "Dm | Bb | C | Dm | Gm | Bb | C | A", "style": "octave8", "octave": 2 } },
+    "verse1": { "track": "verse", "bars": 8, "melody": [
+      "A4:2 D5:2 F5:2 A5:4 G5:2 F5:2 E5:2 | F5:6 D5:2 Bb4:8 | C5:2 E5:2 G5:2 C6:4 Bb5:2 A5:2 G5:2 | A5:6 F5:2 D5:8",
+      "Bb4:2 D5:2 G5:2 Bb5:4 A5:2 G5:2 F5:2 | D5:6 F5:2 Bb5:8 | C6:4 Bb5:4 G5:4 E5:4 | C#5:8 E5:4 A5:4"
+    ] },
+    "verse2": { "track": "verse", "bars": 8, "melody": [
+      "A4:2 D5:2 F5:2 A5:4 G5:2 F5:2 E5:2 | F5:6 D5:2 Bb4:8 | C5:2 E5:2 G5:2 C6:4 Bb5:2 A5:2 G5:2 | A5:6 F5:2 D5:8",
+      "Bb4:2 D5:2 G5:2 Bb5:4 A5:2 G5:2 F5:2 | D5:6 F5:2 Bb5:8 | C6:4 D6:4 E6:4 G6:4 | E6:8 C#6:8"
+    ] },
+    "d_A": { "track": "drums", "bars": 1, "drums": { "kick": "x...x...x...x...", "snare": "....x.......x...", "chh": "x.x.x.x.x.x.x.x.", "ohh": "..............x." } },
+    "d_fill": { "track": "drums", "bars": 1, "drums": { "kick": "x...x...x...x...", "snare": "....x...x.x.xxXX", "chh": "x.x.x.x.x......." } },
+    "d_crash": { "track": "drums", "bars": 1, "drums": { "crash": "X..............." } },
+
+    "pad_B": { "track": "pad", "chords": { "progression": "Bb | C | Am | Dm | Bb | C | Asus4 | A", "octave": 4 } },
+    "arp_B": { "track": "arp", "arp": { "progression": "Bb | C | Am | Dm | Bb | C | Asus4 | A", "pattern": "0 2 1 3 2 4 3 5", "rate": 1, "octave": 4, "gate": 0.4 } },
+    "bass_B": { "track": "bass", "bass": { "progression": "Bb | C | Am | Dm | Bb | C | Asus4 | A", "style": "pulse8", "octave": 2 } },
+    "pre": { "track": "lead", "bars": 8, "melody": [
+      "F5:4 Bb5:4 D6:4 F6:4 | E6:4 C6:4 G5:8 | A5:4 C6:4 E6:4 A6:4 | F6:8 D6:8",
+      "D6:2 Eb6:2 F6:4 D6:2 Bb5:2 F5:4 | E6:2 F6:2 G6:4 E6:2 C6:2 G5:4 | D6:4 E6:4 D6:4 A5:4 | C#6:8 E6:8"
+    ] },
+    "brass_B": { "track": "brass", "chords": { "progression": "Bb | C | Am | Dm | Bb | C | Asus4 | A", "octave": 4, "rhythm": "x--.x--.x-------", "gate": 0.85 } },
+    "d_B": { "track": "drums", "bars": 8, "drums": {
+      "kick": "x...x...x...x...",
+      "snare": "....x.......x... ....x.......x... ....x.......x... ....x.......x... ....x...x...x... x...x...x...x... x.x.x.x.x.x.x.x. xxxxxxxxXXXXXXXX",
+      "chh": "x.x.x.x.x.x.x.x."
+    } },
+
+    "pad_C": { "track": "pad", "chords": { "progression": "Bb | C | Am | Dm | Gm | C | F | A", "octave": 4 } },
+    "str_C": { "track": "strings", "chords": { "progression": "Bb | C | Am | Dm | Gm | C | F | A", "octave": 3, "voicing": "close" } },
+    "arp_C": { "track": "arp", "arp": { "progression": "Bb | C | Am | Dm | Gm | C | F | A", "pattern": "0 1 2 3 4 3 2 1", "rate": 1, "octave": 5, "gate": 0.4 } },
+    "bass_C": { "track": "bass", "bass": { "progression": "Bb | C | Am | Dm | Gm | C | F | A", "style": "octave8", "octave": 2 } },
+    "chorus1": { "track": "lead", "bars": 8, "melody": [
+      "D6:2 D6:2 F6:4 D6:2 C6:2 Bb5:2 C6:2 | E6:6 D6:2 C6:4 G5:4 | A5:2 C6:2 E6:4 D6:2 C6:2 A5:4 | D6:8 A5:4 F5:4",
+      "Bb5:2 D6:2 G6:4 F6:2 D6:2 Bb5:4 | C6:2 E6:2 G6:4 A6:2 G6:2 E6:4 | F6:4 E6:4 C6:4 A5:4 | E6:4 C#6:4 A5:4 E5:4"
+    ] },
+    "chorus2": { "track": "lead", "bars": 8, "melody": [
+      "D6:2 D6:2 F6:4 D6:2 C6:2 Bb5:2 C6:2 | E6:6 D6:2 C6:4 G5:4 | A5:2 C6:2 E6:4 D6:2 C6:2 A5:4 | D6:8 A5:4 F5:4",
+      "Bb5:2 D6:2 G6:4 F6:2 D6:2 Bb5:4 | C6:2 E6:2 G6:4 A6:2 G6:2 E6:4 | A5:2 A5:2 E6:4 D6:2 C6:2 Bb5:2 C6:2 | A5:12 r:4"
+    ] },
+    "d_C": { "track": "drums", "bars": 1, "drums": { "kick": "x...x...x...x...", "snare": "....x.......x...", "clap": "....x.......x...", "chh": "x.x.x.x.x.x.x.x.", "ohh": "..x...x...x...x." } },
+
+    "str_D": { "track": "strings", "chords": { "progression": "Bb | C | F | Gm | Bb | C | Dsus4 | D", "octave": 4 } },
+    "pad_D": { "track": "pad", "chords": { "progression": "Bb | C | F | Gm | Bb | C | Dsus4 | D", "octave": 3 } },
+    "dawn": { "track": "verse", "bars": 8, "melody": [
+      "F5:6 Bb5:2 C6:2 D6:6 | E6:8 G6:8 | C6:6 F6:2 G6:2 A6:6 | Bb6:8 G6:8",
+      "D6:4 F6:4 Bb6:8 | G6:4 E6:4 C6:8 | A5:6 D6:2 E6:2 G6:6 | F#6:16"
+    ] },
+    "bass_D": { "track": "bass", "bass": { "progression": "Bb | C | F | Gm | Bb | C | Dsus4 | D", "rhythm": "R-------R-------", "octave": 2 } },
+    "d_D": { "track": "drums", "bars": 1, "drums": { "kick": "x.......x.......", "rim": "....x.......x...", "chh": "..x...x...x...x." } },
+
+    "pad_T": { "track": "pad", "chords": { "progression": "Bb | A7", "octave": 4 } },
+    "bass_T": { "track": "bass", "bass": { "progression": "Bb | A7", "style": "octave8", "octave": 2 } },
+    "brass_T": { "track": "brass", "bars": 2, "melody": "D6:2 D6:2 F6:4 D6:2 C6:2 Bb5:2 A5:2 | C#6:4 E6:4 G6:4 E6:4" },
+    "d_T": { "track": "drums", "bars": 2, "drums": { "kick": "x...x...x...x... x...x...x...x...", "snare": "....x.......x... x.x.x.x.xxxxXXXX", "chh": "x.x.x.x.x.x.x.x." } }
+  },
+  "sections": {
+    "intro": { "bars": 8, "play": [ "hook", "hook_saw@4", "str_I", "bass_I@4", "d_I", "riser4@4" ] },
+    "A": { "bars": 16, "play": [ "pad_A", "arp_A", "bass_A", "verse1*1", "verse2@8*1", "d_A*15", "d_fill@15*1", "d_crash*1" ] },
+    "B": { "bars": 8, "play": [ "pad_B", "arp_B", "bass_B", "pre", "brass_B", "d_B", "riser4@4", "d_crash*1" ] },
+    "C": { "bars": 16, "play": [ "pad_C", "str_C", "arp_C", "bass_C", "chorus1*1", "chorus2@8*1", "d_C*15", "d_fill@15*1", "d_crash*1", "d_crash@8*1" ] },
+    "D": { "bars": 8, "play": [ "str_D", "pad_D", "dawn", "bass_D", "d_D*7", "d_fill@7*1", "riser4@4" ] },
+    "C2": { "bars": 16, "transpose": 2, "play": [ "pad_C", "str_C", "arp_C", "bass_C", "chorus1*1", "chorus2@8*1", "d_C*15", "d_fill@15*1", "d_crash*1", "d_crash@8*1" ] },
+    "turn": { "bars": 2, "play": [ "pad_T", "bass_T", "brass_T", "d_T" ] }
+  },
+  "form": ["intro", "A", "B", "C", "D", "C2", "turn"],
+  "loopFrom": "A"
+}

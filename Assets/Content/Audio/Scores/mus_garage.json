@@ -1,0 +1,85 @@
+{
+  "schema": "night-signal/score@1",
+  "id": "MUS_GARAGE",
+  "title": "Workbench Hours",
+  "description": "Garage / parts / livery theme: relaxed but awake jazz-funk with a light sixteenth swing. Electric piano comping, a walking funk bass with chromatic approaches, muted clean-guitar off-beats and brushed-style drums. A soft triangle lead plays the Call Sign in F major, a bridge borrows Bb minor colour, and an electric-piano solo chorus turns toward C before the head returns.",
+  "style": "jazz-funk",
+  "key": "F major",
+  "tempo": 100,
+  "timeSignature": [4, 4],
+  "stepsPerBeat": 4,
+  "swing": 0.18,
+  "motifs": ["M1 Call Sign — relaxed statement in F major (head bars 1 and 5)"],
+  "cue": {
+    "displayTitle": "Workbench Hours",
+    "category": "garage",
+    "contexts": ["garage", "boombox"]
+  },
+  "mix": {
+    "master": -3.0,
+    "reverb": { "size": 0.6, "damp": 0.5, "width": 0.9, "wet": 0.24 },
+    "delay": { "beats": 0.75, "feedback": 0.25, "damp": 2800, "wet": 0.4, "toReverb": 0.3 },
+    "duckRelease": 0.3
+  },
+  "tracks": [
+    { "id": "lead", "instrument": "lead_soft", "gain": 1, "reverb": 0.3, "delay": 0.2 },
+    { "id": "keys", "instrument": "ep_fm", "gain": 0, "pan": -0.15, "reverb": 0.25, "delay": 0.08 },
+    { "id": "solo", "instrument": "ep_fm", "gain": 1, "pan": 0.1, "reverb": 0.25, "delay": 0.15 },
+    { "id": "gtr", "instrument": "guitar_clean", "gain": -3, "pan": 0.4, "reverb": 0.2 },
+    { "id": "pad", "instrument": "pad_air", "gain": -5, "reverb": 0.3 },
+    { "id": "bass", "instrument": "bass_funk", "gain": 0 },
+    { "id": "drums", "instrument": "kit_soft", "gain": 0, "reverb": 0.1 }
+  ],
+  "patterns": {
+    "keys_intro": { "track": "keys", "chords": { "progression": "Fmaj7 | Em7 A7 | Dm7 | Cm7 F7", "octave": 4, "rhythm": "x-.x-.x---x-.x--" } },
+    "bass_intro": { "track": "bass", "bass": { "progression": "Fmaj7 | Em7 A7 | Dm7 | Cm7 F7", "rhythm": "R..R..5.R.o..5.a", "octave": 2 } },
+    "d_intro": { "track": "drums", "bars": 4, "drums": {
+      "kick": "x.....x...x.....", "chh": "x.xox.xox.xox.xo",
+      "snare": "................ ....x.......x... ....x.......x... ....x.......x.o."
+    } },
+
+    "keys_A": { "track": "keys", "chords": { "progression": "Fmaj7 | Em7 A7 | Dm7 | Cm7 F7 | Bbmaj7 | Am7 D7 | Gm7 | C7sus4", "octave": 4, "rhythm": "x-.x-.x---x-.x--" } },
+    "keys_A2": { "track": "keys", "chords": { "progression": "Fmaj7 | Em7 A7 | Dm7 | Cm7 F7 | Bbmaj7 | Am7 D7 | Gm7 C7 | Fmaj7", "octave": 4, "rhythm": "x-.x-.x---x-.x--" } },
+    "gtr_A": { "track": "gtr", "chords": { "progression": "Fmaj7 | Em7 A7 | Dm7 | Cm7 F7 | Bbmaj7 | Am7 D7 | Gm7 | C7sus4", "octave": 4, "voicing": "close", "rhythm": "..x...x...x...x.", "gate": 0.3 } },
+    "bass_A": { "track": "bass", "bass": { "progression": "Fmaj7 | Em7 A7 | Dm7 | Cm7 F7 | Bbmaj7 | Am7 D7 | Gm7 | C7sus4", "rhythm": "R..R..5.R.o..5.a", "octave": 2 } },
+    "bass_A2": { "track": "bass", "bass": { "progression": "Fmaj7 | Em7 A7 | Dm7 | Cm7 F7 | Bbmaj7 | Am7 D7 | Gm7 C7 | Fmaj7", "rhythm": "R..R..5.R.o..5.a", "octave": 2 } },
+    "pad_A": { "track": "pad", "chords": { "progression": "Fmaj7 | Em7 A7 | Dm7 | Cm7 F7 | Bbmaj7 | Am7 D7 | Gm7 | C7sus4", "octave": 3 } },
+    "head1": { "track": "lead", "bars": 8, "melody": [
+      "F5:2 F5:2 C6:4 Bb5:2 A5:2 G5:2 A5:2 | G5:6 E5:2 C#5:8 | D5:2 F5:2 A5:2 C6:2 A5:8 | G5:4 Eb5:4 A5:4 F5:4",
+      "D6:2 D6:2 A5:4 F5:2 D5:2 C5:2 D5:2 | C5:6 E5:2 F#5:8 | G5:4 Bb5:4 D6:4 F6:4 | F6:8 Bb5:4 G5:4"
+    ] },
+    "head2": { "track": "lead", "bars": 8, "melody": [
+      "F5:2 F5:2 C6:4 Bb5:2 A5:2 G5:2 A5:2 | G5:6 E5:2 C#5:8 | D5:2 F5:2 A5:2 C6:2 A5:8 | G5:4 Eb5:4 A5:4 F5:4",
+      "D6:4 C6:4 A5:4 F5:4 | E5:6 G5:2 A5:4 F#5:4 | G5:4 Bb5:4 E5:4 G5:4 | F5:12 r:4"
+    ] },
+    "d_A": { "track": "drums", "bars": 1, "drums": { "kick": "x.....x...x.....", "snare": "....x.......x...", "chh": "x.xox.xox.xox.xo" } },
+    "d_A_fill": { "track": "drums", "bars": 1, "drums": { "kick": "x.....x...x.....", "snare": "....x.......xoxx", "chh": "x.xox.xox.xo...." } },
+
+    "keys_B": { "track": "keys", "chords": { "progression": "Bbmaj7 | Bbm6 | Am7 | D7 | Gm7 | C7 | Am7 D7 | Gm7 C7", "octave": 4, "rhythm": "x---.x--x---.x--" } },
+    "bass_B": { "track": "bass", "bass": { "progression": "Bbmaj7 | Bbm6 | Am7 | D7 | Gm7 | C7 | Am7 D7 | Gm7 C7", "rhythm": "R...5...o...5..a", "octave": 2 } },
+    "pad_B": { "track": "pad", "chords": { "progression": "Bbmaj7 | Bbm6 | Am7 | D7 | Gm7 | C7 | Am7 D7 | Gm7 C7", "octave": 3 } },
+    "bridge": { "track": "lead", "bars": 8, "melody": [
+      "D5:4 F5:4 A5:8 | Db5:4 F5:4 G5:8 | C5:4 E5:4 G5:8 | F#5:4 A5:4 C6:8",
+      "Bb5:4 A5:4 G5:4 F5:4 | E5:4 G5:4 Bb5:8 | A5:6 G5:2 F#5:4 A5:4 | G5:8 E5:8"
+    ] },
+    "d_B": { "track": "drums", "bars": 1, "drums": { "kick": "x.......x.......", "rim": "....x.......x...", "ride": "x.xxx.xxx.xxx.xx", "shaker": "x.x.x.x.x.x.x.x." } },
+
+    "keys_C": { "track": "keys", "chords": { "progression": "Dm7 | G9 | Cmaj7 | A7 | Dm7 | G9 | Gm7 | C7", "octave": 3, "rhythm": "x-.x-.x---x-.x--" } },
+    "bass_C": { "track": "bass", "bass": { "progression": "Dm7 | G9 | Cmaj7 | A7 | Dm7 | G9 | Gm7 | C7", "rhythm": "R..R..5.R.o..5.a", "octave": 2 } },
+    "solo": { "track": "solo", "bars": 8, "melody": [
+      "A5:2 C6:2 E6:2 F6:2 E6:4 C6:4 | B5:2 A5:2 G5:4 F5:4 D5:4 | E5:4 G5:4 B5:4 C6:4 | C#6:6 A5:2 E5:4 G5:4",
+      "F5:2 A5:2 C6:2 E6:2 D6:4 A5:4 | B5:4 D6:4 F6:4 A6:4 | G6:4 F6:4 D6:4 Bb5:4 | Bb5:8 G5:4 E5:4"
+    ] },
+    "gtr_C": { "track": "gtr", "chords": { "progression": "Dm7 | G9 | Cmaj7 | A7 | Dm7 | G9 | Gm7 | C7", "octave": 4, "voicing": "close", "rhythm": "..x...x...x...x.", "gate": 0.3 } }
+  },
+  "sections": {
+    "intro": { "bars": 4, "play": [ "keys_intro", "bass_intro", "d_intro" ] },
+    "A": { "bars": 16, "play": [ "keys_A*1", "keys_A2@8*1", "bass_A*1", "bass_A2@8*1", "gtr_A@8*1", "head1*1", "head2@8*1", "d_A*15", "d_A_fill@15*1" ] },
+    "B": { "bars": 8, "play": [ "keys_B", "bass_B", "pad_B", "bridge", "d_B" ] },
+    "A3": { "bars": 8, "play": [ "keys_A2", "bass_A2", "gtr_A", "pad_A", "head2", "d_A*7", "d_A_fill@7*1" ] },
+    "C": { "bars": 8, "play": [ "keys_C", "bass_C", "gtr_C", "solo", "d_A*7", "d_A_fill@7*1" ] },
+    "A4": { "bars": 8, "play": [ "keys_A2", "bass_A2", "pad_A", "head2", "d_B*7", "d_A_fill@7*1" ] }
+  },
+  "form": ["intro", "A", "B", "A3", "C", "A4"],
+  "loopFrom": "A"
+}

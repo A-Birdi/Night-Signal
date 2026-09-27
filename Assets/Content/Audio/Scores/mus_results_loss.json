@@ -1,0 +1,60 @@
+{
+  "schema": "night-signal/score@1",
+  "id": "MUS_RESULTS_LOSS",
+  "title": "Timing Slip (Next Time)",
+  "description": "Results — loss. Warm and encouraging rather than punitive: a two-bar electric-piano opening, then a gentle mid-tempo groove in B minor where the Call Sign is sung slowly in the minor, lifting toward G and A major so the screen invites another try. No buzzers or error sounds.",
+  "style": "warm downtempo",
+  "key": "B minor",
+  "tempo": 92,
+  "timeSignature": [4, 4],
+  "stepsPerBeat": 4,
+  "motifs": ["M1 Call Sign — slow minor-key statement"],
+  "cue": {
+    "displayTitle": "Timing Slip — Next Time",
+    "category": "results",
+    "contexts": ["results-loss", "boombox"]
+  },
+  "mix": {
+    "master": -4.0,
+    "reverb": { "size": 0.78, "damp": 0.45, "width": 1.0, "wet": 0.3 },
+    "delay": { "beats": 0.75, "feedback": 0.3, "damp": 2600, "wet": 0.4, "toReverb": 0.35 },
+    "duckRelease": 0.3
+  },
+  "tracks": [
+    { "id": "mel", "instrument": "lead_soft", "gain": 1, "reverb": 0.35, "delay": 0.25 },
+    { "id": "keys", "instrument": "ep_fm", "gain": 0, "pan": -0.1, "reverb": 0.3 },
+    { "id": "bells", "instrument": "bell_fm", "gain": -2, "pan": 0.25, "reverb": 0.4, "delay": 0.3 },
+    { "id": "pad", "instrument": "pad_air", "gain": -1, "reverb": 0.35 },
+    { "id": "bass", "instrument": "bass_sub", "gain": -1 },
+    { "id": "drums", "instrument": "kit_soft", "gain": 0, "reverb": 0.12 }
+  ],
+  "patterns": {
+    "open_keys": { "track": "keys", "chords": { "progression": "Bm7 | Gmaj7", "octave": 4, "rhythm": "x---------------" } },
+    "open_bells": { "track": "bells", "bars": 2, "melody": "B5:4 B5:4 F#6:8 | E6:4 D6:4 B5:8" },
+
+    "keys_A": { "track": "keys", "chords": { "progression": "Bm7 | Gmaj7 | Em7 | F#7sus4 F# | Bm7 | Gmaj7 | Em7 A | Dmaj7", "octave": 4, "rhythm": "x-----x---x-----" } },
+    "pad_A": { "track": "pad", "chords": { "progression": "Bm7 | Gmaj7 | Em7 | F#7sus4 F# | Bm7 | Gmaj7 | Em7 A | Dmaj7", "octave": 3 } },
+    "bass_A": { "track": "bass", "bass": { "progression": "Bm7 | Gmaj7 | Em7 | F#7sus4 F# | Bm7 | Gmaj7 | Em7 A | Dmaj7", "rhythm": "R-----R---5-----", "octave": 2 } },
+    "melA": { "track": "mel", "bars": 8, "melody": [
+      "B4:2 B4:2 F#5:4 E5:2 D5:2 C#5:2 D5:2 | D5:6 B4:2 F#5:8 | G5:4 E5:4 B4:4 E5:4 | E5:8 A#4:8",
+      "B4:2 B4:2 F#5:4 A5:2 F#5:2 D5:4 | F#5:6 E5:2 D5:8 | E5:4 G5:4 C#5:4 E5:4 | F#5:16"
+    ] },
+    "d_A": { "track": "drums", "bars": 1, "drums": { "kick": "x.......x.x.....", "snare": "....x.......x...", "chh": "x.x.x.x.x.x.x.x." } },
+
+    "keys_B": { "track": "keys", "chords": { "progression": "Gmaj7 | Aadd9 | Bm7 | Bm7 | Gmaj7 | Aadd9 | Dmaj7/F# | Em7 F#", "octave": 4, "rhythm": "x-----x---x-----" } },
+    "pad_B": { "track": "pad", "chords": { "progression": "Gmaj7 | Aadd9 | Bm7 | Bm7 | Gmaj7 | Aadd9 | Dmaj7/F# | Em7 F#", "octave": 3 } },
+    "bass_B": { "track": "bass", "bass": { "progression": "Gmaj7 | Aadd9 | Bm7 | Bm7 | Gmaj7 | Aadd9 | Dmaj7/F# | Em7 F#", "rhythm": "R-----R---5-----", "octave": 2 } },
+    "bellsB": { "track": "bells", "bars": 8, "melody": [
+      "D6:4 B5:4 F#5:8 | E6:4 C#6:4 A5:8 | F#6:4 D6:4 B5:8 | r:16",
+      "B5:4 D6:4 F#6:8 | C#6:4 E6:4 A6:8 | F#6:8 D6:8 | E6:8 A#5:8"
+    ] },
+    "d_B": { "track": "drums", "bars": 1, "drums": { "kick": "x.........x.....", "rim": "....x.......x...", "shaker": "x.o.x.o.x.o.x.o." } }
+  },
+  "sections": {
+    "open": { "bars": 2, "play": [ "open_keys", "open_bells" ] },
+    "A": { "bars": 8, "play": [ "keys_A", "pad_A", "bass_A", "melA", "d_A" ] },
+    "B": { "bars": 8, "play": [ "keys_B", "pad_B", "bass_B", "bellsB", "d_B" ] }
+  },
+  "form": ["open", "A", "B"],
+  "loopFrom": "A"
+}

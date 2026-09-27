@@ -3,6 +3,7 @@
     "rootNamespace": "NightSignal",
     "references": [
         "NightSignal.Core",
+        "NightSignal.AudioSynth",
         "Unity.InputSystem",
         "Unity.TextMeshPro",
         "UnityEngine.UI",

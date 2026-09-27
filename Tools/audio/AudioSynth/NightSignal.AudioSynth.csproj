@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Compile-checks the engine-free synth exactly as Unity sees it: .NET Standard 2.1 API surface, C# 9.
+    The source is LINKED from Assets/Game/Audio (asmdef "NightSignal.AudioSynth"); never add .cs files here.
+  -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AssemblyName>NightSignal.AudioSynth</AssemblyName>
+    <RootNamespace>NightSignal.AudioSynth</RootNamespace>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="../../../Assets/Game/Audio/**/*.cs" Link="Synth/%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+</Project>

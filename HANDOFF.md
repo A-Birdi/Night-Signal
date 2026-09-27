@@ -4,7 +4,9 @@ _Last updated: 2026-09-27 — Addendum 01 reconciliation (Priority A: rules/sche
 
 **Rules revision:** `docs/brief/Night_Signal_Addendum_01.txt` supersedes parts of the master (six humans + up to
 twelve vehicles, live finale rivals, light contact, course access, offline domain, rejoin grants, voting, friends,
-OST). Effective rules and impact map: `docs/EFFECTIVE_RULES.md`.
+OST). `docs/brief/Night_Signal_Addendum_02.txt` adds five diversions, Continue/Service Break, ≥ 8 loadouts per car
+instance with protected references, the Garage Test Yard and meaningful upgrades. Effective rules and impact map:
+`docs/EFFECTIVE_RULES.md`.
 
 ## Where things are
 

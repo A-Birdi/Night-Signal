@@ -1,0 +1,1213 @@
+NIGHT SIGNAL: MOUNTAIN CIRCUIT
+ADDENDUM 02 — PLAY WHILE READY, SERVICE BREAKS, CAR LOADOUTS,
+AND TRY-BEFORE-YOU-RACE GARAGE TESTING
+Revision 1 — forward implementation requirements for the EXISTING project
+
+CORE EXPERIENCE
+Race together. Make a meaningful workshop decision. Let friends keep playing
+while someone tunes. Test the candidate car. Rejoin the next event without
+losing a shared toy, a drawing, a carefully prepared build, or anyone's time.
+
+This is a mandatory addition to the existing assignment when submitted by the
+user. It is not a new project, optional idea list, permission to rebuild from
+scratch, or a replacement for completing the main multiplayer racing game.
+
+0. AUTHORITY, SCOPE, AND EXPLICIT DRAFTING DECISIONS
+
+Use the existing 01_Night_Signal_Master_Specification.txt, approved setup
+instructions, and Night_Signal_Addendum_01.txt. This document supersedes only
+conflicting requirements in the areas it expressly addresses. Later explicit
+user instructions take precedence. Keep the original documents for provenance;
+maintain a short effective-rules map rather than duplicating conflicting briefs.
+
+Repository: A-Birdi/Night-Signal.
+Authorized development branch: dev/night-signal, subject to inspecting the
+actual newest state and any later authorized branch decision.
+Editor baseline: Unity 6000.6.3f1 / URP in the existing original checkout.
+Preserve the working Unity MCP connection. No new worktree, competing editor,
+reset to an old commit, engine migration, or return to the RPG project.
+
+Read this entire document at the next safe task boundary. Let an active build,
+asset import, package resolution, or transaction reach a known outcome before
+changing its inputs. Preserve useful unfinished source and assets. Apply these
+requirements to existing systems; do not start a parallel implementation.
+
+0.1 Approved activity selection
+
+The user selected these five activities for actual implementation:
+- CAP CLASH: bottle-cap shuffleboard, competitive and cooperative.
+- PIT-CREW PROJECT: persistent cooperative miniature assembly work.
+- GREENLIGHT: reaction, shift-window, and release-timing practice.
+- POCKET CIRCUIT: a networked tabletop slot-car toy. Mandatory despite the extra
+  work; do not downgrade it to a post-launch idea or replace it with Greenlight.
+- CONVOY CANVAS: shared freehand drawing and decoration on a whiteboard and an
+  optional-view display hood, not unauthorized painting on somebody's real car.
+
+MYSTERY GARAGE was rejected. Do not implement the car-guessing quiz.
+The earlier BRAKE FOR THE BOX idea is incorporated into the Garage Test Yard as
+optional practice feedback, not a sixth competitive diversion or new queue.
+A card game, deck builder, card economy, and card-game rules are out of scope.
+
+0.2 Concrete defaults selected for this addendum
+
+These defaults resolve open design details; they are design choices, not claims
+that the user previously specified each number or that the game has been tested.
+
+D201. All five approved diversions support one through six human participants,
+      with genuine network interaction and meaningful solo use. They are
+      available without travelling to the car meet or assembling another party.
+D202. Diversions are interruptible at any moment. A previously consented main
+      mode/event transition takes priority; minigame completion is never a
+      prerequisite for starting the main event.
+D203. Post-event continuation uses unanimous Continue consent, not majority rule.
+      Any Service Break request opens an intermission; it does not force every
+      member to open Garage. Event Ready remains a separate authorization.
+D204. Supply at least EIGHT named mechanical loadouts per owned car instance,
+      plus protected automatic recovery/reference snapshots. Retain at least
+      five independent visual presets and all existing customization features.
+D205. Garage Test Yard is a genuine, private, driveable testing facility using
+      the main vehicle model. A/B comparisons and compatible unpurchased-part
+      previews are required. No progress or purchase is granted by testing.
+D206. A favorite car can complete Normal and Hard using a legitimate upgrade
+      path. Meaningful component improvements are part of the intended pacing;
+      compulsory replacement of the car or an arbitrary spending check is not.
+D207. Shared downtime state belongs to a stable convoy-session ID, not a leader
+      or race. It survives event changes, individual disconnects, and leadership
+      transfers. Explicitly leaving a convoy is different from closing a toy.
+D208. Replace Addendum 01's immediate all-disconnected disband with a bounded
+      dormant-room grace: 24 hours since the last active member was lost solely
+      to disconnection. Persist a compact snapshot, not a running server process.
+      Explicit disband or the last member voluntarily leaving still ends the
+      session. This narrow lifetime revision does not relax rejoin permissions.
+D209. No Credits, RP, main challenge progress, shop entitlements, boss music,
+      or essential rewards come from diversions or Garage tests. Session scores,
+      completed toy models, and shared artwork provide the satisfaction.
+D210. Minimum toy content: two Cap Clash table arrangements, three Pit-Crew
+      blueprints, all three Greenlight variants, three Pocket Circuit layouts,
+      and the shared Canvas with a flat drawing view and display-hood preview.
+      These miniature tracks, projects and the Test Yard do not count toward
+      the 29 full-size courses, 18 full-size cars, 48 rivals, or 75 challenges.
+
+Unchanged unless specifically revised here: six-human convoys; twelve total
+full-size race entrants including AI; six-human meets; live campaign bosses;
+Normal/Hard identity and frontier; contact/no-damage rules; course access and
+convoy guest passes; Freeplay voting; multiplayer Time Attack; Friends and
+account security; separate Local and Online profiles; OST acquisition and
+boombox rules; wallet and parts-price caps; finite 15,000 mastery RP; core
+campaign/content minimums; original artwork/audio; complete build delivery.
+
+Do not treat a saved JSON catalogue or an old test expecting three loadouts,
+instant disband after total network loss, or no persistent downtime as more
+authoritative than this addendum. Migrate and revise targeted tests honestly.
+
+1. THE SHARED DOWNTIME FEATURE: 'WHILE WE WAIT'
+
+1.1 Availability and presentation
+
+Add one clear 'While We Wait' control to Home, the ordinary Garage menus,
+event briefing, campaign/freeplay selection, and the safe post-event flow.
+It opens a compact activity selector, not a new matchmaking system. Show the
+five toys, who is playing each, and whether their shared state is paused.
+Joining does not require every convoy member to participate or become ready.
+
+Support different subsets concurrently: two people at Cap Clash, one assembling
+a model, another drawing, and another driving a private Garage test while the
+sixth edits a car. Do not make one person's activity choice change everyone
+else's screen. A player actively controls one diversion or Test Yard at a time;
+other persistent boards remain available without consuming active controls.
+
+At the meet, provide tasteful physical equivalents: a workbench, a start-light
+practice device, the tabletop track, and the communal display board. Activating
+a prop and opening its menu shortcut lead to the SAME convoy-owned state.
+Meeting in the same public instance is not membership in the same toy session.
+Non-convoy visitors cannot silently edit a private convoy's drawing or project.
+
+Use an in-game panel/3D tabletop presentation within the existing shell. There
+must be no required walk to a station, parking sequence, car swap, public match,
+full-size track load, or compulsory instruction cutscene before a quick attempt.
+First-use help is concise and dismissible. Controller, keyboard and pointer
+routes must all exist. Maintain a visible convoy/readiness strip and Close.
+
+Do not steal the current UI when another member opens a toy. Invites are muted,
+optional notices, at most one per sender per 30 seconds; joining remains opt-in.
+A garage user can inspect a small session-score notice without losing a draft.
+The existing Friends overlay and ready notifications stay independently usable.
+
+At-meet avatar presentation must remain truthful: standing at a tabletop or using
+an overlay is not driving a second car. Disable conflicting avatar controls
+while the panel owns input, then restore them safely. Never publish private
+component selections or an account screen as a rich social activity feed.
+
+1.2 Ready is consent, not an activity lock
+
+Keep separate fields for ActivityIntent, local screen/presence, mode agreement,
+event readiness, applied loadout revision, and diversion participation.
+Examples of combined display:
+- 'Ready for S08 | Pocket Circuit'.
+- 'Not ready | Garage — testing a candidate'.
+- 'At meet | Cap Clash | Mode ready'.
+
+Entering, closing, changing, or spectating a diversion must NOT clear existing
+Mode Ready or Event Ready. A player may explicitly ready through its header if
+all ordinary eligibility/loadout checks pass. No toy may mark them ready itself.
+
+Existing rules still apply to real event changes: altered rules/course/roster
+invalidate the relevant agreement; applying a performance change invalidates
+that player's Event Ready and requires validation of the new build. Audio,
+accessibility, toy choices, and drawing changes do not modify the race proposal.
+
+A ready player may use the Test Yard with exactly their approved build in the
+read-only mode defined later. Testing or editing a different candidate first
+requires deliberately leaving Event Ready. Do not silently test one build while
+confirming an unrelated build under the same ready marker.
+
+Activity input counts as real interaction for existing Away detection; toy
+animations, synthesized inputs, automatic laps, or network heartbeats do not.
+A player who steps away can still unready voluntarily. No essential progression
+reward depends on remaining entertained, and quiet waiting is always acceptable.
+
+1.3 Main-event preemption
+
+When a mode transition or race allocation is actually committed with valid
+consent, the server suspends all active convoy diversions at an explicit state
+revision/tick boundary. Save current boards, tool operations, lap progress,
+model assembly, and scores. The primary start must NOT wait for:
+- a cap to stop sliding;
+- a reaction attempt, lap, task, or drawing to finish;
+- a minigame victory/result screen;
+- an absent participant's 'exit minigame' acknowledgement.
+
+Show a small 'Paused for the convoy — progress kept' notice. Do not add a second
+five-second departure countdown merely for a toy. The main event retains its
+normal validated load barrier, intro rules, and synchronized countdown.
+
+Already accepted toy actions before the pause boundary apply once; actions after
+it are rejected/deferred explicitly and cannot sneak into the frozen snapshot.
+Save position AND velocity for a moving cap or toy car, lap elapsed active time,
+completed steps and partial accepted assembly progress, and finalized strokes.
+A drawing currently being made is finalized through its last accepted point.
+An unsubmitted aiming drag is just a draft and may be restored as a draft.
+
+A transport acknowledgement and durable acceptance are distinct. Persist
+accepted discrete changes or a bounded recoverable journal; recover a moving
+object from its accepted input plus authoritative state. Do not require a
+multi-megabyte screenshot upload or replay serialization on the critical start
+path. A failed toy save uses the last verified snapshot and an honest warning;
+it must not falsely claim complete preservation or block a healthy race solely
+on an optional activity-service fault. Main account/service failures retain
+normal race-start safety rules.
+
+No global pause operation may stop the race server, other convoys, menu input,
+or the account/control connection. Suspend only the relevant toy simulations.
+
+1.4 Returning and resuming
+
+After an event, restore the prior boards, project and session records. Offer
+'Resume' rather than forcing all players back into their last toy. Moving toys
+remain frozen until an actual participant explicitly resumes that instance.
+A one- to two-second local reorientation cue can precede moving/timing input;
+there is no penalty or instant failure before the player has control again.
+
+For reaction cues that have already been revealed, restart that one unfinished
+micro-attempt with a new unrevealed cue and do not record a failure. Keep all
+completed attempts and cooperative progress. Explain this as an interruption,
+not a new game. For Pocket Circuit, preserve the partial lap and annotate a
+mandatory-resumed lap when relevant; do not claim it was uninterrupted.
+
+If only one participant closes a moving toy, suspend/park only their controlled
+piece where possible. Other participants continue. The shared board/project
+never requires everybody to return, and nobody's absent turn blocks it. When
+nobody is actively interacting, stop unnecessary simulation and visual work.
+
+After loading is canceled/aborted, allow the prior toy to resume with the same
+snapshot. A second start retry must not duplicate a cap, an assembly operation,
+a lap completion, a stroke, or a table occupant.
+
+1.5 Lifetime, membership and dormant rooms
+
+Use a stable ConvoySessionId and per-membership generation, separate from the
+leader's identity, leadership epoch, active race ID and toy-panel instances.
+Keep one saved board/state per authored layout, one active assembly project,
+a small completed-project shelf, the Canvas document, and bounded score history.
+
+Individual disconnect:
+- Remove active membership/readiness under Addendum 01, and release input/task
+  leases. Mark their toy seat dormant rather than erase its records.
+- Their accepted art and cooperative work remain. Suspend their slot car and
+  keep their last accepted cap position or safe pending-shot state.
+- Authorized rejoin to the same convoy restores the dormant toy identity without
+  spawning another piece. It does not restore Event Ready or a DQ race entry.
+
+Leadership transfer does not reset the toys. Rejoin grants still obey Addendum
+01's leadership-epoch rule: an old grant can become invalid even though the
+shared project survives. A fresh authorized invite to the same live session may
+restore the person's dormant toy data; possession of data is not authorization.
+
+Closing a panel, switching toy, spectating, moving to Garage, a race transition,
+or being temporarily disconnected is NOT an explicit departure from convoy.
+
+Explicit Leave/Forget Convoy, a kick, joining another convoy, or account
+revocation ends that membership's active toy participation. Remove/retire its
+physical cap or slot car at a safe revision, release leases, and remove queued
+actions. Keep already incorporated drawing/project contributions unless an
+explicit supported reset changes them. Do not destructively rewind everyone
+else's shared work. A new membership generation does not inherit stale input
+rights. Historical attribution is not a persistent account reward.
+
+Last person explicitly leaves, or leader explicitly disbands: terminate the
+session, explaining that its shared toys end. Offer ordinary viewing of already
+saved personal blueprints when those exist; do not silently export everybody's
+artwork or retain private room content forever.
+
+ALL members lost only to network disconnection: instead of immediate disband,
+mark the convoy Dormant for at most 24 hours, measured on the server from the
+loss of the last active member. Persist compact state and valid rejoin grants;
+release running simulation/meet/race resources. No active seat is reserved, no
+current race resumes driving, and no server process must run just for the toy.
+An explicit rejoin under normal authorization restores the room and starts a
+new active period. Background retries or a heartbeat alone do not renew expiry.
+Normal disband/revocation/leadership rules still apply. At expiry, invalidate
+membership grants and retire session data under the documented retention rule.
+This is the sole all-disconnected lifetime override to Addendum 01.
+
+Server restart recovery uses stored authorized state or reports unavailability;
+never fabricate a live convoy or restore a canceled race from toy metadata.
+Use bounded storage and compact old histories. Preserve current state rather
+than dropping active work to keep an unbounded list of old score announcements.
+
+Offline provides the same solo activities under the Local profile, with local
+atomic save/recovery, no fake remote players and no online wallet writes. Keep
+that personal workspace across offline races and app restarts until reset by its
+owner. Do not upload a Local board as authority over an Online convoy on Go Online.
+
+1.6 Economy, accessibility and performance boundaries
+
+All five toys are free to enter and available from initial ordinary menus. Do
+not lock them behind campaign completion, OST ownership, a paid car, or a toy
+currency. No entry fee, consumables, energy, wager, daily streak, battle pass,
+loot boxes, required achievements, or performance-part rewards.
+
+Session scores/crowns, an optional ephemeral nickname, the growing project, and
+shared creativity are enough. Toy events cannot satisfy any of the 75 mastery
+predicates, pay Credits, grant RP, set records for full-size courses, or unlock
+special rivals/OSTs. Use an explicit non-progression activity domain in code.
+
+Use the existing original Signal/Sector UI and sound palette with small tactile
+responses. Do not replace the game's soundtrack each time a toy opens. Keep
+boombox/menu mixing rules, local mute, motion reduction, readable contrast and
+color-independent player identification. No required audio-only timing cue.
+
+Reuse the game's network/session infrastructure and assets sensibly. Do not
+install another backend/provider or build a general-purpose minigame platform.
+Prioritize race/control traffic over drawing previews and toy snapshots. Cap
+message sizes/rates, queued actions, active simulations and memory. Stop hidden
+render targets/particles/audio. Report measured warm/cold opening and unload
+costs; 'instant' is not a substitute for measurements on the actual build.
+
+2. CAP CLASH — IMPLEMENTATION CONTRACT
+
+2.1 The toy
+
+An attractive, shallow, tabletop shuffleboard tray sits on a workshop bench.
+Caps use small cached livery/color samples from their owners' applied cars,
+with readable player marks. Do not change the user's real livery, use a full
+2048-pixel texture per cap, or let a paid car improve a cap's physics.
+
+Support one to six humans with one reusable active cap per participant. Each
+shot retrieves that player's own cap to a marked launch strip, never somebody
+else's. Aim direction and power with pointer drag or an equivalent stick/buttons
+control; show an optional guide and power limit. A physics-based, bounded planar
+slide with cap-to-cap contact and bank shots is required, not a random result.
+
+Use a maximum one-request-per-person shot queue. Players aim locally without
+holding a global lock. Submitting joins a serialized queue; when their turn
+arrives, show a brief reconfirm/cancel opportunity if the board changed enough
+to invalidate the preview. No response releases the queue within a few seconds.
+Bodies settle before the next shot unless a main event pauses them first.
+A disconnected, minimized, or closed panel must not hold a shooting lease.
+
+The default is a rolling contest, not a mandatory finite match. A target with
+10/25/50 zones makes the current board legible; 'closest cap now' and personal
+best shot distance are different metrics. A cap knocked out of the center loses
+its current-board crown but not its owner's historical best shot. Exact ties
+remain ties within the simulation/display tolerance. Falling off resets that
+cap to available-to-shoot, not a long elimination or a lost inventory item.
+
+No countdown forces another person to take a turn. Closing forfeits no currency,
+and races may preempt a cap while it is moving. A view-only participant can
+watch without joining the shot queue.
+
+2.2 Required content and solo/cooperative value
+
+Provide two saved arrangements:
+- 'Workbench Bullseye': broad center target, bumper rails, open risk/reward shots.
+- 'Toolbox Banks': intentionally arranged rubberized tool-shaped obstacles with
+  at least six authored bank-shot target configurations.
+
+Avoid a scale-accurate tool simulation. The bench should be visually charming,
+physically readable, and safe in its fictional setting; its objects are props.
+
+Solo: select reachable targets and improve accuracy/bank-shot consistency.
+Cooperative: fill a shared six-mark target card by completing distinct authored
+shots; any participant can contribute, including all six marks by one person.
+Competitive: compare current positions and session bests. No separate match
+allocation is needed when a second player joins. A target card is a checklist,
+not a card-game engine. Switching arrangement preserves its previous board and
+requires consent from the currently active table users; it never resets another
+occupied table behind their back.
+
+Pause snapshots contain cap IDs/owners, transforms, velocities, target/config
+revision, queued valid shots, scores and the last accepted command sequence.
+Test simultaneous submissions, late spectators, disconnection during a shot,
+collision resolution, resume from motion, and no ghost duplicate caps.
+
+3. PIT-CREW PROJECT — IMPLEMENTATION CONTRACT
+
+3.1 A cooperative thing that grows over the evening
+
+Provide a shared tabletop assembly project using original miniature components.
+It must visibly develop with each completed task; this is not a progress bar
+filled by repeated button clicks. One to six people can contribute in parallel.
+It is a toy project, not maintenance of real cars or a new crafting economy.
+
+Three required blueprints:
+- 'Night-Shift Coupe': an original miniature chassis, drivetrain silhouette,
+  body panels, cabin, wheels, lights, trim, and final decoration.
+- 'Cutaway Four': a fictional display engine showing staged block, crank/piston
+  elements, timing marks, pipes/wiring and a clear protective display cover.
+- 'Terrace Pit Diorama': a small car-meet/pit display with platform, fence,
+  lamps, miniature car, bench and signage/decorative elements.
+
+Each has at least 24 meaningful assembly operations across six recognizable
+interaction families: align/fit; rotate/index; controlled tightening; connect a
+short route; match timing/alignment marks; place finishing/decorative details.
+Use small forgiving sequences, generally 3–15 seconds per operation. Do not
+promise mechanical education or real torque specifications from fictional toys.
+
+A failed alignment or mistimed tightening attempts only retries that local
+operation. It must not destroy the model, consume currency, undo a friend's
+work or require a new item. No mandatory timer, durability, role assignment,
+'come back tomorrow', or online friend count to complete the blueprint.
+
+3.2 Parallel work and persistence
+
+Author a task-dependency graph with multiple independent branches, including at
+least six start-accessible tasks or subassemblies. Dependencies represent actual
+assembly logic, not time gates. Every task is doable by one person; multi-hand
+simultaneous button presses are not a requirement for the final steps.
+
+Claiming a task grants a short renewable interaction lease. Renew while actual
+interaction is in progress, not just while a window remains open. Idle,
+disconnected or preempted contributors release control; accepted partial
+progress remains. Another contributor can continue without stealing unsaved
+private input. Server orders claims and completion once by operation ID.
+
+Show who is working on which subassembly and readable cursor/tool indicators.
+Completed parts are authoritative shared facts; late joiners see the current
+model, not replay twenty minutes of animations. No need to network every hand
+bone or continuously serialize the full project mesh.
+
+Provide a bounded shelf of at least three finished session models with brief
+contribution credits. Nobody can discard an unfinished project with one click.
+A destructive reset requires the active contributors' explicit approval and a
+recoverable checkpoint. Starting another project after completion preserves the
+finished model, subject to an explained shelf limit; no forced reset on racing.
+
+The finished project is not a performance upgrade or an item in the paid garage.
+A new blueprint cannot unlock currency, RP, the 75 rewards, or story progress.
+Test two contributors finishing the same operation, interrupted progress, full
+solo completion, six-person parallel work, and a saved partial model surviving
+race and reconnect cycles.
+
+4. GREENLIGHT — IMPLEMENTATION CONTRACT
+
+4.1 Three immediately understandable variants
+
+'Lights Out': after a randomized unrevealed waiting interval, release/press the
+chosen control when the start-light cue changes. Show early/valid/missed states
+through shape/text as well as color and sound. No rhythmic fixed delay to memorize.
+
+'Shift Window': use a small stylized rev sweep and the player's configured shift
+input to land inside a marked window. Explain early/late and the achieved window;
+do not pretend this tiny training sweep measures the torque curve of their car.
+
+'Hold the Mark': hold/release to stop a moving needle near a target. It exercises
+controlled timing and can offer forgiving practice or a narrower voluntary
+challenge. No excessive flashing, mandatory repetitive mashing, or costly retry.
+
+Each supports individual attempts while showing friends' live attempt indicators
+and completed session results. For shared play, members can opt into the same
+short cue series, or contribute asynchronously to a convoy chain of clean
+attempts. Solo can complete the same chain; inactive members never block it.
+
+4.2 Timing honesty
+
+Separate measured local input timing from network delivery delay. Do not rank
+people by the order their packets reached the server. Present times as casual
+local timing estimates shared with the convoy; display/input latency can differ.
+Use supported high-resolution monotonic timing and actual input edges. Do not
+claim medical reaction assessment, tournament fairness, anti-cheat certainty,
+or timing resolution beyond the tested input/display path.
+
+The server sanity-checks attempt IDs, variant, legal sequence, plausible timing
+ranges, deduplicated submission, and participant identity. There are no economy
+consequences and no public ranked leaderboard requiring a new anti-cheat stack.
+Display a best and a recent five-attempt median where sufficient results exist;
+never invent five samples from one attempt. Unsupported local measurement can
+be labeled practice-only rather than produce misleading competitive numbers.
+
+Main-event preemption preserves completed results and chain progress. Restart
+an exposed but unfinished cue neutrally after resuming, with a fresh hidden delay.
+No failure for closing, pausing, or disconnecting. Do not hold the convoy for the
+completion of a five-attempt set. Distinguish genuine voluntary failed attempts
+from system interruptions. Provide adjustable cue size/contrast and alternative
+inputs without affecting actual driving controls globally.
+
+5. POCKET CIRCUIT — IMPLEMENTATION CONTRACT
+
+5.1 Mandatory tabletop slot-car play
+
+Implement a real, shared 3D tabletop slot-car toy with visible motion, bend
+risk, throttle control, lap timing and slip-off/reset behavior. A prerecorded
+animation, decorative track, six bot laps or a menu video does not satisfy it.
+
+Players use analog throttle or a smoothed digital hold. Release to reduce speed
+for corners. A small explicit toy model advances along the authored slot and
+uses speed/curvature to determine a readable grip threshold. Excessive speed
+causes a harmless de-slot and a quick return to the last safe point, not a
+catastrophic model breakup or automatic victory/loss of the whole session.
+
+This miniature on-rails model is intentional and isolated. Full-size race cars
+remain freely steerable under the existing main vehicle controller. Do not
+replace the racing game with slot-car physics or reuse toy lap times as records.
+
+Use miniature representations of the participants' applied cars/liveries where
+assets permit, with lightweight LODs. ALL toy cars have equal performance. Real
+parts, purchases, campaign ranks, aero kits and account bonuses cannot improve
+the toy. Initial generic miniatures are acceptable while the real cars load,
+but never a permanent substitute for the recognizable car presentation.
+
+Support one through six independently controlled lanes. Provide local response
+with authoritative bounded state correction for Online toy play. Holding input
+cannot continue indefinitely after disconnect or focus loss. No split-screen or
+extra controllers are required; six genuine clients must be demonstrated.
+
+5.2 Three required authored tabletop layouts
+
+- 'Workshop Oval': fast sweepers and one slow section teaching throttle release.
+- 'Coil Pass': a compact sequence of tightening curves and a change of elevation.
+- 'Midnight Figure Eight': an over/under crossing, contrasting corner radii and
+  a technical run back to the timing gantry.
+
+Aim for roughly 10–25 seconds for a clean lap as a tuning target, not a forced
+end to the activity. Each is an actual designed track with clear boundaries,
+slot geometry, reset points, camera visibility, audio and a finish gate. They
+are not extra full-size courses for the launch minimum.
+
+Equalize lane lengths and curvature demands as far as practical. Record the
+actual per-lane differences and validate a common-input/reference driving test.
+Raw times are compared only on the same lane/configuration; shared cross-lane
+comparison uses a disclosed lane-reference ratio when the geometry differs.
+No manufactured claim that an outside slot with a longer path is perfectly
+fair. Show both raw lap and normalized comparison, or separate lane bests.
+Switching lanes cannot retain an incompatible best as if it were comparable.
+
+5.3 No race-length trap
+
+Default to continuous, drop-in laps and a rolling session best/clean-lap count.
+Optional cooperative target: complete a collection of clean laps together.
+One player can fill every contribution; no waiting for a particular lane to run.
+Optional short head-to-head comparisons must still be interruptible and resumable;
+there is no second event queue, mandatory finish line, or compulsory restart.
+
+Only one layout need be actively simulated at a time for the convoy. Store all
+three layouts' boards/records so changing layout does not destroy a prior lap.
+Current active users explicitly consent to changing the table layout; the main
+convoy leader cannot repeatedly interrupt a table just by browsing menus.
+
+Mandatory preemption saves slot position, velocity, active lap timer, lap count,
+reset/de-slot markers, control state, participant identity, layout version and
+accepted sequence. Resume at the same point after an explicit short orientation
+cue. Time spent in the real race, paused, disconnected or reading a resume panel
+must not accrue to the toy lap. Restore input safely; do not suddenly apply a
+minute-old held throttle before the player regains control.
+
+Voluntary pause/closure midlap preserves the lap for practice but flags that lap
+as voluntarily paused, excluding it from uninterrupted session-best categories.
+A main-event interruption is labeled separately and cannot erase prior bests.
+A de-slotted lap is completed for fun but distinct from a clean-lap record.
+No disadvantage is applied to the main racing game for any toy outcome.
+
+Test individual dropout while others keep lapping, full-convoy pause midcorner,
+late join, layout change, lane fairness, full solo control, six real clients,
+and restoration without duplicated laps or a sudden full-throttle launch.
+
+6. CONVOY CANVAS — IMPLEMENTATION CONTRACT
+
+6.1 A real shared drawing surface
+
+Provide freehand drawing, not only selecting pre-made sticker buttons. Include
+pen/marker, line/shape tools, readable text, color/width, a small original stamp
+library, and a way to select/move/rotate/scale one's marks. Use controller cursor
+and grid/snapping support alongside pointer drawing. No external image upload,
+script execution, real-car-brand library, or new public content marketplace.
+
+The primary surface is a clean whiteboard with readable ink. Provide a second
+VIEW of the same artwork on an attractive separate display hood using stable
+UV projection. A flat editor remains available; drawing on a curved 3D surface
+must not be the only usable method. The preview hood is a toy/display object,
+not another member's owned car and not a mechanical performance item.
+
+Make it easy to doodle, write a silly garage slogan, sketch a corner, or combine
+stickers without opening the full vehicle-livery workflow. No theme prompt,
+judge, vote-to-win, entry fee or drawing ability test is needed.
+
+6.2 Multiplayer editing and recoverability
+
+Assign stable IDs and authorship to strokes/objects, with an authoritative
+operation order. Show unobtrusive named cursors. Stream bounded previews and
+commit meaningful stroke/transform actions, not whole textures per pointer move.
+An operation carries session/document/revision/member identity and a unique ID.
+Invalid numbers, excessive points, oversized text and malformed markup are
+rejected without crashing another client. Escape all displayed text.
+
+Each participant has at least 50 meaningful own-action Undo/Redo steps. Undoing
+one's stroke does not rewind somebody else's later stroke. Own-object erasing is
+the default. Editing a friend's object requires an explicit editable/shared
+permission, with short leases for transforms to avoid fighting over it.
+Covering a drawing with new doodles can be playful; silently deleting all of
+another person's work is not an acceptable default permission.
+
+Provide snapshots of the current document at safe intervals and before any
+whole-board clear. A full clear/reset requires an explicit proposal accepted by
+current active contributors; no countdown treats silence as acceptance. Keep at
+least one recoverable pre-clear checkpoint. Returning from a race is never Clear.
+Closing, disconnection, and leadership changes retain accepted work.
+
+Start with a compact vector model and a bounded budget (for example a 1 MiB
+compressed current document and 4,096 mark objects). Treat these as initial
+engineering budgets to measure, not permission to erase unnoticed strokes.
+When approaching a limit, compact compatible historical operations, offer a
+new sheet while preserving the old one, or explain the limit. Retain at least
+three session sheets with clear navigation and bounded revision history.
+Compression/decompression and input limits must also bound malicious payloads.
+
+The main-event pause finalizes an in-progress stroke at its last acknowledged
+point. Late packets must not paint onto a different sheet or an older epoch.
+The hood and whiteboard views render the same committed drawing after rejoin.
+An optional explicit 'use as my livery draft' may reuse existing authorized
+editor functionality, but is not required for this release and may never apply
+art to an owned car, spend money, or overwrite a visual preset automatically.
+
+7. POST-EVENT FLOW: CONTINUE OR SERVICE BREAK
+
+7.1 Resolve the group decision without a majority-rules race start
+
+After a campaign/event becomes terminal and player results are safely recorded,
+present an attractive shared decision strip on Results. Do not open a main
+continuation vote while somebody is still legitimately racing. A finished
+player's earlier safe menu access must not invalidate their earned finish.
+
+Choices:
+- 'Next Stage' for a valid forward campaign proposal.
+- 'Retry Stage' where the shared progression frontier requires a retry.
+- 'Next Event' / 'Return to Event Setup' for Freeplay, Challenges, or a Cup leg.
+- 'Garage / Need a Moment' as the service-break choice in every case.
+
+Exactly two principal decisions are shown: Continue to the specified next
+step, or Service Break. The Continue label explains the actual step rather
+than promising progression the server cannot grant. Keep spectate/review/
+leave options accessible as secondary actions where applicable.
+
+Record per-current-member Continue / ServiceBreak / Undecided with source
+result ID, roster revision and destination revision. Include the leader.
+This is destination consent, NOT consent to an unknown finalized event.
+
+Unanimous Continue enables the leader's explicit Advance action. On commit,
+revalidate roster, progress, permissions and destination; move to the correct
+map/briefing or fixed next Cup leg. Obtain/retain only the mode consent that
+still actually matches, avoiding a duplicate identical mode confirmation.
+Event Ready for the final course/rules/build is still required before Start.
+No automatic race because six people chose 'Next'.
+
+Any ServiceBreak immediately selects a shared service intermission. The
+requesting player can open Garage; others choose their own Garage, meet,
+record review, toy or quiet menu. Do not drag everybody through a forced shop
+animation, and do not label the requesting player as a troublemaker.
+
+Undecided is never Continue. After approximately 30 seconds, reduce the poll to
+a calm persistent status/intermission strip rather than flashing a punitive
+timer. No auto-ready, auto-kick, spending requirement or delay penalty. A player
+can change their choice before the leader commits; repeated changes are bounded
+against message spam but ordinary reconsideration is allowed.
+
+7.2 Returning from service
+
+Retain the proposed next stage/event and its readable preparation summary.
+People finish tuning, resolve or safely save their local drafts, and explicitly
+choose 'Ready to Continue'. Once all current members agree, the leader advances
+to that shared briefing. A ready player can keep playing an interruptible toy.
+Members who already chose Continue retain that still-valid DESTINATION consent
+through the service break; do not make them repeat it merely because somebody
+else opened Garage. That does not preserve obsolete Event Ready or approve a
+changed course/build/rules revision. The main-event start automatically pauses
+those toys under section 1.
+
+Requesting service means 'I need time', not 'everybody must remain in Garage'.
+No force-start can override an active member's refusal. A person genuinely
+leaving can explicitly leave the convoy; disconnect rules remain server-owned.
+
+Preserve useful consent when the proposal is unchanged. Do not reset mode
+agreement because someone opens Cap Clash, and do not count cosmetic or audio
+changes as altered race rules. Real roster/mode/eligible-frontier changes are
+new proposals; revalidate affected consents and explain the change once.
+
+7.3 Important cases
+
+- Mixed campaign outcomes: settle individual clears first. The next eligible
+  shared frontier may be the stage just attempted. Show who still needs it
+  neutrally; never skip them ahead or award a nonexistent completion.
+- Pending rewards/access: show settlement pending. Keep safe browsing/toys
+  available, but do not spend unsettled currency or assume a future unlock.
+- Normal finale: show campaign completion and Return/Hard availability. Do not
+  silently begin Hard; its explicit intent and all-member eligibility apply.
+- Hard finale: no nonexistent S31. Offer return, replay/selection and Freeplay.
+- Challenges: Continue returns to a real eligible selection or known authored
+  sequence; it does not invent a random challenge target.
+- Freeplay: existing direct/vote selection applies. A service vote is not a
+  substitute for the existing timed course ballot or finalized Event Ready.
+- Cup: preserve the schedule and Cup state across intermission. Enforce the
+  preannounced between-leg build restrictions. Testing a candidate is allowed
+  privately, but an illegal change cannot enter a build-locked Cup leg.
+- Leader disconnect/transfer: retain results, toys and proposed destination;
+  apply the existing leadership epoch and revalidate consent. No forced lobby
+  reset, replayed rewards or resurrection of a DQ entrant.
+- Solo: the same choices work immediately without a poll timer or fictitious
+  votes; direct confirmation still clearly identifies the next action.
+
+8. MEANINGFUL UPGRADES WHILE KEEPING A FAVORITE CAR
+
+8.1 Campaign balance contract
+
+Every one of the 18 authored models must have a legal viable build path for
+Normal and Hard; any starting car can remain the player's long-term project.
+Do not force buying a different make/model or losing a favorite livery. Preserve
+handling identity, drive layout and meaningful tradeoffs; upgrades should not
+turn every chassis into the same high-power all-purpose vehicle.
+
+At the same time, unchanged starter mechanical performance is not the intended
+whole-campaign solution. The curve must make real component improvements useful
+and normally necessary for representative players, not merely suggest buying
+cosmetics or turning an unused 'power' bar green.
+
+Use the existing four Normal acts as preparation bands. Target at least three
+substantial, affordable performance-build revisions across a starter's Normal
+journey, plus repeated route-appropriate tuning/loadout decisions. A meaningful
+workshop decision roughly every three or four regular stages is a pacing target,
+not an enforced stop, purchase quota or demand to buy a full new setup each time.
+Hard requires a well-developed car and further appropriate tuning/parts where
+needed; not an automatic reset or a second mandatory garage purchase.
+
+Initial direction: fundamentals such as tyres/braking/usable gearing first;
+stronger balanced T2/T3 combinations through later Normal acts; selective higher-
+tier parts for late/Hard goals where the tested economy supports them. Do not
+require top-tier parts in every slot. Use measured performance and the authored
+course/conditions, not part-price totals, to set reference builds and targets.
+
+Changing a part must affect actual acceleration, braking, corner response,
+traction, gearing, stability or another implemented parameter. Verify the
+tradeoff against the same input/controller conditions. Cosmetics and utility
+score bonuses cannot satisfy the mechanical development requirement.
+
+No hidden 'has spent X', installed-upgrade-count gate, compulsory replacement
+car, time lock, wear/damage bill, randomized part drop, or artificial downgrade
+of a skilled player's valid performance. An exceptional legal stock clear is
+not a bug to punish. The intended curve is established by representative
+calibration, not by rejecting an honest finish because it was too inexpensive.
+
+8.2 Budget and accessibility guardrails
+
+Preserve the existing Credits and parts ceilings, losing-finisher income,
+no-quit payout, server-owned transactions and the 15,000-RP budget. Do not fund
+required upgrades through toys, Test Yard farming, or free-preview loopholes.
+
+Model progression with ordinary race income, first clears, a realistic loss
+rate and optional cosmetics/course purchases. Recommended affordable builds
+must be purchasable before their targeted campaign demand. Show at least a
+low-cost incremental solution and a longer-term alternative where possible.
+
+Retain class-legal campaign loaners as a fallback against poverty/legality
+softlocks, not the default build used to claim 'your favorite car is viable'.
+The owned favorite-car route must work on its own. The loaner may have upgraded
+hardware that the player has not purchased; label it clearly and do not grant
+ownership. Do not remove this safety feature without a later user decision.
+
+8.3 Useful preparation feedback
+
+Results/next-stage briefing should give an interpretable driving problem:
+short straights and slow exits; wet braking; sustained cornering; repeated
+uphill acceleration; stability over crests; or top-speed gearing.
+
+Where evidence exists, use measured telemetry: repeated redline before braking,
+long braking distance on the test protocol, loss of traction under throttle,
+or inconsistent entry speeds. Separate driver technique from part capability.
+Do not claim a specific suspension flaw without measuring/modeling it. Use
+'possible cause / try comparing' where the diagnosis is uncertain.
+
+Suggested builds are explained options, never auto-purchases or an optimizer
+that replaces a player's taste. Link to the relevant subsystem, a saved loadout,
+a comparison, or the Test Yard. Offer stock/current/loaner/owned-car routes with
+honest compatibility and cost, not 'your car number is too low' alone.
+
+9. PER-CAR LOADOUTS, REFERENCES AND SAFE RESTORATION
+
+9.1 Scope and capacity
+
+Provide at least eight named MECHANICAL loadout slots PER OWNED VEHICLE INSTANCE,
+not eight globally and not one shared list for every car of the same model.
+Two owned instances of the same model have independent applied state, names and
+loadouts. Compatible blueprint copying can be explicit, but does not duplicate
+parts, ownership or a whole account.
+
+Retain at least five independent visual presets per owned car. Mechanical
+loadouts do not unexpectedly overwrite paint, decals, body appearance or a
+friend's suggested style. A race-preset shortcut may deliberately reference
+both a mechanical and a visual preset, but its composition is visible.
+
+Each mechanical loadout records stable car instance/model IDs, selected owned
+part IDs by slot, tuning values and version, mechanical utility choice,
+performance-relevant appearance components where applicable, derived PI/class,
+validated content/handling version, a note and last updated time. Store IDs,
+not array positions. Derived stats must be recomputed/validated after changes.
+
+Do not hide performance-relevant selections in the visual-only system. Purely
+visual changes leave mechanical setup intact. If a body/wheel/aero variant has
+an actual physics effect, its restore consequences are explicit and validated.
+
+Driving aids, input bindings, audio and accessibility settings are NOT silently
+changed by a loadout. Record them as test context where they affect performance;
+changing them requires their own normal settings action and record tags.
+
+9.2 Operations and state labels
+
+Support Save As, Rename, Overwrite with confirmation, Duplicate, Delete with
+confirmation, Compare, Load into Draft, and Apply. Show the current applied
+loadout, a dirty unsaved candidate, and last-raced reference distinctly.
+Examples of user labels: 'Wet Grip', 'Short Gears', 'Drift Setup', 'Boss Try'.
+Do not auto-populate empty slots with invented owned builds or confusing names.
+
+Allow up to three pinned mechanical presets per car in a quick selector on
+Garage and the event briefing when build changes are permitted. Show class/cap
+compatibility before selection. An owned legal preset can be applied as one
+whole-build action without reopening every parts category. Warn before replacing
+a dirty draft, never auto-buy missing parts, and invalidate only the relevant
+readiness. The selector cannot bypass a frozen event or build-locked Cup rule.
+
+Loading into Draft previews the full setup at once without spending or changing
+the active race build. Applying replaces the entire legal owned component/tune
+set atomically, not one frame or HTTP call per part. Show a compact delta list
+and resulting PI/class. Reusing already owned parts is free and does not consume
+them; maintain existing chassis compatibility and ownership rules.
+
+If an old/shared draft references a missing, unowned, locked, removed or
+incompatible part, show exactly which. Do not silently substitute stock, buy
+the missing items, mark ready with a partial build, or erase the saved preset.
+A legal stock fallback is a separate explicit choice. A blueprint may be saved
+as a planning draft with 'needs parts' status without granting ownership.
+
+9.3 Automatic recovery snapshots
+
+In addition to the eight user slots, maintain bounded protected references:
+- 'Before Workshop': the entire applied mechanical state on entry into this
+  editing session, until the player explicitly ends that workshop session or
+  accepts a new baseline. Testing, toys, temporary menu changes and a reconnect
+  do not silently replace this reference with the current experiment.
+- 'Before Last Apply': the prior applied state before the most recent successful
+  change. Updated only after a successful atomic apply, not on every preview.
+- 'Last Race Build': the exact frozen mechanical build actually used in the last
+  full-size event. Record it only when that player actually begins authorized
+  driving, not when a proposal is opened or a load fails. Testing, a slot-car lap,
+  or opening a menu never replaces it.
+
+Restore any reference through preview/validation and one deliberate Apply.
+A restore does not refund a legitimate purchase, unequip another car's items,
+remove ownership, rewind race results, change earned currency or overwrite
+livery. If a version change makes a reference invalid, preserve it with a clear
+repair explanation rather than deleting it or lying that restoration worked.
+
+Loadouts and protected references persist across normal restarts within their
+respective Local/Online profiles. Use atomic versioned writes and conflict
+checks for two clients editing the same car. A stale editor must not overwrite
+another device's accepted setup or spend a wallet twice.
+
+10. GARAGE TEST YARD — DRIVE IT BEFORE COMMITTING
+
+10.1 Required facility, not just a dyno animation
+
+Add 'Test Current' and 'Test Candidate' directly to Garage. The primary purpose
+is to FEEL the same car controller that will enter a race, not to watch animated
+stat bars or trust an automated lap. The player steers, accelerates, brakes,
+changes gear and drifts with their real control bindings and driving aids.
+
+Build one small, deliberately authored service facility. Reuse suitable tutorial
+assets/geometry if that creates a clear, independently accessible area; do not
+require replaying T00 or another lesson. It does not count as a 30th race course.
+
+Required elements:
+- A safe launch/braking straight, roughly 250–300 metres where practical.
+- A skid pad supporting left and right sustained turns and drift recovery.
+- A short slalom and a tightening/decreasing-radius corner.
+- A connected small loop with at least one elevation/camber change and a clear
+  return/reset point. Around 700–1,000 metres of connected driving is an initial
+  authoring target, not a mandatory race length or promise of top-speed testing.
+- Marked optional precision-stop boxes for 'Brake for the Box' style practice.
+- Dry and wet presets using the SAME material/grip rules as the corresponding
+  full-size conditions, with an explicit reset when the surface changes.
+
+No pedestrians, public-meet cars, traffic or friendly AI obstruct the test.
+No visible/mechanical damage, repair bill, entry fee, reward, official finish,
+championship progress or challenge completion. Local/offline entry works without
+an external server. Online testing remains private; it uses trusted configuration
+inputs but does not pretend local practice is a verified authoritative result.
+
+The full race course remains the definitive test: this compact yard cannot
+prove long high-speed stability, every surface, race traffic, all elevations,
+competitive performance or latency-dependent contacts. Label its limitations.
+Do not hide the player's option to later test on an already available full route.
+
+10.2 Same simulation and comparable conditions
+
+Use the same vehicle/controller code, tuning interpretation, steering/assist
+logic, physics step, collision shape and applicable surface parameters as the
+main game. Do not add hidden grip, artificial stabilization, a better input
+filter or a different arcade model just to make the showroom demo attractive.
+Keep visual toy physics strictly separate from this full-size car test.
+
+Initialize all test variables that affect feel consistently: build hash,
+physics/content version, surface/weather preset, start position and direction,
+velocity, wheel/contact state, relevant temperatures/loads if modeled, camera,
+input device and enabled assists. Report frame/input/network-context differences
+instead of claiming a private local run predicts online latency perfectly.
+
+Useful optional overlay: speed/gear, braking/acceleration timing, slip-angle
+estimate, steering/throttle/brake traces, start/stop distance, and clean slalom
+or corner-exit results when actually measured. Never fabricate top speed from a
+straight that is too short; show 'not reached in this test length'.
+
+10.3 A/B comparison without losing the good setup
+
+A = selected baseline, normally Current Applied or Last Race Build.
+B = the candidate currently in the Garage draft, including all chosen parts
+and tuning. Freeze both references for the comparison so changing a library
+preset elsewhere does not silently alter the active test.
+
+Allow quick switching with a clear 'Reset and drive A/B' action. Switch only at
+a stopped safe state or by explicitly resetting to the same start; never swap
+mass/tyres/gearing at speed midcorner. Clear transient dynamics consistently.
+
+Preserve separately labeled A/B observations and at least the last three valid
+runs for each in the current comparison. Different conditions/assists/version
+are incomparable by default; do not display a misleading percentage improvement.
+Keep a qualitative notes field and 'prefer A / prefer B' marker locally; subjective
+feel must not be overruled by one generated composite score.
+
+The user can change a component/tune, return to the yard, and compare again
+without navigating a long inventory or losing the baseline. Back returns to
+Garage with the candidate intact. Provide 'Apply candidate', 'Keep as draft',
+'Restore baseline', and normal loadout actions with clear consequences.
+
+10.4 Test before purchase
+
+Allow candidate previews of compatible, currently shop-unlocked parts the player
+does not yet own, including an unaffordable but visible part. Label them
+'Preview only — not owned'. No purchase, debit, reward or online entitlement
+occurs merely by selecting Test. Hidden/locked story equipment need not be exposed.
+
+Use actual part parameters and appearance where relevant. After testing, present
+the exact missing-part list and cost. 'Buy and Apply' requires an explicit quote
+and confirmation; recheck wallet, price revision, availability, compatibility
+and ownership at the authoritative transaction. Owned parts must not be bought
+again. Failure leaves the original applied car intact and the planning draft
+available. Repeated requests cannot charge or grant twice.
+
+A preview car cannot enter a public meet as an owned build, join a race, satisfy
+a mastery predicate, generate a verified record, or persist as unlocked inventory.
+The client cannot remove a 'preview' flag to convert it into a legal car; the
+server independently reconstructs/validates accepted race and display builds.
+
+Trying alternatives is free. This is not a rental economy, another currency,
+an account credit line, a refunded auto-purchase, or timed paid test access.
+
+10.5 Convoy behavior and safe interruption
+
+Garage editing and candidate testing are preparation, not a hidden race. Show
+'Garage — testing candidate' as actual activity while retaining Intent. The
+player remains unready for any event whose validated build they are changing.
+Others can use the five toys; no one gets pulled into the Test Yard with them.
+
+A separate 'Test ready build' path is read-only: use EXACTLY the currently
+accepted applied build, no component swap, no candidate/performance edits. The
+player can remain Event Ready, with clear warning that the main launch interrupts
+practice. Opening a different candidate prompts the deliberate Unready action
+before doing so. Never invalidate the whole convoy solely for a local test.
+
+On valid event allocation, return that read-only tester automatically to the
+main loading flow. Preserve useful local test notes, clear input, release the
+private test vehicle/scene, and enter the frozen accepted race build. No mandatory
+lap completion, park-back animation, exit dialogue or test results screen.
+Do not mark Main Load Ready until the real track/player state is actually ready.
+
+Candidate drafts do not have to be discarded to enter a mode selection screen:
+store them without applying and obtain explicit appropriate consent. They cannot
+be silently applied on selection, queue resolution or start. All real purchases
+must already have reached an authoritative outcome before claiming race legality.
+
+10.6 Loading and resource budgets
+
+The normal Garage shell and control/presence connection stay alive. Use compact
+assets, caching and a private/additive test scene or another appropriate existing
+Unity technique. Verify the selected method against the installed engine and
+actual project; no assumption that scene-loading calls alone isolate physics.
+
+A warm open/close target of roughly two seconds and a small bounded cold load
+are goals to measure, not universal performance claims. Show real progress when
+needed; allow cancel safely. Test from the standalone player, not only a warmed
+Editor. Avoid loading a whole full-size region for a slalom or keeping all five
+toy renderers alive beneath the Test Yard.
+
+After repeated A/B resets and Garage returns there must be no accumulating cars,
+colliders, AudioSources, render textures, event subscriptions or input handlers.
+Incoming readiness/convoy messages remain responsive throughout the load. No
+second player-controlled full-size car may leak into the networked world.
+
+11. NETWORK, DATA, AND INTEGRATION REQUIREMENTS
+
+Use existing authenticated control/game services. Suggested concepts below are
+schemas/state responsibilities, not permission to create an abstract platform:
+- DowntimeSession: convoy/session ID, version, lifecycle, pause generation,
+  last durable revision, dormant expiry and current membership mapping.
+- ActivityParticipation: account/membership ID, toy/layout ID, active/dormant/
+  retired status, control/lease state and local-view preferences.
+- ToyCommand: activity/epoch/member/sequence/unique request ID, validated payload.
+- CapBoardState; AssemblyProjectState; GreenlightAttempt; PocketCircuitState;
+  CanvasDocument and bounded history.
+- PostEventDecision: source result, roster/destination revision, per-member
+  choice, service/continue state, expiry-to-quiet-presentation only.
+- MechanicalLoadout; GarageDraft; AppliedVehicleBuild; protected BuildReference;
+  TestSessionContext; ABComparison; PurchaseAndApplyQuote.
+
+Online physical-board/project state is authoritative and ordered by an existing
+appropriate service. Toy code can be a small shared simulation library hosted
+by a suitable existing process; do not run full vehicle physics in the database
+or add a new external cloud product. Locally predicted toy visuals reconcile to
+accepted state. Never rely on bit-identical cross-platform physics as a substitute
+for an actual protocol. Reaction timing has the explicit casual-local exception
+and labeling defined above; no economic trust is placed in it.
+
+Separate toy session records, private practice measurements and official race
+results in types, endpoints and settlement. A spoofed result-kind string cannot
+reach the wallet/RP pipeline. Membership, payload, sequence and rate checks are
+server-side; hiding a button is not access control. Canvas text is data, not UI
+markup/code. Spectators can observe but cannot submit controls as another driver.
+
+Version client/server/content together where contracts change. Migrate existing
+presets by stable car IDs, retain old documents and legitimate owned parts, and
+add safe defaults. An eight-slot upgrade cannot discard older named presets if
+an existing build already supports more. Do not wipe Local or Online profiles,
+regenerate scene GUIDs, or reinterpret old race receipts to avoid migrations.
+
+Keep the current applied build separate from drafts, preview tests, toy-car
+appearance and an allocated race snapshot. Never read whichever mutable Garage
+object happens to be open when a server asks for its vehicle definition.
+
+Persist compact recoverable snapshots across restarts/dormancy. Input/transform
+previews may be transient; finalized user work has a clear acceptance boundary.
+Bound operation logs, queues and caches, then compact them without sacrificing
+active content. Error recovery must not replay purchases, grant parts twice or
+silently turn an Online car into an offline-owned one.
+
+12. ACCEPTANCE MATRIX — ACTUAL INTERACTION AND INTERRUPTION EVIDENCE
+
+Record source/build/protocol versions, participant process identities, local vs
+remote network conditions, real tool results and observed limitations. Each item
+below needs a test or clearly labeled manual verification; a method name or a
+mocked callback is not proof of functionality. Reuse prior valid tests and extend
+them rather than deleting failing assertions to fit new behavior.
+
+A. Inclusion and accessibility
+A01. All five toys are visible, usable and distinct in a standalone build.
+A02. Every toy works solo without another human, paid unlock, bot impersonating
+     a friend, mandatory match duration or network account in Local mode.
+A03. Two independently connected clients genuinely affect/observe the same toy.
+A04. Six clients participate, with compatible late join/spectate/leave behavior.
+A05. Controller, keyboard and pointer routes work; reduced motion and non-audio
+     cues retain essential feedback; focus returns without held driving input.
+A06. Entry from Garage/menu and a meet prop reaches the same convoy state.
+A07. A public non-convoy visitor cannot edit that convoy's toys or private drafts.
+A08. Disabling toy notices or simply ignoring the feature has no game penalty.
+
+B. Preemption, consent and persistence
+B01. Split six members across two toy tables, Canvas, assembly and Garage work;
+     verify independence and truthful status/readiness reporting.
+B02. Enter/exit/change toys while Mode Ready and Event Ready; consent is retained
+     when event and build have not changed, and no toy auto-readies a member.
+B03. Start from an all-ready convoy with a cap moving, a slot car midcorner,
+     a project task in progress and a drawing in progress. All relevant state
+     suspends without waiting for a finish or adding an exit acknowledgement.
+B04. Resume after the real event; compare transforms/velocities, lap active time,
+     finished attempts, accepted task progress and drawing hash to saved state.
+B05. Inputs at/before/after pause boundary are applied at most once to the correct
+     epoch; delayed packets cannot mutate a resumed/different activity instance.
+B06. Abort main loading and retry. No duplicated cap/car/task/stroke or lost board.
+B07. Disconnect one participant while others continue; authorized rejoin restores
+     its state but not Event Ready or a disqualified full-size racing entry.
+B08. Transfer leader while toys exist. State survives; old rejoin grants still
+     obey the changed leadership epoch and require new authorization if invalid.
+B09. All clients disconnect: dormant snapshot/grant lifetime is correctly bounded
+     at 24 hours; explicit authorized rejoin restores no running race. A heartbeat
+     alone cannot renew expiry. Explicit disband/last voluntary leave ends it.
+B10. Joining a different convoy cannot mutate the previous board. Old member
+     commands are rejected; accepted collaborative artwork is not erased.
+B11. A slow/failed toy snapshot subsystem cannot deadlock healthy main launch;
+     restoration limitations are surfaced rather than falsely claiming no loss.
+B12. Restart relevant services with saved state; use verified recovery or honest
+     unavailability, not a fabricated session. Local toys survive a local restart.
+
+C. Individual toy contracts
+C01. Cap Clash bank/contact/target scoring is produced by the actual simulation;
+     simultaneous shots serialize, queue cancellation works and idle users do not
+     hold the table indefinitely. Both arrangements and solo/co-op targets work.
+C02. Every assembly blueprint can be completed alone; six people can contribute
+     in parallel. Conflicting claims, interrupted leases and duplicate completion
+     messages do not duplicate parts or consume anybody's game inventory.
+C03. The completed-model shelf and partial projects survive race transitions;
+     an unapproved reset does not destroy another person's ongoing project.
+C04. All Greenlight variants accept actual inputs, measure/label local timing
+     honestly, distinguish false starts and interruption, and do not rank by
+     packet-arrival order. A chain is not blocked by an absent participant.
+C05. Pocket Circuit has three playable layouts, real throttle/bend/de-slot
+     behavior, independent clients, a fair labeled lane comparison and persisted
+     laps. Purchased real-car parts confer no toy advantage.
+C06. Closing a slot-car view parks only that player's input; other lanes continue.
+     Preempted/voluntarily paused/de-slotted laps are categorized correctly.
+C07. Canvas supports simultaneous actual freehand drawing; own Undo/Redo does
+     not undo a friend's action. Text, long strokes and oversized payloads fail
+     safely; both flat and hood views use the same accepted document.
+C08. Canvas whole clear requires consent and has a recovery snapshot. Lost packets,
+     rejoin and preemption cannot paint on a different sheet or resurrect deletes.
+C09. Calling a toy/test result endpoint cannot award Credits/RP, complete a main
+     challenge, unlock a soundtrack, or create an official course record.
+
+D. Results and service flow
+D01. Five Continue plus one Service Break yields intermission, never a 5–1
+     forced race. Other players can choose toys/meet rather than forced Garage.
+D02. All Continue merely enables leader Advance into the relevant valid briefing;
+     final Event Ready and real load barrier/countdown are still required.
+D03. Silence does not consent. The soft presentation timeout creates no ready,
+     kick, penalty or lost result. A changed vote before commit is handled once.
+D04. Mixed stage clears preserve the limiting frontier, correct Retry/Next label,
+     personal rewards and story progression. No unearned stage flags.
+D05. Finales, failed events, retry, Freeplay vote flow, challenges and Cup legs
+     have real valid destinations; no S31 or forced Hard campaign.
+D06. Disconnect/leader transfer/roster change at vote or commit revises consent
+     safely, retains the toys, and does not repeat reward settlement.
+D07. Service return preserves candidate drafts, Next intent and user independence;
+     only the changes that invalidate agreement actually do so.
+
+E. Loadouts and purchases
+E01. Two owned instances of the same model have eight independent mechanical
+     slots each, at least five visual slots, and the three automatic references.
+E02. Save/rename/duplicate/delete/compare/whole-apply/restore work without losing
+     parts, changing livery unexpectedly, charging for owned parts or overwriting
+     Last Race Build with a toy/test run.
+E03. A missing/incompatible item produces an exact repair list. No silent partial
+     apply or unauthorized purchase. Successful full apply is atomic and versioned.
+E04. Restore Before Workshop after several experiments, Before Last Apply after
+     an accepted change, and Last Race Build after a bad test. Verify actual
+     components/tuning, not only names/stat labels. Restoring does not refund money.
+E05. Legacy profile migration preserves existing named presets/ownership and adds
+     safe defaults. Two editing clients cannot silently overwrite one another.
+E06. Buy and Apply under duplicate/retried requests, a price change, insufficient
+     funds, a disconnect and a server restart settles at most once with intact
+     applied state. Unowned previews cannot bypass server race/meet legality.
+
+F. Garage testing and progression
+F01. The standalone Garage opens an actual driveable Test Yard with the complete
+     straight/pad/slalom/corner/loop, both surfaces, and normal controls/cameras.
+F02. Candidate/Baseline use the same main controller and documented context.
+     Telemetry observes real driving; unsupported top speed/diagnoses are not faked.
+F03. A/B reset has matched starts/dynamics and clearly tagged observations. No
+     high-speed hot swap, accidental global assist change or mislabeled comparison.
+F04. Test at least one unowned/affordable, one unowned/unaffordable and one locked
+     component case. Testing never debits, grants ownership or publishes a build.
+F05. Online candidate tester stays unready; read-only approved-build tester can
+     remain ready and be interrupted into the real race without changed physics,
+     stuck input, preview components or duplicate network cars.
+F06. All usual toy/service/convoy notices remain responsive during yard entry/exit.
+     Test cold/warm loads and cancellation in Editor and standalone separately.
+F07. Repeated test/preset swaps and scene changes do not leak objects, listeners,
+     render textures, audio, colliders or grow latency unboundedly.
+F08. Drive upgraded versions of all three starters through representative early,
+     mid, late and Hard gates with real legal inputs; provide a complete starter
+     progression run and affordability evidence. Never prove it by writing clears.
+F09. Validate all 18 cars' legal favorite-car upgrade paths and required content;
+     sample actual driving per handling family, mark remaining full human runs
+     honestly. No compulsory model change disguised as a tuning recommendation.
+F10. Compare unchanged starter hardware with the intended developed build under
+     the same repeatable inputs/conditions. Demonstrate meaningful mechanical
+     change and progression pacing rather than a purchase-count gate.
+F11. Confirm the 29 full courses, campaign stages, 75 challenge/reward pairs,
+     twelve full-size entrants, six humans and 15,000 mastery maximum remain
+     correct. Miniatures and the Test Yard inflate none of those content counts.
+
+13. IMPLEMENTATION ORDER, EVIDENCE AND CONTINUATION
+
+At ingestion preserve current work, map supersessions and update requirements,
+CLAUDE.md, HANDOFF.md, VALIDATION.md and the existing review feed if present.
+Mark which old tests remain valid and which contracts changed. Do not spend the
+assignment rewriting already complete prose or rebuilding a working foundation.
+
+Suggested integrated order (checkpoints, not separate assignments):
+1. Extend readiness/preemption/session and build/draft boundaries early. Establish
+   protected mechanical references and the Continue/Service Break state model.
+2. Deliver a useful Garage Test Yard and working A/B loadout loop on the current
+   representative vehicle/controller, alongside the main driving/network work.
+3. Prove one real shared toy interrupted by a real convoy start and restored
+   afterward. Then implement every other approved toy, including Pocket Circuit.
+4. Tune progression/build recipes with real measurements and the actual economy;
+   extend loadout/testing/visual coverage coherently across the car catalogue.
+5. Integrate full content, service/meet/menu access, offline persistence, QA and
+   release builds. Complete all five toys before calling the revised release done.
+
+Do not make five polished toys while neglecting the authoritative racing spine,
+nor defer these accepted features indefinitely as 'nice to have'. Work through
+the existing multiplayer and content gates with the new interfaces accounted
+for. A tool interruption or limited usage is not a scope reduction.
+
+Checkpoint after meaningful milestones and before risky/long operations. Aim
+for no more than roughly 10–15 minutes of substantive unpushed work at safe
+boundaries. Verify remote commit SHAs and necessary LFS objects. Keep source,
+locally committed source, verified remote state, built player/server artifacts
+and actually tested revisions distinct. Label WIP checkpoints accurately.
+
+No purchases, new paid services, billing changes, public deployment, force-push,
+main merge, destructive history/asset reset, new competing worktree/editor,
+public Unity control endpoint, or unrelated project edits are authorized.
+Ask only for genuinely necessary missing credentials/permissions/tools; continue
+independent safe work and document exact blocked acceptance tests honestly.
+
+Deliver updated source/assets, playable Windows build and relevant service
+updates, migrations/config defaults, actual screenshots/short clips of each
+required toy and Garage A/B flow, before/after restore evidence, targeted
+network/interruption tests and updated run instructions. Images must be from
+the working game, not concept art used as proof. Separate local simulation,
+real multi-client tests, WAN tests, human handling feedback and unverified claims.
+
+FINAL ACCEPTANCE PRINCIPLE
+A waiting player can choose something genuinely fun, stay ready, and leave it
+instantly without losing the evening's progress. A tuning player can save what
+works, feel what might work, restore what did work, and enter the next race
+with an informed choice. Neither person becomes a hostage to the other's UI.
+
+Read, reconcile at a safe checkpoint, implement, test, preserve, and continue
+through the complete revised Night Signal assignment.
