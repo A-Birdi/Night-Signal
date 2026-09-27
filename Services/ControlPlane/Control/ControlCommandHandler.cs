@@ -5,6 +5,7 @@ using NightSignal.ControlPlane.Convoys;
 using NightSignal.ControlPlane.Matches;
 using NightSignal.ControlPlane.Persistence;
 using NightSignal.ControlPlane.Security;
+using NightSignal.ControlPlane.Toys;
 using NightSignal.Core.Content;
 using NightSignal.Core.Rules;
 
@@ -19,14 +20,23 @@ public sealed record Reply(string? RequestId, bool Ok, object? Result = null, Co
 /// </summary>
 public sealed class ControlCommandHandler(ConvoyDirectory directory, IPlayerStore store, ISocialStore social, ContentService content,
     MatchAllocator allocator, TicketIssuer tickets, IConvoyNotifier notifier, RateLimiter limiter, TimeProvider clock,
-    IHostApplicationLifetime lifetime, ILogger<ControlCommandHandler> log)
+    IHostApplicationLifetime lifetime, ILogger<ControlCommandHandler> log, ToyService toys)
 {
     static readonly TimeSpan ReplyRetention = TimeSpan.FromMinutes(10);
     readonly ConcurrentDictionary<string, (DateTimeOffset At, Lazy<Task<Reply>> Reply)> replies = new();
     int callsSincePrune;
 
     /// <summary>Requests that read state only; they are never cached by requestId and do not count as user interaction.</summary>
-    public static readonly string[] ReadOnlyTypes = { "ping", "convoy.state", "convoy.list", "rejoin.status" };
+    public static readonly string[] ReadOnlyTypes = { "ping", "convoy.state", "convoy.list", "rejoin.status", "toy.snapshot" };
+
+    /// <summary>
+    /// Requests with their own exactly-once rule and a high rate (toy commands: Core's per-member request id inside the
+    /// convoy session). They count as interaction but bypass the reply cache, which would otherwise fill with toy input.
+    /// </summary>
+    public static readonly string[] SelfIdempotentTypes = { "toy.command" };
+
+    /// <summary>Replies that can be large and are sent on the connection's low-priority lane (after race/control traffic).</summary>
+    public static readonly string[] LowPriorityReplyTypes = { "toy.snapshot" };
 
     sealed record CreatePayload(string? Privacy);
     sealed record JoinPayload(string? Code, string? ConvoyId, string? InviteId);
@@ -54,7 +64,7 @@ public sealed class ControlCommandHandler(ConvoyDirectory directory, IPlayerStor
     {
         if (requestId is { Length: 0 or > 64 })
             return new Reply(requestId, false, Error: new ConvoyError("invalid_request", "requestId must be 1–64 characters."));
-        if (ReadOnlyTypes.Contains(type) || requestId is null)
+        if (ReadOnlyTypes.Contains(type) || SelfIdempotentTypes.Contains(type) || requestId is null)
             return await ExecuteSafeAsync(accountId, type, requestId, payload, ct);
 
         if (Interlocked.Increment(ref callsSincePrune) % 256 == 0) Prune();
@@ -155,6 +165,12 @@ public sealed class ControlCommandHandler(ConvoyDirectory directory, IPlayerStor
                 return await SetLoadoutAsync(a, Read<LoadoutPayload>(payload), ct);
             case "diversion.set":
                 return directory.SetDiversion(a, Read<DiversionPayload>(payload).Toy);
+
+            // ---- 'While We Wait' toys (Addendum 02 §1, §11): never touch readiness, proposals or the economy
+            case "toy.command":
+                return toys.Command(a, payload);
+            case "toy.snapshot":
+                return toys.Snapshot(a, payload);
 
             // ---- post-event Continue / Service Break (Addendum 02 §7)
             case "postevent.choose":

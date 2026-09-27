@@ -55,6 +55,42 @@ namespace NightSignal.Vehicle
             return p;
         }
 
+        /// <summary>
+        /// Parameters for a resolved build (Core/Builds): the resolver's adjusted car + tuning go through the same
+        /// physical rules as stock, then the chassis adjustments scale gearing, brakes, springs/dampers/anti-roll, ride
+        /// height and tyre curve. A stock build is identical to <see cref="Build(CarDef, CarTuningDef, AssistSettings, float)"/>
+        /// (EditMode parity test). Utility parts never reach the simulation.
+        /// </summary>
+        public static VehicleParams Build(Core.Builds.ResolvedCarSpec spec, AssistSettings assists, float wheelRadius = 0.31f)
+        {
+            if (spec == null) throw new ArgumentNullException(nameof(spec));
+            VehicleParams p = Build(spec.Car, spec.Tuning, assists, wheelRadius);
+            Core.Builds.ChassisAdjustments c = spec.Chassis;
+            p.FinalDrive *= (float)c.FinalDriveScale;
+            float top = p.GearRatios[p.GearRatios.Length - 1];
+            for (int i = 0; i < p.GearRatios.Length; i++)
+                p.GearRatios[i] = top * Mathf.Pow(p.GearRatios[i] / top, (float)c.GearSpreadScale);
+            p.ReverseRatio = p.GearRatios[0] * 1.05f;
+            p.ShiftSeconds *= (float)c.ShiftSecondsScale;
+            p.BrakeForceN *= (float)c.BrakeForceScale;
+            p.BrakeFrontBias = (float)c.BrakeFrontBias;
+            p.SpringFront *= (float)c.SpringScaleFront;
+            p.SpringRear *= (float)c.SpringScaleRear;
+            p.DamperFront *= (float)c.DamperScaleFront;
+            p.DamperRear *= (float)c.DamperScaleRear;
+            p.AntiRollFront *= (float)c.AntiRollScaleFront;
+            p.AntiRollRear *= (float)c.AntiRollScaleRear;
+            p.CgHeightM += (float)c.CgHeightOffsetM;
+            p.RestLengthM += (float)c.RestLengthOffsetM;
+            p.MaxCompressionM += (float)c.MaxCompressionOffsetM;
+            p.PeakSlipDeg = (float)c.PeakSlipDeg;
+            p.SlideGripFraction = (float)c.SlideGripFraction;
+            p.SlideFalloffDeg = (float)c.SlideFalloffDeg;
+            p.PowerSlideGripLoss = (float)c.PowerSlideGripLoss;
+            p.AeroFrontShare = (float)c.AeroFrontShare;
+            return p;
+        }
+
         static EngineFamily ParseFamily(string f)
         {
             switch (f)

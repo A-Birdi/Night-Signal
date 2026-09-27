@@ -387,7 +387,7 @@ namespace NightSignal.Net
         void NoteAck(int snapshotTick, int ackTick)
         {
             if (ackTick < 0) return;
-            if (snapshotTick >= startTick) MinInputLeadTicks = Mathf.Min(MinInputLeadTicks, ackTick - snapshotTick); // racing ticks only
+            if (snapshotTick >= startTick && OwnStatus == EntrantStatus.Racing) MinInputLeadTicks = Mathf.Min(MinInputLeadTicks, ackTick - snapshotTick); // own racing ticks only
             if (ackTick <= lastAckTick) return;
             lastAckTick = ackTick;
             int slot = ackTick & 255;
@@ -502,6 +502,14 @@ namespace NightSignal.Net
                 nm.Shutdown();
             }
             controls?.Dispose();
+            controls = null;
+        }
+
+        /// <summary>Interactive clients return to the menus after a race: leave nothing connected or on screen.</summary>
+        void OnDestroy()
+        {
+            Disconnect();
+            if (hud != null) Destroy(hud.gameObject);
         }
     }
 }

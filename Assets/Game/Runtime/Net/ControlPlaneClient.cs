@@ -24,6 +24,10 @@ namespace NightSignal.Net
         readonly ConcurrentDictionary<string, TaskCompletionSource<JObject>> pending = new ConcurrentDictionary<string, TaskCompletionSource<JObject>>();
         readonly ConcurrentQueue<JObject> inbox = new ConcurrentQueue<JObject>();
         int nextRequest;
+        // Request ids must be unique across client sessions: the control plane replays a cached reply for the same
+        // (account, type, requestId) for 10 minutes so retransmits stay idempotent. A counter restarting at "r1" in a new
+        // process got the PREVIOUS process's replies (found in a real 6-client run: convoy.create returned an old convoy).
+        readonly string requestPrefix = Guid.NewGuid().ToString("N").Substring(0, 16);
         string accessToken;
 
         public string AccountId { get; private set; }
@@ -33,6 +37,14 @@ namespace NightSignal.Net
         public event Action<JObject> ReadyRequested;
         public event Action<JObject> MatchAllocated;
         public event Action<JObject> MatchAborted;
+        /// <summary>convoy.notice {code, message}: shown once per event.</summary>
+        public event Action<JObject> Notice;
+        /// <summary>Server-owned RejoinStatus (from hello and rejoin.status pushes); never inferred locally.</summary>
+        public JObject RejoinStatus { get; private set; }
+        public event Action<JObject> RejoinChanged;
+        /// <summary>convoy.closed {convoyId, reason}: this account is no longer in that convoy.</summary>
+        public event Action<JObject> ConvoyClosed;
+        public bool Connected => socket != null && socket.State == WebSocketState.Open;
 
         public ControlPlaneClient(string baseUrl)
         {
@@ -77,7 +89,7 @@ namespace NightSignal.Net
         /// <summary>Sends a request and awaits its reply; throws on error replies.</summary>
         public async Task<JToken> Request(string type, object payload = null)
         {
-            string id = "r" + Interlocked.Increment(ref nextRequest);
+            string id = requestPrefix + "-" + Interlocked.Increment(ref nextRequest);
             var tcs = new TaskCompletionSource<JObject>(TaskCreationOptions.RunContinuationsAsynchronously);
             pending[id] = tcs;
             var envelope = new JObject { ["type"] = type, ["requestId"] = id, ["payload"] = payload != null ? JObject.FromObject(payload) : new JObject() };
@@ -140,6 +152,21 @@ namespace NightSignal.Net
                             ConvoyState = payload;
                             ConvoyChanged?.Invoke(payload);
                         }
+                        break;
+                    case "hello":
+                        RejoinStatus = payload?["rejoin"] as JObject;
+                        RejoinChanged?.Invoke(RejoinStatus);
+                        break;
+                    case "rejoin.status":
+                        RejoinStatus = payload;
+                        RejoinChanged?.Invoke(payload);
+                        break;
+                    case "convoy.notice": Notice?.Invoke(payload); break;
+                    case "convoy.closed":
+                        ConvoyState = null;
+                        ConvoyRevision = -1;
+                        ConvoyClosed?.Invoke(payload);
+                        ConvoyChanged?.Invoke(null);
                         break;
                     case "ready.requested": ReadyRequested?.Invoke(payload); break;
                     case "match.allocated": MatchAllocated?.Invoke(payload); break;

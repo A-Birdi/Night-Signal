@@ -88,6 +88,15 @@ namespace NightSignal.Track.Generation
                         float wx = min.x + x * step - p.x, wz = min.y + z * step - p.z;
                         float d2 = wx * wx + wz * wz;
                         int k = z * HeightRes + x;
+                        int other = nearIdx[k];
+                        if (other >= 0 && OverlapsAtAnotherLevel(all[si], d2, all[other], nearD2[k]))
+                        {
+                            // Two stretches of road cross here at different heights (an overpass, a two-level bridge):
+                            // the terrain follows the LOWER road; the upper one is carried by its deck, never by a hill
+                            // (C03's overpass buried the road below it in terrain — found by the course sweep).
+                            if (p.y < all[other].Position.y) { nearD2[k] = d2; nearIdx[k] = si; }
+                            continue;
+                        }
                         if (d2 < nearD2[k]) { nearD2[k] = d2; nearIdx[k] = si; }
                     }
                 }
@@ -171,6 +180,14 @@ namespace NightSignal.Track.Generation
             go.AddComponent<SurfaceTag>().Surface = SurfaceKind.Grass;
             go.isStatic = true;
             return go;
+        }
+
+        /// <summary>Both samples' corridors cover the cell and their roads are more than a car's height apart vertically.</summary>
+        static bool OverlapsAtAnotherLevel(TrackSample a, float aD2, TrackSample b, float bD2)
+        {
+            if (Mathf.Abs(a.Position.y - b.Position.y) < 3.5f) return false;
+            float ra = a.Width * 0.5f + 8f, rb = b.Width * 0.5f + 8f;
+            return aD2 <= ra * ra && bD2 <= rb * rb;
         }
 
         static float Corridor(TrackSample s, float lateral) =>

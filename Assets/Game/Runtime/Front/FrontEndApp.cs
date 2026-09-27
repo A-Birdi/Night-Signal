@@ -1,11 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using NightSignal.Core.Rules;
 using NightSignal.Race;
 using NightSignal.Track;
 using NightSignal.UI;
 using TMPro;
+using NightSignal.Net;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -36,6 +38,12 @@ namespace NightSignal.Front
         public readonly ProfileSelectScreen ProfileSelect = new ProfileSelectScreen();
         public readonly NewProfileScreen NewProfile = new NewProfileScreen();
         public readonly CampaignMapScreen CampaignMap = new CampaignMapScreen();
+        public readonly ConvoyScreen Convoy = new ConvoyScreen();
+        /// <summary>Rich-text summary of the last online race (placing, time, settled receipt) for the convoy screen.</summary>
+        public string LastOnlineResult { get; private set; }
+        /// <summary>UI tours drive online races with the validator autopilot (automation, labelled as such).</summary>
+        public bool OnlineAutopilot { get; set; }
+        Net.RaceClient onlineRace;
 
         TextMeshProUGUI stripDomain, stripName, stripScreen;
         Image stripBar;
@@ -68,6 +76,8 @@ namespace NightSignal.Front
             Router.Show(MainMenu, false);
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsUiTour") >= 0)
                 StartCoroutine(UiTour());
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsUiTourOnline") >= 0)
+                StartCoroutine(UiTourOnline());
         }
 
         /// <summary>
@@ -141,6 +151,181 @@ namespace NightSignal.Front
             Shot("09-campaign-after");
             string summary = failures.Count == 0 ? "PASS" : "FAILED: " + string.Join("; ", failures);
             Debug.Log($"[NightSignal.UiTour] {summary} (profile wallet {s?.Profile?.WalletBalance}, S01 cleared {cleared})");
+            yield return new WaitForSeconds(1f);
+            Application.Quit(failures.Count == 0 ? 0 : 1);
+        }
+
+        // ------------------------------------------------------------------ online
+
+        /// <summary>Takes ownership of a signed-in session: pumped every frame; a match allocation starts the race.</summary>
+        public void AttachOnline(OnlineSession session)
+        {
+            session.Client.MatchAllocated += p => StartCoroutine(RunOnlineRace(p));
+            Domain = SessionDomain.Online;
+            DisplayName = session.DisplayName;
+            RefreshStrip();
+        }
+
+        void Update() => OnlineSession.Current?.Tick();
+
+        /// <summary>
+        /// Joins the allocated match with the ticket the control plane issued (never a local shortcut), races with the
+        /// player's controls, then returns to the convoy with the settled receipt. The race scene replaces the menus.
+        /// </summary>
+        IEnumerator RunOnlineRace(Newtonsoft.Json.Linq.JObject allocation)
+        {
+            if (onlineRace != null) yield break;
+            OnlineSession session = OnlineSession.Current;
+            string matchId = (string)allocation["matchId"];
+            _ = session?.Request("presence.set", new { presence = "LoadingRace" }, quiet: true);
+            Canvas.gameObject.SetActive(false);
+            if (backdropCamera != null) backdropCamera.SetActive(false);
+            var go = new GameObject("RaceClient");
+            DontDestroyOnLoad(go);
+            onlineRace = go.AddComponent<Net.RaceClient>();
+            onlineRace.Autopilot = OnlineAutopilot;
+            onlineRace.Connect((string)allocation["server"]["host"], (ushort)(int)allocation["server"]["port"], (string)allocation["ticket"]);
+            bool racing = false;
+            while (onlineRace.Results == null && onlineRace.Phase != MatchPhase.Aborted && onlineRace.DisconnectReason == null)
+            {
+                if (!racing && onlineRace.Phase == MatchPhase.Racing)
+                {
+                    racing = true;
+                    _ = session?.Request("presence.set", new { presence = "InRace" }, quiet: true);
+                }
+                yield return null;
+            }
+            Net.MatchResults results = onlineRace.Results;
+            yield return new WaitForSeconds(results != null ? 4f : 1.5f); // let the finish banner read
+            Destroy(go);
+            onlineRace = null;
+
+            var sb = new System.Text.StringBuilder("<color=#9A968D>LAST RACE</color>\n");
+            Net.ResultEntrant mine = results?.Entrants.FirstOrDefault(e => e.EntrantId == session?.AccountId);
+            if (results == null) sb.Append("The race ended without results (aborted or disconnected): nothing was settled.\n");
+            else if (mine == null) sb.Append("You spectated this race.\n");
+            else sb.Append(mine.Outcome == "Finished" ? $"P{mine.Placement} of {results.Entrants.Count}   {ResultsScreen.FormatRaceTime(mine.FinishTimeMicros)}\n" : $"{mine.Outcome}\n");
+            LastOnlineResult = sb.ToString();
+            Canvas.gameObject.SetActive(true);
+            yield return LoadBackdrop();
+            Router.Show(Convoy, false);
+            _ = session?.Request("presence.set", new { presence = "InMenus" }, quiet: true);
+            if (session != null && results != null) StartCoroutine(FetchReceipt(session, matchId));
+        }
+
+        /// <summary>The server-settled receipt (money, clears, unlocks) — shown as the server states it.</summary>
+        IEnumerator FetchReceipt(OnlineSession session, string matchId)
+        {
+            for (int attempt = 0; attempt < 20; attempt++)
+            {
+                var t = session.Client.GetWithStatus($"/v1/matches/{matchId}/receipt");
+                while (!t.IsCompleted) yield return null;
+                if (!t.IsFaulted && t.Result.status == 200 && (string)t.Result.body["status"] != "pending")
+                {
+                    Newtonsoft.Json.Linq.JObject r = t.Result.body;
+                    var sb = new System.Text.StringBuilder(LastOnlineResult);
+                    Newtonsoft.Json.Linq.JToken stage = r["stage"];
+                    if (stage != null && stage.Type == Newtonsoft.Json.Linq.JTokenType.Object)
+                        sb.Append((bool?)stage["earnedClear"] == true ? "<color=#3EC6D8>Stage cleared</color>" + ((bool?)r["firstClearAwarded"] == true ? " — first clear" : "") + "\n"
+                                                                     : $"<color=#F2A541>Stage not cleared</color>  <size=85%>{(string)stage["reason"]}</size>\n");
+                    sb.Append($"Credits +{(long?)r["payout"]?["total"] ?? 0:N0}   ·   balance {(long?)r["balanceAfter"] ?? 0:N0} cr\n");
+                    foreach (Newtonsoft.Json.Linq.JToken cue in (r["musicUnlocked"] as Newtonsoft.Json.Linq.JArray) ?? new Newtonsoft.Json.Linq.JArray())
+                        sb.Append($"<color=#3EC6D8>+</color> Soundtrack {(string)cue}\n");
+                    LastOnlineResult = sb.ToString();
+                    var me = session.RefreshMe();
+                    while (!me.IsCompleted) yield return null;
+                    yield break;
+                }
+                yield return new WaitForSeconds(1f);
+            }
+        }
+
+        /// <summary>
+        /// Online evidence run (<c>-nsUiTourOnline</c>, needs the local control plane and a registered game server): the
+        /// REAL buttons from Online Login (a development account from the project's seed file) → convoy → Mode Ready →
+        /// Enter Mode → Propose Event → Event Ready → Start → a server-authoritative race (validator autopilot through
+        /// normal inputs) → settled receipt → Continue → Advance. Screenshots in Builds/Screenshots/tour-online.
+        /// Automation, not a human playtest.
+        /// </summary>
+        IEnumerator UiTourOnline()
+        {
+            string dir = System.IO.Path.GetFullPath(System.IO.Path.Combine("Builds", "Screenshots", "tour-online"));
+            System.IO.Directory.CreateDirectory(dir);
+            var failures = new List<string>();
+            OnlineAutopilot = true;
+            void Shot(string name) => ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(dir, name + ".png"));
+            void Note(string s) => Debug.Log("[NightSignal.UiTourOnline] " + s);
+            bool Click(string name)
+            {
+                Button b = GameObject.Find(name)?.GetComponent<Button>();
+                if (b == null || !b.interactable) { failures.Add("button not available: " + name); Note("button not available: " + name); return false; }
+                b.onClick.Invoke();
+                return true;
+            }
+            Newtonsoft.Json.Linq.JObject State() => OnlineSession.Current?.Convoy;
+            IEnumerator Until(Func<bool> condition, float seconds, string what)
+            {
+                float until = Time.realtimeSinceStartup + seconds;
+                while (!condition() && Time.realtimeSinceStartup < until) yield return null;
+                if (!condition()) { failures.Add("timed out: " + what); Note("timed out: " + what + " (" + OnlineSession.Current?.LastError + ")"); }
+            }
+
+            NetConfig cfg = NetConfig.FromCommandLine();
+            Newtonsoft.Json.Linq.JToken account = Newtonsoft.Json.Linq.JObject.Parse(System.IO.File.ReadAllText(cfg.DevSeedFile))["accounts"][cfg.DevAccount];
+            yield return new WaitForSeconds(3f);
+            Shot("01-title");
+            Click("OnlineLogin");
+            yield return new WaitForSeconds(1.2f);
+            GameObject.Find("Email").GetComponent<TMP_InputField>().text = (string)account["email"];
+            GameObject.Find("Password").GetComponent<TMP_InputField>().text = (string)account["devOnlyPassword"];
+            Shot("02-sign-in");
+            Click("SignIn");
+            yield return Until(() => Router.Current == Convoy && OnlineSession.Current != null, 20f, "signed in");
+            yield return new WaitForSeconds(1.5f);
+            if (OnlineSession.Current?.StarterCarId == null) { Click("ChooseStarter"); yield return Until(() => OnlineSession.Current.StarterCarId != null, 10f, "starter chosen"); }
+            Shot("03-online");
+            Click("CreateConvoy");
+            yield return Until(() => OnlineSession.Current.InConvoy && OnlineSession.Current.MyMember?["carId"]?.Type == Newtonsoft.Json.Linq.JTokenType.String, 10f, "convoy created with a loadout");
+            yield return new WaitForSeconds(0.8f);
+            Click("ProposeIntent");
+            yield return Until(() => State()?["intent"]?.Type == Newtonsoft.Json.Linq.JTokenType.Object, 20f, "intent set");
+            yield return new WaitForSeconds(0.8f);
+            // The leader's own proposal already counts as their Mode Ready (Addendum 01 §7): only ready if not yet ready.
+            if ((bool?)OnlineSession.Current.MyMember?["modeReady"] != true) Click("ModeReady");
+            yield return Until(() => (bool?)OnlineSession.Current.MyMember?["modeReady"] == true, 10f, "mode ready");
+            yield return new WaitForSeconds(0.8f);
+            Shot("04-mode-ready");
+            Click("EnterMode");
+            yield return Until(() => (bool?)State()?["modeEntered"] == true, 10f, "mode entered");
+            yield return new WaitForSeconds(0.8f);
+            Shot("05-event-selection");
+            // Readiness requests are rate-limited (15 s): wait until the button says it is available, like a player would.
+            yield return Until(() => GameObject.Find("ProposeEvent")?.GetComponent<Button>()?.interactable == true, 20f, "propose available");
+            Click("ProposeEvent");
+            yield return Until(() => State()?["eventProposal"]?.Type == Newtonsoft.Json.Linq.JTokenType.Object, 25f, "event proposed");
+            yield return new WaitForSeconds(0.8f);
+            if ((bool?)OnlineSession.Current.MyMember?["eventReady"] != true) Click("EventReady");
+            yield return Until(() => (bool?)OnlineSession.Current.MyMember?["eventReady"] == true, 10f, "event ready");
+            yield return new WaitForSeconds(0.8f);
+            Shot("06-event-ready");
+            Click("StartEvent");
+            yield return Until(() => onlineRace != null, 30f, "match allocated");
+            yield return Until(() => onlineRace == null || onlineRace.Phase == MatchPhase.Racing, 60f, "race started");
+            yield return new WaitForSeconds(12f);
+            Shot("07-online-race");
+            yield return Until(() => onlineRace == null && Router.Current == Convoy, 400f, "race finished and back at the convoy");
+            yield return Until(() => (LastOnlineResult ?? "").Contains("Credits"), 25f, "settled receipt");
+            yield return Until(() => State()?["postEvent"]?.Type == Newtonsoft.Json.Linq.JTokenType.Object, 15f, "post-event decision");
+            yield return new WaitForSeconds(1.5f);
+            Shot("08-post-event");
+            Click("Continue");
+            yield return new WaitForSeconds(1.2f);
+            Click("Advance");
+            yield return Until(() => State()?["postEvent"]?.Type != Newtonsoft.Json.Linq.JTokenType.Object, 15f, "advanced");
+            yield return new WaitForSeconds(1.5f);
+            Shot("09-after-advance");
+            string summary = failures.Count == 0 ? "PASS" : "FAILED: " + string.Join("; ", failures);
+            Note($"{summary}; last result: {(LastOnlineResult ?? "").Replace("\n", " | ")}");
             yield return new WaitForSeconds(1f);
             Application.Quit(failures.Count == 0 ? 0 : 1);
         }

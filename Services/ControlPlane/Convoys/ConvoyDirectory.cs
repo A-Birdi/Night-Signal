@@ -633,6 +633,24 @@ public sealed class ConvoyDirectory
             return ConvoyOf(accountId) is { } c && c.SessionId == sessionId && c.Find(accountId)!.Generation == generation;
     }
 
+    /// <summary>
+    /// Runs <paramref name="work"/> under the directory lock. Session-scoped state that observers own (the toys'
+    /// DowntimeSessions) is only ever touched under this one lock, so there is no second lock and no ordering hazard.
+    /// <paramref name="work"/> must be short and must not block (no I/O, no awaiting).
+    /// </summary>
+    public T Exclusive<T>(Func<T> work)
+    {
+        lock (gate) return work();
+    }
+
+    /// <summary>Every live convoy session → its Dormant expiry (null while active). Used by startup recovery of session state.</summary>
+    public IReadOnlyDictionary<string, DateTimeOffset?> SessionExpiries()
+    {
+        lock (gate)
+            return convoys.Values.ToDictionary(c => c.SessionId, c => c.DormantSince is { } d ? d + ConvoyRules.DormantLifetime : (DateTimeOffset?)null,
+                StringComparer.Ordinal);
+    }
+
 
     /// <summary>Longest continuously connected active member (stable account-ID tie-break) leads; the epoch increments.</summary>
     void TransferLeadership(Convoy convoy, string why)
@@ -1904,6 +1922,7 @@ public sealed class ConvoyDirectory
             convoy.RunningSettings = null;
             convoy.FrozenEntrants.Clear();
             convoy.DepartedEntrants.Clear();
+            Observe(o => o.PreemptionEnded(convoy.SessionId, convoy.Revision, "start-failed")); // the prior toys resume with the same snapshot
             if (convoy.Dormant)
             {
                 convoy.EventProposal = null;
@@ -1952,6 +1971,7 @@ public sealed class ConvoyDirectory
             // Results are recorded: open the shared Continue / Service Break decision (Addendum 02 §7).
             if (ran is not null && convoy.Members.Count > 0 && !convoy.Dormant) OpenPostEvent(convoy, matchId, ran);
             Changed(convoy);
+            Observe(o => o.PreemptionEnded(convoy.SessionId, convoy.Revision, "event-finished"));
         }
     }
 
@@ -1984,6 +2004,7 @@ public sealed class ConvoyDirectory
             SetNotice(convoy, "match_aborted", reason);
             Changed(convoy);
             Broadcast(convoy, "match.aborted", new { matchId, reason });
+            Observe(o => o.PreemptionEnded(convoy.SessionId, convoy.Revision, "event-aborted"));
         }
     }
 

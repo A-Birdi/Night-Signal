@@ -138,14 +138,12 @@ namespace NightSignal.Front
             busy = true;
             submit.interactable = false;
             message.text = "Signing in...";
-            var client = new ControlPlaneClient(NetConfig.FromCommandLine().ControlPlaneUrl);
             try
             {
-                await client.SignInDev(addr, secret);
-                App.Domain = SessionDomain.Online;
-                App.DisplayName = "Signed in";
-                message.text = "Signed in. Online convoy menus are being rebuilt for the revised rules; Offline Play is available now.";
-                App.RefreshStrip();
+                OnlineSession session = await OnlineSession.SignIn(NetConfig.FromCommandLine().ControlPlaneUrl, addr, secret);
+                App.AttachOnline(session);
+                message.text = "";
+                App.Router.Show(App.Convoy, false);
             }
             catch (HttpRequestException)
             {
@@ -158,7 +156,6 @@ namespace NightSignal.Front
             }
             finally
             {
-                client.Dispose();
                 busy = false;
                 submit.interactable = true;
             }

@@ -55,6 +55,49 @@ namespace NightSignal.Tests.Track
         }
 
         [Test]
+        public void CircuitCheckpoints_GoAllTheWayRound_AndEndAtTheLapLine([Values("C03", "C11", "C14", "C18", "FP01", "FP03", "T00")] string course)
+        {
+            // Regression (V-026): a closed loop had ONE checkpoint — the start line — so GO counted a lap.
+            TrackData t = Build(course);
+            Assert.That(t.ClosedLoop, Is.True);
+            Assert.That(t.CheckpointMetres.Length, Is.GreaterThan(t.LengthMetres / 150f), "gates all the way round the lap");
+            float Forward(float d) => Mathf.Repeat(d - t.StartMetres, t.LengthMetres);
+            for (int i = 1; i < t.CheckpointMetres.Length - 1; i++)
+                Assert.That(Forward(t.CheckpointMetres[i]), Is.GreaterThan(Forward(t.CheckpointMetres[i - 1])));
+            Assert.That(t.CheckpointMetres[t.CheckpointMetres.Length - 1], Is.EqualTo(CourseGenerator.FinishMetres(t)));
+        }
+
+        [Test]
+        public void ACarDrivenTwoLapsRoundACircuit_PassesEveryGateOnce_AndFinishes()
+        {
+            TrackData t = Build("C03");
+            var tracker = new NightSignal.Race.RaceProgressTracker(t);
+            var e = new NightSignal.Race.EntrantProgress(t);
+            GridSlot grid = t.Grid[0];
+            tracker.Start(e, grid.Position);
+            var telemetry = new NightSignal.Vehicle.StepTelemetry();
+            NightSignal.Vehicle.VehicleState prev = NightSignal.Vehicle.VehicleState.AtRest(grid.Position, grid.Rotation);
+            float lastRaceDistance = e.RaceDistance;
+            long micros = 0;
+            // Advance 2 m per tick from the grid slot, two full laps plus a little, along the centre line.
+            for (float d = grid.Distance; d < grid.Distance + 2f * t.LengthMetres + 40f && !e.Finished; d += 2f)
+            {
+                TrackSample s = t.SampleAt(d);
+                var cur = NightSignal.Vehicle.VehicleState.AtRest(s.Position + s.Up * 0.5f, Quaternion.LookRotation(s.Tangent, s.Up));
+                cur.Velocity = s.Tangent * 30f;
+                micros += 16_667;
+                tracker.Step(e, prev, cur, telemetry, micros, 1f / 60f);
+                Assert.That(e.RaceDistance, Is.GreaterThanOrEqualTo(lastRaceDistance - 0.5f), $"race distance went backwards at {d:F0} m");
+                lastRaceDistance = e.RaceDistance;
+                prev = cur;
+            }
+            Assert.That(e.Finished, Is.True, $"finished (checkpoints {e.CheckpointsPassed}/{tracker.TotalCheckpoints}, lap {e.Lap})");
+            Assert.That(e.CheckpointsPassed, Is.EqualTo(tracker.TotalCheckpoints));
+            Assert.That(e.CorridorCut, Is.False);
+            Assert.That(lastRaceDistance, Is.EqualTo(2f * t.LengthMetres).Within(10f), "two laps from the start line");
+        }
+
+        [Test]
         public void PositiveBank_RaisesTheLeftEdge()
         {
             var route = new RouteDefinition { Schema = RouteIO.Schema, Course = "TEST" };

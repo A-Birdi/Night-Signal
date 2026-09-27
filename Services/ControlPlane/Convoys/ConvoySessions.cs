@@ -1,9 +1,10 @@
 namespace NightSignal.ControlPlane.Convoys;
 
 /// <summary>
-/// Convoy-session-scoped extension point (Addendum 02 §1.3–§1.5, §11). Shared downtime state ("While We Wait" toys) will
-/// hang off the stable <c>ConvoySessionId</c> and per-membership generation — not the leader, leadership epoch or race.
-/// The directory calls observers UNDER ITS LOCK: implementations must not block (enqueue work instead).
+/// Convoy-session-scoped extension point (Addendum 02 §1.3–§1.5, §11). Shared downtime state ("While We Wait" toys,
+/// <see cref="Toys.ConvoyToys"/>) hangs off the stable <c>ConvoySessionId</c> and per-membership generation — not the
+/// leader, leadership epoch or race. The directory calls observers UNDER ITS LOCK: implementations must not block
+/// (enqueue I/O instead).
 /// </summary>
 public interface IConvoySessionObserver
 {
@@ -18,6 +19,13 @@ public interface IConvoySessionObserver
 
     /// <summary>A mode transition or race allocation was committed with valid consent: suspend every diversion at this revision.</summary>
     void Preempted(string sessionId, long convoyRevision, string cause) { }
+
+    /// <summary>
+    /// The event that preempted the diversions is over: settled (<c>event-finished</c>), aborted (<c>event-aborted</c>) or
+    /// its allocation/loading failed (<c>start-failed</c>). Boards become available again; moving toys still wait for an
+    /// explicit resume by a participant (Addendum 02 §1.4).
+    /// </summary>
+    void PreemptionEnded(string sessionId, long convoyRevision, string cause) { }
 
     /// <summary>The last active member was lost to disconnection: persist this compact snapshot (no seats, no race).</summary>
     void Dormant(DormantRoomSnapshot snapshot) { }

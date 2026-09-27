@@ -191,7 +191,9 @@ public abstract partial class SqlGameStore : IPlayerStore, IResultLedger, ISocia
     }
 
     public Task<bool> GrantMusicCueAsync(string accountId, string cueId, string sourceKind, string sourceRef, string? matchId, CancellationToken ct = default) =>
-        WriteAsync(async (c, tx) =>
+        Matches.ProgressionDomain.ToyViolation(sourceKind, sourceRef) is not null
+            ? Task.FromResult(false) // Addendum 02 D209: toys never unlock soundtrack cues
+            : WriteAsync(async (c, tx) =>
         {
             await EnsureAccount(c, tx, accountId);
             return await GrantMusic(c, tx, accountId, new MusicGrant(cueId, sourceKind, sourceRef), matchId);
@@ -321,7 +323,10 @@ public abstract partial class SqlGameStore : IPlayerStore, IResultLedger, ISocia
             r => r.NStr(0), ("@m", matchId), ("@a", accountId)), ct);
 
     public Task<SettlementOutcome> SettleAsync(MatchSettlement s, CancellationToken ct = default) =>
-        WriteAsync(async (c, tx) =>
+        // Addendum 02 D209 (defence in depth behind SettlementService): a toy-domain kind never reaches the wallet/RP pipeline.
+        Matches.ProgressionDomain.ToyViolation(s) is { } toy
+            ? Task.FromException<SettlementOutcome>(new InvalidOperationException(toy))
+            : WriteAsync(async (c, tx) =>
         {
             // Lock the match row first: concurrent retries of the same settlement serialize here.
             var match = await c.FirstOrDefaultAsync(tx, "SELECT state, results_sha256 FROM matches WHERE match_id = @m" + ForUpdate,

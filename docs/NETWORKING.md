@@ -109,6 +109,9 @@ monotonic revision for convoy messages (discard anything older than what you hav
 Every request gets `{"type":"reply","payload":{"requestId","ok","result"?,"error"?:{"code","message","retryAfterMs"?}}}`.
 A **retried requestId** (same account and type, within 10 minutes, even after reconnecting) returns the original
 reply without re-executing (read-only types `ping`, `convoy.state`, `convoy.list`, `rejoin.status` are never cached).
+Clients must therefore make requestIds **unique across sessions**, not just within one connection: the Unity client
+uses a random per-process prefix plus a counter. (A counter restarting at `r1` replayed the previous process's
+`convoy.create` reply in a real 6-client run — V-025.)
 Max message 16 KiB. Send `ping` at least every 30 s: an account silent for > 90 s shows as `Unknown` to friends.
 
 Close codes: `4400 unsupported_protocol`, `4401 token_expired` (send `session.reauth` before `tokenExpiresAt`),

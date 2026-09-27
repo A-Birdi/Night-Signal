@@ -331,7 +331,7 @@ namespace NightSignal.Front
             // Pivot on the right edge: anchoredPosition.x = 0 is flush with the screen edge, > 0 slides it off.
             panel.pivot = new Vector2(1, 0.5f);
             panel.offsetMin = new Vector2(-PanelWidth, 0);
-            panel.offsetMax = Vector2.zero;
+            panel.offsetMax = new Vector2(0, -124); // below the header row, whose controls stay reachable
             UIFactory.Panel("Edge", panel, new Vector2(0, 0), new Vector2(0, 1), Vector2.zero, new Vector2(4, 0), SignalTheme.Signal);
             RectTransform col = UIFactory.Column("Content", panel, new Vector2(0, 0.03f), new Vector2(1, 0.97f), new Vector2(40, 0), new Vector2(-32, 0), 10f);
             pStage = UIFactory.Row("Stage", col, "", SignalTheme.Subheading, SignalTheme.Label, 480, 40, true);
@@ -340,7 +340,7 @@ namespace NightSignal.Front
             pTarget = UIFactory.Row("Target", col, "", SignalTheme.Small, SignalTheme.LabelDim, 480, 64);
             pStatus = UIFactory.Row("Status", col, "", SignalTheme.Small, SignalTheme.Caution, 480, 52);
             pRecord = UIFactory.Row("Record", col, "", SignalTheme.Small, SignalTheme.Label, 480, 52);
-            carStepper = new Stepper(col, "Car", 1, i => carChoices.Count == 0 ? "—" : CarLabel(carChoices[i]), 0, 480);
+            carStepper = new Stepper(col, "Car", 1, i => carChoices.Count == 0 ? "—" : CarLabel(carChoices[i]), 0, 480, 0.12f);
             raceButton = UIFactory.Button("Race", col, "Race", Race, 460, 60);
             closeButton = UIFactory.Button("Close", col, "Close", () => ClosePanel(false), 460, 48);
             pNote = UIFactory.Row("Note", col, "", SignalTheme.Small, SignalTheme.LabelDim, 480, 90);

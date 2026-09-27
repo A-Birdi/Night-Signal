@@ -53,6 +53,8 @@ namespace NightSignal.Net
 
         void Update() => cp?.Pump();
 
+        string lastJoinError;
+
         async Task<bool> Run()
         {
             (string email, string password) = DevAccount(cfg.DevAccount);
@@ -76,8 +78,10 @@ namespace NightSignal.Net
             bool leader = cfg.AutoRole == "leader";
             if (leader)
             {
-                await cp.Request("convoy.create", new { privacy = "discoverable" });
+                JToken created = await cp.Request("convoy.create", new { privacy = "discoverable" });
+                Note($"created convoy {(string)created?["convoyId"] ?? "?"}; waiting for {cfg.AutoHumans - 1} member(s)");
                 await WaitFor(() => Members() >= cfg.AutoHumans, 180, "all members joined");
+                Note($"all {cfg.AutoHumans} members joined");
             }
             else
             {
@@ -86,8 +90,18 @@ namespace NightSignal.Net
                     JToken list = await cp.Request("convoy.list");
                     JToken open = (list?["convoys"] ?? list)?.FirstOrDefault();
                     if (open == null) return false;
-                    try { await cp.Request("convoy.join", new { convoyId = (string)open["convoyId"] }); return true; }
-                    catch (ControlError) { return false; }
+                    try
+                    {
+                        await cp.Request("convoy.join", new { convoyId = (string)open["convoyId"] });
+                        Note($"joined convoy {(string)open["convoyId"]}");
+                        return true;
+                    }
+                    catch (ControlError e)
+                    {
+                        if (e.Message != lastJoinError) Note($"join refused: {e.Message}"); // log each distinct refusal once
+                        lastJoinError = e.Message;
+                        return false;
+                    }
                 }, 180, "joined a discoverable convoy");
             }
             await cp.Request("loadout.set", new { carId = car, performanceHash = "stock", cosmeticHash = "default" });

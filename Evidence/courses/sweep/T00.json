@@ -1,0 +1,17 @@
+{
+    "course": "T00",
+    "car": "V05",
+    "driver": "RouteFollower validator autopilot — scripted, not a human",
+    "routeSourceHash": "163db414d8c26f4fba101c83e7798c3fb2bd924c242aeef40d2370c266f57c60",
+    "unityVersion": "6000.6.3f1",
+    "finished": true,
+    "corridorCut": false,
+    "finishSeconds": 118.99044036865234,
+    "lengthMetres": 1792.0,
+    "outOfCorridorSeconds": 0.0,
+    "stoppedAtMetres": 70.15139770507813,
+    "checkpointsPassed": 36,
+    "checkpointsTotal": 36,
+    "wallIncidents": 0,
+    "resets": 0
+}

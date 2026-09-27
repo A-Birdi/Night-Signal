@@ -79,6 +79,7 @@ namespace NightSignal.Race
             e.Locator.Reset(track.StartMetres);
             e.Location = e.Locator.Locate(position, Vector3.forward);
             e.LastSafeDistance = track.StartMetres;
+            e.RaceDistance = RaceDistanceOf(e, e.Location.Distance); // grid cars sit behind the line (negative on circuits)
         }
 
         /// <param name="raceTimeMicros">Race clock at the end of this tick (0 at GO).</param>
@@ -102,16 +103,20 @@ namespace NightSignal.Race
                 e.RegisterImpact(telemetry.WallSurfaceId, raceTimeMicros / 1_000_000.0))
                 e.WallIncidents++;
 
-            // Ordered checkpoints: crossed when the legal distance passes the gate inside the corridor.
+            // Ordered checkpoints: crossed when the legal distance passes the gate inside the corridor. Distances are
+            // measured as forward travel so a circuit's gates just past the loop seam (distance 0) work the same way.
             float gate = track.CheckpointMetres[e.NextCheckpoint];
-            if (prevDist < gate && loc.Distance >= gate && loc.InCorridor && loc.Distance - prevDist < CutToleranceMetres)
+            float moved = Forward(prevDist, loc.Distance);
+            bool forwards = !track.ClosedLoop || moved < track.LengthMetres * 0.5f;
+            float toGate = Forward(prevDist, gate);
+            if (forwards && toGate > 0f && toGate <= moved && loc.InCorridor && moved < CutToleranceMetres)
             {
                 e.CheckpointsPassed++;
                 e.LastSafeDistance = gate;
                 bool lastOfLap = e.NextCheckpoint == track.CheckpointMetres.Length - 1;
                 if (lastOfLap && e.Lap == track.Laps - 1 && Mathf.Approximately(gate, finishMetres))
                 {
-                    float frac = Mathf.Clamp01((gate - prevDist) / Mathf.Max(1e-4f, loc.Distance - prevDist));
+                    float frac = Mathf.Clamp01(toGate / Mathf.Max(1e-4f, moved));
                     long tickMicros = (long)(dt * 1_000_000f);
                     e.FinishTimeMicros = raceTimeMicros - tickMicros + (long)(frac * tickMicros) + e.PenaltyMicros;
                     e.Finished = true;
@@ -120,19 +125,35 @@ namespace NightSignal.Race
                 {
                     e.Lap++;
                     e.NextCheckpoint = 0;
-                    e.Locator.Reset(0f);
+                    e.Locator.Reset(gate);
                 }
                 else
                 {
                     e.NextCheckpoint++;
                 }
             }
-            else if (loc.Distance > gate + CutToleranceMetres && prevDist < gate)
+            else if (forwards && toGate > 0f && moved > toGate + CutToleranceMetres)
             {
                 // Passed a gate without a legal crossing (off-corridor or a jump): the run is no longer clean.
                 e.CorridorCut = true;
             }
-            e.RaceDistance = e.Lap * track.LengthMetres + loc.Distance;
+            e.RaceDistance = RaceDistanceOf(e, loc.Distance);
+        }
+
+        /// <summary>Forward travel from one track distance to another (wrapping round a closed loop).</summary>
+        float Forward(float from, float to) => track.ClosedLoop ? Mathf.Repeat(to - from, track.LengthMetres) : to - from;
+
+        /// <summary>
+        /// Distance covered since the start line. On a circuit, laps count from the start line; a car still behind the
+        /// line (on the grid, before its lap's first gate) is short of it, not a lap ahead.
+        /// </summary>
+        float RaceDistanceOf(EntrantProgress e, float distance)
+        {
+            if (!track.ClosedLoop) return e.Lap * track.LengthMetres + distance;
+            if (e.Finished) return track.Laps * track.LengthMetres; // the finish tick wraps past the line without a new lap
+            float u = Mathf.Repeat(distance - track.StartMetres, track.LengthMetres);
+            if (e.NextCheckpoint == 0 && u > track.LengthMetres * 0.5f) u -= track.LengthMetres;
+            return e.Lap * track.LengthMetres + u;
         }
 
         /// <summary>Reset pose at the last safe checkpoint (spec §6.1): never ahead, never skipping gates.</summary>

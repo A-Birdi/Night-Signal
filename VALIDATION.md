@@ -214,3 +214,60 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - Data-level only: no driving evidence for builds, no control-plane hosting or presentation for the toys yet. The
   builds agent's open questions (cap-excluded favourite cars, starter PI under the real economy, unmeasured PI
   estimate) are recorded in docs/EFFECTIVE_RULES.md.
+
+## V-025 — Six client processes + live rival on protocol 2 (2026-09-27)
+- First attempts failed at convoy formation (evidence kept: `run-20260927-022917-h6`, `run-20260927-023357-h6`): the
+  control plane replays a cached reply for the same (account, type, requestId) for 10 minutes, and the Unity client
+  numbered requests `r1, r2…` from scratch in every process, so a new process's `convoy.create` received the previous
+  run's reply (an old, dormant convoy) and no convoy was created. Request ids now carry a random per-process prefix;
+  the rule is documented in docs/NETWORKING.md §3.
+- **Pass:** `net-race.ps1 -Humans 6 -Stage S01` → `Evidence/net/run-20260927-023610-h6/`. Seven OS processes
+  (server + 6 clients), 6 humans + featured rival R01 = 7 vehicles, light contact. All six AutoClients PASS; humans
+  90.884–99.075 s, AI finished after one marshal recovery; settled receipts (first clears for new accounts,
+  `MUS_RACE_MIZUHANA` for the four that did not own it).
+- Netcode with the 2-tick input lead (first measurement): **0 starved and 0 late commands for every human** (V-022 had
+  160 / 46 starved without the lead), server-side input lead 2–3 ticks throughout, RTT 18–20 ms, input-ack max 50 ms.
+- Contact under the network: 4–9 vehicle contacts per human, 0–4 wall incidents, 0 resets; reconciliations 225–481 per
+  client with max correction 2.3 m (contacts are predicted against extrapolated remote cars, so a real bump corrects).
+  Localhost only; WAN and packet-loss conditions are untested.
+
+## V-026 — Circuits and crossings; course sweep 29/29 (2026-09-27)
+- Found by the online UI tour on S03 (C03): both cars stuck, distances past the lap length, the AI driving backwards
+  with 23 marshal recoveries. Two generator defects:
+  1. Every closed-loop circuit (C03, C11, C14, C18, FP01, FP03, T00) had ONE checkpoint per lap — the start line — so
+     GO counted a lap. Gates now run all the way round the lap (wrapping the loop seam) and close at the lap line; the
+     tracker measures crossings as forward travel with wrap, race distance counts from the start line (negative on the
+     grid) and stays continuous through laps and the finish.
+  2. Where two stretches of road cross at different heights (C03's orchard overpass 13 m above the road; C25's
+     two-level valley bridge) the terrain followed the nearest sample — the upper road — and buried the lower road in a
+     hill. Terrain now follows the LOWER road wherever both corridors cover a cell and the roads are > 3.5 m apart.
+- EditMode 188/188 (new: circuit gate order for all seven loops; a virtual car driven two laps round C03 passes 50/50
+  gates once, never loses race distance, finishes clean; build parity 19).
+- **PlayMode CourseSweepTests 29/29** (`Evidence/courses/sweep/*.json`): the validator autopilot drives every course
+  scene start to finish with the real chassis (V05, 30× fast-forward): all checkpoints, 0 resets, 0 corridor cuts,
+  3 wall touches in total (C12 ×2, C25 ×1). Before the fixes: C03 stopped at 434 m, C25 at 7,930 m.
+- Still missing (not blocking driving): bridge decks/piers, tunnel shells and the `crossing`/`water`/`field`/
+  `structure` landmark kits — the upper road of a crossing currently spans a gap without supports.
+
+## V-027 — Online play through the real menus (2026-09-27)
+- New interactive Online flow: sign-in → Convoy screen (roster with Mode/Event Ready, create/join/list/code, rejoin
+  prompt, starter choice, leader Intent → Mode Ready → Enter Mode → stage/course proposal → Event Ready → Start, the
+  15 s readiness-request cooldown shown as a countdown, Continue / Service Break / Advance) → server race with the
+  player's controls → settled receipt on the convoy screen.
+- `Tools/run/ui-tour-online.ps1` (dedicated server process + one windowed client pressing the REAL buttons; validator
+  autopilot drives through normal inputs; dev account from the project seed): **PASS** twice —
+  S02 (C02) P1 of 3 02:25.285 first clear +18,248 cr, Next Stage S03 opened by Advance; and after V-026 S03 (C03,
+  two laps) P1 of 2 03:02.753 first clear +18,716 cr. Screenshots `Evidence/ui/online/` (and the Local campaign tour
+  re-captured after the layout fixes in `Evidence/ui/campaign/`). Automation, not a human playtest.
+- Found on the way: the tour's own Mode Ready click unreadied the leader (the proposal already counts as the leader's
+  Mode Ready — UI now labels the state); rate-limited event proposal after the intent (cooldown now shown);
+  missing ✓ glyph in the bundled font; one native client crash (0xC0000005) right after loading C03, not reproduced
+  in two further runs — kept open (minidump only, no symbols).
+
+## V-028 — Diversions hosted by the control plane (2026-09-27)
+- `dotnet test Services/NightSignal.Services.slnx`: Services.Tests 307/307 (25 new: toy.command/toy.snapshot routing
+  and limits, pause at match commit and resume after settlement/abort, snapshots surviving a control-plane restart for a
+  dormant room, 24 h expiry, non-progression rejection in settlement, readiness untouched by toy commands, real
+  WebSocket round trips), BuildsTests 222/222, Toys.Tests 92/92, CoreTests 86/86. SQLite migration 0004 applied on a
+  real control-plane restart; the Postgres migration is written but not executed.
+- Not yet: the Unity client's tabletop presentation and toy.* handling (Pocket Circuit first).

@@ -1,6 +1,6 @@
 # Handoff
 
-_Last updated: 2026-09-27 — network slice passing on protocol 2; Local campaign playable; builds/toys cores landed._
+_Last updated: 2026-09-27 — online play through the menus; 6-client network slice; all 29 courses drivable._
 
 **Rules revision:** `docs/brief/Night_Signal_Addendum_01.txt` supersedes parts of the master (six humans + up to
 twelve vehicles, live finale rivals, light contact, course access, offline domain, rejoin grants, voting, friends,
@@ -47,32 +47,28 @@ powershell -ExecutionPolicy Bypass -File Tools/run/net-race.ps1 -Humans 2 -Stage
 3. **Hosted services / internet test** — a Supabase project, a reachable server and a budget are needed for
    WAN acceptance (§3.5, Gate 5). Not approved; stays BLOCKED, not faked.
 
-## Done since the addenda (VALIDATION V-015 … V-024)
+## Done since the addenda (VALIDATION V-015 … V-028)
 
-- Addendum 01 Core rules and data overlays; control plane for Addendum 01 + 02 (282 .NET tests); light car contact,
-  shared RaceSimulation (server + offline), protocol 2 per-client snapshots, 12-car in-process race; two real physics
-  defects fixed (barrier depenetration never ran; tilted barrier normals vaulted cars).
-- Front end: title, Local profiles (create/choose), Offline hub, **Local campaign map** (painted region map, nodes,
-  act reveal, right panel with 220 ms slide + 8 px overshoot, Find Next Stage), Local races judged by Core and saved
-  atomically, results with itemised progression; standalone UI tour passes (V-023).
-- Network slice: 2 humans + live rival on protocol 2 passes end to end (V-022) after fixing a client input-send
-  overflow and a watchdog crash on dormant rooms; 15 s server/client progress traces in every headless run.
-- Cores (engine-free, tested, in Assets/Game/Core): Builds (parts, resolver, loadouts, references, quotes, upgrade
-  paths), Toys (DowntimeSession + five diversions), Profiles (Local profile/progression/records/persistence).
-- 29 course scenes; Test Yard facility + session; audio synthesis (24 cues) + soundtrack unlock table.
+- Addendum 01 Core rules and data overlays; control plane for Addendum 01 + 02 incl. hosted diversions (307 .NET
+  tests); light car contact, shared RaceSimulation (server + offline), protocol 2 per-client snapshots.
+- **Network slice:** 2 humans + live rival (V-022) and 6 humans + live rival (V-025) pass on protocol 2 with 0 starved
+  commands (2-tick input lead); fixed an input-send overflow, a watchdog crash on dormant rooms and replayed request ids.
+- **Online play through the menus** (V-027): sign-in → convoy → Intent/Mode Ready/Enter/Propose/Event Ready/Start →
+  server race → settled receipt → Continue/Advance, verified by an automated windowed tour against a real server.
+- **Local play** (V-023): profiles, Offline hub, campaign map (painted region, act reveal, sliding stage panel), Local
+  races judged by Core and saved atomically.
+- **Courses:** all 29 scenes driven start to finish by the autopilot (V-026) after fixing circuit lap gates and terrain
+  burying the lower road at crossings.
+- Cores (engine-free, tested, in Assets/Game/Core): Builds (+ VehicleFactory parity), Toys, Profiles.
 
 ## Next actions
 
-1. Re-measure the network slice with the 2-tick input lead; then 6 humans + live rival, 6 + 6 Freeplay; reconnect,
-   DQ and contact under load. Re-capture the campaign tour screenshots after the layout fixes.
-2. Integrate Core/Builds into VehicleFactory (parity test first), Garage screens and the Test Yard A/B flow; add
-   parts/recipes to the content hash.
-3. Host DowntimeSession in the control plane (pause on match commit, snapshots, dormant rooms) and build the
-   tabletop presentation for the five toys (Pocket Circuit first — mandatory).
-4. Online convoy UI: intent strip, Mode/Event Ready, voting, friends, course access/purchase, Time Attack, Team
-   Trials, Continue / Service Break strip, While We Wait selector.
-5. Course sweep (PlayMode CourseSweepTests over 29 courses) and generator gaps; visible customization, car art pass,
-   meet + boombox; release builds and evidence.
+1. Unity presentation for the diversions (Pocket Circuit first — mandatory), client toy.* handling, While We Wait
+   selector on the convoy screen; Garage (loadouts, references, Buy-and-Apply) on Core/Builds + Test Yard A/B.
+2. Online convoy extras: Freeplay ballots/voting UI, friends panel, course purchase UI, Time Attack/Team Trials,
+   6 + 6 Freeplay network run, reconnect/rejoin and DQ under load, the open native crash (V-027).
+3. Generator: bridge decks/piers, tunnel shells, `crossing`/`water`/`field`/`structure` kits; visual pass per biome.
+4. Content hash for parts/recipes/toys; visible customization; car art; meet + boombox; release builds and evidence.
 
 ## Recovery notes
 

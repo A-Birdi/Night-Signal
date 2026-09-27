@@ -22,8 +22,10 @@ namespace NightSignal.Front
         public int Count { get; private set; }
         public event Action<int> Changed;
         public Button Left { get; }
+        /// <summary>The whole row (label, arrows, value): hide it with SetActive to take it out of a column's layout.</summary>
+        public GameObject Root => Left.transform.parent.gameObject;
 
-        public Stepper(Transform parent, string label, int count, Func<int, string> format, int initial = 0, float width = 700f)
+        public Stepper(Transform parent, string label, int count, Func<int, string> format, int initial = 0, float width = 700f, float labelFraction = 0.26f)
         {
             this.format = format;
             Count = Math.Max(1, count);
@@ -32,14 +34,14 @@ namespace NightSignal.Front
             row.sizeDelta = new Vector2(width, 56);
             TextMeshProUGUI l = UIFactory.Label("Label", row, label, SignalTheme.Small, SignalTheme.LabelDim, TextAlignmentOptions.MidlineLeft, true);
             l.rectTransform.anchorMin = new Vector2(0, 0);
-            l.rectTransform.anchorMax = new Vector2(0.26f, 1);
+            l.rectTransform.anchorMax = new Vector2(labelFraction, 1);
             l.rectTransform.offsetMin = Vector2.zero; // TMP starts with a 200×50 rect: clear it or the label spills left
             l.rectTransform.offsetMax = new Vector2(-8, 0);
             Left = UIFactory.Button("Prev", row, "<", () => Step(-1), 56, 52);
-            SetX(Left, width * 0.26f);
+            SetX(Left, width * labelFraction);
             value = UIFactory.Label("Value", row, "", SignalTheme.Body, SignalTheme.Label, TextAlignmentOptions.Center);
             value.richText = false;
-            value.rectTransform.anchorMin = new Vector2(0.26f, 0);
+            value.rectTransform.anchorMin = new Vector2(labelFraction, 0);
             value.rectTransform.anchorMax = new Vector2(1, 1);
             value.rectTransform.offsetMin = new Vector2(64, 0);
             value.rectTransform.offsetMax = new Vector2(-64, 0);
@@ -51,6 +53,7 @@ namespace NightSignal.Front
         static void SetX(Button b, float x)
         {
             var rt = (RectTransform)b.transform;
+            rt.pivot = new Vector2(0, 1); // top-left: the button spans [x, x + width] and sits inside the row
             rt.anchoredPosition = new Vector2(x, -2);
             foreach (Transform child in rt) if (child.name == "Label") ((RectTransform)child).offsetMin = new Vector2(20, 0);
         }

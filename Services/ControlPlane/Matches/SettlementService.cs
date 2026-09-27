@@ -92,6 +92,12 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
         MatchAssignment config = JsonSerializer.Deserialize<MatchAssignment>(match.ConfigJson, MatchAllocator.Json)!;
         if (submission is null || submission.MatchId != matchId || submission.ContentHash != config.ContentHash)
             return Error(422, "mismatch", "Match ID or content hash does not match the allocation.");
+        // Addendum 02 D209: a toy (non-progression) kind never reaches the wallet/RP pipeline — nothing is settled or aborted.
+        if (ProgressionDomain.ToyViolation(config) is { } toy)
+        {
+            log.LogWarning("Refused a toy-domain result for match {MatchId}", matchId);
+            return Error(422, ProgressionDomain.ErrorCode, toy);
+        }
 
         string? broken = submission.Aborted ? null : BrokenEventReason(config, submission);
         if (submission.Aborted || broken is not null)
@@ -154,6 +160,7 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
     /// <summary>Validates the facts against the frozen allocation and computes every reward input with Core.</summary>
     internal (MatchSettlement? Settlement, string? Error) Compute(MatchAssignment config, ResultSubmission s, string bodySha256)
     {
+        if (ProgressionDomain.ToyViolation(config) is { } toy) return (null, toy);
         var humans = config.Entrants.Select(e => e.AccountId).ToHashSet(StringComparer.Ordinal);
         var ai = config.AiEntrants.ToHashSet(StringComparer.Ordinal);
         if (s.Entrants.Select(e => e.EntrantId).Distinct().Count() != s.Entrants.Count)

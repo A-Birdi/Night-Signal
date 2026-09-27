@@ -180,6 +180,9 @@ public sealed class ControlChannel(ControlConnections connections, ControlComman
             directory.Touch(connection.AccountId);
         Reply reply = await handler.HandleAsync(connection.AccountId, type, requestId, payload, ct);
         (long revision, _) = directory.SnapshotFor(connection.AccountId);
-        connection.Send("reply", revision, reply);
+        if (ControlCommandHandler.LowPriorityReplyTypes.Contains(type))
+            connection.SendLowPriority("reply/" + (requestId ?? Guid.NewGuid().ToString("N")), "reply", revision, reply); // large toy data waits for race/control traffic
+        else
+            connection.Send("reply", revision, reply);
     }
 }

@@ -1,0 +1,5 @@
+{
+  "failed": true,
+  "error": "timed out waiting for joined a discoverable convoy",
+  "log": "[06:29:23] signed in as account …000002\n[06:32:24] FAILED: timed out waiting for joined a discoverable convoy\n"
+}

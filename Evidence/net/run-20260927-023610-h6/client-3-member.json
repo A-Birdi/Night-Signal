@@ -1,0 +1,124 @@
+{
+  "driver": "AutoClient scripted autopilot (not a human)",
+  "process": "independent client player process",
+  "account": "…000004",
+  "role": "member",
+  "matchId": "m_703f11e6718bf754c37616f2",
+  "stage": "S01",
+  "course": "C01",
+  "car": "V01",
+  "rttMs": 18,
+  "inputAckMsAverage": 17.164505,
+  "inputAckMsMax": 36.8176,
+  "minInputLeadTicks": -889,
+  "ticksFilled": 0,
+  "snapshots": 2201,
+  "inputPacketsSent": 6546,
+  "reconciliations": 429,
+  "maxCorrectionMetres": 2.259576,
+  "result": {
+    "EntrantId": "00000000-0000-4000-8000-000000000004",
+    "Human": true,
+    "Outcome": "Finished",
+    "FinishTimeMicros": 91145476,
+    "Placement": 2,
+    "Clean": true,
+    "CheckpointFraction": 1.0,
+    "ActiveProgressVerified": true,
+    "ActivelyDroveLegalCourse": true,
+    "LegalProgressMetres": 3025.204345703125,
+    "RawDriftScore": 0,
+    "ContractsPassed": 0,
+    "ChallengesCompleted": [
+      "CH01"
+    ]
+  },
+  "entrants": 7,
+  "receipt": {
+    "matchId": "m_703f11e6718bf754c37616f2",
+    "accountId": "00000000-0000-4000-8000-000000000004",
+    "status": "settled",
+    "eventKind": "CampaignStage",
+    "mode": "normal",
+    "stageId": "S01",
+    "courseId": "C01",
+    "outcome": "Finished",
+    "placement": 2,
+    "tied": false,
+    "finishTimeMs": 91145,
+    "stage": {
+      "qualified": true,
+      "withinSupport": true,
+      "earnedClear": true,
+      "teamSuccess": true,
+      "qualifiers": 6,
+      "requiredQualifiers": 1,
+      "frozenHumanCount": 6,
+      "reason": "Qualified.",
+      "benchmarkTargetMs": 180000,
+      "benchmarkProvisional": true,
+      "benchmarkSource": "provisional: derived from C01.expectedSeconds=180; no certified reference run yet",
+      "requiresBeatingFeaturedRival": false,
+      "featuredRival": "R01",
+      "beatFeaturedRival": true
+    },
+    "payout": {
+      "base": 6460,
+      "difficultyX100": 100,
+      "placementX100": 120,
+      "cleanlinessX100": 105,
+      "utilityX100": 100,
+      "pvPX100": 100,
+      "eventCredits": 8139,
+      "firstClearBonus": 8000,
+      "challengeCash": 3000,
+      "total": 19139,
+      "note": ""
+    },
+    "credits": [
+      {
+        "type": "event",
+        "requested": 8139,
+        "credited": 8139,
+        "clampedAway": 0
+      },
+      {
+        "type": "first-clear",
+        "requested": 8000,
+        "credited": 8000,
+        "clampedAway": 0
+      },
+      {
+        "type": "challenge:CH01",
+        "requested": 3000,
+        "credited": 3000,
+        "clampedAway": 0
+      }
+    ],
+    "balanceAfter": 31139,
+    "clampedAwayTotal": 0,
+    "firstClearAwarded": true,
+    "challengesUnlocked": [
+      "CH01"
+    ],
+    "cosmeticsGranted": [
+      "COS-CH01"
+    ],
+    "coursesUnlocked": [],
+    "musicUnlocked": [
+      "MUS_RACE_MIZUHANA"
+    ],
+    "guestPass": null,
+    "teamTrial": null,
+    "rankPointsBefore": 0,
+    "rankPointsAfter": 140,
+    "rank": "New Signal",
+    "notes": []
+  },
+  "walletBefore": 12000,
+  "walletAfter": 31139,
+  "rankPointsBefore": 0,
+  "rankPointsAfter": 140,
+  "log": "[06:36:18] signed in as account …000004\n[06:36:18] joined convoy cv_99f691ab37a00d80\n[06:36:37] connecting to match m_703f11e6718bf754c37616f2\n[06:38:30] ready request 'post-event' ignored by the scripted client\n",
+  "utc": "2026-09-27T06:38:30.6668290Z"
+}

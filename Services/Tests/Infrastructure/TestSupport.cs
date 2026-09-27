@@ -54,6 +54,13 @@ public static class TestData
     /// <summary>The real generated catalogue (copied from Assets/Content/Data/generated), validated by Core.</summary>
     public static ContentService Content => SharedContent.Value;
 
+    static readonly Lazy<NightSignal.ControlPlane.Toys.ToyContentProvider> SharedToys = new(() =>
+        NightSignal.ControlPlane.Toys.ToyContentProvider.FromContentDirectory(Options.Create(new ContentOptions()),
+            NullLogger<NightSignal.ControlPlane.Toys.ToyContentProvider>.Instance));
+
+    /// <summary>The authored toy content (copied from Assets/Content/Data/authored/toys), validated by Core ToyContent.</summary>
+    public static NightSignal.ControlPlane.Toys.ToyContentProvider Toys => SharedToys.Value;
+
     public static IReadOnlyList<DevAccountFixture> WriteSeed(string path, int count)
     {
         var accounts = Enumerable.Range(1, count).Select(i => new DevAccountFixture(

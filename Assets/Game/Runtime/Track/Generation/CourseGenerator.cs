@@ -30,7 +30,17 @@ namespace NightSignal.Track.Generation
 
             float finish = FinishMetres(t);
             var cps = new List<float>();
-            for (float d = t.StartMetres + route.CheckpointSpacingMetres; d < finish; d += route.CheckpointSpacingMetres) cps.Add(d);
+            if (t.ClosedLoop)
+            {
+                // A lap runs from the start line all the way round to it again: gates every spacing (wrapping past the
+                // loop seam at distance 0), then the lap line itself. Without this a circuit had ONE gate — the start
+                // line — so crossing it at GO counted a lap (found on C03 in a real network race).
+                float spacing = route.CheckpointSpacingMetres;
+                for (float u = spacing; u < t.LengthMetres - spacing * 0.5f; u += spacing)
+                    cps.Add(Mathf.Repeat(t.StartMetres + u, t.LengthMetres));
+            }
+            else
+                for (float d = t.StartMetres + route.CheckpointSpacingMetres; d < finish; d += route.CheckpointSpacingMetres) cps.Add(d);
             cps.Add(finish);
             t.CheckpointMetres = cps.ToArray();
 

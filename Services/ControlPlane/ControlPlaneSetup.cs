@@ -10,6 +10,7 @@ using NightSignal.ControlPlane.Matches;
 using NightSignal.ControlPlane.Persistence;
 using NightSignal.ControlPlane.Players;
 using NightSignal.ControlPlane.Security;
+using NightSignal.ControlPlane.Toys;
 
 namespace NightSignal.ControlPlane;
 
@@ -56,6 +57,18 @@ public static class ControlPlaneSetup
         services.AddSingleton<IConvoySessionObserver>(sp => sp.GetRequiredService<DormantRoomPersistence>());
         services.AddHostedService(sp => sp.GetRequiredService<DormantRoomPersistence>()); // after migrations: restores dormant rooms
 
+        // 'While We Wait' toys (Addendum 02): one DowntimeSession per convoy session, under the directory lock.
+        services.AddSingleton(sp => ToyContentProvider.FromContentDirectory(sp.GetRequiredService<IOptions<ContentOptions>>(),
+            sp.GetRequiredService<ILogger<ToyContentProvider>>()));
+        services.AddSingleton<ConvoyToys>();
+        services.AddSingleton<IConvoySessionObserver>(sp => sp.GetRequiredService<ConvoyToys>());
+        services.AddSingleton<IToySnapshotStore>(sp => sp.GetRequiredService<SqlGameStore>());
+        services.AddSingleton<IToyNotifier>(sp => sp.GetRequiredService<ControlConnections>());
+        services.AddSingleton<ToyService>();
+        services.AddSingleton<ToySnapshotPersistence>();
+        services.AddHostedService(sp => sp.GetRequiredService<ToySnapshotPersistence>()); // after the dormant-room restore
+        services.AddHostedService<ToyPump>();
+
         services.AddSingleton<ControlConnections>();
         services.AddSingleton<IConvoyNotifier>(sp => sp.GetRequiredService<ControlConnections>());
         services.AddSingleton<ConvoyDirectory>();
@@ -91,6 +104,7 @@ public static class ControlPlaneSetup
         _ = app.Services.GetRequiredService<ContentService>();
         _ = app.Services.GetRequiredService<TeamTrialCatalog>();
         _ = app.Services.GetRequiredService<MusicUnlockManifest>();
+        _ = app.Services.GetRequiredService<ToyContentProvider>(); // logs honestly when the toys are unavailable; never fatal
         _ = app.Services.GetRequiredService<TicketIssuer>();
         GameServerOptions servers = app.Services.GetRequiredService<IOptions<GameServerOptions>>().Value; // creates the dev key if enabled
         app.Logger.LogInformation("Game-server credentials configured: {Count} ({Ids})", servers.Credentials.Count,
