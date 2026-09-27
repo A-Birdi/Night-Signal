@@ -69,6 +69,29 @@ namespace NightSignal.Front
                 yield return Until(() => Router.Current == WhileWeWait, 10f, "While We Wait open");
                 yield return new WaitForSeconds(1f);
 
+                // Greenlight: two clean Lights Out attempts each; each must see the other on the shared board.
+                Click("Toy-Greenlight");
+                yield return new WaitForSeconds(2.5f);
+                Greenlight.AutoPress = (variant, cue, t) => variant == Core.Toys.Greenlight.GreenlightVariant.LightsOut
+                    ? t >= cue.HiddenDelayMs + (isHost ? 230 : 260) : t >= cue.Target * cue.SweepMs;
+                float glUntil = Time.realtimeSinceStartup + 90f;
+                while ((Greenlight.CleanAttempts < 2 || Greenlight.OthersOnBoard < 1) && Time.realtimeSinceStartup < glUntil)
+                {
+                    if (Greenlight.CleanAttempts < 2)
+                    {
+                        Button go = GameObject.Find("GreenlightStart")?.GetComponent<Button>();
+                        if (go != null && go.interactable) go.onClick.Invoke();
+                    }
+                    yield return new WaitForSeconds(6.5f);
+                }
+                Shot("09-shared-greenlight");
+                Note($"greenlight (shared): my clean attempts {Greenlight.CleanAttempts}, others on the board {Greenlight.OthersOnBoard}");
+                if (Greenlight.CleanAttempts < 2 || Greenlight.OthersOnBoard < 1)
+                    failures.Add($"shared Greenlight: clean {Greenlight.CleanAttempts}, others on the board {Greenlight.OthersOnBoard}");
+                Greenlight.AutoPress = null;
+                Click("Back");
+                yield return new WaitForSeconds(1.5f);
+
                 Click("Toy-CapClash");
                 yield return new WaitForSeconds(2.5f);
                 CapClash.AutoAim = TourCapAim;

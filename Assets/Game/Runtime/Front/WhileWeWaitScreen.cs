@@ -30,9 +30,12 @@ namespace NightSignal.Front
             UIFactory.Button("Back", col, "Back", () => App.Router.Back(), 620, 52);
         }
 
+        readonly System.Collections.Generic.List<Button> entries = new System.Collections.Generic.List<Button>();
+
         Button Entry(Transform col, string name, string title, string text, System.Action open)
         {
             Button b = UIFactory.Button("Toy-" + name, col, open != null ? title : title + "  (presentation not built yet)", open, 680, 56);
+            entries.Add(b);
             b.interactable = open != null;
             UIFactory.Row(name + "Note", col, text, SignalTheme.Small, SignalTheme.LabelDim, 700, 26);
             return b;
@@ -43,9 +46,11 @@ namespace NightSignal.Front
         public override void OnShow()
         {
             bool online = App.Domain == SessionDomain.Online && OnlineSession.Current?.InConvoy == true;
-            domain.text = online
+            string mismatch = online ? OnlineSession.Current.ToyMismatch : null;
+            domain.text = mismatch != null ? mismatch : online
                 ? "The convoy's shared toys. Playing never changes your Mode or Event Ready; a starting race pauses them and keeps everyone's progress."
                 : "Local toys on this PC. Toy results are for fun: they never pay, rank or unlock anything.";
+            foreach (Button b in entries) b.interactable = mismatch == null;
         }
     }
 }

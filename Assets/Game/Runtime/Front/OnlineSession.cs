@@ -64,6 +64,7 @@ namespace NightSignal.Front
                 await client.SignInDev(email, password);
                 var s = new OnlineSession(client);
                 await s.RefreshMe();
+                await s.CheckToyContent();
                 await client.ConnectControl(NetConfig.Build, Wire.ProtocolVersion, ContentLibrary.Load().Catalogue.ContentHash);
                 Current?.Dispose();
                 Current = s;
@@ -73,6 +74,30 @@ namespace NightSignal.Front
             {
                 client.Dispose();
                 throw;
+            }
+        }
+
+        /// <summary>
+        /// Set when this client's While We Wait documents differ from the control plane's: the shared tables would mirror
+        /// different data, so they stay closed online (Local toys are unaffected). Null when they match or cannot be told.
+        /// </summary>
+        public string ToyMismatch { get; private set; }
+
+        async Task CheckToyContent()
+        {
+            try
+            {
+                (int status, JObject health) = await Client.GetWithStatus("/healthz");
+                string server = status == 200 ? (string)health["toyContentHash"] : null;
+                string local = ContentLibrary.Load()?.Toys?.ContentHash;
+                ToyMismatch = server != null && local != null && server != local
+                    ? "The shared toys on this server use different data than this game version — update the game to join them."
+                    : null;
+                if (ToyMismatch != null) Debug.LogWarning($"[NightSignal.Toys] toy content differs: server {server.Substring(0, 12)}, client {local.Substring(0, 12)}");
+            }
+            catch (Exception)
+            {
+                ToyMismatch = null; // unknown: the tables stay available; the server still validates every command
             }
         }
 

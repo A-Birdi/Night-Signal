@@ -44,6 +44,9 @@ namespace NightSignal.Front
         /// <summary>UI tours press on schedule (automation, labelled as such): returns true when the tour "presses" now.</summary>
         public System.Func<GreenlightVariant, GreenlightCue, double, bool> AutoPress;
         public int CleanAttempts => Track()?.Clean ?? 0;
+        /// <summary>Other people with a ranked result on this station's shared board (same variant and setting).</summary>
+        public int OthersOnBoard => toys?.State<GreenlightState>(ToyActivityId.Greenlight)?.Tracks
+            .Count(t => t.Member != toys.Member && t.Variant == Variant && t.Setting == Setting && !t.PracticeOnly && t.BestMs.HasValue) ?? 0;
 
         protected override void OnBuild(RectTransform root)
         {

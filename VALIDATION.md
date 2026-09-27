@@ -488,3 +488,12 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - Honest limits: procedural prototype art (the A-pillar paint panel and the mirrors' placement predate this work);
   fitment per chassis, ownership and presets come with the Core customization model (in progress); the variants are
   not yet selectable in the Garage nor sent to other players.
+
+## V-043 — All five diversions online; toy data checked between client and control plane (2026-09-27)
+- Two clients at the convoy's hosted tables (`ui-tour-social.ps1`): Greenlight 2 clean attempts each and each sees the
+  other on the shared board; Cap Clash 2 + 2 shots; Pit-Crew 1 + 1 operations on one model; Canvas 3 strokes each,
+  94/94 points — **PASS / PASS**. With Pocket Circuit at the shared table (V-030) every diversion has been exercised
+  online. Screenshots `Evidence/ui/online/social-toys/`.
+- `/healthz` publishes `toyContentHash`; the client compares it with its own toy documents at sign-in and, if they
+  differ, keeps the online shared tables closed with an "update the game" note (Local toys unaffected). Today both are
+  `698f4f53193d…`. Not exercised: 3–6 humans at one table.

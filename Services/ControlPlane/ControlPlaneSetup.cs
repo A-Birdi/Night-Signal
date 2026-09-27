@@ -121,8 +121,10 @@ public static class ControlPlaneSetup
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.MapGet("/healthz", (ContentService content, GarageContent garage) =>
-            Results.Ok(new { status = "ok", contentHash = content.ContentHash, garageContentHash = garage.Hash }));
+        // The race catalogue hash is enforced at connect; the toy (While We Wait) documents are non-progression and are
+        // published so a client can tell when its shared tables would mirror different data.
+        app.MapGet("/healthz", (ContentService content, GarageContent garage, NightSignal.ControlPlane.Toys.ToyContentProvider toys) =>
+            Results.Ok(new { status = "ok", contentHash = content.ContentHash, garageContentHash = garage.Hash, toyContentHash = toys.Content?.ContentHash }));
         if (dev.Enabled) app.MapDevAuth();
         app.MapPlayerEndpoints();
         app.MapSocialEndpoints();
