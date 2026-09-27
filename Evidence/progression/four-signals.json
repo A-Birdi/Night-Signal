@@ -1,0 +1,7 @@
+{
+    "rows": [
+        "V01 V01-H: Finished P3/4 261.7s (limit 281.2s), contracts 3/4 — Entry: 71.52s / 77.61s, apex gates 1/2 (-2.2 m vs -2.9, +0.8 m vs +3.0)",
+        "V02 V02-H: Finished P2/4 262.0s (limit 281.2s), contracts 3/4 — Entry: 72.73s / 77.61s, apex gates 0/2 (-0.1 m vs -2.9, +0.7 m vs +3.0)",
+        "V03 V03-H: Finished P2/4 253.2s (limit 281.2s), contracts 4/4 — all four contracts passed"
+    ]
+}

@@ -313,21 +313,21 @@
     {
       "stage": "S29",
       "mode": "normal",
-      "referenceMs": 266701,
+      "referenceMs": 266698,
       "referenceCar": "V01",
       "referenceBuild": "V01-H",
       "factor": 1.0545,
-      "targetMs": 281236,
+      "targetMs": 281233,
       "featuredRivalPace": 0.6562,
       "featuredRivalMs": 282543,
       "contracts": {
         "entrySectorMs": 77611,
-        "arcDriftRaw": 1709,
+        "arcDriftRaw": 1271,
         "brakeExitMinKmh": 60.5,
-        "brakeExitMaxKmh": 83.9,
+        "brakeExitMaxKmh": 83.7,
         "brakeReleaseByMetres": 4837.8,
         "horizonExitKmh": [
-          160.3,
+          160.4,
           176.0,
           176.6
         ]

@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Collections.Generic;
 using NightSignal.Track;
 using NightSignal.Vehicle;
@@ -56,6 +57,13 @@ namespace NightSignal.AI
         /// everywhere). The same inputs a human has: steering, throttle and a handbrake flick to start the slide.
         /// </summary>
         public IReadOnlyList<RouteGateDef> DriftZones;
+        /// <summary>
+        /// Marked apex gates to aim for (S29's Entry contract): approaching one, the line blends to the gate's lateral offset
+        /// (full at the gate, fading over <see cref="ApexBlendMetres"/>) and no pass is started — a driver committing to the
+        /// apex. Null: race the ordinary line.
+        /// </summary>
+        public IReadOnlyList<RouteGateDef> ApexGates;
+        const float ApexBlendMetres = 40f;
         /// <summary>
         /// The event's weather grip (CourseRuntime.SurfaceGrip: dry 1, damp 0.88, wet 0.76). The speed plan and braking use it,
         /// as a driver reads the conditions — planning wet corners with dry grip put every car into the walls.
@@ -126,6 +134,8 @@ namespace NightSignal.AI
                     if (otherSpeed < speed - 0.5f) wantSide = otherLateral <= 0f ? 1 : -1; // pass on the side with more room
                 }
             }
+            if (ApexGates != null && ApexGates.Any(g => g.StartMetres - here.Distance > -5f && g.StartMetres - here.Distance < ApexBlendMetres + 20f))
+                wantSide = 0; // committing to a marked apex: no passing move now
             if (wantSide != 0 && passHoldTicks <= 0) { passSide = wantSide; passHoldTicks = 150; }
             else if (passHoldTicks > 0) passHoldTicks--;
             else passSide = 0;
@@ -301,6 +311,12 @@ namespace NightSignal.AI
             float k = track.SampleAt(distance + 10f).Curvature;
             float half = s.Width * 0.5f - 1.3f;
             float lateral = Mathf.Clamp(k * 900f * Profile.LineAggression, -1f, 1f) * half;
+            if (ApexGates != null)
+                foreach (RouteGateDef g in ApexGates)
+                {
+                    float from = Mathf.Abs(distance - g.StartMetres);
+                    if (from < ApexBlendMetres) lateral = Mathf.Lerp(lateral, Mathf.Clamp(g.LineOffset, -half, half), 1f - from / ApexBlendMetres);
+                }
             return s.Position + s.Right * lateral;
         }
     }

@@ -1045,3 +1045,38 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   pending **benchmark certification** (spec: reference run P in a freely available class-legal car, Normal targets
   ~1.18×P → 1.05×P, lieutenants interpolated, featured cars on authored legal reference tunes). Addendum 02 F09 rules
   out a compulsory model change, so the fix belongs in certification, not in the test.
+
+## V-065 — Normal benchmarks certified; S29 Four Signals judged; F08 with certified targets (2026-09-27)
+- Revision: `72d1369` plus the S29 recertification and autopilot apex blending on its working tree (committed in the next
+  checkpoint). PlayMode in the editor (one Unity writer), automation with legal inputs — not human runs.
+- **Certification** (`BenchmarkCertificationTests.CertifyNormal`, 29.6 min; `Evidence/progression/benchmarks/`): per Normal
+  stage, P = the slowest of the three starters' intended builds solo (so every starter path stays viable, Addendum 02
+  F09); target = P × factor, factor 1.18 (S01) → 1.05 (S30), lieutenants on the same line; the featured rival's pace
+  (a new `PaceScale` on its whole speed plan, never above its stage profile) bisected so it finishes 0–1 % above the
+  target, measured solo with every car ghosted (`CalibrationGhosts`, certification only). Examples: S01 P 86.5 s → target
+  102.1 s (provisional was 180 s), R01 pace 0.727; S14 P 174.3 s (V01-D) → 195.5 s, R16 pace 0.719 → 195.9 s; S30 P
+  297.8 s → 312.7 s, R40 pace 0.703. Rival paces land at 0.59–0.80: the reference is the conservative validator, so the
+  calibrated rivals run well below their stage profiles — a human-feel review of that pace is still to be done.
+- **Content:** `authored/stage-benchmarks.json` (content hash; the control plane loads it — Normal proposals and
+  settlement now say certified, Hard stays provisional and labelled); `StageBenchmarks.For` shared by Local, the control
+  plane and settlement; campaign screen drops "(provisional)" where certified.
+- **S29 "Four Signals"** (spec contract; nothing judged it before — `ContractsPassed` was always 0, so S29 could never be
+  cleared online or offline): `ContractJudge` on C24's authored sectors, from server-observed facts, offline and on the
+  dedicated server — Entry: sector time and the car's body across both marked apex gates; Arc: raw drift banked across
+  the three marked corners; Descent: no wall impact/reset, a braking phase at the zone, brake off by the published release
+  point, speed in the published window at the zone's end; Horizon: published exit speeds and the full-route limit. The
+  verdict says what failed (with the numbers). S29 references drive the contracts (drifting the Arc) and publish them:
+  Entry 77.6 s, Arc 1,271 raw (0.6 × the weakest solo, room for the live field), brake window 60.5–83.7 km/h with the
+  release point at 4,837.8 m (the references feather the brake down the Descent and release ~10 m past the authored zone:
+  the spec takes the release point from calibration), Horizon 160/176/177 km/h. Hard borrows these as provisional.
+  EditMode `FourSignalsTests` (each contract passes and fails on its own condition), `CertifiedBenchmarkTests`;
+  **245/245**; services **335/335**.
+- **F08 with certified targets** (`Evidence/progression/campaign/`; earlier runs kept in `certified-before-contracts/` and
+  `certified-with-contracts/`): **V03 30/30 Normal stages** — every stage on its first attempt, all eight recipe steps
+  bought on schedule (592,000 spent, 127,555 left), S29 4/4 contracts, the S30 finale won as a duel. **V01 and V02 28/30**:
+  lieutenants S07/S14/S21 cleared first time (V01 needed step H early for S28), both stop at **S29** with 3/4 contracts —
+  Entry's apex gates missed in the pack right after the grid start (V01 1/2, V02 0/2: crossing at +0.7…+0.8 m against a
+  marked +3.0 m). Solo, every starter touches both gates; the autopilot now blends toward marked apexes and does not start
+  a pass near one, but its racecraft cannot hold the line in a four-car pack (aiming straight at the gate made it worse
+  and was reverted). **F08 not passed for V01/V02** — an automation limit on one contract, recorded as such; a human run
+  of S29 is still needed.

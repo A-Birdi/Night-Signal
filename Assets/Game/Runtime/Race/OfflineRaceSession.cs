@@ -105,7 +105,7 @@ namespace NightSignal.Race
             Sim.StartTick = CountdownTicks;
             pilot = new RouteFollower(course.Track, Player.Params, DriverProfile.Validator)
             {
-                DriftZones = Sim.DriftZonesForAi, ResetWhenStuck = true, SurfaceGrip = CourseRuntime.SurfaceGrip(Rules.Surface),
+                DriftZones = Sim.DriftZonesForAi, ApexGates = Sim.Contracts?.ApexGates, ResetWhenStuck = true, SurfaceGrip = CourseRuntime.SurfaceGrip(Rules.Surface),
             };
             foreach (RaceEntrant e in Sim.Entrants) previous[e] = e.State;
 

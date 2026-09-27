@@ -84,10 +84,12 @@ namespace NightSignal.Tests
                         featuredTimeMs = featured != null && featured.Outcome == RunOutcome.Finished ? featured.FinishTimeMicros / 1000 : 0,
                         beatFeatured = me.BeatFeaturedRival, cleared = cleared, earned = session.Profile.WalletBalance - before,
                         wallet = session.Profile.WalletBalance, reason = applied.Reason ?? "",
+                        contracts = me.ContractsPassed, contractDetail = me.ContractDetail ?? "",
                     });
                     Debug.Log($"[NightSignal.Campaign] {starter} {stage.Id} ({stage.Type}, {stage.Course}, cap {stage.MaxPI}) try {attempt}: PI {pi}, " +
                               $"{me.Outcome} P{me.Placement}/{results.Count} {me.FinishTimeMicros / 1e6:F1}s vs target {plan.Benchmark.TargetTimeMs / 1000.0:F0}s" +
                               (featured != null ? $", featured {featured.Entrant.Roster.EntrantId} {(featured.Outcome == RunOutcome.Finished ? (featured.FinishTimeMicros / 1e6).ToString("F1") + "s" : featured.Outcome.ToString())}" : "") +
+                              (me.ContractsPassed >= 0 ? $", Four Signals {me.ContractsPassed}/4 ({me.ContractDetail})" : "") +
                               $" → {(cleared ? "CLEARED" : "not cleared")}; wallet {session.Profile.WalletBalance:N0}");
                 }
                 if (!cleared) stoppedAt = stage.Id;
@@ -183,8 +185,8 @@ namespace NightSignal.Tests
         [Serializable]
         sealed class AttemptRow
         {
-            public string stage, type, course, build, outcome, featured, reason;
-            public int attempt, capPi, pi, placement, of;
+            public string stage, type, course, build, outcome, featured, reason, contractDetail;
+            public int attempt, capPi, pi, placement, of, contracts = -1;
             public long timeMs, targetMs, featuredTimeMs, earned, wallet;
             public bool beatFeatured, cleared;
         }

@@ -110,7 +110,8 @@ Render Cockpit Sheets* renders the mounted views of every car.
 0. Addendum 03 remaining (before benchmark certification; tunnels V-051, camera timing/occlusion and six-client views
    V-052, readability and bridges V-053, online recovery/impairment/soak V-054 are done): prediction hitches for a
    heavy-contact client under ~190 ms RTT (a velocity-continuous correction blend is in, A/B inconclusive, V-061);
-   then F08 and benchmark certification (soak V-059 and migration V-063 are done).
+   Normal benchmarks certified and S29 Four Signals judged (V-065); F08: V03 30/30, V01/V02 stop at S29's Entry apex
+   gates in traffic (automation racecraft); next: Hard certification with its own conditions, a human S29/rival-pace review.
 1. Customization follow-ups: decals scaled up render as flat quads crossing the glass (seen in V-062); meet refresh of liveries; pearl flip
    tint; rename/delete presets in the UI (the ops exist).
 2. F08–F10 starter progression runs with upgrades; drift skill per AI profile and campaign drift benchmarks; restrict

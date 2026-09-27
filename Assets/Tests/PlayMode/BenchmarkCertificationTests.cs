@@ -28,7 +28,7 @@ namespace NightSignal.Tests
     /// <item>The featured rival's driving pace (a scale on its whole speed plan, never above its stage profile) is bisected
     /// so its solo time lands 0–1 % above the target: a driver who meets the target beats it.</item>
     /// <item>S29 "Four Signals": the reference runs attempt the contracts (drifting the Arc) and are measured by the same
-    /// judge the race uses; the published targets come from the weakest starter — Entry sector × factor, Arc drift × 0.8,
+    /// judge the race uses; the published targets come from the weakest starter — Entry sector × factor, Arc drift × 0.6,
     /// the brake-release window 0.85 × lowest … 1.15 × highest exit speed with the release point 15 m past the latest
     /// reference release, Horizon exit speeds × 0.95.</item>
     /// </list>
@@ -148,7 +148,8 @@ namespace NightSignal.Tests
                 signals = new FourSignalsTargets
                 {
                     EntrySectorMs = (long)Math.Round(runs.Max(r => r.EntryMs) * ev.factor),
-                    ArcDriftRaw = (long)Math.Floor(runs.Min(r => Math.Max(0, r.ArcRaw)) * 0.8),
+                    // Solo references drift clean air; 0.6 leaves room for the live field around the Arc.
+                    ArcDriftRaw = (long)Math.Floor(runs.Min(r => Math.Max(0, r.ArcRaw)) * 0.6),
                     BrakeExitMinKmh = (float)Math.Round(runs.Min(r => r.BrakeExitKmh) * 0.85, 1),
                     BrakeExitMaxKmh = (float)Math.Round(runs.Max(r => r.BrakeExitKmh) * 1.15, 1),
                     // The release point from calibration (spec note): the latest reference release plus 15 m.

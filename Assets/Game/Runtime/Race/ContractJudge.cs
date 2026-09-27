@@ -13,6 +13,8 @@ namespace NightSignal.Race
     {
         public float LastDistance = -1f;
         public bool[] ApexHit;
+        /// <summary>Lateral position (m, + right of the centreline) where the car crossed each apex gate (NaN = not crossed).</summary>
+        public float[] ApexLateral;
         public long EntryMs = -1;
         public double ArcStartRaw = -1, ArcRaw = -1;
         public int DescentWalls0 = -1, DescentResets0 = -1, DescentWalls = -1, DescentResets = -1;
@@ -25,6 +27,7 @@ namespace NightSignal.Race
         public ContractRun(int apexes, int exits)
         {
             ApexHit = new bool[apexes];
+            ApexLateral = Enumerable.Repeat(float.NaN, apexes).ToArray();
             ExitKmh = Enumerable.Repeat(-1f, exits).ToArray();
         }
     }
@@ -71,6 +74,8 @@ namespace NightSignal.Race
         }
 
         public int ApexCount => apexes.Count;
+        /// <summary>The Entry's marked apex gates, for a driver (or the automation) who means to touch them.</summary>
+        public IReadOnlyList<RouteGateDef> ApexGates => apexes;
         public int ExitCount => exits.Count;
 
         /// <summary>A judge for a campaign event on a course with the four authored contract sectors; null otherwise.</summary>
@@ -104,8 +109,13 @@ namespace NightSignal.Race
             if (reset || last < 0f || d < last || d - last > 30f) return;
             bool Crossed(float m) => last < m && d >= m;
             float kmh = e.State.Velocity.magnitude * 3.6f;
+            // "Touch" an apex gate: the car's body crosses the gate's marked band (its centre within tolerance + half its width).
             for (int i = 0; i < apexes.Count; i++)
-                if (Crossed(apexes[i].StartMetres) && Mathf.Abs(e.Progress.Location.Lateral - apexes[i].LineOffset) <= apexes[i].LineTolerance) r.ApexHit[i] = true;
+                if (Crossed(apexes[i].StartMetres))
+                {
+                    r.ApexLateral[i] = e.Progress.Location.Lateral;
+                    if (Mathf.Abs(e.Progress.Location.Lateral - apexes[i].LineOffset) <= apexes[i].LineTolerance + e.Params.WidthM * 0.5f) r.ApexHit[i] = true;
+                }
             if (r.EntryMs < 0 && Crossed(arcStart))
             {
                 r.EntryMs = raceMicros / 1000;
@@ -161,7 +171,9 @@ namespace NightSignal.Race
             var fails = new List<string>();
             int apexHits = r.ApexHit.Count(x => x);
             v.Entry = r.EntryMs > 0 && r.EntryMs <= Targets.EntrySectorMs && apexHits == apexes.Count;
-            if (!v.Entry) fails.Add(r.EntryMs <= 0 ? "Entry: not completed" : $"Entry: {r.EntryMs / 1000.0:F2}s / {Targets.EntrySectorMs / 1000.0:F2}s, apex gates {apexHits}/{apexes.Count}");
+            if (!v.Entry)
+                fails.Add(r.EntryMs <= 0 ? "Entry: not completed" : $"Entry: {r.EntryMs / 1000.0:F2}s / {Targets.EntrySectorMs / 1000.0:F2}s, apex gates {apexHits}/{apexes.Count} (" +
+                          string.Join(", ", apexes.Select((g, i) => $"{(r.ApexLateral == null || float.IsNaN(r.ApexLateral[i]) ? "—" : r.ApexLateral[i].ToString("+0.0;-0.0"))} m vs {g.LineOffset:+0.0;-0.0}")) + ")");
             v.Arc = r.ArcRaw >= Targets.ArcDriftRaw;
             if (!v.Arc) fails.Add($"Arc: drift {System.Math.Max(0, r.ArcRaw):N0} / {Targets.ArcDriftRaw:N0}");
             bool clean = r.DescentWalls == 0 && r.DescentResets == 0;

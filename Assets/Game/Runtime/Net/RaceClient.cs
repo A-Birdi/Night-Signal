@@ -296,6 +296,8 @@ namespace NightSignal.Net
                 // Drift formats, and S29's Arc contract (a course with the four contract sectors), drift the judged zones.
                 DriftZones = (Info.FreeplayMode == "drift-attack" || track.Gates.Count(g => g.Kind == "contract") == 4) && new DriftJudge(track).Zones.Count > 0
                     ? new DriftJudge(track).Zones : null,
+                // S29's Entry contract: aim for the marked apex gates.
+                ApexGates = track.Gates.Count(g => g.Kind == "contract") == 4 ? track.Gates.Where(g => g.Kind == "apex").ToList() : null,
                 ResetWhenStuck = true,
                 SurfaceGrip = CourseRuntime.SurfaceGrip(Info.Surface),
             };
