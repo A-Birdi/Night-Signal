@@ -43,7 +43,8 @@ namespace NightSignal.Front
         readonly List<Button> partButtons = new List<Button>();
         // Tuning page: one line per control the installed parts expose (label, −, +).
         readonly List<(GameObject Root, TextMeshProUGUI Label, Button Minus, Button Plus)> tuneRows = new List<(GameObject, TextMeshProUGUI, Button, Button)>();
-        Button tuneSlot, tuneDefaults, tuneNormalize;
+        Button tuneSlot, tuneDefaults, tuneNormalize, appearance;
+        bool keepWorkshop; // the Appearance screen is part of this Garage visit
         bool tuning;
         List<TuningControlInfo> controls = new List<TuningControlInfo>();
         readonly List<Button> loadoutButtons = new List<Button>();
@@ -98,6 +99,8 @@ namespace NightSignal.Front
             tuneSlot = UIFactory.Button("Slot-tuning", lcol, "", () => { tuning = true; dirty = true; }, 520, 44);
             tuneSlot.GetComponentInChildren<TextMeshProUGUI>().richText = true;
             tuneSlot.GetComponentInChildren<TextMeshProUGUI>().fontSize = SignalTheme.Small * SignalTheme.TextScale;
+            appearance = UIFactory.Button("OpenAppearance", lcol, "Appearance  (body kit, wheels, paint, decals)", OpenAppearance, 520, 44);
+            appearance.GetComponentInChildren<TextMeshProUGUI>().fontSize = SignalTheme.Small * SignalTheme.TextScale;
 
             // Middle: parts for the chosen slot.
             RectTransform mcol = UIFactory.Column("Parts", root, new Vector2(0.31f, 0.02f), new Vector2(0.62f, 0.95f), Vector2.zero, Vector2.zero, 6f);
@@ -236,6 +239,11 @@ namespace NightSignal.Front
 
         public override void OnHide()
         {
+            if (keepWorkshop)
+            {
+                keepWorkshop = false;
+                return;
+            }
             if (ws != null && ws.Workshop.Open && backend != null && Car != null)
                 backend.Run(Car.InstanceId, ws, new GarageOp { Kind = "end-workshop" }, _ => { });
         }
@@ -625,6 +633,15 @@ namespace NightSignal.Front
         {
             preferA.GetComponentInChildren<TextMeshProUGUI>().text = side == "A" ? "Prefer A (marked)" : "Prefer A";
             preferB.GetComponentInChildren<TextMeshProUGUI>().text = side == "B" ? "Prefer B (marked)" : "Prefer B";
+        }
+
+        /// <summary>Appearance of this car instance: its own screen and preview; answers come back into this workspace.</summary>
+        void OpenAppearance()
+        {
+            if (ws == null || busy || Car == null || ContentLibrary.Load()?.Customization == null) return;
+            keepWorkshop = true;
+            App.Appearance.Open(backend, Car.InstanceId, CarName(Car), ws, state => { Adopt(state); dirty = true; });
+            App.Router.Show(App.Appearance);
         }
 
         void ApplyDraft()

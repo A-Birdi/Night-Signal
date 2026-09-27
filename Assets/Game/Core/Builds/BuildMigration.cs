@@ -30,7 +30,7 @@ namespace NightSignal.Core.Builds
         public Dictionary<string, StoredBuildDocument> References = new Dictionary<string, StoredBuildDocument>(StringComparer.Ordinal);
         public StoredBuildDocument AppliedBuild;
         public StoredBuildDocument GarageDraft;
-        /// <summary>Workspace state (revision, capacities, workshop session, applied visual/livery ids).</summary>
+        /// <summary>Workspace state (revision, capacities, workshop session, applied visual preset id, livery hash and livery).</summary>
         public StoredBuildDocument WorkspaceState;
     }
 
@@ -45,6 +45,12 @@ namespace NightSignal.Core.Builds
     /// workspace state v1, whole workspace v2. Legacy: "tune preset" loadout v1 and whole workspace v1 (the spec §9
     /// three-tune-preset era shape: part-id ARRAYS and free-form tune numbers). Migration never drops a named preset
     /// (capacity grows to hold them all), keeps unplaceable ids with an explanation, and never invents presets.
+    /// <para>
+    /// The applied livery (<see cref="CarBuildWorkspace.AppliedLivery"/>) is an additive field of workspace state v1 and whole
+    /// workspace v2: a document without it reads as "" (stock appearance). The state document writes <c>appliedLivery</c> only
+    /// when a livery is applied, so a stock workspace keeps exactly its earlier stored form (no version bump, no spurious
+    /// "upgraded on read" for existing profiles).
+    /// </para>
     /// </summary>
     public static class BuildDocumentCodec
     {
@@ -154,7 +160,7 @@ namespace NightSignal.Core.Builds
                 d.References[kv.Key] = Doc(kv.Key, kv.Key, ReferenceSchema, 1, kv.Value.CapturedUtc, kv.Value);
             d.AppliedBuild = Doc("applied", "applied", AppliedSchema, 1, ws.Applied.AppliedUtc, ws.Applied);
             if (ws.Draft != null) d.GarageDraft = Doc("draft", "draft", DraftSchema, 1, ws.Draft.UpdatedUtc, ws.Draft);
-            d.WorkspaceState = Doc("state", "state", WorkspaceStateSchema, 1, default(DateTime), new JObject
+            var state = new JObject
             {
                 ["instanceId"] = ws.Car.InstanceId,
                 ["modelId"] = ws.Car.ModelId,
@@ -163,9 +169,12 @@ namespace NightSignal.Core.Builds
                 ["visualPresetCapacity"] = ws.VisualPresetCapacity,
                 ["appliedVisualPresetId"] = ws.AppliedVisualPresetId,
                 ["appliedLiveryHash"] = ws.AppliedLiveryHash,
-                ["workshopOpen"] = ws.Workshop.Open,
-                ["workshopOpenedUtc"] = ws.Workshop.OpenedUtc,
-            });
+            };
+            // Only when applied: a stock workspace stores exactly the pre-livery state document (see the class remarks).
+            if (!string.IsNullOrEmpty(ws.AppliedLivery)) state["appliedLivery"] = ws.AppliedLivery;
+            state["workshopOpen"] = ws.Workshop.Open;
+            state["workshopOpenedUtc"] = ws.Workshop.OpenedUtc;
+            d.WorkspaceState = Doc("state", "state", WorkspaceStateSchema, 1, default(DateTime), state);
             return d;
         }
 
@@ -181,6 +190,7 @@ namespace NightSignal.Core.Builds
                 ws.VisualPresetCapacity = (int?)st["visualPresetCapacity"] ?? CarBuildWorkspace.MinVisualPresetSlots;
                 ws.AppliedVisualPresetId = (string)st["appliedVisualPresetId"] ?? "";
                 ws.AppliedLiveryHash = (string)st["appliedLiveryHash"] ?? "";
+                ws.AppliedLivery = (string)st["appliedLivery"] ?? ""; // absent in older documents: the stock appearance
                 ws.Workshop = new WorkshopSession { Open = (bool?)st["workshopOpen"] ?? false, OpenedUtc = Utc(st["workshopOpenedUtc"]) ?? default(DateTime) };
             }
             if (docs.AppliedBuild?.Data != null && docs.AppliedBuild.Schema == AppliedSchema)

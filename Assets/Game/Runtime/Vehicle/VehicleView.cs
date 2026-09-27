@@ -56,7 +56,8 @@ namespace NightSignal.Vehicle
             CarMaterials cm = mats.ForPaint(paint);
             cm.Paint2 = Instance(mats.Paint, $"{def.Id}_Paint2", a.Secondary, a.Finish);
             cm.Accent = Instance(mats.Paint, $"{def.Id}_Accent", a.Accent, "satin");
-            cm.Rim = Instance(mats.Rim, $"{def.Id}_Rim", a.RimColor, null);
+            cm.Rim = Instance(mats.Rim, $"{def.Id}_Rim", a.RimColor, a.RimFinish);
+            if (a.GlassTransmission < 0.89f) cm.Glass = Instance(mats.Glass, $"{def.Id}_Glass", CarAppearance.GlassTint(a.GlassTransmission, mats.Glass.GetColor("_BaseColor")), null);
             if (a.HeadTint != "clear") cm.HeadLamp = Instance(mats.HeadLamp, $"{def.Id}_Head", CarAppearance.LampTint(a.HeadTint, mats.HeadLamp.GetColor("_BaseColor")), null);
             if (a.TailTint != "clear") cm.TailLamp = Instance(mats.TailLamp, $"{def.Id}_Tail", CarAppearance.LampTint(a.TailTint, mats.TailLamp.GetColor("_BaseColor")), null);
 
@@ -67,8 +68,8 @@ namespace NightSignal.Vehicle
             body.localPosition = new Vector3(0f, -groundOffset, 0f);
             body.gameObject.AddComponent<MeshFilter>().sharedMesh = CarBodyGenerator.BuildBody(def, p, a);
             body.gameObject.AddComponent<MeshRenderer>().sharedMaterials = cm.BodyArray;
-            if (!string.IsNullOrEmpty(a.PlateText)) Plate(def, a.PlateText);
-            CarDecals.Build(body, def, p, a.Decals, mats.Paint, owned);
+            if (!string.IsNullOrEmpty(a.PlateText)) Plate(def, a, mats.Trim);
+            CarDecals.Build(body, def, p, a.Decals, mats.Paint, owned, a.Primary);
 
             Mesh wheelMesh = CarBodyGenerator.BuildWheel(def, a);
             for (int i = 0; i < 4; i++)
@@ -109,19 +110,26 @@ namespace NightSignal.Vehicle
             SetLayerRecursive(transform, GameLayers.Vehicle);
         }
 
-        /// <summary>The number plate lettering (literal text, never markup) on the rear plate panel.</summary>
-        void Plate(CarBodyDef def, string text)
+        /// <summary>The number plate: a backing in the plate style's colour and the lettering (literal text, never markup).</summary>
+        void Plate(CarBodyDef def, CarAppearance a, Material trim)
         {
             var go = new GameObject("Plate");
             go.transform.SetParent(body, false);
             go.transform.localPosition = CarBodyGenerator.RearPlateCentre(def, p);
+            var backing = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            backing.name = "PlateBacking";
+            Destroy(backing.GetComponent<Collider>());
+            backing.transform.SetParent(go.transform, false);
+            backing.transform.localPosition = new Vector3(0f, 0f, 0.01f); // between the trim plate face and the lettering, facing −z
+            backing.transform.localScale = new Vector3(0.49f, 0.1f, 1f); // inside the 0.52 × 0.12 m trim plate
+            backing.GetComponent<MeshRenderer>().sharedMaterial = Instance(trim, $"{def.Id}_Plate", a.PlateBackground, "satin");
             // TextMeshPro faces −z: readable by someone standing behind the car.
             var t = go.AddComponent<TMPro.TextMeshPro>();
             t.richText = false;
-            t.text = text;
+            t.text = a.PlateText;
             t.fontSize = 0.9f;
             t.alignment = TMPro.TextAlignmentOptions.Center;
-            t.color = new Color(0.08f, 0.08f, 0.1f);
+            t.color = a.PlateTextColor;
             t.rectTransform.sizeDelta = new Vector2(0.5f, 0.12f);
             t.enableAutoSizing = true;
             t.fontSizeMin = 0.2f;
@@ -160,7 +168,7 @@ namespace NightSignal.Vehicle
                 // Remote cars have no local telemetry: their replicated compression tells us they are grounded.
                 bool grounded = w.Grounded || comp > 0.001f;
                 float travel = grounded ? p.RestLengthM - comp : p.RestLengthM;
-                wheels[i].localPosition = mount + Vector3.down * travel;
+                wheels[i].localPosition = mount + Vector3.down * travel + Offset(i);
                 float steer = i < 2 ? Mathf.Lerp(previous.SteerAngle, current.SteerAngle, alpha) * Mathf.Rad2Deg : 0f;
                 wheels[i].localRotation = Quaternion.Euler(0f, steer, 0f);
                 spinAngle[i] = Mathf.Repeat(spinAngle[i] + w.AngularSpeed * Mathf.Rad2Deg * dt, 360f);
@@ -181,11 +189,15 @@ namespace NightSignal.Vehicle
             transform.SetPositionAndRotation(groundPosition + rotation * Vector3.up * (p.CgHeightM - staticComp), rotation);
             for (int i = 0; i < 4; i++)
             {
-                wheels[i].localPosition = p.WheelMount(i) + Vector3.down * (p.RestLengthM - staticComp);
+                wheels[i].localPosition = p.WheelMount(i) + Vector3.down * (p.RestLengthM - staticComp) + Offset(i);
                 wheels[i].localRotation = Quaternion.Euler(0f, i < 2 ? steerDeg : 0f, 0f);
             }
             body.localRotation = Quaternion.identity;
         }
+
+        /// <summary>Visual wheel offset (appearance only): left wheels move −x, right +x.</summary>
+        Vector3 Offset(int wheel) => Appearance == null || Appearance.WheelOffsetM == 0f ? Vector3.zero
+            : new Vector3(wheel % 2 == 0 ? -Appearance.WheelOffsetM : Appearance.WheelOffsetM, 0f, 0f);
 
         static void SetLayerRecursive(Transform t, int layer)
         {

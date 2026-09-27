@@ -4,6 +4,7 @@ using NightSignal.ControlPlane.Convoys;
 using NightSignal.ControlPlane.Persistence;
 using NightSignal.Core.Builds;
 using NightSignal.Core.Content;
+using NightSignal.Core.Customization;
 using NightSignal.Core.Rules;
 
 namespace NightSignal.ControlPlane.Garage;
@@ -19,9 +20,12 @@ public sealed record GarageReply(int Status, object Body)
 /// INSTANCE, the whole CarBuildWorkspace (optimistic concurrency by revision) and Buy-and-Apply quotes; every rule is Core's
 /// (<see cref="GarageOperations"/>, <see cref="PurchaseQuotes"/>, <see cref="BuildResolver"/>, <see cref="PerformanceIndexEstimator"/>).
 /// Performance truth for the convoy (hash, PI, frozen race build) is always re-resolved here from the stored APPLIED build.
+/// Appearance truth likewise: liveries are parsed, validated (Core <see cref="LiveryValidator"/>, ownership from
+/// <c>cosmetics_owned</c>) and hashed HERE; the convoy's cosmetic hash and the assignment's livery come from the stored
+/// applied livery, never from a client claim.
 /// </summary>
 public sealed class GarageService(IGarageStore store, IPlayerStore players, ContentService content, GarageContent garage,
-    ConvoyDirectory convoys, TimeProvider clock, ILogger<GarageService> log)
+    CustomizationContent customization, ConvoyDirectory convoys, TimeProvider clock, ILogger<GarageService> log)
 {
     public GarageContent Data => garage;
 
@@ -186,9 +190,12 @@ public sealed class GarageService(IGarageStore store, IPlayerStore players, Cont
             return Error(400, "invalid_request", $"op must be one of: {string.Join(", ", GarageWire.Operations)}.");
         if (req.ExpectedRevision is null && op != "begin-workshop")
             return Error(400, "invalid_request", "expectedRevision (the workspace revision you edited) is required.");
-        if (op is "visual-preset-save" && GarageWire.ValidatePayload(req.PayloadSchema, req.PayloadJson) is { } payloadError)
+        if (op is "visual-preset-save" or "visual-preset-update" && GarageWire.ValidatePayload(req.PayloadSchema, req.PayloadJson) is { } payloadError)
             return Error(400, "invalid_request", payloadError);
-        if (req.ConfirmationToken is { Length: > GarageWire.MaxIdLength } || req.Note is { Length: > 1000 } || req.Name is { Length: > 200 })
+        if (op is "livery-apply" && req.LiveryJson is { Length: > GarageWire.MaxLiveryJsonChars })
+            return Error(400, "invalid_request", $"liveryJson is at most {GarageWire.MaxLiveryJsonChars} characters.");
+        if (req.ConfirmationToken is { Length: > GarageWire.MaxIdLength } || req.Note is { Length: > 1000 } || req.Name is { Length: > 200 } ||
+            req.PresetId is { Length: > GarageWire.MaxIdLength })
             return Error(400, "invalid_request", "A field is too long.");
 
         LoadedCar? c = await LoadAsync(account, instanceId, ct);
@@ -196,12 +203,14 @@ public sealed class GarageService(IGarageStore store, IPlayerStore players, Cont
         CarBuildWorkspace ws = c.Workspace;
         long revisionBefore = ws.Revision;
         long appliedBefore = ws.Applied.Revision;
+        string liveryHashBefore = ws.AppliedLiveryHash ?? "";
         long expected = req.ExpectedRevision ?? ws.Revision;
         EventConstraints? constraints = Constraints(account, instanceId);
         DateTime now = Now;
 
         OperationResult? r;
         string? inputError = null;
+        GarageReply? refusal = null; // a structured input refusal (invalid_livery), returned instead of inputError
         switch (op)
         {
             case "save-as":
@@ -228,16 +237,53 @@ public sealed class GarageService(IGarageStore store, IPlayerStore players, Cont
                 r = RequireLoadout(req, out inputError) ? GarageOperations.SetPinned(ws, expected, req.LoadoutId!, req.Pinned ?? true) : null;
                 break;
             case "visual-preset-save":
-                r = GarageOperations.SaveVisualPreset(ws, expected, req.Name, req.PayloadSchema, req.PayloadJson, now);
+            {
+                refusal = PresetPayload(req, ws.Car.ModelId, out string? payload);
+                r = refusal is null ? GarageOperations.SaveVisualPreset(ws, expected, req.Name, req.PayloadSchema, payload, now) : null;
+                break;
+            }
+            case "visual-preset-update":
+            {
+                if (!RequirePreset(req, out inputError))
+                {
+                    r = null;
+                    break;
+                }
+                refusal = PresetPayload(req, ws.Car.ModelId, out string? payload);
+                r = refusal is null
+                    ? GarageOperations.UpdateVisualPreset(ws, expected, req.PresetId!, req.PayloadSchema, payload, req.ConfirmationToken, now)
+                    : null;
+                break;
+            }
+            case "visual-preset-rename":
+                r = RequirePreset(req, out inputError) ? GarageOperations.RenameVisualPreset(ws, expected, req.PresetId!, req.Name, now) : null;
                 break;
             case "visual-preset-delete":
-                if (string.IsNullOrEmpty(req.PresetId) || req.PresetId.Length > GarageWire.MaxIdLength)
-                {
-                    inputError = "presetId is required.";
-                    r = null;
-                }
-                else r = GarageOperations.DeleteVisualPreset(ws, expected, req.PresetId, req.ConfirmationToken);
+                r = RequirePreset(req, out inputError) ? GarageOperations.DeleteVisualPreset(ws, expected, req.PresetId!, req.ConfirmationToken) : null;
                 break;
+            case "livery-apply":
+            {
+                string presetId = req.PresetId ?? "";
+                string canonical = "", hash = "";
+                if (!string.IsNullOrEmpty(req.LiveryJson))
+                {
+                    // Apply mode: every locked item must be owned by THIS account (cosmetics_owned), not claimed by the client.
+                    IReadOnlyList<string> cosmetics = (await players.GetSnapshotAsync(account, ct)).Cosmetics;
+                    refusal = CheckLivery(req.LiveryJson, ws.Car.ModelId, CosmeticOwnership.FromIds(cosmetics), LiveryValidationMode.Apply,
+                        out LiveryDocument? doc);
+                    if (doc is not null)
+                    {
+                        canonical = LiveryJson.ToCanonicalJson(doc);
+                        hash = LiveryHash.Of(doc);
+                    }
+                }
+                if (refusal is null && presetId.Length > 0 && ws.VisualPresets.FirstOrDefault(v => v.PresetId == presetId) is { } preset &&
+                    !HoldsLivery(preset, canonical))
+                    refusal = Error(400, "invalid_request",
+                        $"presetId: \"{preset.Name}\" holds a different look than liveryJson; send presetId \"\" for an edited livery.");
+                r = refusal is null ? GarageOperations.ApplyLivery(ws, expected, canonical, hash, presetId, now) : null;
+                break;
+            }
             case "load-into-draft":
                 r = GarageWire.TryDraftSource(req.Source, out DraftSource source, out inputError)
                     ? GarageOperations.LoadIntoDraft(ws, expected, source, req.ConfirmationToken, c.Context, now)
@@ -268,7 +314,7 @@ public sealed class GarageService(IGarageStore store, IPlayerStore players, Cont
                 r = GarageOperations.AcceptNewWorkshopBaseline(ws, expected, c.Context, now);
                 break;
         }
-        if (r is null) return Error(400, "invalid_request", inputError ?? "Invalid request.");
+        if (r is null) return refusal ?? Error(400, "invalid_request", inputError ?? "Invalid request.");
         if (!r.Accepted) return OperationFailure(r, ws);
 
         bool changed = ws.Revision != revisionBefore;
@@ -279,8 +325,10 @@ public sealed class GarageService(IGarageStore store, IPlayerStore players, Cont
                 return Error(409, "stale_revision", "This car changed elsewhere while your change was being saved. Reload before editing.",
                     new { revision = (await store.GetWorkspaceAsync(instanceId, ct))?.Revision });
         }
-        object? convoy = null;
-        if (changed && ws.Applied.Revision != appliedBefore) convoy = RefreshConvoy(account, c.Instance, ws);
+        // A new applied build refreshes the convoy's performance truth; a new applied livery only its cosmetic hash (readiness kept).
+        bool performance = changed && ws.Applied.Revision != appliedBefore;
+        bool appearance = changed && (ws.AppliedLiveryHash ?? "") != liveryHashBefore;
+        object? convoy = performance || appearance ? RefreshConvoy(account, c.Instance, ws, performance) : null;
         return new GarageReply(200, new
         {
             status = changed ? "ok" : "unchanged",
@@ -302,6 +350,68 @@ public sealed class GarageService(IGarageStore store, IPlayerStore players, Cont
     {
         error = string.IsNullOrEmpty(req.LoadoutId) || req.LoadoutId.Length > GarageWire.MaxIdLength ? "loadoutId is required." : null;
         return error is null;
+    }
+
+    static bool RequirePreset(GarageOpRequest req, out string? error)
+    {
+        error = string.IsNullOrEmpty(req.PresetId) || req.PresetId.Length > GarageWire.MaxIdLength ? "presetId is required." : null;
+        return error is null;
+    }
+
+    /// <summary>
+    /// The payload to store for visual-preset-save/-update. A livery (payloadSchema night-signal/livery@1) must be a
+    /// structurally valid livery for THIS car in Preview mode (locked items may be kept in a preset as a plan; applying still
+    /// needs them owned) and is stored in its canonical form. Other schemas stay opaque (bounded JSON, see GarageWire).
+    /// </summary>
+    GarageReply? PresetPayload(GarageOpRequest req, string carId, out string? payload)
+    {
+        payload = req.PayloadJson;
+        if (req.PayloadSchema != LiveryDocument.SchemaId) return null;
+        GarageReply? refused = CheckLivery(req.PayloadJson ?? "", carId, null, LiveryValidationMode.Preview, out LiveryDocument? doc);
+        if (refused is not null) return refused;
+        payload = LiveryJson.ToCanonicalJson(doc!);
+        return payload.Length <= GarageWire.MaxPayloadJsonChars
+            ? null
+            : Error(400, "invalid_request", $"The canonical livery exceeds {GarageWire.MaxPayloadJsonChars} characters.");
+    }
+
+    /// <summary>
+    /// Strict parse (Core <see cref="LiveryJson"/>) and validation (Core <see cref="LiveryValidator"/>) of a client livery for
+    /// <paramref name="carId"/> against the trusted customization catalogue. On success <paramref name="doc"/> is the parsed
+    /// document (colours canonical, placement quantised); otherwise the refusal lists the validator's exact messages.
+    /// </summary>
+    GarageReply? CheckLivery(string json, string carId, CosmeticOwnership? owned, LiveryValidationMode mode, out LiveryDocument? doc)
+    {
+        doc = null;
+        LiveryParseResult parsed = LiveryJson.Parse(json);
+        if (!parsed.Ok) return InvalidLivery("The livery is not a readable livery document", parsed.Errors, Array.Empty<LockedItem>());
+        LiveryValidation v = LiveryValidator.Validate(parsed.Document, customization.Catalogue, carId, owned, mode);
+        if (!v.IsValid)
+        {
+            string message = parsed.Document.Car != carId ? $"This livery is for {(parsed.Document.Car is { Length: > 0 } other ? other : "no car")}, not {carId}"
+                : mode == LiveryValidationMode.Apply && v.Errors.Count == v.Locked.Count ? "The livery uses items you have not unlocked"
+                : "The livery is not valid for this car";
+            return InvalidLivery(message, v.Errors, v.Locked);
+        }
+        doc = parsed.Document;
+        return null;
+    }
+
+    static GarageReply InvalidLivery(string message, IReadOnlyList<string> errors, IReadOnlyList<LockedItem> locked) =>
+        Error(400, "invalid_livery", $"{message}: {string.Join("; ", errors.Take(3))}{(errors.Count > 3 ? $" (+{errors.Count - 3} more)" : "")}.",
+            new Dictionary<string, object?>
+            {
+                ["errors"] = errors.ToList(),
+                ["locked"] = locked.Select(l => new { path = l.Path, itemId = l.ItemId, name = l.Name, cosmeticId = l.CosmeticId }).ToList(),
+            });
+
+    /// <summary>True when <paramref name="preset"/> holds exactly the livery <paramref name="canonical"/> (same canonical form).</summary>
+    static bool HoldsLivery(VisualPreset preset, string canonical)
+    {
+        if (canonical.Length == 0 || preset.PayloadSchema != LiveryDocument.SchemaId) return false;
+        if (preset.PayloadJson == canonical) return true;
+        LiveryParseResult parsed = LiveryJson.Parse(preset.PayloadJson);
+        return parsed.Ok && LiveryJson.ToCanonicalJson(parsed.Document) == canonical;
     }
 
     static GarageReply OperationFailure(OperationResult r, CarBuildWorkspace ws)
@@ -394,7 +504,7 @@ public sealed class GarageService(IGarageStore store, IPlayerStore players, Cont
             case Core.Builds.SettlementOutcome.Settled:
             {
                 CarBuildWorkspace next = o.Workspace!;
-                object? convoy = RefreshConvoy(account, o.Instance!, next);
+                object? convoy = RefreshConvoy(account, o.Instance!, next, performance: true);
                 log.LogInformation("Buy-and-Apply {QuoteId}: {Count} part(s), {Debit} credits, applied revision {Revision}", quoteId, s.Grants.Count, s.Debit,
                     next.Applied.Revision);
                 return new GarageReply(200, new
@@ -474,9 +584,10 @@ public sealed class GarageService(IGarageStore store, IPlayerStore players, Cont
 
     /// <summary>
     /// <c>loadout.set</c>: the member's selected car instance (by id, or the account's instance of <paramref name="carId"/>)
-    /// with the performance hash and PI computed HERE from its stored applied build. Client performance claims are never used.
+    /// with the performance hash and PI computed HERE from its stored applied build, and the cosmetic hash of its stored
+    /// applied livery (<see cref="EntrantAppearance.CosmeticHash"/>). Client performance and cosmetic claims are never used.
     /// </summary>
-    public async Task<(LoadoutInfo? Loadout, ConvoyError? Error)> SelectionAsync(string account, string? carId, string? instanceId, string cosmeticHash,
+    public async Task<(LoadoutInfo? Loadout, ConvoyError? Error)> SelectionAsync(string account, string? carId, string? instanceId,
         CancellationToken ct)
     {
         IReadOnlyList<CarInstance> instances = await store.EnsureCarInstancesAsync(account, ct);
@@ -490,7 +601,7 @@ public sealed class GarageService(IGarageStore store, IPlayerStore players, Cont
         }
         (EntrantBuild? build, ConvoyError? error) = await FreezeAsync(account, instance.InstanceId, ct);
         if (build is null) return (null, error);
-        return (new LoadoutInfo(instance.CarId, build.Pi, build.BuildHash, cosmeticHash, instance.InstanceId, build.AppliedRevision), null);
+        return (new LoadoutInfo(instance.CarId, build.Pi, build.BuildHash, build.Appearance!.CosmeticHash, instance.InstanceId, build.AppliedRevision), null);
     }
 
     /// <summary>The member's selected instance re-resolved now (event.ready): null when the member has no instance selection.</summary>
@@ -500,18 +611,44 @@ public sealed class GarageService(IGarageStore store, IPlayerStore players, Cont
         (EntrantBuild? build, ConvoyError? error) = await FreezeAsync(account, instanceId, ct);
         return build is null
             ? (null, error)
-            : (current with { CarPi = build.Pi, PerformanceHash = build.BuildHash, AppliedRevision = build.AppliedRevision }, null);
+            : (current with
+            {
+                CarPi = build.Pi, PerformanceHash = build.BuildHash, AppliedRevision = build.AppliedRevision, CosmeticHash = build.Appearance!.CosmeticHash,
+            }, null);
     }
 
-    /// <summary>The entrant's CURRENT applied build, re-resolved with Core from the stored workspace (never a draft or preview).</summary>
+    /// <summary>
+    /// The entrant's CURRENT applied build, re-resolved with Core from the stored workspace (never a draft or preview), with the
+    /// applied appearance read from the same workspace (<see cref="EntrantBuild.Appearance"/>).
+    /// </summary>
     public async Task<(EntrantBuild? Build, ConvoyError? Error)> FreezeAsync(string account, string instanceId, CancellationToken ct)
     {
         LoadedCar? c = await LoadAsync(account, instanceId, ct);
         if (c is null) return (null, new ConvoyError("not_owned", "That car instance is not yours."));
         (EntrantBuild? build, List<RepairItem> repairs) = Resolve(c);
         return build is not null
-            ? (build, null)
+            ? (build with { Appearance = AppearanceOf(c.Workspace) }, null)
             : (null, new ConvoyError("loadout_illegal", "Your applied build needs repair in the Garage: " + string.Join("; ", repairs)));
+    }
+
+    /// <summary>
+    /// The applied appearance of a workspace as the game server receives it: the stored applied livery re-read with Core
+    /// (strict parse, catalogue validation for its car), its server-computed <see cref="LiveryHash"/> and compact
+    /// <see cref="LiveryWire"/> form. No livery → the stock appearance (<c>Livery</c> null, the stock livery's hash). A stored
+    /// livery that no longer resolves against the current customization catalogue races with the stock appearance (logged)
+    /// rather than sending the game server something it cannot build.
+    /// </summary>
+    public EntrantAppearance AppearanceOf(CarBuildWorkspace ws)
+    {
+        string carId = ws.Car.ModelId;
+        if (string.IsNullOrEmpty(ws.AppliedLivery)) return new EntrantAppearance(customization.StockHash(carId), null);
+        LiveryParseResult parsed = LiveryJson.Parse(ws.AppliedLivery);
+        if (parsed.Ok && LiveryValidator.Validate(parsed.Document, customization.Catalogue, carId, null, LiveryValidationMode.Preview).IsValid &&
+            LiveryWire.EncodeProblem(parsed.Document) is null)
+            return new EntrantAppearance(LiveryHash.Of(parsed.Document), LiveryWire.Encode(parsed.Document));
+        log.LogWarning("Applied livery of {InstanceId} does not resolve against customization revision {Revision}; the stock appearance is used",
+            ws.Car.InstanceId, customization.Revision);
+        return new EntrantAppearance(customization.StockHash(carId), null);
     }
 
     /// <summary>Frozen builds of several entrants' selected instances (event.start); entrants without a valid build are omitted.</summary>
@@ -550,11 +687,19 @@ public sealed class GarageService(IGarageStore store, IPlayerStore players, Cont
         return false;
     }
 
-    object? RefreshConvoy(string account, CarInstance instance, CarBuildWorkspace ws)
+    /// <summary>
+    /// The Garage changed the member's SELECTED car: a new applied build (<paramref name="performance"/>) refreshes its hash/PI
+    /// (a performance change unreadies only this member); every refresh also carries the server cosmetic hash of the applied
+    /// livery, and a cosmetic-only change (livery-apply) keeps readiness (ConvoyDirectory.RefreshLoadoutFromGarage).
+    /// </summary>
+    object? RefreshConvoy(string account, CarInstance instance, CarBuildWorkspace ws, bool performance)
     {
         if (convoys.LoadoutOf(account) is not { } selected || selected.InstanceId != instance.InstanceId) return null;
-        bool unreadied = convoys.RefreshLoadoutFromGarage(account,
-            selected with { CarPi = ws.Applied.Pi, PerformanceHash = ws.Applied.BuildHash, AppliedRevision = ws.Applied.Revision });
+        string cosmetic = AppearanceOf(ws).CosmeticHash;
+        LoadoutInfo fresh = performance
+            ? selected with { CarPi = ws.Applied.Pi, PerformanceHash = ws.Applied.BuildHash, AppliedRevision = ws.Applied.Revision, CosmeticHash = cosmetic }
+            : selected with { CosmeticHash = cosmetic };
+        bool unreadied = convoys.RefreshLoadoutFromGarage(account, fresh);
         return new { selected = true, performanceChanged = unreadied };
     }
 

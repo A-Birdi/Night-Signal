@@ -23,5 +23,7 @@ namespace NightSignal.Race
         /// <summary>A human's frozen applied build (null = the model's stock car) and its Core BuildHash.</summary>
         public Core.Builds.MechanicalSnapshot Build;
         public string BuildHash = "";
+        /// <summary>A human's applied livery in the compact wire form ("" = the palette colour). Visual only.</summary>
+        public string Livery = "";
     }
 }

@@ -1,16 +1,20 @@
 using System.Text;
 using System.Text.Json;
 using NightSignal.Core.Builds;
+using NightSignal.Core.Customization;
 
 namespace NightSignal.ControlPlane.Garage;
 
 // Wire shapes of the ONLINE Garage (docs/NETWORKING.md §2.6). Output is camelCase System.Text.Json; ids (slots, part ids,
 // tuning keys) are map KEYS and are never renamed. Everything the client sends is bounded here before Core sees it.
 
-/// <summary>POST /v1/me/garage/cars/{instanceId}/operations — one Core GarageOperations call.</summary>
+/// <summary>
+/// POST /v1/me/garage/cars/{instanceId}/operations — one Core GarageOperations call. <see cref="LiveryJson"/> is the livery
+/// document for <c>livery-apply</c> (null or "" = back to the stock appearance).
+/// </summary>
 public sealed record GarageOpRequest(string? Op, long? ExpectedRevision = null, string? ConfirmationToken = null, string? LoadoutId = null,
     string? Name = null, string? Note = null, bool? Pinned = null, bool? FromApplied = null, string? PresetId = null, string? PayloadSchema = null,
-    string? PayloadJson = null, DraftSourceInput? Source = null, BuildInput? Build = null);
+    string? PayloadJson = null, DraftSourceInput? Source = null, BuildInput? Build = null, string? LiveryJson = null);
 
 /// <summary>Load-into-draft source: <c>applied</c>, <c>loadout</c> (+ id) or <c>reference</c> (+ before-workshop | before-last-apply | last-race-build).</summary>
 public sealed record DraftSourceInput(string? Kind, string? Id = null);
@@ -32,12 +36,20 @@ public static class GarageWire
     public const int MaxKeyLength = 32;
     public const int MaxBuildEntries = 16;
     public const int MaxTuningEntries = 32;
+    /// <summary>
+    /// Bound of an opaque visual preset payload, and of every STORED payload. A livery (schema night-signal/livery@1) is
+    /// accepted up to <see cref="MaxLiveryJsonChars"/> on input (pretty-printed documents), but what is stored is its canonical
+    /// form, which for a maximal 64-layer livery is about 10 KB (&lt; this bound; checked again before storing).
+    /// </summary>
     public const int MaxPayloadJsonChars = 16 * 1024;
+    /// <summary>Input bound of a livery document (<c>liveryJson</c>, or a livery-schema <c>payloadJson</c>): Core LiveryLimits.MaxPayloadChars.</summary>
+    public const int MaxLiveryJsonChars = LiveryLimits.MaxPayloadChars;
     public const int MaxPayloadSchemaChars = 64;
 
     public static readonly string[] Operations =
     {
-        "save-as", "rename", "note", "overwrite", "duplicate", "delete", "pin", "visual-preset-save", "visual-preset-delete",
+        "save-as", "rename", "note", "overwrite", "duplicate", "delete", "pin", "visual-preset-save", "visual-preset-update",
+        "visual-preset-rename", "visual-preset-delete", "livery-apply",
         "load-into-draft", "edit-draft", "discard-draft", "apply", "apply-loadout", "begin-workshop", "end-workshop", "accept-baseline",
     };
 
@@ -105,12 +117,17 @@ public static class GarageWire
         }
     }
 
-    /// <summary>A visual preset payload is opaque data for the customization system; it must be bounded, well-formed JSON.</summary>
+    /// <summary>
+    /// A visual preset payload is data for the customization system; it must be bounded, well-formed JSON. A livery-schema
+    /// payload may be up to <see cref="MaxLiveryJsonChars"/> here; GarageService then validates it as a livery and stores the
+    /// canonical form.
+    /// </summary>
     public static string? ValidatePayload(string? schema, string? payloadJson)
     {
         if (schema is { Length: > MaxPayloadSchemaChars }) return $"payloadSchema is at most {MaxPayloadSchemaChars} characters.";
         if (string.IsNullOrEmpty(payloadJson)) return null;
-        if (payloadJson.Length > MaxPayloadJsonChars) return $"payloadJson is at most {MaxPayloadJsonChars} characters.";
+        int max = schema == LiveryDocument.SchemaId ? MaxLiveryJsonChars : MaxPayloadJsonChars;
+        if (payloadJson.Length > max) return $"payloadJson is at most {max} characters.";
         try
         {
             using JsonDocument _ = JsonDocument.Parse(payloadJson);
@@ -191,7 +208,8 @@ public static class GarageWire
         visualPresetCapacity = ws.VisualPresetCapacity,
         appliedVisualPresetId = ws.AppliedVisualPresetId,
         appliedLiveryHash = ws.AppliedLiveryHash,
-        references = ws.References.ToDictionary(kv => kv.Key, kv => Reference(kv.Value)),
+        appliedLivery = ws.AppliedLivery ?? "",
+        references =ws.References.ToDictionary(kv => kv.Key, kv => Reference(kv.Value)),
         draft = ws.Draft is null ? null : new
         {
             build = Snapshot(ws.Draft.Build), loadedFrom = ws.Draft.LoadedFrom, basedOnAppliedRevision = ws.Draft.BasedOnAppliedRevision,

@@ -17,6 +17,8 @@ namespace NightSignal.Net
         public int CarPi, LoadoutRevision;
         /// <summary>The frozen server-resolved applied build (null from an older control plane: race the stock car).</summary>
         public AssignmentVehicleBuild VehicleBuild;
+        /// <summary><c>entrants[].livery</c>: the applied livery in the compact wire form (null = stock appearance). Visual only.</summary>
+        public string Livery;
     }
 
     /// <summary>

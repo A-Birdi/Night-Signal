@@ -18,6 +18,13 @@ namespace NightSignal.Art
         public float RimFraction;
         public Color Primary = new Color(0.82f, 0.12f, 0.12f), Secondary = new Color(0.1f, 0.1f, 0.11f), Accent = new Color(0.08f, 0.08f, 0.09f);
         public Color RimColor = new Color(0.72f, 0.73f, 0.75f);
+        /// <summary>Rim paint finish (gloss | metallic | satin …); null = the shared rim material's own.</summary>
+        public string RimFinish;
+        /// <summary>Visual wheel-face offset in metres (+ outward). The physics track never changes.</summary>
+        public float WheelOffsetM;
+        /// <summary>Glass light transmission from the catalogue (clear 0.9, light 0.7, medium 0.5); ≥ 0.9 keeps the shared glass.</summary>
+        public float GlassTransmission = 0.9f;
+        public Color PlateBackground = new Color(0.95f, 0.95f, 0.93f), PlateTextColor = new Color(0.08f, 0.08f, 0.1f);
         /// <summary>gloss | metallic | pearl | matte | satin</summary>
         public string Finish = "gloss";
         /// <summary>none | lower | roof | hood-stripe | side-stripe</summary>
@@ -45,6 +52,13 @@ namespace NightSignal.Art
             }
         }
 
+        /// <summary>The glass colour for a transmission: darker as less light passes (never fully black).</summary>
+        public static Color GlassTint(float transmission, Color baseColor)
+        {
+            float k = Mathf.Clamp(transmission / 0.9f, 0.35f, 1f);
+            return new Color(baseColor.r * k, baseColor.g * k, baseColor.b * k, Mathf.Lerp(1f, baseColor.a, k));
+        }
+
         public static Color LampTint(string tint, Color baseColor)
         {
             switch (tint)
@@ -65,6 +79,8 @@ namespace NightSignal.Art
         /// <summary>digit / text only: the literal characters (never markup).</summary>
         public string Glyph = "";
         public Color Color = Color.white;
+        /// <summary>0.1..1. Decals render opaque, so a lower opacity blends the colour toward the paint underneath.</summary>
+        public float Opacity = 1f;
         /// <summary>hood | roof | left | right | rear | front</summary>
         public string Zone = "left";
         public float U = 0.5f, V = 0.5f, Scale = 0.3f, RotationDeg;

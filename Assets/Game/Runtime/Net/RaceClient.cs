@@ -48,6 +48,8 @@ namespace NightSignal.Net
 
         public bool Autopilot;
         public MatchInfo Info { get; private set; }
+        /// <summary>This client's own car as drawn (null before the views exist or headless).</summary>
+        public VehicleView MyView => Info != null && cars.TryGetValue(Info.YourIndex, out Car c) ? c.View : null;
         public MatchPhase Phase { get; private set; } = MatchPhase.WaitingForEntrants;
         public MatchResults Results { get; private set; }
         public bool Connected => nm != null && nm.IsConnectedClient;
@@ -143,7 +145,8 @@ namespace NightSignal.Net
                 if (!headless)
                 {
                     VehicleParams p = car.Params;
-                    car.View = VehicleView.Create($"Car_{r.Index}_{r.CarId}", p, lib.Body(r.CarId), carSet, new Color(r.Paint[0], r.Paint[1], r.Paint[2]));
+                    car.View = VehicleView.Create($"Car_{r.Index}_{r.CarId}", p, lib.Body(r.CarId), carSet, new Color(r.Paint[0], r.Paint[1], r.Paint[2]),
+                        AppearanceMapping.ForWire(lib.Customization, r.CarId, r.Livery));
                     GridSlot g = track.Grid[r.GridSlot];
                     car.View.ShowParked(g.Position - g.Rotation * Vector3.up * 0.6f, g.Rotation);
                     car.View.SetHeadlights(CourseRuntime.Active.DefaultTimeOfDay == "night");

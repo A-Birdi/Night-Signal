@@ -14,7 +14,9 @@ namespace NightSignal.Art
     {
         public const int MaxLayers = 64;
 
-        public static void Build(Transform body, CarBodyDef def, VehicleParams p, IReadOnlyList<CarDecal> decals, Material baseMaterial, List<Object> owned)
+        /// <param name="under">The paint under the decals: a translucent layer shows its colour blended toward it.</param>
+        public static void Build(Transform body, CarBodyDef def, VehicleParams p, IReadOnlyList<CarDecal> decals, Material baseMaterial, List<Object> owned,
+            Color? under = null)
         {
             if (decals == null || decals.Count == 0) return;
             var root = new GameObject("Decals").transform;
@@ -23,9 +25,10 @@ namespace NightSignal.Art
             var mb = new Dictionary<Color, MeshBuilder>();
             CarBodyGenerator.BodySurface surface = CarBodyGenerator.Surface(def, p);
             int layer = 0;
-            foreach (CarDecal d in decals)
+            foreach (CarDecal source in decals)
             {
                 if (layer >= MaxLayers) break;
+                CarDecal d = Shown(source, under);
                 Place(root, surface, d, d.Zone, d.U, d.Flip, layer, byColor, mb, baseMaterial, owned);
                 if (d.Mirror)
                 {
@@ -43,6 +46,18 @@ namespace NightSignal.Art
                 go.AddComponent<MeshFilter>().sharedMesh = m;
                 go.AddComponent<MeshRenderer>().sharedMaterial = byColor[kv.Key];
             }
+        }
+
+        /// <summary>Decals render opaque (one material per colour), so opacity is shown as a blend toward the paint underneath.</summary>
+        static CarDecal Shown(CarDecal d, Color? under)
+        {
+            if (d.Opacity >= 0.999f || under == null) return d;
+            return new CarDecal
+            {
+                ShapeId = d.ShapeId, Render = d.Render, Glyph = d.Glyph, Zone = d.Zone, U = d.U, V = d.V, Scale = d.Scale,
+                RotationDeg = d.RotationDeg, Mirror = d.Mirror, Flip = d.Flip, Opacity = 1f,
+                Color = Color.Lerp(under.Value, d.Color, Mathf.Clamp(d.Opacity, 0.1f, 1f)),
+            };
         }
 
         static void Place(Transform root, CarBodyGenerator.BodySurface surface, CarDecal d, string zone, float u, bool flip, int layer,

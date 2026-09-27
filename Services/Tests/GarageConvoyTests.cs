@@ -5,6 +5,7 @@ using NightSignal.ControlPlane.Garage;
 using NightSignal.ControlPlane.Matches;
 using NightSignal.ControlPlane.Persistence;
 using NightSignal.Core.Builds;
+using NightSignal.Core.Customization;
 using NightSignal.Core.Rules;
 using NightSignal.Services.Tests.Infrastructure;
 
@@ -36,7 +37,7 @@ public sealed class GarageConvoyTests : ConvoyTestBase, IAsyncLifetime
     }
 
     GarageService Service(ConvoyDirectory convoys) =>
-        new(store, store, TestData.Content, GarageTestKit.Content, convoys, clock, NullLogger<GarageService>.Instance);
+        new(store, store, TestData.Content, GarageTestKit.Content, GarageTestKit.Customization, convoys, clock, NullLogger<GarageService>.Instance);
 
     /// <summary>A Garage writer that the convoy directory does not hear from (another process / a missed refresh).</summary>
     GarageService Detached() => Service(new ConvoyDirectory(clock, TestData.Content, new RecordingNotifier()));
@@ -64,9 +65,9 @@ public sealed class GarageConvoyTests : ConvoyTestBase, IAsyncLifetime
         }
     }
 
-    async Task<LoadoutInfo> SelectAsync(int i, string cosmetic = "paint-1")
+    async Task<LoadoutInfo> SelectAsync(int i)
     {
-        (LoadoutInfo? l, ConvoyError? e) = await garage.SelectionAsync(Id(i), "V01", null, cosmetic, None);
+        (LoadoutInfo? l, ConvoyError? e) = await garage.SelectionAsync(Id(i), "V01", null, None);
         Assert.Null(e);
         Assert.True(dir.UpdateLoadout(Id(i), l!).Ok);
         return l!;
@@ -81,6 +82,16 @@ public sealed class GarageConvoyTests : ConvoyTestBase, IAsyncLifetime
         long r = await RevisionAsync(g, i, instance);
         Assert.True((await g.OperateAsync(Id(i), instance, new GarageOpRequest("edit-draft", r, Build: build), None)).Ok);
         GarageReply applied = await g.OperateAsync(Id(i), instance, new GarageOpRequest("apply", r + 1), None);
+        Assert.True(applied.Ok, JsonSerializer.Serialize(applied.Body));
+        return GarageTestKit.Body(applied);
+    }
+
+    /// <summary>livery-apply through <paramref name="g"/> (null = back to stock).</summary>
+    async Task<JsonElement> ApplyLiveryAsync(GarageService g, int i, string instance, LiveryDocument? livery)
+    {
+        long r = await RevisionAsync(g, i, instance);
+        GarageReply applied = await g.OperateAsync(Id(i), instance,
+            new GarageOpRequest("livery-apply", r, LiveryJson: livery is null ? null : LiveryJson.ToCanonicalJson(livery)), None);
         Assert.True(applied.Ok, JsonSerializer.Serialize(applied.Body));
         return GarageTestKit.Body(applied);
     }
@@ -104,14 +115,22 @@ public sealed class GarageConvoyTests : ConvoyTestBase, IAsyncLifetime
     public async Task Selection_CarriesTheServerHashPiAndInstance()
     {
         string i1 = await OwnerAsync(1);
-        (LoadoutInfo? l, ConvoyError? e) = await garage.SelectionAsync(Id(1), "V01", null, "paint-1", None);
+        (LoadoutInfo? l, ConvoyError? e) = await garage.SelectionAsync(Id(1), "V01", null, None);
         Assert.Null(e);
         Assert.Equal(StockHash(), l!.PerformanceHash);
         Assert.Equal(220, l.CarPi);
         Assert.Equal(i1, l.InstanceId);
         Assert.Equal(1, l.AppliedRevision);
-        Assert.Equal("not_owned", (await garage.SelectionAsync(Id(1), "V18", null, "c", None)).Error!.Code);
-        Assert.Equal("not_owned", (await garage.SelectionAsync(Id(1), null, "ci_not_mine", "c", None)).Error!.Code);
+        // No livery applied: the cosmetic hash is the server hash of the V01 stock livery (never a client claim).
+        Assert.Equal(GarageTestKit.Customization.StockHash("V01"), l.CosmeticHash);
+        Assert.Equal(LiveryHash.Of(GarageTestKit.Customization.Catalogue.StockLivery("V01")), l.CosmeticHash);
+        Assert.Equal("not_owned", (await garage.SelectionAsync(Id(1), "V18", null, None)).Error!.Code);
+        Assert.Equal("not_owned", (await garage.SelectionAsync(Id(1), null, "ci_not_mine", None)).Error!.Code);
+
+        // With a livery applied, the selection carries ITS server hash.
+        await ApplyLiveryAsync(garage, 1, i1, GarageTestKit.Livery());
+        (l, _) = await garage.SelectionAsync(Id(1), null, i1, None);
+        Assert.Equal(LiveryHash.Of(GarageTestKit.Livery()), l!.CosmeticHash);
     }
 
     [Fact]
@@ -122,9 +141,25 @@ public sealed class GarageConvoyTests : ConvoyTestBase, IAsyncLifetime
         ReadyAll(rev);
         long loadoutRev = MemberState(1, 2).GetProperty("loadoutRevision").GetInt64();
 
-        // Cosmetic-only: a new livery keeps Event Ready.
-        await SelectAsync(2, "paint-2");
+        // Cosmetic-only: a new livery applied in the Garage keeps Event Ready; the convoy takes its SERVER cosmetic hash.
+        long cosmeticRev = MemberState(1, 2).GetProperty("cosmeticRevision").GetInt64();
+        JsonElement livery = await ApplyLiveryAsync(garage, 2, i2, GarageTestKit.Livery());
+        Assert.True(livery.GetProperty("convoy").GetProperty("selected").GetBoolean());
+        Assert.False(livery.GetProperty("convoy").GetProperty("performanceChanged").GetBoolean());
         Assert.True(Ready(2));
+        Assert.Equal(loadoutRev, MemberState(1, 2).GetProperty("loadoutRevision").GetInt64());
+        Assert.Equal(cosmeticRev + 1, MemberState(1, 2).GetProperty("cosmeticRevision").GetInt64());
+        Assert.Equal(LiveryHash.Of(GarageTestKit.Livery()), dir.LoadoutOf(Id(2))!.CosmeticHash);
+        Assert.Equal(livery.GetProperty("workspace").GetProperty("appliedLiveryHash").GetString(), dir.LoadoutOf(Id(2))!.CosmeticHash);
+        // A client re-selecting the car cannot claim another look: the server hash stays and nothing changes.
+        await SelectAsync(2);
+        Assert.True(Ready(2));
+        Assert.Equal(cosmeticRev + 1, MemberState(1, 2).GetProperty("cosmeticRevision").GetInt64());
+        // Back to stock: cosmetic again, still ready.
+        await ApplyLiveryAsync(garage, 2, i2, null);
+        Assert.True(Ready(2));
+        Assert.Equal(cosmeticRev + 2, MemberState(1, 2).GetProperty("cosmeticRevision").GetInt64());
+        Assert.Equal(GarageTestKit.Customization.StockHash("V01"), dir.LoadoutOf(Id(2))!.CosmeticHash);
         Assert.Equal(loadoutRev, MemberState(1, 2).GetProperty("loadoutRevision").GetInt64());
 
         // Utility-only apply: the physics BuildHash is unchanged, so readiness stays.
@@ -216,6 +251,45 @@ public sealed class GarageConvoyTests : ConvoyTestBase, IAsyncLifetime
         GarageReply frozen = await garage.OperateAsync(Id(2), i2, new GarageOpRequest("apply", r2 + 1), None);
         Assert.Equal(409, frozen.Status);
         Assert.Equal("build_locked", GarageTestKit.ErrorOf(frozen));
+    }
+
+    [Fact]
+    public async Task Start_FreezesTheAppliedLivery_TheAssignmentEntrantCarriesItsWireFormAndServerHash()
+    {
+        (string i1, string _) = await ConvoyOfTwoAsync();
+        long rev = OpenEvent("S01");
+        ReadyAll(rev);
+
+        // A look applied after readying where the directory did not hear it (another process): cosmetic-only, so nobody
+        // unreadies; the start reads it from the stored workspace together with the build.
+        LiveryDocument look = GarageTestKit.Livery();
+        await ApplyLiveryAsync(Detached(), 1, i1, look);
+        IReadOnlyDictionary<string, EntrantBuild> builds = await garage.FreezeSelectionsAsync(new[] { Id(1), Id(2) }, None);
+        (ConvoyError? error, MatchPlan? plan) = dir.BeginStart(Id(1), rev, Fresh(2), null, builds);
+        Assert.Null(error);
+        string hash = LiveryHash.Of(look);
+        Assert.Equal(hash, dir.LoadoutOf(Id(1))!.CosmeticHash); // the convoy view caught up at the start
+
+        JsonElement Wire(int i) => JsonSerializer.SerializeToElement(MatchAllocator.Entrant(plan!.Entrants.Single(e => e.AccountId == Id(i))), MatchAllocator.Json);
+        JsonElement e1 = Wire(1), e2 = Wire(2);
+        Assert.Equal(hash, e1.GetProperty("cosmeticHash").GetString());
+        string livery = e1.GetProperty("livery").GetString()!;
+        Assert.True(System.Text.Encoding.UTF8.GetByteCount(livery) <= LiveryWire.MaxWireBytes);
+        LiveryWireResult decoded = LiveryWire.Decode(livery);
+        Assert.True(decoded.Ok, string.Join("; ", decoded.Errors));
+        Assert.Equal(hash, LiveryHash.Of(decoded.Document)); // the game server reproduces the cosmetic hash
+        Assert.Equal(LiveryJson.ToCanonicalJson(look), LiveryJson.ToCanonicalJson(decoded.Document));
+        Assert.Equal(StockHash(), e1.GetProperty("vehicleBuild").GetProperty("buildHash").GetString());
+        Assert.False(e1.GetProperty("vehicleBuild").TryGetProperty("appearance", out _)); // appearance travels next to vehicleBuild
+
+        // The stock entrant: livery null, the stock livery's server hash.
+        Assert.Equal(JsonValueKind.Null, e2.GetProperty("livery").ValueKind);
+        Assert.Equal(GarageTestKit.Customization.StockHash("V01"), e2.GetProperty("cosmeticHash").GetString());
+
+        // The stored match config keeps it (JSON round trip).
+        AssignedEntrant back = JsonSerializer.Deserialize<AssignedEntrant>(e1.GetRawText(), MatchAllocator.Json)!;
+        Assert.Equal(livery, back.Livery);
+        Assert.Equal(hash, back.CosmeticHash);
     }
 
     [Fact]

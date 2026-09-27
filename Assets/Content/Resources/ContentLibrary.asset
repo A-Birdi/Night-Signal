@@ -34,3 +34,4 @@ MonoBehaviour:
   - {fileID: 4900000, guid: c96e4c7c41b7305438e2e7ac1fcaffed, type: 3}
   PartsDocument: {fileID: 4900000, guid: 016e95757dc8cd54c958ea252196fb7f, type: 3}
   RecipesDocument: {fileID: 4900000, guid: 76e0f15cc9216164294b608b2e7d2964, type: 3}
+  CustomizationDocument: {fileID: 4900000, guid: 196ec0f366653167bf369d72f60aaa2c, type: 3}

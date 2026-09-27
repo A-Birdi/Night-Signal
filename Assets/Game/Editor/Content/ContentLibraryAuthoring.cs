@@ -37,6 +37,7 @@ namespace NightSignal.Editor.ContentTools
             lib.ToyDocuments = toys.ToArray();
             lib.PartsDocument = Load("Assets/Content/Data/authored/parts.json");
             lib.RecipesDocument = Load("Assets/Content/Data/authored/build-recipes.json");
+            lib.CustomizationDocument = Load("Assets/Content/Data/authored/customization.json");
             if (create) AssetDatabase.CreateAsset(lib, LibraryPath);
             EditorUtility.SetDirty(lib);
 

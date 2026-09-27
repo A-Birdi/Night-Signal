@@ -1,7 +1,10 @@
 using System.Text.Json;
+using Newtonsoft.Json.Linq;
 using NightSignal.ControlPlane.Garage;
 using NightSignal.ControlPlane.Persistence;
 using NightSignal.Core.Builds;
+using NightSignal.Core.Content;
+using NightSignal.Core.Customization;
 using NightSignal.Services.Tests.Infrastructure;
 
 namespace NightSignal.Services.Tests;
@@ -128,6 +131,211 @@ public sealed class GarageServiceTests : IAsyncLifetime
         Assert.Throws<InvalidOperationException>(() => GarageContent.From(parts, recipes.Replace("\"TYR-T1-STREET\"", "\"TYR-NOPE\""), TestData.Content.Catalogue));
     }
 
+    [Fact]
+    public void CustomizationContent_LoadsFromContentAuthored_OutsideTheRaceContentHash_AndRefusesInconsistentData()
+    {
+        CustomizationContent c = GarageTestKit.Customization;
+        Assert.Matches("^[0-9a-f]{64}$", c.Hash);
+        Assert.True(c.Revision >= 1);
+        Assert.All(TestData.Content.Catalogue.Cars, car => Assert.True(c.Catalogue.TryChassis(car.Id, out _), car.Id));
+        // Appearance never changes a simulation input, so the race ContentHash does not cover customization.json.
+        Assert.DoesNotContain(CustomizationCatalogue.FileName, ContentCatalogue.AuthoredFiles);
+        string json = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "content", "authored", CustomizationContent.FileName));
+        Assert.Equal(c.Hash, CustomizationContent.From(json, TestData.Content.Catalogue).Hash); // deterministic
+        string lf = json.Replace("\r\n", "\n");
+        Assert.Equal(c.Hash, CustomizationContent.From(lf, TestData.Content.Catalogue).Hash); // LF-normalised: CRLF and LF
+        Assert.Equal(c.Hash, CustomizationContent.From(lf.Replace("\n", "\r\n"), TestData.Content.Catalogue).Hash); // copies agree
+        JObject noV18 = JObject.Parse(json);
+        ((JArray)noV18["chassis"]!).OfType<JObject>().Single(x => (string?)x["car"] == "V18").Remove();
+        Assert.Throws<InvalidOperationException>(() => CustomizationContent.From(noV18.ToString(), TestData.Content.Catalogue));
+        Assert.Throws<InvalidOperationException>(() => CustomizationContent.From("{}", TestData.Content.Catalogue));
+        Assert.Equal(LiveryHash.Of(c.Catalogue.StockLivery("V01")), c.StockHash("V01"));
+    }
+
+    // ------------------------------------------------------------------ liveries and visual presets
+
+    static string Canonical(LiveryDocument d) => LiveryJson.ToCanonicalJson(d);
+
+    /// <summary>The same livery as a client might send it: indented, lower-case colours, decal placement as plain decimals.</summary>
+    static string Sloppy(LiveryDocument d)
+    {
+        JObject o = JObject.Parse(Canonical(d));
+        o["paint"]!["primary"] = ((string)o["paint"]!["primary"]!).ToLowerInvariant();
+        return o.ToString(Newtonsoft.Json.Formatting.Indented);
+    }
+
+    [Fact]
+    public async Task LiveryApply_StoresTheCanonicalLiveryAndTheServerHash_AndNeverTouchesTheBuild()
+    {
+        string a = await kit.PlayerAsync(1);
+        string i = await kit.InstanceAsync(a);
+        LiveryDocument doc = GarageTestKit.Livery();
+        string canonical = Canonical(doc), hash = LiveryHash.Of(doc);
+        JsonElement before = Ok(await G.GetCarAsync(a, i, None)).GetProperty("workspace");
+        Assert.Equal("", before.GetProperty("appliedLivery").GetString());
+        Assert.Equal("", before.GetProperty("appliedLiveryHash").GetString());
+
+        JsonElement applied = Ok(await Op(a, i, new GarageOpRequest("livery-apply", 1, LiveryJson: Sloppy(doc))));
+        Assert.Equal("ok", applied.GetProperty("status").GetString());
+        Assert.False(applied.GetProperty("performanceChanged").GetBoolean());
+        JsonElement ws = applied.GetProperty("workspace");
+        Assert.Equal(2, ws.GetProperty("revision").GetInt64());
+        Assert.Equal(canonical, ws.GetProperty("appliedLivery").GetString()); // canonical, not the client's text
+        Assert.Equal(hash, ws.GetProperty("appliedLiveryHash").GetString()); // computed by the server
+        Assert.Equal("", ws.GetProperty("appliedVisualPresetId").GetString());
+        Assert.Equal(1, ws.GetProperty("applied").GetProperty("revision").GetInt64()); // the mechanical applied build never moves
+        Assert.Equal(before.GetProperty("applied").GetProperty("buildHash").GetString(), ws.GetProperty("applied").GetProperty("buildHash").GetString());
+        Assert.Equal(2, kit.WorkspaceRevision(i));
+
+        // Stored: a fresh read returns it; the same livery again is unchanged.
+        Assert.Equal(canonical, Ok(await G.GetCarAsync(a, i, None)).GetProperty("workspace").GetProperty("appliedLivery").GetString());
+        Assert.Equal("unchanged", Ok(await Op(a, i, new GarageOpRequest("livery-apply", 2, LiveryJson: canonical))).GetProperty("status").GetString());
+        Assert.Equal(2, kit.WorkspaceRevision(i));
+        // The frozen appearance the game server gets is the compact wire form of exactly this livery.
+        (EntrantBuild? frozen, _) = await G.FreezeAsync(a, i, None);
+        Assert.Equal(hash, frozen!.Appearance!.CosmeticHash);
+        LiveryWireResult wire = LiveryWire.Decode(frozen.Appearance.Livery!);
+        Assert.True(wire.Ok, string.Join("; ", wire.Errors));
+        Assert.Equal(hash, LiveryHash.Of(wire.Document));
+
+        // Back to stock (null or "").
+        JsonElement stock = Ok(await Op(a, i, new GarageOpRequest("livery-apply", 2)));
+        Assert.Equal("", stock.GetProperty("workspace").GetProperty("appliedLivery").GetString());
+        Assert.Equal("", stock.GetProperty("workspace").GetProperty("appliedLiveryHash").GetString());
+        Assert.Equal(3, kit.WorkspaceRevision(i));
+        (frozen, _) = await G.FreezeAsync(a, i, None);
+        Assert.Null(frozen!.Appearance!.Livery);
+        Assert.Equal(GarageTestKit.Customization.StockHash("V01"), frozen.Appearance.CosmeticHash);
+        Fails(await Op(a, i, new GarageOpRequest("livery-apply", 2, LiveryJson: canonical)), 409, "stale_revision");
+    }
+
+    [Fact]
+    public async Task LiveryApply_RefusesAnotherCarsLivery_InvalidDocuments_AndLockedCosmeticsUntilOwned()
+    {
+        string a = await kit.PlayerAsync(1);
+        string i = await kit.InstanceAsync(a);
+
+        static (JsonElement Body, string[] Errors) Invalid(GarageReply r)
+        {
+            Fails(r, 400, "invalid_livery");
+            JsonElement body = GarageTestKit.Body(r);
+            return (body, body.GetProperty("errors").EnumerateArray().Select(e => e.GetString()!).ToArray());
+        }
+
+        // A V03 livery never applies to a V01.
+        (_, string[] wrongCar) = Invalid(await Op(a, i, new GarageOpRequest("livery-apply", 1, LiveryJson: Canonical(GarageTestKit.Livery("V03")))));
+        Assert.Equal(new[] { "car: livery is for V03, not V01" }, wrongCar);
+        // Not JSON / not a livery document / semantically invalid: the exact Core messages.
+        Assert.Equal(new[] { "livery: not valid JSON" }, Invalid(await Op(a, i, new GarageOpRequest("livery-apply", 1, LiveryJson: "{not json"))).Errors);
+        Assert.Contains("livery: unknown field 'x'",
+            Invalid(await Op(a, i, new GarageOpRequest("livery-apply", 1, LiveryJson: Canonical(GarageTestKit.Livery()).Replace("{\"schema\"", "{\"x\":1,\"schema\"")))).Errors);
+        LiveryDocument tooBig = GarageTestKit.Livery();
+        tooBig.Wheels.DiameterIn = 20;
+        Assert.Contains("wheels.diameterIn: 20 in is outside the V01 fitment 13–17 in",
+            Invalid(await Op(a, i, new GarageOpRequest("livery-apply", 1, LiveryJson: Canonical(tooBig)))).Errors);
+        Fails(await Op(a, i, new GarageOpRequest("livery-apply", 1, LiveryJson: new string(' ', GarageWire.MaxLiveryJsonChars + 1))), 400, "invalid_request");
+
+        // A locked decal is refused in Apply mode until THIS account owns the cosmetic (no client flag can unlock it).
+        LiveryDocument locked = GarageTestKit.Livery(locked: true);
+        (JsonElement body, string[] errors) = Invalid(await Op(a, i, new GarageOpRequest("livery-apply", 1, LiveryJson: Canonical(locked))));
+        string lockedError = Assert.Single(errors);
+        Assert.StartsWith("decals[1].shape: ", lockedError);
+        Assert.EndsWith(" is locked (unlock cosmetic COS-CH01)", lockedError);
+        JsonElement item = Assert.Single(body.GetProperty("locked").EnumerateArray());
+        Assert.Equal("COS-CH01", item.GetProperty("cosmeticId").GetString());
+        Assert.Equal("decals[1].shape", item.GetProperty("path").GetString());
+        Assert.Equal(1, kit.WorkspaceRevision(i)); // every refusal changed nothing
+
+        // Another account owning it does not help; owning it on THIS account does.
+        string b = await kit.PlayerAsync(2);
+        kit.Exec("INSERT INTO cosmetics_owned (account_id, cosmetic_id, source) VALUES ($a, 'COS-CH01', 'challenge')", ("$a", b));
+        Invalid(await Op(a, i, new GarageOpRequest("livery-apply", 1, LiveryJson: Canonical(locked))));
+        kit.Exec("INSERT INTO cosmetics_owned (account_id, cosmetic_id, source) VALUES ($a, 'COS-CH01', 'challenge')", ("$a", a));
+        JsonElement ok = Ok(await Op(a, i, new GarageOpRequest("livery-apply", 1, LiveryJson: Canonical(locked))));
+        Assert.Equal(LiveryHash.Of(locked), ok.GetProperty("workspace").GetProperty("appliedLiveryHash").GetString());
+    }
+
+    [Fact]
+    public async Task AMaximal64LayerLivery_IsAcceptedPrettyPrintedUpTo32KiB_AndItsCanonicalFormFitsTheStoredPayloadBound()
+    {
+        string a = await kit.PlayerAsync(1);
+        string i = await kit.InstanceAsync(a);
+        CustomizationCatalogue cat = GarageTestKit.Customization.Catalogue;
+        string longest = cat.DecalShapes.Where(s => s.CosmeticId is null).OrderByDescending(s => s.Id.Length).First().Id;
+        LiveryDocument max = GarageTestKit.Livery();
+        max.Decals.Clear();
+        for (int k = 0; k < LiveryLimits.MaxDecalLayers; k++)
+            max.Decals.Add(new DecalLayer
+            {
+                Shape = longest, Color = "#ABCDEF", Zone = "right", UMilli = 999, VMilli = 999, ScaleCenti = 155, RotationDeg = 359, OpacityPercent = 99,
+                Mirror = true, Flip = true,
+            });
+        string canonical = Canonical(max), pretty = JObject.Parse(canonical).ToString(Newtonsoft.Json.Formatting.Indented);
+        Assert.True(canonical.Length <= GarageWire.MaxPayloadJsonChars, $"canonical {canonical.Length} chars");
+        Assert.True(pretty.Length > GarageWire.MaxPayloadJsonChars && pretty.Length <= GarageWire.MaxLiveryJsonChars, $"pretty {pretty.Length} chars");
+
+        JsonElement applied = Ok(await Op(a, i, new GarageOpRequest("livery-apply", 1, LiveryJson: pretty)));
+        Assert.Equal(canonical, applied.GetProperty("workspace").GetProperty("appliedLivery").GetString());
+        JsonElement preset = Ok(await Op(a, i, new GarageOpRequest("visual-preset-save", 2, Name: "Max", PayloadSchema: LiveryDocument.SchemaId, PayloadJson: pretty)));
+        Assert.Equal(canonical, preset.GetProperty("workspace").GetProperty("visualPresets")[0].GetProperty("payloadJson").GetString());
+        // Opaque (non-livery) payloads keep the 16 KiB bound.
+        Fails(await Op(a, i, new GarageOpRequest("visual-preset-save", 3, Name: "Big", PayloadSchema: "other", PayloadJson: pretty)), 400, "invalid_request");
+        (EntrantBuild? frozen, _) = await G.FreezeAsync(a, i, None);
+        Assert.True(System.Text.Encoding.UTF8.GetByteCount(frozen!.Appearance!.Livery!) <= LiveryWire.MaxWireBytes);
+    }
+
+    [Fact]
+    public async Task VisualPresets_LiveryPayloadsAreValidatedAndCanonical_UpdateNeedsConfirmation_RenameRefusesDuplicates()
+    {
+        string a = await kit.PlayerAsync(1);
+        string i = await kit.InstanceAsync(a);
+        LiveryDocument blue = GarageTestKit.Livery(primary: "#1F4E8C"), locked = GarageTestKit.Livery(locked: true);
+
+        // Save: validated in PREVIEW mode for this car (a locked item may be kept as a plan), stored canonically.
+        JsonElement saved = Ok(await Op(a, i, new GarageOpRequest("visual-preset-save", 1, Name: "Night Blue", PayloadSchema: LiveryDocument.SchemaId,
+            PayloadJson: Sloppy(blue))));
+        string id = saved.GetProperty("loadoutId").GetString()!;
+        Assert.Equal(Canonical(blue), saved.GetProperty("workspace").GetProperty("visualPresets")[0].GetProperty("payloadJson").GetString());
+        string plan = Ok(await Op(a, i, new GarageOpRequest("visual-preset-save", 2, Name: "Pinstripe plan", PayloadSchema: LiveryDocument.SchemaId,
+            PayloadJson: Canonical(locked)))).GetProperty("loadoutId").GetString()!;
+        Fails(await Op(a, i, new GarageOpRequest("visual-preset-save", 3, Name: "Other car", PayloadSchema: LiveryDocument.SchemaId,
+            PayloadJson: Canonical(GarageTestKit.Livery("V03")))), 400, "invalid_livery");
+        Fails(await Op(a, i, new GarageOpRequest("visual-preset-save", 3, Name: "Empty", PayloadSchema: LiveryDocument.SchemaId)), 400, "invalid_livery");
+
+        // Update: confirmation token of this revision (like a loadout overwrite); identical payload is unchanged.
+        LiveryDocument red = GarageTestKit.Livery(primary: "#C8102E");
+        GarageReply ask = await Op(a, i, new GarageOpRequest("visual-preset-update", 3, PresetId: id, PayloadSchema: LiveryDocument.SchemaId, PayloadJson: Sloppy(red)));
+        Fails(ask, 409, "confirmation_required");
+        string token = GarageTestKit.Body(ask).GetProperty("confirmationToken").GetString()!;
+        Fails(await Op(a, i, new GarageOpRequest("visual-preset-update", 3, PresetId: id, PayloadSchema: LiveryDocument.SchemaId, PayloadJson: Sloppy(red),
+            ConfirmationToken: "cf-forged")), 409, "confirmation_required");
+        Assert.Equal(3, kit.WorkspaceRevision(i));
+        JsonElement updated = Ok(await Op(a, i, new GarageOpRequest("visual-preset-update", 3, PresetId: id, PayloadSchema: LiveryDocument.SchemaId,
+            PayloadJson: Sloppy(red), ConfirmationToken: token)));
+        Assert.Equal(Canonical(red), updated.GetProperty("workspace").GetProperty("visualPresets")[0].GetProperty("payloadJson").GetString());
+        Assert.Equal("unchanged", Ok(await Op(a, i, new GarageOpRequest("visual-preset-update", 4, PresetId: id, PayloadSchema: LiveryDocument.SchemaId,
+            PayloadJson: Canonical(red)))).GetProperty("status").GetString());
+        Fails(await Op(a, i, new GarageOpRequest("visual-preset-update", 4, PayloadSchema: LiveryDocument.SchemaId, PayloadJson: Canonical(red))), 400, "invalid_request");
+        Fails(await Op(a, i, new GarageOpRequest("visual-preset-update", 4, PresetId: "vp-missing", PayloadSchema: LiveryDocument.SchemaId,
+            PayloadJson: Canonical(red))), 404, "not_found");
+
+        // Rename: same rules as save (unique per car, case-insensitive).
+        Fails(await Op(a, i, new GarageOpRequest("visual-preset-rename", 4, PresetId: id, Name: "pinstripe PLAN")), 409, "duplicate_name");
+        Fails(await Op(a, i, new GarageOpRequest("visual-preset-rename", 4, PresetId: id, Name: " ")), 400, "invalid_name");
+        Fails(await Op(a, i, new GarageOpRequest("visual-preset-rename", 4, Name: "x")), 400, "invalid_request");
+        Assert.Equal("Signal Red", Ok(await Op(a, i, new GarageOpRequest("visual-preset-rename", 4, PresetId: id, Name: "Signal Red")))
+            .GetProperty("workspace").GetProperty("visualPresets")[0].GetProperty("name").GetString());
+
+        // Applying from a preset links it; the link must name the preset that holds exactly this look.
+        Fails(await Op(a, i, new GarageOpRequest("livery-apply", 5, LiveryJson: Canonical(blue), PresetId: id)), 400, "invalid_request");
+        Fails(await Op(a, i, new GarageOpRequest("livery-apply", 5, LiveryJson: Canonical(red), PresetId: "vp-missing")), 404, "not_found");
+        JsonElement linked = Ok(await Op(a, i, new GarageOpRequest("livery-apply", 5, LiveryJson: Canonical(red), PresetId: id))).GetProperty("workspace");
+        Assert.Equal(id, linked.GetProperty("appliedVisualPresetId").GetString());
+        // The planned (locked) preset cannot be applied until the cosmetic is owned.
+        Fails(await Op(a, i, new GarageOpRequest("livery-apply", 6, LiveryJson: Canonical(locked), PresetId: plan)), 400, "invalid_livery");
+        Assert.Equal(6, kit.WorkspaceRevision(i));
+    }
+
     // ------------------------------------------------------------------ operations, revisions, confirmation tokens
 
     [Fact]
@@ -151,8 +359,11 @@ public sealed class GarageServiceTests : IAsyncLifetime
         Ok(await Op(a, i, new GarageOpRequest("pin", 5, LoadoutId: id, Pinned: true)));
         Fails(await Op(a, i, new GarageOpRequest("save-as", 6, Name: "boss try")), 409, "duplicate_name");
         Fails(await Op(a, i, new GarageOpRequest("save-as", 6, Name: "   ")), 400, "invalid_name");
+        // A livery-schema payload must be a valid livery for this car (not just any JSON).
+        Fails(await Op(a, i, new GarageOpRequest("visual-preset-save", 6, Name: "Night livery", PayloadSchema: "night-signal/livery@1",
+            PayloadJson: "{\"paint\":\"#101820\"}")), 400, "invalid_livery");
         Ok(await Op(a, i, new GarageOpRequest("visual-preset-save", 6, Name: "Night livery", PayloadSchema: "night-signal/livery@1",
-            PayloadJson: "{\"paint\":\"#101820\"}")));
+            PayloadJson: LiveryJson.ToCanonicalJson(GarageTestKit.Livery()))));
         Fails(await Op(a, i, new GarageOpRequest("visual-preset-save", 7, Name: "Bad", PayloadJson: "<script>")), 400, "invalid_request");
 
         JsonElement ws = Ok(await G.GetCarAsync(a, i, None)).GetProperty("workspace");

@@ -22,6 +22,8 @@ namespace NightSignal.Content
         /// <summary>Garage data (parts.json, build-recipes.json); also among <see cref="Documents"/>, which the content hash covers.</summary>
         public TextAsset PartsDocument;
         public TextAsset RecipesDocument;
+        /// <summary>Appearance catalogue (customization.json): visual only, published with its own hash, not in the race hash.</summary>
+        public TextAsset CustomizationDocument;
 
         ContentCatalogue catalogue;
         Dictionary<string, CarBodyDef> bodies;
@@ -78,6 +80,15 @@ namespace NightSignal.Content
 
         /// <summary>Authored upgrade paths per car (null when missing).</summary>
         public Core.Builds.RecipeBook Recipes => recipes ?? (Text("build-recipes.json", RecipesDocument) is string t ? recipes = Core.Builds.RecipeBook.Load(t) : null);
+
+        Core.Customization.CustomizationCatalogue customization;
+
+        /// <summary>Body-kit families, rims, paints, lamps, plates and decals per chassis (null when missing from this build).</summary>
+        public Core.Customization.CustomizationCatalogue Customization =>
+            customization ?? (CustomizationDocument != null ? customization = Core.Customization.CustomizationCatalogue.Load(CustomizationDocument.text) : null);
+
+        /// <summary>SHA-256 of the LF-normalised customization.json (Core's definition) — compared with the control plane's /healthz.</summary>
+        public string CustomizationHash => Customization?.Hash;
 
         /// <summary>A document exactly as the content hash covers it; the separate TextAsset only for libraries built before.</summary>
         string Text(string name, TextAsset fallback) => Catalogue != null && Catalogue.TryDocument(name, out string text) ? text : fallback != null ? fallback.text : null;

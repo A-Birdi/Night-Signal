@@ -14,9 +14,13 @@ namespace NightSignal.ControlPlane.Matches;
 /// One frozen human entrant. <paramref name="CarPi"/>/<paramref name="PerformanceHash"/> are the SERVER-resolved values of the
 /// entrant's applied build; <paramref name="VehicleBuild"/> is that build itself (instance, parts by slot, tuning, utility,
 /// resolved simulation inputs) so the game server builds the same vehicle (null only for instance-less test loadouts).
+/// <paramref name="Livery"/> is the applied livery frozen with it, in the compact Core <c>LiveryWire</c> form (a JSON-array
+/// TEXT, ≤ 5,120 bytes; null = the stock appearance), and <paramref name="CosmeticHash"/> is then the server
+/// <c>LiveryHash</c> of that livery (of the stock livery for null) — the value <c>LiveryHash.Of(LiveryWire.Decode(livery))</c>
+/// reproduces. Instance-less test loadouts keep their loadout's cosmetic hash and no livery.
 /// </summary>
 public sealed record AssignedEntrant(string AccountId, string DisplayName, string Role, string CarId, int CarPi,
-    string PerformanceHash, string CosmeticHash, long LoadoutRevision, Garage.EntrantBuild? VehicleBuild = null);
+    string PerformanceHash, string CosmeticHash, long LoadoutRevision, Garage.EntrantBuild? VehicleBuild = null, string? Livery = null);
 
 public sealed record AssignedBenchmark(string Kind, long TargetTimeMs, long RawDriftTarget, long HardTimeoutMs, bool Provisional, string Source,
     bool RequiresBeatingFeaturedRival = false);
@@ -120,9 +124,7 @@ public sealed class MatchAllocator(GameServerRegistry registry, IResultLedger le
             MatchId = matchId, ConvoyId = plan.ConvoyId, ServerId = server.ServerId, Kind = s.Kind, Mode = s.Mode,
             StageId = s.StageId, StageNumber = s.StageNumber, StageType = s.StageType, CourseId = s.CourseId,
             FreeplayMode = s.FreeplayMode, Weather = s.Weather, Collision = s.Collision, CarCapPi = s.CarCapPi,
-            Entrants = plan.Entrants.Select(e => new AssignedEntrant(e.AccountId, e.DisplayName, "racer", e.Loadout.CarId,
-                e.Build?.Pi ?? e.Loadout.CarPi, e.Build?.BuildHash ?? e.Loadout.PerformanceHash, e.Loadout.CosmeticHash, e.LoadoutRevision,
-                e.Build)).ToList(),
+            Entrants = plan.Entrants.Select(Entrant).ToList(),
             AiEntrants = plan.AiEntrants, Roster = plan.Roster, FeaturedRival = plan.FeaturedRival, GuestPasses = plan.GuestPasses,
             Sponsors = plan.Sponsors.Count > 0 ? plan.Sponsors : null, CupLegs = s.CupLegs, Trial = trial, Benchmark = benchmark,
             PurePvP = plan.PurePvP, GridNote = plan.GridNote, Build = plan.Version.Build, Protocol = plan.Version.Protocol,
@@ -131,4 +133,12 @@ public sealed class MatchAllocator(GameServerRegistry registry, IResultLedger le
             TicketAudience = Configuration.TicketOptions.Audience, ResultsSecret = secret,
         };
     }
+
+    /// <summary>
+    /// One planned human as the game server receives it: the frozen server build (<c>vehicleBuild</c>) and, read from the same
+    /// workspace at the start, the applied appearance (<c>cosmeticHash</c>, <c>livery</c>).
+    /// </summary>
+    internal static AssignedEntrant Entrant(PlannedEntrant e) => new(e.AccountId, e.DisplayName, "racer", e.Loadout.CarId,
+        e.Build?.Pi ?? e.Loadout.CarPi, e.Build?.BuildHash ?? e.Loadout.PerformanceHash,
+        e.Build?.Appearance?.CosmeticHash ?? e.Loadout.CosmeticHash, e.LoadoutRevision, e.Build, e.Build?.Appearance?.Livery);
 }

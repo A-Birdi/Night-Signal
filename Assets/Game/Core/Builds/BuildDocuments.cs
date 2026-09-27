@@ -295,9 +295,19 @@ namespace NightSignal.Core.Builds
         public int LoadoutCapacity = MinLoadoutSlots;
         public List<VisualPreset> VisualPresets = new List<VisualPreset>();
         public int VisualPresetCapacity = MinVisualPresetSlots;
-        /// <summary>Current livery/appearance state owned by customization. Mechanical operations never change these.</summary>
+        /// <summary>
+        /// Current livery/appearance state owned by customization (set only by <see cref="GarageOperations.ApplyLivery"/>).
+        /// Mechanical operations never change these. <see cref="AppliedVisualPresetId"/> is the preset the applied livery was
+        /// taken from ("" = edited, or no preset); <see cref="AppliedLiveryHash"/> is the customization system's hash of
+        /// <see cref="AppliedLivery"/> ("" together with it = the stock appearance).
+        /// </summary>
         public string AppliedVisualPresetId = "";
         public string AppliedLiveryHash = "";
+        /// <summary>
+        /// The applied livery document as canonical JSON (schema night-signal/livery@1, written and validated by the
+        /// customization system), or "" for the car's stock appearance. Opaque to Builds: never parsed or validated here.
+        /// </summary>
+        public string AppliedLivery = "";
         public SortedDictionary<string, BuildReference> References = new SortedDictionary<string, BuildReference>(StringComparer.Ordinal);
         public GarageDraft Draft;
         public WorkshopSession Workshop = new WorkshopSession();

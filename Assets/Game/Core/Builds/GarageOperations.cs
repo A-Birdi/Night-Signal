@@ -69,13 +69,21 @@ namespace NightSignal.Core.Builds
     /// <summary>
     /// Garage operations on one car instance's <see cref="CarBuildWorkspace"/> (Addendum 02 §9.2–9.3). Every operation
     /// validates first and then mutates in place all-or-nothing; a rejected call leaves the workspace untouched. User
-    /// mutations quote the expected <see cref="CarBuildWorkspace.Revision"/> (optimistic concurrency). None of these
-    /// operations touches the wallet, ownership, visual presets or livery.
+    /// mutations quote the expected <see cref="CarBuildWorkspace.Revision"/> (optimistic concurrency). No operation touches
+    /// the wallet or ownership; the mechanical operations never touch visual presets or the livery, and the visual preset and
+    /// livery operations never touch the mechanical applied build (or its revision), the loadouts or the draft.
     /// </summary>
     public static class GarageOperations
     {
         public const int MaxNameLength = 32;
         public const int MaxNoteLength = 200;
+        /// <summary>
+        /// Longest livery document <see cref="ApplyLivery"/> stores. Equal to the customization vocabulary's
+        /// LiveryLimits.MaxPayloadChars (repeated here so Builds stays independent of Customization).
+        /// </summary>
+        public const int MaxLiveryChars = 32768;
+        /// <summary>Longest livery hash accepted (the customization hash is 64 lower-case hex characters).</summary>
+        public const int MaxLiveryHashChars = 128;
 
         /// <summary>A new instance's workspace: stock applied build (revision 1) with derived stats; empty library (no invented presets).</summary>
         public static CarBuildWorkspace NewWorkspace(string instanceId, BuildContext ctx, DateTime nowUtc)
@@ -221,6 +229,10 @@ namespace NightSignal.Core.Builds
             return Ok(ws, $"Saved visual preset \"{clean}\".", v.PresetId);
         }
 
+        /// <summary>
+        /// Deletes a visual preset (requires confirmation). The applied livery is a copy and stays applied; if it was taken from
+        /// this preset it is no longer linked to one (<see cref="CarBuildWorkspace.AppliedVisualPresetId"/> becomes "").
+        /// </summary>
         public static OperationResult DeleteVisualPreset(CarBuildWorkspace ws, long expectedRevision, string presetId, string confirmationToken)
         {
             if (Stale(ws, expectedRevision, out OperationResult stale)) return stale;
@@ -229,7 +241,79 @@ namespace NightSignal.Core.Builds
             string token = Token(ws, "delete-visual", presetId);
             if (confirmationToken != token) return Confirm(ws, token, $"Delete visual preset \"{v.Name}\"?");
             ws.VisualPresets.Remove(v);
+            if (ws.AppliedVisualPresetId == presetId) ws.AppliedVisualPresetId = "";
             return Ok(ws, $"Deleted visual preset \"{v.Name}\".", presetId);
+        }
+
+        /// <summary>
+        /// Replaces a saved visual preset's payload (e.g. the livery being edited saved over "Night Blue"). Requires confirmation
+        /// exactly like a loadout <see cref="Overwrite"/>: the first call answers ConfirmationRequired with a token valid for this
+        /// revision. An identical payload is an unchanged no-op (no confirmation needed). The payload is opaque here: the caller
+        /// (customization) validates it. The applied livery is a copy; if it was taken from this preset and now differs from the
+        /// new payload, it is no longer linked to the preset.
+        /// </summary>
+        public static OperationResult UpdateVisualPreset(CarBuildWorkspace ws, long expectedRevision, string presetId, string payloadSchema,
+            string payloadJson, string confirmationToken, DateTime nowUtc)
+        {
+            if (Stale(ws, expectedRevision, out OperationResult stale)) return stale;
+            VisualPreset v = ws.VisualPresets.FirstOrDefault(x => x.PresetId == presetId);
+            if (v == null) return Fail(ws, OpStatus.NotFound, "No such visual preset.");
+            string schema = payloadSchema ?? "", payload = payloadJson ?? "";
+            if (v.PayloadSchema == schema && v.PayloadJson == payload) return Unchanged(ws, $"\"{v.Name}\" already holds this look.");
+            string token = Token(ws, "overwrite-visual", presetId);
+            if (confirmationToken != token)
+                return Confirm(ws, token, $"Overwrite visual preset \"{v.Name}\"? Its saved look is replaced.");
+            v.PayloadSchema = schema;
+            v.PayloadJson = payload;
+            v.UpdatedUtc = nowUtc;
+            if (ws.AppliedVisualPresetId == presetId && payload != ws.AppliedLivery) ws.AppliedVisualPresetId = "";
+            return Ok(ws, $"Overwrote visual preset \"{v.Name}\".", presetId);
+        }
+
+        /// <summary>Renames a visual preset: the same name rules and (case-insensitive, per car) uniqueness as <see cref="SaveVisualPreset"/>.</summary>
+        public static OperationResult RenameVisualPreset(CarBuildWorkspace ws, long expectedRevision, string presetId, string name, DateTime nowUtc)
+        {
+            if (Stale(ws, expectedRevision, out OperationResult stale)) return stale;
+            VisualPreset v = ws.VisualPresets.FirstOrDefault(x => x.PresetId == presetId);
+            if (v == null) return Fail(ws, OpStatus.NotFound, "No such visual preset.");
+            string clean = CleanName(name);
+            if (clean == null) return Fail(ws, OpStatus.InvalidName, $"Names are 1–{MaxNameLength} printable characters.");
+            if (ws.VisualPresets.Any(x => x.PresetId != presetId && string.Equals(x.Name, clean, StringComparison.OrdinalIgnoreCase)))
+                return Fail(ws, OpStatus.DuplicateName, $"A visual preset named \"{clean}\" already exists.");
+            if (v.Name == clean) return Unchanged(ws, "No change.");
+            v.Name = clean;
+            v.UpdatedUtc = nowUtc;
+            return Ok(ws, $"Renamed visual preset to \"{clean}\".", presetId);
+        }
+
+        // ---------------------------------------------------------------- applied livery (independent from mechanical)
+
+        /// <summary>
+        /// Sets the applied livery: <paramref name="liveryJson"/> (canonical JSON; "" = back to the stock appearance), its
+        /// <paramref name="liveryHash"/> ("" exactly when the livery is "") and the visual preset it was taken from
+        /// (<paramref name="presetId"/>; "" = an edited livery, otherwise the preset must exist). Builds never parses the
+        /// document: the CALLER validates it (customization LiveryValidator in Apply mode, ownership included) and computes the
+        /// hash. The same livery, hash and preset again is an unchanged no-op. Never touches the mechanical applied build, its
+        /// revision, loadouts, draft or presets; an accepted change advances the workspace <see cref="CarBuildWorkspace.Revision"/>
+        /// like every other operation. <paramref name="nowUtc"/> is the operation time (the livery itself carries no timestamp).
+        /// </summary>
+        public static OperationResult ApplyLivery(CarBuildWorkspace ws, long expectedRevision, string liveryJson, string liveryHash, string presetId,
+            DateTime nowUtc)
+        {
+            if (Stale(ws, expectedRevision, out OperationResult stale)) return stale;
+            string livery = liveryJson ?? "", hash = liveryHash ?? "", preset = presetId ?? "";
+            if (livery.Length > MaxLiveryChars) return Fail(ws, OpStatus.Rejected, $"A livery is at most {MaxLiveryChars} characters.");
+            if (hash.Length > MaxLiveryHashChars) return Fail(ws, OpStatus.Rejected, $"A livery hash is at most {MaxLiveryHashChars} characters.");
+            if ((livery.Length == 0) != (hash.Length == 0))
+                return Fail(ws, OpStatus.Rejected, livery.Length == 0 ? "The stock appearance has no livery hash." : "A livery needs its hash.");
+            if (preset.Length > 0 && !ws.VisualPresets.Any(v => v.PresetId == preset))
+                return Fail(ws, OpStatus.NotFound, "No such visual preset.");
+            if (livery == (ws.AppliedLivery ?? "") && hash == (ws.AppliedLiveryHash ?? "") && preset == (ws.AppliedVisualPresetId ?? ""))
+                return Unchanged(ws, livery.Length == 0 ? "Already the stock appearance." : "Already the applied livery.");
+            ws.AppliedLivery = livery;
+            ws.AppliedLiveryHash = hash;
+            ws.AppliedVisualPresetId = preset;
+            return Ok(ws, livery.Length == 0 ? "Stock appearance applied." : "Livery applied.", preset.Length == 0 ? null : preset);
         }
 
         // ---------------------------------------------------------------- compare

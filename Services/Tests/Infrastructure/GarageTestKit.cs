@@ -8,6 +8,7 @@ using NightSignal.ControlPlane.Convoys;
 using NightSignal.ControlPlane.Garage;
 using NightSignal.ControlPlane.Persistence;
 using NightSignal.Core.Builds;
+using NightSignal.Core.Customization;
 
 namespace NightSignal.Services.Tests.Infrastructure;
 
@@ -22,6 +23,12 @@ public sealed class GarageTestKit : IAsyncDisposable
 
     /// <summary>parts.json + build-recipes.json as the control plane loads them (content/authored).</summary>
     public static GarageContent Content => SharedContent.Value;
+
+    static readonly Lazy<CustomizationContent> SharedCustomization = new(() =>
+        CustomizationContent.FromContentDirectory(Options.Create(new ContentOptions()), TestData.Content, NullLogger<CustomizationContent>.Instance));
+
+    /// <summary>customization.json as the control plane loads it (content/authored).</summary>
+    public static CustomizationContent Customization => SharedCustomization.Value;
 
     public static readonly JsonSerializerOptions Web = new(JsonSerializerDefaults.Web);
 
@@ -44,7 +51,7 @@ public sealed class GarageTestKit : IAsyncDisposable
     }
 
     public GarageService ServiceWith(GarageContent content) =>
-        new(Store, Store, TestData.Content, content, Convoys, Clock, NullLogger<GarageService>.Instance);
+        new(Store, Store, TestData.Content, content, Customization, Convoys, Clock, NullLogger<GarageService>.Instance);
 
     /// <summary>An account owning <paramref name="car"/> with a wallet balance and <paramref name="normalCleared"/> Normal clears.</summary>
     public async Task<string> PlayerAsync(int n, string car = "V01", long balance = 0, int normalCleared = 0)
@@ -121,6 +128,23 @@ public sealed class GarageTestKit : IAsyncDisposable
         MechanicalSnapshot s = RecipeBook.ToSnapshot(step, Content.Parts);
         return new BuildInput(s.Parts.ToDictionary(kv => kv.Key, kv => (string?)kv.Value), s.UtilityPartId,
             new TuningInput(s.Tuning.Version, new Dictionary<string, int>(s.Tuning.Values)));
+    }
+
+    /// <summary>
+    /// A legal livery for <paramref name="car"/>: stock with a free swatch-less repaint, a lip kit and a free decal; with
+    /// <paramref name="locked"/> also the COS-CH01 "tea-line-pinstripe" decal (locked until that cosmetic is owned).
+    /// </summary>
+    public static LiveryDocument Livery(string car = "V01", bool locked = false, string primary = "#101820")
+    {
+        LiveryDocument d = Customization.Catalogue.StockLivery(car);
+        d.Paint.Primary = primary;
+        d.Paint.TwoTone = "roof";
+        d.Body.Front = "lip";
+        d.Plate.Text = "NS-01";
+        d.Decals.Add(new DecalLayer { Shape = "num-7", Color = "#FFFFFF", Zone = "left", UMilli = 450, VMilli = 520, ScaleCenti = 60 });
+        if (locked)
+            d.Decals.Add(new DecalLayer { Shape = "tea-line-pinstripe", Color = "#C9A24A", Zone = "hood", UMilli = 500, VMilli = 125, ScaleCenti = 150, Mirror = true });
+        return d;
     }
 
     /// <summary>parts.json with one price changed and the price revision bumped (a real catalogue price edit).</summary>

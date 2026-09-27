@@ -4,6 +4,7 @@ using System.Text.Json;
 using Microsoft.Data.Sqlite;
 using Microsoft.IdentityModel.Tokens;
 using NightSignal.ControlPlane.Security;
+using NightSignal.Core.Customization;
 using NightSignal.Core.Rules;
 using NightSignal.Services.Tests.Infrastructure;
 
@@ -81,6 +82,8 @@ public sealed class GarageEndToEndTests : IDisposable
         JsonElement health = await host.CreateClient().GetFromJsonAsync<JsonElement>("/healthz");
         string contentHash = health.GetProperty("contentHash").GetString()!;
         Assert.Equal(64, health.GetProperty("garageContentHash").GetString()!.Length);
+        Assert.Equal(GarageTestKit.Customization.Hash, health.GetProperty("customizationContentHash").GetString());
+        Assert.NotEqual(contentHash, health.GetProperty("customizationContentHash").GetString());
 
         // ---- REST Garage: auth, listing, errors
         Assert.Equal(HttpStatusCode.Unauthorized, (await host.CreateClient().GetAsync("/v1/me/garage/cars")).StatusCode);
@@ -180,6 +183,23 @@ public sealed class GarageEndToEndTests : IDisposable
         string raceHash = applied.GetProperty("workspace").GetProperty("applied").GetProperty("buildHash").GetString()!;
         long raceRevision = applied.GetProperty("workspace").GetProperty("applied").GetProperty("revision").GetInt64();
 
+        // Cosmetic-only: A applies a livery (validated and hashed by the server). A stays ready; the start carries the look.
+        LiveryDocument look = GarageTestKit.Livery();
+        JsonElement dressed = await OkJson(await ha.PostAsJsonAsync($"/v1/me/garage/cars/{instance}/operations", new
+        {
+            op = "livery-apply", expectedRevision = applied.GetProperty("revision").GetInt64(), liveryJson = LiveryJson.ToCanonicalJson(look),
+        }));
+        string lookHash = dressed.GetProperty("workspace").GetProperty("appliedLiveryHash").GetString()!;
+        Assert.Equal(LiveryHash.Of(look), lookHash);
+        Assert.False(dressed.GetProperty("performanceChanged").GetBoolean());
+        Assert.Equal(raceRevision, dressed.GetProperty("workspace").GetProperty("applied").GetProperty("revision").GetInt64());
+        HttpResponseMessage wrongCar = await ha.PostAsJsonAsync($"/v1/me/garage/cars/{instance}/operations", new
+        {
+            op = "livery-apply", expectedRevision = dressed.GetProperty("revision").GetInt64(), liveryJson = LiveryJson.ToCanonicalJson(GarageTestKit.Livery("V03")),
+        });
+        Assert.Equal(HttpStatusCode.BadRequest, wrongCar.StatusCode);
+        Assert.Equal("invalid_livery", (await Json(wrongCar)).GetProperty("error").GetString());
+
         // ---- Start: the assignment carries each entrant's frozen server build.
         Result(await ca.RequestAsync("event.start", new { proposalRevision = eRev }));
         JsonElement assignment = await assignmentTask.WaitAsync(TimeSpan.FromSeconds(30));
@@ -195,6 +215,14 @@ public sealed class GarageEndToEndTests : IDisposable
         Assert.Equal(health.GetProperty("garageContentHash").GetString(), vb.GetProperty("partsCatalogueHash").GetString());
         Assert.True(vb.GetProperty("paramsMicro").GetProperty("TyreGrip").GetInt64() > 0);
         Assert.True(vb.GetProperty("chassis").GetProperty("brakeFrontBias").GetDouble() > 0);
+        // … and each entrant's frozen appearance next to it: A's livery in the compact wire form + its server hash, B stock.
+        Assert.Equal(lookHash, entrantA.GetProperty("cosmeticHash").GetString());
+        LiveryWireResult wire = LiveryWire.Decode(entrantA.GetProperty("livery").GetString()!);
+        Assert.True(wire.Ok, string.Join("; ", wire.Errors));
+        Assert.Equal(lookHash, LiveryHash.Of(wire.Document));
+        JsonElement entrantB = assignment.GetProperty("entrants").EnumerateArray().Single(e => e.GetProperty("accountId").GetString() == b.AccountId);
+        Assert.Equal(JsonValueKind.Null, entrantB.GetProperty("livery").ValueKind);
+        Assert.Equal(GarageTestKit.Customization.StockHash("V03"), entrantB.GetProperty("cosmeticHash").GetString()); // not B's claimed "paint-9"
         await ca.WaitForAsync(m => Type(m) == "match.allocated");
 
         // ---- Authorized start → Last Race Build is the frozen build of this match.

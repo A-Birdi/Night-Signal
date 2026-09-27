@@ -1070,10 +1070,12 @@ public sealed class ConvoyDirectory
     }
 
     /// <summary>
-    /// The Garage changed the applied build of <paramref name="fresh"/>'s instance (apply, restore, Buy-and-Apply). When that
-    /// instance is the member's selected car, its server performance hash/PI replace the old ones; a PERFORMANCE change bumps
-    /// the loadout revision and unreadies only this member, a same-hash change (utility-only) keeps readiness. While
-    /// Allocating nothing changes here (the start already froze the build; the next event.ready re-reads it).
+    /// The Garage changed the applied build or the applied livery of <paramref name="fresh"/>'s instance (apply, restore,
+    /// Buy-and-Apply, livery-apply). When that instance is the member's selected car, its server performance hash/PI and
+    /// cosmetic hash replace the old ones; a PERFORMANCE change bumps the loadout revision and unreadies only this member, a
+    /// same-hash change (utility-only) keeps readiness, and a cosmetic-only change bumps the cosmetic revision and keeps
+    /// readiness. While Allocating nothing changes here (the start already froze build and livery; the next event.ready
+    /// re-reads them).
     /// </summary>
     public bool RefreshLoadoutFromGarage(string accountId, LoadoutInfo fresh)
     {
@@ -1088,16 +1090,25 @@ public sealed class ConvoyDirectory
         }
     }
 
-    /// <summary>Takes the server-resolved hash/PI of the member's selected instance; true when the performance hash changed.</summary>
+    /// <summary>
+    /// Takes the server-resolved hash/PI (and, when given, cosmetic hash) of the member's selected instance; true when the
+    /// performance hash changed. A cosmetic-only change bumps the cosmetic revision and never touches readiness.
+    /// </summary>
     static bool ApplyFresh(Convoy convoy, Member m, LoadoutInfo fresh)
     {
         bool performance = m.Loadout!.PerformanceHash != fresh.PerformanceHash;
-        m.Loadout = m.Loadout with { CarPi = fresh.CarPi, PerformanceHash = fresh.PerformanceHash, AppliedRevision = fresh.AppliedRevision };
+        bool cosmetic = !string.IsNullOrEmpty(fresh.CosmeticHash) && m.Loadout.CosmeticHash != fresh.CosmeticHash;
+        m.Loadout = m.Loadout with
+        {
+            CarPi = fresh.CarPi, PerformanceHash = fresh.PerformanceHash, AppliedRevision = fresh.AppliedRevision,
+            CosmeticHash = cosmetic ? fresh.CosmeticHash : m.Loadout.CosmeticHash,
+        };
         if (performance)
         {
             m.LoadoutRevision++;
             convoy.EventProposal?.Ready.Remove(m.AccountId);
         }
+        if (cosmetic) m.CosmeticRevision++;
         return performance;
     }
 
@@ -1865,7 +1876,11 @@ public sealed class ConvoyDirectory
                 {
                     if (!frozenBuilds.TryGetValue(m.AccountId, out Garage.EntrantBuild? frozen) || frozen.InstanceId != m.Loadout!.InstanceId)
                         return (new ConvoyError("loadout_illegal", $"{m.DisplayName}'s applied build could not be validated by the server; it needs repair in the Garage."), null);
-                    if (ApplyFresh(convoy, m, m.Loadout with { CarPi = frozen.Pi, PerformanceHash = frozen.BuildHash, AppliedRevision = frozen.AppliedRevision }))
+                    if (ApplyFresh(convoy, m, m.Loadout with
+                        {
+                            CarPi = frozen.Pi, PerformanceHash = frozen.BuildHash, AppliedRevision = frozen.AppliedRevision,
+                            CosmeticHash = frozen.Appearance?.CosmeticHash ?? m.Loadout!.CosmeticHash,
+                        }))
                     {
                         Changed(convoy);
                         return (new ConvoyError("not_all_ready", $"{m.DisplayName}'s applied build changed; they must ready again."), null);

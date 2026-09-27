@@ -196,7 +196,8 @@ public sealed record MemberInfo(string DisplayName, MemberProgress Progress, IRe
 /// <summary>
 /// The member's chosen car. <paramref name="PerformanceHash"/> and <paramref name="CarPi"/> come from the SERVER-resolved
 /// applied build of <paramref name="InstanceId"/> (the ONLINE Garage, Addendum 02 §9–10), never from a client claim;
-/// <paramref name="CosmeticHash"/> identifies the visual build (opaque here). <paramref name="AppliedRevision"/> is the
+/// <paramref name="CosmeticHash"/> identifies the visual build (opaque here; for an instance it is the SERVER hash of the
+/// stored applied livery, GarageService.AppearanceOf). <paramref name="AppliedRevision"/> is the
 /// workspace's applied-build revision that hash was computed from.
 /// </summary>
 public sealed record LoadoutInfo(string CarId, int CarPi, string PerformanceHash, string CosmeticHash, string? InstanceId = null,

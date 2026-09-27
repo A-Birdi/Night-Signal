@@ -140,6 +140,15 @@ namespace NightSignal.Front
             return r.Spec;
         }
 
+        /// <summary>The car instance's applied livery in the roster's wire form ("" = stock or unreadable). Visual only.</summary>
+        public string RaceLivery(string instanceId)
+        {
+            Core.Builds.PartsCatalogue parts = ContentLibrary.Load()?.Parts;
+            if (string.IsNullOrEmpty(instanceId) || parts == null || Profile == null) return "";
+            LocalWorkspaceLoad load = LocalGarage.LoadWorkspace(Profile, Catalogue, parts, instanceId, DateTime.UtcNow);
+            return load.Ok ? Art.AppearanceMapping.WireOf(load.Workspace.AppliedLivery) : "";
+        }
+
         /// <summary>The saved While We Wait table for this profile (non-progression domain), or null.</summary>
         public string ToySnapshot(string key) => Profile?.Toys.Get(key)?.Data?.ToString(Newtonsoft.Json.Formatting.None);
 

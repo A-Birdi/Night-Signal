@@ -48,6 +48,7 @@ namespace NightSignal.Front
         public readonly FriendsScreen Friends = new FriendsScreen();
         public readonly CourseAccessScreen Courses = new CourseAccessScreen();
         public readonly GarageScreen Garage = new GarageScreen();
+        public readonly AppearanceScreen Appearance = new AppearanceScreen();
         /// <summary>Rich-text summary of the last online race (placing, time, settled receipt) for the convoy screen.</summary>
         public string LastOnlineResult { get; private set; }
         /// <summary>UI tours drive online races with the validator autopilot (automation, labelled as such).</summary>
@@ -89,6 +90,8 @@ namespace NightSignal.Front
                 StartCoroutine(UiTourOnline());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsYardTour") >= 0)
                 StartCoroutine(YardTour());
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsAppearanceTour") >= 0)
+                StartCoroutine(AppearanceTour());
             int social = Array.IndexOf(Environment.GetCommandLineArgs(), "-nsUiTourSocial");
             if (social >= 0 && social + 1 < Environment.GetCommandLineArgs().Length)
                 StartCoroutine(UiTourSocial(Environment.GetCommandLineArgs()[social + 1]));
@@ -621,6 +624,57 @@ namespace NightSignal.Front
                 yield return Until(() => Router.Current == Convoy, 10f, "back at the convoy screen");
                 yield return new WaitForSeconds(1f);
             }
+            string onlineLivery = null, onlineLiveryHash = null;
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsUiTourAppearance") >= 0)
+            {
+                // Online appearance through the real screens: the control plane validates the livery (ownership included),
+                // stores its canonical form and hash, and freezes it into the race roster the game server relays.
+                IEnumerator Press(string row, int times)
+                {
+                    for (int i = 0; i < times; i++)
+                    {
+                        Click(row + "/Next");
+                        yield return new WaitForSeconds(0.25f);
+                    }
+                }
+                Click("OpenGarage");
+                yield return Until(() => Router.Current == Garage && Garage.Workspace != null && !Garage.Busy, 20f, "online garage loaded");
+                yield return new WaitForSeconds(0.8f);
+                Click("OpenAppearance");
+                yield return Until(() => Router.Current == Appearance && Appearance.Editor != null, 10f, "appearance open");
+                yield return new WaitForSeconds(0.8f);
+                string liveryBefore = Appearance.Workspace.AppliedLiveryHash;
+                yield return Press("Front", 1);
+                yield return Press("Rear aero", 1);
+                yield return Press("Section", 2); // paint
+                yield return Press("Colour", 2 + (string.IsNullOrEmpty(liveryBefore) ? 0 : 1));
+                yield return Press("Section", 1); // lights & plate
+                var plateField = GameObject.Find("Appearance-PlateText")?.GetComponent<TMPro.TMP_InputField>();
+                if (plateField != null) { plateField.text = "NS ONL"; plateField.onEndEdit.Invoke(plateField.text); }
+                yield return Press("Section", 1); // decals
+                Click("Appearance-AddDecal");
+                yield return new WaitForSeconds(0.3f);
+                for (int i = 0; i < 6; i++) { Click("Appearance-Larger"); yield return new WaitForSeconds(0.15f); }
+                Click("Appearance-Mirror");
+                yield return new WaitForSeconds(0.6f);
+                Shot("03d-online-appearance-draft");
+                yield return new WaitForSeconds(0.3f);
+                Click("Appearance-Apply");
+                yield return Until(() => !Appearance.Busy && !Appearance.Editor.IsDirty, 20f, "livery applied");
+                yield return new WaitForSeconds(0.8f);
+                Shot("03e-online-appearance-applied");
+                yield return new WaitForSeconds(0.3f);
+                onlineLivery = Appearance.Workspace.AppliedLivery;
+                onlineLiveryHash = Appearance.Workspace.AppliedLiveryHash;
+                Note($"online appearance: {Appearance.Message} hash {liveryBefore} -> {onlineLiveryHash} ({onlineLivery?.Length} chars)");
+                if (string.IsNullOrEmpty(onlineLivery) || onlineLiveryHash == liveryBefore) failures.Add("online appearance: the livery was not applied: " + Appearance.Message);
+                Click("Back");
+                yield return Until(() => Router.Current == Garage, 10f, "back at the garage");
+                yield return new WaitForSeconds(0.8f);
+                Click("Back");
+                yield return Until(() => Router.Current == Convoy, 10f, "back at the convoy screen");
+                yield return new WaitForSeconds(1f);
+            }
             Click("CreateConvoy");
             yield return Until(() => OnlineSession.Current.InConvoy && OnlineSession.Current.MyMember?["carId"]?.Type == Newtonsoft.Json.Linq.JTokenType.String, 10f, "convoy created with a loadout");
             yield return new WaitForSeconds(0.8f);
@@ -708,6 +762,18 @@ namespace NightSignal.Front
             yield return Until(() => onlineRace == null || onlineRace.Phase == MatchPhase.Racing, 60f, "race started");
             yield return new WaitForSeconds(12f);
             Shot("07-online-race");
+            if (onlineLivery != null)
+            {
+                // The roster came from the game server's match message: it relays the livery the control plane froze.
+                Newtonsoft.Json.Linq.JToken member = OnlineSession.Current.MyMember;
+                RosterEntry mine = onlineRace?.Info?.Roster.FirstOrDefault(r => r.Index == onlineRace.Info.YourIndex);
+                Art.CarAppearance shown = onlineRace?.MyView?.Appearance;
+                Core.Customization.LiveryDocument doc = Core.Customization.LiveryJson.Parse(onlineLivery).Document;
+                Note($"online race livery: roster {mine?.Livery?.Length ?? 0} bytes, convoy cosmetic revision {(long?)member?["cosmeticRevision"]}, car front {shown?.Front}, rear aero {shown?.RearAero}, plate '{shown?.PlateText}', {shown?.Decals.Count} decals");
+                if (string.IsNullOrEmpty(mine?.Livery) || shown == null || doc == null || shown.Front != doc.Body.Front || shown.RearAero != doc.Body.RearAero
+                    || shown.PlateText != doc.Plate.Text || shown.Decals.Count != doc.Decals.Count)
+                    failures.Add("online race: the car does not show the applied livery");
+            }
             yield return Until(() => onlineRace == null && Router.Current == Convoy, 400f, "race finished and back at the convoy");
             yield return Until(() => (LastOnlineResult ?? "").Contains("Credits"), 25f, "settled receipt");
             yield return Until(() => State()?["postEvent"]?.Type == Newtonsoft.Json.Linq.JTokenType.Object, 15f, "post-event decision");
@@ -828,7 +894,9 @@ namespace NightSignal.Front
             string buildProblem = null;
             Core.Builds.ResolvedCarSpec spec = plan.Car.Loaner ? null : local?.RaceSpec(plan.Car.InstanceId, out frozen, out buildProblem);
             if (buildProblem != null) Debug.LogWarning("[NightSignal.Local] " + buildProblem);
-            Debug.Log($"[NightSignal.Local] {plan.EventId}: {plan.Car.ModelId} races build {(spec != null ? spec.BuildHash.Substring(0, 12) : "stock")} (PI {frozen?.Pi})");
+            string livery = plan.Car.Loaner ? "" : local?.RaceLivery(plan.Car.InstanceId) ?? "";
+            Debug.Log($"[NightSignal.Local] {plan.EventId}: {plan.Car.ModelId} races build {(spec != null ? spec.BuildHash.Substring(0, 12) : "stock")} (PI {frozen?.Pi}), " +
+                      $"livery {(livery.Length > 0 ? livery.Length + " bytes" : "stock")}");
             yield return RunOfflineRace(plan.CourseId, plan.Car.ModelId, plan.Rules, plan.OpposingAi, false,
                 (r, rev) => { results = r; courseRevision = rev; }, spec, () =>
                 {
@@ -837,7 +905,7 @@ namespace NightSignal.Front
                     Core.Profiles.LocalProgressionResult rec = Core.Profiles.LocalGarage.RecordLocalRaceBuild(local.Profile, local.Catalogue,
                         NightSignal.Content.ContentLibrary.Load().Parts, plan.Car.InstanceId, frozen, plan.EventId, DateTime.UtcNow);
                     if (rec.Changed && !local.Commit(rec, out string note)) Debug.LogWarning("[NightSignal.Local] Last Race Build not saved: " + note);
-                });
+                }, livery);
             LocalSession session = LocalSession.Current;
             Core.Profiles.LocalProgressionResult applied = null;
             string saveNote = "";
@@ -910,7 +978,7 @@ namespace NightSignal.Front
         }
 
         IEnumerator RunOfflineRace(string courseId, string carId, RaceEventRules rules, List<string> opposingAi, bool showResults,
-            Action<List<RaceEntrantResult>, string> onResults, Core.Builds.ResolvedCarSpec playerSpec = null, Action onRacing = null)
+            Action<List<RaceEntrantResult>, string> onResults, Core.Builds.ResolvedCarSpec playerSpec = null, Action onRacing = null, string playerLivery = null)
         {
             Canvas.gameObject.SetActive(false);
             if (backdropCamera != null) backdropCamera.SetActive(false);
@@ -923,6 +991,7 @@ namespace NightSignal.Front
             activeRace = go.AddComponent<OfflineRaceSession>();
             activeRace.CarId = carId;
             activeRace.PlayerSpec = playerSpec;
+            activeRace.PlayerLivery = playerLivery;
             activeRace.PlayerName = string.IsNullOrEmpty(DisplayName) ? "You" : DisplayName;
             activeRace.Rules = rules;
             activeRace.OpposingAi = opposingAi;

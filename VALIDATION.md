@@ -523,3 +523,38 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   worst case 4,833) and a publish gate. `dotnet test Services/CoreTests` **123/123**; compiles in Unity.
 - Not wired yet: the Garage appearance editor, mapping to the renderer's `CarAppearance`, the online livery endpoint and
   roster sync, and `customization.json` in the content hash.
+
+## V-046 — Garage appearance: livery editor, Local and online apply, liveries in race rosters (2026-09-27)
+- **Renderer mapping** (`Runtime/Art/AppearanceMapping.cs`): Core `ResolvedAppearance` → `CarAppearance`; the renderer gained
+  glass tint, rim finish, visual wheel offset, plate-style colours (backing + lettering) and decal opacity (blended toward
+  the paint, decals stay opaque). EditMode `AppearanceMappingTests`: every chassis' stock livery draws exactly the body
+  definition's car (rim fraction, no offset, shared glass, no decals) and a livery survives the roster wire form —
+  EditMode **211/211**.
+- **Appearance screen** (Garage → Appearance, `Front/AppearanceScreen.cs` + `AppearanceStage.cs`): body kit (families the
+  chassis offers, with its notes), wheels (8 rims, diameter, offset, finish), paint (swatches, finish, two-tone, second
+  and accent colours), lamps/glass/plate, decal layers (library shapes, zone, move, size, turn, mirror, flip, colour,
+  opacity, order) and five+ presets; undo/redo, Stock, Cancel, Apply; locked cosmetics can be tried on, Apply refuses them;
+  a turntable preview rendered on demand (seven views). The preview renders one frame after posing: with the PC pipeline's
+  GPU Resident Drawer, rendering straight after moving the car drew its previous pose (found by the evidence run —
+  "Right side" showed the "Front" pose — and fixed).
+- **Store/apply** (background agent, reviewed and re-run here): `CarBuildWorkspace.AppliedLivery` (canonical JSON, persisted
+  in the state document; old documents unchanged), `GarageOperations.ApplyLivery/UpdateVisualPreset/RenameVisualPreset`.
+  Control plane: `livery-apply` / `visual-preset-update` / `-rename` validated with Core against `customization.json` and
+  the account's `cosmetics_owned` (400 `invalid_livery` with the exact errors and locked items); canonical form and hash are
+  computed server-side; a livery change refreshes only the convoy's cosmetic hash (readiness kept); `entrants[].livery`
+  (wire form) + `cosmeticHash` frozen at start; `/healthz` publishes `customizationContentHash` (not in the race hash, which
+  stays `5065000bb142…`); the client compares it and blocks online Apply on a mismatch.
+  `dotnet test`: Core **123**, Builds **232**, Toys **92**, control plane **335** — all pass.
+- **Race rosters:** `RosterEntry.Livery` (wire form); the game server relays a human's livery only when it decodes for that
+  car against its own catalogue; clients and Local races draw it (`AppearanceMapping.ForWire`). The transport's
+  `MaxPayloadSize` is 64 KiB so six worst-case liveries (≤ 5,120 B each) fit the match message.
+- `-nsAppearanceTour` (built player, fresh Local profile): every section edited with the real controls, undo/redo, a locked
+  swatch (Canal Jade Metallic) refused on Apply, applied (hash 7570c3b807c5…), two presets, the profile re-read from disk
+  (livery, hash, presets persisted), S01 started with the car showing the livery (roster livery 258 bytes) — **PASS**.
+  Screenshots `Evidence/ui/appearance/`.
+- `ui-tour-online.ps1 -Appearance` (control plane + game server + client): livery applied online (hash 7ac36514a97c…),
+  the event raced with it — the game server's roster carried 229 bytes, the car showed the lip, ducktail, "NS ONL" plate and
+  decal — P2 of 3, settled — **PASS**. Screenshots `Evidence/ui/online/appearance/`.
+- Limits: the pearl flip tint is not rendered (URP Lit has no view-dependent tint); decal opacity is a blend toward the
+  primary paint, not transparency; TMP plate text also shows mirrored from the front at steep top views; a second human
+  seeing another's livery in the same race was not run (the roster path is the same for every entrant).

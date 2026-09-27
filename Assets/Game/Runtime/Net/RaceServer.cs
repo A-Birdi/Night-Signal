@@ -142,6 +142,18 @@ namespace NightSignal.Net
 
         static string Short(string hash) => string.IsNullOrEmpty(hash) ? "none" : hash.Substring(0, Math.Min(12, hash.Length));
 
+        /// <summary>
+        /// The livery the other drivers will see: relayed only when it decodes for this car against this server's catalogue
+        /// (the control plane validated ownership when it was applied); anything else races with the palette colour.
+        /// </summary>
+        static string RelayLivery(ContentLibrary lib, AssignmentEntrant h)
+        {
+            if (string.IsNullOrEmpty(h.Livery)) return "";
+            if (AppearanceMapping.ForWire(lib.Customization, h.CarId, h.Livery) != null) return h.Livery;
+            Debug.LogWarning($"[NightSignal.Server] {h.DisplayName}'s livery could not be read for {h.CarId}; showing the palette colour");
+            return "";
+        }
+
         RaceSimulation BuildSimulation(TrackData track)
         {
             var rules = new RaceEventRules
@@ -162,7 +174,7 @@ namespace NightSignal.Net
             var humans = new List<HumanSlot>();
             foreach (AssignmentEntrant h in assignment.Entrants.Where(x => x.Role == "racer"))
             {
-                var slot = new HumanSlot { EntrantId = h.AccountId, DisplayName = h.DisplayName, CarId = h.CarId };
+                var slot = new HumanSlot { EntrantId = h.AccountId, DisplayName = h.DisplayName, CarId = h.CarId, Livery = RelayLivery(lib, h) };
                 if (h.VehicleBuild != null)
                 {
                     // Race exactly the build the control plane froze: re-resolve it here with Core and require the same hash.

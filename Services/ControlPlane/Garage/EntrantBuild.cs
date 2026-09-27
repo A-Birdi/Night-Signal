@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using NightSignal.Core.Builds;
 
 namespace NightSignal.ControlPlane.Garage;
@@ -34,6 +35,12 @@ public sealed record EntrantBuild
     public IReadOnlyDictionary<string, long> ParamsMicro { get; init; } = new Dictionary<string, long>();
     /// <summary>Core ChassisAdjustments (applied by VehicleFactory after its derivations).</summary>
     public ChassisValues Chassis { get; init; } = new();
+    /// <summary>
+    /// The applied APPEARANCE read from the same stored workspace as this build (set by GarageService.FreezeAsync). Not part
+    /// of <c>vehicleBuild</c>: the assignment sends it next to it as <c>entrants[].cosmeticHash</c> and <c>entrants[].livery</c>.
+    /// </summary>
+    [JsonIgnore]
+    public EntrantAppearance? Appearance { get; init; }
 
     /// <summary>The Core applied build this record froze (for GarageOperations.RecordRaceBegan).</summary>
     public AppliedVehicleBuild ToApplied() => new()
@@ -90,6 +97,13 @@ public sealed record EntrantBuild
         };
     }
 }
+
+/// <summary>
+/// An entrant's frozen applied appearance. <see cref="CosmeticHash"/> is the SERVER-computed <c>LiveryHash</c> of the applied
+/// livery (of the chassis' stock livery when none is applied); <see cref="Livery"/> is the compact Core <c>LiveryWire</c> form
+/// of the applied livery (≤ 5,120 bytes), or null for the stock appearance. Appearance never changes a simulation input.
+/// </summary>
+public sealed record EntrantAppearance(string CosmeticHash, string? Livery);
 
 /// <summary>The single utility item's economic/showcase effect (never physics): income 0/4/8 %, showcase 0/5/10 %.</summary>
 public sealed record BuildUtility(string PartId = "", int IncomePercent = 0, int ShowcasePercent = 0);

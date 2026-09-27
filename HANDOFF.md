@@ -1,6 +1,6 @@
 # Handoff
 
-_Last updated: 2026-09-27 — Team Trials + Time Attack online; customization renderer and Core model; all five diversions online._
+_Last updated: 2026-09-27 — Garage Appearance (liveries) Local and online, raced with; Team Trials + Time Attack online._
 
 **Rules revision:** `docs/brief/Night_Signal_Addendum_01.txt` supersedes parts of the master (six humans + up to
 twelve vehicles, live finale rivals, light contact, course access, offline domain, rejoin grants, voting, friends,
@@ -47,7 +47,7 @@ powershell -ExecutionPolicy Bypass -File Tools/run/net-race.ps1 -Humans 2 -Stage
 3. **Hosted services / internet test** — a Supabase project, a reachable server and a budget are needed for
    WAN acceptance (§3.5, Gate 5). Not approved; stays BLOCKED, not faked.
 
-## Done since the addenda (VALIDATION V-015 … V-045)
+## Done since the addenda (VALIDATION V-015 … V-046)
 
 - Addendum 01 Core rules and data overlays; control plane for Addendum 01 + 02 incl. hosted diversions (307 .NET
   tests); light car contact, shared RaceSimulation (server + offline), protocol 2 per-client snapshots.
@@ -79,13 +79,15 @@ powershell -ExecutionPolicy Bypass -File Tools/run/net-race.ps1 -Humans 2 -Stage
 - **Team Trials + Time Attack online** through the convoy screen: TT_BEST, TT_MEAN (1 human + 5 friendly AI vs 6),
   Freeplay Time Attack (V-044). TT_DRIFT needs race-server drift scoring (not built).
 - **Customization Core** (V-045): `Core/Customization` + `authored/customization.json` — catalogue, livery document and
-  hash, validation with ownership, editor (undo, 64 layers), resolver, wire form. Not yet wired to the Garage.
+  hash, validation with ownership, editor (undo, 64 layers), resolver, wire form.
+- **Garage Appearance** (V-046): Appearance screen with a live preview; Local apply (profile) and online apply (control plane
+  validates with `cosmetics_owned`, stores canonical livery + hash); liveries travel in race rosters (`entrants[].livery` →
+  game server → clients) and show on the race car. `/healthz` publishes `customizationContentHash`.
 
 ## Next actions
 
-1. Customization integration: Core `ResolvedAppearance` → renderer `CarAppearance`; Garage Appearance page (presets,
-   apply/cancel, undo, decals) with Local/online ownership; livery wire in the roster; `customization.json` in the
-   content hash (needs a coordinated control-plane restart).
+1. Customization follow-ups: two humans in one race seeing each other's liveries; meet refresh of liveries; pearl flip
+   tint; rename/delete presets in the UI (the ops exist).
 2. F08–F10 starter progression runs with upgrades; drift scoring on the race server (TT_DRIFT, Drift Attack); group
    Time Attack and toy tables with 3–6 humans; block UI, reconnect/rejoin and DQ under load; Canvas controller cursor.
 3. Generator: bridge decks/piers, tunnel shells, `crossing`/`water`/`field`/`structure` kits; visual pass per biome.

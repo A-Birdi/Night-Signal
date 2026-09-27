@@ -62,6 +62,8 @@ namespace NightSignal.Race
         public Core.Builds.ResolvedCarSpec Spec;
         /// <summary>The snapshot <see cref="Spec"/> was resolved from (sent to clients so they predict the same car).</summary>
         public Core.Builds.MechanicalSnapshot Build;
+        /// <summary>The applied livery (compact wire form) the other drivers see; null/"" = the palette colour.</summary>
+        public string Livery;
     }
 
     public sealed class RaceEntrantResult
@@ -137,7 +139,7 @@ namespace NightSignal.Race
             ContentCatalogue cat = lib.Catalogue;
             int slot = 0, generic = 0;
             foreach (HumanSlot h in humans)
-                sim.Add(lib, world, slot++, h.EntrantId, h.DisplayName, true, h.CarId, "player", "driver", null, h.Spec, h.Build);
+                sim.Add(lib, world, slot++, h.EntrantId, h.DisplayName, true, h.CarId, "player", "driver", null, h.Spec, h.Build, h.Livery);
             foreach (string id in friendlyAi)
                 sim.AddAi(cat, lib, world, slot++, id, "player", "friendly", AiPlacementContext.FriendlyAi, ref generic);
             for (int i = 0; i < opposingAi.Count; i++)
@@ -170,7 +172,7 @@ namespace NightSignal.Race
         }
 
         RaceEntrant Add(ContentLibrary lib, IVehicleWorld world, int slot, string id, string name, bool human, string carId, string team, string role, float[] paint,
-            Core.Builds.ResolvedCarSpec spec = null, Core.Builds.MechanicalSnapshot build = null)
+            Core.Builds.ResolvedCarSpec spec = null, Core.Builds.MechanicalSnapshot build = null, string livery = null)
         {
             if (spec != null && spec.CarModelId != carId) throw new InvalidOperationException($"build for {spec.CarModelId} used on {carId}");
             VehicleParams p = spec != null ? VehicleFactory.Build(spec, AssistSettings.Default, lib.Body(carId).WheelRadius) : lib.Params(carId, AssistSettings.Default);
@@ -186,7 +188,7 @@ namespace NightSignal.Race
                 {
                     Index = slot, EntrantId = id, DisplayName = name, Human = human, CarId = carId, GridSlot = slot,
                     Paint = paint ?? Palette(slot, human, team), Team = team, Role = role,
-                    Build = spec != null ? build : null, BuildHash = spec?.BuildHash ?? "",
+                    Build = spec != null ? build : null, BuildHash = spec?.BuildHash ?? "", Livery = livery ?? "",
                 },
             };
             Tracker.Start(e.Progress, e.State.Position);

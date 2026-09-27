@@ -283,16 +283,17 @@ public sealed class ControlCommandHandler(ConvoyDirectory directory, IPlayerStor
 
     /// <summary>
     /// Only owned car INSTANCES can be selected. The performance hash, PI and applied revision come from the server-resolved
-    /// applied build of that instance (ONLINE Garage); a client-sent performanceHash is ignored, only the cosmetic hash is taken.
+    /// applied build of that instance (ONLINE Garage) and the cosmetic hash from its stored applied livery; client-sent
+    /// performanceHash and cosmeticHash are accepted for older clients but ignored.
     /// </summary>
     async Task<ConvoyResult> SetLoadoutAsync(string a, LoadoutPayload p, CancellationToken ct)
     {
         if (p.CarId is null && p.InstanceId is null) return Invalid("carId (or instanceId) is required.");
         if (p.CarId is not null && !content.Catalogue.TryCar(p.CarId, out _)) return Invalid("Unknown car.");
         if (p.InstanceId is { Length: 0 or > 64 }) return Invalid("instanceId is 1–64 characters.");
-        if (p.CosmeticHash is not { Length: > 0 and <= 128 }) return Invalid("cosmeticHash is required (≤128 characters).");
+        if (p.CosmeticHash is { Length: > 128 }) return Invalid("cosmeticHash is ignored but must be ≤128 characters.");
         if (p.PerformanceHash is { Length: > 128 }) return Invalid("performanceHash is ignored but must be ≤128 characters.");
-        (LoadoutInfo? loadout, ConvoyError? error) = await garage.SelectionAsync(a, p.CarId, p.InstanceId, p.CosmeticHash, ct);
+        (LoadoutInfo? loadout, ConvoyError? error) = await garage.SelectionAsync(a, p.CarId, p.InstanceId, ct);
         return loadout is null ? new ConvoyResult(error) : directory.UpdateLoadout(a, loadout);
     }
 

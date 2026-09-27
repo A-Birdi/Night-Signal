@@ -64,7 +64,7 @@ namespace NightSignal.Front
                 await client.SignInDev(email, password);
                 var s = new OnlineSession(client);
                 await s.RefreshMe();
-                await s.CheckToyContent();
+                await s.CheckSideContent();
                 await client.ConnectControl(NetConfig.Build, Wire.ProtocolVersion, ContentLibrary.Load().Catalogue.ContentHash);
                 Current?.Dispose();
                 Current = s;
@@ -83,12 +83,25 @@ namespace NightSignal.Front
         /// </summary>
         public string ToyMismatch { get; private set; }
 
-        async Task CheckToyContent()
+        /// <summary>
+        /// Set when this client's customization.json differs from the control plane's (published as customizationContentHash):
+        /// liveries could validate differently, so the online Appearance screen previews but does not apply. Null when they match
+        /// or cannot be told.
+        /// </summary>
+        public string CustomizationMismatch { get; private set; }
+
+        /// <summary>The non-race documents (toys, appearance) are published with their own hashes: compare ours with the server's.</summary>
+        async Task CheckSideContent()
         {
             try
             {
                 (int status, JObject health) = await Client.GetWithStatus("/healthz");
                 string server = status == 200 ? (string)health["toyContentHash"] : null;
+                string serverLooks = status == 200 ? (string)health["customizationContentHash"] : null;
+                string localLooks = ContentLibrary.Load()?.CustomizationHash;
+                CustomizationMismatch = serverLooks != null && localLooks != null && serverLooks != localLooks
+                    ? "This game version has different appearance data than the server — you can try things on, but applying needs an update."
+                    : null;
                 string local = ContentLibrary.Load()?.Toys?.ContentHash;
                 ToyMismatch = server != null && local != null && server != local
                     ? "The shared toys on this server use different data than this game version — update the game to join them."

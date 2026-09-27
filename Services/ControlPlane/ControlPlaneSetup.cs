@@ -77,6 +77,9 @@ public static class ControlPlaneSetup
         // ONLINE Garage (Addendum 02 §8–10): parts/recipes from content/authored, per-instance ownership and workspaces.
         services.AddSingleton(sp => GarageContent.FromContentDirectory(sp.GetRequiredService<IOptions<ContentOptions>>(),
             sp.GetRequiredService<ContentService>(), sp.GetRequiredService<ILogger<GarageContent>>()));
+        // Appearance catalogue (customization.json): server-side livery validation; never part of the race ContentHash.
+        services.AddSingleton(sp => CustomizationContent.FromContentDirectory(sp.GetRequiredService<IOptions<ContentOptions>>(),
+            sp.GetRequiredService<ContentService>(), sp.GetRequiredService<ILogger<CustomizationContent>>()));
         services.AddSingleton<GarageService>();
         services.AddHostedService<ConvoySweeper>();
         services.AddSingleton<GameServerRegistry>();
@@ -111,6 +114,7 @@ public static class ControlPlaneSetup
         _ = app.Services.GetRequiredService<TeamTrialCatalog>();
         _ = app.Services.GetRequiredService<MusicUnlockManifest>();
         _ = app.Services.GetRequiredService<GarageContent>(); // parts.json + build-recipes.json: the server owns performance truth
+        _ = app.Services.GetRequiredService<CustomizationContent>(); // customization.json: the server validates applied liveries
         _ = app.Services.GetRequiredService<ToyContentProvider>(); // logs honestly when the toys are unavailable; never fatal
         _ = app.Services.GetRequiredService<TicketIssuer>();
         GameServerOptions servers = app.Services.GetRequiredService<IOptions<GameServerOptions>>().Value; // creates the dev key if enabled
@@ -122,9 +126,14 @@ public static class ControlPlaneSetup
         app.UseAuthorization();
 
         // The race catalogue hash is enforced at connect; the toy (While We Wait) documents are non-progression and are
-        // published so a client can tell when its shared tables would mirror different data.
-        app.MapGet("/healthz", (ContentService content, GarageContent garage, NightSignal.ControlPlane.Toys.ToyContentProvider toys) =>
-            Results.Ok(new { status = "ok", contentHash = content.ContentHash, garageContentHash = garage.Hash, toyContentHash = toys.Content?.ContentHash }));
+        // published so a client can tell when its shared tables would mirror different data; likewise the appearance catalogue.
+        app.MapGet("/healthz", (ContentService content, GarageContent garage, CustomizationContent customization,
+            NightSignal.ControlPlane.Toys.ToyContentProvider toys) =>
+            Results.Ok(new
+            {
+                status = "ok", contentHash = content.ContentHash, garageContentHash = garage.Hash, customizationContentHash = customization.Hash,
+                toyContentHash = toys.Content?.ContentHash,
+            }));
         if (dev.Enabled) app.MapDevAuth();
         app.MapPlayerEndpoints();
         app.MapSocialEndpoints();

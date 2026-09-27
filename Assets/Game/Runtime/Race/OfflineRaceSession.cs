@@ -24,6 +24,8 @@ namespace NightSignal.Race
         public string CarId = "V01";
         /// <summary>The player's frozen applied build (null = stock), resolved by Core before the race.</summary>
         public Core.Builds.ResolvedCarSpec PlayerSpec;
+        /// <summary>The player's applied livery (compact wire form; null/"" = the palette colour).</summary>
+        public string PlayerLivery;
         public string PlayerName = "You";
         public bool Autopilot;
         /// <summary>Simulation ticks per real tick (tests fast-forward; 1 = real time).</summary>
@@ -36,6 +38,8 @@ namespace NightSignal.Race
 
         public RaceSimulation Sim { get; private set; }
         public RaceEntrant Player { get; private set; }
+        /// <summary>The player's car as drawn (null headless or before the views exist).</summary>
+        public VehicleView PlayerView => Player != null && views.TryGetValue(Player, out VehicleView v) ? v : null;
         public int CurrentTick { get; private set; }
         public bool Ready { get; private set; }
         public MatchPhase Phase { get; private set; } = MatchPhase.Loading;
@@ -78,7 +82,7 @@ namespace NightSignal.Race
             }
             Headless |= Application.isBatchMode;
             var world = new PhysicsVehicleWorld(Physics.defaultPhysicsScene, GameLayers.DrivableMask, GameLayers.BarrierMask);
-            var humans = new List<HumanSlot> { new HumanSlot { EntrantId = "local", DisplayName = PlayerName, CarId = CarId, Spec = PlayerSpec } };
+            var humans = new List<HumanSlot> { new HumanSlot { EntrantId = "local", DisplayName = PlayerName, CarId = CarId, Spec = PlayerSpec, Livery = PlayerLivery } };
             Sim = RaceSimulation.Build(course.Track, lib, Rules, humans, OpposingAi, world, FriendlyAi);
             Player = Sim.Entrants[0];
             Player.Status = EntrantStatus.Loaded;
@@ -93,7 +97,8 @@ namespace NightSignal.Race
                 foreach (RaceEntrant e in Sim.Entrants)
                 {
                     float[] c = e.Roster.Paint;
-                    VehicleView v = VehicleView.Create($"Car_{e.Roster.Index}_{e.Roster.CarId}", e.Params, lib.Body(e.Roster.CarId), mats, new Color(c[0], c[1], c[2]));
+                    VehicleView v = VehicleView.Create($"Car_{e.Roster.Index}_{e.Roster.CarId}", e.Params, lib.Body(e.Roster.CarId), mats, new Color(c[0], c[1], c[2]),
+                        AppearanceMapping.ForWire(lib.Customization, e.Roster.CarId, e.Roster.Livery));
                     v.SetHeadlights(course.DefaultTimeOfDay == "night");
                     views[e] = v;
                 }

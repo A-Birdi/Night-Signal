@@ -6,6 +6,7 @@ using System.Net.Http;
 using NightSignal.Content;
 using NightSignal.Core.Builds;
 using NightSignal.Core.Content;
+using NightSignal.Core.Customization;
 using NightSignal.Core.Profiles;
 using Newtonsoft.Json.Linq;
 
@@ -31,11 +32,18 @@ namespace NightSignal.Front
     /// <summary>One Core GarageOperations call, described so either domain can run it.</summary>
     public sealed class GarageOp
     {
-        /// <summary>edit-draft | apply | discard-draft | save-as | load-into-draft | begin-workshop | end-workshop</summary>
+        /// <summary>
+        /// edit-draft | apply | discard-draft | save-as | load-into-draft | begin-workshop | end-workshop | livery-apply |
+        /// visual-preset-save | visual-preset-update | visual-preset-delete
+        /// </summary>
         public string Kind = "";
         public MechanicalSnapshot Build;
         public string Name, Note, ConfirmationToken;
         public DraftSource Source;
+        /// <summary>livery-apply: the canonical livery JSON ("" = back to stock) and the preset it came from ("" = edited).</summary>
+        public string LiveryJson, PresetId;
+        /// <summary>visual-preset-save/-update: the preset payload.</summary>
+        public string PayloadSchema, PayloadJson;
     }
 
     public sealed class GarageAnswer
@@ -76,6 +84,8 @@ namespace NightSignal.Front
         public abstract void Run(string instanceId, CarBuildWorkspace ws, GarageOp op, Action<GarageAnswer> done);
         public abstract void Quote(string instanceId, CarBuildWorkspace ws, MechanicalSnapshot build, Action<GarageQuote> done);
         public abstract void Settle(string instanceId, GarageQuote quote, Action<GarageAnswer> done);
+        /// <summary>Cosmetic ids this owner may apply (liveries may try on others; applying needs them owned).</summary>
+        public abstract IEnumerable<string> OwnedCosmetics();
     }
 
     // ================================================================== Local
@@ -130,6 +140,12 @@ namespace NightSignal.Front
                 case "load-into-draft": r = GarageOperations.LoadIntoDraft(ws, ws.Revision, op.Source, op.ConfirmationToken, ctx, now); break;
                 case "begin-workshop": r = GarageOperations.BeginWorkshopSession(ws, ctx, now); break;
                 case "end-workshop": r = GarageOperations.EndWorkshopSession(ws, ws.Revision); break;
+                case "livery-apply": r = ApplyLivery(ws, op, now); break;
+                case "visual-preset-save": r = PresetPayload(ws, op, out string savePayload) ?? GarageOperations.SaveVisualPreset(ws, ws.Revision, op.Name, op.PayloadSchema, savePayload, now); break;
+                case "visual-preset-update":
+                    r = PresetPayload(ws, op, out string canonical) ?? GarageOperations.UpdateVisualPreset(ws, ws.Revision, op.PresetId, op.PayloadSchema, canonical, op.ConfirmationToken, now);
+                    break;
+                case "visual-preset-delete": r = GarageOperations.DeleteVisualPreset(ws, ws.Revision, op.PresetId, op.ConfirmationToken); break;
                 default: throw new ArgumentException("unknown garage operation " + op.Kind);
             }
             var a = new GarageAnswer
@@ -159,6 +175,42 @@ namespace NightSignal.Front
             if (a.Accepted) a.State = new GarageState { Workspace = ws, Context = LocalGarage.Context(L.Profile, cat, parts, instanceId) };
             done(a);
         }
+
+        public override IEnumerable<string> OwnedCosmetics() => L?.Profile?.Cosmetics.Select(c => c.CosmeticId) ?? Enumerable.Empty<string>();
+
+        static CustomizationCatalogue Appearance => ContentLibrary.Load()?.Customization;
+
+        /// <summary>
+        /// Local livery apply: the same checks the control plane makes online — a well-formed livery for THIS car, valid in the
+        /// catalogue, every cosmetic owned by the profile — then Core stores the canonical JSON and its hash.
+        /// </summary>
+        OperationResult ApplyLivery(CarBuildWorkspace ws, GarageOp op, DateTime now)
+        {
+            if (string.IsNullOrEmpty(op.LiveryJson))
+                return GarageOperations.ApplyLivery(ws, ws.Revision, "", "", "", now); // back to the stock appearance
+            LiveryParseResult p = LiveryJson.Parse(op.LiveryJson);
+            if (!p.Ok) return Refused(ws, "That livery could not be read: " + string.Join("; ", p.Errors.Take(2)));
+            if (p.Document.Car != ws.Car.ModelId) return Refused(ws, $"That livery is for {p.Document.Car}, not this car.");
+            LiveryValidation v = LiveryValidator.Validate(p.Document, Appearance, ws.Car.ModelId, CosmeticOwnership.FromIds(OwnedCosmetics()), LiveryValidationMode.Apply);
+            if (!v.IsValid) return Refused(ws, string.Join(" ", v.Errors.Take(3)));
+            return GarageOperations.ApplyLivery(ws, ws.Revision, LiveryJson.ToCanonicalJson(p.Document), LiveryHash.Of(p.Document), op.PresetId ?? "", now);
+        }
+
+        /// <summary>A livery payload must be valid for this car (Preview: locked items may be kept as a plan); others pass as-is.</summary>
+        OperationResult PresetPayload(CarBuildWorkspace ws, GarageOp op, out string canonical)
+        {
+            canonical = op.PayloadJson ?? "";
+            if (op.PayloadSchema != LiveryDocument.SchemaId) return null;
+            LiveryParseResult p = LiveryJson.Parse(op.PayloadJson ?? "");
+            if (!p.Ok) return Refused(ws, "That livery could not be read: " + string.Join("; ", p.Errors.Take(2)));
+            LiveryValidation v = LiveryValidator.Validate(p.Document, Appearance, ws.Car.ModelId, null, LiveryValidationMode.Preview);
+            if (!v.IsValid) return Refused(ws, string.Join(" ", v.Errors.Take(3)));
+            canonical = LiveryJson.ToCanonicalJson(p.Document);
+            return null;
+        }
+
+        static OperationResult Refused(CarBuildWorkspace ws, string message) =>
+            new OperationResult { Status = OpStatus.Rejected, Revision = ws.Revision, Message = message };
 
         public override void Quote(string instanceId, CarBuildWorkspace ws, MechanicalSnapshot build, Action<GarageQuote> done)
         {
@@ -238,6 +290,9 @@ namespace NightSignal.Front
             done(State(r, (string)r["carId"]), "");
         }
 
+        public override IEnumerable<string> OwnedCosmetics() =>
+            ((S?.Me?["cosmeticsOwned"] as JArray) ?? new JArray()).Where(x => x.Type == JTokenType.String).Select(x => (string)x);
+
         async System.Threading.Tasks.Task RefreshBalance()
         {
             await S.RefreshMe();
@@ -266,6 +321,10 @@ namespace NightSignal.Front
             if (op.Note != null) body["note"] = op.Note;
             if (op.ConfirmationToken != null) body["confirmationToken"] = op.ConfirmationToken;
             if (op.Source != null) body["source"] = new JObject { ["kind"] = op.Source.Kind, ["id"] = op.Source.Id };
+            if (op.LiveryJson != null) body["liveryJson"] = op.LiveryJson;
+            if (op.PresetId != null) body["presetId"] = op.PresetId;
+            if (op.PayloadSchema != null) body["payloadSchema"] = op.PayloadSchema;
+            if (op.PayloadJson != null) body["payloadJson"] = op.PayloadJson;
             string path = "/v1/me/garage/cars/" + Uri.EscapeDataString(instanceId);
             (int status, JObject reply) = await S.Client.Send(HttpMethod.Post, path + "/operations", body);
             var a = new GarageAnswer();
@@ -379,6 +438,7 @@ namespace NightSignal.Front
                 VisualPresetCapacity = (int?)w["visualPresetCapacity"] ?? CarBuildWorkspace.MinVisualPresetSlots,
                 AppliedVisualPresetId = (string)w["appliedVisualPresetId"] ?? "",
                 AppliedLiveryHash = (string)w["appliedLiveryHash"] ?? "",
+                AppliedLivery = (string)w["appliedLivery"] ?? "",
             };
             if (w["applied"] is JObject a)
                 ws.Applied = new AppliedVehicleBuild
