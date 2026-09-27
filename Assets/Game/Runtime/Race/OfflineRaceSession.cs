@@ -89,7 +89,10 @@ namespace NightSignal.Race
             Player.Status = EntrantStatus.Loaded;
             Sim.HumanInput = LocalInput;
             Sim.StartTick = CountdownTicks;
-            pilot = new RouteFollower(course.Track, Player.Params, DriverProfile.Validator) { DriftZones = Sim.DriftZonesForAi, ResetWhenStuck = true };
+            pilot = new RouteFollower(course.Track, Player.Params, DriverProfile.Validator)
+            {
+                DriftZones = Sim.DriftZonesForAi, ResetWhenStuck = true, SurfaceGrip = CourseRuntime.SurfaceGrip(Rules.Surface),
+            };
             foreach (RaceEntrant e in Sim.Entrants) previous[e] = e.State;
 
             if (!Headless)

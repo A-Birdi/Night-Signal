@@ -169,7 +169,8 @@ namespace NightSignal.Net
             }
             RosterEntry me = Info.Roster[Info.YourIndex];
             ownParams = ParamsFor(lib, me);
-            ownSim = new VehicleSimulation(ownParams, world);
+            // Predict with the grip the server simulates (a wet event on dry prediction was corrected every snapshot).
+            ownSim = new VehicleSimulation(ownParams, world) { SurfaceGripScale = CourseRuntime.SurfaceGrip(Info.Surface) };
             GridSlot slot = track.Grid[me.GridSlot];
             ownState = VehicleState.AtRest(slot.Position, slot.Rotation);
             autopilot = new RouteFollower(track, ownParams, DriverProfile.Validator)
@@ -177,6 +178,7 @@ namespace NightSignal.Net
                 // Drift formats: the automation drifts the judged zones like a player would have to.
                 DriftZones = Info.FreeplayMode == "drift-attack" && new DriftJudge(track).Zones.Count > 0 ? new DriftJudge(track).Zones : null,
                 ResetWhenStuck = true,
+                SurfaceGrip = CourseRuntime.SurfaceGrip(Info.Surface),
             };
             if (!headless)
             {

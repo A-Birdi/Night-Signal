@@ -51,6 +51,11 @@ namespace NightSignal.AI
         /// everywhere). The same inputs a human has: steering, throttle and a handbrake flick to start the slide.
         /// </summary>
         public IReadOnlyList<RouteGateDef> DriftZones;
+        /// <summary>
+        /// The event's weather grip (CourseRuntime.SurfaceGrip: dry 1, damp 0.88, wet 0.76). The speed plan and braking use it,
+        /// as a driver reads the conditions — planning wet corners with dry grip put every car into the walls.
+        /// </summary>
+        public float SurfaceGrip = 1f;
         /// <summary>Slip angle the driver holds in a drift (degrees; the scoring band peaks at 25–45°).</summary>
         public float DriftSlipDeg = 28f;
         /// <summary>True while the last input was a deliberate drift (diagnostics, tests).</summary>
@@ -138,12 +143,13 @@ namespace NightSignal.AI
 
             // Speed plan: the lowest speed any point ahead allows, given braking distance to reach it.
             float target = 70f;
-            float horizon = Mathf.Max(40f, speed * speed / (2f * Profile.BrakingDecel) + 30f);
+            float decel = Profile.BrakingDecel * SurfaceGrip;
+            float horizon = Mathf.Max(40f, speed * speed / (2f * decel) + 30f);
             for (float d = 0f; d <= horizon; d += 4f)
             {
                 float k = Mathf.Abs(track.SampleAt(here.Distance + d).Curvature);
-                float vCorner = k > 1e-4f ? Mathf.Sqrt(p.TyreGrip * 9.81f / k) * Profile.CornerSpeedFactor : 70f;
-                float allowed = Mathf.Sqrt(vCorner * vCorner + 2f * Profile.BrakingDecel * d);
+                float vCorner = k > 1e-4f ? Mathf.Sqrt(p.TyreGrip * SurfaceGrip * 9.81f / k) * Profile.CornerSpeedFactor : 70f;
+                float allowed = Mathf.Sqrt(vCorner * vCorner + 2f * decel * d);
                 target = Mathf.Min(target, allowed);
             }
             target = Mathf.Min(target, followLimit);

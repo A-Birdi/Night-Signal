@@ -1,0 +1,924 @@
+NIGHT SIGNAL: MOUNTAIN CIRCUIT
+ADDENDUM 03 — INSTRUMENTS, DRIVING CAMERAS, ARCADE MOTION,
+ELEVATED COURSES, AND VALIDATED COURSE RECOVERY
+Revision 1 — forward requirements for the EXISTING project
+
+This is a targeted extension and clarification of the existing assignment,
+not another game, a restart, a replacement engine, or a request for a concept
+image. Implement it in the actual playable game and its source.
+
+AUTHORITY AND BASELINE
+
+Read the master specification and Addenda 01 and 02 alongside this document.
+This addendum supersedes conflicting wording only for the topics explicitly
+identified below. Later explicit user decisions remain authoritative. Keep the
+original documents for provenance and maintain a short effective-rules map.
+Do not let an old catalogue import restore superseded rules.
+
+Repository: A-Birdi/Night-Signal.
+Authorized development branch: dev/night-signal, subject to verifying the
+actual current branch and any newer authorized work.
+Approved engine baseline: Unity 6000.6.3f1 / URP, the existing checkout and
+working Unity MCP bridge. No engine upgrade, new worktree, competing editor,
+package replacement, or project relocation is authorized by this addendum.
+
+Preserve the complete existing assignment, including six-human convoys and
+activities, up to twelve full-size racing vehicles including AI, six-human
+meet admission, 29 full-size courses, 18 car models, 48 rivals, both campaigns,
+75 mastery challenges, the finite 15,000-RP budget, the five required waiting
+activities, per-car loadouts, the Garage Test Yard, and Local/Online separation.
+Keep bounded ordinary contact, explicit Time Attack ghosting, no visible or
+mechanical damage, campaign-only final opponents, and verified online rewards.
+
+The dial, camera settings and motion effects are free presentation choices.
+They are not collectible rewards, paid parts, driving assists, or a reason to
+reset any progression. The genuine cockpit and elevated road geometry require
+actual assets; names in settings or flat roads below mountainous skyboxes do
+not satisfy this document.
+
+0. INGEST WITHOUT INTERRUPTING SAFE WORK
+
+At the next safe task boundary, read this entire addendum. Do not kill a running
+build, import, package operation, scene save or transaction to acknowledge it.
+Inspect the real operation outcome before retrying or replacing its inputs.
+Preserve newer staged, unstaged and relevant untracked work before refactoring.
+Do not overwrite a newer local implementation with an older pushed build.
+
+Audit existing source, scenes, generated assets, preferences, controller,
+course authoring tools, route validation, and tests. Map each requirement to
+implemented, unverified, partial, missing, or blocked evidence. Reuse working
+code and invalidate only evidence affected by subsequent changes.
+
+Link this addendum from CLAUDE.md, HANDOFF.md, REQUIREMENTS.md, VALIDATION.md,
+and REVIEW_STATUS.md if present. Give one brief impact/next-action update,
+then continue; the update is not a routine approval gate.
+
+0.1 WHAT THIS REVISION CHANGES
+
+The master already requires mph/km/h selection, chase/hood/bumper cameras,
+camera collision and comfort options, real elevation/banking/crests, course
+checkpoints, and a +3-second last-safe-checkpoint recovery. Preserve them.
+
+However, its cockpit is explicitly optional. It does not mandate a selectable
+circular speedometer, two distinct chase distances, or the detailed drift-
+responsive framing and perimeter speed-line treatment requested here.
+
+This revision therefore:
+- Requires TWO speedometer styles with real calibrated values: Instrument Dial
+  and Digital Strip. Both support mph and km/h.
+- Makes FIVE driving views mandatory on every playable full-size car: Chase
+  Close, Chase Far, Hood, Bumper / Road, and genuine Cockpit. This explicitly
+  replaces the master's optional-cockpit clause and interior-silhouette-only
+  sufficiency for the player's driving view.
+- Defines responsive arcade motion as a tuned presentation system, with full
+  user control and a stable comfort alternative, not random continuous shake.
+- Strengthens real route elevation, finite 3D checkpoint validation, circuit
+  lap rules, and safe recovery, particularly on overlapping mountain roads.
+- Applies the same driving-view/HUD choices to the Garage Test Yard, without
+  changing its no-reward/private-practice boundary or A/B comparison rules.
+
+No additional full-size course count is introduced. Improve the required
+courses rather than adding placeholders to the catalogue. Temporary flat
+engineering fixtures can exist but cannot be labeled finished race courses.
+
+0.2 EXPLICIT DESIGN DEFAULTS
+
+These are concrete defaults chosen for this addendum, not claims that every
+number was previously supplied or that the finished behavior has been tuned:
+
+D301. Instrument Dial and Digital Strip are equally functional HUD options.
+      New preference records default to Instrument Dial and km/h. Preserve an
+      existing explicitly saved style/units; treat existing users of the old
+      strip as Digital Strip when migrating that legacy preference context.
+D302. Mandatory driving views: Chase Close, Chase Far, Hood, Bumper / Road,
+      Cockpit. Default is Chase Close; preserve a saved compatible preference.
+D303. Provide Arcade, Comfort and Custom motion presets, plus individually
+      adjustable drift framing, road/body motion, impact shake, decorative
+      roll, speed-FOV effect, and perimeter speed lines. No effect is mandatory
+      for competitive eligibility. Preserve an existing Reduced Motion choice.
+D304. All 18 car models require a properly fitted driver-visible cockpit.
+      Modular cabin construction is permitted; a fake dashboard image pasted
+      onto a bumper camera is not. Rear cabins, opening every interior control,
+      VR and rendered rearview mirrors are not newly required features.
+D305. Every full-size race circuit/sprint must have an intentional non-flat
+      driving surface. Mountain courses need meaningful vertical route shape;
+      lowland routes/ovals may use restrained grade changes and real banking.
+      Flat meet aprons, braking lanes, dyno surfaces and skid pads remain valid.
+D306. Keep the existing competitive recovery penalty: +3.000 seconds once per
+      completed recovery, unbanked drift chain cleared, race clock continuing,
+      and at most two seconds of moving car-to-car safety ghosting. No repair
+      charge, health reduction, new reset currency, or instant DQ for a mistake.
+D307. Validate progress by ordered, directional, finite 3D gates plus legal
+      route continuity. Never use nearest road in X/Z as race progress or the
+      recovery destination on a stacked mountain route.
+D308. Presentation changes remain local, preserve readiness, and never change
+      a frozen build, authoritative physics, scoring, records or other clients'
+      settings. A real reset is an authoritative gameplay action, not a camera
+      preference and not a way to resume a DQ entrant.
+
+1. CONFIGURABLE INSTRUMENT CLUSTER
+
+1.1 Two complete, visibly distinct styles
+
+Expose Settings -> Driving Display -> Speedometer Style, with live previews:
+
+INSTRUMENT DIAL
+A legible round analog-style speedometer face, roughly a 240–270-degree needle
+sweep, measured major/minor marks, readable numerals, a visible unit label,
+and a prominent digital speed value. It should look designed for the Signal /
+Sector arcade identity: deliberate spacing, contrast, clean markings and a
+controlled accent, not a generic progress ring with numbers pasted around it.
+
+The dial measures VEHICLE SPEED. A tachometer may sit alongside or around it,
+but must be labeled RPM and visually distinct. Gear, RPM/shift guidance and
+speed cannot all become an ambiguous red circle. A high-speed mark is not an
+engine redline. The two instruments must respond to their actual different
+signals, including wheelspin, a gearshift and coasting in neutral.
+
+DIGITAL STRIP
+Retain and refine the compact horizontal speed presentation the user has seen,
+with a prominent numerical value, unit label and meaningful scale/fill. Keep
+gear/RPM information separately identifiable. Do not delete the original
+compact preference merely because the new dial is more ornate.
+
+Both styles carry the same essential driving information. Support high contrast,
+HUD scaling and safe margins. Keep the same predictable area of the HUD across
+styles so switching does not relocate every unrelated race indicator. Do not
+cover the apex, opponents, minimap, finish information or contact warnings.
+
+1.2 Units and measured scale
+
+Expose Speed Units: km/h and mph. These correspond to the user's KMPH/MPH
+request; use the normal short labels in the finished interface.
+
+Use one canonical physical speed value, then convert only for display:
+  km/h = speed_metres_per_second * 3.6
+  mph  = speed_metres_per_second / 0.44704
+
+The simulation, event thresholds, part parameters and timing remain in their
+existing canonical units. Unit selection must not change a speed-dependent
+assist, drift threshold, camera-effect threshold, braking distance, AI pace,
+reward, benchmark, or race eligibility. Camera thresholds should consume the
+physical value, never the currently displayed integer.
+
+Share the conversion/formatting logic across driving HUD, genuine dashboard
+instruments where unit switching is supported, Garage measurements, speed-based
+objective text, comparisons, results and spectating. Preserve metric source
+units in debugging evidence and identify them clearly. Do not label unchanged
+km/h numbers as mph or convert an already-converted value a second time.
+
+Major tick labels, minor intervals and needle/fill position must all correspond
+to the chosen scale. Choose uncluttered round intervals for that scale. It is
+not necessary for an mph dial and km/h dial to have the same numeric maximum.
+Document the mapping so a needle over 60 mph means the same physical speed as
+96.56064 km/h, not the same fraction of two unrelated undocumented ranges.
+
+Select a suitable readable range from the car's supported speed envelope and
+headroom when the car/build is selected, not by recalculating max scale every
+frame. Keep it stable during a run. A faster downhill excursion must not wrap
+the needle or hide the true numerical value: show a bounded over-range state
+when needed and revise an inadequate range at a safe boundary. Never clamp the
+vehicle itself to the dial's range. No fictitious top-speed promise is created
+by printing a large number on an instrument.
+
+1.3 Telemetry source and smoothing
+
+Use the game's real chassis-speed telemetry, not throttle percentage, a canned
+animation, or wheel angular speed alone. Clarify the physical speed definition
+in shared code. For ordinary supported road motion, include longitudinal and
+lateral travel along the current road surface so that a sideways drift or a
+steep climb does not falsely read almost zero or lose its slope component.
+
+Keep a stable support-surface reference and a defined airborne fallback. A
+wheel spinning while stationary cannot show the car traveling at 200 km/h;
+falling vertically into a void cannot produce a rewarded road-speed record.
+Short legal crest airtime must not flicker the display to zero. Presentation
+must not rewrite authoritative movement or scoring to hide a bad measurement.
+If a telemetry correction changes metric semantics, version/test that change
+explicitly instead of silently comparing old and new records.
+
+For the local driver use the valid predicted/interpolated driving state, with
+normal authoritative correction; for spectating use the selected car's valid
+replicated state. Follow a consistent sampling/update path for dial and digits.
+A small, frame-rate-independent needle filter is appropriate; the number must
+remain responsive. Start with roughly 60–120 ms visual smoothing and tune it.
+Do not conceal sustained speed loss or invent spring overshoot in the digits.
+Reset the filter on teleport, car switch and target destruction.
+
+For reverse motion show speed magnitude with the actual reverse gear indicator;
+do not display a negative physical speed as a needle spinning below zero. Define
+behavior at a standstill, disconnect, missing target and non-finite telemetry.
+Show a neutral unavailable state when appropriate, never a stale stranger's car.
+
+1.4 Preferences and preview
+
+Store local presentation preferences with schema defaults and migration. Online
+sign-in, going offline, changing cars, respawning, returning from a toy or ending
+a cinematic must not reset them. Do not overwrite another local user's settings.
+Do not force preferences onto peers or put them into economic build hashes.
+
+Allow a clearly labeled simulated instrument preview in Settings. A preview is
+not a live dyno reading or test result. In the Test Yard, show actual telemetry.
+Apply style/units changes without a scene reload, race restart, input loss,
+convoy vote reset or unintended throttle input. Preserve existing user choices
+when new preferences are added.
+
+2. FIVE MANDATORY DRIVING CAMERA VIEWS
+
+Expose Settings -> Camera -> Driving View and retain a remappable Cycle Camera
+action. Keep the default C binding unless the user already remapped it. Controller
+cycling must also be available and documented. Keyboard/controller focus in a
+text field, menu or shared drawing tool must not switch a race camera accidentally.
+
+CAMERA VIEW CONTRACTS
+
+CHASE CLOSE
+A low-to-medium-height, close trailing camera that keeps the whole useful car
+silhouette and enough road ahead visible. The player should see their livery,
+stance and drift angle without the car filling half the view. It is the primary
+arcade tracking view described in section 3.
+
+CHASE FAR
+A materially farther/higher trailing view with more road context. It is a
+separate calibrated anchor/distance, not the Close view with a misleading label
+or a tiny FOV adjustment. It retains an engaging car presence, safe occlusion
+and the same optional arcade motion language at appropriately scaled strength.
+The user's 'Drone' means this tethered following camera, not a freely flying
+reconnaissance tool that can inspect the whole track during a race.
+
+HOOD
+A body-mounted viewpoint over the bonnet, with the actual bonnet visible and a
+clear road view. Fit the anchor per chassis, including long/short bonnet shapes
+and supported appearance changes. It is not interchangeable with Bumper.
+
+BUMPER / ROAD
+A low forward viewpoint near the front of the car with a largely unobstructed
+road view. Keep it above the road and outside obstructing own-body geometry at
+normal grades/crests. Do not place it under the chassis or beyond walls. Give
+this view conservative motion so the road remains readable near ground level.
+
+COCKPIT
+A true 3D seated-driver view inside the selected car. Show a fitted windshield
+opening, dashboard, steering wheel and relevant near-cabin framing. Respect
+left/right driving position as authored for that fictional model. The visible
+wheel turns coherently with steering; gauges that are readable as functional
+instruments must use actual telemetry. Maintain usable night lighting and clear
+glass without making a pitch-black dashboard or giant opaque reflections.
+
+All five views are required across all 18 cars and their supported visual
+configurations. Reuse rig/controller code and modular cabin parts, not an
+identical misplaced cabin intersecting every chassis. Fit seat/eye, dashboard,
+wheel, hood and bumper anchors in model-local data. Check roofs, wings, mirrors,
+ride-height extremes, body kits, tinted windows and different car proportions.
+No camera choice may silently become Hood because Cockpit is not finished.
+
+Visible cockpit detail is mandatory; exhaustive back-seat interiors, functioning
+infotainment, dozens of animated dashboard switches, real-time mirror cameras,
+head tracking and VR are not newly required. Existing driver rigs may supply
+hands/arms where they render correctly; do not show a floating head, duplicate
+body or severely clipping hands in lieu of a clean cockpit. Close-up cabin asset
+quality must match the rest of the car, not a low-resolution placeholder overlay.
+
+2.1 Calibration, cycling and temporary overrides
+
+Store calibrated anchors/framing per car model. Global view preference and
+comfort settings remain separate from mechanical loadouts. A conservative seat
+height/fore-aft adjustment for Cockpit is allowed within the physical cabin;
+it must not let the camera leave the car or look through its roof.
+
+Support look-back with clear hold/release behavior and consistent return to the
+selected driving view. If a rear cabin is not authored, use a clearly presented
+external rear-view look-back rather than displaying broken interior geometry.
+Spectators choose their own supported view and target without changing the
+observed driver's settings. Losing a target selects a valid replacement or a
+clear waiting view. No spectator camera input controls any car.
+
+Switch views promptly with a short occlusion-safe blend, or a clean cut/fade
+when blending would pass through a roof, wall or car. Preserve the last view
+across race intro, skipped cutscene, results, reconnect/spectate, respawn and
+Garage return. A scripted shot is a temporary override, not a preference edit.
+Repeated cycling cannot accumulate active cameras, listeners or render textures.
+
+Only the relevant camera should perform the expensive render. Additional rigs
+can be data/inactive virtual views. A six-player session does not require every
+client to render thirty live cameras, and the headless server needs no cameras
+or postprocessing. No split-screen requirement is added.
+
+3. ARCADE CAMERA TRACKING: RESPONSIVE, COMPOSED, ADJUSTABLE
+
+The target is a car that feels attached to an energetic camera operator, not a
+rigid Transform offset and not uncontrolled cinematic wobble. Movement follows
+what the vehicle is actually doing. It should make a drift easier to read while
+preserving the driver's ability to judge position, speed, braking and exits.
+
+3.1 Stable base tracking
+
+Track the visual/predicted chassis reference at a consistent stage of the frame,
+not noisy wheel meshes or alternating unsmoothed server/physics transforms.
+Choose frame-rate-independent damping and a compatible interpolation/update
+order. Avoid applying the same correction independently in several rigs.
+
+Maintain the intended trailing distance and screen-space framing with a bounded
+spring/damper response. Small responsive movement under acceleration/braking,
+load transfer, road compression and a landing is appropriate. At a parked idle
+or constant-speed smooth straight there should be no arbitrary pendulum motion.
+A little settling is personality; permanent camera wobble is not.
+
+Use a filtered road/travel direction and vehicle orientation to frame the
+upcoming visible line. Look-ahead is bounded by nearby route context and real
+motion. It must not force human steering, reveal an invisible racing line, see
+through a barrier, or rotate wildly toward a spatially close but unrelated
+switchback. Smoothly handle road grade without snapping to every surface normal.
+Do not lock all pitch to world horizontal and leave a steep descent offscreen.
+
+3.2 Drift entry, sustained drift and exit
+
+Determine drift presentation from valid speed, road/contact state, signed slip,
+yaw/turn state and meaningful duration, with entry/exit hysteresis. Countersteer
+can point opposite to the corner; a raw steering button alone is not the drift
+side. A stationary steering wiggle must not alternate dramatic camera sweeps.
+
+For Chase Close/Far:
+- As a meaningful drift begins, ease toward a modest lateral offset and yaw
+  framing that reveals the car's side and the approaching path/apex.
+- Keep the car anchored within the safe framing region and retain a useful road
+  view. Show enough of the vehicle to appreciate the angle without orbiting to
+  a side-on cinematic that hides the exit.
+- During a sustained drift, follow its stable direction without switching sides
+  on small oscillations. Scale the treatment gently with physical speed and
+  meaningful slip, not with purchased score boosts.
+- On linked left/right transitions, pass smoothly through neutral. Suppress
+  rapid sign chatter. Recover toward ordinary chase framing when grip returns.
+- Reduce decorative tracking when reversing, stationary, spinning out, airborne,
+  in a recovery transition, or suffering large network correction. A spin does
+  not authorize a full camera orbit. Keep controls understandable.
+
+Initial tuning envelope for an ordinary approximately 1.8-metre-wide car:
+- Lateral drift displacement up to roughly 0.35–0.65 metres at normal intensity.
+- Additional drift yaw around 6–12 degrees, not a compulsory large rotation.
+- Entry settling around 0.12–0.22 s; release around 0.25–0.45 s.
+- Bounded look-ahead around 0.2–0.5 s of travel, subject to road visibility and
+  framing. These are design starting points, not a certified handling model.
+
+Calibrate with both drift directions, different wheelbases and tight mountain
+walls. Reduce displacement where collision/framing requires it. If a chosen side
+would hide the road or place the camera inside a cliff, prioritize visibility
+and safety over preserving an ornamental offset. Do not alternate sides based
+on frame-to-frame occlusion noise.
+
+Cockpit/Hood/Bumper keep their physical viewpoint identity. Give them restrained
+load-transfer/head motion rather than moving a cockpit camera outside a window
+to imitate the chase effect. They can share optional peripheral effects, but
+must remain usable with a completely stable presentation.
+
+3.3 Acceleration, braking, impacts and speed-FOV
+
+Use small directed, decaying responses to actual local-car events. An impact
+can produce a capped short impulse; it must not retrigger every physics tick
+or stack indefinitely against a wall. A remote car bump, a toy collision or a
+shared-room emote must not shake all drivers' race cameras. Distinguish normal
+presentation from a network correction and avoid counting a correction twice.
+No impact effect adds visible/mechanical damage or secretly changes handling.
+
+Optional speed-dependent FOV should widen subtly and recover smoothly. Start
+with a maximum roughly 4–7 degrees of added VERTICAL FOV at normal intensity,
+subject to the player's preferred field of view and comfort. Zero strength means
+no dynamic FOV. Keep the base FOV slider labeled consistently as vertical or
+horizontal; do not mix definitions between cameras or aspect ratios. Validate
+ultrawide framing, not just 16:9. No compulsory blur, fisheye road warp, sudden
+zoom punch, or false speed reading is permitted.
+
+3.4 Camera collision and transitions
+
+Resolve occlusion with the car body, ground, guardrails, cliffs, tunnel walls,
+bridge structures and nearby scenery using appropriate collision filtering.
+Test the camera's near-plane volume, not just a point that leaves half the
+screen inside a wall. The local car may be ignored for an exterior visibility
+cast, but that is not permission for a cockpit eye to leave the cabin.
+
+Compress distance and damp recovery where necessary. Prefer a safe near framing
+to clipping; restore the selected distance without pumping/jittering repeatedly.
+Do not globally hide opponent cars or make all walls transparent to solve camera
+placement. Visual-only local occlusion treatments, if needed, must be bounded,
+clearly scoped and must not reveal another track layer through the mountain.
+
+On respawn/teleport, notify/reset the camera's tracking history and velocities.
+Use an appropriate cut/fade to the new valid pose. Never interpolate the view
+through hundreds of metres of rock or keep an old drift offset on the new spawn.
+Leaving a cinematic, changing car/view and selecting a spectator target require
+the same deliberate cleanup. A stuck camera is not a reason to teleport the car.
+
+4. STYLIZED PERIMETER SPEED LINES AND COMFORT CONTROLS
+
+Add an original lightweight graphic treatment around the viewport edge: narrow
+streaks or directional accents suggesting speed. It should suit Signal / Sector,
+not copy franchise frames. At speed in a committed drift, strength rises modestly
+above the ordinary straight-line speed treatment and recedes smoothly afterward.
+
+Keep the central driving view clear: target at least the central 70% of the
+viewport's width AND height free of streaks, with the remaining effect confined
+to a feathered outer band. Mask beneath the HUD and never cover time, speed,
+checkpoint warnings, readiness or subtitles. Do not use an opaque dark vignette
+that conceals the verge. Do not strobe, flash a full-screen color, or create a
+continuous tunnel of lines at low speed.
+
+Strength is based on real speed and qualified drift state. Wheelspin at a stop,
+falling, being towed by a reset, slow donuts or a score multiplier cannot create
+a high-speed presentation. Suspend it in paused/menu presentation and transition
+cleanly through replay, Test Yard, spectator and race contexts. Keep the element
+unscaled by the camera's physical impulse so the instrument HUD remains stable.
+
+Settings must expose:
+- Driving View and separate base FOV; Cycle Camera and Look Back bindings.
+- Motion preset: Arcade / Comfort / Custom.
+- Drift framing strength (including zero).
+- Body/road motion strength (including zero).
+- Impact shake strength (including zero).
+- Decorative camera roll strength (including zero).
+- Dynamic speed-FOV strength (including zero).
+- Speed lines: Off / Subtle / Strong, or a clearly equivalent labeled slider.
+- Existing motion blur toggle, off by default, and applicable HUD size/contrast.
+
+Arcade defaults should demonstrate the requested style without maximal effects:
+moderate drift framing, light road/impact response, minimal decorative roll,
+subtle speed-FOV and Subtle lines. Comfort uses stable follow/road visibility,
+no decorative bob/roll/impact shake, no speed-FOV and no lines. Essential camera
+collision, following and view switching remain functional in every preset.
+
+Honor an existing Reduced Motion setting; adding this feature cannot re-enable
+excluded motion. Provide a reversible profile selection/preview and store custom
+values so disabling effects does not erase them. New defaults are not permission
+to silently overwrite existing explicit preferences. Preserve keyboard/controller
+access and text readability. These controls change presentation, not race assists
+or eligibility, and do not invalidate somebody else's readiness.
+
+There is no universally verified comfortable setting. Record actual playtest
+feedback separately from the fact that the sliders work. Do not claim motion-
+sickness prevention or broad accessibility validation from a screenshot.
+
+5. REAL ROAD HEIGHT AND TOPOLOGY
+
+5.1 Elevation affects the drivable surface
+
+Build route centreline, road mesh/colliders, terrain joins, barriers, AI planning,
+checkpoint volumes and recovery anchors in the same 3D coordinate system. The
+road itself rises, falls, cambers and banks. A mountain backdrop behind a flat
+road, cosmetic rumble texture, tilted entire level, or tiny random vertex noise
+is not completion of this requirement.
+
+Downhill touge routes must produce a sustained, intentional descent with distinct
+upper/middle/lower stretches, linked switchbacks, sightline changes, compressions
+and exit preparation appropriate to their authored briefs. Allow naturally placed
+flat staging areas and small counter-slopes; do not force a mathematically
+monotonic descent at every vertex or turn the road into a rollercoaster.
+
+Preserve the existing course identities and variety. Appendix A already contains
+uphill and mixed-elevation routes as well as descents. Do not convert C02 or a
+climbing-ratio course into a downhill course just because many touge events are
+descents. A new downhill variant, if ever separately approved, is not a new base
+course for counts. The existing catalogue remains the authoring reference.
+
+Circuits return to their start height but need not be flat. Use real undulations,
+bridge approaches, berms or banking suited to their location, and connect the
+last segment continuously to the first in position and orientation. A simple
+oval can have banked turns and a measured grade/crest without requiring invented
+mountain hairpins. A dock or airfield course should retain its believable setting
+rather than acquire arbitrary huge hills; modest engineered relief and banking
+are appropriate. Preserve all 29 required full-size course identities.
+
+The meet's flat walking/parking apron, instrument tests, dyno, precision braking
+lane and skid pad are intentional exceptions. Do not destabilize those facilities
+merely to give every square metre a nonzero slope. The Test Yard's connected loop
+still includes the elevation/camber element required in Addendum 02.
+
+5.2 Physical coherence and measurement
+
+Use smooth joins and sensible changes of gradient/curvature. Suspensions/contact
+queries, gravity, grip and load transfer must respond to the real surface, using
+the same rules for players, friendly AI and opposing AI. No invisible force that
+keeps AI glued to a crest that launches equivalent human cars. Tune high-speed
+crests/compressions to avoid unavoidable crashes, bottoming or tunneling with
+legal builds. Do not add hidden steering/autopilot to paper over bad geometry.
+
+Generate a per-course profile report with actual driven-route length, start/end
+height, minimum/maximum height, accumulated ascent/descent, grade and banking
+ranges, and a sampled elevation trace. For loops report range and ascent/descent;
+net elevation zero does not demonstrate flatness. Compare measurements with the
+original authoring targets and document deliberate adjustments. Do not present
+a typed target from the catalogue as a measurement of the mesh.
+
+Use the actual travelled centreline length in 3D for topology and progress tools,
+not only its top-down projection. Road ribbon, walls, guardrails, support terrain,
+checkpoints, spawn points, camera blockers, minimap and AI route must agree after
+editing. Avoid gaps at LOD/streaming/mesh seams and validate under the longest,
+lowest and fastest supported car configurations.
+
+Profile the real twelve-vehicle case. Load/cook required collision before claiming
+Main Load Ready. Missing collision during a streaming failure is an error to handle,
+not a deliberate trap, normal driver failure, or an opportunity to invent results.
+
+6. CHECKPOINTS, LAP PROGRESSION AND ANTI-SHORTCUT VALIDATION
+
+6.1 Separate sectors, checkpoints and recovery anchors
+
+A sector is a timing/reporting split. A checkpoint is a required progress gate.
+A recovery anchor is a safe placement associated with legal progress. They can
+share an authored location, but they are different concepts. Having three timing
+sectors does not prove there are enough checkpoints to prevent a hairpin shortcut.
+
+Every full-size event needs intermediate checkpoint coverage between start and
+finish, placed around shortcut-risk areas, stacked roads, overpasses, long bends,
+course branches and meaningful transitions. Add sufficient gates/continuity zones
+for the actual geometry; do not put exactly three giant trigger slabs on every
+map and call it valid. Road signs/arches/reflectors can show important gates,
+with an optional next-checkpoint cue and readable missed-route warning.
+
+Each event route definition contains stable ordered gate IDs, lap/route direction,
+finite 3D gate bounds, forward crossing normal, legal connected approach/departure
+segments, road-layer identity where needed, sector mapping and safe anchors.
+Reverse variants need their own ordered orientation/anchor interpretation.
+
+6.2 Accept only legal ordered traversal
+
+The authority advances the expected gate only for a valid forward crossing of its
+finite bounds with legal route continuity and plausible motion. Sweep the actual
+movement interval so high-speed crossings are not lost between frames. Use route-
+appropriate tolerances for contact/jitter and legitimate short crest airtime.
+Never create an infinitely tall gate that a car falling down the mountain can
+trip, or use a client-reported checkpoint/finish index as authoritative truth.
+
+Track the player's current legal segment/topological neighborhood. In a stack of
+switchbacks, an adjacent section in X/Z or even Euclidean distance is not
+necessarily the next section of the route. A bridge deck and the road beneath it
+are different surfaces. Confirm the route and height context rather than simply
+choosing the nearest spline point. Legitimate connectors are authored explicitly.
+
+Missing or bypassing a gate does not advance progress. Falling onto a lower,
+later road cannot grant intermediate gates, valid sectors, clean bonuses,
+benchmark success or a finish. Returning to the correct unfinished section can
+restore a legal route; do not force a restart of the entire event for a repairable
+mistake. Repeated reverse/forward movement across a gate is idempotent and cannot
+award its score, time bonus or checkpoint count repeatedly.
+
+Differentiate short permitted jumps/shoulder excursions from leaving the legal
+route volume. Not every millisecond without four contacts is a cheat or reset.
+But a landed car on an unrelated road section remains off-route even though it
+has a ground collider under it. Standing on terrain under a bridge is not a
+legal substitute for driving across the bridge.
+
+Use shared rules for human and AI progress. Debug teleportation, recovery moves,
+spawn initialization and replay playback are marked discontinuities, not ordinary
+swept driving segments. A teleport must not cross/award every gate on its path.
+Replay visuals have no authority to collide with triggers or produce rewards.
+
+6.3 Circuits and legitimate finishes
+
+For a circuit, store current lap and the expected gate in that lap. Arm the
+start/finish crossing only after every mandatory gate for that lap has been
+accepted in order. Use a consistent initial-grid state so the launch across the
+line does not count as completing lap one. Backing over the line, oscillating
+around it, entering it from another road layer or jumping into its volume cannot
+complete a lap. A valid finish advances exactly once at the prescribed final lap.
+
+Preserve prior completed laps during recovery. A fallback behind an earlier gate
+of the current lap must update that lap's cursor consistently rather than keep
+incompatible progress or delete already completed full laps. All clients agree
+on lap, ordered progress, position, penalties and finish; server timing and
+precision/tie rules remain authoritative.
+
+Rank racers using legal lap/gate progress plus bounded progress on the currently
+permitted segment, not nearest geometric distance to the finish. A fallen car
+may lose position; it must not jump to first because it is physically near the
+bottom of the mountain. Keep provisional UI interpolation separate from verified
+results. Timing, source version and discontinuities belong in replay evidence.
+
+7. SAFE COURSE RECOVERY
+
+7.1 Offer a prompt before a mistake becomes a long wait
+
+Keep the remappable hold-to-reset action, initially R on keyboard. A starting
+hold duration of roughly 0.75 seconds is suitable; expose clear progress and
+cancel-on-release, plus an accessible confirmation alternative where appropriate.
+Holding the key after a completed reset cannot trigger repeated resets: require
+release/rearm or a new distinct request. Typing in menus or the Canvas cannot
+reset an unrelated racing/test car.
+
+Prompt promptly for overturned, stuck or off-route vehicles. Use authored bounds,
+road-layer state, orientation, support and travel progress, not one global world-Y
+threshold. A deep valid tunnel is not below-world. A car falling onto a lower
+switchback is not safely on route. Short recoverable kerb/grass excursions should
+not trigger a punitive automatic teleport.
+
+Provide automatic rescue for an unambiguous void/fall or prolonged unrecoverable
+state, with a visible brief notice/countdown where practical. Initial target:
+resolve an unmistakable dangerous fall within about 2–4 seconds of confirmed
+loss of the legal route, not a ten-second fall to a distant kill plane. Tune
+thresholds by route and actual evidence, preserving legitimate crest behavior.
+Manual and automatic recovery share the same authority and no-advantage policy.
+
+7.2 Choose a legal safe destination, not the closest road
+
+The server selects a safe anchor at or behind the last accepted checkpoint in
+the current route/lap, associated with the legal approach already driven. Before
+the first checkpoint use a safe route-start anchor. Never move the car forward
+to the spatially closest road, a later checkpoint, a different layer or a finish.
+
+An anchor includes position/orientation fitted to the drivable surface and valid
+collision clearance for the actual car footprint/ride height. Provide alternative
+nearby placements for occupancy, not an unrestricted nearest-road search. Face
+the event's forward direction, reset inappropriate linear/angular motion and
+wheel/contact transients, and keep the current validated build. Recovery does not
+swap loadouts or repair damage because damage is not part of this game.
+
+If the latest anchor is obstructed or invalid, select a validated earlier anchor
+in the same lap or its safe start. Reconcile the current-lap checkpoint cursor
+with any backward fallback; never preserve impossible forward segment credit.
+No fallback may remove already completed full laps. Avoid repeatedly placing the
+car inside the same wall, another vehicle, below the mesh or outside the corridor.
+
+7.3 Atomic recovery and its consequences
+
+Each completed recovery is one idempotent authoritative event with a request/nonce,
+actor/event ID, destination, current-lap progress, penalty, score effects, server
+tick and reason. Duplicate requests/responses have one effect. A UI timeout cannot
+silently apply two penalties or spawn two cars. Do not penalize a reset which
+failed before a valid destination/action was established.
+
+During a competitive event, keep the existing +3.000-second penalty once per
+completed recovery and keep the race clock running. Show elapsed/raw time and
+penalties/adjusted time consistently; do not count the three seconds twice by
+both sleeping the clock and adding the same numerical penalty. Recovery clears
+the unbanked drift chain and invalidates relevant clean-run/no-reset goals,
+without erasing legitimately banked score or unrelated permanent progression.
+No immediate DQ, wallet charge, RP removal or race restart is introduced.
+
+Moving reset protection lasts at most two seconds and is car-to-car only. It
+cannot bypass road barriers or be chained into an overtaking advantage. Check
+occupancy before release. If safe contact cannot be restored within that window,
+hold the car at a validated non-progressing protected placement or choose another
+safe non-forward anchor; do not extend moving ghost mode indefinitely or force
+solid overlap with another car. The one recovery still incurs one penalty.
+Time Attack's already non-contact vehicle policy remains separate.
+
+Settle server errors separately from ordinary driver mistakes. Missing collision,
+invalid authoring data or a server abort must be logged and handled without
+inventing a player's legal finish or treating every affected player as a quitter.
+Keep existing durable finish/transaction rules. This does not authorize a new
+blanket compensation economy or client-submitted rewards.
+
+Online clients request recovery; they cannot supply their own trusted destination,
+checkpoint, lap or penalty. Apply the normal prediction/correction/teleport
+notification to remote views. Reset camera smoothing, effects and telemetry on
+all relevant clients. A disconnected DQ entrant cannot regain control through
+Reset, a view change, rejoin, a loadout preset or the private Test Yard.
+
+Tutorial/private Garage testing can reset freely according to its practice rules,
+without competitive penalties, currency, stage clears, mastery or official ghost
+records. The miniature Pocket Circuit keeps its own slot-car recovery/laps and
+is never counted as full-size driving evidence. Do not apply a toy's permissive
+reset semantics to the main races.
+
+8. INTEGRATION, MIGRATION AND PERFORMANCE
+
+8.1 Use existing systems deliberately
+
+Reuse the current presentation framework, vehicle controller and route tools.
+Cinemachine or a tested equivalent can supply damping/occlusion/impulses; no new
+package or global version migration is automatically required. Inspect the
+installed package's documentation before using APIs. Do not layer multiple
+independent follow/shake scripts that fight over the same camera each frame.
+
+Keep client presentation data distinct from authoritative state. Examples of
+useful concepts, not a demand for a new generic framework:
+- DrivingDisplayPreferences: style, units, scale/contrast and schema version.
+- DrivingCameraPreferences: view, FOV, motion preset and individual strengths.
+- CarCameraAnchors: per-model eye/hood/bumper/chase fitting and bounds.
+- SpeedTelemetry: canonical units, source/context and valid/airborne state.
+- RouteGate/RouteSegment/RecoveryAnchor: finite geometry, connectivity and IDs.
+- RaceProgress: current lap, expected gate, valid segment and finish-armed state.
+- RecoveryEvent: unique identity, authority tick, destination and consequences.
+- CourseProfileReport: measured 3D geometry and rendered/physical agreement.
+
+Keep published shared definitions identical on client/server for progress rules.
+Version changed course geometry, gate layouts, physics metrics and replay/record
+compatibility. Archive incompatible old records with an explanation; do not
+silently compare them against a changed descent or wipe player-owned cars and
+campaign clears. Gauge/camera cosmetic preferences by themselves do not make an
+old legal driving record incompatible. Pending old-version event settlement uses
+its original valid rule version, not a reinterpretation under today's meshes.
+
+8.2 The Test Yard and preferences
+
+All five full-size camera views and both HUD styles work in Test Current, Test
+Candidate and Test Ready Build, using the same camera behavior as the main game.
+No exclusive 'good showroom camera' which hides the real racing view's problems.
+Persist preferences when returning to Garage and entering the agreed event.
+
+Changing only a view, units or motion option does not spend money, apply parts,
+change A/B candidates, overwrite protected loadout references, invalidate readiness
+or interrupt another participant. Record camera/FOV context in A/B observations
+so subjective comparisons remain understandable, but do not claim a settings
+change rewrote the car's measured physical performance.
+
+Changing performance candidates still follows Addendum 02's deliberate Unready
+rule. Read-only testing of the accepted build can be preempted for the main event
+without another lap/parking requirement. Destroy the private car/camera cleanly;
+it cannot continue receiving inputs underneath the race or become a second online
+entrant. Shared toy boards and session state survive as already specified.
+
+8.3 Resource and update budget
+
+Build/cache dial geometry and tick labels on scale/style/unit changes, not by
+allocating a new UI hierarchy every frame. Pool perimeter effects; no large
+uncapped particle system or fullscreen expensive blur for a simple line effect.
+Avoid recurring managed allocations in the driving/camera loop. Validate frame
+pacing with both gauges, every view and the twelve-car network scene.
+
+Render cockpit detail locally at appropriate quality; do not demand high-detail
+interiors for every distant opponent. Preserve correct own-car culling and LOD
+selection when switching from exterior to cockpit. A missing cabin caused by
+aggressive exterior culling is a defect, not a fallback to Bumper.
+
+Measure actual CPU/GPU frame timing, memory and repeated view/scene changes on
+named hardware/build settings. Test at more than one frame rate. No universal
+performance or human comfort claim follows from a single Editor screenshot.
+
+9. IMPLEMENTATION ORDER — DO NOT LEAVE TOPOLOGY UNTIL POLISH
+
+1. At a safe checkpoint, reconcile these rules into existing source, schemas,
+   assets and tests. Preserve previous work and identify stale assumptions.
+2. Establish real elevation, 3D gate progress, lap state and safe recovery on a
+   representative mountain/bridge route before stamping out more dependent
+   routes or certifying benchmarks. This is gameplay correctness, not late art.
+3. Establish canonical speed/units, both instrument styles and five-view rig
+   contracts early. Fit a real cockpit on the representative car so the model
+   pipeline accounts for it before the remaining car assets are finalized.
+4. Tune responsive arcade framing/comfort on the main controller and Test Yard,
+   then test it under real networking and twelve-car contact. Motion intensity
+   polish may iterate later; a rigid untested default is not the final target.
+5. Extend calibrated cabins/anchors and HUD coverage across all 18 cars, and
+   topology/recovery validation across all 29 full-size courses and variants.
+6. Rebuild, execute the acceptance scenarios below, repair regressions, preserve
+   evidence and verify remote source/LFS checkpoints. Continue all other required
+   game and Addendum 02 work; this slice is not permission to stop the assignment.
+
+10. ACCEPTANCE SCENARIOS — EXECUTE, DO NOT JUST CHECK BOXES
+
+Tests below are requirements, not claims that any test has already run. Use
+isolated profiles/test accounts and do not wipe the user's real data. Name the
+actual revision, build, engine/packages, hardware and network conditions. Shared
+unit tests and synthetic motion are useful, but actual rendering/driving and
+real client/server interactions are required where specified.
+
+G01. Both instrument styles are selectable through actual Settings controls;
+     previews and real driving differ correctly; selection survives a restart.
+G02. At canonical 0, 10, 26.8224 and 100 m/s, numbers and tick/needle mappings
+     agree: km/h 0,36,96.56064,360 and mph 0,22.36936...,60,223.69363... . Test
+     both numeric scales, rounding and scale overflow without altering motion.
+G03. Switching units/style during a legal run leaves position, time, checkpoint
+     order, drift thresholds, build, rewards and all peers' preferences unchanged.
+G04. Test standstill wheelspin, sideways drift, incline, reverse, crest airtime,
+     void fall and a recovery discontinuity. No false road-speed reward, NaN,
+     wrapped needle, lost drift speed or stale previous-car telemetry.
+G05. Confirm RPM/gear changes and actual speed are distinct in both styles and
+     cockpit. A gearshift cannot instantly jump displayed road speed.
+G06. Check readability/layout at 1280x720, 1920x1080 and ultrawide, with increased
+     UI text/HUD size, bright/wet road and dark/tunnel scenes; no hidden warnings.
+G07. Existing preference migration preserves explicit units/style and Reduced
+     Motion; a new profile gets documented defaults; corrupt values fail safely.
+G08. Repeated style/unit changes do not create growing UI objects or allocations.
+
+C01. Render and DRIVE all five views on all 18 cars. Supply a contact sheet and
+     coverage ledger; a valid enum or generated anchor does not prove the view.
+C02. Test all relevant visual extremes: wing/body kits, tint, ride height and
+     long/short bodies. No roof/face/wheel/body clipping or unintended black glass.
+C03. Cockpit uses a true fitted cabin with visible working steering/instruments;
+     Bumper and Hood remain genuinely distinct. Test night and tunnel lighting.
+C04. Cycle views and use Look Back by keyboard/controller; release restores the
+     correct preference. Menus/typing/Canvas do not switch a background car view.
+C05. Skipped intros, results, car switches, spectating target loss, Garage A/B,
+     scene reload and recovery preserve preferences and clear stale rig state.
+C06. Drive left/right linked drifts, countersteer, a straight, reversing, a spin,
+     crest and landing. Camera frames the path/car without random side chatter,
+     constant idle wobble, disorienting orbit or slipping inside a mountain.
+C07. Arcade/Comfort/Custom and every zero-strength control have observable effects.
+     Reduced Motion remains honored; no mandatory effect for race eligibility.
+C08. Speed lines remain peripheral and behind the HUD, stronger for valid faster
+     drifts without masking an apex; no response to stationary wheelspin/toy hits.
+C09. Test near-plane clearance and recovery at cliff walls, bridge supports,
+     guardrails, tunnel entrances and slopes in every view and normal/FOV extremes.
+C10. Repeated wall contact produces bounded decaying motion, not accumulating
+     shake; remote incidents and network corrections do not double-trigger it.
+C11. Test camera/input timing at representative 30/60/120 fps where available and
+     with authoritative corrections. Record frame-rate targets actually exercised.
+C12. Six independent clients can use different views/styles/units while six AI
+     share the race. One client's setting change cannot move another's camera.
+
+T01. Every full-size course has a measured 3D profile and intentional elevation/
+     banking. Catalogue targets, skyboxes and mesh counts alone are not evidence.
+T02. Drive representative sustained downhill, uphill, mixed, circuit, lowland/
+     oval-style and Test Yard routes with real surface response and useful cameras.
+T03. A circuit's seam connects in position/tangent/grade and closes correctly;
+     net zero elevation is not misinterpreted as a need to flatten its surface.
+T04. Inspect road/terrain/barrier/collider/checkpoint/AI alignment and streaming
+     readiness at grade changes and high-speed seams with legal extreme builds.
+T05. Human and AI cars obey the same grade/crest/contact rules. No hidden AI
+     surface adhesion or automatic human steering repairs an impossible section.
+T06. Recovery anchors are clear for every supported car footprint, correctly
+     oriented and tied to legal route layers, not just placed above a mesh.
+T07. Flat meet aprons and precision test pads remain intentionally usable; toy
+     tracks and the Test Yard do not inflate full-size course counts.
+T08. All reverse/condition variants retain appropriate directional gate/anchor
+     data and accurate record compatibility after real geometry changes.
+
+R01. High-speed legal crossings of each gate are accepted once, including an
+     appropriate supported crest crossing, without tunnel-through missed triggers.
+R02. Reverse crossings, oscillating on one gate, start-grid overlap, skipping
+     gates and landing vertically into a trigger cannot advance or reward progress.
+R03. Fall from an upper hairpin onto a later lower switchback. No progress/finish
+     gain; reset returns to the validated part of the upper route, not nearest X/Z.
+R04. Cross above/below an overpass gate on the wrong layer. No gate credit,
+     wrong segment ranking or respawn on the other level is possible.
+R05. Drive a valid complete multilap circuit; final finish occurs only on the
+     required lap. Test backward/partial loops and recovery near the lap boundary.
+R06. Manual/automatic recovery share correct anchor, one +3 s penalty, chain
+     clearing and continuing clock. Retries/held reset do not multiply effects.
+R07. Reset requests containing forged position/lap/checkpoint/penalty are rejected;
+     spawned/recovery/replay movement cannot trigger swept gate awards.
+R08. Test occupied and invalid latest anchors and simultaneous multi-car resets.
+     Safe fallback never moves forward, preserves completed laps, corrects the
+     current-lap cursor and avoids indefinitely extending moving ghost protection.
+R09. Temporary protection never disables barriers; Time Attack remains non-contact
+     between cars; ordinary AI contact is restored correctly after a safe reset.
+R10. Void, overturned and wrong-layer rescue are prompt without false automatic
+     resets for legal kerbs, dips, banked corners, brief airtime or deep tunnels.
+R11. Recovery followed immediately by network loss/rejoin does not create a new
+     entrant, restore DQ driving, duplicate penalty/reward, or alter valid finishes.
+R12. Private Yard/tutorial reset semantics do not leak into competition, and race
+     penalties do not charge the practice user. Toy laps produce no full-size RP.
+
+I01. Garage A/B and Test Ready Build use the same views/display; settings preserve
+     candidate/reference builds and readiness. Main launch preempts safely.
+I02. Old Local/Online profiles migrate without losing ownership/progression.
+     Camera/HUD changes do not fabricate new record categories or erase bests.
+I03. Actual route/progress-rule changes version records/replays; an old pending
+     result is not recomputed with a new mesh/penalty policy. Preserve receipts.
+I04. Run a driving/camera/network soak with repeated view/scene/reset operations
+     and up to twelve cars. No accumulating cameras, listeners, private cars,
+     stalled frame loop, runaway effects or loss of authoritative progress.
+I05. Run the built Windows game plus authoritative server and real clients, not
+     just in-editor mocks. Apply the existing impairment test matrix and label
+     localhost versus remote-network evidence accurately.
+I06. Preserve all prior addendum features and content counts. Provide actual
+     screenshots/video/telemetry at the tested revision and a verified remote
+     checkpoint. Unperformed human feel/comfort checks remain explicitly unverified.
+
+11. DELIVERY AND CONTINUATION
+
+Deliver the updated source/assets, rebuilt playable client/server as appropriate,
+settings controls and camera coverage, measured route profiles, tests and selected
+actual implementation evidence. Keep existing build/run instructions current.
+Report what is complete, what merely exists unverified, what was tested, and any
+genuine blockers or limitations. A photograph-like concept image, data catalogue,
+screenshot of Settings labels or one flat test lap is not the delivered feature.
+
+Continue regular commits and verified remote pushes at meaningful milestones and
+before risky/lengthy work, aiming for roughly 10–15 minutes of substantive unpushed
+work at safe boundaries. Preserve necessary Unity .meta files and LFS objects and
+verify their remote availability. Do not publish personal screenshots/paths, real
+player data, secrets or unreviewed dependency/build caches.
+
+Keep implementing the whole revised assignment while authorized usage and safe
+unblocked work remain. If interrupted, preserve real command outcomes and next
+steps rather than restarting or claiming a feature complete from intention alone.
+No billing changes, purchases, public deployment, merge to main, force-push,
+branch deletion, reset/clean, unrelated edits or unapproved engine upgrade.
+
+REFERENCE AND AUDIT NOTES
+
+The product choices, tuning envelopes and tests in this document are authored
+requirements. They are not measurements of the current build or claims that
+Claude has already implemented them.
+
+Basis checked:
+- 01_Night_Signal_Master_Specification.txt: section 6 (handling, camera and reset),
+  section 14/Appendix A (elevation, routes and checkpoints), section 15 (HUD and
+  units), and existing shared validation/authority requirements.
+- Night_Signal_Addendum_01.txt: live twelve-car contact, no damage, Local/Online
+  boundaries, course catalogue extensions and visual-quality requirements.
+- Night_Signal_Addendum_02.txt: loadouts, Test Yard/A-B workflow, ready-build
+  testing and interruption rules. Those features are preserved.
+
+Optional primary implementation references, checked 27 September 2026. Consult
+matching documentation for the ACTUALLY installed version; these are not an
+instruction to install or upgrade Cinemachine:
+- Unity Cinemachine Third Person Follow: damping, target-relative positioning and
+  collision handling. https://docs.unity3d.com/Packages/com.unity.cinemachine@3.1/manual/CinemachineThirdPersonFollow.html
+- Unity Cinemachine Position Composer: composition/damping/look-ahead; the docs
+  warn noisy targets can amplify jitter. https://docs.unity3d.com/Packages/com.unity.cinemachine@3.1/manual/CinemachinePositionComposer.html
+- Unity Cinemachine Impulse: event-driven directional camera response.
+  https://docs.unity3d.com/Packages/com.unity.cinemachine@3.1/manual/CinemachineImpulse.html
+- Unity Cinemachine Deoccluder: relevant occlusion options and tradeoffs.
+  https://docs.unity3d.com/Packages/com.unity.cinemachine@3.1/manual/CinemachineDeoccluder.html
+
+Read, reconcile, implement, test, preserve and continue the existing game.

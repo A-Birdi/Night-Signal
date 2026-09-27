@@ -48,7 +48,7 @@ lists the superseded rules and where each lands. Rows marked _(A01)_ carry the r
 | R2.4 | A02 §10 _(A02)_ | Garage Test Yard: drivable, same controller, A/B, preview unowned parts, no progression | implemented (Local) — T00 campus stations, A/B reset-and-drive, dry/wet, last 3 runs per side, notes/prefer marker (V-039); online yard entry pending with the online Garage UI |
 | R2.5 | A02 §8, master §9 _(A02)_ | Parts/tuning system with real tradeoffs; favourite-car upgrade path for all 18 cars; calibrated pacing | in progress — 67 parts, resolver, recipes for 18 cars; Local races drive the applied build; T2 engine/tyres/brakes measurably improve all three starters in the vehicle simulation (V-038); a part bought online races with a server-verified build hash (V-041); tuning UI, full starter progression runs (F08–F10) pending |
 | R2.6 | A02 D208 _(A02)_ | 24 h dormant convoy for all-disconnected case | in progress (control plane) |
-| R3.1 | §3.1 | URP, C#, Input System, uGUI+TMP single UI stack | in progress (UI stack not built; developer OnGUI HUDs only) |
+| R3.1 | §3.1 | URP, C#, Input System, uGUI+TMP single UI stack | implemented — URP, C#, Input System; uGUI + TMP front end and race HUD used by every evidence tour (V-027 … V-047) |
 | R3.2 | §3.2 | Dedicated authoritative server process (NGO + Unity Transport) | implemented — run pending |
 | R3.3 | §3.2 | ASP.NET Core control plane (.NET 10 LTS), HTTP + authenticated control channel | verified (V-013) |
 | R3.4 | §3.2 | Supabase Auth; JWT verification via JWKS | implemented; DevAuth path verified; Supabase itself **blocked** |
@@ -63,7 +63,7 @@ lists the superseded rules and where each lands. Rows marked _(A01)_ carry the r
 | R3.13 | §3.4 | Web target (secondary, later) | not started |
 | R3.14 | §3.5 | Cost/operations worksheet after first six-client test | not started |
 | R4.1 | §4 | Separate state machines: screen, presence, convoy, entrant | in progress (presence/convoy/entrant done; screen FSM with UI) |
-| R4.2 | §4.1 | Convoy create/join, invites, privacy, expiry/rate limit | verified in control plane (V-013); client UI pending |
+| R4.2 | §4.1 | Convoy create/join, invites, privacy, expiry/rate limit | verified — control plane (V-013) and the client convoy screen/Friends invites (V-027, V-037) |
 | R4.3 | §4.1 | Persistent convoy header UI | not started |
 | R4.4 | §4.2 | Two revisioned ready checks, invalidation, 15 s / 120 s rules | verified in control plane (V-013) |
 | R4.5 | §4.3 | Loading barrier (90 s + 30 s), server start tick, 3-2-1-GO | implemented (RaceServer) — run pending |
@@ -75,14 +75,14 @@ lists the superseded rules and where each lands. Rows marked _(A01)_ carry the r
 | R6.1 | §6 | Free-steering raycast arcade chassis, 60 Hz | verified by harness/autopilot (V-011, V-012); human feel unverified |
 | R6.2 | §6 | Drivetrain identities, assists, bindings | implemented; bindings UI/remap screen pending |
 | R6.3 | §6 | Cameras chase/hood/bumper, FOV, shake, no blur | implemented |
-| R6.4 | §6.1 | Non-contact default, wall-hit debounce, hold-reset +3 s | implemented; Light Contact not started |
+| R6.4 | §6.1 | Non-contact default, wall-hit debounce, hold-reset +3 s | implemented — superseded by Addendum 01 light contact (R1.6 verified); Time Attack non-contact; wall-hit debounce and hold-reset penalty in the race tracker |
 | R7.1 | §7 | Raw drift scoring with anti-exploit | verified rules (V-009); not yet wired to races/gates |
 | R8.1 | §8 | Freeplay modes; H+AI ≤ 6 | rules verified; modes not built |
 | R8.2 | §8 | Server-validated ghosts | not started |
 | R9.1 | §9 | 3D garage, presets, purchases exactly-once | purchases verified server-side; garage not built |
-| R9.2 | §9 | Parts with tradeoffs; utility slot | not started |
+| R9.2 | §9 | Parts with tradeoffs; utility slot | in progress — see R2.5 (67 parts with tradeoffs, utility slot in Core/Builds) |
 | R9.3 | §9 | PI classes; measured stat harness | classes verified; harness implemented (V-011) |
-| R9.4 | §9 | Livery editor (64 layers, undo) | not started |
+| R9.4 | §9 | Livery editor (64 layers, undo) | verified — Core LiveryEditor (64 layers, 64-step undo, tests) and the Garage Appearance screen, Local + online (V-045, V-046) |
 | R10.1 | §10 | Economy formula and caps | verified (V-009, V-013) |
 | R10.2 | §10 | Idempotent append-only ledger; wallet clamp | verified (V-013) |
 | R11.1 | §11 | Player Card creation and public view | partial (display name API); UI not built |

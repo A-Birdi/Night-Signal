@@ -22,6 +22,8 @@ namespace NightSignal.Net
         public string MatchId, CourseId, Kind, Mode, StageId, Weather, GridNote, Contact;
         /// <summary>sprint | circuit | drift-attack | time-attack … (drift-attack: the HUD and autopilot drift the judged zones).</summary>
         public string FreeplayMode;
+        /// <summary>The surface the server simulates (dry | damp | wet): the client predicts its own car with the same grip.</summary>
+        public string Surface = "dry";
         public int YourIndex = -1;
         public List<RosterEntry> Roster = new List<RosterEntry>();
     }
@@ -244,7 +246,7 @@ namespace NightSignal.Net
             var info = new MatchInfo
             {
                 MatchId = assignment.MatchId, CourseId = assignment.CourseId, Kind = assignment.Kind, Mode = assignment.Mode,
-                StageId = assignment.StageId, Weather = assignment.Weather, Contact = assignment.Collision, FreeplayMode = assignment.FreeplayMode,
+                StageId = assignment.StageId, Weather = assignment.Weather, Contact = assignment.Collision, FreeplayMode = assignment.FreeplayMode, Surface = sim?.Rules.Surface ?? "dry",
                 GridNote = assignment.GridNote, YourIndex = l.Entrant.Roster.Index, Roster = Entrants.Select(x => x.Roster).ToList(),
             };
             FastBufferWriter w = Wire.JsonWriter(JsonConvert.SerializeObject(info));

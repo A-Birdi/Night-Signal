@@ -1,0 +1,51 @@
+{
+    "stage": "S29",
+    "course": "C24",
+    "type": "penultimate",
+    "surface": "dry",
+    "driver": "RouteFollower validator autopilot (automation, legal inputs; conservative, far from the car's limit) — not a human run",
+    "unityVersion": "6000.6.3f1",
+    "capPi": 999,
+    "provisionalTargetMs": 420000,
+    "starters": [
+        {
+            "car": "V01",
+            "stepId": "V01-H",
+            "stockPi": 220,
+            "developedPi": 429,
+            "stockWalls": 1,
+            "developedWalls": 1,
+            "stockMs": 272054,
+            "developedMs": 264184,
+            "stockFinished": true,
+            "developedFinished": true,
+            "developedLegal": true
+        },
+        {
+            "car": "V02",
+            "stepId": "V02-H",
+            "stockPi": 245,
+            "developedPi": 477,
+            "stockWalls": 0,
+            "developedWalls": 0,
+            "stockMs": 272668,
+            "developedMs": 252510,
+            "stockFinished": true,
+            "developedFinished": true,
+            "developedLegal": true
+        },
+        {
+            "car": "V03",
+            "stepId": "V03-H",
+            "stockPi": 270,
+            "developedPi": 498,
+            "stockWalls": 1,
+            "developedWalls": 0,
+            "stockMs": 269528,
+            "developedMs": 250013,
+            "stockFinished": true,
+            "developedFinished": true,
+            "developedLegal": true
+        }
+    ]
+}

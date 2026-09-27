@@ -170,7 +170,7 @@ namespace NightSignal.Race
             {
                 FinalRivals.Require(rival.Id, ctx, Rules.StageId, Rules.Mode);
                 e = Add(lib, world, slot, rival.Id, rival.Name, false, LegalCarFor(cat, rival.PrimaryCar, Rules.CarCapPi), team, role, null);
-                e.Ai = new RouteFollower(Track, e.Params, AiProfiles.For(rival, Rules.StageNumber)) { DriftZones = DriftZonesForAi };
+                e.Ai = new RouteFollower(Track, e.Params, AiProfiles.For(rival, Rules.StageNumber)) { DriftZones = DriftZonesForAi, SurfaceGrip = CourseRuntime.SurfaceGrip(Rules.Surface) };
             }
             else
             {
@@ -178,7 +178,7 @@ namespace NightSignal.Race
                 CarDef car = cat.Cars.Where(c => Rules.CarCapPi <= 0 || c.BasePI <= Rules.CarCapPi)
                     .OrderByDescending(c => c.BasePI).Skip(generic % 3).FirstOrDefault() ?? cat.Cars.OrderBy(c => c.BasePI).First();
                 e = Add(lib, world, slot, id, $"Driver {id.ToUpperInvariant()}", false, car.Id, team, role, null);
-                e.Ai = new RouteFollower(Track, e.Params, AiProfiles.Generic(generic++)) { DriftZones = DriftZonesForAi };
+                e.Ai = new RouteFollower(Track, e.Params, AiProfiles.Generic(generic++)) { DriftZones = DriftZonesForAi, SurfaceGrip = CourseRuntime.SurfaceGrip(Rules.Surface) };
             }
         }
 

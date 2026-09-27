@@ -587,3 +587,25 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - Limits: the AI's drift is a scripted controller (no difficulty scaling of drift skill yet); drift targets for
   campaign benchmarks were not exercised here; the convoy screen does not yet restrict Drift Attack to courses with
   judged zones (C01, C04, C08, C12, C15, C16, C23–C25, FP01 have them).
+
+## V-048 — Starter paths measured; Normal reference runs; wet-grip fixes for AI and online prediction (2026-09-27)
+- **F10 (hardware, identical scripted inputs):** EditMode `StarterPathTests` walks every main recipe step of V01/V02/V03
+  through the handling harness (`Evidence/progression/starter-paths/*.json`). Normal-path end vs stock — V01: 0-100
+  −13 %, 1,000 m +7.7 %, 100-0 −12 %, skid pad +14.5 %; V02: −15.5 % / +10.5 % / −10 % / +13.4 %; V03: −19 % / +9.7 % /
+  −10 % / +13.1 %; every step within the PI cap of the stage it is meant for — **PASS 3/3** (every measure improves, at
+  least two by ≥ 10 %). EditMode **214/214**.
+- **Reference runs (PlayMode `ReferenceRunTests`, 30 Normal stages, validator autopilot, solo, stage surface):** each
+  starter stock vs its intended build by that stage (`Evidence/progression/reference/N-S*.json`) — all finish, all
+  intended builds legal; the build is faster on every stage, median 4 % (1–2 % in Act I up to 5–7 % in Act IV). The
+  provisional time targets (catalogue expectedSeconds) are 1.2–2.4× slower than these runs, i.e. they gate nothing.
+  A candidate rule (median intended-build time + 5 %) would leave stock starters sufficient in Acts I–II and insufficient
+  in Act IV (23/27 stock misses, 0/27 developed misses). **Not adopted:** Addendum 03 §9 requires real elevation, 3D
+  gates and recovery before certifying benchmarks, and the validator is a conservative driver far from the car's limit
+  (a more aggressive reference profile was tried and hit walls; reverted).
+- **Found by the reference runs and fixed:** AI planned wet/damp corners and braking with dry tyre grip (V03's build
+  took 451 s on wet C08 with repeated walls); `RouteFollower.SurfaceGrip` now carries the event's weather grip for every
+  AI and autopilot — rerun: C08 172–174 s, walls 0–1. The online client also predicted its own car with dry grip in
+  wet/damp events while the server simulated the real surface; the match message now carries the server's surface and
+  the client predicts with it (not yet exercised online in a wet event).
+- `StarterCampaignRunTests` (F08 full campaign per starter, buying the path with earned credits) is written but **not
+  run yet** (deferred behind Addendum 03's topology work, since benchmarks and stage geometry will change).
