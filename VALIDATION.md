@@ -1080,3 +1080,7 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   a pass near one, but its racecraft cannot hold the line in a four-car pack (aiming straight at the gate made it worse
   and was reverted). **F08 not passed for V01/V02** — an automation limit on one contract, recorded as such; a human run
   of S29 is still needed.
+- **Online with certified targets** (rebuilt player + dedicated server + control plane restarted on content
+  `2ac19629…`, loopback; `ui-tour-online.ps1`, `Evidence/ui/online/certified`): the convoy proposal for S10 shows
+  "target 02:47.988" with no provisional label (the certified 167,988 ms); the server-authoritative race (1 human + 3 AI,
+  C09) finished in 2:46.660 — qualified, first clear, +17,996 credits, receipt settled — **PASS**.
