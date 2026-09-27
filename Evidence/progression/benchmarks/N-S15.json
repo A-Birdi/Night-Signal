@@ -1,0 +1,58 @@
+{
+    "stage": "S15",
+    "course": "C13",
+    "type": "regular",
+    "surface": "dry",
+    "referenceCar": "V01",
+    "referenceBuild": "V01-E",
+    "featured": "R25",
+    "capPi": 849,
+    "provisionalTargetMs": 260000,
+    "referenceMs": 140786,
+    "targetMs": 157286,
+    "featuredMs": 158550,
+    "factor": 1.1172,
+    "featuredPace": 0.6562,
+    "starters": [
+        {
+            "car": "V01",
+            "build": "V01-E",
+            "ms": 140786,
+            "finished": true
+        },
+        {
+            "car": "V02",
+            "build": "V02-E",
+            "ms": 140775,
+            "finished": true
+        },
+        {
+            "car": "V03",
+            "build": "V03-E",
+            "ms": 138665,
+            "finished": true
+        }
+    ],
+    "tries": [
+        {
+            "pace": 1.0,
+            "ms": 142480
+        },
+        {
+            "pace": 0.75,
+            "ms": 145810
+        },
+        {
+            "pace": 0.625,
+            "ms": 163987
+        },
+        {
+            "pace": 0.6875,
+            "ms": 153858
+        },
+        {
+            "pace": 0.6562,
+            "ms": 158550
+        }
+    ]
+}

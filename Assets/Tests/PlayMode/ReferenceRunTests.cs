@@ -100,7 +100,7 @@ namespace NightSignal.Tests
         }
 
         /// <summary>One solo autopilot run; reports [finish ms (penalties included), finished 1/0, wall incidents].</summary>
-        static IEnumerator Drive(string car, ResolvedCarSpec spec, string surface, System.Action<double[]> done)
+        internal static IEnumerator Drive(string car, ResolvedCarSpec spec, string surface, System.Action<double[]> done)
         {
             var go = new GameObject("ReferenceRun");
             var session = go.AddComponent<OfflineRaceSession>();

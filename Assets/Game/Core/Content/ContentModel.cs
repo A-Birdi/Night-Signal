@@ -169,6 +169,54 @@ namespace NightSignal.Core.Content
 
     public sealed class StageOppositionFile { public string Schema; public string Rules; public List<StageOppositionEntry> Stages = new List<StageOppositionEntry>(); }
 
+    /// <summary>Certified stage benchmarks (authored/stage-benchmarks.json), produced by the benchmark certification run.</summary>
+    public sealed class StageBenchmarksFile
+    {
+        public string Schema;
+        /// <summary>How the file was produced (driver, physics/scoring versions, date) — shown with the targets.</summary>
+        public string Method;
+        public List<CertifiedBenchmark> Stages = new List<CertifiedBenchmark>();
+    }
+
+    /// <summary>
+    /// One stage side's certified benchmark (spec: reference run P in a freely available class-legal car; Normal targets
+    /// ~1.18×P early → ~1.05×P in the final act; frozen milliseconds). The featured rival's driving pace is calibrated to
+    /// finish near the target, so the encounter is beatable by a driver who meets it.
+    /// </summary>
+    public sealed class CertifiedBenchmark
+    {
+        public string Stage;
+        /// <summary>"normal" or "hard".</summary>
+        public string Mode;
+        /// <summary>P: the reference time (ms) and the car/build that set it.</summary>
+        public long ReferenceMs;
+        public string ReferenceCar;
+        public string ReferenceBuild;
+        public double Factor;
+        public long TargetMs;
+        /// <summary>Speed-plan scale for the featured rival's driver (1 = its stage profile unchanged).</summary>
+        public double FeaturedRivalPace = 1.0;
+        /// <summary>The featured rival's calibrated solo time at that pace (ms).</summary>
+        public long FeaturedRivalMs;
+        /// <summary>S29 "Four Signals": the published contract targets (null on every other stage).</summary>
+        public FourSignalsTargets Contracts;
+    }
+
+    /// <summary>Published S29 contract targets (spec "Four Signals judging contract"), frozen by the certification run.</summary>
+    public sealed class FourSignalsTargets
+    {
+        /// <summary>Entry: the sector time from the start to the Arc (ms).</summary>
+        public long EntrySectorMs;
+        /// <summary>Arc: raw drift banked across the three marked corners.</summary>
+        public long ArcDriftRaw;
+        /// <summary>Descent: the speed window at the end of the brake-release zone (km/h).</summary>
+        public float BrakeExitMinKmh, BrakeExitMaxKmh;
+        /// <summary>Descent: the published release point — the brake must be off by this route distance (m).</summary>
+        public float BrakeReleaseByMetres;
+        /// <summary>Horizon: minimum speed at each exit-speed point, in route order (km/h).</summary>
+        public List<float> HorizonExitKmh = new List<float>();
+    }
+
     public sealed class RewardOnlyCourse { public string Course; public string Stage; public string Mode; }
 
     public sealed class PurchaseOnlyCourse { public string Course; public long Price; }

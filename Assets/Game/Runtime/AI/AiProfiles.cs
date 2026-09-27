@@ -25,7 +25,7 @@ namespace NightSignal.AI
             };
         }
 
-        public static DriverProfile For(RivalDef rival, int stageNumber)
+        public static DriverProfile For(RivalDef rival, int stageNumber, float paceScale = 1f)
         {
             float progress = Mathf.Clamp01((stageNumber - 1) / 29f);
             var p = new DriverProfile
@@ -59,6 +59,7 @@ namespace NightSignal.AI
                 case "early-set-cornerer": p.BrakingDecel -= 0.2f; break;
             }
             p.LineAggression = Mathf.Clamp01(p.LineAggression);
+            p.PaceScale = paceScale;
             return p;
         }
     }

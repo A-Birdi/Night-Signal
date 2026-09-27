@@ -39,7 +39,7 @@ namespace NightSignal.Front
     {
         public static LocalEventPlan Campaign(LocalSession s, StageDef stage, CampaignMode mode, LocalCarChoice car)
         {
-            StageBenchmark benchmark = StageBenchmarks.Provisional(s.Catalogue, stage, mode);
+            StageBenchmark benchmark = StageBenchmarks.For(s.Catalogue, stage, mode);
             List<string> opponents = (mode == CampaignMode.Hard ? stage.Hard : stage.Normal).Opponents;
             RaceRoster roster = RosterPlanner.PlanCampaign(new[] { "local" }, opponents, stage.Id, mode);
             return new LocalEventPlan
@@ -132,6 +132,7 @@ namespace NightSignal.Front
                 ActiveProgressVerified = me.ActiveProgressVerified,
                 ActivelyDroveLegalCourse = me.ActivelyDroveLegalCourse,
                 RawDriftScore = me.RawDriftScore,
+                ContractsPassed = System.Math.Max(0, me.ContractsPassed),
                 CarModelId = plan.Car.ModelId,
                 CarInstanceId = plan.Car.InstanceId,
                 Loaner = plan.Car.Loaner,

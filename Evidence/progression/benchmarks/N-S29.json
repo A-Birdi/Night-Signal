@@ -1,0 +1,115 @@
+{
+  "stage": "S29",
+  "course": "C24",
+  "type": "penultimate",
+  "surface": "dry",
+  "referenceCar": "V01",
+  "referenceBuild": "V01-H",
+  "featured": "R39",
+  "capPi": 999,
+  "provisionalTargetMs": 420000,
+  "referenceMs": 266701,
+  "targetMs": 281236,
+  "featuredMs": 282543,
+  "factor": 1.0545,
+  "featuredPace": 0.6562,
+  "starters": [
+    {
+      "car": "V01",
+      "build": "V01-H",
+      "ms": 266701,
+      "finished": true,
+      "entryMs": 73600,
+      "arcDrift": 2183,
+      "apexHits": 2,
+      "descentWalls": 0,
+      "descentResets": 0,
+      "brakedAndReleased": true,
+      "brakeExitKmh": 71.22126,
+      "brakeStartMetres": 4822.32959,
+      "brakeReleaseMetres": 4822.67236,
+      "brakeOffAtExit": false,
+      "exitKmh": [
+        168.78421,
+        185.244934,
+        185.8913
+      ]
+    },
+    {
+      "car": "V02",
+      "build": "V02-H",
+      "ms": 254521,
+      "finished": true,
+      "entryMs": 66116,
+      "arcDrift": 2136,
+      "apexHits": 2,
+      "descentWalls": 0,
+      "descentResets": 0,
+      "brakedAndReleased": true,
+      "brakeExitKmh": 71.9835,
+      "brakeStartMetres": 4822.55,
+      "brakeReleaseMetres": 4822.84863,
+      "brakeOffAtExit": false,
+      "exitKmh": [
+        174.135025,
+        187.5442,
+        187.339645
+      ]
+    },
+    {
+      "car": "V03",
+      "build": "V03-H",
+      "ms": 253096,
+      "finished": true,
+      "entryMs": 65500,
+      "arcDrift": 2456,
+      "apexHits": 2,
+      "descentWalls": 0,
+      "descentResets": 0,
+      "brakedAndReleased": true,
+      "brakeExitKmh": 72.96611,
+      "brakeStartMetres": 4821.31641,
+      "brakeReleaseMetres": 4821.68,
+      "brakeOffAtExit": false,
+      "exitKmh": [
+        178.648087,
+        191.258942,
+        190.168854
+      ]
+    }
+  ],
+  "tries": [
+    {
+      "pace": 1.0,
+      "ms": 225662
+    },
+    {
+      "pace": 0.75,
+      "ms": 259826
+    },
+    {
+      "pace": 0.625,
+      "ms": 292317
+    },
+    {
+      "pace": 0.6875,
+      "ms": 274234
+    },
+    {
+      "pace": 0.6562,
+      "ms": 282543
+    }
+  ],
+  "contracts": {
+    "entrySectorMs": 77611,
+    "arcDriftRaw": 1709,
+    "brakeExitMinKmh": 60.5,
+    "brakeExitMaxKmh": 83.9,
+    "brakeReleaseByMetres": 4837.8,
+    "horizonExitKmh": [
+      160.3,
+      176.0,
+      176.6
+    ]
+  }
+}

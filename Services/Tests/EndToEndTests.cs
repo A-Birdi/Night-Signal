@@ -133,7 +133,8 @@ public sealed class EndToEndTests : IDisposable
             AssertOk(await cb.RequestAsync("event.ready", new { proposalRevision = eRev, loadoutRevision = 1, ready = true }, "ready-b"));
             JsonElement state = await ca.WaitForStateAsync(s => s.GetProperty("members").EnumerateArray().All(m => m.GetProperty("eventReady").GetBoolean()));
             Assert.Equal("ReadyCheck", state.GetProperty("phase").GetString());
-            Assert.True(state.GetProperty("eventProposal").GetProperty("settings").GetProperty("benchmarkProvisional").GetBoolean());
+            // S01 Normal has a certified benchmark (stage-benchmarks.json): not provisional, the published target.
+            Assert.False(state.GetProperty("eventProposal").GetProperty("settings").GetProperty("benchmarkProvisional").GetBoolean());
 
             // Start → allocation on the registered server → private tickets.
             Assert.Equal("not_leader", ErrorCode(await cb.RequestAsync("event.start", new { proposalRevision = eRev })));
@@ -165,7 +166,8 @@ public sealed class EndToEndTests : IDisposable
             Assert.Equal("racer", va.Claims.Role);
             Assert.Equal(TicketFailure.Replayed, validator.Validate(ticketA.GetProperty("ticket").GetString()!, expected).Failure);
 
-            // Server-observed facts. C01 expects 180 s; provisional Normal benchmark = 180,000 ms, support envelope 270 s.
+            // Server-observed facts. S01's certified Normal benchmark is 102,070 ms (support envelope 150 % = 153.1 s): A qualifies,
+            // B only supports.
             string[] ai = assignment.GetProperty("aiEntrants").EnumerateArray().Select(x => x.GetString()!).ToArray();
             Assert.Equal(TestData.Content.Catalogue.Stage("S01").Normal.Opponents, ai); // authored live opposition (Addendum 01 §1.2)
             object Human(string id, long seconds, int place, bool clean, string[] challenges) => new
@@ -186,7 +188,7 @@ public sealed class EndToEndTests : IDisposable
                 entrants = new[]
                 {
                     // S01 Normal is authored as a duel with its featured rival (stages.opposition.json).
-                    Human(a.AccountId, 170, 1, clean: true, new[] { "CH01" }), Ai(ai[0], 175, 2), Human(b.AccountId, 200, placeB, clean: false, Array.Empty<string>()),
+                    Human(a.AccountId, 96, 1, clean: true, new[] { "CH01" }), Ai(ai[0], 99, 2), Human(b.AccountId, 113, placeB, clean: false, Array.Empty<string>()),
                 },
             };
             byte[] body = JsonSerializer.SerializeToUtf8Bytes(Body(3));
@@ -236,7 +238,7 @@ public sealed class EndToEndTests : IDisposable
                 ra.GetProperty("credits").EnumerateArray().Select(c => c.GetProperty("type").GetString()));
             Assert.True(ra.GetProperty("stage").GetProperty("qualified").GetBoolean());
             Assert.True(ra.GetProperty("stage").GetProperty("teamSuccess").GetBoolean());
-            Assert.True(ra.GetProperty("stage").GetProperty("benchmarkProvisional").GetBoolean());
+            Assert.False(ra.GetProperty("stage").GetProperty("benchmarkProvisional").GetBoolean());
             Assert.Equal(expectedA, ra.GetProperty("balanceAfter").GetInt64());
             Assert.Equal(RankPoints.NormalFirstClear + RankPoints.BronzeChallenge, ra.GetProperty("rankPointsAfter").GetInt32());
             Assert.Contains("COS-CH01", ra.GetProperty("cosmeticsGranted").EnumerateArray().Select(x => x.GetString()));

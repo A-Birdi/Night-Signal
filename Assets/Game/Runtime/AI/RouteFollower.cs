@@ -17,6 +17,11 @@ namespace NightSignal.AI
         public float LineAggression;
         public float LookaheadSeconds;
         public float MinLookahead;
+        /// <summary>
+        /// Scales the whole speed plan — corner speeds and the straight-line ceiling alike (0 or 1 = unchanged). The benchmark
+        /// certification calibrates a featured rival with it so the encounter lands near the stage target.
+        /// </summary>
+        public float PaceScale;
 
         public static DriverProfile Validator => new DriverProfile
         {
@@ -146,13 +151,14 @@ namespace NightSignal.AI
             float steer = Mathf.Clamp(wheel / VehicleSimulation.SteeringLimit(p, speed, bodySlip), -1f, 1f);
 
             // Speed plan: the lowest speed any point ahead allows, given braking distance to reach it.
-            float target = 70f;
+            float pace = Profile.PaceScale > 0f ? Profile.PaceScale : 1f;
+            float target = 70f * pace;
             float decel = Profile.BrakingDecel * SurfaceGrip;
             float horizon = Mathf.Max(40f, speed * speed / (2f * decel) + 30f);
             for (float d = 0f; d <= horizon; d += 4f)
             {
                 float k = Mathf.Abs(track.SampleAt(here.Distance + d).Curvature);
-                float vCorner = k > 1e-4f ? Mathf.Sqrt(p.TyreGrip * SurfaceGrip * 9.81f / k) * Profile.CornerSpeedFactor : 70f;
+                float vCorner = (k > 1e-4f ? Mathf.Sqrt(p.TyreGrip * SurfaceGrip * 9.81f / k) * Profile.CornerSpeedFactor : 70f) * pace;
                 float allowed = Mathf.Sqrt(vCorner * vCorner + 2f * decel * d);
                 target = Mathf.Min(target, allowed);
             }

@@ -451,10 +451,11 @@ namespace NightSignal.Front
                 lines.Add(i == 0 ? $"<color=#D7263D>Featured</color>  {Escape(r.Name)} <size=85%>({Escape(r.Crew)}, {Escape(car)})</size>" : $"{Escape(r.Name)} <size=85%>({Escape(car)})</size>");
             }
             pOpposition.text = $"{side.Opponents.Count} live rival{(side.Opponents.Count == 1 ? "" : "s")}, light contact\n" + string.Join("\n", lines.Take(4)) + (lines.Count > 4 ? $"\n+{lines.Count - 4} more" : "");
-            StageBenchmark b = StageBenchmarks.Provisional(cat, stage, Mode);
+            StageBenchmark b = StageBenchmarks.For(cat, stage, Mode);
+            string label = StageBenchmarks.IsCertified(cat, stage, Mode) ? "" : b.Kind == BenchmarkKind.FourContracts ? " (provisional)" : " (provisional benchmark)";
             pTarget.text = b.Kind == BenchmarkKind.FourContracts
-                ? $"Pass the four contracts within {ResultsScreen.FormatRaceTime(b.TargetTimeMs * 1000)} (provisional)."
-                : $"Target {ResultsScreen.FormatRaceTime(b.TargetTimeMs * 1000)} (provisional benchmark)" + (b.RequiresBeatingFeaturedRival ? " and finish ahead of the featured rival." : ".");
+                ? $"Pass the four contracts within {ResultsScreen.FormatRaceTime(b.TargetTimeMs * 1000)}{label}."
+                : $"Target {ResultsScreen.FormatRaceTime(b.TargetTimeMs * 1000)}{label}" + (b.RequiresBeatingFeaturedRival ? " and finish ahead of the featured rival." : ".");
             bool canStart = LocalProgression.CanStartCampaignStage(p, cat, stage.Id, Mode, out string reason);
             bool isCleared = p.Campaign.IsCleared(Mode, stage.Number);
             pStatus.text = isCleared ? "Cleared. Replays pay race money only." : canStart ? "Next stage." : reason;

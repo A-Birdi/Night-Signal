@@ -1,0 +1,50 @@
+{
+    "stage": "S22",
+    "course": "C19",
+    "type": "regular",
+    "surface": "dry",
+    "referenceCar": "V01",
+    "referenceBuild": "V01-F",
+    "featured": "R35",
+    "capPi": 999,
+    "provisionalTargetMs": 350000,
+    "referenceMs": 210560,
+    "targetMs": 228647,
+    "featuredMs": 229494,
+    "factor": 1.0859,
+    "featuredPace": 0.625,
+    "starters": [
+        {
+            "car": "V01",
+            "build": "V01-F",
+            "ms": 210560,
+            "finished": true
+        },
+        {
+            "car": "V02",
+            "build": "V02-F",
+            "ms": 206555,
+            "finished": true
+        },
+        {
+            "car": "V03",
+            "build": "V03-F",
+            "ms": 203937,
+            "finished": true
+        }
+    ],
+    "tries": [
+        {
+            "pace": 1.0,
+            "ms": 177824
+        },
+        {
+            "pace": 0.75,
+            "ms": 206943
+        },
+        {
+            "pace": 0.625,
+            "ms": 229494
+        }
+    ]
+}

@@ -490,7 +490,9 @@ namespace NightSignal.Net
                     ActivelyDroveLegalCourse = c.ActivelyDroveLegalCourse,
                     LegalProgressMetres = c.LegalProgressMetres,
                     RawDriftScore = c.RawDriftScore,
+                    ContractsPassed = System.Math.Max(0, c.ContractsPassed),
                 };
+                if (c.ContractsPassed >= 0) Debug.Log($"[NightSignal.Server] {r.EntrantId} Four Signals {c.ContractsPassed}/4: {c.ContractDetail}");
                 if (c.Entrant.Human && c.Outcome == RunOutcome.Finished)
                     r.ChallengesCompleted.AddRange(ChallengePredicates.Evaluate(assignment, c.Entrant.Progress));
                 results.Entrants.Add(r);

@@ -22,7 +22,7 @@ namespace NightSignal.Core.Content
         /// different build data is refused at connect rather than at the start of a match.
         /// </summary>
         public static readonly string[] AuthoredFiles =
-            { "cars.tuning.json", "stages.opposition.json", "courses.addendum.json", "music.unlocks.json", "parts.json", "build-recipes.json" };
+            { "cars.tuning.json", "stages.opposition.json", "courses.addendum.json", "music.unlocks.json", "parts.json", "build-recipes.json", "stage-benchmarks.json" };
 
         /// <summary>
         /// Authored overlays that must be present: they carry Addendum 01 rules (live opposition, 29 courses, course
@@ -62,6 +62,14 @@ namespace NightSignal.Core.Content
         public bool TryCar(string id, out CarDef c) => carById.TryGetValue(id ?? "", out c);
         public bool TryRival(string id, out RivalDef r) => rivalById.TryGetValue(id ?? "", out r);
         public bool TryCosmetic(string id, out CosmeticDef c) => cosmeticById.TryGetValue(id ?? "", out c);
+
+        /// <summary>How the certified benchmarks were produced ("" when none are loaded).</summary>
+        public string BenchmarkMethod { get; private set; } = "";
+        Dictionary<string, CertifiedBenchmark> certified = new Dictionary<string, CertifiedBenchmark>(StringComparer.Ordinal);
+
+        /// <summary>The certified benchmark for a stage side, if the certification run has produced one.</summary>
+        public bool TryCertifiedBenchmark(string stageId, NightSignal.Core.Rules.CampaignMode mode, out CertifiedBenchmark b) =>
+            certified.TryGetValue((stageId ?? "") + "/" + (mode == NightSignal.Core.Rules.CampaignMode.Hard ? "hard" : "normal"), out b);
 
         /// <summary>
         /// Raw text of a loaded document that other Core systems parse themselves (e.g. music.unlocks.json for
@@ -129,6 +137,21 @@ namespace NightSignal.Core.Content
                     throw new ContentLoadException($"stages.opposition.json references unknown stage {entry.Id}");
                 stage.Normal.Opponents = entry.Normal;
                 stage.Hard.Opponents = entry.Hard;
+            }
+            if (documents.ContainsKey("stage-benchmarks.json"))
+            {
+                StageBenchmarksFile file = Parse<StageBenchmarksFile>("stage-benchmarks.json", "night-signal/stage-benchmarks@1");
+                foreach (CertifiedBenchmark b in file.Stages)
+                {
+                    if (!cat.stageById.ContainsKey(b.Stage ?? "")) throw new ContentLoadException($"stage-benchmarks.json references unknown stage {b.Stage}");
+                    if (b.Mode != "normal" && b.Mode != "hard") throw new ContentLoadException($"stage-benchmarks.json: {b.Stage} mode must be normal or hard");
+                    if (b.TargetMs <= 0 || b.ReferenceMs <= 0 || b.FeaturedRivalPace <= 0 || b.FeaturedRivalPace > 1.5)
+                        throw new ContentLoadException($"stage-benchmarks.json: {b.Stage}/{b.Mode} has an invalid target, reference or rival pace");
+                    string key = b.Stage + "/" + b.Mode;
+                    if (cat.certified.ContainsKey(key)) throw new ContentLoadException($"stage-benchmarks.json: duplicate {key}");
+                    cat.certified[key] = b;
+                }
+                cat.BenchmarkMethod = file.Method ?? "";
             }
             cat.documentText = documents.ToDictionary(kv => kv.Key, kv => kv.Value, StringComparer.Ordinal);
             cat.ContentHash = Hash(documents);

@@ -73,13 +73,13 @@ public sealed class ContentService
     }
 
     /// <summary>
-    /// Benchmark locked into a campaign proposal. The catalogue does not yet contain certified benchmarks
-    /// (spec §2.5 requires legal reference runs), so this derives a PROVISIONAL one from the course's
-    /// server-owned ExpectedSeconds and labels it as such everywhere it is shown or settled.
+    /// Benchmark locked into a campaign proposal: certified (reference run × factor, from the content) when the stage side
+    /// has one, otherwise PROVISIONAL from the course's ExpectedSeconds and labelled as such everywhere it is shown or settled.
     /// </summary>
     public BenchmarkInfo BenchmarkFor(StageDef stage, CampaignMode mode) =>
         // Shared with the Local campaign (Core) so online and offline judge a stage by the same numbers.
-        new(StageBenchmarks.Provisional(Catalogue, stage, mode), Provisional: true, Source: StageBenchmarks.ProvisionalSource(Catalogue, stage));
+        new(StageBenchmarks.For(Catalogue, stage, mode), Provisional: !StageBenchmarks.IsCertified(Catalogue, stage, mode),
+            Source: StageBenchmarks.Source(Catalogue, stage, mode));
 
     /// <summary>Freeplay time-trial reference (for the 1.20 "reference beaten" band); provisional like the above.</summary>
     public long FreeplayReferenceMs(string courseId) => Catalogue.Course(courseId).ExpectedSeconds * 1000L;

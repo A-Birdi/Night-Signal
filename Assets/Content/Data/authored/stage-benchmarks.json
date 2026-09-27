@@ -1,0 +1,348 @@
+{
+  "schema": "night-signal/stage-benchmarks@1",
+  "method": "Normal certification 2026-09-27: reference = slowest of the three starters' intended builds, solo, validator autopilot (automation, legal inputs, not a human; S29 drives its contracts, drifting the Arc); factor 1.18 → 1.05 over S01–S30; featured rival pace calibrated solo to finish 0–1 % above the target; physics chassis-2026.09-contact1, scoring classify-2",
+  "stages": [
+    {
+      "stage": "S01",
+      "mode": "normal",
+      "referenceMs": 86500,
+      "referenceCar": "V01",
+      "referenceBuild": "stock",
+      "factor": 1.18,
+      "targetMs": 102070,
+      "featuredRivalPace": 0.7266,
+      "featuredRivalMs": 102417
+    },
+    {
+      "stage": "S02",
+      "mode": "normal",
+      "referenceMs": 147520,
+      "referenceCar": "V01",
+      "referenceBuild": "V01-A",
+      "factor": 1.1755,
+      "targetMs": 173410,
+      "featuredRivalPace": 0.6172,
+      "featuredRivalMs": 174577
+    },
+    {
+      "stage": "S03",
+      "mode": "normal",
+      "referenceMs": 181387,
+      "referenceCar": "V03",
+      "referenceBuild": "V03-A",
+      "factor": 1.171,
+      "targetMs": 212404,
+      "featuredRivalPace": 0.75,
+      "featuredRivalMs": 212434
+    },
+    {
+      "stage": "S04",
+      "mode": "normal",
+      "referenceMs": 134257,
+      "referenceCar": "V01",
+      "referenceBuild": "V01-B",
+      "factor": 1.1666,
+      "targetMs": 156624,
+      "featuredRivalPace": 0.7656,
+      "featuredRivalMs": 157174
+    },
+    {
+      "stage": "S05",
+      "mode": "normal",
+      "referenceMs": 133768,
+      "referenceCar": "V01",
+      "referenceBuild": "V01-B",
+      "factor": 1.1621,
+      "targetMs": 155452,
+      "featuredRivalPace": 0.7031,
+      "featuredRivalMs": 156128
+    },
+    {
+      "stage": "S06",
+      "mode": "normal",
+      "referenceMs": 159834,
+      "referenceCar": "V01",
+      "referenceBuild": "V01-B",
+      "factor": 1.1576,
+      "targetMs": 185024,
+      "featuredRivalPace": 0.6406,
+      "featuredRivalMs": 185404
+    },
+    {
+      "stage": "S07",
+      "mode": "normal",
+      "referenceMs": 134257,
+      "referenceCar": "V01",
+      "referenceBuild": "V01-B",
+      "factor": 1.1531,
+      "targetMs": 154812,
+      "featuredRivalPace": 0.7344,
+      "featuredRivalMs": 155529
+    },
+    {
+      "stage": "S08",
+      "mode": "normal",
+      "referenceMs": 116133,
+      "referenceCar": "V01",
+      "referenceBuild": "V01-C",
+      "factor": 1.1486,
+      "targetMs": 133390,
+      "featuredRivalPace": 0.7969,
+      "featuredRivalMs": 133695
+    },
+    {
+      "stage": "S09",
+      "mode": "normal",
+      "referenceMs": 174087,
+      "referenceCar": "V01",
+      "referenceBuild": "V01-C",
+      "factor": 1.1441,
+      "targetMs": 199173,
+      "featuredRivalPace": 0.7578,
+      "featuredRivalMs": 200262
+    },
+    {
+      "stage": "S10",
+      "mode": "normal",
+      "referenceMs": 147397,
+      "referenceCar": "V02",
+      "referenceBuild": "V02-C",
+      "factor": 1.1397,
+      "targetMs": 167988,
+      "featuredRivalPace": 0.7344,
+      "featuredRivalMs": 168542
+    },
+    {
+      "stage": "S11",
+      "mode": "normal",
+      "referenceMs": 184510,
+      "referenceCar": "V01",
+      "referenceBuild": "V01-D",
+      "factor": 1.1352,
+      "targetMs": 209456,
+      "featuredRivalPace": 0.6406,
+      "featuredRivalMs": 209654
+    },
+    {
+      "stage": "S12",
+      "mode": "normal",
+      "referenceMs": 213729,
+      "referenceCar": "V01",
+      "referenceBuild": "V01-D",
+      "factor": 1.1307,
+      "targetMs": 241663,
+      "featuredRivalPace": 0.6875,
+      "featuredRivalMs": 243314
+    },
+    {
+      "stage": "S13",
+      "mode": "normal",
+      "referenceMs": 206868,
+      "referenceCar": "V01",
+      "referenceBuild": "V01-D",
+      "factor": 1.1262,
+      "targetMs": 232975,
+      "featuredRivalPace": 0.5938,
+      "featuredRivalMs": 233139
+    },
+    {
+      "stage": "S14",
+      "mode": "normal",
+      "referenceMs": 174268,
+      "referenceCar": "V01",
+      "referenceBuild": "V01-D",
+      "factor": 1.1217,
+      "targetMs": 195476,
+      "featuredRivalPace": 0.7188,
+      "featuredRivalMs": 195923
+    },
+    {
+      "stage": "S15",
+      "mode": "normal",
+      "referenceMs": 140786,
+      "referenceCar": "V01",
+      "referenceBuild": "V01-E",
+      "factor": 1.1172,
+      "targetMs": 157286,
+      "featuredRivalPace": 0.6562,
+      "featuredRivalMs": 158550
+    },
+    {
+      "stage": "S16",
+      "mode": "normal",
+      "referenceMs": 219475,
+      "referenceCar": "V01",
+      "referenceBuild": "V01-E",
+      "factor": 1.1128,
+      "targetMs": 244232,
+      "featuredRivalPace": 0.6406,
+      "featuredRivalMs": 245575
+    },
+    {
+      "stage": "S17",
+      "mode": "normal",
+      "referenceMs": 154782,
+      "referenceCar": "V03",
+      "referenceBuild": "V03-E",
+      "factor": 1.1083,
+      "targetMs": 171545,
+      "featuredRivalPace": 0.6797,
+      "featuredRivalMs": 172734
+    },
+    {
+      "stage": "S18",
+      "mode": "normal",
+      "referenceMs": 206185,
+      "referenceCar": "V01",
+      "referenceBuild": "V01-E",
+      "factor": 1.1038,
+      "targetMs": 227587,
+      "featuredRivalPace": 0.6562,
+      "featuredRivalMs": 228272
+    },
+    {
+      "stage": "S19",
+      "mode": "normal",
+      "referenceMs": 167688,
+      "referenceCar": "V01",
+      "referenceBuild": "V01-F",
+      "factor": 1.0993,
+      "targetMs": 184339,
+      "featuredRivalPace": 0.6641,
+      "featuredRivalMs": 185065
+    },
+    {
+      "stage": "S20",
+      "mode": "normal",
+      "referenceMs": 216037,
+      "referenceCar": "V01",
+      "referenceBuild": "V01-F",
+      "factor": 1.0948,
+      "targetMs": 236517,
+      "featuredRivalPace": 0.6484,
+      "featuredRivalMs": 237570
+    },
+    {
+      "stage": "S21",
+      "mode": "normal",
+      "referenceMs": 205773,
+      "referenceCar": "V01",
+      "referenceBuild": "V01-F",
+      "factor": 1.0903,
+      "targetMs": 224354,
+      "featuredRivalPace": 0.6094,
+      "featuredRivalMs": 225601
+    },
+    {
+      "stage": "S22",
+      "mode": "normal",
+      "referenceMs": 210560,
+      "referenceCar": "V01",
+      "referenceBuild": "V01-F",
+      "factor": 1.0859,
+      "targetMs": 228647,
+      "featuredRivalPace": 0.625,
+      "featuredRivalMs": 229494
+    },
+    {
+      "stage": "S23",
+      "mode": "normal",
+      "referenceMs": 201684,
+      "referenceCar": "V01",
+      "referenceBuild": "V01-G",
+      "factor": 1.0814,
+      "targetMs": 218101,
+      "featuredRivalPace": 0.6719,
+      "featuredRivalMs": 219527
+    },
+    {
+      "stage": "S24",
+      "mode": "normal",
+      "referenceMs": 147325,
+      "referenceCar": "V01",
+      "referenceBuild": "V01-G",
+      "factor": 1.0769,
+      "targetMs": 158654,
+      "featuredRivalPace": 0.7656,
+      "featuredRivalMs": 159321
+    },
+    {
+      "stage": "S25",
+      "mode": "normal",
+      "referenceMs": 178693,
+      "referenceCar": "V03",
+      "referenceBuild": "V03-G",
+      "factor": 1.0724,
+      "targetMs": 191630,
+      "featuredRivalPace": 0.7539,
+      "featuredRivalMs": 193284
+    },
+    {
+      "stage": "S26",
+      "mode": "normal",
+      "referenceMs": 242781,
+      "referenceCar": "V01",
+      "referenceBuild": "V01-G",
+      "factor": 1.0679,
+      "targetMs": 259266,
+      "featuredRivalPace": 0.6484,
+      "featuredRivalMs": 261110
+    },
+    {
+      "stage": "S27",
+      "mode": "normal",
+      "referenceMs": 254036,
+      "referenceCar": "V01",
+      "referenceBuild": "V01-G",
+      "factor": 1.0634,
+      "targetMs": 270142,
+      "featuredRivalPace": 0.7188,
+      "featuredRivalMs": 270638
+    },
+    {
+      "stage": "S28",
+      "mode": "normal",
+      "referenceMs": 201684,
+      "referenceCar": "V01",
+      "referenceBuild": "V01-G",
+      "factor": 1.059,
+      "targetMs": 213583,
+      "featuredRivalPace": 0.6797,
+      "featuredRivalMs": 214583
+    },
+    {
+      "stage": "S29",
+      "mode": "normal",
+      "referenceMs": 266701,
+      "referenceCar": "V01",
+      "referenceBuild": "V01-H",
+      "factor": 1.0545,
+      "targetMs": 281236,
+      "featuredRivalPace": 0.6562,
+      "featuredRivalMs": 282543,
+      "contracts": {
+        "entrySectorMs": 77611,
+        "arcDriftRaw": 1709,
+        "brakeExitMinKmh": 60.5,
+        "brakeExitMaxKmh": 83.9,
+        "brakeReleaseByMetres": 4837.8,
+        "horizonExitKmh": [
+          160.3,
+          176.0,
+          176.6
+        ]
+      }
+    },
+    {
+      "stage": "S30",
+      "mode": "normal",
+      "referenceMs": 297778,
+      "referenceCar": "V03",
+      "referenceBuild": "V03-H",
+      "factor": 1.05,
+      "targetMs": 312667,
+      "featuredRivalPace": 0.7031,
+      "featuredRivalMs": 313624
+    }
+  ]
+}

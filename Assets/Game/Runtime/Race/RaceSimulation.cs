@@ -39,6 +39,8 @@ namespace NightSignal.Race
         public int DriftWallsSeen, DriftSector = -1;
         /// <summary>How the last chain ended (banked or lost) — for the HUD.</summary>
         public ChainEnd LastChainEnd;
+        /// <summary>Four Signals measurements (S29's course; null elsewhere).</summary>
+        public ContractRun ContractRun;
         public bool Collides => Status == EntrantStatus.Racing || Status == EntrantStatus.Finished;
     }
 
@@ -57,6 +59,18 @@ namespace NightSignal.Race
         public long HardTimeoutMs;
         /// <summary>Lieutenant/penultimate/finale: a qualifying human must beat the featured live rival.</summary>
         public bool RequiresBeatingFeaturedRival;
+        /// <summary>
+        /// Featured rival's driving pace (speed-plan scale). 0 = from the certified benchmark in the content (1 when the stage
+        /// side has none); the certification run sets it while calibrating.
+        /// </summary>
+        public float FeaturedRivalPace;
+        /// <summary>
+        /// Benchmark certification only: allow live AI in a non-contact event (every car ghosted) so a rival's solo time can
+        /// be measured beside the reference car. No player-facing event sets it.
+        /// </summary>
+        public bool CalibrationGhosts;
+        /// <summary>Benchmark certification only: measure the Four Signals on their course outside a campaign event.</summary>
+        public bool MeasureContracts;
         /// <summary>dry | damp | wet — one grip rule for races and the Garage Test Yard (CourseRuntime.SurfaceGrip).</summary>
         public string Surface = "dry";
         /// <summary>Drift Attack (freeplay, or a drift Team Trial): finishers rank by banked raw drift score, not time.</summary>
@@ -87,6 +101,9 @@ namespace NightSignal.Race
         public bool ActiveProgressVerified;
         public bool ActivelyDroveLegalCourse;
         public float LegalProgressMetres;
+        /// <summary>S29 Four Signals: contracts passed (−1 when the event has none) and what failed.</summary>
+        public int ContractsPassed = -1;
+        public string ContractDetail = "";
         /// <summary>Finished ahead of the featured live rival, or the rival legally failed to finish (a tie does not beat).</summary>
         public bool BeatFeaturedRival;
         /// <summary>Banked raw drift score (whole points; every event reports it, drift formats rank by it).</summary>
@@ -147,11 +164,13 @@ namespace NightSignal.Race
             int vehicles = humans.Count + friendlyAi.Count + opposingAi.Count;
             if (vehicles > track.Grid.Length)
                 throw new InvalidOperationException($"the course has {track.Grid.Length} grid slots for {vehicles} vehicles");
-            if (rules.Contact == ContactPolicy.NonContact && friendlyAi.Count + opposingAi.Count > 0)
+            if (rules.Contact == ContactPolicy.NonContact && friendlyAi.Count + opposingAi.Count > 0 && !rules.CalibrationGhosts)
                 throw new InvalidOperationException("Time Attack (non-contact) has no live AI");
 
             var sim = new RaceSimulation(track, rules);
             ContentCatalogue cat = lib.Catalogue;
+            // Before the AI are placed: an S29 field drifts the Arc like the humans must.
+            sim.Contracts = ContractJudge.ForEvent(track, cat, rules.Kind, rules.StageId, rules.Mode, rules.MeasureContracts);
             int slot = 0, generic = 0;
             foreach (HumanSlot h in humans)
                 sim.Add(lib, world, slot++, h.EntrantId, h.DisplayName, true, h.CarId, "player", "driver", null, h.Spec, h.Build, h.Livery);
@@ -167,6 +186,14 @@ namespace NightSignal.Race
             return sim;
         }
 
+        /// <summary>The certified (or calibrating) pace for the featured rival of a campaign stage; 1 for everyone else.</summary>
+        float FeaturedPace(ContentCatalogue cat, string role)
+        {
+            if (role != "featured" || string.IsNullOrEmpty(Rules.StageId)) return 1f;
+            if (Rules.FeaturedRivalPace > 0f) return Rules.FeaturedRivalPace;
+            return cat.TryCertifiedBenchmark(Rules.StageId, Rules.Mode, out CertifiedBenchmark b) ? (float)b.FeaturedRivalPace : 1f;
+        }
+
         void AddAi(ContentCatalogue cat, ContentLibrary lib, IVehicleWorld world, int slot, string id, string team, string role, AiPlacementContext ctx, ref int generic)
         {
             RaceEntrant e;
@@ -174,7 +201,7 @@ namespace NightSignal.Race
             {
                 FinalRivals.Require(rival.Id, ctx, Rules.StageId, Rules.Mode);
                 e = Add(lib, world, slot, rival.Id, rival.Name, false, LegalCarFor(cat, rival.PrimaryCar, Rules.CarCapPi), team, role, null);
-                e.Ai = new RouteFollower(Track, e.Params, AiProfiles.For(rival, Rules.StageNumber)) { DriftZones = DriftZonesForAi, SurfaceGrip = CourseRuntime.SurfaceGrip(Rules.Surface) };
+                e.Ai = new RouteFollower(Track, e.Params, AiProfiles.For(rival, Rules.StageNumber, FeaturedPace(cat, role))) { DriftZones = DriftZonesForAi, SurfaceGrip = CourseRuntime.SurfaceGrip(Rules.Surface) };
             }
             else
             {
@@ -273,6 +300,7 @@ namespace NightSignal.Race
                 }
                 if (reset) e.StuckSeconds = e.OverturnedSeconds = 0f;
                 Drift.Step(e, reset, e.Progress.Finished);
+                Contracts?.Step(e, input, raceMicros, reset);
                 if (e.Progress.Finished)
                 {
                     e.Status = EntrantStatus.Finished;
@@ -305,7 +333,10 @@ namespace NightSignal.Race
         }
 
         /// <summary>In drift formats the AI drifts the judged zones like the humans must (null otherwise: race the line).</summary>
-        public IReadOnlyList<RouteGateDef> DriftZonesForAi => Rules.DriftRanking && Drift.Zones.Count > 0 ? Drift.Zones : null;
+        public IReadOnlyList<RouteGateDef> DriftZonesForAi => (Rules.DriftRanking || Contracts != null) && Drift.Zones.Count > 0 ? Drift.Zones : null;
+
+        /// <summary>S29 Four Signals judging on a course with the four contract sectors (null for other events).</summary>
+        public ContractJudge Contracts { get; private set; }
 
         static int GhostWindowTicks => Limits.ResetGhostMaxMs * VehicleSimulation.TickRate / 1000;
         /// <summary>Hold-to-reset duration (Addendum 03 §7.1: about 0.75 s, cancelled on release).</summary>
@@ -465,6 +496,12 @@ namespace NightSignal.Race
                     BeatFeaturedRival = e.Human && finished && rival != null && (!rivalFinished || e.Progress.FinishTimeMicros < rival.Progress.FinishTimeMicros),
                     RawDriftScore = DriftJudge.Reported(e),
                 });
+                if (Contracts != null && e.Human)
+                {
+                    ContractVerdict v = Contracts.Evaluate(e.ContractRun, finished, e.Progress.FinishTimeMicros / 1000, Rules.BenchmarkTargetMs);
+                    results[results.Count - 1].ContractsPassed = v.Passed;
+                    results[results.Count - 1].ContractDetail = v.Detail + (Contracts.Provisional ? " (provisional targets)" : "");
+                }
             }
             return results;
         }

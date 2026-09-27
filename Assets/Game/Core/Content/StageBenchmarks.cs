@@ -3,15 +3,33 @@ using NightSignal.Core.Rules;
 namespace NightSignal.Core.Content
 {
     /// <summary>
-    /// The benchmark locked into a campaign stage. The catalogue has no certified benchmarks yet (spec §2.5 needs legal
-    /// reference runs), so this derives a PROVISIONAL one from the course's authored ExpectedSeconds. Shared by the
-    /// control plane (online proposals and settlement) and the Local campaign so both judge a stage identically; it is
-    /// labelled provisional wherever it is shown.
+    /// The benchmark locked into a campaign stage: the CERTIFIED one when the certification run has produced it
+    /// (authored/stage-benchmarks.json — reference run P, target = factor × P), otherwise a PROVISIONAL one derived from the
+    /// course's authored ExpectedSeconds. Shared by the control plane (online proposals and settlement) and the Local
+    /// campaign so both judge a stage identically; a provisional target is labelled as such wherever it is shown.
     /// </summary>
     public static class StageBenchmarks
     {
         public const int HardTargetPercent = 95;
         public const long HardTimeoutMarginMs = 120_000;
+
+        public static StageBenchmark For(ContentCatalogue catalogue, StageDef stage, CampaignMode mode)
+        {
+            StageBenchmark b = Provisional(catalogue, stage, mode);
+            if (!catalogue.TryCertifiedBenchmark(stage.Id, mode, out CertifiedBenchmark c)) return b;
+            b.TargetTimeMs = c.TargetMs;
+            b.HardTimeoutMs = StageOutcome.SupportEnvelopeMs(c.TargetMs, mode) + HardTimeoutMarginMs;
+            return b;
+        }
+
+        public static bool IsCertified(ContentCatalogue catalogue, StageDef stage, CampaignMode mode) =>
+            catalogue.TryCertifiedBenchmark(stage.Id, mode, out CertifiedBenchmark _);
+
+        /// <summary>Where the target comes from, for settlement records and the UI.</summary>
+        public static string Source(ContentCatalogue catalogue, StageDef stage, CampaignMode mode) =>
+            catalogue.TryCertifiedBenchmark(stage.Id, mode, out CertifiedBenchmark c)
+                ? $"certified: {c.Factor:0.000} × reference {c.ReferenceMs} ms ({c.ReferenceCar} {c.ReferenceBuild}); {catalogue.BenchmarkMethod}"
+                : ProvisionalSource(catalogue, stage);
 
         public static StageBenchmark Provisional(ContentCatalogue catalogue, StageDef stage, CampaignMode mode)
         {

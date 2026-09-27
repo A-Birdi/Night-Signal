@@ -293,7 +293,9 @@ namespace NightSignal.Net
             autopilot = new RouteFollower(track, ownParams, DriverProfile.Validator)
             {
                 // Drift formats: the automation drifts the judged zones like a player would have to.
-                DriftZones = Info.FreeplayMode == "drift-attack" && new DriftJudge(track).Zones.Count > 0 ? new DriftJudge(track).Zones : null,
+                // Drift formats, and S29's Arc contract (a course with the four contract sectors), drift the judged zones.
+                DriftZones = (Info.FreeplayMode == "drift-attack" || track.Gates.Count(g => g.Kind == "contract") == 4) && new DriftJudge(track).Zones.Count > 0
+                    ? new DriftJudge(track).Zones : null,
                 ResetWhenStuck = true,
                 SurfaceGrip = CourseRuntime.SurfaceGrip(Info.Surface),
             };
