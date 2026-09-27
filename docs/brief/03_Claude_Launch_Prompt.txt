@@ -1,0 +1,134 @@
+NIGHT SIGNAL: MOUNTAIN CIRCUIT — FULL IMPLEMENTATION ASSIGNMENT
+
+Read 01_Night_Signal_Master_Specification.txt in full, including every
+appendix, and the optional structured Night_Signal_Content_Catalogue.json.
+They define a NEW project. Do not modify The Road of Borrowed Names,
+Ember Duel, or any other existing project.
+
+The master specification is the authoritative product brief. The JSON is
+an authoring aid, not proof that any content has been implemented. Report
+and resolve discrepancies explicitly; do not substitute a reduced summary.
+Make ordinary creative and engineering decisions within that brief without
+asking me to approve every step.
+
+This is a full-3D, Unity-first, real multiplayer arcade racing game.
+Multiplayer is mandatory. The release target is a Windows player plus the
+authoritative server/backend, not a single-file webpage. GitHub Pages is
+only an optional static client/landing-page deployment, not the server.
+A Web edition is secondary; do not build a second unrelated game engine.
+
+1. VERIFY THE ACTUAL NEW PROJECT AND TOOLS
+
+Inspect the selected repository and working tree. Preserve newer source
+if this assignment has already started. Verify the remote is this NEW
+project's repository; do not infer it from an old chat. If no new remote
+has been selected, identify the missing repository setup without editing
+another project. Keep relevant local work safe.
+
+Inspect the actual installed Unity version, Game project path, build
+modules, packages, editor/console state and available editor tools. Use
+Unity 6.3 LTS/URP as the intended baseline, with a supported pinned patch
+and compatible packages; do not upgrade unrelated projects.
+
+Confirm that Claude's workspace and the Unity editor refer to the SAME
+checkout. If a worktree is in use, report it and prevent a different
+editor from writing the parent copy. Use one editor/coordinator for scene,
+prefab, package and GUID changes.
+
+Use the already configured Unity MCP bridge or a genuinely executing
+editor-script/batch workflow. Prove scene/editor access through tool
+results and a scratch-scene/test/build check. File access alone is not
+editor access. Never claim Cloud can reach my local Unity just because
+this message mentions it. Do not expose local editor control publicly.
+
+Create and push an early source checkpoint to the authorized task branch.
+Verify its remote SHA. Check that necessary assets/LFS objects are also
+retrievable. Do not wait until a usage limit is near to preserve work.
+
+2. BUILD THE MULTIPLAYER CORE BEFORE MASS CONTENT
+
+Use the architecture and trust boundaries in the brief: a dedicated
+Unity authoritative simulation; a compact ASP.NET Core control service;
+Supabase Auth/PostgreSQL identity and durable records; client-side local
+prediction with authoritative reconciliation where required.
+
+Do not fabricate signup, readiness, player presence, races or rewards.
+Do not treat a browser peer, a convoy leader or a decoded token as a
+trusted authority. Persist currency/unlocks through idempotent server
+transactions. Never put administrative credentials in the client or repo.
+
+After a driving foundation, prove two independent network clients racing,
+finishing and receiving correct persistent results. Then prove six.
+A row of six player portraits or six bots in one process is not evidence.
+Continue through all implementation gates; these are checkpoints, not
+permission to stop at a vertical slice.
+
+The hard six-entrant cap includes live AI. Apply the explicit six-human
+campaign benchmark-replay rule; never create a hidden seventh opponent.
+Keep convoy leadership independent of game-server authority. Preserve
+mixed-progression stage eligibility, versioned ready checks, loading
+barriers, a shared start tick, disconnect/DQ rules, and independent menus.
+
+3. COMPLETE THE AUTHORED GAME
+
+Preserve all launch minimums: 26 distinct courses, 30 ordered Normal and
+30 Hard campaign stages, 48 individual rivals, 18 car models, 75 distinct
+challenges/rewards, and a 12-person instanced car meet separate from the
+six-person racing convoy. Implement actual course geometry, characters,
+animations, conditions and equippable rewards—not just named data rows.
+
+Follow the original Signal/Sector arcade UI direction, the designed
+handling/parts/economy system, the recorded-rival/ghost rules, the unique
+Hard finale, and the social meet's arrival/emote/inspection/departure
+behavior. Do not import the RPG's Folio style or its all-art-must-be-code
+restriction. Original reusable 3D assets are appropriate.
+
+The catalogue's route lengths, pacing numbers and handling constants
+identified as initial targets require measured tuning. Structural rules,
+unique-content counts, point totals, rewards and trust boundaries must
+not be silently reduced. Track real coverage and outstanding work.
+
+4. SAFE EXECUTION AND UNATTENDED CONTINUITY
+
+You may inspect and edit this project's source/assets, run existing
+permitted development tools and local tests, compile/build, and commit
+and push this task branch. Ordinary milestones are not approval gates.
+Give brief meaningful updates and continue while unblocked work remains.
+
+Ask for genuinely necessary system installations, credentials, paid
+assets/services, firewall changes, or public deployment authorization.
+Do not purchase usage, alter billing, change unrelated files, bypass
+safeguards, force-push, delete branches, merge main, or publish without
+approval. Do not substitute fake online behavior when a real credential
+or approved server endpoint is missing. Continue independent local work
+and report exactly what is blocked.
+
+Checkpoint at meaningful milestones and before risky or lengthy work;
+aim to keep no more than roughly 10–15 minutes of substantive unpushed
+work at safe boundaries. Update HANDOFF, REQUIREMENTS, VALIDATION and
+content/build manifests. Distinguish source, committed source, verified
+remote source, built artifacts, and actually tested revisions.
+
+On interruption or context compaction, recover current jobs/files/logs
+before retrying. Do not duplicate active builds or restart completed
+content. No invented automatic Cloud-to-Local failover.
+
+5. PROVE THE RESULT AND DELIVER
+
+Run the actual compiled game and real client/server tests. Use simulated
+network impairment, route/physics/economy invariants, account/reward retry
+tests, input/UI tests, and actual screenshots/videos from builds. Do not
+claim external-network, human handling, real-device performance or all-
+course quality verification from a content count or in-process bot run.
+
+A public internet multiplayer test remains necessary acceptance evidence;
+when approval or access is unavailable, record that precise blocked gate.
+Do not call the full release verified just because localhost works.
+
+Deliver the complete source/assets, playable Windows build, server builds
+and control/database setup, exact run instructions, versioned manifests,
+representative evidence, and an honest completion/limitations report.
+
+Start by reading the specification and verifying the actual project,
+editor connection and recovery pipeline. Then build, test, repair,
+checkpoint and continue through the complete assignment.

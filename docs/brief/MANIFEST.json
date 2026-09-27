@@ -1,0 +1,34 @@
+{
+  "00_READ_FIRST.md": {
+    "bytes": 3489,
+    "sha256": "d9f5fc57ef6c1af38b1289c230a78e5673abb54d1a9cd444427ce58967ccf225"
+  },
+  "01_Night_Signal_Master_Specification.md": {
+    "bytes": 176143,
+    "sha256": "5e2d0141dbf98c77815821f4e91ca408167602491b3e59ebe1c3c07dad79d149"
+  },
+  "01_Night_Signal_Master_Specification.txt": {
+    "bytes": 176143,
+    "sha256": "5e2d0141dbf98c77815821f4e91ca408167602491b3e59ebe1c3c07dad79d149"
+  },
+  "02_Unity_and_Claude_Setup.md": {
+    "bytes": 16588,
+    "sha256": "4ae482f4399b4f8ca2bcc469a6c38d301765b4804e56776cfab083eb4b979083"
+  },
+  "03_Claude_Launch_Prompt.txt": {
+    "bytes": 7180,
+    "sha256": "535734980b0074aa9b83bc5d03c642090a133790e7c8540cdb4959d3ba8db674"
+  },
+  "04_Resume_After_Interruption.txt": {
+    "bytes": 2623,
+    "sha256": "c81d148ec5f4bd586da34531943f1ba4866be5bbcf85f17eea838a5244ee9887"
+  },
+  "05_Brief_Consistency_Check.json": {
+    "bytes": 1261,
+    "sha256": "9f35c923820d1f002d11dfdb36e8b6035b5614d842479a6220b30c57511970f6"
+  },
+  "Night_Signal_Content_Catalogue.json": {
+    "bytes": 100957,
+    "sha256": "45fb1a45d69fde63bbb719421b2270f811def4c092f9c8c4a4cee8128e183e2b"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "status": "Static consistency checks of the AUTHORING BRIEF only; no game or Unity runtime has been created or tested.",
+  "master_word_count_whitespace": 24987,
+  "counts": {
+    "courses": 26,
+    "regular_courses": 24,
+    "cars": 18,
+    "rivals": 48,
+    "crews": 6,
+    "driving_tendencies": 19,
+    "stages_per_mode": 30,
+    "challenges": 75,
+    "unique_cosmetic_rewards": 75
+  },
+  "stage_type_counts": {
+    "regular": 24,
+    "lieutenant": 4,
+    "penultimate": 1,
+    "finale": 1
+  },
+  "challenge_tiers": {
+    "Bronze": 25,
+    "Silver": 25,
+    "Gold": 25
+  },
+  "rank_budget": {
+    "normal": 3000,
+    "hard": 6000,
+    "challenges": 6000,
+    "total": 15000
+  },
+  "checks_passed": [
+    "Unique IDs and reward names",
+    "All stage and rival references resolve",
+    "All 24 regular courses used",
+    "Fixed final rivals R40/R48",
+    "Nineteen roster driving tendencies",
+    "Closed-loop net elevation zero",
+    "Challenge tiers balanced",
+    "Rank arithmetic exact",
+    "Appendix references corrected"
+  ],
+  "not_tested": [
+    "Unity editor integration",
+    "Source compilation",
+    "Multiplayer networking",
+    "Gameplay",
+    "Assets",
+    "Auth or database configuration",
+    "Balance and challenge achievability"
+  ]
+}

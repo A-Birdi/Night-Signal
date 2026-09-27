@@ -1,0 +1,79 @@
+NIGHT SIGNAL — APPROVE SETUP DECISIONS AND START THE EXISTING ASSIGNMENT
+
+Your read-only preflight is complete. I approve the setup decisions and bounded changes below. This message supersedes the earlier request to stop after inspection; it does not replace or reduce the master game specification.
+
+Use the original Night Signal Unity checkout:
+<project root: this repository>
+
+Repository: A-Birdi/Night-Signal
+Preferred development branch: dev/night-signal
+
+Keep personal absolute paths, credentials, and account screenshots out of public commits and logs. Use project-relative paths in committed documentation.
+
+1. PRESERVE THE EXISTING CHECKOUT AND PROVE A PUSH
+
+Briefly recheck the actual branch, HEAD, working-tree changes, remote, and responding Unity project before writing. Do not repeat the entire audit unless the environment has changed. The earlier 7a5e268 commit is a historical observation, not a reset target.
+
+Create dev/night-signal from the actual current HEAD in this SAME working directory, preserving all existing changes. Do not create a worktree, move the project, open a different Unity project, or write changes to main. If that branch already exists locally or remotely, inspect it and preserve any newer work before selecting it. Do not reset or force-switch to resolve a mismatch.
+
+Review and preserve the current legitimate setup changes, including package manifests/lockfiles and the inspected deletion of Unity's temporary package-resolution helper and its corresponding metadata. Check untracked settings and other files before staging. Do not blindly add the whole directory or expose private configuration.
+
+Make a baseline setup commit BEFORE removing optional packages or changing the render-pipeline fallback. Push to the development branch, setting its upstream with the equivalent of:
+
+git push -u origin dev/night-signal
+
+Verify the remote branch SHA matches the intended local commit. A fetch, a dry run, or an up-to-date main branch is not proof that this new checkpoint was uploaded. If authentication or repository permissions require my involvement, report the exact action needed instead of repeatedly retrying or changing credentials.
+
+2. ADOPT THE EXISTING EDITOR VERSION
+
+Use Unity 6000.6.3f1 as this project's approved editor baseline. This explicitly overrides the earlier proposal to use Unity 6.3 LTS; all other requirements remain binding.
+
+Record this decision in a concise project baseline/decision document and make CLAUDE.md and the development instructions point to it. Preserve the original master specification rather than silently rewriting it. Keep ProjectVersion.txt consistent with the editor actually used.
+
+Do not downgrade, recreate the project, automatically upgrade Unity, or replace installed core packages merely to satisfy older example versions. Keep the currently working MCP for Unity 10.0.0 connection unless a demonstrated incompatibility requires a separately justified change. Verify new required packages against the actual editor as they are introduced.
+
+3. MAKE THE URP FALLBACK EXPLICIT
+
+Assign the existing Assets/Settings/PC_RPAsset.asset as the Graphics Settings default render-pipeline asset, after verifying it is the intended URP asset.
+
+Preserve the existing PC and Mobile Quality-level overrides, renderer features, Linear color space, materials, and other unrelated project settings. Use supported Unity APIs or editor operations, not a guessed GUID or a replacement pipeline asset.
+
+Verify the active pipeline still uses the intended asset and that the scene renders correctly after the change.
+
+4. REMOVE UNUSED OPTIONAL AI TOOLS CAREFULLY
+
+I do not want to purchase or depend on Unity's separate AI subscription for this workflow.
+
+Inspect dependency relationships and actual project usage before removal. Remove com.unity.ai.assistant through supported Package Manager operations if it is unused and can be removed without breaking the required editor bridge or project functionality.
+
+For com.unity.pipeline, remove it ONLY if inspection establishes that it is an unused optional dependency and no retained required package or feature needs it. Otherwise retain it and explain the dependency briefly. Do not confuse it with or remove com.unity.render-pipelines.universal, render-pipeline core dependencies, the Input System, test tooling, or MCP for Unity.
+
+Let Package Manager resolve the lockfile normally. Do not manually delete package-cache directories, force incompatible dependencies, remove all prerelease packages indiscriminately, or suppress errors to make the console look clean.
+
+Preserve unrelated Unity Cloud project links and settings. The historical "Claude CLI not found" entry is not a reason to tear down a connection that is demonstrably responding. Recheck the live connection after package resolution and record any genuinely new errors separately from earlier console entries.
+
+5. COMPLETE AN ACTUAL EDITOR/BUILD SMOKE TEST
+
+Once package resolution and compilation finish, confirm that Unity MCP still responds from this exact checkout. Preserve any dirty scene before opening another one; do not silently discard or overwrite it.
+
+Use a dedicated project-local verification scene or test asset to prove supported editor writes, capture an actual rendered image, and run a small meaningful EditMode or PlayMode test. Build and launch a minimal Windows development player if the necessary modules are installed. Keep build output under the existing ignored build directory.
+
+Do not run a second Unity editor process against this same open project for batch-mode testing. Use the connected editor or another explicitly safe method. State missing modules or authorizations accurately; do not label an unexecuted player build successful.
+
+Document real results, then commit the reviewed setup changes and verify a second remote push. Keep Git LFS configured; once genuine LFS-managed assets are introduced, verify their objects are uploaded and retrievable, not merely that Git pointer files were committed. Do not create dummy large assets or rewrite history just to test LFS now.
+
+6. CONTINUE INTO THE COMPLETE GAME ASSIGNMENT
+
+Read the ENTIRE attached 01_Night_Signal_Master_Specification.txt and its appendices, together with the existing launch instructions and any later explicit user decisions. Preserve a complete copy in the repository, alongside this setup decision with personal paths redacted.
+
+After the setup checkpoint and required checks succeed, give one brief update with the branch, verified pushed SHA, editor/pipeline versions, connection status, tests actually executed, and any genuine limitations. This is a progress update, not another routine approval gate. Then begin the full existing implementation assignment.
+
+Keep all gameplay, campaign, social, content, art, economy, and validation requirements binding. Multiplayer remains mandatory. Prove a working authoritative server and independent clients early, then scale to the specified six-player races. A production slice, catalogue, editor screenshot, or source-only prototype is not the final game.
+
+If a required document is genuinely absent, finish the safe setup work and request that exact missing document rather than inventing a reduced specification. If a later backend credential, system installation, paid operation, or public exposure needs authorization, identify it clearly and continue independent safe work where possible. Do not fake network or account functionality.
+
+Keep meaningful source checkpoints and verified pushes throughout development, maintain HANDOFF.md, REQUIREMENTS.md, and VALIDATION.md, and preserve interrupted operations before retrying. Tests and builds need their actual revision recorded.
+
+No purchases, billing changes, public deployment, repository-visibility changes, main merges, force-pushes, branch deletion, new worktrees, public editor-control endpoints, or unrelated-project changes are authorized. Normal platform permissions still apply.
+
+Execute the approved setup work, verify the recovery path, and then proceed with the complete master assignment while unblocked work and authorized usage remain.

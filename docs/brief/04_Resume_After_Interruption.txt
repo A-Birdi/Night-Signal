@@ -1,0 +1,47 @@
+NIGHT SIGNAL — CONTINUE THE EXISTING ASSIGNMENT
+
+My available usage has resumed. Continue the EXISTING Night Signal:
+Mountain Circuit assignment from its newest recoverable state. This is
+interruption recovery, not a fresh game, a restart, or a release-only task.
+
+Inspect the actual repository/branch/HEAD, staged/unstaged/untracked work,
+newer remote changes, editor/worktree path, relevant running jobs and the
+last operation's real output. Preserve newer work. Determine whether the
+interrupted action finished, failed, remains active, or has an unknown
+outcome before rerunning it. Do not duplicate builds, editors or writers.
+
+Read the full master specification and current CLAUDE/HANDOFF/REQUIREMENTS/
+VALIDATION/content/build records. An old document saying a prototype is
+complete is not authority to stop the larger assignment. Resume the next
+unfinished task in the current gate; do not redo validated stages.
+
+The entire original scope remains active: real 1–6-human network racing,
+authoritative results/persistence, convoy and readiness lifecycle, social
+car meets, customization/economy, all 26 courses, 48 rivals, 18 vehicles,
+30 Normal/30 Hard stages, all 75 challenges and cosmetic rewards, distinct
+arcade art/UI/audio, complete integration and validation.
+
+Keep the cap at six active entrants including live AI; retain the explicit
+full-convoy benchmark-replay rule. Preserve progression restrictions,
+finite 15,000 RP budget, player records, authentic account handling and
+server-owned transactions. Do not shrink content to fit a context window.
+
+Verify the Unity editor is operating on this actual checkout before any
+scene/prefab changes. A Cloud session does not inherit my local editor.
+Use one coordinator; integrate worker results before claiming preservation.
+
+Continue meaningful commits and verified remote pushes. Update exact
+unfinished work, executed tests and tested revisions in the handoff.
+Preserve source and necessary assets, not merely compiled binaries.
+
+Give one brief recovery update with branch/HEAD, latest recovered work,
+last-operation status and next action; then continue immediately. Routine
+milestones are not approval gates. Do not stop at a plan or progress report
+while unblocked assigned work remains.
+
+Normal safety/permission controls still apply. No billing changes, paid
+services, public deployments, main merges, force-pushes, unrelated-file
+changes or automatic-failover claims. If a genuine blocker/limit prevents
+work, preserve the latest state and report the exact next safe step.
+
+Recover the current implementation and finish the remaining assignment.

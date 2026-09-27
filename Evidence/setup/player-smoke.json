@@ -1,0 +1,19 @@
+{
+    "status": "rendered",
+    "unityVersion": "6000.6.3f1",
+    "platform": "WindowsPlayer",
+    "developmentBuild": true,
+    "renderPipelineType": "UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset",
+    "renderPipelineAsset": "PC_RPAsset",
+    "graphicsDevice": "Direct3D11",
+    "colorSpace": "Linear",
+    "screenWidth": 1280,
+    "screenHeight": 720,
+    "framesRendered": 180,
+    "elapsedSeconds": 4.487475872039795,
+    "averageFps": 40.111637115478516,
+    "nonBlackPixelFraction": 1.0,
+    "spinDegrees": 109.13966369628906,
+    "screenshotFile": "player-smoke.png",
+    "utcFinished": "2026-09-27T02:12:14.1676490Z"
+}
