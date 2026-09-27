@@ -1,0 +1,251 @@
+NIGHT-SIGNAL-LOCAL-SAVE 1 sha256=cfc1b6b4573e4c21689dd7ae926034c6d1278c3b78a74a31ce408aeb28983b1e bytes=10034 schemaVersion=2 revision=7 profile=lp_719eb08d0cb14bb9
+{
+  "schema": "night-signal/local-profile@1",
+  "schemaVersion": 2,
+  "domain": "local",
+  "profileId": "lp_719eb08d0cb14bb9",
+  "displayName": "Livery Driver",
+  "card": {
+    "avatarId": "",
+    "backgroundId": "",
+    "frameId": "",
+    "motifId": "",
+    "titleId": ""
+  },
+  "createdUtc": "2026-09-27T12:11:08.3244798Z",
+  "updatedUtc": "2026-09-27T12:12:03.3656694Z",
+  "revision": 7,
+  "contentHash": "5065000bb14295828f4b15d167e2f61aa50c115ed48431a580e9619c70822a26",
+  "walletBalance": 12000,
+  "walletHistory": [
+    {
+      "utc": "2026-09-27T12:11:08.3244798Z",
+      "kind": "starter",
+      "reference": "V01",
+      "amount": 12000,
+      "applied": 12000,
+      "clampedAway": 0,
+      "balanceAfter": 12000
+    }
+  ],
+  "starterCarModelId": "V01",
+  "cars": [
+    {
+      "instanceId": "ci_bfbdb199e0ee0bf0",
+      "modelId": "V01",
+      "source": "starter",
+      "sourceReference": "starter-choice",
+      "pricePaid": 0,
+      "acquiredUtc": "2026-09-27T12:11:08.3244798Z",
+      "workspace": {
+        "mechanicalLoadouts": [],
+        "visualPresets": [
+          {
+            "slotId": "vp-748e17d8e51b",
+            "name": "Livery 1",
+            "document": {
+              "schema": "night-signal/visual-preset",
+              "schemaVersion": 1,
+              "updatedUtc": "2026-09-27T12:11:48.0269783Z",
+              "data": {
+                "PresetId": "vp-748e17d8e51b",
+                "Name": "Livery 1",
+                "PayloadSchema": "night-signal/livery@1",
+                "PayloadJson": "{\"schema\":\"night-signal/livery@1\",\"car\":\"V01\",\"body\":{\"front\":\"aero\",\"rear\":\"diffuser\",\"side\":\"skirt\",\"rearAero\":\"wing\",\"exhaust\":\"dual\"},\"wheels\":{\"rim\":\"R08\",\"diameterIn\":16,\"offsetStep\":1,\"finish\":\"bronze\"},\"paint\":{\"primary\":\"#1F4E8C\",\"secondary\":\"#111111\",\"accent\":\"#2A2C31\",\"finish\":\"pearl\",\"twoTone\":\"lower\",\"swatch\":\"\"},\"lamps\":{\"head\":\"amber\",\"tail\":\"clear\"},\"glass\":\"light\",\"plate\":{\"text\":\"NS 24\",\"style\":\"night\"},\"decals\":[{\"shape\":\"stripe\",\"color\":\"#141518\",\"zone\":\"left\",\"u\":0.5,\"v\":0.5,\"scale\":0.7,\"rotationDeg\":0,\"opacity\":1,\"mirror\":true,\"flip\":false},{\"shape\":\"num-0\",\"color\":\"#141518\",\"zone\":\"hood\",\"u\":0.5,\"v\":0.5,\"scale\":0.35,\"rotationDeg\":0,\"opacity\":1,\"mirror\":false,\"flip\":false}]}",
+                "UpdatedUtc": "2026-09-27T12:11:48.0269783Z"
+              }
+            }
+          },
+          {
+            "slotId": "vp-c566a57a193c",
+            "name": "Livery 2",
+            "document": {
+              "schema": "night-signal/visual-preset",
+              "schemaVersion": 1,
+              "updatedUtc": "2026-09-27T12:11:50.8823816Z",
+              "data": {
+                "PresetId": "vp-c566a57a193c",
+                "Name": "Livery 2",
+                "PayloadSchema": "night-signal/livery@1",
+                "PayloadJson": "{\"schema\":\"night-signal/livery@1\",\"car\":\"V01\",\"body\":{\"front\":\"aero\",\"rear\":\"diffuser\",\"side\":\"skirt\",\"rearAero\":\"wing\",\"exhaust\":\"dual\"},\"wheels\":{\"rim\":\"R08\",\"diameterIn\":16,\"offsetStep\":1,\"finish\":\"bronze\"},\"paint\":{\"primary\":\"#141518\",\"secondary\":\"#111111\",\"accent\":\"#2A2C31\",\"finish\":\"gloss\",\"twoTone\":\"lower\",\"swatch\":\"P-ASPHALT-BLACK\"},\"lamps\":{\"head\":\"amber\",\"tail\":\"clear\"},\"glass\":\"light\",\"plate\":{\"text\":\"NS 24\",\"style\":\"night\"},\"decals\":[{\"shape\":\"stripe\",\"color\":\"#141518\",\"zone\":\"left\",\"u\":0.5,\"v\":0.5,\"scale\":0.7,\"rotationDeg\":0,\"opacity\":1,\"mirror\":true,\"flip\":false},{\"shape\":\"num-0\",\"color\":\"#141518\",\"zone\":\"hood\",\"u\":0.5,\"v\":0.5,\"scale\":0.35,\"rotationDeg\":0,\"opacity\":1,\"mirror\":false,\"flip\":false}]}",
+                "UpdatedUtc": "2026-09-27T12:11:50.8823816Z"
+              }
+            }
+          }
+        ],
+        "references": {
+          "before-workshop": {
+            "schema": "night-signal/build-reference",
+            "schemaVersion": 1,
+            "updatedUtc": "2026-09-27T12:11:09.6425793Z",
+            "data": {
+              "Kind": "before-workshop",
+              "Build": {
+                "Parts": {},
+                "UtilityPartId": null,
+                "Tuning": {
+                  "Version": 1,
+                  "Values": {}
+                }
+              },
+              "SourceAppliedRevision": 1,
+              "BuildHash": "c12c2bea1a67beec8cbd71371869c27ec6c5969622c36b1c1f05a8d1b588e630",
+              "Pi": 220,
+              "HandlingModelVersion": "hm-1",
+              "PartsCatalogueRevision": 1,
+              "CapturedUtc": "2026-09-27T12:11:09.6425793Z",
+              "Context": ""
+            }
+          },
+          "last-race-build": {
+            "schema": "night-signal/build-reference",
+            "schemaVersion": 1,
+            "updatedUtc": "2026-09-27T12:12:03.3600473Z",
+            "data": {
+              "Kind": "last-race-build",
+              "Build": {
+                "Parts": {},
+                "UtilityPartId": null,
+                "Tuning": {
+                  "Version": 1,
+                  "Values": {}
+                }
+              },
+              "SourceAppliedRevision": 1,
+              "BuildHash": "c12c2bea1a67beec8cbd71371869c27ec6c5969622c36b1c1f05a8d1b588e630",
+              "Pi": 220,
+              "HandlingModelVersion": "hm-1",
+              "PartsCatalogueRevision": 1,
+              "CapturedUtc": "2026-09-27T12:12:03.3600473Z",
+              "Context": "le-96d7510596b947d8aa39"
+            }
+          }
+        },
+        "appliedBuild": {
+          "schema": "night-signal/applied-build",
+          "schemaVersion": 1,
+          "updatedUtc": "2026-09-27T12:11:09.6369091Z",
+          "data": {
+            "Revision": 1,
+            "Build": {
+              "Parts": {},
+              "UtilityPartId": null,
+              "Tuning": {
+                "Version": 1,
+                "Values": {}
+              }
+            },
+            "BuildHash": "c12c2bea1a67beec8cbd71371869c27ec6c5969622c36b1c1f05a8d1b588e630",
+            "Pi": 220,
+            "PiClass": "D",
+            "HandlingModelVersion": "hm-1",
+            "PartsCatalogueRevision": 1,
+            "AppliedUtc": "2026-09-27T12:11:09.6369091Z",
+            "Source": "initial"
+          }
+        },
+        "garageDraft": null,
+        "workspaceState": {
+          "schema": "night-signal/car-build-workspace-state",
+          "schemaVersion": 1,
+          "updatedUtc": "0001-01-01T00:00:00Z",
+          "data": {
+            "instanceId": "ci_bfbdb199e0ee0bf0",
+            "modelId": "V01",
+            "revision": 7,
+            "loadoutCapacity": 8,
+            "visualPresetCapacity": 5,
+            "appliedVisualPresetId": "",
+            "appliedLiveryHash": "7570c3b807c5a130a1fba4545cea635168cb515d576e007d9c4354f82f41cc75",
+            "appliedLivery": "{\"schema\":\"night-signal/livery@1\",\"car\":\"V01\",\"body\":{\"front\":\"aero\",\"rear\":\"diffuser\",\"side\":\"skirt\",\"rearAero\":\"wing\",\"exhaust\":\"dual\"},\"wheels\":{\"rim\":\"R08\",\"diameterIn\":16,\"offsetStep\":1,\"finish\":\"bronze\"},\"paint\":{\"primary\":\"#1F4E8C\",\"secondary\":\"#111111\",\"accent\":\"#2A2C31\",\"finish\":\"pearl\",\"twoTone\":\"lower\",\"swatch\":\"\"},\"lamps\":{\"head\":\"amber\",\"tail\":\"clear\"},\"glass\":\"light\",\"plate\":{\"text\":\"NS 24\",\"style\":\"night\"},\"decals\":[{\"shape\":\"stripe\",\"color\":\"#141518\",\"zone\":\"left\",\"u\":0.5,\"v\":0.5,\"scale\":0.7,\"rotationDeg\":0,\"opacity\":1,\"mirror\":true,\"flip\":false},{\"shape\":\"num-0\",\"color\":\"#141518\",\"zone\":\"hood\",\"u\":0.5,\"v\":0.5,\"scale\":0.35,\"rotationDeg\":0,\"opacity\":1,\"mirror\":false,\"flip\":false}]}",
+            "workshopOpen": false,
+            "workshopOpenedUtc": "0001-01-01T00:00:00Z"
+          }
+        }
+      },
+      "parts": []
+    }
+  ],
+  "unassignedParts": [],
+  "courses": [],
+  "campaign": {
+    "normal": [],
+    "hard": []
+  },
+  "challenges": [],
+  "cosmetics": [],
+  "music": [
+    {
+      "cueId": "MUS_TITLE",
+      "sourceKind": "baseline",
+      "sourceRef": "",
+      "eventId": "",
+      "unlockedUtc": "2026-09-27T12:11:08.3244798Z"
+    },
+    {
+      "cueId": "MUS_MENU_A",
+      "sourceKind": "baseline",
+      "sourceRef": "",
+      "eventId": "",
+      "unlockedUtc": "2026-09-27T12:11:08.3244798Z"
+    },
+    {
+      "cueId": "MUS_MENU_B",
+      "sourceKind": "baseline",
+      "sourceRef": "",
+      "eventId": "",
+      "unlockedUtc": "2026-09-27T12:11:08.3244798Z"
+    },
+    {
+      "cueId": "MUS_GARAGE",
+      "sourceKind": "baseline",
+      "sourceRef": "",
+      "eventId": "",
+      "unlockedUtc": "2026-09-27T12:11:08.3244798Z"
+    },
+    {
+      "cueId": "MUS_MEET",
+      "sourceKind": "baseline",
+      "sourceRef": "",
+      "eventId": "",
+      "unlockedUtc": "2026-09-27T12:11:08.3244798Z"
+    },
+    {
+      "cueId": "MUS_TUTORIAL",
+      "sourceKind": "baseline",
+      "sourceRef": "",
+      "eventId": "",
+      "unlockedUtc": "2026-09-27T12:11:08.3244798Z"
+    },
+    {
+      "cueId": "MUS_RESULTS_WIN",
+      "sourceKind": "baseline",
+      "sourceRef": "",
+      "eventId": "",
+      "unlockedUtc": "2026-09-27T12:11:08.3244798Z"
+    },
+    {
+      "cueId": "MUS_RESULTS_LOSS",
+      "sourceKind": "baseline",
+      "sourceRef": "",
+      "eventId": "",
+      "unlockedUtc": "2026-09-27T12:11:08.3244798Z"
+    }
+  ],
+  "records": {
+    "domain": "local",
+    "entries": [],
+    "archived": [],
+    "pending": [],
+    "attempts": []
+  },
+  "tutorial": {
+    "completed": false,
+    "completedUtc": null
+  },
+  "appliedOperations": [],
+  "toys": {
+    "activityDomain": "non-progression",
+    "documents": {}
+  }
+}

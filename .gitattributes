@@ -169,3 +169,6 @@ Packages/packages-lock.json linguist-generated
 
 # Exceptions for .asset files such as lightning pre-baking
 LightingData.asset     binary
+
+# Local profile saves carry a SHA-256 of their exact bytes (pre-Addendum-03 migration fixtures)
+*.nsave                 binary

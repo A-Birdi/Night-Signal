@@ -1,0 +1,217 @@
+NIGHT-SIGNAL-LOCAL-SAVE 1 sha256=56d35519ba065aaf16be066598a641ed71737a762e325c335e61f05c6d10a168 bytes=6023 schemaVersion=2 revision=4 profile=lp_5edc3b5163d4a57a
+{
+  "schema": "night-signal/local-profile@1",
+  "schemaVersion": 2,
+  "domain": "local",
+  "profileId": "lp_5edc3b5163d4a57a",
+  "displayName": "Yard Driver",
+  "card": {
+    "avatarId": "",
+    "backgroundId": "",
+    "frameId": "",
+    "motifId": "",
+    "titleId": ""
+  },
+  "createdUtc": "2026-09-27T10:58:31.6906832Z",
+  "updatedUtc": "2026-09-27T10:59:43.4015779Z",
+  "revision": 4,
+  "contentHash": "5065000bb14295828f4b15d167e2f61aa50c115ed48431a580e9619c70822a26",
+  "walletBalance": 12000,
+  "walletHistory": [
+    {
+      "utc": "2026-09-27T10:58:31.6906832Z",
+      "kind": "starter",
+      "reference": "V01",
+      "amount": 12000,
+      "applied": 12000,
+      "clampedAway": 0,
+      "balanceAfter": 12000
+    }
+  ],
+  "starterCarModelId": "V01",
+  "cars": [
+    {
+      "instanceId": "ci_d942bd9171b656a6",
+      "modelId": "V01",
+      "source": "starter",
+      "sourceReference": "starter-choice",
+      "pricePaid": 0,
+      "acquiredUtc": "2026-09-27T10:58:31.6906832Z",
+      "workspace": {
+        "mechanicalLoadouts": [],
+        "visualPresets": [],
+        "references": {
+          "before-workshop": {
+            "schema": "night-signal/build-reference",
+            "schemaVersion": 1,
+            "updatedUtc": "2026-09-27T10:58:33.008784Z",
+            "data": {
+              "Kind": "before-workshop",
+              "Build": {
+                "Parts": {},
+                "UtilityPartId": null,
+                "Tuning": {
+                  "Version": 1,
+                  "Values": {}
+                }
+              },
+              "SourceAppliedRevision": 1,
+              "BuildHash": "c12c2bea1a67beec8cbd71371869c27ec6c5969622c36b1c1f05a8d1b588e630",
+              "Pi": 220,
+              "HandlingModelVersion": "hm-1",
+              "PartsCatalogueRevision": 1,
+              "CapturedUtc": "2026-09-27T10:58:33.008784Z",
+              "Context": ""
+            }
+          }
+        },
+        "appliedBuild": {
+          "schema": "night-signal/applied-build",
+          "schemaVersion": 1,
+          "updatedUtc": "2026-09-27T10:58:33.0047141Z",
+          "data": {
+            "Revision": 1,
+            "Build": {
+              "Parts": {},
+              "UtilityPartId": null,
+              "Tuning": {
+                "Version": 1,
+                "Values": {}
+              }
+            },
+            "BuildHash": "c12c2bea1a67beec8cbd71371869c27ec6c5969622c36b1c1f05a8d1b588e630",
+            "Pi": 220,
+            "PiClass": "D",
+            "HandlingModelVersion": "hm-1",
+            "PartsCatalogueRevision": 1,
+            "AppliedUtc": "2026-09-27T10:58:33.0047141Z",
+            "Source": "initial"
+          }
+        },
+        "garageDraft": {
+          "schema": "night-signal/garage-draft",
+          "schemaVersion": 1,
+          "updatedUtc": "2026-09-27T10:58:34.8919914Z",
+          "data": {
+            "Build": {
+              "Parts": {
+                "tyres": "TYR-T1-STREET"
+              },
+              "UtilityPartId": null,
+              "Tuning": {
+                "Version": 1,
+                "Values": {}
+              }
+            },
+            "LoadedFrom": "edit",
+            "BasedOnAppliedRevision": 1,
+            "PreviewPartIds": [
+              "TYR-T1-STREET"
+            ],
+            "UnresolvedPartIds": [],
+            "UpdatedUtc": "2026-09-27T10:58:34.8919914Z"
+          }
+        },
+        "workspaceState": {
+          "schema": "night-signal/car-build-workspace-state",
+          "schemaVersion": 1,
+          "updatedUtc": "0001-01-01T00:00:00Z",
+          "data": {
+            "instanceId": "ci_d942bd9171b656a6",
+            "modelId": "V01",
+            "revision": 4,
+            "loadoutCapacity": 8,
+            "visualPresetCapacity": 5,
+            "appliedVisualPresetId": "",
+            "appliedLiveryHash": "",
+            "workshopOpen": false,
+            "workshopOpenedUtc": "0001-01-01T00:00:00Z"
+          }
+        }
+      },
+      "parts": []
+    }
+  ],
+  "unassignedParts": [],
+  "courses": [],
+  "campaign": {
+    "normal": [],
+    "hard": []
+  },
+  "challenges": [],
+  "cosmetics": [],
+  "music": [
+    {
+      "cueId": "MUS_TITLE",
+      "sourceKind": "baseline",
+      "sourceRef": "",
+      "eventId": "",
+      "unlockedUtc": "2026-09-27T10:58:31.6906832Z"
+    },
+    {
+      "cueId": "MUS_MENU_A",
+      "sourceKind": "baseline",
+      "sourceRef": "",
+      "eventId": "",
+      "unlockedUtc": "2026-09-27T10:58:31.6906832Z"
+    },
+    {
+      "cueId": "MUS_MENU_B",
+      "sourceKind": "baseline",
+      "sourceRef": "",
+      "eventId": "",
+      "unlockedUtc": "2026-09-27T10:58:31.6906832Z"
+    },
+    {
+      "cueId": "MUS_GARAGE",
+      "sourceKind": "baseline",
+      "sourceRef": "",
+      "eventId": "",
+      "unlockedUtc": "2026-09-27T10:58:31.6906832Z"
+    },
+    {
+      "cueId": "MUS_MEET",
+      "sourceKind": "baseline",
+      "sourceRef": "",
+      "eventId": "",
+      "unlockedUtc": "2026-09-27T10:58:31.6906832Z"
+    },
+    {
+      "cueId": "MUS_TUTORIAL",
+      "sourceKind": "baseline",
+      "sourceRef": "",
+      "eventId": "",
+      "unlockedUtc": "2026-09-27T10:58:31.6906832Z"
+    },
+    {
+      "cueId": "MUS_RESULTS_WIN",
+      "sourceKind": "baseline",
+      "sourceRef": "",
+      "eventId": "",
+      "unlockedUtc": "2026-09-27T10:58:31.6906832Z"
+    },
+    {
+      "cueId": "MUS_RESULTS_LOSS",
+      "sourceKind": "baseline",
+      "sourceRef": "",
+      "eventId": "",
+      "unlockedUtc": "2026-09-27T10:58:31.6906832Z"
+    }
+  ],
+  "records": {
+    "domain": "local",
+    "entries": [],
+    "archived": [],
+    "pending": [],
+    "attempts": []
+  },
+  "tutorial": {
+    "completed": false,
+    "completedUtc": null
+  },
+  "appliedOperations": [],
+  "toys": {
+    "activityDomain": "non-progression",
+    "documents": {}
+  }
+}

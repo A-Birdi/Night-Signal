@@ -1002,3 +1002,25 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   form — the check was wrong, not the game.)
 - Seen on the way (not fixed here): a decal scaled up in an earlier tour renders as a flat quad that leaves the body and
   crosses the windscreen/pillar, in the Appearance preview and on the race car.
+
+## V-063 — Migration: pre-Addendum-03 Local saves and record versions (I02/I03 report) (2026-09-27)
+- Revision: working tree on `3dbcf05` (committed in the next checkpoint). EditMode **241/241**.
+- **What Addendum 03 changed in persisted data:** Local profile schema unchanged (`local-profile@1`, schema version 2 —
+  no profile-code change since the addendum arrived); driving presentation and control bindings live in a separate
+  `driving.json` (defaults when absent or corrupt — `InstrumentTests`, `ControlsTests`); records are keyed by
+  `ScoringVersion` (`classify-1` → `classify-2`), physics version and route revision, and route revisions were bumped
+  for every course whose geometry changed (tunnels, bridges, relief pass — V-049/V-051/V-053/V-055). Control plane: no
+  code or schema change since the addendum arrived (`git log b42abc9..HEAD -- Services` is empty), so online profiles,
+  receipts and settlement are untouched by construction.
+- **I02 — real old saves:** `ProfileMigrationTests` loads two saves written by the built game's isolated automation
+  tours before the first Addendum 03 commit (Test Yard 06:59, Appearance 08:11; committed as fixtures, marked binary so
+  their SHA-256 survives checkout): header, checksum and schema accepted, `Loaded` (not recovered, nothing to migrate),
+  `Validate()` clean, starter car owned; saved again by this build and reloaded, and wallet + history, starter, cars
+  (frozen builds, applied livery), parts, courses, campaign, challenges, cosmetics, music, records and tutorial are
+  identical data — **pass**. Records from before the addendum: `RecordVersionTests` (V-054) — a `classify-1` best
+  survives a round trip, is shown as legacy for the same event under `classify-2`, never compared, never erased.
+- **I03:** geometry/progress-rule changes bump route revisions and the scoring version, which are part of the record key,
+  so an older result is kept under its own key and never recomputed with the new mesh or penalty policy (V-054 test);
+  receipts are server records and unchanged.
+- Limits: the old saves carry no records or campaign clears (the automation profiles that existed before the addendum
+  had none); the record part rests on the synthetic `RecordVersionTests` fixture.
