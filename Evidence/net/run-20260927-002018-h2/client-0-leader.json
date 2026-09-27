@@ -1,0 +1,5 @@
+{
+  "failed": true,
+  "error": "timed out waiting for all members joined",
+  "log": "[04:20:23] signed in as account …000001\n[04:23:23] FAILED: timed out waiting for all members joined\n"
+}

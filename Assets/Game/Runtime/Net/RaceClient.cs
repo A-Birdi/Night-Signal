@@ -48,6 +48,13 @@ namespace NightSignal.Net
         public float MaxCorrectionMetres { get; private set; }
         public int SnapshotsReceived { get; private set; }
         public int InputsSent { get; private set; }
+        /// <summary>Ticks predicted in catch-up because the network clock advanced more than one tick in a frame.</summary>
+        public int TicksFilled { get; private set; }
+        /// <summary>Input-to-acknowledgement round trip measured by the game (ms): average and worst sample.</summary>
+        public float InputAckMsAverage => ackSamples > 0 ? (float)(ackSumMs / ackSamples) : -1f;
+        public float InputAckMsMax { get; private set; }
+        /// <summary>How far ahead of the server's simulation our commands arrive (ticks; positive = on time).</summary>
+        public int MinInputLeadTicks { get; private set; } = int.MaxValue;
         public EntrantStatus OwnStatus => cars.TryGetValue(Info?.YourIndex ?? -1, out Car c) ? c.Status : EntrantStatus.Reserved;
 
         NetworkManager nm;
@@ -63,6 +70,11 @@ namespace NightSignal.Net
         readonly DriverInput[] inputs = new DriverInput[256];
         readonly VehicleState[] states = new VehicleState[256];
         readonly int[] ticks = new int[256];
+        readonly double[] sendTimes = new double[256];
+        int lastSentTick = int.MinValue, lastAckTick = -1, ackSamples;
+        double ackSumMs;
+        float rttSmoothedMs = -1f;
+        long deadlineMicros = -1;
         Vector3 visualOffset;
         RouteFollower autopilot;
         DrivingControls controls;
@@ -190,6 +202,9 @@ namespace NightSignal.Net
             hudState.Position = myPos;
             hudState.Entrants = cars.Count;
             hudState.Checkpoints = mine.CheckpointsPassed;
+            hudState.TotalCheckpoints = track.CheckpointMetres.Length * track.Laps;
+            long raceMicros = NetBootstrap.RaceMicros(serverTick, startTick);
+            hudState.FinishWindowSeconds = deadlineMicros > 0 && Phase == MatchPhase.Racing ? Mathf.Max(0f, (deadlineMicros - raceMicros) / 1e6f) : -1f;
             hudState.RttMs = Rtt();
             string countdown = Phase == MatchPhase.Countdown || Phase == MatchPhase.Racing ? UI.HudHelpers.Countdown((startTick - serverTick) / 60f) : "";
             hudState.Banner = Phase == MatchPhase.Loading ? "LOADING — WAITING FOR ALL DRIVERS"
@@ -218,8 +233,11 @@ namespace NightSignal.Net
         {
             r.ReadValueSafe(out byte p);
             r.ReadValueSafe(out int start);
+            r.ReadValueSafe(out long deadline);
+            if ((MatchPhase)p != Phase) Debug.Log($"[NightSignal.Client] phase {(MatchPhase)p} (start tick {start}, local tick {(nm != null ? nm.LocalTime.Tick : -1)})");
             Phase = (MatchPhase)p;
             startTick = start;
+            deadlineMicros = deadline;
         }
 
         void OnSnapshot(ulong sender, FastBufferReader r)
@@ -235,7 +253,9 @@ namespace NightSignal.Net
                 r.ReadValueSafe(out ushort cps);
                 r.ReadValueSafe(out float dist);
                 r.ReadValueSafe(out int finishMs);
+                r.ReadValueSafe(out int ackTick);
                 VehicleState s = Wire.ReadState(r);
+                if (Info != null && index == Info.YourIndex) NoteAck(tick, ackTick);
                 if (!cars.TryGetValue(index, out Car car)) continue;
                 car.Status = (EntrantStatus)status;
                 car.CheckpointsPassed = cps;
@@ -282,6 +302,16 @@ namespace NightSignal.Net
             if (!loaded || Phase < MatchPhase.Countdown || Phase >= MatchPhase.Results) return;
             int tick = nm.LocalTime.Tick;
             if (tick <= lastPredictedTick) return;
+            // The network clock can advance several ticks in one frame (time-sync corrections, frame hitches).
+            // Predict every tick so the client and server step the car the same number of times.
+            int from = lastPredictedTick < 0 ? tick : Mathf.Max(lastPredictedTick + 1, tick - 30);
+            TicksFilled += tick - from;
+            for (int t = from; t <= tick; t++) PredictTick(t);
+            if (tick - lastSentTick >= 2) SendInputs(tick);
+        }
+
+        void PredictTick(int tick)
+        {
             bool racing = tick >= startTick && OwnStatus != EntrantStatus.Finished && OwnStatus != EntrantStatus.DqDisconnected;
             DriverInput input = !racing ? DriverInput.Neutral : Autopilot ? autopilot.Drive(ownState) : SampleHuman();
             int slot = tick & 255;
@@ -290,7 +320,21 @@ namespace NightSignal.Net
             if (racing) ownSim.Step(ref ownState, input);
             states[slot] = ownState;
             lastPredictedTick = tick;
-            if (tick % 2 == 0) SendInputs(tick);
+        }
+
+        void NoteAck(int snapshotTick, int ackTick)
+        {
+            if (ackTick < 0) return;
+            MinInputLeadTicks = Mathf.Min(MinInputLeadTicks, ackTick - snapshotTick);
+            if (ackTick <= lastAckTick) return;
+            lastAckTick = ackTick;
+            int slot = ackTick & 255;
+            if (ticks[slot] != ackTick || sendTimes[slot] <= 0) return;
+            float ms = (float)((Time.realtimeSinceStartupAsDouble - sendTimes[slot]) * 1000.0);
+            ackSumMs += ms;
+            ackSamples++;
+            InputAckMsMax = Mathf.Max(InputAckMsMax, ms);
+            rttSmoothedMs = rttSmoothedMs < 0 ? ms : Mathf.Lerp(rttSmoothedMs, ms, 0.1f);
         }
 
         DriverInput SampleHuman()
@@ -312,6 +356,8 @@ namespace NightSignal.Net
                     if (ticks[t & 255] == t) Wire.Write(w, inputs[t & 255]);
                 nm.CustomMessagingManager.SendNamedMessage(Wire.MsgInput, NetworkManager.ServerClientId, w, NetworkDelivery.UnreliableSequenced);
             }
+            sendTimes[latestTick & 255] = Time.realtimeSinceStartupAsDouble;
+            lastSentTick = latestTick;
             InputsSent++;
         }
 
@@ -376,8 +422,15 @@ namespace NightSignal.Net
             }
         }
 
-        public int Rtt() =>
-            nm != null && nm.IsConnectedClient ? (int)(nm.NetworkConfig.NetworkTransport.GetCurrentRtt(NetworkManager.ServerClientId)) : -1;
+        /// <summary>
+        /// Round trip in ms. Prefers the game's input-acknowledgement measurement: the transport's value comes from the
+        /// reliable pipeline and goes stale once setup traffic stops (it read ~500 ms on loopback in the first run).
+        /// </summary>
+        public int Rtt()
+        {
+            if (rttSmoothedMs >= 0) return Mathf.RoundToInt(rttSmoothedMs);
+            return nm != null && nm.IsConnectedClient ? (int)nm.NetworkConfig.NetworkTransport.GetCurrentRtt(NetworkManager.ServerClientId) : -1;
+        }
 
         public void Disconnect()
         {

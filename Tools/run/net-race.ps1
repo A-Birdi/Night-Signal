@@ -35,7 +35,7 @@ $evidence = "Builds/NetRuns/$run/evidence"
 New-Item -ItemType Directory -Force $logs | Out-Null
 
 $procs = @()
-$server = Start-Process -FilePath $exe -PassThru -ArgumentList @(
+$server = Start-Process -FilePath $exe -PassThru -WorkingDirectory $repo -ArgumentList @(
     '-batchmode', '-nographics', '-nsServer', '-nsPort', "$Port", '-nsExitAfterMatch',
     '-nsEvidence', $evidence, '-logFile', "`"$logs\server.log`"")
 $procs += [pscustomobject]@{ Name = 'server'; Process = $server }
@@ -43,11 +43,11 @@ Start-Sleep -Seconds 4
 
 for ($i = 0; $i -lt $Humans; $i++) {
     $role = if ($i -eq 0) { 'leader' } else { 'member' }
-    $args = @('-nsClient', '-nsAuto', '-nsDevAccount', "$i", '-nsAutoRole', $role, '-nsAutoHumans', "$Humans",
+    $clientArgs = @('-nsClient', '-nsAuto', '-nsDevAccount', "$i", '-nsAutoRole', $role, '-nsAutoHumans', "$Humans",
               '-nsAutoStage', $Stage, '-nsEvidence', $evidence, '-logFile', "`"$logs\client-$i.log`"")
-    if (-not ($WindowedFirstClient -and $i -eq 0)) { $args = @('-batchmode', '-nographics') + $args }
-    else { $args += @('-screen-fullscreen', '0', '-screen-width', '1280', '-screen-height', '720') }
-    $procs += [pscustomobject]@{ Name = "client-$i ($role)"; Process = (Start-Process -FilePath $exe -PassThru -ArgumentList $args) }
+    if (-not ($WindowedFirstClient -and $i -eq 0)) { $clientArgs = @('-batchmode', '-nographics') + $clientArgs }
+    else { $clientArgs += @('-screen-fullscreen', '0', '-screen-width', '1280', '-screen-height', '720') }
+    $procs += [pscustomobject]@{ Name = "client-$i ($role)"; Process = (Start-Process -FilePath $exe -PassThru -WorkingDirectory $repo -ArgumentList $clientArgs) }
     Start-Sleep -Milliseconds 800
 }
 

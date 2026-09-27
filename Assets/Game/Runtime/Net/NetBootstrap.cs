@@ -14,6 +14,7 @@ namespace NightSignal.Net
             Object.DontDestroyOnLoad(go);
             var nm = go.AddComponent<NetworkManager>();
             var utp = go.AddComponent<UnityTransport>();
+            utp.MaxPacketQueueSize = 512; // 128 overflowed on the server while six clients connected and loaded
             nm.NetworkConfig = new NetworkConfig
             {
                 NetworkTransport = utp,

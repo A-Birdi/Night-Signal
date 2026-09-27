@@ -27,6 +27,8 @@ namespace NightSignal.UI
         public int Checkpoints, TotalCheckpoints;
         public int WallIncidents, Resets;
         public int RttMs = -1;
+        /// <summary>Seconds left before the event closes after the first human finish; negative when not running.</summary>
+        public float FinishWindowSeconds = -1f;
         public bool UseMph;
         public readonly List<HudEntrant> Field = new List<HudEntrant>();
     }
@@ -130,15 +132,16 @@ namespace NightSignal.UI
 
         public void Render(HudState s)
         {
-            speed.text = Mathf.RoundToInt(s.UseMph ? s.SpeedKmh * 0.621371f : s.SpeedKmh).ToString();
+            speed.text = Tabular(Mathf.RoundToInt(s.UseMph ? s.SpeedKmh * 0.621371f : s.SpeedKmh).ToString());
             unit.text = s.UseMph ? "MPH" : "KM/H";
             gear.text = s.Gear < 0 ? "R" : s.Gear == 0 ? "N" : s.Gear.ToString();
             float rev = s.Redline > 0 ? Mathf.Clamp01(s.Rpm / s.Redline) : 0f;
             revFill.fillAmount = rev;
             revFill.color = rev > 0.93f ? SignalTheme.Signal : rev > 0.8f ? SignalTheme.Caution : SignalTheme.Label;
             position.text = s.Entrants > 0 ? $"P{s.Position}<size=45%><color=#9A968D> / {s.Entrants}</color></size>" : "";
-            progress.text = s.TotalCheckpoints > 0 ? $"CHECKPOINT {s.Checkpoints} / {s.TotalCheckpoints}" : "";
-            time.text = FormatTime(s.RaceSeconds);
+            progress.text = (s.TotalCheckpoints > 0 ? $"CHECKPOINT {s.Checkpoints} / {s.TotalCheckpoints}" : "")
+                + (s.FinishWindowSeconds >= 0 ? $"\n<color=#{ColorUtility.ToHtmlStringRGB(SignalTheme.Caution)}>FINISH WINDOW {FormatClock(s.FinishWindowSeconds)}</color>" : "");
+            time.text = Tabular(FormatTime(s.RaceSeconds));
             banner.text = s.Banner;
             incidents.text = s.WallIncidents > 0 || s.Resets > 0 ? $"WALL CONTACTS {s.WallIncidents}   RESETS {s.Resets}" : "";
             connection.text = s.RttMs > 180 ? $"CONNECTION  {s.RttMs} MS" : "";
@@ -168,6 +171,11 @@ namespace NightSignal.UI
                 standings[i].text = e.IsReplay ? $"—  {e.Name}{tag}" : $"{i + 1}  {(e.IsYou ? "<color=#D7263D>" : "")}{e.Name}{(e.IsYou ? "</color>" : "")}{tag}";
             }
         }
+
+        /// <summary>Tabular figures: fixed advance per glyph so changing digits don't shift (Liberation Sans has proportional digits).</summary>
+        public static string Tabular(string digits) => "<mspace=0.58em>" + digits + "</mspace>";
+
+        static string FormatClock(float seconds) => $"{(int)seconds / 60}:{(int)seconds % 60:00}";
 
         public static string FormatTime(double seconds)
         {

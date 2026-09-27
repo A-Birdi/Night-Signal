@@ -103,3 +103,24 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   44 warnings, 184.9 MB, 1153 s (first build compiled every URP shader variant; later builds reuse the cache).
 - That build predates the HUD code. Afterwards TMP Essential Resources were imported (LiberationSans SDF, OFL, bundled
   with Unity's uGUI package), the UI layer compiled with no errors or warnings, and EditMode ran 127/127 passed.
+
+## V-016 — First real multi-process race: server + 2 client processes (2026-09-27)
+- `Tools/run/net-race.ps1 -Humans 2 -Stage S01` on this PC (localhost; three separate OS processes, UDP game traffic,
+  HTTP/WebSocket control plane). Evidence: `Evidence/net/run-20260927-001253-h2/`.
+- Both AutoClients (scripted autopilot, not humans): DevAuth sign-in → convoy → both ready checks → allocation →
+  ticket-validated connection → loading barrier → countdown → race → HMAC-signed results → settled receipts.
+  Humans finished P2 86.623 s and P3 86.633 s; wallets 12,000 → 31,139 / 30,461 (first clear + CH01); RP 0 → 140.
+- Problems found in that run (fixed in code afterwards, not yet re-measured):
+  RTT reported ~505 ms on loopback (transport reliable-pipeline RTT goes stale) → game-level input-ack RTT;
+  37 reconciliations with corrections up to 2.5 m → client now predicts every tick when the clock jumps, server
+  counts starved/late inputs; race ended the moment all humans finished, marking AI 3–8 s behind as DNF → now ends
+  early only when every entrant is done (spec §6), finish window sent to clients; server receive queue overflowed
+  at 128 → 512; headless clients uncapped at ~1.6 cores each → 60 fps.
+- These results predate Addendum 01 (six-TOTAL grid, no car contact). They are kept as evidence of the network
+  spine, not as evidence for the revised twelve-vehicle contact rules.
+
+## V-017 — Second 2-client run failed at convoy formation (2026-09-27)
+- `Evidence/net/run-20260927-002018-h2/`: leader "timed out waiting for all members joined", member "timed out
+  waiting for joined a discoverable convoy". Both accounts were still members of the previous run's convoy under
+  the old 60-second reserved-seat rule. Addendum 01 §10 replaces reserved seats with server-owned rejoin grants and
+  disbands convoys with no active members; the fix lands with that control-plane change.

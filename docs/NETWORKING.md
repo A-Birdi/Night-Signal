@@ -212,9 +212,9 @@ assignment (match/build/protocol/content), burns the `jti`, and maps `sub` to an
 |---|---|---|---|
 | `ns.match` | S→C | reliable fragmented | JSON `MatchInfo`: match/course/kind/mode/stage/weather, roster `[{index, entrantId, displayName, human, carId, paint, gridSlot}]`, `yourIndex`, benchmark replay rival |
 | `ns.loaded` | C→S | reliable | `float` loading progress (1.0 = course collision, car assets, input and first state ready) |
-| `ns.phase` | S→C | reliable | `byte phase` (Loading, Countdown, Racing, Results, Aborted), `int startTick` |
+| `ns.phase` | S→C | reliable | `byte phase` (Loading, Countdown, Racing, Results, Aborted), `int startTick`, `long deadlineMicros` (−1 until the first human finishes; re-sent when set so clients show the finish window) |
 | `ns.input` | C→S | unreliable sequenced, every 2nd tick (30 Hz) | `int latestTick`, `byte count ≤ 8`, then `count` × input (`sbyte steer`, `byte throttle`, `byte brake`, `byte buttons`) for ticks `latestTick-count+1 … latestTick` |
-| `ns.snap` | S→C | unreliable sequenced, every 3rd tick (20 Hz) | `int tick`, `byte phase`, `byte n`, then per entrant `byte index`, `byte status`, `ushort checkpoints`, `float raceDistance`, `int finishMs`, full `VehicleState` (93 bytes) — ≈ 640 bytes for six cars |
+| `ns.snap` | S→C | unreliable sequenced, every 3rd tick (20 Hz) | `int tick`, `byte phase`, `byte n`, then per entrant `byte index`, `byte status`, `ushort checkpoints`, `float raceDistance`, `int finishMs`, `int inputAckTick` (latest command tick received from that human, −1 for AI), full `VehicleState` (93 bytes) — ≈ 660 bytes for six cars |
 | `ns.results` | S→C | reliable fragmented | JSON `MatchResults` (the same facts sent to the control plane) |
 
 **Clock and start.** The server simulates tick T at its NGO `LocalTime.Tick`. After the loading barrier (90 s, one
@@ -229,6 +229,11 @@ A missing input repeats the last one for 250 ms, then coasts and brakes (spec §
 **Prediction.** The client steps its own car with the same `VehicleSimulation` every local tick and keeps 256 ticks
 of inputs/states. On each snapshot it compares its prediction at the snapshot tick; beyond 3 cm / 0.2 m/s it rewinds
 to the authoritative state and replays stored inputs, blending the visual error out over ~0.1 s (snapping above 3 m).
+The client predicts every network tick even when the clock advances several ticks in one frame (time-sync
+corrections, hitches), so both sides step each car the same number of times. Round trip is measured by the game from
+input send time to the first snapshot acknowledging that tick — the transport's reliable-pipeline RTT goes stale once
+setup traffic stops. The server counts starved ticks (simulated without that tick's command) and late commands per
+entrant and writes them into the server evidence.
 Remote cars render at `ServerTime − 6 ticks` (100 ms) with at most 9 ticks (150 ms) of extrapolation.
 
 **Disconnects.** A racer disconnecting after admission becomes `DqDisconnected` and cannot resume driving in that

@@ -27,6 +27,12 @@ namespace NightSignal.Net
         {
             cfg = NetConfig.FromCommandLine();
             DontDestroyOnLoad(gameObject);
+            if (Application.isBatchMode)
+            {
+                // Headless test clients: 60 fps keeps six clients plus a server within one machine's CPU budget.
+                QualitySettings.vSyncCount = 0;
+                Application.targetFrameRate = 60;
+            }
             int exit = 1;
             try
             {
@@ -125,7 +131,9 @@ namespace NightSignal.Net
                 process = "independent client player process",
                 account = "…" + cp.AccountId.Substring(Math.Max(0, cp.AccountId.Length - 6)),
                 role = cfg.AutoRole, matchId, stage = cfg.AutoStage, course = race.Info?.CourseId, car,
-                rttMs = race.Rtt(), snapshots = race.SnapshotsReceived, inputPacketsSent = race.InputsSent,
+                rttMs = race.Rtt(), inputAckMsAverage = race.InputAckMsAverage, inputAckMsMax = race.InputAckMsMax,
+                minInputLeadTicks = race.MinInputLeadTicks, ticksFilled = race.TicksFilled,
+                snapshots = race.SnapshotsReceived, inputPacketsSent = race.InputsSent,
                 reconciliations = race.Corrections, maxCorrectionMetres = race.MaxCorrectionMetres,
                 result = mine, entrants = race.Results.Entrants.Count, receipt,
                 walletBefore, walletAfter, rankPointsBefore = rpBefore, rankPointsAfter = (int)me["rank"]["rankPoints"],

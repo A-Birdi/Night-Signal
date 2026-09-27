@@ -1,0 +1,1235 @@
+NIGHT SIGNAL: MOUNTAIN CIRCUIT
+ADDENDUM 01 — LIVE RIVAL GRIDS, CAMPAIGN MAP, SOCIAL PLAY, OFFLINE MODE,
+COURSE ACCESS, MUSIC COLLECTION, AND VEHICLE PRESENTATION
+Revision 1 — forward implementation feedback for the EXISTING project
+
+READ THIS AS A RULES REVISION, NOT A RESTART OR A SEPARATE GAME.
+
+The attached/original 01_Night_Signal_Master_Specification.txt remains the
+base assignment. This addendum replaces the conflicting requirements
+identified below and extends the remaining assignment. Later explicit user
+decisions take precedence. Unchanged requirements and content remain binding.
+The original JSON catalogue is an authoring seed, not an authority that may
+reintroduce superseded rules.
+
+Repository: A-Birdi/Night-Signal.
+Authorized development branch: dev/night-signal, subject to verifying the
+actual current branch and any newer authorized work.
+Approved editor baseline: Unity 6000.6.3f1 / URP, in the existing checkout.
+Keep the working Unity MCP connection. Do not revert to the older 6.3 LTS
+example, move the project, or create a competing worktree/editor session.
+
+This is private friend-group software at launch. Preserve authentication,
+input validation, safe transactions, and ordinary permissions; do not build
+unnecessary commercial-service machinery or mandatory profanity filtering.
+Multiplayer remains a core, mandatory feature. Offline is additional, not a
+substitute for demonstrating real online play.
+
+0. INGEST SAFELY WHILE THE CURRENT RUN IS IN PROGRESS
+
+At the next safe task boundary, read this entire addendum, including its
+acceptance tests. Do not kill an active compiler, package operation, asset
+import, transaction, or build merely to react immediately. Inspect its actual
+outcome before retrying. Do not let parallel workers keep generating obsolete
+six-total-entrant logic after the requirements have been updated.
+
+First preserve the newest working source and useful unfinished assets. Reuse
+valid implementation and evidence. No reset, clean, force-checkout, blanket
+regeneration, second game implementation, or rollback to an old checkpoint.
+Record which completed work remains valid and which tests need revision.
+
+Store this document in the project's documentation and link it from CLAUDE.md,
+HANDOFF.md, REQUIREMENTS.md, and any active review feed. Preserve the original
+brief for provenance. Create a short effective-rules/impact map rather than
+repeatedly rewriting the entire master. Map affected code, data, scenes, UI,
+network messages, server rules, and tests to the new criteria.
+
+Give a short acknowledgement identifying the recovered state, affected
+systems, and next action, then continue. This is not another approval gate.
+Do not finish with only an impact report or plan. The existing full assignment
+continues with these revisions through actual implementation and validation.
+
+0.1 CONCRETE DEFAULTS CHOSEN TO RESOLVE THE GROUP'S OPEN QUESTIONS
+
+These are explicit design decisions in this drafted addendum, not assertions
+that the user previously supplied every number. Adopt them when this addendum
+is approved/submitted unless a later user decision changes them:
+
+D01. Six HUMAN entrants per driving activity and six members per convoy;
+     twelve TOTAL active race vehicles, including friendly and opposing AI.
+     Twelve is a required tested upper bound, not the default size of every race.
+D02. Interpret 'six humans for any activity' literally for this revision:
+     a meet instance also admits at most six humans. Existing twelve-bay
+     scenery may remain, but it is not permission for twelve connected players.
+D03. Add three currency-only Freeplay courses FP01–FP03 to the original 26.
+     The revised minimum is 29 distinct base courses, not a paywall inserted
+     into the required campaign. Thirty stages per campaign mode stay unchanged.
+D04. Any active convoy member with permanent access can sponsor a Freeplay
+     course for that event. Other convoy members receive temporary guest access.
+D05. Offline includes a complete LOCAL progression profile, not merely a demo.
+     Local and Online progress remain separate; connecting does not upload
+     untrusted local earnings, unlocks, rank, or competitive records.
+D06. Provide three repeatable Team Trials under Challenges. They do not add
+     mastery RP or replace any of the 75 required challenge/reward pairs.
+D07. Freeplay voting lasts 30 seconds by default, one changeable ballot per
+     active convoy member; each ballot is one equally weighted draw ticket.
+D08. Keep email/password authentication through the chosen provider. A unique
+     public @username is for identity and friend lookup; it is not a second
+     custom password database or a requirement for username-based login.
+D09. Rejoin permission survives a disconnect until the convoy's leadership
+     epoch changes, the convoy disbands, or another explicit revocation occurs.
+     It reserves no seat and does not restore a disqualified race entry.
+D10. No visible or mechanical vehicle damage. Physical contact still affects
+     motion and legal scoring. No scratches, dents, detached parts, damage skins,
+     persistent repair costs, or deterioration of purchased visual customizations.
+
+0.2 EXPLICIT SUPERSESSIONS
+
+- Master sections 1, 2, 8, 14, 18, 19 and catalogue assertions: replace the
+  six-human-plus-AI TOTAL cap with D01. Remove the special six-human 'boss as
+  benchmark ghost instead of live rival' workaround. Keep useful replay code
+  for actual Time Attack/reference replays, not a substitute final opponent.
+- Sections 6.1 and 7: replace blanket ghosted campaign/drift racing with real,
+  bounded car-to-car contact. Full non-contact competition is the explicit
+  Time Attack mode. Safety presentation/reset exceptions are specified below.
+- Section 6.1: remove even temporary cosmetic damage. Hit metrics and sensible
+  impact response remain.
+- Section 8: replace immediate practice access to every course with the access,
+  purchase, campaign-unlock, and guest-pass rules in this document.
+- Sections 3.2a and 8: replace tutorial-only unauthenticated offline play with
+  the full, separate Local progression mode described here. Online remains
+  authenticated and server-authoritative.
+- Section 4.4: replace the 60-second reserved convoy seat with non-reserving,
+  server-owned rejoin eligibility. Preserve race DQ and result-integrity rules.
+- Sections 1 and 12/Appendix F: meet human admission is six for this revision.
+  Existing spatial quality, avatar emotes, inspections, and arrival/departure
+  requirements remain. Do not demolish an authored plateau to change a limit.
+- Sections 13 and Appendices B/D: R40 and R48 are campaign-finale-only opponents,
+  including after defeat. Enforce this in explicit selections AND random pools.
+- Sections 15–16: apply the new map, detailed records, front menu, energetic
+  menu audio, unlockable soundtrack, and shared boombox behavior.
+- Sections 17–19/Appendix G: update schemas, coverage counts, validation gates,
+  and tests to these rules. Do not keep obsolete tests and weaken the new design
+  merely to turn them green.
+
+Unchanged: original 24 regular courses, tutorial, dedicated final course;
+24 regular + 4 lieutenant + 1 penultimate + 1 finale stages per mode; 48 rival
+identities; 18 distinct cars; all 75 named mastery challenges and rewards;
+15,000 maximum mastery RP per progression domain; wallet/part-price limits;
+server-owned online results; explicit readiness; original assets; high-quality
+3D; complete source/build/evidence delivery. The extra Team Trials and course
+purchases award no new mastery RP.
+
+1. HUMAN CAPACITY, LIVE AI, AND EVENT ROSTERS
+
+1.1 Separate the limits
+
+Use separately named, centrally validated concepts, not one overloaded
+MaxPlayers variable:
+- MAX_CONVOY_HUMANS = 6.
+- MAX_EVENT_HUMAN_ENTRANTS = 6.
+- MAX_RACE_VEHICLES = 12.
+- MAX_MEET_HUMANS = 6.
+- Offline play = one local human plus the applicable AI, not new split-screen.
+
+For each allocated driving event:
+H + A_friendly + A_opposing <= 12, with 1 <= H <= 6.
+
+Spectators and visual replay overlays are not racing entrants. They cannot
+place, affect collisions, generate standings, or receive entrant rewards.
+Bound spectator connections to the current convoy admission policy; do not
+accidentally create an unlimited spectator server. A reconnect never duplicates
+an actor or keeps a disconnected human occupying an active member slot.
+
+Store actor kind, team, driver identity, authority, and entrant ID explicitly.
+An AI has a profile and server-owned controls, not a fake authenticated account.
+Do not represent AI by duplicating a human's account/card/receipt identity.
+
+1.2 Authored opposition rather than filling every slot
+
+Campaign event definitions specify the opposition, role, and formation. Do not
+add AI merely to make the vehicle counter read twelve. Initial authoring rules:
+- Early regular races: normally one featured rival, sometimes one support rival.
+- Later regular races: normally two or three opponents total; use a larger field
+  only where the specific course and story support it.
+- Lieutenant encounters: a featured lieutenant with zero to two authored supports.
+- Normal and Hard finales: the fixed final rival is a LIVE physical competitor
+  at every legal human party size. A six-human convoy can race that rival as a
+  seven-car event. Do not force six additional rivals into a dramatic duel.
+- Freeplay: leader may choose zero through the remaining legal AI capacity.
+  Six humans plus six AI, or one human plus eleven AI, must be supported on
+  courses/modes authored for the full grid.
+- Team Trials: defined separately; their fixed six-versus-six structure uses
+  friendly AI when fewer than six humans enter.
+
+Every counted course must support a safe twelve-car start layout for applicable
+race modes, even if its campaign event uses fewer. Use staggered grids, longer
+start approaches, or safe authored rollout, not overlapping colliders. Preserve
+course identity and actual geometry; do not flatten every mountain road into a
+wide motorway just to fit a grid.
+
+The UI shows human, friendly-AI, opposing-AI, and total counts. Freeze the full
+roster at allocation. A midload/midrace DQ does not cause automatic AI replacement.
+Late arrivals spectate or wait. Human team-success requirements cannot shrink
+because somebody disconnects.
+
+1.3 Benchmark and live-boss reconciliation
+
+Keep legal, measured benchmark runs as tuning and comparison evidence. Existing
+Normal/Hard participation envelopes and human-success thresholds remain unless
+explicitly changed below; recalibrate targets under the new contact rules.
+A replay is no longer the featured live rival when all six humans join.
+
+For ordinary stages retain the published distinction between on-track placing
+and the benchmark/team objective. The panel must state what actually earns a
+clear, not imply every stage is 'finish first' when it is not.
+
+For all four lieutenant encounters and both final encounters, add a live-rival
+victory condition. A qualifying human must both satisfy the published mastery/
+time target and beat the featured live rival. Normal needs at least one such
+human; Hard needs ceil(H/2), minimum one. Individual clears also retain the
+original active-participation and support-envelope requirements. A precision
+tie may qualify as not slower if the declared event rules say so consistently.
+
+A featured rival that legally fails to finish is beaten by a valid finisher,
+but the human still needs the mastery target. A rival missing because spawning,
+AI initialization, or the server failed is a broken event, not a free boss win.
+Do not invent an impossible target or hidden AI grip to compensate for contact.
+Keep temporary debug states out of legitimate progression.
+
+2. COLLISION POLICY AND PRISTINE VEHICLES
+
+2.1 Normal races are not ghost races
+
+Campaign, ordinary Sprint/Circuit, contact Drift Attack, and the Team Trials use
+bounded Light Contact as their ordinary policy. Live opposing AI are solid,
+visible competitors subject to the same road, barrier, grip, and legal progress
+rules. Human-human and team contacts follow the same published policy.
+
+Use stable capped impulses and predictable side contact. No deliberate pit-
+maneuver AI, prolonged wall pinning, invisible mass advantages, client-authored
+knockback, or bypassing road collision. Evaluate contested contacts on the
+server. Prediction/correction must account for real contacts; do not silently
+turn all AI into ghosts because the first networking implementation is easier.
+Test head-on, side-swipe, rear contact, bunching, pileups, wet braking, and
+recovery under the documented network impairment matrix.
+
+Contact does not mean demolition derby. Preserve measured wall-hit counts,
+speed losses, reset penalties, and clean-sector criteria. Distinguish vehicle
+contact from wall contact; light incidental contact must not count as hundreds
+of separate impacts. Keep the authoritative incident debounce.
+
+2.2 Explicit non-contact exceptions
+
+Time Attack: all human cars, live session cars, and recorded targets are
+non-colliding with one another. Road and barrier collision remain. No live
+opposing AI is added to this mode; target recordings are replays.
+
+Meet arrivals, parked-display presentation, tutorial demonstration ghosts,
+short validated reset/spawn safety windows, and fading DQ vehicles keep their
+necessary safety exceptions. These are not permanent race-opponent ghosting.
+A temporary race safety ghost must be visible, bounded, and end only at a safe
+non-overlapping position. It cannot be used to drive through barriers or
+repeatedly reset for an overtaking advantage.
+
+Remove an ambiguous 'Ghosted standard race' setting from the default flow.
+Offer a plainly named Time Attack/non-contact ruleset instead; its records
+and rewards must not masquerade as contact-race results.
+
+2.3 No damage at any point
+
+Do not render dents, bent panels, scratches, paint loss, shattered glass,
+missing mirrors/bumpers, broken lamps, punctured tyres, damage decals, smoke
+from a damaged engine, or progressively damaged material states. No mechanical
+wear, post-impact stat degradation, repair charges, or damage persistence.
+
+Tyre smoke, road skidmarks, brake glow where appropriate, brief contact sound,
+optional restrained camera feedback, and clean rain/wet-surface effects are
+allowed. They are not persistent damage. The car should retain its customized
+showroom appearance in the meet and results, including after a rough race.
+
+3. TEAM TRIALS: GROUP CHALLENGES THAT STILL WORK SOLO
+
+Add a clearly separate 'Team Trials' selection under Challenges. Keep the
+original 75 mastery challenges and their 75 cosmetic rewards intact. Team Trials
+are repeatable event formats, not three extra RP sources or a way to manufacture
+78 supposedly unique mastery rewards.
+
+Ship these three authored trials on suitable existing non-exclusive courses:
+- TT_MEAN: six-car team versus six opposing AI; lowest team mean race time.
+- TT_BEST: six-car team versus six opposing AI; best valid team finishing time.
+- TT_DRIFT: six-car team versus six opposing AI; highest combined RAW drift
+  score over a defined route and event window.
+
+The player side always has six positions. H humans plus 6-H friendly AI fill
+it. The opposing side has six live AI. All H=1..6 configurations are playable
+without another human. Use suitable main-roster allies, never R40/R48, and
+distinguish teammate colors, names, cars, and score contributions clearly.
+Allow a published difficulty choice, not a hidden catch-up multiplier.
+
+Keep roster, team membership, car caps, assist rules, metric, tie policy, and
+hard timeout frozen before readiness. These are time/score competitions, not
+instructions for AI to ram the other team. Friendly AI follow the same vehicle
+controller and traffic constraints as opponents.
+
+Scoring:
+- MEAN: each of the six starting positions contributes. Use adjusted legal
+  finish time including ordinary penalties. A DNF/DQ contributes the published
+  event hard-timeout plus a fixed 30-second failure penalty. Never remove its
+  denominator contribution because losing a slow teammate would help the team.
+- BEST: compare the fastest legally finished member of each team. At least one
+  human must also finish within the published participation envelope for human
+  event-completion rewards; an AFK human cannot collect money for an AI win.
+- DRIFT: sum six members' banked, validated raw scores, with the original
+  anti-loop/anti-stationary scoring constraints. A DQ's contribution is zero.
+  No per-client showcase multiplier enters the team sum. Record individual
+  contributions, legal progress and finish status. No scoring by parked bots.
+
+For all three, only active eligible human finishers receive ordinary completion
+money. AI never receive wallet transactions, RP, individual challenge awards,
+course ownership, or soundtrack entitlements. Team victory may use a declared
+bounded placement modifier but not multiply each human payout by six or twelve.
+Pure-PvP bonuses do not apply to trials containing AI.
+
+Personal challenge predicates still count personal performance only. A player's
+'perfect drift' or personal score challenge cannot be completed using the sum
+of five AI teammates. Team bests must be labeled separately from personal bests
+and keyed to trial/difficulty/roster composition rules. Trial thresholds need
+real legal calibration, not fabricated finished-run times.
+
+4. THE CAMPAIGN MAP AND RIGHT-HAND EVENT PANEL
+
+4.1 Make the campaign feel like a growing region
+
+Present the fictional Shiranami region as an authored illustrated/3D route map,
+with topography, roads, settlements, coastlines, passes, and landmarks. It is
+not a flat list of generic cards. Show thirty stage-preview nodes joined by
+legible progression lines. Distinguish regular, lieutenant, penultimate, and
+final stages by frame/symbol/text, not only color. The tutorial can be a separate
+linked starting point; it does not become a thirty-first competitive stage.
+
+Each stage preview includes a real authored course image or render, stage
+number, concise title, event type, completion/lock state, and relevant rival
+identity when revealed. A shared course can appear at two stage nodes without
+claiming it is two different base courses.
+
+Reveal more terrain and connections as the appropriate campaign progresses.
+Initial view emphasizes Act I and hints at the world beyond. Later acts extend
+the map's navigable bounds/detail; do not simply shrink every node to fit the
+entire region. Use pan/zoom, act navigation, and a Find Next Stage control.
+Preserve camera/focus when coming back. Unlock reveals should be short,
+skippable, and reduced-motion-compatible, not a long mandatory animation.
+
+Campaign access still uses each player's contiguous frontier, with the convoy
+limited by its least-progressed active member. Hard still requires every member
+to have the Normal finale cleared. Buying a Freeplay course, borrowing a guest
+pass, or looking at another player's record does not unlock campaign stages.
+
+Local campaign-map exploration need not forcibly follow every leader movement.
+Distinguish the leader's previewed stage, the formally proposed event, and the
+stage this client is inspecting. Show 'Leader inspecting...' and an explicit
+Follow Leader / Return to Leader action. Choosing a personal preview never
+changes the authoritative event. Clients who browse independently keep their
+camera and can return to the shared preview without losing their own progress.
+
+Do not expose unreached plot beats or the Hard finale's identity through
+thumbnails, portraits, track titles, record panels, or network metadata when
+the corresponding local story discovery has not occurred. A neutral 'Legendary
+challenge' treatment can indicate a locked node. Server validation, not hidden
+UI alone, still enforces which stage can launch.
+
+4.2 Panel motion and information hierarchy
+
+Selecting a stage opens a contextual panel from the RIGHT with a quick
+horizontal slide, a small controlled overshoot, and a stable settled position.
+Initial tuning target: 220 ms total, roughly 6–10 UI pixels of overshoot at
+1080p reference scale, scaled sensibly with the layout. Text stays sharp and
+upright. It must not oscillate repeatedly or delay basic selection input.
+Reduced Motion removes spatial overshoot and uses a brief crossfade/immediate
+change. Rapid selection replaces/cancels the old transition rather than
+queueing panels. Close and Back remain reachable during animation.
+
+On ordinary desktop layouts the panel occupies approximately the right third,
+leaving a useful map view and the persistent convoy/status header. At small
+supported window sizes or large text settings, use a readable larger panel or
+sheet instead of clipping data or scaling text to illegibility. Do not claim
+phone support merely because the UI scales.
+
+Order of content:
+1. Stage title, mode/difficulty, actual course/variant, rival/team and conditions.
+2. Published objective and what grants a clear, including team requirements.
+3. THIS viewer's personal bests and local/online verification label.
+4. Compact convoy comparison, normally the top three with expand-to-all-six.
+5. Eligible car/cap, lineup/contact summary, access/block reason, and actions.
+
+Leader actions: Propose/Select Event and later Request Ready/Start. Clients see
+leader actions as state, not disabled lookalike primary buttons everywhere.
+Their actions include Inspect, Car Setup, Ready/Unready when applicable, and
+Return to Leader. Neither opening the panel nor selecting a preview starts a
+race or spends money.
+
+4.3 Record semantics
+
+Use typed objective/metric definitions, not one unconditional 'Time/Score' pair.
+Examples: elapsed time, best lap, raw drift score, clean sectors, perfect-drift
+count, target delta, team mean time, team best time, or combined team score.
+Show only metrics meaningful to that event, with clear units and targets.
+A new 'perfect drift' predicate must be a defined server-tested metric with
+one award per eligible judged corner, not an attractive label lacking logic.
+
+Use a consistent race-time format such as mm:ss.mmm, e.g. 03:42.815.
+No valid time: --:--.---. No eligible score: 'Score: N/A'. No valid count:
+'Best: — / Target: 5', not zero pretending an attempt occurred.
+Separate 'No result', 'Not attempted', 'Did not finish', 'Pending verification',
+and 'Legacy/incompatible result'. Stage not cleared does NOT mean no record:
+a legal losing run can set a personal best. Keep bests visible after clearing.
+
+Compare only compatible records. Store event/stage/trial ID, mode and difficulty,
+course/physics/scoring/ruleset versions, direction, conditions, car class/cap,
+assist category, contact policy, and team-size/composition policy where relevant.
+Store the exact car/build and result provenance with each record. Allow optional
+same-car filtering; do not silently compare a ghosted time with a contact time,
+Normal with Hard, local unverified data with online verified records, or a team
+sum with one driver's personal score.
+
+The convoy summary is scoped to current members and the selected compatible
+rules. Do not expose full wallets, email addresses, passwords, or private
+inventories. Show rank, handle, best value, car/class, and verification as needed.
+Ties remain ties at authoritative measurement precision. Highlight the local
+player when present; do not manufacture empty leaderboard entries for others.
+
+Fetch/cache records without blocking map animation. Handle stale, loading,
+permission, offline, and error states. Online personal/convoy records are
+server-owned; clients cannot publish a claimed PB as verified. Keep old valid
+records archived if new contact/physics rules make them incomparable rather
+than deleting progress or pretending they were measured on this version.
+
+5. COURSE ACCESS, PURCHASES, AND CONVOY GUEST PASSES
+
+5.1 Permanent ownership rules
+
+Each local/online progression domain has its own course-access ledger. All
+content can be installed locally while launch permission remains data-driven.
+Do not add DRM, an external asset purchase, or per-race entry fees.
+
+Initial course-access table:
+- T00 and C01–C04: available from the beginning in the applicable profile.
+- C05–C24: either buy Freeplay access for 45,000 Credits each, OR earn permanent
+  access for free by clearing that course's REGULAR Normal campaign stage.
+  Derive and store the exact stage mapping from the original campaign catalogue;
+  do not mistakenly map a reused lieutenant stage or rely on course-number math.
+- C25, the finale route: permanently granted by the first Normal S30 clear;
+  not separately sold at launch. Its Freeplay version has neutral staging and
+  no campaign-final opponent or finale-exclusive score/music presentation.
+- FP01: 45,000 Credits; FP02: 54,000 Credits; FP03: 63,000 Credits. These three
+  are permanent Freeplay-only purchases, not campaign unlocks.
+
+The FP prices use an INITIAL reference of about 9,000 Credits for an ordinary
+completed race, corresponding to roughly five/six/seven typical payouts.
+This is a balancing assumption, not measured economy evidence. Simulate and
+playtest using ordinary mixed placement, not first-clear jackpots or repeated
+Hard wins. Tune these fixed published prices if necessary and record the
+resulting races-to-unlock. Do not personalize prices by a player's wealth or
+recalculate them secretly after every race.
+
+Course cards state the alternative clearly: 'Buy Freeplay access — 45,000' and
+'Unlock free: clear Normal Sxx — [stage title]'. Currency-only cards say that
+explicitly. Owned/starting/rewarded/purchasable/guest-access states are distinct.
+No purchase grants a campaign clear, Hard access, RP, a rival identity, or an OST.
+A player who bought a route then clears its stage keeps ownership; there is no
+second purchase, invented duplicate reward, or automatic refund absent an
+explicit future policy. Explain that purchasing is an early-access alternative.
+
+Transactions are idempotent and server-validated Online, atomic locally Offline.
+Confirm before spending and show the resulting balance. A simultaneous purchase
+and campaign unlock cannot double-charge: if the free entitlement commits first,
+the purchase returns Already Owned with no debit. If the purchase genuinely
+commits first, the later stage clear just retains that entitlement.
+
+5.2 Do not split friends over a track purchase
+
+A Freeplay event is convoy-accessible when at least one CURRENT active member
+has permanent access and the course supports the selected mode. Any such member
+may sponsor the event, including a non-leader. Every participant receives a
+server-issued, event-scoped guest pass. UI example: 'Available with Robin —
+guest access for this event'. No guest receives permanent ownership merely by
+participating or downloading the course.
+
+The leader can choose from that accessible union. A non-leader may inspect and
+purchase for themselves, but cannot spend another member's money. A successful
+purchase updates the convoy-accessible pool and eligibility without changing
+anybody's chosen car or force-selecting the new course.
+
+Before allocation, loss of the last sponsor invalidates that course proposal
+and any active ballot relying on it; explain the cause and return to a valid
+state. Once tickets and entitlement are frozen at allocation, the event-scoped
+passes last through that event even if the sponsor disconnects. The sponsor's
+DQ does not eject valid guests. New events need a current eligible sponsor.
+
+For an allocated Custom Cup, validate and freeze access for every scheduled leg
+up front; already granted cup-leg passes survive the sponsor's departure for
+remaining allocated members. Late joiners do not inherit unauthorized driving
+entry. Guest participation cannot clear campaign stages or acquire their OST.
+Normal event money and legitimate personal mastery challenges remain available
+where their specific rules permit the guest's event.
+
+The original 75 challenges must not newly REQUIRE the three extra purchases.
+Avoid a challenge saying 'all courses' silently expanding into paid-only extras;
+preserve the original explicit base-course set for that predicate.
+
+5.3 Three additional authored places, not reverse variants
+
+FP01 — Kisaragi Dock Loop
+A 3.4-km-per-lap two-lap circuit through an original closed dockside motorsport
+layout. Container-yard switchback, broad freight-apron carousel, elevated
+loading-ramp crest, and waterfront braking zone form four distinct sectors.
+Landmarks: retired harbor crane, illuminated ferry terminal, dry-dock gantry.
+Support Circuit, Drift Attack zones, and Time Attack. No shipping traffic,
+working pedestrians, borrowed brand logos, or floating-road scenery.
+
+FP02 — Hoshino Switchback Park
+A 5.1-km uphill sprint on a purpose-built former service road at a wooded
+recreation overlook. Linked medium-radius uphill bends, a short tunnel, a
+technical five-hairpin climb, and a fast final ridge create a different rhythm
+from the original courses. Landmarks: timber cable-station shell, terraced
+lookout, illuminated retaining-wall mural. Support Sprint, selected drift zones,
+and Time Attack. Preserve believable grading, barriers, and safe runoff.
+
+FP03 — Aobane Airfield Circuit
+A 4.3-km-per-lap two-lap circuit at a closed regional airfield event venue.
+Runway braking distances contrast with taxiway technical esses, a banked
+maintenance-road turn, and a hangar-perimeter sequence. Landmarks: control tower,
+large numbered hangars, original windsock/sculpture plaza. Support Circuit,
+large drift zones, and Time Attack. Not just cones on a giant empty plane.
+
+These dimensions are initial authoring targets. Preserve the master's actual
+geometry-uniqueness, scene-detail, collision, AI, audio, spawn, LOD, and complete
+playthrough standards. Integrate them after the race/network spine is proven;
+do not rebuild the original 26 or postpone six-human live-AI correctness to make
+three extra scenery showcases first. New unique-course minimum: 29.
+
+6. FREEPLAY VOTING AND SHARED TIME ATTACK
+
+6.1 Non-leaders can browse meaningfully
+
+Freeplay is viewable by any convoy member while the convoy is idle/in menus.
+A non-leader may inspect unlocked/locked routes, compare cars/records, buy
+access, and prepare a nomination. Browsing never grants leader privileges,
+forces others into the screen, or changes an allocated event. Active racers
+cannot browse away from driving without the existing pause/quit rules.
+
+A nomination before a voting window is merely a local bookmark. An accepted
+server ballot exists only during the active voting window.
+
+6.2 Mode agreement, voting, then event agreement
+
+Preserve two explicit consent levels:
+- Mode Ready: agreement to enter a particular mode/submode/difficulty selection
+  flow with the current convoy roster. For Freeplay, identify Sprint, Circuit,
+  Drift Attack, Time Attack, or Cup before opening its course vote.
+- Event Ready: agreement to the finalized course, rules, lineup, car cap,
+  loadout, conditions, and access after selection/voting resolves.
+
+The Voting toggle is always visible to members in the Freeplay flow, labeled
+ON/OFF and leader-controlled. It is disabled for activation until every current
+member, including the leader, is Mode Ready. A leader may prepare the toggle
+and options but cannot start the ballot while another member is unready.
+Mode consent does not pre-authorize a race with unknown parameters.
+
+When voting is off, the leader selects a compatible accessible course directly.
+When voting is on, opening a ballot starts a SERVER deadline, default 30 s.
+Allow 15/30/45/60 s choices before the ballot begins. Display the countdown and
+current mode in the persistent top strip for every member, even while inspecting
+a car or walking at the meet. The timer is time to vote, not an involuntary
+race-start countdown. Abstaining has no penalty.
+
+One ballot per active human account, leader included. Members may change their
+course until the deadline. Show eligible candidates and vote totals. Unsupported
+mode/course combinations, inaccessible courses, and stale ballot revisions
+must be rejected by the server, not merely grayed out locally. A client with
+no personally owned route can vote on a convoy-sponsored eligible route.
+
+At expiry freeze the ballots. The leader can choose a course directly or press
+'Draw from Votes'. Clearly distinguish leader selection from a random draw.
+No early draw by default; any supported 'everyone submitted' shortcut must be
+explicit before consent, not silently inferred from six clicks.
+
+The server chooses one accepted ballot uniformly. Thus three votes for one
+course among six ballots give it three of six chances. Display that weighting;
+do not promise a uniform draw among unique names while using vote weighting.
+Use authoritative random selection once per ballot. No wager, entry cost, or
+currency stake is involved. Persist the selected result and ballot revision so
+reconnecting or retransmitting cannot reroll it.
+
+Presentation: cycle through voted course previews rapidly, then slow and stop
+on the server-selected winner, normally within 3–4 seconds. The animation is
+presentation, not the RNG or final authority. Late viewers show the known result
+or remaining animation segment. Reduced Motion shows a brief sweep/fade and the
+same winner. UI state/timing must not determine which course wins.
+
+No votes -> say 'No votes received' and allow direct selection; do not quietly
+draw from locked routes or randomize a purchase. A single voted course resolves
+to it. Do not repeat the roulette endlessly to fish for a preferred outcome.
+A leader who overrides a draw must explicitly cancel/select a new event; that
+change is visible and all Event Ready consents are invalidated.
+
+Roster change, Mode Unready, mode/difficulty change, leadership change, or loss
+of all sponsors for a candidate cancels an active ballot with one clear notice.
+Preserve useful local nomination choices, not stale server votes. Require a new
+mode/roster agreement before reopening. Cosmetic/audio settings do not cancel
+ballots. After resolution, freeze the event proposal and obtain Event Ready
+from everyone before the normal load barrier/countdown.
+
+6.3 Multiplayer Time Attack
+
+Allow one through six humans to drive simultaneously in Time Attack. Every
+human is non-contact with every other human and every target replay. Ghosting
+is a server/gameplay collision policy, not just transparent material. They still
+collide with road surfaces and barriers; normal checkpoints and resets apply.
+
+No live AI racers are added. Allow personal, friend-shared, or ordinary authored
+(non-final-boss) target recordings, with a bounded visible-replay count and
+compatibility labels. Players have independent legal times and local replay
+visibility preferences; one driver's invalid lap cannot invalidate another's.
+Use a shared synchronized start for the convoy session. Multi-lap practice and
+reset timing require explicit recorded rules, never an ambiguous global timer.
+
+Show convoy time comparisons and sector deltas. Finish/timeout/spectate rules
+remain clear; one slow or disconnected car does not hold everyone forever.
+Do not award the pure-contact-PvP winner bonus in Time Attack simply because
+multiple authenticated humans are present. Use the declared Time Attack payout
+bands, no RP farming, and no ghost-imposed collision.
+
+7. CONVOY INTENT IS NOT CURRENT ACTIVITY
+
+The leader has a persistent, replicated Intent: Campaign, Freeplay, or
+Challenges, with Normal/Hard or submode details when known. This is separate
+from what the leader is actually doing now. Example:
+'Leader: Robin — Garage | Intent: Hard Campaign | Mode ready: 3/6'.
+
+Every member retains coarse actual presence and local screen information.
+Do not label a leader standing in the meet as 'In Campaign' merely because the
+intent is Campaign. Do not broadcast password/reset screens, typed messages,
+private account details, or unsaved fine-grained customization changes.
+
+Changing Intent creates a new mode-proposal revision. Old Mode Ready and Event
+Ready states cannot authorize it. All members explicitly agree; the leader's
+Enter Mode action commits the transition once they are all ready. Solo uses the
+same intent/confirmation semantics without artificial waiting for absent peers.
+Entering a mode never starts its event automatically.
+
+Mode-specific leader controls and client views:
+- Campaign: leader preview/proposal, shared frontier, right-side record panel;
+  clients inspect, follow, compare their own records, and ready.
+- Freeplay: voting policy, ballot/draw or direct selection, course access,
+  mode options and AI controls; clients vote/inspect and ready.
+- Challenges: leader picks a compatible trial/challenge event; clients see the
+  metric, eligibility, loaner/team composition and their own relevant progress.
+
+Ready requests reach people in Garage, Meet, Card, or other allowed menus through
+the SIGNAL ribbon and a persistent actionable indicator. Do not spam repeat
+modals. Keep explicit Unready and preserve local drafts. Shared mode entry must
+not discard a paint edit: save a draft or resolve Apply/Discard before consent.
+Everyone sees what the leader is proposing, not the leader's full private UI.
+
+8. FRONT MENU, AUTHENTICATION CHOICE, AND REAL OFFLINE PLAY
+
+8.1 Startup identity
+
+Opening the game presents an authored Main Menu front and center, with its own
+exclusive title theme, distinct from post-login convoy/menu music. Required
+actions: Online Login (or Continue Online for a valid saved session), Offline
+Play, Settings, and Credits/Quit as appropriate. Remembering credentials is not
+permission to hide the choice or show a fake online status before connection.
+
+An offline/unreachable server must not trap the title in a retry loop. Show
+connection state, Retry, and Offline Play. Loading the title and entering an
+existing local profile do not require internet, a Supabase account, Docker,
+Unity Editor, a separately installed server, or an external runtime service.
+
+8.2 Local progression domain
+
+Offline Play is a genuine single-human campaign/freeplay/challenge/garage mode
+with local saves, AI opponents/teammates, the same authored courses/story, local
+currency and unlocks, local personal bests, and an offline meet/photo/boombox
+space. It is not an online-looking page full of fake friends or connected cars.
+Reuse the shared rules/content/vehicle simulation with an isolated local
+persistence adapter; do not build a second incompatible racing engine.
+
+Clearly mark the profile 'Local / Offline' throughout relevant menus, wallet,
+records and rank. The local card needs a display name and appearance but no
+password or globally reserved handle. No online Friends, convoy invitations,
+public meet membership, verified online leaderboard submissions, or server RP
+writes are available. An optional offline photo space has authored ambience,
+not bots falsely labeled as real online visitors.
+
+Local progress and the authenticated Online profile are separate. Offline can
+have its own 15,000-RP mastery track but cannot upload that rank, currency,
+course rights, records, achievements, OST unlocks or owned parts as verified
+online state. Do not silently merge ledgers or accept a local JSON save as a
+signed online race receipt. Explain this before starting the first local game
+and again when switching domains. This separation is a deliberate launch
+tradeoff, not an error or erased save.
+
+A future trusted offline-to-online progression scheme requires a separate design
+and explicit approval. Do not invent client signatures with a secret embedded
+in the game and describe them as proof of honest offline play.
+
+Save local profiles atomically with schema versioning, bounded recovery copies,
+and clear disk-error reporting. Preserve existing online and local data through
+updates. Gameplay preference settings may be shared by user choice. A cosmetic
+layout blueprint may be offered across domains only as an optional draft; the
+Online server must revalidate ownership/compatibility of every referenced item.
+No silent stripping of an offline livery while overwriting the online one.
+
+8.3 Go Online and connection loss
+
+Provide Go Online in ordinary offline menus. Pause or finish a local event and
+preserve its result before switching; an in-progress local race cannot become
+an online reward-eligible race halfway through. Authenticate, establish the
+actual control connection, load the server-owned profile, then enable Friends,
+convoys, online meet access, and verified record views. Failed connection keeps
+the offline profile intact. Never show online success from cached credentials
+alone. On return Offline, retain that separate local profile unchanged.
+
+A midrace online connection loss does not silently convert the current online
+race into a reward-eligible offline copy. Resolve that entry under DQ/Aborted/
+durable-finish rules, then offer Reconnect or Offline Play. Once offline, the
+Friends panel is unavailable; cached names must not present false live statuses.
+
+9. FRIENDS, USERNAMES, AND SAFE SIMPLE ACCOUNTS
+
+9.1 A useful, toggleable friends panel
+
+Provide a Friends button with request/invite count where useful. The panel is
+closed by default and can be opened/closed on demand from appropriate online
+menus and the meet. Do not keep a permanent friends sidebar consuming the car
+view. Active driving must not be obscured by unsolicited friend popups; defer
+requests to a safe overlay/results view. Offline hides/disables this feature
+with a clear Go Online explanation, not a fake populated list.
+
+Add friends by exact @username lookup, showing their public Player Card before
+Send Request. Requests require acceptance. Support cancel pending request,
+accept, decline, remove friend, and block. These operations are idempotent;
+retries cannot create duplicated relationships. Rate-limit abusive searches,
+requests and invitations even in a small friend group. Profanity filtering is
+not a launch requirement, but length limits, safe rendering and input validation
+are still required.
+
+Rows include the public card/avatar, display name and unique handle, connection
+status, and permitted coarse activity: Available, Garage, At Meet, Preparing,
+Loading, Racing, Spectating, Away, or Offline. Stale/unknown status is not a
+false confirmed Offline/Online claim. Friends can inspect cards, invite to
+convoy, request/join where permission allows, and Rejoin only when the server
+supplies that eligible action. Do not reveal email, IP, access tokens or wallet.
+
+Friend relationships belong to stable account IDs, not mutable display names.
+Invitation permissions/capacity, room privacy, block lists, build compatibility,
+and current activity are checked on the server at use, not trusted from an old
+button state. Race joining remains spectate/next-event only after allocation.
+
+9.2 Names and credentials
+
+Use a distinct public username at online registration, alongside the existing
+email/password provider flow. Initial handle rule:
+- 3–20 ASCII characters; first character is a letter; remaining characters are
+  letters, digits or underscore. Example: Robin_Birdi.
+- Case-insensitive uniqueness using a canonical lowercase value and a database
+  uniqueness constraint. Keep a display casing separately if desired.
+- Strip an optional leading @ for lookup, not as part of the stored handle.
+  No spaces, control characters, markup, ambiguous Unicode confusables, or
+  system-reserved handles such as admin/system/support.
+- Display name is separate and can use supported Unicode, within a 24-grapheme
+  budget. Render as literal text, including in Unity rich-text-capable widgets.
+- Existing accounts need a safe handle-claim step, not new accounts or a wallet
+  reset. Use stable IDs for all friendships/progress after a handle change.
+
+Keep Email + Password for sign-in and provider-supported email recovery at
+launch. Do not add a custom username/password credential store or expose an
+unauthenticated username-to-email mapping just to make friend lookup work.
+Username login is not required by this revision. No passwords for local profiles.
+
+Password policy for new/changed passwords: minimum 15 characters, maximum at
+least 64 where the actual provider safely supports it; allow spaces and
+password-manager paste. Do not require an uppercase/lowercase/digit/symbol mix,
+periodic forced changes, or security questions. Check common/compromised choices
+using supported mechanisms without buying a new plan or leaking passwords.
+Existing users must retain a recovery path; do not silently lock out all prior
+accounts when strengthening registration validation.
+
+Verify the exact deployed provider's character and encoded-byte limits and
+apply them consistently in registration, reset, change and login. Supabase's
+documented bcrypt storage makes this a real compatibility check: do not assume
+64 arbitrary Unicode characters always fit a provider byte limit. Reject an
+unsupported value with a clear length explanation; never trim, case-fold,
+silently truncate, or invent client-side prehashing to work around it. Do not
+claim full NIST compliance merely from these few policy choices.
+
+Provider owns hashing, token issuance and recovery. Keep passwords out of game
+logs, crash dumps, analytics, repository files, RPC payload dumps and PlayerPrefs.
+Use protected transport, protected refresh-credential storage, generic invalid-
+credential messages, endpoint rate limiting, and non-enumerating password-reset
+responses. Email verification/reset delivery is a real operational dependency;
+development mail capture is not proof that a friend's real email was sent.
+
+10. DISCONNECTION REMOVES MEMBERSHIP, NOT THE OPTION TO RETURN
+
+10.1 Confirmed disconnection versus ordinary latency
+
+Use the master's bounded heartbeat/transport-disconnect handling; a delayed
+packet or brief UI hiccup is not immediate DQ. On confirmed loss of the required
+server/control connection, remove the player from ACTIVE convoy membership,
+clear their readiness and accepted vote, release ordinary seat occupancy, and
+publish one roster change. Do not leave an offline member permanently blocking
+'all ready' or silently replace them with an AI in the running race.
+
+A dropped gameplay connection during an event also triggers the race DQ rules
+and the required membership update, even if another channel remains connected.
+Keep actual account connectivity and race participation distinct when showing
+'Reconnected to service / Disqualified from this race'.
+
+10.2 Server-owned rejoin eligibility
+
+Before removing membership, record a server-owned rejoin grant containing the
+account ID, convoy ID, leadership epoch, reason, and relevant permissions.
+This is not a client-invented last-convoy string and not a permanently active
+seat reservation. Keep at most the relevant current grant per account.
+
+The grant remains meaningful while that same convoy exists with the same
+leadership epoch. Invalidate it when:
+- Leadership changes, even if it later returns to the same person.
+- The convoy disbands.
+- The member is kicked/blocked, its permission is revoked, or account access
+  is disabled.
+- The user explicitly chooses Leave/Forget Convoy, or joins a different convoy.
+
+Do not add a hidden 60-second eligibility expiry that contradicts this rule.
+Short-lived transport/ticket tokens may expire; a valid account can request a
+fresh ticket from the still-valid server grant. Capacity can temporarily prevent
+rejoining without claiming the underlying prior-membership fact never existed.
+
+After account connectivity returns, the server supplies canRejoin plus a reason
+when unavailable. Offer one 'Rejoin [convoy]?' prompt with Rejoin / Not Now.
+Not Now dismisses the popup without erasing eligibility. The Friends list can
+later display Rejoin for a friend in that same eligible convoy. Suppress
+repeated prompts during reconnect retries. Never show an enabled Rejoin action
+solely because local storage remembers a convoy name.
+
+Revalidate atomically when clicked. If full, show Full; if leader changed, say
+so and permit a normal invitation/request path where allowed. Do not eject a
+new member or violate the six-human cap to reclaim a former slot.
+
+10.3 Leader loss and event integrity
+
+If the leader disconnects while others remain, show the existing short leader-
+unavailable grace, default 15 seconds after confirmed loss. Disable leader-only
+commits during it. If they reconnect and explicitly rejoin before transfer,
+leadership may remain unchanged. Otherwise elect the longest-connected eligible
+member with stable tie breaking and increment leadership epoch. All old rejoin
+grants then fail the leadership condition; the former leader does not seize
+control on return. A normal new invite remains possible.
+
+If no active members remain, disband that convoy; do not preserve an empty room
+indefinitely just to retain grants. The client explains that there is no active
+convoy to rejoin. A system-wide server recovery must use durable validated room
+state or mark it unavailable, not fabricate a recovered membership list.
+
+Rejoining restores convoy membership only. During loading/racing, a previously
+DQ entrant stays DQ and can Spectate or return to menus. The next event needs
+new readiness. The server continues other drivers' race after leader loss.
+Pre-DQ durable finishes and reward receipts still settle exactly once; invalid
+client claims cannot be converted into compensation or a second entrant.
+
+11. HIGH-ENERGY AUDIO AND AN UNLOCKABLE OST
+
+11.1 Audio identity and routing
+
+Give the opening Main Menu its own unmistakable theme. The signed-in menu,
+Campaign map, Freeplay and challenge browsing should be notably energetic:
+original eurobeat-inspired hooks, EDM rhythm, and selected rock arrangements.
+The Garage/parts/livery editor is less dense and more relaxed without becoming
+unrelated sleepy background music. The meet has an inviting default cue and the
+interactive boombox described below.
+
+Energy means groove, arrangement, rhythmic articulation and memorable melody,
+not simply increased volume or faster random notes. Preserve headroom and
+consistent perceived levels between tracks. Menus should remain tolerable for
+long tuning sessions. Engine, tyres, impacts, UI, ambience and voice/subtitles
+retain independent appropriate mix controls. Muting music cannot mute start
+lights, important alerts or driving cues. Avoid piling a menu loop under a meet
+track or restarting a song after every small submenu selection.
+
+Recommended minimum cue inventory: 24 genuinely authored arrangements:
+- 1 exclusive opening/title theme.
+- 2 connected-menu/map/freeplay themes or substantial contrasting arrangements.
+- 1 Garage/customization theme.
+- 1 default meet theme.
+- 1 tutorial bed.
+- 2 results treatments: success and loss, not punitive/error-system noises.
+- 6 regional ordinary-race themes spanning eurobeat/EDM/rock.
+- 4 lieutenant/key-rival themes, one for each encounter identity.
+- 1 penultimate mastery theme.
+- 1 Normal final-boss theme.
+- 1 Hard legendary-final-boss theme.
+- 3 Team Trial themes, one per trial.
+
+This is a minimum production target with a scope cost, not permission to count
+the same 15-second loop under 24 names. Main loop material should develop for
+roughly 90 seconds or more before an obvious full repeat, with musically clean
+loop points and intros/outros appropriate to event transitions. Small results
+stingers may be shorter. Reuse motifs deliberately, not all instruments and
+melodies unchanged. No franchise tracks, recognizable copied melodies, ripped
+engine samples, or unauthorized performer imitation.
+
+11.2 Special themes remain special
+
+Lieutenant, penultimate, Normal-final and Hard-final themes play only in their
+assigned encounter context and, once legitimately unlocked, the boombox.
+Exclude them from ordinary menu shuffle, unrelated races, generic Freeplay,
+random boss playlists, and ordinary track previews. Short arrangement stems
+used within their own intro/race/outro are allowed, but their identity must not
+leak into every event merely because the same course is reused.
+
+R40 and R48 each get a different full theme; do not just speed up or transpose
+the Normal finale for Hard. Ordinary course reuse must not trigger a final
+boss theme through a course-ID-only audio lookup. Event context controls music.
+
+11.3 Unlocks
+
+Every collectible cue has a stable ID, audio asset/provenance, allowed contexts,
+and one declared acquisition rule. No mystery event references or missing
+unlock paths. Baseline title/menu/garage/meet/tutorial/results cues are available
+in the player's local/online collection from the appropriate initial/tutorial
+state. They do not need an impossible 'defeat a menu' condition.
+
+Regional race cues unlock on the first eligible clear of the declared first
+Normal campaign stage featuring that cue. Each lieutenant cue unlocks on that
+lieutenant's first designated campaign defeat. Penultimate unlocks from its
+stage; final cues from Normal S30 and Hard S30 respectively. Trial cues unlock
+from the first eligible victory in their named Team Trial. Record exact IDs in
+a music-unlock manifest before implementing them. Use the first canonical
+source event, not whichever event happens to load earliest on a player's PC.
+
+Merely hearing a cue, viewing a cutscene, losing, listening at somebody else's
+boombox, spectating, or buying a course does not unlock it. The Online server
+awards the collection entitlement with the relevant eligible result transaction,
+exactly once. Offline does the same only in its local domain. OST collection
+adds no mastery RP and does not replace any of the 75 cosmetic rewards.
+
+11.4 Meet boombox
+
+Place an original, clearly interactable boombox at an appropriate safe social
+spot, such as the tea kiosk/radio bench. Within interaction range, a player can
+browse their unlocked cues, see titles and source-event notes, and cycle or
+queue a track. Locked entries are silhouettes or spoiler-safe labels with an
+unlock hint. Final themes must not be previewed through a supposedly locked
+menu. Basic skip/queue controls work with controller and mouse.
+
+The meet has ONE shared playback state owned by the server: room ID, track ID,
+queue revision, playback start timestamp, submitting player, and short control
+lease. Replicate metadata and play the bundled audio locally; do not stream
+someone's computer audio or send PCM over vehicle networking. Late visitors
+seek to the current position where supported. Synchronization is social, not
+sample-accurate DJ networking; correct drift without rapid audible restarting.
+
+Anyone present may queue music they personally own, even if other listeners
+have not unlocked it. Hearing grants no ownership. For public/private friend
+comfort, default 'Protect unreached boss music' ON: a listener who has not
+unlocked that boss cue may hear the neutral meet bed locally instead. They can
+opt in explicitly without gaining the cue. Do not display an unreached final
+rival's name in a track title when protecting spoilers.
+
+Serialize controls: short 15-second renewable interaction lease, one queued
+selection per person, a bounded queue (maximum six requests), and a minimum
+10-second room-wide interval between user-triggered track changes. Provide a
+clear queue/Now Playing view, not race-condition 'last packet wins'. Closed UI,
+out-of-range, disconnect, or changing activity releases control. A track already
+playing may finish after its submitter leaves; remove that person's unplayed
+requests and choose from remaining valid requests afterward. If none remain,
+return to the default meet cue.
+
+Local mute/volume, leaving the audible area, spoiler protection, or entering a
+race cannot stop music for everyone. Fade the boombox appropriately with distance
+and mix the room's fallback bed without two full-volume tracks competing.
+Offline meet uses the same interaction locally without pretending other people
+are connected. Audio unlocks, timing, and controls must survive reconnect without
+repeated notices or abandoned AudioSources.
+
+12. CAMPAIGN-ONLY FINAL RIVALS
+
+R40 Reina Kurogane and R48 Shiori Kuze are selectable as live opponents ONLY in
+their assigned Normal/Hard final campaign encounters. Defeating them does not
+add them to the Freeplay opponent selector. Exclude them from random opponent
+pools, support fillers, friendly AI, Team Trials, Custom Cup substitutions,
+ordinary ghost-target libraries, and challenge opponents.
+
+A final boss can still appear in authored story/diary material with appropriate
+spoiler gates. The player may replay an eligible campaign finale through the
+campaign map. Finale route C25 can be used in neutral Freeplay after unlocking
+or with a valid guest pass, but selecting that route cannot smuggle in the
+final boss, final story sequence or exclusive battle theme.
+
+Other rivals, including defeated lieutenants, follow their normal discovery/
+Freeplay eligibility, without their encounter-exclusive score being used for
+unrelated races. Keep 48 authored identities; final-only characters count
+because they are fully implemented in campaign, not because they are arbitrary
+Freeplay placeholders.
+
+Validate requests server-side. A forged rival ID must fail even if its portrait
+is absent from the menu. Audit old catalogues: if a final ID was used as an
+ordinary/support draw, replace that use with an appropriate existing non-final
+rival and record the mapping. Preserve each final's identity and full encounter.
+
+13. VEHICLES AND ART: CUSTOMIZATION IS A RELEASE PRIORITY
+
+The high priority is a recognizable, attractive car someone wants to personalize,
+not a box with four wheel primitives and a statistics sheet. Keep all 18 distinct
+fictional model identities from the master and create convincing proportions,
+body surfacing, wheel wells, bumpers, lamps, glass, mirrors, exhaust, interior
+silhouettes, rubber/metal/paint separation, and animated wheels/suspension.
+
+Use crisp stylized 3D with controlled toon/cel shading, purposeful hard/soft
+edges, clean silhouettes, selective graphic outlines, and restrained comic-style
+presentation in intros/results. Characters can be expressive and slightly
+exaggerated; clothing and cars should retain dimensional material detail.
+The familiar mountain-racing-anime energy comes from staging, camera work,
+slip-angle shots, rival banter, speed contrast, original eurobeat and readable
+night roads—not copied franchise characters, liveries, logos, frames or music.
+
+The requested 'parody' tone can support original affectionate jokes about
+racing bravado and obsessive tuning. It is not a claim of legal clearance or a
+license to import protected assets. Keep original names/brands and the current
+Signal / Sector UI identity. No RPG Folio visuals, generic AI template cards,
+photorealism requirement, or distracting always-on manga effects over corners.
+
+Every car needs actual visible customization appropriate to its chassis:
+paint regions and finishes; rims; validated wheel fitment/ride height; front and
+rear appearance options; skirt/body-kit variation; spoiler/wing choices where
+appropriate; visible exhaust-tip options; safe lamp/tint presets; plates; and
+layered decals. Do not claim an option exists because its name appears in a
+shop but the rendered mesh never changes. Mechanical-only parts should be
+labeled honestly; there is no need for a visible new engine block for every
+intake stat change.
+
+As an initial coverage floor per car, target stock plus at least two distinct
+non-stock choices for each supported bumper/front, rear, side/body and rear-
+aero visual family; provide a shared catalogue of at least eight well-made rim
+designs with proper fit per chassis. Where a chassis genuinely makes a family
+inappropriate, supply a documented equivalent styling family rather than hiding
+missing work behind 'not supported'. Fitment must not clip tyre through fender,
+put wheels outside collision bounds, or create hidden physics advantages.
+
+Keep the 64-layer decal system, meaningful undo/redo, apply/cancel draft model,
+car presets, validated ownership, network-safe update cadence, and real part
+tradeoffs. Store attachment anchors, material/paint zones, decal masks, wheel
+geometry and LOD relationships by stable chassis definition. Confirm remote
+players see the same selected parts, livery revision and colors at meets/races.
+
+A future real-car catalogue is an extension direction, not a launch requirement.
+Separate model identity, handling configuration, cosmetic mount points and asset
+provenance so additional authorized models can be added later. Do not download
+real-car asset packs, reproduce protected badges/liveries, change licences, or
+incur costs on the strength of that future aspiration.
+
+Art acceptance must include close-up garage rotation, customization before/
+after pairs, all-car silhouette sheets, and a six-human/twelve-car driving view.
+Low-detail prototypes are allowed during physics work but cannot be labeled
+finished release art. Optimize with LODs, good meshes/materials and bounded
+lighting, not by shipping primitive cars after designing a detailed garage.
+
+14. ECONOMY, DATA, AND MIGRATION CONSEQUENCES
+
+Retain wallet cap 9,999,999 and individual performance-part ceiling 200,000.
+Original affordable cosmetics, free legal campaign loaners, losing-finisher
+income, no quitter payout, idempotent first clears and finite mastery budget
+remain. Track purchases and boombox collections do not create entry fees or
+extra RP. Clarify price-versus-parts choices without forcing every friend to buy
+another friend's chosen circuit.
+
+Extend ordinary race placement rewards to the larger field explicitly:
+first 1.35, second 1.20, third 1.10, fourth through TWELFTH 1.00. AI receive no
+transactions. Recalibrate ordinary payout pacing with actual humans plus AI;
+do not multiply base income merely because an event spawns twelve cars.
+Team/Time Attack results use their declared modifiers. Preserve the existing
+conditions for pure-PvP bonus, and exclude AI-containing and Time Attack events.
+
+Examples of affected typed data (adapt existing schemas; these are concepts,
+not a mandate for a new framework):
+- ActivityIntent and separate ModeAgreement/EventReady revisions.
+- RaceRoster entries with human/AI/team roles and max-vehicle validation.
+- CourseAccessDefinition, acquisition method, sponsor/guest pass.
+- BallotSession, server deadline, accepted votes, frozen draw outcome.
+- MetricDefinition, RecordKey, verification domain and compatible bests.
+- LocalProfile versus OnlineProfile and separate ledgers/stores.
+- UniqueHandle, FriendRelationship and invitation permissions.
+- RejoinGrant and leadership epoch, separate from active membership.
+- MusicCueDefinition, unlock-source manifest, OST entitlement, MeetAudioState.
+- ModelVisualDefinition and visible-part/attachment/LOD coverage.
+
+Version the effective rules/protocol/catalogue. Update prefab arrays, grid
+positions, UI standings, AI IDs, ticket validation, score thresholds and tests
+that formerly assumed exactly six TOTAL cars. Search all affected systems, not
+just one capacity constant. Old six-human benchmark-only encounter generation
+must not remain enabled on one client or server path.
+
+Preserve already earned legitimate progress; do not wipe the database to avoid
+migrations. Archive old record categories where physics/contact changed. Avoid
+re-settling old events under a new payout policy. A pending old-version receipt
+needs its original rules or an explicit safe migration, not reinterpretation.
+Keep existing purchase/reward IDs stable. Update the original JSON seed or apply
+a versioned overlay so importing it again cannot restore obsolete rules.
+
+15. IMPLEMENTATION ORDER AND CHECKPOINTS
+
+First reconcile this addendum into the actual newest state. Then prioritize:
+
+A. Rules/schema/network corrections: six humans, twelve total vehicles, live
+   finale rivals, bounded contact, ownership/progression domains, leadership
+   epoch and readiness/voting contracts. These must not wait until every menu
+   or course has been decorated.
+B. Demonstrate the small real network slice again: two humans plus AI, then six
+   humans plus a live rival, then six plus six; reconnect/DQ and contact behavior.
+   Add the real Offline/Go Online boundary early, not a last-minute fake button.
+C. Complete campaign map/personal records, mode intent, Friends, course access,
+   voting, group Time Attack, and Team Trials through actual backend/UI actions.
+D. Add the new course content, OST ownership/boombox, and authored audio while
+   continuing the original campaign/content assignment. Give visible car
+   customization proper asset-production attention, not only statistics.
+E. Integrate and validate all original plus revised launch criteria, regenerate
+   builds, verify source/LFS checkpoints, and deliver honestly.
+
+These are within the full ongoing assignment, not permission to stop at A or B.
+Do not declare the original 26-course deliverable complete while the added
+courses are omitted, or label local-only networking as the online result.
+Use the existing one-coordinator Unity workflow and safe parallel file ownership.
+Keep about 10–15 minutes of substantive work between safe verified remote
+checkpoints where practical. Checkpoint before risky migrations or long builds.
+
+No new paid services, billing changes, public deployments, firewall exposure,
+licence changes, main merges, force-pushes, destructive cleanup, or unrelated
+project edits are authorized. Report a genuine missing permission/credential
+precisely and continue independent safe work. Do not invent server/account
+success or silently remove a feature because an integration is not ready.
+
+16. ACCEPTANCE TESTS — ADD TO, NOT IN PLACE OF, THE EXISTING SUITES
+
+Capacity and live opposition:
+- Exercise every H=1..6 with legal friendly/opponent totals; reject H=7 and
+  thirteen race vehicles. Test maximum AI with one human and six humans.
+- Demonstrate six independent human clients plus six server-controlled AI.
+  Label localhost versus remote-device tests and capture meaningful performance.
+- Both final encounters have a live visible solid final rival with H=1 and H=6;
+  no hidden benchmark-only substitution or duplicate final IDs.
+- Twelve-car start poses do not overlap or trap a racer; all 29 courses support
+  their declared event/grid variants. Test collisions at full plausible speed.
+- Time Attack supports H=1..6, all cars mutually non-contact, barriers still
+  collide, and live opponent AI cannot slip in through a stale configuration.
+
+Progress and scoring:
+- Campaign frontier and Hard access still work; buying C20 cannot unlock its
+  campaign stage. A six-human Hard boss still needs the published human threshold.
+- Team mean uses all six starting positions including DNF penalty. Dropping a
+  slow teammate cannot improve the denominator; AI do not get receipts or RP.
+- Team sums cannot complete individual raw-score/technique challenges. Original
+  75 rewards and 15,000 RP remain; three Team Trials are not accidental RP sources.
+- Fourth through twelfth placements receive the intended participation modifier.
+  Replayed first clears, guest passes, OST unlocks and retries never duplicate pay.
+
+Map and records:
+- Every stage node is usable by keyboard/controller/mouse; progression lines and
+  gradual world reveal are meaningful. Panel opening/closing and rapid reselection
+  do not lose focus, stack animations, or block input invisibly.
+- Each of six viewers sees THEIR PB, not the leader's. No-record/uncleared/best
+  losing run/legacy/pending states display differently. Convoy top three/all-six
+  comparisons respect compatible rules and verification domains.
+- Client inspection never changes leader proposal; Follow/Return restores the
+  shared preview. Record fetching or a server error cannot freeze map navigation.
+
+Course rights and votes:
+- Test starter access, all dual-unlock mappings, C25 reward-only access, all three
+  exclusive purchases, failed payment, double-submit, and purchase/unlock races.
+- A non-leader sponsor makes a route playable by guests without granting permanent
+  access. Loss of sponsor before allocation invalidates it; after allocation does
+  not destroy already-issued event/cup passes.
+- No vote opens before unanimous Mode Ready. Changeable one-vote-per-member,
+  deadline, empty pool, single candidate, weighted votes, reconnect, leader
+  override, membership change, and stale packets all produce coherent outcomes.
+- The same frozen random selection reaches all clients regardless of animation
+  speed, dropped frames or reduced motion. Reconnect cannot reroll.
+- Final Event Ready is still required after voting; a vote timer cannot start
+  unready clients or overwrite an unsaved garage draft.
+
+Online/Offline and friends:
+- With network disabled from process start, reach Offline Play, save/reload a
+  local campaign, customize cars, complete a local event, and use the offline
+  meet/boombox. No external stack, login or fake online friend is required.
+- Go Online authenticates and loads the actual online profile; failure leaves
+  local data intact. No local balance/entitlement/RP/record is accepted online.
+- Case-insensitive handle uniqueness is atomic. Friend-request retries don't
+  duplicate edges. Public card lookup exposes no email or credentials.
+- Friends panel is on-demand, keyboard/controller usable and unavailable Offline.
+  Stale status, invitation denial, full convoy and permission change are visible.
+- Password policy is actually enforced through supported provider paths, including
+  resets and Unicode/byte-limit cases; logs and error responses reveal no secrets.
+
+Rejoin:
+- Confirmed disconnect removes active membership/readiness/ballot but stores the
+  correct grant. Brief network jitter doesn't instantly DQ someone.
+- Valid rejoin with same epoch works; Not Now preserves eligibility without
+  popup spam. Full convoy, changed leader, disband, kick/block, joining another
+  convoy and expired transport token all yield the specified distinct behavior.
+- Leadership returning to the same account later does not revive an old epoch.
+  No reserved phantom seat; no seventh human; no DQ entrant resumes driving.
+- A finished driver's durable payout survives disconnect and is not paid twice.
+
+Audio and presentation:
+- Opening title and post-login menus use distinct tracks. Garage mix is calmer.
+  Every special cue is excluded from generic menus/Freeplay until only its
+  permitted encounter or unlocked boombox context applies.
+- OST acquisition has a valid source event and grants exactly once. Hearing a
+  friend's cue or buying its course does not unlock it. Local unlocks stay local.
+- Two users contend for boombox control, queue requests, leave/rejoin and late-
+  join playback without overlap, rapid spam or duplicated AudioSources. Verify
+  local mute/spoiler protection cannot stop playback for other listeners.
+- R40/R48 are rejected as Freeplay, Cup, friendly-AI and ordinary replay targets
+  by server code, not only omitted from portraits. Campaign replay still works.
+- Capture real close-up vehicle/customization evidence and performance at the
+  largest allowed grid. No visible damage appears after repeated hard contacts,
+  on replay, in results, or at the meet. Cosmetic parts replicate consistently.
+
+Evidence and delivery:
+- Run actual compiled clients and servers; update real schemas/tests/assets.
+  A page of records, authored catalogue, or simulation count is not completion.
+- Test network impairment and at least one authorized external-network scenario
+  as in the master. Distinguish automated driving, human feel tests, measured
+  performance, unavailable hardware, blocked external services and unrun gates.
+- Record source/build/ruleset versions and actual results. Preserve useful failing
+  tests. Do not delete assertions or mislabel evidence from an old six-car build.
+- Finish with source/assets, playable builds, current run instructions, original
+  and new content coverage, selected implementation screenshots/clips, actual
+  test results, verified remote branch/commit and LFS recovery evidence, and an
+  honest limitations report. Do not claim art quality or fun from a unit test.
+
+REFERENCE NOTES FOR THE IMPLEMENTER
+
+The group feedback and this addendum define product choices, not established
+research results. Numerical motion, price, roster and audio targets require
+measured tuning within the stated functional boundaries.
+
+Authentication guidance consulted when drafting:
+- NIST SP 800-63B-4, Authenticator and Verifier Requirements, passwords:
+  https://pages.nist.gov/800-63-4/sp800-63b/authenticators/
+- OWASP Authentication Cheat Sheet:
+  https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html
+- OWASP Password Storage Cheat Sheet (including bcrypt input limits):
+  https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html
+- Supabase password-based authentication and password-security documentation:
+  https://supabase.com/docs/guides/auth/passwords
+  https://supabase.com/docs/guides/auth/password-security
+
+Use those as primary references for provider behavior and policy, not a claim
+that a few password settings constitute a security certification. Verify actual
+installed/deployed versions. Do not automatically purchase paid provider features.
+
+END OF ADDENDUM. Preserve the current work, reconcile the changed rules at the
+next safe checkpoint, then continue the full revised assignment.

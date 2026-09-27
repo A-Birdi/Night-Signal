@@ -62,6 +62,10 @@ namespace NightSignal.Net
             public DriverInput LastInput;
             public float ResetHeld;
             public double LoadingProgress;
+            /// <summary>Racing ticks simulated without that tick's command (input arrived late or was lost).</summary>
+            public int StarvedTicks;
+            /// <summary>Commands first seen after their tick was already simulated.</summary>
+            public int LateInputs;
         }
 
         NetworkManager nm;
@@ -81,6 +85,13 @@ namespace NightSignal.Net
         long deadlineMicros = long.MaxValue;
         bool finishedReported;
         public MatchPhase Phase => phase;
+
+        /// <summary>Per-entrant transport health for evidence: starved ticks and late commands.</summary>
+        public object Diagnostics() => entrants.Select(e => new
+        {
+            entrant = e.Roster.Index, human = e.Human, status = e.Status.ToString(),
+            starvedTicks = e.StarvedTicks, lateInputs = e.LateInputs,
+        }).ToList();
         public string MatchId => assignment?.MatchId;
 
         public void Begin(MatchAssignment a, List<TicketKey> jwks, Action<MatchResults> finished)
@@ -258,7 +269,12 @@ namespace NightSignal.Net
                 DriverInput input = Wire.ReadInput(reader);
                 int tick = latestTick - (count - 1 - i);
                 // Late commands for ticks already simulated are ignored; far-future ones are rejected.
-                if (tick <= now - 1 || tick > now + 120) continue;
+                if (tick <= now - 1)
+                {
+                    if (tick > e.LatestInputTick) e.LateInputs++;
+                    continue;
+                }
+                if (tick > now + 120) continue;
                 int slot = tick & 255;
                 e.Inputs[slot] = input;
                 e.InputTicks[slot] = tick;
@@ -329,12 +345,16 @@ namespace NightSignal.Net
                     {
                         firstHumanFinishMicros = e.Progress.FinishTimeMicros;
                         deadlineMicros = ComputeDeadline(firstHumanFinishMicros);
+                        foreach (ulong id in byClient.Keys.ToList()) SendPhase(id); // clients show the finish window
                     }
                 }
             }
+            // Spec §6: finish early only when every remaining entrant (AI included) is done; otherwise run to the
+            // deadline. If no human is left racing and none finished, nobody can be rewarded, so settle now.
             bool anyActive = entrants.Any(e => e.Status == EntrantStatus.Racing);
             bool anyHumanActive = entrants.Any(e => e.Human && e.Status == EntrantStatus.Racing);
-            if (!anyActive || !anyHumanActive && firstHumanFinishMicros >= 0 || raceMicros >= deadlineMicros || raceMicros > 15L * 60 * 1_000_000)
+            bool noHumanCanFinish = !anyHumanActive && firstHumanFinishMicros < 0;
+            if (!anyActive || noHumanCanFinish || raceMicros >= deadlineMicros || raceMicros > 15L * 60 * 1_000_000)
                 FinishRace();
         }
 
@@ -347,6 +367,7 @@ namespace NightSignal.Net
                 return e.LastInput;
             }
             // Missing input: repeat the last one briefly, then coast and brake (spec §4.4: never hold throttle).
+            e.StarvedTicks++;
             float starved = (tick - e.LatestInputTick) * VehicleSimulation.TickDt;
             return e.LastInput.Starved(starved, Limits.InputStarvationCoastMs / 1000f);
         }
@@ -440,6 +461,8 @@ namespace NightSignal.Net
         {
             phase = p;
             phaseStartedAt = Time.realtimeSinceStartup;
+            int now = nm != null && nm.IsListening ? nm.LocalTime.Tick : -1;
+            Debug.Log($"[NightSignal.Server] phase {p} at tick {now}" + (p == MatchPhase.Countdown ? $", start tick {startTick}" : ""));
             if (nm == null || !nm.IsServer) return;
             foreach (ulong id in byClient.Keys.ToList()) SendPhase(id);
         }
@@ -450,6 +473,7 @@ namespace NightSignal.Net
             {
                 w.WriteValueSafe((byte)phase);
                 w.WriteValueSafe(startTick);
+                w.WriteValueSafe(deadlineMicros == long.MaxValue ? -1L : deadlineMicros);
                 nm.CustomMessagingManager.SendNamedMessage(Wire.MsgPhase, clientId, w, NetworkDelivery.ReliableSequenced);
             }
         }
@@ -469,6 +493,7 @@ namespace NightSignal.Net
                     w.WriteValueSafe((ushort)e.Progress.CheckpointsPassed);
                     w.WriteValueSafe(e.Progress.RaceDistance);
                     w.WriteValueSafe((int)(e.Progress.FinishTimeMicros / 1000));
+                    w.WriteValueSafe(e.Human ? e.LatestInputTick : -1); // input acknowledgement (client RTT + lead)
                     VehicleState s = e.State;
                     s.Tick = (uint)tick;
                     Wire.Write(w, s);

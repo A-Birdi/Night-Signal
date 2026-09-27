@@ -142,7 +142,7 @@ namespace NightSignal.Net
                     role = "dedicated game server (separate process)",
                     matchId = a.MatchId, kind = a.Kind, stageId = a.StageId, courseId = a.CourseId,
                     humans = a.Entrants.Count, ai = a.AiEntrants.Count, build = NetConfig.Build, contentHash,
-                    results, controlPlaneResponse = status, utc = DateTime.UtcNow.ToString("o"),
+                    results, transport = active != null ? active.Diagnostics() : null, controlPlaneResponse = status, utc = DateTime.UtcNow.ToString("o"),
                 };
                 File.WriteAllText(Path.Combine(cfg.EvidenceDir, $"server-{a.MatchId}.json"), Newtonsoft.Json.JsonConvert.SerializeObject(ev, Newtonsoft.Json.Formatting.Indented));
             }

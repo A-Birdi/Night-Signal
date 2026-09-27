@@ -1,0 +1,111 @@
+{
+  "driver": "AutoClient scripted autopilot (not a human)",
+  "process": "independent client player process",
+  "account": "…000001",
+  "role": "leader",
+  "matchId": "m_d3bf22cc796df7751f464dcb",
+  "stage": "S01",
+  "course": "C01",
+  "car": "V01",
+  "rttMs": 504,
+  "snapshots": 1825,
+  "inputPacketsSent": 2691,
+  "reconciliations": 37,
+  "maxCorrectionMetres": 2.53495026,
+  "result": {
+    "EntrantId": "00000000-0000-4000-8000-000000000001",
+    "Human": true,
+    "Outcome": "Finished",
+    "FinishTimeMicros": 86622886,
+    "Placement": 2,
+    "Clean": true,
+    "CheckpointFraction": 1.0,
+    "ActiveProgressVerified": true,
+    "ActivelyDroveLegalCourse": true,
+    "LegalProgressMetres": 3025.528564453125,
+    "RawDriftScore": 0,
+    "ContractsPassed": 0,
+    "ChallengesCompleted": [
+      "CH01"
+    ]
+  },
+  "entrants": 6,
+  "receipt": {
+    "matchId": "m_d3bf22cc796df7751f464dcb",
+    "accountId": "00000000-0000-4000-8000-000000000001",
+    "status": "settled",
+    "eventKind": "CampaignStage",
+    "mode": "normal",
+    "stageId": "S01",
+    "courseId": "C01",
+    "outcome": "Finished",
+    "placement": 2,
+    "tied": false,
+    "finishTimeMs": 86622,
+    "stage": {
+      "qualified": true,
+      "withinSupport": true,
+      "earnedClear": true,
+      "teamSuccess": true,
+      "qualifiers": 2,
+      "requiredQualifiers": 1,
+      "frozenHumanCount": 2,
+      "reason": "Qualified.",
+      "benchmarkTargetMs": 180000,
+      "benchmarkProvisional": true,
+      "benchmarkSource": "provisional: derived from C01.expectedSeconds=180; no certified reference run yet"
+    },
+    "payout": {
+      "base": 6460,
+      "difficultyX100": 100,
+      "placementX100": 120,
+      "cleanlinessX100": 105,
+      "utilityX100": 100,
+      "pvPX100": 100,
+      "eventCredits": 8139,
+      "firstClearBonus": 8000,
+      "challengeCash": 3000,
+      "total": 19139,
+      "note": ""
+    },
+    "credits": [
+      {
+        "type": "event",
+        "requested": 8139,
+        "credited": 8139,
+        "clampedAway": 0
+      },
+      {
+        "type": "first-clear",
+        "requested": 8000,
+        "credited": 8000,
+        "clampedAway": 0
+      },
+      {
+        "type": "challenge:CH01",
+        "requested": 3000,
+        "credited": 3000,
+        "clampedAway": 0
+      }
+    ],
+    "balanceAfter": 31139,
+    "clampedAwayTotal": 0,
+    "firstClearAwarded": true,
+    "challengesUnlocked": [
+      "CH01"
+    ],
+    "cosmeticsGranted": [
+      "COS-CH01"
+    ],
+    "rankPointsBefore": 0,
+    "rankPointsAfter": 140,
+    "rank": "New Signal",
+    "notes": []
+  },
+  "walletBefore": 12000,
+  "walletAfter": 31139,
+  "rankPointsBefore": 0,
+  "rankPointsAfter": 140,
+  "log": "[04:13:00] signed in as account …000001\n[04:13:17] event started\n[04:13:17] connecting to match m_d3bf22cc796df7751f464dcb\n",
+  "utc": "2026-09-27T04:14:52.9696438Z"
+}
