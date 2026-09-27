@@ -10,14 +10,14 @@ Section numbers refer to `SPECIFICATION.md`. Content counts refer to playable, i
 |---|---|---|---|
 | G0.1 | Correct NEW repository/remote (A-Birdi/Night-Signal), not the RPG | verified | V-001 |
 | G0.2 | Real Unity version/project path; editor access through the bridge | verified | V-001, V-003 |
-| G0.3 | Editor baseline pinned (D-001: 6000.6.3f1) | verified | V-004 EditMode guard |
+| G0.3 | Editor baseline pinned (D-001: 6000.6.3f1) | verified | V-004, V-007 EditMode guard |
 | G0.4 | URP configured; Graphics default explicit (D-002) | verified | V-004, V-006 |
 | G0.5 | Optional AI/editor-control packages removed after dependency check (D-003) | verified | V-002 |
 | G0.6 | First verified source push | verified | V-001 (`062bd57`) |
 | G0.7 | Built-client smoke test (build + launch + render) | verified | V-005, V-006 |
 | G0.8 | Local account/control/database stack (Supabase CLI + containers) | blocked | Docker/Supabase CLI not installed; owner approval needed |
 | G0.9 | Server build targets: Windows dev server, Linux dedicated server | blocked (Linux) | Linux/Dedicated Server modules not installed |
-| G0.10 | Git LFS objects uploaded and retrievable | in progress | first LFS assets: setup evidence PNGs |
+| G0.10 | Git LFS objects uploaded and retrievable | verified | V-008 (re-verify whenever new LFS asset types appear) |
 | G0.11 | Credentials scope documented (public vs server-only secrets) | not started | |
 
 ## Core rules and systems

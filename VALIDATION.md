@@ -48,3 +48,16 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   non-black pixel fraction 1.0, target rotated 109°. Screenshot `Evidence/setup/player-smoke.png`.
 - The 40 fps average covers the first 4.5 s after launch of a development build and is **not** a
   performance measurement.
+
+## V-007 — Test re-run at the committed setup checkpoint (2026-09-26)
+- Revision: `6b41a20` (clean working tree).
+- `NightSignal.Tests.EditMode`: 5/5 passed. `NightSignal.Tests.PlayMode`: 1/1 passed. **Pass.**
+
+## V-008 — Git LFS upload and retrieval (2026-09-26)
+- Revision: `6b41a20`. Push uploaded 2 LFS objects (1.0 MB); remote branch SHA = local.
+- Fresh `--depth 1` clone of `dev/night-signal` into a scratch folder: `git lfs ls-files` lists
+  `Evidence/setup/editor-smoke-camera.png` and `player-smoke.png`; their SHA-256 in the clone equal the
+  originals (`2202add9…`, `a031db4f…`) and the files are real PNG data, not pointers. **Pass.**
+- Finding: the template file `Assets/TutorialInfo/Icons/URP.png` (initial check-in) was stored as a normal
+  blob despite the `*.png` LFS rule; converted to an LFS pointer with `git add --renormalize` in the next
+  commit (no history rewrite).
