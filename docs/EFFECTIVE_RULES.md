@@ -143,9 +143,9 @@ owner decides otherwise; nothing below changes a written rule.
    estimate of the applied build (a stock car estimates to exactly its BasePI, so stock entries are unaffected; an
    upgraded car is capped by the estimate). Owner decision needed: keep the estimate as the interim gate, or gate on
    BasePI until the harness calibration lands.
-4. **Content hash.** `music.unlocks.json` is now part of the hashed catalogue documents. `parts.json`,
-   `build-recipes.json` and the `toys/` documents are not yet; they must join before builds or toys affect an online
-   event.
+4. **Content hash.** `music.unlocks.json`, `parts.json` and `build-recipes.json` are hashed catalogue documents
+   (V-041). The `toys/` documents are not yet: the control plane logs its toy content hash, but a client with different
+   toy data is not refused (toys are non-progression; a mismatch would only misdraw the mirrored tables).
 5. **What a brake upgrade changes (measured, V-038).** With ABS and a full pedal every car's stop is tyre-limited in
    the simulation (stock brake force is already above tyre grip, as on real cars), so brake kits do not shorten a
    full-pedal ABS stop — tyres do (T2 tyres + engine + brakes on the starters: −7 %). Brake kits give more

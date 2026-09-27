@@ -13,7 +13,8 @@ using UnityEngine.UI;
 namespace NightSignal.Front
 {
     /// <summary>
-    /// Local Garage (Addendum 02 §8–10) for one car INSTANCE of the open Local profile: a planning draft edited part by part
+    /// Garage (Addendum 02 §8–10) for one car INSTANCE — of the open Local profile, or of the signed-in ONLINE account (the
+    /// control plane runs the same Core operations; see <see cref="GarageBackend"/>): a planning draft edited part by part
     /// (preview parts allowed), the draft compared with the applied race build (PI estimate, class, every changed
     /// simulation input), Apply when every part is owned, Buy-and-Apply for the missing ones (a quote, then a deliberate
     /// second press; Core settles it once), loadouts (8+ slots) and the three protected references restored into the draft.
@@ -48,14 +49,15 @@ namespace NightSignal.Front
         readonly List<Button> loadoutButtons = new List<Button>();
         readonly Dictionary<BuildReferenceKind, Button> referenceButtons = new Dictionary<BuildReferenceKind, Button>();
         Button apply, buyApply, discard, saveLoadout, partPrev, partNext;
-        List<OwnedCar> cars = new List<OwnedCar>();
+        List<GarageCarRef> cars = new List<GarageCarRef>();
+        GarageBackend backend;
+        bool busy, buildLocked;
         CarBuildWorkspace ws;
-        long storedRevision;
         BuildContext ctx;
         PartSlot slot = PartSlot.Tyres;
         List<PartDef> slotParts = new List<PartDef>();
         int partPage, loadoutSelected = -1;
-        PurchaseAndApplyQuote pendingQuote; // shown after the first Buy press; the second press settles it
+        GarageQuote pendingQuote; // shown after the first Buy press; the second press settles it
         string pendingToken, pendingTokenFor;
         bool dirty = true;
 
@@ -64,6 +66,9 @@ namespace NightSignal.Front
         /// <summary>The workspace on screen (tours read it).</summary>
         public CarBuildWorkspace Workspace => ws;
         public string Message => message != null ? message.text : "";
+        /// <summary>True while the (online) garage is answering; clicks are ignored meanwhile.</summary>
+        public bool Busy => busy;
+        public bool IsOnline => backend != null && backend.Online;
 
         protected override void OnBuild(RectTransform root)
         {
@@ -133,8 +138,8 @@ namespace NightSignal.Front
 
             // Test Yard (Addendum 02 §10): drive A (the race build) or B (this draft) before committing.
             (Button yardA, Button yardB) = Pair("TestYard", mcol, 580, 46);
-            Bind(yardA, "Yard: drive A (race build)", () => OpenYard(false));
-            Bind(yardB, "Yard: drive B (draft)", () => OpenYard(true));
+            Bind(yardA, "Yard: A (race build)", () => OpenYard(false));
+            Bind(yardB, "Yard: B (draft)", () => OpenYard(true));
             yardLine = UIFactory.Row("YardRuns", mcol, "", SignalTheme.Small, SignalTheme.Label, 580, 90);
             yardLine.richText = true;
             yardNotes = UIFactory.InputField("YardNotes", mcol, "Notes on how A and B felt (kept on this device)", false, 200, 580, 46);
@@ -202,31 +207,37 @@ namespace NightSignal.Front
 
         public override void OnShow()
         {
-            if (L?.Profile == null || cat == null || parts == null)
+            bool online = App.Domain == SessionDomain.Online && OnlineSession.Current != null;
+            if (cat == null || parts == null || (!online && L?.Profile == null))
             {
-                App.Router.Show(App.ProfileSelect, false);
+                App.Router.Show(online ? (UIScreen)App.Convoy : App.ProfileSelect, false);
                 return;
             }
-            cars = L.Profile.Cars.ToList();
-            carStep.SetCount(Mathf.Max(1, cars.Count));
-            LoadCar();
-            LoadYardNotes();
-            // Entering the workshop captures "Before Workshop" (kept until the session ends).
-            if (ws != null)
+            if (backend == null || backend.Online != online)
+                backend = online ? (GarageBackend)new OnlineGarageBackend(cat, parts) : new LocalGarageBackend(cat, parts);
+            busy = true;
+            backend.Cars((list, error) =>
             {
-                OperationResult r = GarageOperations.BeginWorkshopSession(ws, ctx, DateTime.UtcNow);
-                if (r.Accepted) Save("");
-            }
+                busy = false;
+                cars = list;
+                carStep.SetCount(Mathf.Max(1, cars.Count));
+                if (cars.Count == 0)
+                {
+                    ws = null;
+                    message.text = error.Length > 0 ? error : "No cars in this garage yet.";
+                    dirty = true;
+                    return;
+                }
+                // Entering the workshop captures "Before Workshop" (kept until the session ends; re-entering keeps it).
+                LoadCar(beginWorkshop: true);
+            });
             dirty = true;
         }
 
         public override void OnHide()
         {
-            if (ws != null && ws.Workshop.Open)
-            {
-                OperationResult r = GarageOperations.EndWorkshopSession(ws, ws.Revision);
-                if (r.Accepted) Save("");
-            }
+            if (ws != null && ws.Workshop.Open && backend != null && Car != null)
+                backend.Run(Car.InstanceId, ws, new GarageOp { Kind = "end-workshop" }, _ => { });
         }
 
         public override Selectable DefaultFocus => slotButtons.TryGetValue(PartSlot.Tyres, out Button b) ? b : null;
@@ -238,10 +249,10 @@ namespace NightSignal.Front
             Render();
         }
 
-        OwnedCar Car => cars.Count == 0 ? null : cars[Mathf.Clamp(carStep.Index, 0, cars.Count - 1)];
+        GarageCarRef Car => cars.Count == 0 ? null : cars[Mathf.Clamp(carStep.Index, 0, cars.Count - 1)];
 
         /// <summary>Plain text (the stepper label is not rich text); a second instance of the same model is numbered.</summary>
-        string CarName(OwnedCar c)
+        string CarName(GarageCarRef c)
         {
             string name = cat != null && cat.TryCar(c.ModelId, out CarDef d) ? d.Name : c.ModelId;
             int same = cars.Count(x => x.ModelId == c.ModelId);
@@ -258,58 +269,58 @@ namespace NightSignal.Front
             dirty = true;
         }
 
-        void LoadCar()
+        void LoadCar(bool beginWorkshop = false)
         {
-            OwnedCar car = Car;
+            GarageCarRef car = Car;
             pendingQuote = null;
             pendingToken = null;
             if (car == null) { ws = null; return; }
-            LocalWorkspaceLoad load = LocalGarage.LoadWorkspace(L.Profile, cat, parts, car.InstanceId, DateTime.UtcNow);
-            if (!load.Ok)
+            busy = true;
+            backend.Load(car.InstanceId, (state, error) =>
             {
-                ws = null;
-                message.text = load.Reason;
-                return;
-            }
-            ws = load.Workspace;
-            storedRevision = load.StoredRevision;
-            ctx = LocalGarage.Context(L.Profile, cat, parts, car.InstanceId);
-            // A catalogue or handling revision may have changed since this car was stored: re-derive and keep notices.
-            OperationResult rv = GarageOperations.Revalidate(ws, ctx, DateTime.UtcNow);
-            message.text = load.Notices.Count > 0 ? string.Join(" ", load.Notices) : rv.Changes.Count > 0 ? string.Join(" ", rv.Changes) : "";
+                busy = false;
+                if (state == null)
+                {
+                    ws = null;
+                    message.text = error;
+                    dirty = true;
+                    return;
+                }
+                Adopt(state);
+                message.text = state.Notice;
+                LoadYardNotes();
+                if (beginWorkshop && !ws.Workshop.Open) Do(new GarageOp { Kind = "begin-workshop" }, state.Notice);
+                dirty = true;
+            });
+        }
+
+        void Adopt(GarageState state)
+        {
+            ws = state.Workspace;
+            ctx = state.Context;
+            buildLocked = state.BuildLocked;
         }
 
         MechanicalSnapshot Draft => ws?.Draft?.Build ?? ws?.Applied.Build;
 
-        /// <summary>Stores the workspace atomically in the profile; the caller's message is shown on success.</summary>
-        bool Save(string ok)
+        /// <summary>
+        /// Runs one garage operation where this garage's decisions happen (Local: Core in-process, saved atomically; Online:
+        /// the control plane) and shows the car it answers with. Any change voids a pending quote.
+        /// </summary>
+        void Do(GarageOp op, string ok, Action<GarageAnswer> after = null)
         {
-            LocalProgressionResult r = LocalGarage.SaveWorkspace(L.Profile, Car.InstanceId, ws, storedRevision);
-            if (r.Status == LocalOperationStatus.AlreadyApplied) { message.text = ok; return true; }
-            if (!r.Changed)
+            if (ws == null || busy || Car == null) return;
+            busy = true;
+            backend.Run(Car.InstanceId, ws, op, a =>
             {
-                message.text = "Not saved: " + r.Reason;
-                LoadCar();
-                return false;
-            }
-            if (!L.Commit(r, out string saveMessage))
-            {
-                message.text = "Not saved: " + saveMessage;
-                LoadCar();
-                return false;
-            }
-            storedRevision = ws.Revision;
-            ctx = LocalGarage.Context(L.Profile, cat, parts, Car.InstanceId);
-            message.text = ok;
-            return true;
-        }
-
-        void Result(OperationResult r, string ok)
-        {
-            if (r.Accepted) Save(ok ?? r.Message);
-            else message.text = r.Message + (r.Repairs.Count > 0 ? "  " + string.Join("; ", r.Repairs.Take(3).Select(x => x.ToString())) : "");
-            pendingQuote = null;
-            dirty = true;
+                busy = false;
+                if (a.State != null) Adopt(a.State);
+                else if (!a.Accepted && !backend.Online) LoadCar(); // a Local save failed: show what is stored
+                message.text = a.Accepted ? (ok ?? a.Message) : a.Message + (a.Repairs.Count > 0 ? "  " + string.Join("; ", a.Repairs.Take(3)) : "");
+                pendingQuote = null;
+                after?.Invoke(a);
+                dirty = true;
+            });
         }
 
         // ------------------------------------------------------------------ render
@@ -323,7 +334,8 @@ namespace NightSignal.Front
             BuildEvaluation ev = BuildEvaluator.Evaluate(draft, ws.Car.InstanceId, ctx);
             carLine.text = $"<b>{Esc(model.Name)}</b>  <size=80%>{Esc(model.Maker)} · {model.Drive} · stock PI {model.BasePI}</size>\n" +
                            $"Race build: <b>PI {ws.Applied.Pi} {Esc(ws.Applied.PiClass)}</b>  <size=80%>(estimate)</size>";
-            walletLine.text = $"Balance <b>{L.Profile.WalletBalance:N0} cr</b>   ·   shop act {ctx.ShopAct}";
+            walletLine.text = $"Balance <b>{backend.Balance:N0} cr</b>   ·   shop act {ctx.ShopAct}   ·   {(backend.Online ? "online" : "Local")}" +
+                              (buildLocked ? "   ·   <color=#F2A541>locked for the event</color>" : "");
 
             foreach (PartSlot s in SlotOrder)
             {
@@ -441,12 +453,12 @@ namespace NightSignal.Front
 
             bool draftDiffers = !c.Identical;
             apply.gameObject.SetActive(draftDiffers && missing.Count == 0);
-            apply.interactable = ev.CanApply;
+            apply.interactable = ev.CanApply && !busy && !buildLocked;
             buyApply.gameObject.SetActive(draftDiffers && missing.Count > 0);
-            buyApply.interactable = ev.Repairs.All(r => r.Kind == RepairKind.NotOwned) && missingTotal <= L.Profile.WalletBalance;
+            buyApply.interactable = !busy && !buildLocked && ev.Repairs.All(r => r.Kind == RepairKind.NotOwned) && missingTotal <= backend.Balance;
             buyApply.GetComponentInChildren<TextMeshProUGUI>().text = pendingQuote != null
                 ? $"Confirm: spend {pendingQuote.Total:N0} cr and apply"
-                : missingTotal > L.Profile.WalletBalance ? $"Need {missingTotal - L.Profile.WalletBalance:N0} cr more" : $"Buy & Apply — {missingTotal:N0} cr";
+                : missingTotal > backend.Balance ? $"Need {missingTotal - backend.Balance:N0} cr more" : $"Buy & Apply — {missingTotal:N0} cr";
             discard.gameObject.SetActive(ws.Draft != null && draftDiffers);
             saveLoadout.interactable = ws.Loadouts.Count < ws.LoadoutCapacity;
             saveLoadout.GetComponentInChildren<TextMeshProUGUI>().text = $"Save Draft as Loadout   ({ws.Loadouts.Count}/{ws.LoadoutCapacity})";
@@ -496,7 +508,7 @@ namespace NightSignal.Front
             if (ws == null || row >= controls.Count) return;
             TuningControlInfo c = controls[row];
             int v = Mathf.Clamp(TuningModel.ValueOrDefault(Draft.Tuning, c) + direction * c.Step, c.Min, c.Max);
-            Result(GarageOperations.EditDraft(ws, ws.Revision, Draft.WithTune(c.Key, v), ctx, DateTime.UtcNow), "");
+            Do(new GarageOp { Kind = "edit-draft", Build = Draft.WithTune(c.Key, v) }, "");
         }
 
         void ResetTune()
@@ -504,7 +516,7 @@ namespace NightSignal.Front
             if (ws == null) return;
             MechanicalSnapshot d = Draft.Clone();
             d.Tuning = new TuningSetup();
-            Result(GarageOperations.EditDraft(ws, ws.Revision, d, ctx, DateTime.UtcNow), "Tune reset to the parts' defaults.");
+            Do(new GarageOp { Kind = "edit-draft", Build = d }, "Tune reset to the parts' defaults.");
         }
 
         /// <summary>Explicit action after a part swap: drop values the parts cannot adjust, snap the rest (listed).</summary>
@@ -514,7 +526,7 @@ namespace NightSignal.Front
             var changes = new List<string>();
             MechanicalSnapshot d = Draft.Clone();
             d.Tuning = TuningModel.Normalize(Draft.Tuning, controls, changes);
-            Result(GarageOperations.EditDraft(ws, ws.Revision, d, ctx, DateTime.UtcNow), changes.Count > 0 ? string.Join(" ", changes) : "The tune already fits these parts.");
+            Do(new GarageOp { Kind = "edit-draft", Build = d }, changes.Count > 0 ? string.Join(" ", changes) : "The tune already fits these parts.");
         }
 
         void ChoosePart(int row)
@@ -522,8 +534,7 @@ namespace NightSignal.Front
             if (ws == null) return;
             int index = partPage * PartRows + row;
             string id = index == 0 ? null : index - 1 < slotParts.Count ? slotParts[index - 1].Id : null;
-            OperationResult r = GarageOperations.EditDraft(ws, ws.Revision, Draft.With(slot, id), ctx, DateTime.UtcNow);
-            Result(r, "");
+            Do(new GarageOp { Kind = "edit-draft", Build = Draft.With(slot, id) }, "");
         }
 
         /// <summary>Puts a part into the draft by id (tours; the same path as a click).</summary>
@@ -531,9 +542,9 @@ namespace NightSignal.Front
         {
             if (ws == null || !parts.TryPart(partId, out PartDef p)) return false;
             slot = p.SlotValue;
-            OperationResult r = GarageOperations.EditDraft(ws, ws.Revision, Draft.With(p.SlotValue, partId), ctx, DateTime.UtcNow);
-            Result(r, "");
-            return r.Accepted;
+            bool accepted = false;
+            Do(new GarageOp { Kind = "edit-draft", Build = Draft.With(p.SlotValue, partId) }, "", a => accepted = a.Accepted);
+            return accepted; // Local answers at once; online the answer arrives later (see Busy)
         }
 
         // ------------------------------------------------------------------ Test Yard
@@ -585,7 +596,7 @@ namespace NightSignal.Front
             yardLine.text = sb.ToString();
         }
 
-        string NotesKey => ws == null ? null : "ns.yard." + L.Profile.ProfileId + "." + ws.Car.InstanceId;
+        string NotesKey => ws == null || backend == null ? null : "ns.yard." + backend.OwnerKey + "." + ws.Car.InstanceId;
 
         void LoadYardNotes()
         {
@@ -619,52 +630,45 @@ namespace NightSignal.Front
         void ApplyDraft()
         {
             if (ws == null) return;
-            Result(GarageOperations.Apply(ws, ws.Revision, ctx, null, DateTime.UtcNow), "Applied: this is now the car's race build.");
+            Do(new GarageOp { Kind = "apply" }, "Applied: this is now the car's race build.");
         }
 
         void BuyAndApply()
         {
-            if (ws == null) return;
+            if (ws == null || busy) return;
             if (pendingQuote == null)
             {
-                // First press: a quote from Core (prices pinned); nothing is spent yet.
-                QuoteResult q = LocalGarage.Quote(L.Profile, cat, parts, Car.InstanceId, Draft, DateTime.UtcNow);
-                if (q.Status != QuoteStatus.Ok)
+                // First press: a quote (prices pinned by Core, server-side online); nothing is spent yet.
+                busy = true;
+                backend.Quote(Car.InstanceId, ws, Draft, q =>
                 {
-                    message.text = q.Message + (q.Repairs.Count > 0 ? "  " + string.Join("; ", q.Repairs.Take(3).Select(x => x.ToString())) : "");
+                    busy = false;
+                    if (!q.Ok) message.text = q.Message;
+                    else
+                    {
+                        pendingQuote = q;
+                        message.text = $"{string.Join(", ", q.Lines)}: {q.Total:N0} cr. Press again to buy and apply.";
+                    }
                     dirty = true;
-                    return;
-                }
-                pendingQuote = q.Quote;
-                message.text = $"{string.Join(", ", q.Quote.Lines.Select(l => l.Name))}: {q.Quote.Total:N0} cr. Press again to buy and apply.";
-                dirty = true;
+                });
                 return;
             }
-            PurchaseAndApplyQuote quote = pendingQuote;
+            GarageQuote quote = pendingQuote;
             pendingQuote = null;
-            LocalProgressionResult r = LocalGarage.BuyAndApply(L.Profile, cat, parts, Car.InstanceId, quote, true, "buy-" + quote.QuoteId, DateTime.UtcNow);
-            if (!r.Changed)
+            busy = true;
+            backend.Settle(Car.InstanceId, quote, a =>
             {
-                message.text = r.Status == LocalOperationStatus.AlreadyApplied ? "Already bought and applied." : "Not bought: " + r.Reason;
+                busy = false;
+                if (a.State != null) Adopt(a.State);
+                message.text = a.Message;
                 dirty = true;
-                return;
-            }
-            if (!L.Commit(r, out string saveMessage))
-            {
-                message.text = "Not saved: " + saveMessage;
-                LoadCar();
-                dirty = true;
-                return;
-            }
-            LoadCar();
-            message.text = $"Bought and applied — {quote.Total:N0} cr. The parts belong to this car.";
-            dirty = true;
+            });
         }
 
         void Discard()
         {
             if (ws == null) return;
-            Result(GarageOperations.DiscardDraft(ws, ws.Revision), "Draft reverted to the race build.");
+            Do(new GarageOp { Kind = "discard-draft" }, "Draft reverted to the race build.");
         }
 
         void SaveLoadout()
@@ -672,7 +676,7 @@ namespace NightSignal.Front
             if (ws == null) return;
             string name = "Loadout " + (ws.Loadouts.Count + 1);
             for (int n = ws.Loadouts.Count + 1; ws.Loadouts.Any(l => string.Equals(l.Name, name, StringComparison.OrdinalIgnoreCase)); n++) name = "Loadout " + (n + 1);
-            Result(GarageOperations.SaveAs(ws, ws.Revision, name, "", ctx, DateTime.UtcNow), $"Saved \"{name}\".");
+            Do(new GarageOp { Kind = "save-as", Name = name, Note = "" }, $"Saved \"{name}\".");
         }
 
         void LoadLoadout(int index)
@@ -688,17 +692,16 @@ namespace NightSignal.Front
         void LoadInto(DraftSource source, string ok)
         {
             string key = source.Kind + ":" + source.Id;
-            OperationResult r = GarageOperations.LoadIntoDraft(ws, ws.Revision, source, pendingTokenFor == key ? pendingToken : null, ctx, DateTime.UtcNow);
-            if (r.Status == OpStatus.ConfirmationRequired)
+            Do(new GarageOp { Kind = "load-into-draft", Source = source, ConfirmationToken = pendingTokenFor == key ? pendingToken : null }, ok, a =>
             {
-                pendingToken = r.ConfirmationToken;
-                pendingTokenFor = key;
-                message.text = r.Message + " Select again to replace it.";
-                dirty = true;
-                return;
-            }
-            pendingToken = pendingTokenFor = null;
-            Result(r, ok);
+                if (a.ConfirmationRequired)
+                {
+                    pendingToken = a.ConfirmationToken;
+                    pendingTokenFor = key;
+                    message.text = a.Message + " Select again to replace it.";
+                }
+                else pendingToken = pendingTokenFor = null;
+            });
         }
     }
 }

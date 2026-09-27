@@ -446,3 +446,25 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   outstanding) — all requests now go through one ordered send loop; (2) Core keeps one stroke in progress per person, so
   online a stroke begun before the previous stroke's id arrived finalized it and its points were refused (strokes became
   dots, `AlreadyDone`) — the client now holds the next stroke's begin until the previous one is complete.
+
+## V-041 — Online Garage UI; a bought part races online; build data in the content hash (2026-09-27)
+- The Garage screen now runs on a `GarageBackend`: Local (Core in-process, atomic profile saves — unchanged behaviour)
+  or Online (`/v1/me/garage`: the control plane runs the same Core operations; the client converts its workspace wire
+  shape back to Core and evaluates with Core). Convoy screen → Garage. Online shows the account wallet, locks Apply
+  while the build is frozen for an event, quotes and settles on the server.
+- `ui-tour-online.ps1 -Garage` (dev account 0, real screens): online Garage → tyres → TYR-T1-TOURING → Buy & Apply
+  (server quote, then settle: **8,000 cr**, "The parts belong to this car") → applied hash `ab6c3d46f265` → convoy →
+  Event Ready → start → the game server: "Driver 1 races the frozen build **ab6c3d46f265** of ci_702e… (applied
+  revision 2, 1 part(s), PI 240) — hash verified" → P1 of 4, stage cleared, settled receipt — **PASS**. The same build
+  hash as the Local V01 + touring tyres (V-038): Core resolves identically on .NET 10 and the Unity player. The online
+  Garage also listed "Last race build" recorded by the control plane from the previous online race. Screenshots
+  `Evidence/ui/online/garage/`.
+- `parts.json` and `build-recipes.json` joined `ContentCatalogue.AuthoredFiles`: the race content hash is now
+  `5065000bb142…` on both the control plane (/healthz) and the Unity library (13 documents), so a client with different
+  build data is refused at connect. .NET: Core 100, Builds 223, Toys 92, control plane 329 — all pass.
+- On the new hash: a game server still carrying the old catalogue was refused at registration ("content_mismatch" —
+  the check works); on the rebuilt player the same tour passed again — server "content 5065000bb142", tyres re-applied
+  from ownership with **no second charge** ("Applied: this is now the car's race build."), "races the frozen build
+  ab6c3d46f265 … applied revision 4, 1 part(s) — hash verified", P1 of 4.
+- Not covered: two clients editing the same online car at once (the server's revision check answers `stale_revision`;
+  the screen then shows the server's car), online Test Yard entry (the yard is local practice either way).

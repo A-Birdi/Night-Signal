@@ -10,7 +10,7 @@
     races with the validator autopilot through normal inputs. Screenshots: Builds/Screenshots/tour-online. Raw logs stay
     under Builds/ (git-ignored: they contain local paths).
 #>
-param([int]$DevAccount = 0, [int]$Port = 7777, [int]$TimeoutSeconds = 600, [switch]$Freeplay)
+param([int]$DevAccount = 0, [int]$Port = 7777, [int]$TimeoutSeconds = 600, [switch]$Freeplay, [switch]$Garage)
 
 $ErrorActionPreference = 'Stop'
 $repo = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
@@ -29,6 +29,7 @@ Start-Sleep -Seconds 4
 $clientArgs = @('-nsUiTourOnline', '-nsDevAccount', "$DevAccount", '-screen-fullscreen', '0', '-screen-width', '1920', '-screen-height', '1080',
     '-logFile', "`"$logs\client.log`"")
 if ($Freeplay) { $clientArgs += '-nsUiTourFreeplay' } # Freeplay sprint decided by a course vote
+if ($Garage) { $clientArgs += "-nsUiTourGarage" } # online Garage tyre change before the event
 $client = Start-Process -FilePath $exe -PassThru -WorkingDirectory $repo -ArgumentList $clientArgs
 
 $deadline = (Get-Date).AddSeconds($TimeoutSeconds)

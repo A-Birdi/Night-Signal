@@ -569,6 +569,42 @@ namespace NightSignal.Front
             yield return new WaitForSeconds(1.5f);
             if (OnlineSession.Current?.StarterCarId == null) { Click("ChooseStarter"); yield return Until(() => OnlineSession.Current.StarterCarId != null, 10f, "starter chosen"); }
             Shot("03-online");
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsUiTourGarage") >= 0)
+            {
+                // Online Garage through the real screen: switch the tyres (buy them if this instance does not own them) so
+                // the race below runs a build the server must re-resolve and verify.
+                Click("OpenGarage");
+                yield return Until(() => Router.Current == Garage && Garage.Workspace != null && !Garage.Busy, 20f, "online garage loaded");
+                yield return new WaitForSeconds(1f);
+                Shot("03a-online-garage");
+                string tyreBefore = Garage.Workspace?.Applied.Build.PartIn(Core.Builds.PartSlot.Tyres);
+                Click("Slot-tyres");
+                yield return new WaitForSeconds(0.5f);
+                Click(tyreBefore == null ? "Part1" : "Part0"); // stock ↔ the cheapest tyre
+                yield return Until(() => !Garage.Busy, 20f, "draft edited");
+                yield return new WaitForSeconds(0.8f);
+                string wanted = Garage.Workspace?.Draft?.Build.PartIn(Core.Builds.PartSlot.Tyres);
+                Button buy = GameObject.Find("BuyAndApply")?.GetComponent<Button>();
+                if (buy != null && buy.gameObject.activeInHierarchy)
+                {
+                    Click("BuyAndApply");
+                    yield return Until(() => !Garage.Busy, 20f, "quote");
+                    yield return new WaitForSeconds(0.8f);
+                    Shot("03b-online-garage-quote");
+                    yield return new WaitForSeconds(0.3f);
+                    Click("BuyAndApply");
+                }
+                else Click("ApplyDraft");
+                yield return Until(() => !Garage.Busy, 20f, "applied");
+                yield return new WaitForSeconds(1f);
+                Shot("03c-online-garage-applied");
+                string tyreAfter = Garage.Workspace?.Applied.Build.PartIn(Core.Builds.PartSlot.Tyres);
+                Note($"online garage: tyres {tyreBefore ?? "stock"} -> {tyreAfter ?? "stock"} (wanted {wanted ?? "stock"}); applied hash {Garage.Workspace?.Applied.BuildHash} ({Garage.Message})");
+                if (tyreAfter != wanted) failures.Add("online garage: the tyre change was not applied");
+                Click("Back");
+                yield return Until(() => Router.Current == Convoy, 10f, "back at the convoy screen");
+                yield return new WaitForSeconds(1f);
+            }
             Click("CreateConvoy");
             yield return Until(() => OnlineSession.Current.InConvoy && OnlineSession.Current.MyMember?["carId"]?.Type == Newtonsoft.Json.Linq.JTokenType.String, 10f, "convoy created with a loadout");
             yield return new WaitForSeconds(0.8f);

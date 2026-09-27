@@ -33,7 +33,7 @@ namespace NightSignal.Front
 
         TextMeshProUGUI heading, status, error, rosterText, lastResult, intentLine, proposalLine, postLine, inviteLine;
         Button create, createPrivate, joinCode, refresh, rejoin, notNow, chooseStarter;
-        Button proposeIntent, modeReady, enterMode, proposeEvent, eventReady, start, cont, serviceBreak, advance, invite, leave, signOut, table, friendsButton, coursesButton;
+        Button proposeIntent, modeReady, enterMode, proposeEvent, eventReady, start, cont, serviceBreak, advance, invite, leave, signOut, table, friendsButton, coursesButton, garageButton;
         Button votingToggle, openVote, castVote, drawVote, cancelVote;
         List<string> ballotIds = new List<string>();
         Stepper ballotCourse;
@@ -136,6 +136,7 @@ namespace NightSignal.Front
             table = UIFactory.Button("WhileWeWait", col, "While We Wait", () => App.Router.Show(App.WhileWeWait), 620, 52);
             friendsButton = UIFactory.Button("OpenFriends", col, "Friends", () => App.Router.Show(App.Friends), 620, 48);
             coursesButton = UIFactory.Button("OpenCourses", col, "Courses", () => App.Router.Show(App.Courses), 620, 48);
+            garageButton = UIFactory.Button("OpenGarage", col, "Garage", () => App.Router.Show(App.Garage), 620, 48);
             leave = UIFactory.Button("Leave", col, "Leave Convoy", () => Send("convoy.leave"), 620, 48);
             signOut = UIFactory.Button("SignOut", col, "Sign Out", SignOut, 620, 48);
         }
@@ -237,6 +238,7 @@ namespace NightSignal.Front
             signOut.gameObject.SetActive(!inConvoy);
             friendsButton.gameObject.SetActive(!needStarter);
             coursesButton.gameObject.SetActive(!needStarter && (!inConvoy || (string)c["phase"] != "Allocating" && (string)c["phase"] != "InMatch"));
+            garageButton.gameObject.SetActive(coursesButton.gameObject.activeSelf);
             int pendingSocial = S.Invites.Count;
             friendsButton.GetComponentInChildren<TextMeshProUGUI>().text = pendingSocial > 0 ? $"Friends   ({pendingSocial} invitation{(pendingSocial == 1 ? "" : "s")})" : "Friends";
             string phaseNow = inConvoy ? (string)c["phase"] : "";

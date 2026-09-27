@@ -16,8 +16,13 @@ namespace NightSignal.Core.Content
         public static readonly string[] RequiredFiles =
             { "courses.json", "cars.json", "crews.json", "rivals.json", "stages.json", "challenges.json", "cosmetics.json" };
 
-        /// <summary>Authored overlays loaded from Assets/Content/Data/authored/ when present.</summary>
-        public static readonly string[] AuthoredFiles = { "cars.tuning.json", "stages.opposition.json", "courses.addendum.json", "music.unlocks.json" };
+        /// <summary>
+        /// Authored overlays loaded from Assets/Content/Data/authored/ when present. Every loaded document is hashed: the
+        /// performance parts and upgrade recipes joined once bought parts could change an online race car, so a client with
+        /// different build data is refused at connect rather than at the start of a match.
+        /// </summary>
+        public static readonly string[] AuthoredFiles =
+            { "cars.tuning.json", "stages.opposition.json", "courses.addendum.json", "music.unlocks.json", "parts.json", "build-recipes.json" };
 
         /// <summary>
         /// Authored overlays that must be present: they carry Addendum 01 rules (live opposition, 29 courses, course

@@ -15,10 +15,9 @@ namespace NightSignal.ControlPlane.Garage;
 /// a chassis entry and a resolvable stock build, every recipe names real parts. Startup fails otherwise — the server cannot
 /// own performance truth without it.
 ///
-/// NOTE: neither document is part of Core <c>ContentCatalogue.ContentHash</c> yet (they are not in
-/// <c>ContentCatalogue.AuthoredFiles</c>), so the client/server content check does not cover them. <see cref="Hash"/> is
-/// published separately (/healthz <c>garageContentHash</c>, assignments <c>vehicleBuild.partsCatalogueHash</c>) until the
-/// Core file list and the Unity content hash are changed together.
+/// Both documents are in Core <c>ContentCatalogue.AuthoredFiles</c>, so the race <c>ContentHash</c> covers them and a client
+/// with different build data is refused at connect. <see cref="Hash"/> is still published (/healthz
+/// <c>garageContentHash</c>, assignments <c>vehicleBuild.partsCatalogueHash</c>) for diagnostics.
 /// </summary>
 public sealed class GarageContent
 {

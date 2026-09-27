@@ -1,6 +1,6 @@
 # Handoff
 
-_Last updated: 2026-09-27 — Test Yard; online Garage server side; frozen builds race online; shared diversions with two humans._
+_Last updated: 2026-09-27 — online Garage end to end; build data in the content hash; Test Yard; shared diversions._
 
 **Rules revision:** `docs/brief/Night_Signal_Addendum_01.txt` supersedes parts of the master (six humans + up to
 twelve vehicles, live finale rivals, light contact, course access, offline domain, rejoin grants, voting, friends,
@@ -47,7 +47,7 @@ powershell -ExecutionPolicy Bypass -File Tools/run/net-race.ps1 -Humans 2 -Stage
 3. **Hosted services / internet test** — a Supabase project, a reachable server and a budget are needed for
    WAN acceptance (§3.5, Gate 5). Not approved; stays BLOCKED, not faked.
 
-## Done since the addenda (VALIDATION V-015 … V-040)
+## Done since the addenda (VALIDATION V-015 … V-041)
 
 - Addendum 01 Core rules and data overlays; control plane for Addendum 01 + 02 incl. hosted diversions (307 .NET
   tests); light car contact, shared RaceSimulation (server + offline), protocol 2 per-client snapshots.
@@ -70,12 +70,13 @@ powershell -ExecutionPolicy Bypass -File Tools/run/net-race.ps1 -Humans 2 -Stage
 - **Test Yard + tuning** (V-039): A/B reset-and-drive on the T00 campus, dry/wet, run observations; tuning page.
 - **Online Garage (control plane)** and frozen builds racing online with a verified BuildHash; two humans at the hosted
   Cap Clash, Pit-Crew and Canvas; control requests now go through one ordered send loop (V-040).
+- **Online Garage UI** on the same screen (backend switch); a part bought online races with a server-verified hash;
+  parts and recipes are in the content hash (V-041).
 
 ## Next actions
 
-1. Online Garage UI on `/v1/me/garage` (reuse the Garage screen with a server backend; Test Yard from it), then an
-   online race with a bought part; parts/recipes/toys into the Core content hash (today `garageContentHash` +
-   per-entrant BuildHash verification guard it); visual presets UI.
+1. Visual presets / customization UI; F08–F10 starter progression runs with upgrades; toy documents' hash check
+   between client and control plane; Time Attack / Team Trials online.
 2. Online convoy extras: block UI, Local course purchases, Time Attack/Team Trials,
    reconnect/rejoin and DQ under load; the other four diversions against the hosted session with several humans;
    controller cursor for the Canvas.

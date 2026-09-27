@@ -19,10 +19,7 @@ namespace NightSignal.Content
         public TextAsset CarBodies;
         /// <summary>While We Wait toy content (non-progression; not part of the race catalogue hash).</summary>
         public TextAsset[] ToyDocuments;
-        /// <summary>
-        /// Garage data: parts.json and build-recipes.json. Not yet in the race catalogue hash — online events still race
-        /// stock performance; they join the hash together with the server's garage (docs/EFFECTIVE_RULES.md, builds).
-        /// </summary>
+        /// <summary>Garage data (parts.json, build-recipes.json); also among <see cref="Documents"/>, which the content hash covers.</summary>
         public TextAsset PartsDocument;
         public TextAsset RecipesDocument;
 
@@ -76,11 +73,14 @@ namespace NightSignal.Content
         Core.Builds.PartsCatalogue parts;
         Core.Builds.RecipeBook recipes;
 
-        /// <summary>The performance parts catalogue (null when the document is missing from this build).</summary>
-        public Core.Builds.PartsCatalogue Parts => parts ?? (PartsDocument == null ? null : parts = Core.Builds.PartsCatalogue.Load(PartsDocument.text));
+        /// <summary>The performance parts catalogue — the hashed catalogue document (null when missing from this build).</summary>
+        public Core.Builds.PartsCatalogue Parts => parts ?? (Text("parts.json", PartsDocument) is string t ? parts = Core.Builds.PartsCatalogue.Load(t) : null);
 
         /// <summary>Authored upgrade paths per car (null when missing).</summary>
-        public Core.Builds.RecipeBook Recipes => recipes ?? (RecipesDocument == null ? null : recipes = Core.Builds.RecipeBook.Load(RecipesDocument.text));
+        public Core.Builds.RecipeBook Recipes => recipes ?? (Text("build-recipes.json", RecipesDocument) is string t ? recipes = Core.Builds.RecipeBook.Load(t) : null);
+
+        /// <summary>A document exactly as the content hash covers it; the separate TextAsset only for libraries built before.</summary>
+        string Text(string name, TextAsset fallback) => Catalogue != null && Catalogue.TryDocument(name, out string text) ? text : fallback != null ? fallback.text : null;
 
         public static ContentLibrary Load() => Resources.Load<ContentLibrary>("ContentLibrary");
     }
