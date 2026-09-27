@@ -1,0 +1,466 @@
+{
+    "course": "T00",
+    "sourceHash": "570bf5d703e55b5ca6526c0c6fdde5e3b3bf7586808d76d062b51486a4ad8a3a",
+    "unityVersion": "6000.6.3f1",
+    "note": "Measured from the generated centreline (TrackData) and the road collider; authored values are targets, not measurements.",
+    "closedLoop": true,
+    "laps": 2,
+    "revision": 2,
+    "sampleCount": 1794,
+    "surfaceProbes": 359,
+    "surfaceOnCentreline": 359,
+    "lengthMetres": 1793.0,
+    "length3d": 1792.9932861328125,
+    "lengthPlan": 1792.7259521484375,
+    "startHeight": 12.0,
+    "endHeight": 12.0,
+    "minHeight": 11.974393844604492,
+    "maxHeight": 17.99995231628418,
+    "ascent": 6.047660827636719,
+    "descent": 6.047660827636719,
+    "minGradePercent": -6.354008674621582,
+    "maxGradePercent": 7.504464149475098,
+    "minBankDeg": -1.0,
+    "maxBankDeg": 8.0,
+    "worstSurfaceGapMetres": 0.0018055165419355035,
+    "authoredMinHeight": 12.0,
+    "authoredMaxHeight": 18.0,
+    "authoredAscent": 6.0,
+    "authoredDescent": 6.0,
+    "authoredMaxBankDeg": 8.0,
+    "surfaceMismatches": [],
+    "trace": [
+        {
+            "d": 0.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 0.6000000238418579
+        },
+        {
+            "d": 25.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 50.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 75.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 100.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 125.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 150.0,
+            "y": 12.0,
+            "gradePercent": -0.00000476837158203125,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 175.0,
+            "y": 12.0,
+            "gradePercent": 0.00000476837158203125,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 200.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 225.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 250.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 0.2999788522720337
+        },
+        {
+            "d": 275.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 1.0
+        },
+        {
+            "d": 300.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": -0.0822802260518074
+        },
+        {
+            "d": 325.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": -0.642781674861908
+        },
+        {
+            "d": 350.0,
+            "y": 12.000000953674316,
+            "gradePercent": -0.000004772804913955042,
+            "bankDeg": -1.0
+        },
+        {
+            "d": 375.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": -0.18886305391788483
+        },
+        {
+            "d": 400.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 0.4093206822872162
+        },
+        {
+            "d": 425.0,
+            "y": 12.000000953674316,
+            "gradePercent": 0.0,
+            "bankDeg": 0.9863799810409546
+        },
+        {
+            "d": 450.0,
+            "y": 12.0,
+            "gradePercent": -0.0000047685698518762365,
+            "bankDeg": 0.8627232313156128
+        },
+        {
+            "d": 475.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": -0.03208250552415848
+        },
+        {
+            "d": 500.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": -0.6111423373222351
+        },
+        {
+            "d": 525.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": -1.0
+        },
+        {
+            "d": 550.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": -0.31059467792510986
+        },
+        {
+            "d": 575.0,
+            "y": 12.0,
+            "gradePercent": -0.06433144956827164,
+            "bankDeg": 0.6431121230125427
+        },
+        {
+            "d": 600.0,
+            "y": 11.978822708129883,
+            "gradePercent": 1.4797917604446411,
+            "bankDeg": 0.42047691345214844
+        },
+        {
+            "d": 625.0,
+            "y": 12.445394515991211,
+            "gradePercent": 5.662693500518799,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 650.0,
+            "y": 13.956327438354492,
+            "gradePercent": 6.803224086761475,
+            "bankDeg": 0.5678293704986572
+        },
+        {
+            "d": 675.0,
+            "y": 15.531591415405273,
+            "gradePercent": 3.6565558910369873,
+            "bankDeg": 2.9595022201538086
+        },
+        {
+            "d": 700.0,
+            "y": 16.433130264282227,
+            "gradePercent": 3.2112040519714355,
+            "bankDeg": 4.781045436859131
+        },
+        {
+            "d": 725.0,
+            "y": 17.216550827026367,
+            "gradePercent": 2.5223171710968018,
+            "bankDeg": 4.800000190734863
+        },
+        {
+            "d": 750.0,
+            "y": 17.83022117614746,
+            "gradePercent": 0.7191808223724365,
+            "bankDeg": 5.938755512237549
+        },
+        {
+            "d": 775.0,
+            "y": 17.912750244140625,
+            "gradePercent": -2.81656551361084,
+            "bankDeg": 8.0
+        },
+        {
+            "d": 800.0,
+            "y": 17.13560676574707,
+            "gradePercent": -5.521569728851318,
+            "bankDeg": 8.0
+        },
+        {
+            "d": 825.0,
+            "y": 15.708884239196777,
+            "gradePercent": -5.527307510375977,
+            "bankDeg": 8.0
+        },
+        {
+            "d": 850.0,
+            "y": 14.400254249572754,
+            "gradePercent": -3.688922166824341,
+            "bankDeg": 7.019812107086182
+        },
+        {
+            "d": 875.0,
+            "y": 13.489559173583984,
+            "gradePercent": -3.315981388092041,
+            "bankDeg": 4.798811912536621
+        },
+        {
+            "d": 900.0,
+            "y": 12.687370300292969,
+            "gradePercent": -2.0105297565460205,
+            "bankDeg": 2.98327374458313
+        },
+        {
+            "d": 925.0,
+            "y": 12.225664138793945,
+            "gradePercent": -0.7297256588935852,
+            "bankDeg": 2.04306960105896
+        },
+        {
+            "d": 950.0,
+            "y": 12.057504653930664,
+            "gradePercent": -0.3569351136684418,
+            "bankDeg": 0.5045518279075623
+        },
+        {
+            "d": 975.0,
+            "y": 11.97727108001709,
+            "gradePercent": 0.05130290985107422,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 1000.0,
+            "y": 11.993927955627441,
+            "gradePercent": 0.03036022186279297,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 1025.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 1050.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 1075.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 1100.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 1125.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 1150.0,
+            "y": 11.999999046325684,
+            "gradePercent": 0.000004768386133946478,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 1175.0,
+            "y": 12.0,
+            "gradePercent": 0.000004768357030116022,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 1200.0,
+            "y": 11.999999046325684,
+            "gradePercent": 0.000004768422513734549,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 1225.0,
+            "y": 12.0,
+            "gradePercent": -0.000004768298822455108,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 1250.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 1275.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 1300.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 1325.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 1350.0,
+            "y": 12.0,
+            "gradePercent": 0.000004768382495967671,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 1375.0,
+            "y": 12.0,
+            "gradePercent": 0.000004768335202243179,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 1400.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 1425.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 1450.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 1475.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 1500.0,
+            "y": 12.000000953674316,
+            "gradePercent": -0.000004768394319398794,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 1525.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 0.0
+        },
+        {
+            "d": 1550.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 0.16472555696964264
+        },
+        {
+            "d": 1575.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 0.5577530860900879
+        },
+        {
+            "d": 1600.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 0.9977498054504395
+        },
+        {
+            "d": 1625.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 1.9578450918197632
+        },
+        {
+            "d": 1650.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 1.8653078079223633
+        },
+        {
+            "d": 1675.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 0.6000000238418579
+        },
+        {
+            "d": 1700.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 0.8770003914833069
+        },
+        {
+            "d": 1725.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 1.3947932720184326
+        },
+        {
+            "d": 1750.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 2.0
+        },
+        {
+            "d": 1775.0,
+            "y": 12.0,
+            "gradePercent": 0.0,
+            "bankDeg": 1.395490050315857
+        }
+    ]
+}

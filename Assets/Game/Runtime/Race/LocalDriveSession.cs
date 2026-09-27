@@ -146,7 +146,7 @@ namespace NightSignal.Race
             resetHeld = input.ResetHeld ? resetHeld + VehicleSimulation.TickDt : 0f;
             if (resetHeld >= 0.7f && !Progress.Finished)
             {
-                current = tracker.ResetPose(Progress, parameters); // adds the 3 s penalty to the finish time
+                current = tracker.ResetPose(Progress, parameters, 0, "manual"); // adds the 3 s penalty to the finish time
                 previous = current;
                 resetHeld = 0f;
             }

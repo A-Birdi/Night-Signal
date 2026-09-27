@@ -56,10 +56,14 @@ namespace NightSignal.AI
         /// as a driver reads the conditions — planning wet corners with dry grip put every car into the walls.
         /// </summary>
         public float SurfaceGrip = 1f;
+        /// <summary>Speed (m/s, dry) the driver arrives at a drift zone with before the flick (~68 km/h, the harness drifter's regime).</summary>
+        public float DriftEntrySpeed = 19f;
         /// <summary>Slip angle the driver holds in a drift (degrees; the scoring band peaks at 25–45°).</summary>
         public float DriftSlipDeg = 28f;
         /// <summary>True while the last input was a deliberate drift (diagnostics, tests).</summary>
         public bool Drifting { get; private set; }
+        /// <summary>Drift attempt diagnostics: flicks started, holds reached, and why attempts ended (edge, spin, slow, wrong way).</summary>
+        public int DriftFlicks, DriftHolds, DriftEndEdge, DriftEndSpin, DriftEndSlow, DriftEndWrongWay;
         int driftZone = -1, flickTicks, wantSign;
         DriftPhase phase;
         readonly HashSet<int> failedZones = new HashSet<int>(); // an attempt went wrong here: race the line on later visits
@@ -153,6 +157,21 @@ namespace NightSignal.AI
                 target = Mathf.Min(target, allowed);
             }
             target = Mathf.Min(target, followLimit);
+            if (DriftZones != null)
+            {
+                // A driver who means to drift brakes to a controllable entry speed first (a handbrake flick at race pace on a
+                // wet road is a spin): plan to arrive at each upcoming zone — and stay while attempting it — at that speed.
+                float entry = DriftEntrySpeed * Mathf.Sqrt(SurfaceGrip);
+                for (int i = 0; i < DriftZones.Count; i++)
+                {
+                    RouteGateDef z = DriftZones[i];
+                    if (failedZones.Contains(i) || here.Distance > z.EndMetres) continue;
+                    if (i == driftZone && phase == DriftPhase.Done) continue;
+                    float ahead = z.StartMetres - here.Distance;
+                    if (ahead > horizon) continue;
+                    target = Mathf.Min(target, Mathf.Sqrt(entry * entry + 2f * Profile.BrakingDecel * SurfaceGrip * Mathf.Max(0f, ahead)));
+                }
+            }
             TargetSpeed = target;
             float err = target - speed;
             float throttle = Mathf.Clamp01(err * 0.35f + 0.1f);
@@ -198,33 +217,35 @@ namespace NightSignal.AI
             TrackSample at = track.SampleAt(here.Distance);
             float half = at.Width * 0.5f;
             float lateralSpeed = Vector3.Dot(s.Velocity, at.Right);
-            float predicted = here.Lateral + lateralSpeed * 0.6f;
-            bool edgeAhead = Mathf.Abs(predicted) > half - 1.0f && Mathf.Sign(predicted) == Mathf.Sign(lateralSpeed);
+            float predicted = here.Lateral + lateralSpeed * 0.4f;
+            bool edgeAhead = Mathf.Abs(predicted) > half - 0.5f && Mathf.Sign(predicted) == Mathf.Sign(lateralSpeed);
 
             switch (phase)
             {
                 case DriftPhase.Idle:
                 {
                     float fraction = (here.Distance - z.StartMetres) / Mathf.Max(1f, z.EndMetres - z.StartMetres);
-                    if (turn == 0 || speed < 13f || Mathf.Abs(slipDeg) > 8f || here.HeadingDot < 0.9f || fraction > 0.5f || edgeAhead || failedZones.Contains(zone))
+                    if (turn == 0 || speed < 10.5f || Mathf.Abs(slipDeg) > 8f || here.HeadingDot < 0.9f || fraction > 0.5f || edgeAhead || failedZones.Contains(zone))
                         return false;
                     phase = DriftPhase.Flick;
                     wantSign = turn;
                     flickTicks = 0;
+                    DriftFlicks++;
                     goto case DriftPhase.Flick;
                 }
                 case DriftPhase.Flick:
                 {
                     bool caught = Mathf.Abs(slipDeg) >= 12f && Mathf.Sign(slipDeg) == -wantSign;
-                    if (caught || flickTicks >= 12)
+                    if (caught || flickTicks >= 45)
                     {
                         phase = caught || Mathf.Abs(slipDeg) >= 6f ? DriftPhase.Hold : DriftPhase.Done;
                         if (phase == DriftPhase.Done) return false;
+                        DriftHolds++;
                         break;
                     }
                     flickTicks++;
                     Drifting = true;
-                    input = DriverInput.Quantize(wantSign * 0.7f, 0.5f, 0f, InputButtons.Handbrake);
+                    input = DriverInput.Quantize(wantSign, 0.5f, 0f, InputButtons.Handbrake);
                     return true;
                 }
                 case DriftPhase.Done:
@@ -241,6 +262,10 @@ namespace NightSignal.AI
             if (edgeAhead || Mathf.Abs(slipDeg) > 70f || speed < 9f || wrongWay)
             {
                 phase = DriftPhase.Done;
+                if (edgeAhead) DriftEndEdge++;
+                else if (Mathf.Abs(slipDeg) > 70f) DriftEndSpin++;
+                else if (speed < 9f) DriftEndSlow++;
+                else DriftEndWrongWay++;
                 if (edgeAhead || Mathf.Abs(slipDeg) > 70f) failedZones.Add(zone);
                 return false;
             }

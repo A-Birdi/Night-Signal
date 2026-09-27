@@ -62,6 +62,8 @@ namespace NightSignal.Race
         readonly Dictionary<RaceEntrant, VehicleView> views = new Dictionary<RaceEntrant, VehicleView>();
         DrivingControls controls;
         RouteFollower pilot;
+        /// <summary>The autopilot driving the player's car (null without autopilot) — diagnostics and tests.</summary>
+        public RouteFollower Pilot => Autopilot ? pilot : null;
         ChaseCamera chase;
         UI.RaceHud hud;
         readonly UI.HudState hudState = new UI.HudState();

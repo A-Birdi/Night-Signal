@@ -29,12 +29,16 @@ namespace NightSignal.Race
         public bool CorridorCut;
         public float WrongWaySeconds;
         public float OutOfCorridorSeconds;
+        /// <summary>Continuous seconds clearly off the legal route (lost, off the road layer, or far outside the corridor).</summary>
+        public float OffRouteSeconds;
         public TrackLocation Location;
+        /// <summary>Every completed recovery (manual or automatic): one penalty each (Addendum 03 §7.3).</summary>
+        public readonly List<RecoveryEvent> Recoveries = new List<RecoveryEvent>();
         readonly Dictionary<int, double> lastImpactBySurface = new Dictionary<int, double>();
 
         public EntrantProgress(TrackData track)
         {
-            Locator = new TrackLocator(track);
+            Locator = new TrackLocator(track) { AllowGlobalRecovery = false }; // progress never jumps to another road
         }
 
         /// <summary>No meaningful wall impacts, no resets and all checkpoints legal (economy cleanliness).</summary>
@@ -52,15 +56,32 @@ namespace NightSignal.Race
         }
     }
 
+    /// <summary>One completed authoritative recovery: when, why, from and to where on the route, and its penalty.</summary>
+    public struct RecoveryEvent
+    {
+        public long RaceMicros;
+        /// <summary>manual | off-route | stuck</summary>
+        public string Reason;
+        public float FromDistance, ToDistance;
+        public int PenaltyMs;
+    }
+
     /// <summary>
     /// Ordered checkpoint, finish, incident and legality tracking. Pure logic over simulation state, used
-    /// identically by the dedicated server and offline sessions.
+    /// identically by the dedicated server and offline sessions. Checkpoints are finite, directional 3D gates
+    /// (Addendum 03 §6): a gate is accepted only for a forward crossing of its plane, inside its lateral and vertical
+    /// bounds, by a car tracked on the legal route beside it — never by landing on a lower road, passing under an
+    /// overpass, backing over it or a teleport.
     /// </summary>
     public sealed class RaceProgressTracker
     {
         /// <summary>Normal-speed onset threshold for a "meaningful" wall impact (m/s into the wall).</summary>
         public const float MeaningfulImpactSpeed = 3.0f;
         public const float CutToleranceMetres = 25f;
+        /// <summary>Gate volume relative to the road surface: the car's centre crosses between these heights.</summary>
+        public const float GateBelowMetres = -1.5f, GateAboveMetres = 8f;
+        /// <summary>Beyond this many metres outside the corridor the car is off the route (a road edge excursion is not).</summary>
+        public const float OffRouteLateralMetres = 12f;
 
         readonly TrackData track;
         readonly float finishMetres;
@@ -93,6 +114,7 @@ namespace NightSignal.Race
             e.Location = loc;
 
             if (!loc.InCorridor) e.OutOfCorridorSeconds += dt;
+            e.OffRouteSeconds = OffRoute(loc) ? e.OffRouteSeconds + dt : 0f;
             bool moving = current.Velocity.sqrMagnitude > 4f;
             if (moving && Vector3.Dot(current.Velocity, track.Samples[loc.Index].Tangent) < 0f && loc.HeadingDot < -0.3f)
                 e.WrongWaySeconds += dt;
@@ -103,20 +125,20 @@ namespace NightSignal.Race
                 e.RegisterImpact(telemetry.WallSurfaceId, raceTimeMicros / 1_000_000.0))
                 e.WallIncidents++;
 
-            // Ordered checkpoints: crossed when the legal distance passes the gate inside the corridor. Distances are
-            // measured as forward travel so a circuit's gates just past the loop seam (distance 0) work the same way.
+            // Ordered finite gates: the expected gate is accepted for a forward crossing of its plane inside its bounds
+            // (the whole movement of the tick is swept, so a fast car cannot tunnel through), by a car on the legal route.
             float gate = track.CheckpointMetres[e.NextCheckpoint];
             float moved = Forward(prevDist, loc.Distance);
             bool forwards = !track.ClosedLoop || moved < track.LengthMetres * 0.5f;
             float toGate = Forward(prevDist, gate);
-            if (forwards && toGate > 0f && toGate <= moved && loc.InCorridor && moved < CutToleranceMetres)
+            if (GateCrossed(gate, previous.Position, current.Position, loc, out float crossing))
             {
                 e.CheckpointsPassed++;
                 e.LastSafeDistance = gate;
                 bool lastOfLap = e.NextCheckpoint == track.CheckpointMetres.Length - 1;
                 if (lastOfLap && e.Lap == track.Laps - 1 && Mathf.Approximately(gate, finishMetres))
                 {
-                    float frac = Mathf.Clamp01(toGate / Mathf.Max(1e-4f, moved));
+                    float frac = Mathf.Clamp01(crossing);
                     long tickMicros = (long)(dt * 1_000_000f);
                     e.FinishTimeMicros = raceTimeMicros - tickMicros + (long)(frac * tickMicros) + e.PenaltyMicros;
                     e.Finished = true;
@@ -132,12 +154,62 @@ namespace NightSignal.Race
                     e.NextCheckpoint++;
                 }
             }
-            else if (forwards && toGate > 0f && moved > toGate + CutToleranceMetres)
+            else if (!loc.Lost && forwards && toGate > 0f && moved > toGate + CutToleranceMetres)
             {
                 // Passed a gate without a legal crossing (off-corridor or a jump): the run is no longer clean.
                 e.CorridorCut = true;
             }
-            e.RaceDistance = RaceDistanceOf(e, loc.Distance);
+            e.RaceDistance = LegalRaceDistance(e, loc);
+        }
+
+        /// <summary>Clearly off the legal route: lost from its stretch, off the road layer, or far outside the corridor.</summary>
+        public bool OffRoute(TrackLocation loc)
+        {
+            if (loc.Lost || !loc.OnLayer) return true;
+            TrackSample here = track.Samples[Mathf.Clamp(loc.Index, 0, track.Samples.Length - 1)];
+            float edge = here.Width * 0.5f + (loc.Lateral >= 0f ? here.ShoulderRight : here.ShoulderLeft) + OffRouteLateralMetres;
+            return Mathf.Abs(loc.Lateral) > edge;
+        }
+
+        /// <summary>
+        /// The expected gate's finite 3D test for one tick's movement <paramref name="from"/>→<paramref name="to"/>: a
+        /// forward crossing of its plane (tangent normal) whose crossing point lies inside the gate's lateral corridor and
+        /// vertical envelope, by a car tracked on the route near the gate. <paramref name="fraction"/> is where along the
+        /// movement the plane was crossed.
+        /// </summary>
+        public bool GateCrossed(float gateDistance, Vector3 from, Vector3 to, TrackLocation loc, out float fraction)
+        {
+            fraction = 0f;
+            if (loc.Lost) return false;
+            float apart = track.ClosedLoop
+                ? Mathf.Abs(Mathf.Repeat(loc.Distance - gateDistance + track.LengthMetres * 0.5f, track.LengthMetres) - track.LengthMetres * 0.5f)
+                : Mathf.Abs(loc.Distance - gateDistance);
+            if (apart > CutToleranceMetres) return false; // tracked on another stretch of the route
+            TrackSample g = track.SampleAt(gateDistance);
+            float a = Vector3.Dot(from - g.Position, g.Tangent), b = Vector3.Dot(to - g.Position, g.Tangent);
+            if (!(a < 0f && b >= 0f)) return false; // not a forward crossing of the plane this tick
+            // Plausible travel THROUGH the gate: a car dropping into it (mostly vertical, or numerically on its plane) is not a crossing.
+            float advance = b - a;
+            if (advance < 0.01f || advance < 0.25f * (to - from).magnitude) return false;
+            fraction = a / (a - b);
+            Vector3 rel = Vector3.Lerp(from, to, fraction) - g.Position;
+            float lateral = Vector3.Dot(rel, g.Right), vertical = Vector3.Dot(rel, g.Up);
+            float half = g.Width * 0.5f + (lateral >= 0f ? g.ShoulderRight : g.ShoulderLeft) + TrackLocator.CorridorToleranceMetres;
+            return Mathf.Abs(lateral) <= half && vertical >= GateBelowMetres && vertical <= GateAboveMetres;
+        }
+
+        /// <summary>
+        /// Ranking distance from LEGAL progress: accepted gates plus progress on the current stretch, never past the next
+        /// gate not yet crossed, and held where it was while the car is off the route (a car that fell toward the bottom of
+        /// the mountain loses places; it does not gain them).
+        /// </summary>
+        float LegalRaceDistance(EntrantProgress e, TrackLocation loc)
+        {
+            if (OffRoute(loc)) return e.RaceDistance;
+            float d = RaceDistanceOf(e, loc.Distance);
+            float nextGate = RaceDistanceOf(e, track.CheckpointMetres[e.NextCheckpoint]);
+            if (nextGate < d - track.LengthMetres * 0.5f) nextGate += track.LengthMetres; // a circuit gate just past the seam
+            return Mathf.Min(d, nextGate + 0.5f);
         }
 
         /// <summary>Forward travel from one track distance to another (wrapping round a closed loop).</summary>
@@ -156,15 +228,51 @@ namespace NightSignal.Race
             return e.Lap * track.LengthMetres + u;
         }
 
-        /// <summary>Reset pose at the last safe checkpoint (spec §6.1): never ahead, never skipping gates.</summary>
-        public VehicleState ResetPose(EntrantProgress e, VehicleParams p)
+        /// <summary>
+        /// A completed recovery (spec §6.1, Addendum 03 §7): the car is placed at a safe anchor at or behind the last accepted
+        /// gate — never ahead, never on another road — at rest facing the course, with one penalty and one event.
+        /// </summary>
+        public VehicleState ResetPose(EntrantProgress e, VehicleParams p, long raceMicros = 0, string reason = "manual",
+            System.Func<Vector3, bool> occupied = null)
         {
-            TrackSample s = track.SampleAt(e.LastSafeDistance);
-            var state = VehicleState.AtRest(s.Position + s.Up * (p.CgHeightM + 0.15f), Quaternion.LookRotation(s.Tangent, s.Up));
+            float from = e.Location.Distance;
+            VehicleState state = AnchorPose(e, p, occupied, out float at);
             e.Resets++;
             e.PenaltyMicros += Limits.ResetPenaltyMs * 1000L;
-            e.Locator.Reset(e.LastSafeDistance);
-            e.Location = e.Locator.Locate(state.Position, s.Tangent);
+            e.OffRouteSeconds = 0f;
+            e.Recoveries.Add(new RecoveryEvent { RaceMicros = raceMicros, Reason = reason, FromDistance = from, ToDistance = at, PenaltyMs = Limits.ResetPenaltyMs });
+            return state;
+        }
+
+        /// <summary>
+        /// The safe anchor itself (no penalty): the last accepted gate's centre, else a lane to either side, else stepping
+        /// back up to 60 m (never before the course start) — the first placement no other car occupies. Also used to move a
+        /// recovered car that is still overlapping when its protection ends (the same recovery, no second penalty).
+        /// </summary>
+        public VehicleState AnchorPose(EntrantProgress e, VehicleParams p, System.Func<Vector3, bool> occupied, out float at)
+        {
+            float lowest = track.ClosedLoop ? e.LastSafeDistance - 60f : Mathf.Max(0f, e.LastSafeDistance - 60f);
+            TrackSample chosen = track.SampleAt(e.LastSafeDistance);
+            Vector3 place = chosen.Position;
+            bool found = false;
+            for (float back = 0f; !found && e.LastSafeDistance - back >= lowest; back += 8f)
+            {
+                TrackSample s = track.SampleAt(e.LastSafeDistance - back);
+                float lane = Mathf.Max(0f, s.Width * 0.25f);
+                foreach (float offset in new[] { 0f, -lane, lane })
+                {
+                    Vector3 candidate = s.Position + s.Right * offset;
+                    if (occupied != null && occupied(candidate)) continue;
+                    chosen = s;
+                    place = candidate;
+                    found = true;
+                    break;
+                }
+            }
+            at = chosen.Distance;
+            var state = VehicleState.AtRest(place + chosen.Up * (p.CgHeightM + 0.15f), Quaternion.LookRotation(chosen.Tangent, chosen.Up));
+            e.Locator.Reset(chosen.Distance);
+            e.Location = e.Locator.Locate(state.Position, chosen.Tangent);
             return state;
         }
     }

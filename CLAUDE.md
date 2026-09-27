@@ -10,6 +10,10 @@ an ASP.NET Core control plane, and Supabase Auth/PostgreSQL.
    see `docs/EFFECTIVE_RULES.md` for the decisions D01–D10, the superseded rules and the impact map.
    **Further revised by `docs/brief/Night_Signal_Addendum_02.txt`** (diversions, service breaks, loadouts, Test Yard;
    decisions D201–D210, also mapped in `docs/EFFECTIVE_RULES.md`).
+   **Further revised by `docs/brief/Night_Signal_Addendum_03.txt`** (two speedometer styles and units, five mandatory
+   driving views incl. a genuine fitted cockpit on all 18 cars, arcade camera motion with comfort presets and speed
+   lines, measured real elevation, finite 3D directional gates, lap rules and safe recovery; decisions D301–D308,
+   mapped in `docs/EFFECTIVE_RULES.md`). Topology/progress/recovery correctness comes BEFORE benchmark certification.
 2. `docs/DECISIONS.md` — approved decisions that refine/override the specification
    (notably **D-001: editor baseline is Unity 6000.6.3f1, not 6.3 LTS**).
 3. `HANDOFF.md` — current state, blockers, next action. Update it at every checkpoint.

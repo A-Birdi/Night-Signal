@@ -23,10 +23,11 @@ namespace NightSignal.Race
         public EntrantProgress Progress;
         public RouteFollower Ai;
         public float ResetHeld;
+        /// <summary>After a reset the button must be released before another can start (holding it never repeats resets).</summary>
+        public bool ResetNeedsRelease;
         /// <summary>Reset safety ghost: non-colliding until this tick AND clear of overlaps (bounded); -1 when solid.</summary>
         public int GhostUntilTick = -1;
-        /// <summary>Continuous seconds clearly off the course (far outside the corridor or well below the road).</summary>
-        public float OffCourseSeconds;
+
         /// <summary>Automatic marshal recoveries (counted as resets, with the reset penalty).</summary>
         public int AutoRecoveries;
         /// <summary>Continuous seconds an AI has been effectively stationary while racing.</summary>
@@ -242,22 +243,25 @@ namespace NightSignal.Race
                 e.Sim.Step(ref e.State, input);
                 Tracker.Step(e.Progress, prev, e.State, e.Sim.Telemetry, raceMicros, VehicleSimulation.TickDt);
 
-                e.ResetHeld = input.ResetHeld ? e.ResetHeld + VehicleSimulation.TickDt : 0f;
+                if (!input.ResetHeld) e.ResetNeedsRelease = false;
+                e.ResetHeld = input.ResetHeld && !e.ResetNeedsRelease ? e.ResetHeld + VehicleSimulation.TickDt : 0f;
                 bool reset = false;
-                if (e.ResetHeld >= 0.7f && !e.Progress.Finished)
+                if (e.ResetHeld >= ResetHoldSeconds && !e.Progress.Finished)
                 {
-                    e.State = Tracker.ResetPose(e.Progress, e.Params);
+                    e.State = Tracker.ResetPose(e.Progress, e.Params, raceMicros, "manual", p => Occupied(e, p));
                     e.ResetHeld = 0f;
+                    e.ResetNeedsRelease = true;
                     e.GhostUntilTick = tick + GhostWindowTicks;
                     reset = true;
                 }
-                else if (!e.Progress.Finished && (ClearlyOffCourse(e) || AiStuck(e)))
+                else if (!e.Progress.Finished && (e.Progress.OffRouteSeconds >= AutoRescueSeconds || AiStuck(e)))
                 {
-                    // Marshal recovery: a car can never leave the playable world (fall off the terrain edge, drop under the
-                    // road). Same pose, penalty and safety ghost as a player reset.
-                    e.State = Tracker.ResetPose(e.Progress, e.Params);
+                    // Marshal recovery: a car clearly off the legal route (fell from the road, landed on another stretch,
+                    // left the corridor far behind) or an AI wedged in place. Same anchor rules, penalty and protection as a
+                    // player reset; judged by the route and its road layer, never by one world height.
+                    string why = e.Progress.OffRouteSeconds >= AutoRescueSeconds ? "off-route" : "stuck";
+                    e.State = Tracker.ResetPose(e.Progress, e.Params, raceMicros, why, p => Occupied(e, p));
                     e.GhostUntilTick = tick + GhostWindowTicks;
-                    e.OffCourseSeconds = 0f;
                     e.StuckSeconds = 0f;
                     e.AutoRecoveries++;
                     reset = true;
@@ -298,6 +302,19 @@ namespace NightSignal.Race
         public IReadOnlyList<RouteGateDef> DriftZonesForAi => Rules.DriftRanking && Drift.Zones.Count > 0 ? Drift.Zones : null;
 
         static int GhostWindowTicks => Limits.ResetGhostMaxMs * VehicleSimulation.TickRate / 1000;
+        /// <summary>Hold-to-reset duration (Addendum 03 §7.1: about 0.75 s, cancelled on release).</summary>
+        public const float ResetHoldSeconds = 0.75f;
+        /// <summary>Seconds clearly off the legal route before the marshal recovers the car (Addendum 03 §7.1: 2–4 s).</summary>
+        public const float AutoRescueSeconds = 2.5f;
+
+        /// <summary>A recovery anchor is occupied when another car (colliding or not) sits within a car length and a half of it.</summary>
+        bool Occupied(RaceEntrant self, Vector3 anchor)
+        {
+            foreach (RaceEntrant o in Entrants)
+                if (o != self && o.Status != EntrantStatus.DqDisconnected && (o.State.Position - anchor).sqrMagnitude < Mathf.Pow(self.Params.LengthM * 1.5f, 2f))
+                    return true;
+            return false;
+        }
 
         /// <summary>
         /// AI only: stationary (under 1 m/s) for 4 s while racing — wedged against a barrier or another car. Humans keep
@@ -308,16 +325,6 @@ namespace NightSignal.Race
             if (e.Human) return false;
             e.StuckSeconds = e.State.Velocity.sqrMagnitude < 1f ? e.StuckSeconds + VehicleSimulation.TickDt : 0f;
             return e.StuckSeconds > 4f;
-        }
-
-        /// <summary>Recovery trigger: 1.5 s far outside the corridor (&gt; 20 m past the road edge or 6 m below it), or 40 m below.</summary>
-        bool ClearlyOffCourse(RaceEntrant e)
-        {
-            TrackLocation loc = e.Progress.Location;
-            TrackSample here = Track.SampleAt(loc.Distance);
-            bool farOff = !loc.InCorridor && (loc.Vertical < -6f || Mathf.Abs(loc.Lateral) > here.Width * 0.5f + 20f);
-            e.OffCourseSeconds = farOff ? e.OffCourseSeconds + VehicleSimulation.TickDt : 0f;
-            return e.OffCourseSeconds > 1.5f || loc.Vertical < -40f;
         }
 
         /// <summary>Cars an AI can touch (so it follows and passes them); none in non-contact events.</summary>
@@ -332,8 +339,9 @@ namespace NightSignal.Race
 
         /// <summary>
         /// Light contact (Addendum 01 §2.1): every colliding pair in entrant order after all cars stepped. DQ/DNF cars and
-        /// reset safety ghosts never collide; a safety ghost ends once its window has passed and it overlaps nobody,
-        /// hard-bounded at twice the window.
+        /// reset safety ghosts never collide. A safety ghost lasts at most its 2 s window (Addendum 03 D306): if the car
+        /// still overlaps another then, it is moved to a free anchor at or behind its recovery point (the same recovery —
+        /// no second penalty) rather than ghosting on.
         /// </summary>
         void ResolveContacts(int tick, long raceMicros)
         {
@@ -342,7 +350,8 @@ namespace NightSignal.Race
                 if (e.GhostUntilTick >= 0 && tick >= e.GhostUntilTick)
                 {
                     bool overlapping = Entrants.Any(o => o != e && o.Collides && VehicleContact.Overlapping(e.State, e.Params, o.State, o.Params));
-                    if (!overlapping || tick >= e.GhostUntilTick + GhostWindowTicks) e.GhostUntilTick = -1;
+                    if (overlapping) e.State = Tracker.AnchorPose(e.Progress, e.Params, p => Occupied(e, p), out float _);
+                    e.GhostUntilTick = -1;
                 }
             for (int i = 0; i < Entrants.Count; i++)
             {

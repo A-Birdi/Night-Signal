@@ -62,14 +62,32 @@ namespace NightSignal.Track
         public bool InCorridor;
         /// <summary>Dot of a supplied heading with the route tangent (−1 = wrong way).</summary>
         public float HeadingDot;
+        /// <summary>
+        /// Within the road layer's vertical envelope (Addendum 03 D307): a car that fell below the road — onto a lower
+        /// switchback or the valley floor — or is far above it is not on this road, whatever its X/Z.
+        /// </summary>
+        public bool OnLayer;
+        /// <summary>The car left the tracked route neighbourhood; progress holds the last legal place (no jump to another road).</summary>
+        public bool Lost;
     }
 
     /// <summary>Spatial queries over <see cref="TrackData"/>; one instance per tracked car (holds a search hint).</summary>
     public sealed class TrackLocator
     {
         public const float CorridorToleranceMetres = 1.0f;
+        /// <summary>Road-layer envelope relative to the road surface (the car's centre rides ~0.5 m above it; crests fly a few metres).</summary>
+        public const float LayerBelowMetres = -2.5f, LayerAboveMetres = 12f;
+        /// <summary>Tracking window around the last located sample (m of route either way).</summary>
+        public const int WindowMetres = 60;
         readonly TrackData track;
         int hint = -1;
+
+        /// <summary>
+        /// When the car is not near its tracked stretch: search the whole route (AI steering, which only needs a nearby line)
+        /// or stay put and report <see cref="TrackLocation.Lost"/> (race progress: never jump to a spatially close but later
+        /// road — stacked switchbacks, overpasses). A reset or spawn re-anchors explicitly with <see cref="Reset"/>.
+        /// </summary>
+        public bool AllowGlobalRecovery = true;
 
         public TrackLocator(TrackData track)
         {
@@ -87,18 +105,26 @@ namespace NightSignal.Track
             {
                 best = hint;
                 float bestD = (s[hint].Position - position).sqrMagnitude;
-                const int window = 60;
-                for (int k = -window; k <= window; k++)
+                for (int k = -WindowMetres; k <= WindowMetres; k++)
                 {
                     int i = Wrap(hint + k);
                     if (i < 0) continue;
                     float d = (s[i].Position - position).sqrMagnitude;
                     if (d < bestD) { bestD = d; best = i; }
                 }
-                // A teleport/reset or a hint far from the car falls back to a global search.
-                if (bestD > 60f * 60f) best = GlobalNearest(position);
+                if (bestD > WindowMetres * WindowMetres)
+                {
+                    if (!AllowGlobalRecovery) return Located(hint, position, heading, lost: true);
+                    best = GlobalNearest(position); // AI steering only: find the nearest line again
+                }
             }
             hint = best;
+            return Located(best, position, heading, lost: false);
+        }
+
+        TrackLocation Located(int best, Vector3 position, Vector3 heading, bool lost)
+        {
+            TrackSample[] s = track.Samples;
 
             TrackSample c = s[best];
             Vector3 rel = position - c.Position;
@@ -106,17 +132,21 @@ namespace NightSignal.Track
             float distance = c.Distance + along;
             if (track.ClosedLoop) distance = Mathf.Repeat(distance, track.LengthMetres);
             float lateral = Vector3.Dot(rel, c.Right);
+            float vertical = Vector3.Dot(rel, c.Up);
             float half = c.Width * 0.5f;
             float shoulder = lateral >= 0f ? c.ShoulderRight : c.ShoulderLeft;
+            bool onLayer = !lost && vertical >= LayerBelowMetres && vertical <= LayerAboveMetres;
             return new TrackLocation
             {
                 Index = best,
                 Distance = Mathf.Clamp(distance, 0f, track.LengthMetres),
                 Lateral = lateral,
-                Vertical = Vector3.Dot(rel, c.Up),
-                OnPaved = Mathf.Abs(lateral) <= half,
-                InCorridor = Mathf.Abs(lateral) <= half + shoulder + CorridorToleranceMetres,
+                Vertical = vertical,
+                OnPaved = onLayer && Mathf.Abs(lateral) <= half,
+                InCorridor = onLayer && Mathf.Abs(lateral) <= half + shoulder + CorridorToleranceMetres,
                 HeadingDot = heading.sqrMagnitude > 0f ? Vector3.Dot(heading.normalized, c.Tangent) : 1f,
+                OnLayer = onLayer,
+                Lost = lost,
             };
         }
 

@@ -153,3 +153,33 @@ owner decides otherwise; nothing below changes a written rule.
    the ABS hold point for upgraded brakes was tried and rejected: in the per-tick friction model it made stops noisier
    and sometimes longer. Brake fade (heat) is not modelled; if the owner wants brake kits to matter in repeated
    full-pedal stops, fade is the physically honest mechanism (a new vehicle-state value on the wire).
+
+
+# Addendum 03 (Revision 1) — instruments, driving cameras, arcade motion, elevated courses, course recovery
+
+Source: `docs/brief/Night_Signal_Addendum_03.txt` (received 2026-09-27). Master + Addenda 01/02 stay binding except the
+topics below. Presentation choices (dial, views, motion) are free, local, never rewards/assists, never in build hashes.
+
+## Decisions adopted (D301–D308)
+
+| ID | Rule | Supersedes |
+|---|---|---|
+| D301 | Two speedometer styles — Instrument Dial (default for new prefs) and Digital Strip; km/h (default) and mph from one canonical m/s value (km/h = m/s × 3.6, mph = m/s ÷ 0.44704); RPM separate | master §15 single speed readout |
+| D302 | Five mandatory views on all 18 cars: Chase Close (default), Chase Far, Hood, Bumper/Road, genuine fitted 3D Cockpit | master §6 optional cockpit |
+| D303 | Arcade / Comfort / Custom motion presets + individual strengths (drift framing, road/body, impact, roll, speed-FOV, speed lines); Reduced Motion honoured | master §6 fixed shake |
+| D304 | Every car has a properly fitted cockpit (modular procedural cabin allowed; no dashboard image on the bumper camera) | — |
+| D305 | Every full-size race course has an intentional non-flat surface (relief and/or real banking); meet aprons, braking lane, dyno, skid pad stay flat | — |
+| D306 | Recovery keeps +3.000 s once per completed recovery, unbanked drift chain cleared, clock running, ≤ 2 s car-to-car ghosting | unchanged (confirmed) |
+| D307 | Progress = ordered, directional, finite 3D gates + legal route continuity; never nearest X/Z road for progress or recovery | master checkpoint wording (strengthened) |
+| D308 | Presentation changes stay local, keep readiness, never touch frozen builds, physics, scoring, records or peers | — |
+
+## Impact on existing work (audit 2026-09-27)
+
+| Area | Existing | Addendum 03 gap |
+|---|---|---|
+| HUD speed | Digital speed + rev bar, km/h/mph toggle (`UI/RaceHud`) | Instrument Dial, shared conversion/formatting, scale selection per car, preferences + migration |
+| Cameras | `Cameras/ChaseCamera`: chase/hood/bumper with generic offsets, continuous Perlin shake at speed | Chase Close/Far calibrated, per-model anchors, fitted cockpit (procedural cabin per chassis), drift framing, impulses, comfort presets, speed lines, look-back contract |
+| Elevation | Authored heights on 27/29 courses (descents to 640 m, climbs to 580 m, mixed, circuits 3–17 m); FP03 loop flat, T00 loop flat | Measured profile report per course (`CourseProfileTests`), FP03/T00 elevation elements, C14 relief |
+| Progress | Ordered checkpoints by route distance inside the corridor; cut detection; locator with a search hint | Finite 3D directional gates with height bounds and layer identity; swept crossings; lap arming; wrong-layer rejection |
+| Recovery | Hold 0.7 s → last safe checkpoint, +3 s, ghost ≤ 2 s; marshal recovery 1.5 s far off corridor or 40 m below | Anchor validation (clearance/occupancy, earlier fallback), no global world-Y threshold, 2–4 s rescue by route layer, idempotent recovery events |
+| Benchmarks | Provisional; reference runs recorded (V-048) | Certification deferred until topology/progress/recovery pass (§9) |

@@ -609,3 +609,39 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   the client predicts with it (not yet exercised online in a wet event).
 - `StarterCampaignRunTests` (F08 full campaign per starter, buying the path with earned credits) is written but **not
   run yet** (deferred behind Addendum 03's topology work, since benchmarks and stage geometry will change).
+
+## V-049 — Addendum 03 slice 1: measured course profiles, finite 3D gates, layer-aware progress, safe recovery (2026-09-27)
+- **T01 measured profiles** (PlayMode `CourseProfileTests`, all 29 courses, `Evidence/courses/profile/*.json`): from the
+  generated centreline the race/AI/progress use AND the road collider under it (raycast every 5 m — 100 % of probes on
+  the centreline on every course, worst gap 0.01 m): 3D driven length, start/end/min/max height, ascent/descent, grade
+  (20 m windows) and banking ranges, a 25 m trace, against the authored targets. Descents to 640 m (C25), climbs to
+  580 m (C23), grades up to ±11 %, circuits closing at start height. Found flat: C14 (3.3 m, 2°), FP03 (0 m) and the T00
+  loop (0 m). Fixed with restrained, identity-preserving relief (route revisions bumped): C14 a raised market deck
+  (+5 m) and banked S bends/square turn (6.0–13.5 m, grades ±5 %, 5°); FP03 taxiway esses dip/rise (378–383 m, ±6 %,
+  7° maintenance turn); T00 a 6 m crest on the far banked loop (the flat braking lane, skid pad, bays and wet pad
+  untouched). Re-measured and each driven start to finish by the autopilot, clean — **PASS**. Descents are still
+  perfectly monotonic (no counter-slopes/compressions yet — noted for an authoring pass).
+- **Progress (D307, R01–R05):** the progress locator never jumps to another stretch of road (no global nearest search
+  after the start; a car away from its tracked stretch is Lost) and every location carries a road-layer envelope
+  (−2.5…+12 m from the surface): a car below its road — fallen onto a lower switchback — is off the route. Checkpoints
+  are finite directional 3D gates: accepted only for a swept forward crossing of the gate plane, inside its lateral
+  corridor and vertical envelope (−1.5…+8 m), with plausible travel through it, by a car tracked beside the gate.
+  Ranking uses legal progress, capped at the next un-crossed gate and held while off route. EditMode
+  `RouteProgressTests` on the real routes: R01 every gate once at 1.5 and 12 m per tick; R02 oscillating ×10 counts
+  once, a vertical drop into a gate does not count (found: numerical plane straddling credited it — fixed with the
+  plausible-travel rule); R03 C25's upper road 41 m above a later stretch — a fall gives no gate, no finish, no ranking
+  gain, off-route > 2.5 s, recovery on the upper road at/behind the last gate with one +3 s; R04 C03's orchard bridge —
+  passing under its gate on the lower road is refused, on the deck accepted; R05 C03 two laps — backing over the line
+  adds no lap, finishes only on the final lap; anchors never move forward — **PASS**. EditMode **221/221**.
+- **Recovery (D306, §7):** hold 0.75 s, then the button must be released before another reset; the marshal recovers a
+  car off the legal route for 2.5 s (by route and road layer — the global "40 m below" rule is gone) or a wedged AI;
+  anchors at the last accepted gate, else a side lane, else stepping back up to 60 m (never forward, never before the
+  start), skipping placements another car occupies; moving protection ends at 2 s — a car still overlapping is moved
+  to a free non-forward anchor (same recovery, no second penalty); each completed recovery is one event (time, reason,
+  from/to, 3 s).
+- **Regression:** PlayMode `CourseSweepTests` 29/29 (every gate accepted in real driving), `FullGridContactTests` 2/2,
+  `DriftAttackTests` 3/3 after re-tuning drift for the wet-grip planning (drift zones now cap the approach at a
+  controllable entry speed, the flick holds full lock up to 0.75 s like the harness drifter; C08 every flick now
+  becomes a held drift, no spins; C01 810–4,225, C08 1,797–3,806, C12 527–2,163 pts).
+- Not yet: recovery prompt/countdown on the HUD, occupancy against physics obstacles (only cars), online recovery
+  through the client (server authority unchanged), physical fall test in PlayMode, overturned-car prompt.

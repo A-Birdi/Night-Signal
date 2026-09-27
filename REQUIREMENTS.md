@@ -115,3 +115,16 @@ lists the superseded rules and where each lands. Rows marked _(A01)_ carry the r
 | C.5 | Challenges with unique cosmetic rewards | 75 | 2 predicates; 0 reward assets | in progress |
 | C.6 | Cedar Lantern Terrace meet scene | 1 | 0 | not started |
 | C.7 | Music set | ≥17 cues | 0 | not started |
+
+## Addendum 03 — instruments, cameras, motion, elevation, gates, recovery (`docs/brief/Night_Signal_Addendum_03.txt`)
+
+| ID | Source | Requirement | Status |
+|---|---|---|---|
+| A3.1 | §1, D301, G01–G08 | Instrument Dial + Digital Strip, km/h/mph from one canonical m/s, calibrated scales, RPM separate, smoothing, preferences + migration | in progress — digital strip + rev bar and a units toggle exist; dial, shared conversion, scale selection, preferences not built |
+| A3.2 | §2, D302/D304, C01–C05 | Five views (Chase Close/Far, Hood, Bumper, genuine fitted Cockpit) on all 18 cars, per-model anchors, cycling/look-back, persistence, temporary overrides | partial — chase/hood/bumper with generic offsets; no Chase Far, no cockpit, no per-model anchors |
+| A3.3 | §3–4, D303, C06–C11 | Arcade tracking, drift framing, impacts, speed-FOV, perimeter speed lines; Arcade/Comfort/Custom presets; Reduced Motion honoured | not started (current chase has continuous speed shake, to be removed) |
+| A3.4 | §5, D305, T01–T08 | Real elevation/banking on every full-size course; measured 3D profile report; circuit seams; flat facilities stay flat | in progress — authored elevation on 27/29 courses; `CourseProfileTests` measures the generated road; FP03/T00 loop flat |
+| A3.5 | §6, D307, R01–R05 | Ordered directional finite 3D gates, legal continuity, stacked roads/overpasses, lap arming, ranking by legal progress | partial — ordered route-distance checkpoints with corridor/cut rules; no finite 3D gate bounds or layer identity |
+| A3.6 | §7, D306, R06–R12 | Safe recovery: prompt/automatic rescue by route state (no global Y), validated anchors at/behind the last gate, idempotent events, one +3 s penalty, ≤ 2 s ghost | partial — hold-reset + penalty + ghost + marshal recovery exist; anchor validation, layer-aware rescue, recovery events not built |
+| A3.7 | §8.2, I01 | Test Yard uses the same views/HUD without touching loadouts, A/B, readiness | not started |
+| A3.8 | §8.1, I02–I06 | Versioned geometry/records, migration, soak, real client/server evidence | not started |

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using NightSignal.AI;
 using NightSignal.Race;
 using NightSignal.Track;
 using NUnit.Framework;
@@ -46,7 +47,34 @@ namespace NightSignal.Tests
             Assert.That(session.Sim.Drift.Zones.Count, Is.GreaterThan(0), $"{course} has judged drift zones");
 
             float realStart = Time.realtimeSinceStartup;
-            while (session.Results == null && Time.realtimeSinceStartup - realStart < 600f) yield return null;
+            var driftFrames = new Dictionary<RaceEntrant, int>();
+            var maxSlip = new Dictionary<RaceEntrant, float>();
+            var maxZoneSpeed = new Dictionary<RaceEntrant, float>();
+            // Frames inside a judged zone while sliding ≥ 10°, and which scoring condition failed there.
+            var slideFrames = new Dictionary<RaceEntrant, int[]>(); // [sliding, slow < 35 km/h, off road, not grounded, wrong way]
+            while (session.Results == null && Time.realtimeSinceStartup - realStart < 600f)
+            {
+                foreach (RaceEntrant e in session.Sim.Entrants)
+                {
+                    RouteFollower driver = e.Human ? session.Pilot : e.Ai;
+                    if (driver != null && driver.Drifting) driftFrames[e] = (driftFrames.TryGetValue(e, out int n) ? n : 0) + 1;
+                    maxSlip[e] = Mathf.Max(maxSlip.TryGetValue(e, out float m) ? m : 0f, Mathf.Abs(e.Sim.Telemetry.BodySlipDeg));
+                    if (session.Sim.Drift.ZoneAt(e.Progress.Location.Distance) >= 0)
+                    {
+                        maxZoneSpeed[e] = Mathf.Max(maxZoneSpeed.TryGetValue(e, out float v) ? v : 0f, e.State.Velocity.magnitude * 3.6f);
+                        if (Mathf.Abs(e.Sim.Telemetry.BodySlipDeg) >= 10f)
+                        {
+                            if (!slideFrames.TryGetValue(e, out int[] c)) slideFrames[e] = c = new int[5];
+                            c[0]++;
+                            if (e.State.Velocity.magnitude * 3.6f < 35f) c[1]++;
+                            if (!e.Progress.Location.InCorridor) c[2]++;
+                            if (e.Sim.Telemetry.GroundedWheels < 2) c[3]++;
+                            if (Vector3.Dot(e.State.Velocity, session.Sim.Track.SampleAt(e.Progress.Location.Distance).Tangent) <= 0f) c[4]++;
+                        }
+                    }
+                }
+                yield return null;
+            }
             Assert.That(session.Results, Is.Not.Null, $"{course}: the event completed");
 
             var evidence = new DriftEvidence
@@ -64,6 +92,12 @@ namespace NightSignal.Tests
                     finishSeconds = r.FinishTimeMicros / 1e6f, resets = e.Progress.Resets + e.AutoRecoveries, wallIncidents = e.Progress.WallIncidents,
                     endMetres = e.Progress.Location.Distance, endSpeedKmh = e.State.Velocity.magnitude * 3.6f, inCorridor = e.Progress.Location.InCorridor,
                     wrongWaySeconds = e.Progress.WrongWaySeconds,
+                    driftFrames = driftFrames.TryGetValue(e, out int df) ? df : 0,
+                    maxSlipDeg = maxSlip.TryGetValue(e, out float ms) ? ms : 0f,
+                    maxZoneSpeedKmh = maxZoneSpeed.TryGetValue(e, out float zs) ? zs : 0f,
+                    zoneSlideFrames = slideFrames.TryGetValue(e, out int[] sf) ? string.Join("/", sf) : "0",
+                    attempts = (e.Human ? session.Pilot : e.Ai) is RouteFollower f
+                        ? $"flicks {f.DriftFlicks}, holds {f.DriftHolds}, ended: edge {f.DriftEndEdge}, spin {f.DriftEndSpin}, slow {f.DriftEndSlow}, wrong-way {f.DriftEndWrongWay}" : "",
                 });
             }
             Directory.CreateDirectory("Evidence/courses/drift");
@@ -94,7 +128,10 @@ namespace NightSignal.Tests
             public bool human;
             public int placement, chainsBanked, resets, wallIncidents;
             public long rawDriftScore, lostRaw;
-            public float finishSeconds, endMetres, endSpeedKmh, wrongWaySeconds;
+            public float finishSeconds, endMetres, endSpeedKmh, wrongWaySeconds, maxSlipDeg, maxZoneSpeedKmh;
+            public int driftFrames;
+            /// <summary>Frames sliding ≥ 10° in a zone / of which slow / off road / not grounded / wrong way.</summary>
+            public string zoneSlideFrames, attempts;
             public bool inCorridor;
         }
     }
