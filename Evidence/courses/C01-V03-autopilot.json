@@ -1,0 +1,16 @@
+{
+    "course": "C01",
+    "car": "V03",
+    "driver": "RouteFollower (Validator profile) — scripted, not a human",
+    "routeSourceHash": "6b3c215b11e5df4fd0e87461127761a278c7e4419c42513b85f6b05bc3bfdda2",
+    "unityVersion": "6000.6.3f1",
+    "finished": true,
+    "corridorCut": false,
+    "finishSeconds": 84.59184265136719,
+    "outOfCorridorSeconds": 0.0,
+    "wrongWaySeconds": 0.0,
+    "checkpointsPassed": 31,
+    "checkpointsTotal": 31,
+    "wallIncidents": 0,
+    "resets": 0
+}

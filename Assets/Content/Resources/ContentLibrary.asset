@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e76e681acbb8f0545b31f96a4f3946af, type: 3}
+  m_Name: ContentLibrary
+  m_EditorClassIdentifier: NightSignal.Runtime::NightSignal.Content.ContentLibrary
+  Documents:
+  - {fileID: 4900000, guid: d0a0ae84f6ccb3f4f95b36e8a78324af, type: 3}
+  - {fileID: 4900000, guid: 9e1adc80a164fde4ea11180938a0e521, type: 3}
+  - {fileID: 4900000, guid: d266394718993604a8a8439243785744, type: 3}
+  - {fileID: 4900000, guid: 3af5efe826b096c48bcbffdb482cf233, type: 3}
+  - {fileID: 4900000, guid: 883f255088c077f44a1f3f13182f30e3, type: 3}
+  - {fileID: 4900000, guid: 8750d8f4f28cac340befe38580e27c1b, type: 3}
+  - {fileID: 4900000, guid: 191f9d1725998fe4f816005e22a213a2, type: 3}
+  - {fileID: 4900000, guid: 46e070343affcec4c9cce180eae4bb8d, type: 3}
+  CarBodies: {fileID: 4900000, guid: d1916b9e892ad2744a9d4c7a980c66ac, type: 3}

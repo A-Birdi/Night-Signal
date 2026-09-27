@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4477d72fa7117f4bb98ef95c165f75a, type: 3}
+  m_Name: CarMaterialSet
+  m_EditorClassIdentifier: NightSignal.Runtime::NightSignal.Art.CarMaterialSet
+  Paint: {fileID: 2100000, guid: a990e8bf3ca60a244b8994e6763720b8, type: 2}
+  Glass: {fileID: 2100000, guid: af4e5a6ea9d6d4d4f81f8ac5550ee5b8, type: 2}
+  Trim: {fileID: 2100000, guid: 0958f3d9263b1af43a9b195c845a89a5, type: 2}
+  HeadLamp: {fileID: 2100000, guid: 8a530743eef69cf47bbf973bb85ed03b, type: 2}
+  TailLamp: {fileID: 2100000, guid: 789c334f177139647928ac490dc111d4, type: 2}
+  Chrome: {fileID: 2100000, guid: 5fc718a91af0b8a468022dc42324f02f, type: 2}
+  Rubber: {fileID: 2100000, guid: c2bd7b335947ab647aabf9d90f31c34a, type: 2}
+  Rim: {fileID: 2100000, guid: 16b0350460c4caf4e8e815d87b612509, type: 2}
+  GhostPaint: {fileID: 2100000, guid: 2a6d31174fe2d8449b93f3db6bccbc82, type: 2}

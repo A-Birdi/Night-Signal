@@ -12,8 +12,8 @@
       "speedAfter1000mKmh": 183.47,
       "brake100To0m": 38.62,
       "skidpadLateralG": 0.99,
-      "driftHoldSeconds": 1.95,
-      "driftMeanSlipDeg": 16.68,
+      "driftHoldSeconds": 1.68,
+      "driftMeanSlipDeg": 17.27,
       "driftSpun": false
     },
     {
@@ -25,7 +25,7 @@
       "brake100To0m": 36.21,
       "skidpadLateralG": 1.03,
       "driftHoldSeconds": 0.73,
-      "driftMeanSlipDeg": 4.26,
+      "driftMeanSlipDeg": 4.5,
       "driftSpun": false
     },
     {
@@ -36,8 +36,8 @@
       "speedAfter1000mKmh": 185.97,
       "brake100To0m": 36.51,
       "skidpadLateralG": 1.06,
-      "driftHoldSeconds": 1.13,
-      "driftMeanSlipDeg": 6.92,
+      "driftHoldSeconds": 1.27,
+      "driftMeanSlipDeg": 7.58,
       "driftSpun": false
     },
     {
@@ -48,8 +48,8 @@
       "speedAfter1000mKmh": 195.07,
       "brake100To0m": 37.0,
       "skidpadLateralG": 1.06,
-      "driftHoldSeconds": 2.67,
-      "driftMeanSlipDeg": 19.27,
+      "driftHoldSeconds": 1.93,
+      "driftMeanSlipDeg": 17.0,
       "driftSpun": false
     },
     {
@@ -60,8 +60,8 @@
       "speedAfter1000mKmh": 200.32,
       "brake100To0m": 36.11,
       "skidpadLateralG": 1.09,
-      "driftHoldSeconds": 2.27,
-      "driftMeanSlipDeg": 10.56,
+      "driftHoldSeconds": 2.05,
+      "driftMeanSlipDeg": 17.17,
       "driftSpun": false
     },
     {
@@ -73,7 +73,7 @@
       "brake100To0m": 35.0,
       "skidpadLateralG": 1.08,
       "driftHoldSeconds": 0.72,
-      "driftMeanSlipDeg": 4.41,
+      "driftMeanSlipDeg": 4.55,
       "driftSpun": false
     },
     {
@@ -84,8 +84,8 @@
       "speedAfter1000mKmh": 198.72,
       "brake100To0m": 35.49,
       "skidpadLateralG": 1.09,
-      "driftHoldSeconds": 1.1,
-      "driftMeanSlipDeg": 6.8,
+      "driftHoldSeconds": 1.22,
+      "driftMeanSlipDeg": 7.37,
       "driftSpun": false
     },
     {
@@ -96,8 +96,8 @@
       "speedAfter1000mKmh": 220.25,
       "brake100To0m": 35.28,
       "skidpadLateralG": 1.13,
-      "driftHoldSeconds": 0.98,
-      "driftMeanSlipDeg": 6.66,
+      "driftHoldSeconds": 1.12,
+      "driftMeanSlipDeg": 7.04,
       "driftSpun": false
     },
     {
@@ -108,8 +108,8 @@
       "speedAfter1000mKmh": 213.35,
       "brake100To0m": 35.26,
       "skidpadLateralG": 1.12,
-      "driftHoldSeconds": 2.95,
-      "driftMeanSlipDeg": 13.64,
+      "driftHoldSeconds": 2.25,
+      "driftMeanSlipDeg": 17.36,
       "driftSpun": false
     },
     {
@@ -120,8 +120,8 @@
       "speedAfter1000mKmh": 229.09,
       "brake100To0m": 34.12,
       "skidpadLateralG": 1.14,
-      "driftHoldSeconds": 4.48,
-      "driftMeanSlipDeg": 29.01,
+      "driftHoldSeconds": 2.4,
+      "driftMeanSlipDeg": 19.45,
       "driftSpun": false
     },
     {
@@ -132,8 +132,8 @@
       "speedAfter1000mKmh": 228.16,
       "brake100To0m": 36.3,
       "skidpadLateralG": 1.16,
-      "driftHoldSeconds": 3.33,
-      "driftMeanSlipDeg": 14.27,
+      "driftHoldSeconds": 3.95,
+      "driftMeanSlipDeg": 17.96,
       "driftSpun": false
     },
     {
@@ -144,8 +144,8 @@
       "speedAfter1000mKmh": 225.39,
       "brake100To0m": 35.01,
       "skidpadLateralG": 1.16,
-      "driftHoldSeconds": 1.08,
-      "driftMeanSlipDeg": 7.04,
+      "driftHoldSeconds": 1.25,
+      "driftMeanSlipDeg": 7.57,
       "driftSpun": false
     },
     {
@@ -156,8 +156,8 @@
       "speedAfter1000mKmh": 240.12,
       "brake100To0m": 32.69,
       "skidpadLateralG": 1.2,
-      "driftHoldSeconds": 4.12,
-      "driftMeanSlipDeg": 26.83,
+      "driftHoldSeconds": 2.08,
+      "driftMeanSlipDeg": 17.89,
       "driftSpun": false
     },
     {
@@ -168,8 +168,8 @@
       "speedAfter1000mKmh": 232.74,
       "brake100To0m": 34.14,
       "skidpadLateralG": 1.19,
-      "driftHoldSeconds": 0.72,
-      "driftMeanSlipDeg": 4.41,
+      "driftHoldSeconds": 0.7,
+      "driftMeanSlipDeg": 4.45,
       "driftSpun": false
     },
     {
@@ -180,8 +180,8 @@
       "speedAfter1000mKmh": 243.52,
       "brake100To0m": 33.29,
       "skidpadLateralG": 1.21,
-      "driftHoldSeconds": 3.67,
-      "driftMeanSlipDeg": 25.21,
+      "driftHoldSeconds": 1.93,
+      "driftMeanSlipDeg": 17.33,
       "driftSpun": false
     },
     {
@@ -192,8 +192,8 @@
       "speedAfter1000mKmh": 253.08,
       "brake100To0m": 34.98,
       "skidpadLateralG": 1.27,
-      "driftHoldSeconds": 3.37,
-      "driftMeanSlipDeg": 14.59,
+      "driftHoldSeconds": 3.8,
+      "driftMeanSlipDeg": 16.93,
       "driftSpun": false
     },
     {
@@ -204,8 +204,8 @@
       "speedAfter1000mKmh": 251.2,
       "brake100To0m": 33.28,
       "skidpadLateralG": 1.24,
-      "driftHoldSeconds": 3.12,
-      "driftMeanSlipDeg": 13.65,
+      "driftHoldSeconds": 1.18,
+      "driftMeanSlipDeg": 7.52,
       "driftSpun": false
     },
     {
@@ -216,8 +216,8 @@
       "speedAfter1000mKmh": 250.35,
       "brake100To0m": 32.01,
       "skidpadLateralG": 1.26,
-      "driftHoldSeconds": 4.5,
-      "driftMeanSlipDeg": 28.72,
+      "driftHoldSeconds": 2.05,
+      "driftMeanSlipDeg": 17.62,
       "driftSpun": false
     }
   ]

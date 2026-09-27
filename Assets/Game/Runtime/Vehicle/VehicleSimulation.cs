@@ -282,6 +282,8 @@ namespace NightSignal.Vehicle
 
                 // Longitudinal: drive, brakes, rolling drag; capped by the friction circle.
                 float fx = (front ? frontShare : 1f - frontShare) * 0.5f * driveForce;
+                // Share of this tyre's grip the engine is asking for (drives power-slide strength below).
+                float driveUsage = maxF > 1f ? Mathf.Clamp01(Mathf.Abs(fx) / maxF) : 0f;
                 if (p.Assists.TractionControl > 0)
                 {
                     float tcCap = maxF * (p.Assists.TractionControl == 2 ? 0.7f : 0.85f);
@@ -317,9 +319,10 @@ namespace NightSignal.Vehicle
                     }
                     // Lateral: saturating slip-angle curve inside the friction circle left by the longitudinal force.
                     float latMu = LateralCurve(Mathf.Abs(alpha));
-                    float axleDriveShare = front ? frontShare : 1f - frontShare;
-                    if (Mathf.Abs(alpha) > p.PeakSlipDeg && axleDriveShare > 0f && s.Gear > 0)
-                        latMu *= 1f - p.PowerSlideGripLoss * drive * axleDriveShare;
+                    // A sliding driven tyre loses lateral grip in proportion to how hard the engine can spin it:
+                    // strong in low gears / high power, weak for a small engine at speed.
+                    if (Mathf.Abs(alpha) > p.PeakSlipDeg && driveUsage > 0f && s.Gear > 0)
+                        latMu *= 1f - p.PowerSlideGripLoss * Mathf.Clamp01(driveUsage * 1.6f);
                     float fyCap = Mathf.Sqrt(Mathf.Max(0f, maxF * maxF - fx * fx)) * (sliding ? 0.85f : 1f);
                     fy = -Mathf.Sign(vy) * Mathf.Min(latMu * maxF, fyCap);
                 }

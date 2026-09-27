@@ -11,7 +11,7 @@ namespace NightSignal.Vehicle
     /// </summary>
     public static class VehicleFactory
     {
-        public static VehicleParams Build(CarDef car, CarTuningDef tuning, AssistSettings assists)
+        public static VehicleParams Build(CarDef car, CarTuningDef tuning, AssistSettings assists, float wheelRadius = 0.31f)
         {
             if (car == null) throw new ArgumentNullException(nameof(car));
             if (tuning == null) throw new ArgumentNullException(nameof(tuning), $"No tuning for {car.Id}");
@@ -38,6 +38,7 @@ namespace NightSignal.Vehicle
                 TurboLagSeconds = tuning.TurboLagSeconds > 0 ? (float)tuning.TurboLagSeconds : 0.6f,
                 Engine = ParseFamily(tuning.EngineFamily),
                 Assists = assists,
+                WheelRadiusM = wheelRadius,
             };
             p.CgHeightM = Mathf.Clamp(p.HeightM * 0.36f, 0.4f, 0.55f);
 
