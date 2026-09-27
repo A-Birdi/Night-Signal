@@ -52,8 +52,25 @@ namespace NightSignal.Net
         public bool Provisional;
     }
 
+    /// <summary>One frozen roster actor: kind human|ai, team player|opposing, role, driver identity.</summary>
+    public sealed class AssignmentRosterSlot
+    {
+        public string EntrantId, Kind, Team, Role, DriverId;
+    }
+
+    /// <summary>A Team Trial's frozen terms (Addendum 01 §3).</summary>
+    public sealed class AssignmentTrial
+    {
+        public string TrialId, Kind, Difficulty, TiePolicy;
+        public long HardTimeoutMs, ParticipationEnvelopeMs;
+        public int VictoryPlacement, DefeatPlacement;
+        public bool Provisional;
+    }
+
     public sealed class MatchAssignment
     {
+        public List<AssignmentRosterSlot> Roster = new List<AssignmentRosterSlot>();
+        public AssignmentTrial Trial;
         public string MatchId, ConvoyId, ServerId, Kind, Mode, StageId, StageType, CourseId, FreeplayMode, Weather, Collision;
         public int StageNumber, CarCapPi, Protocol;
         public List<AssignmentEntrant> Entrants = new List<AssignmentEntrant>();

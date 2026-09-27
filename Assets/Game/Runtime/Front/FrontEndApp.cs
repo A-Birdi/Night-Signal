@@ -513,6 +513,20 @@ namespace NightSignal.Front
                     if (stage != null && stage.Type == Newtonsoft.Json.Linq.JTokenType.Object)
                         sb.Append((bool?)stage["earnedClear"] == true ? "<color=#3EC6D8>Stage cleared</color>" + ((bool?)r["firstClearAwarded"] == true ? " — first clear" : "") + "\n"
                                                                      : $"<color=#F2A541>Stage not cleared</color>  <size=85%>{(string)stage["reason"]}</size>\n");
+                    if (r["teamTrial"] is Newtonsoft.Json.Linq.JObject tt)
+                    {
+                        string verdict = (string)tt["verdict"];
+                        string kind = (string)tt["kind"];
+                        string Value(Newtonsoft.Json.Linq.JToken v) => v == null || v.Type == Newtonsoft.Json.Linq.JTokenType.Null ? "-"
+                            : kind == "drift" ? $"{(long)v:N0} pts"
+                            : kind == "mean" ? RaceHudTime((long)v / Core.Rules.Limits.TeamTrialSideSize) + " mean" // team values are totals
+                            : RaceHudTime((long)v);
+                        string mine = kind == "mean" && tt["playerTeamMeanMs"] != null && tt["playerTeamMeanMs"].Type != Newtonsoft.Json.Linq.JTokenType.Null
+                            ? RaceHudTime((long)(double)tt["playerTeamMeanMs"]) + " mean" : Value(tt["playerTeamValue"]);
+                        string colour = verdict == "victory" ? "#3EC6D8" : verdict == "defeat" ? "#F2A541" : "#D8D4CB";
+                        sb.Append($"<color={colour}>Team Trial {verdict?.ToUpperInvariant()}</color>  <size=85%>your team {mine}, opponents {Value(tt["opposingTeamValue"])}" +
+                                  ((bool?)tt["provisional"] == true ? ", provisional targets" : "") + "</size>\n");
+                    }
                     sb.Append($"Credits +{(long?)r["payout"]?["total"] ?? 0:N0}   ·   balance {(long?)r["balanceAfter"] ?? 0:N0} cr\n");
                     foreach (Newtonsoft.Json.Linq.JToken cue in (r["musicUnlocked"] as Newtonsoft.Json.Linq.JArray) ?? new Newtonsoft.Json.Linq.JArray())
                         sb.Append($"<color=#3EC6D8>+</color> Soundtrack {(string)cue}\n");
@@ -524,6 +538,8 @@ namespace NightSignal.Front
                 yield return new WaitForSeconds(1f);
             }
         }
+
+        static string RaceHudTime(long ms) => UI.RaceHud.FormatTime(ms / 1000.0);
 
         /// <summary>
         /// Online evidence run (<c>-nsUiTourOnline</c>, needs the local control plane and a registered game server): the
@@ -610,6 +626,12 @@ namespace NightSignal.Front
             yield return new WaitForSeconds(0.8f);
             bool freeplayTour = Array.IndexOf(Environment.GetCommandLineArgs(), "-nsUiTourFreeplay") >= 0;
             if (freeplayTour) Convoy.SelectIntent(2); // Freeplay · Sprint, decided by a course vote
+            string[] tourArgs = Environment.GetCommandLineArgs();
+            int intentArg = Array.IndexOf(tourArgs, "-nsUiTourIntent");
+            if (intentArg >= 0 && intentArg + 1 < tourArgs.Length) Convoy.SelectIntent(int.Parse(tourArgs[intentArg + 1]));
+            int trialArg = Array.IndexOf(tourArgs, "-nsUiTourTrial");
+            string tourTrial = trialArg >= 0 && trialArg + 1 < tourArgs.Length ? tourArgs[trialArg + 1] : null;
+            if (tourTrial != null) Convoy.SelectIntent(5); // Challenges · Team Trial
             Click("ProposeIntent");
             yield return Until(() => State()?["intent"]?.Type == Newtonsoft.Json.Linq.JTokenType.Object, 20f, "intent set");
             yield return new WaitForSeconds(0.8f);
@@ -647,6 +669,12 @@ namespace NightSignal.Front
             {
                 // Readiness requests are rate-limited (15 s): wait until the button says it is available, like a player would.
                 yield return Until(() => GameObject.Find("ProposeEvent")?.GetComponent<Button>()?.interactable == true, 20f, "propose available");
+                if (tourTrial != null)
+                {
+                    yield return Until(() => Convoy.SelectTrial(tourTrial, "standard"), 10f, "team trial listed");
+                    yield return new WaitForSeconds(0.8f);
+                    Shot("05t-team-trial");
+                }
                 Click("ProposeEvent");
             }
             yield return Until(() => State()?["eventProposal"]?.Type == Newtonsoft.Json.Linq.JTokenType.Object, 25f, "event proposed");

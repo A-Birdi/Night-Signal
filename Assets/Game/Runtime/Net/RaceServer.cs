@@ -153,7 +153,7 @@ namespace NightSignal.Net
                 CarCapPi = assignment.CarCapPi,
                 Contact = assignment.Collision == "non-contact" ? ContactPolicy.NonContact : ContactPolicy.LightContact,
                 BenchmarkTargetMs = assignment.Benchmark?.TargetTimeMs ?? 0,
-                HardTimeoutMs = assignment.Benchmark?.HardTimeoutMs ?? 0,
+                HardTimeoutMs = assignment.Benchmark?.HardTimeoutMs ?? assignment.Trial?.HardTimeoutMs ?? 0,
                 RequiresBeatingFeaturedRival = assignment.Kind == "campaign" && StageBenchmark.IsFeaturedEncounter(assignment.StageType),
                 // Weather preset wins; "stage-default" uses the course's authored Normal surface.
                 Surface = assignment.Weather != null && assignment.Weather.Contains("wet") ? "wet"
@@ -182,7 +182,16 @@ namespace NightSignal.Net
                 humans.Add(slot);
             }
             var world = new PhysicsVehicleWorld(Physics.defaultPhysicsScene, GameLayers.DrivableMask, GameLayers.BarrierMask);
-            RaceSimulation s = RaceSimulation.Build(track, lib, rules, humans, assignment.AiEntrants, world);
+            // Team Trials (Addendum 01 §3): the frozen roster says which AI drive for the humans' team.
+            List<string> opposing = assignment.AiEntrants, friendly = new List<string>();
+            if (assignment.Kind == "trial" && assignment.Roster != null && assignment.Roster.Count > 0)
+            {
+                friendly = assignment.Roster.Where(r => r.Kind == "ai" && r.Team == "player").Select(r => r.EntrantId).ToList();
+                opposing = assignment.Roster.Where(r => r.Kind == "ai" && r.Team != "player").Select(r => r.EntrantId).ToList();
+                Debug.Log($"[NightSignal.Server] Team Trial {assignment.Trial?.TrialId} ({assignment.Trial?.Difficulty}): {humans.Count} human(s) + " +
+                          $"{friendly.Count} friendly AI vs {opposing.Count} opposing AI");
+            }
+            RaceSimulation s = RaceSimulation.Build(track, lib, rules, humans, opposing, world, friendly);
             foreach (RaceEntrant e in s.Entrants.Where(x => x.Human))
                 links[e] = new Link { Entrant = e };
             return s;

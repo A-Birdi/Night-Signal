@@ -29,6 +29,7 @@ namespace NightSignal.Front
             ("Freeplay · Sprint", new { kind = "freeplay", submode = "sprint" }, "freeplay", null, "sprint"),
             ("Freeplay · Circuit", new { kind = "freeplay", submode = "circuit" }, "freeplay", null, "circuit"),
             ("Freeplay · Time Attack", new { kind = "freeplay", submode = "time-attack" }, "freeplay", null, "time-attack"),
+            ("Challenges · Team Trial", new { kind = "challenges" }, "challenges", null, null),
         };
 
         TextMeshProUGUI heading, status, error, rosterText, lastResult, intentLine, proposalLine, postLine, inviteLine;
@@ -41,7 +42,8 @@ namespace NightSignal.Front
         float ballotDeadlineAt;
         long ballotSeenRevision = -1;
         TMP_InputField codeField;
-        Stepper starter, intent, stage, course, aiCount;
+        Stepper starter, intent, stage, course, aiCount, trial, difficulty;
+        List<JObject> trialDefs = new List<JObject>();
         readonly List<Button> listButtons = new List<Button>();
         readonly List<string> listIds = new List<string>();
         List<CarDef> starters = new List<CarDef>();
@@ -106,6 +108,9 @@ namespace NightSignal.Front
             stage = new Stepper(col, "Stage", 1, i => Limits.CampaignStages >= i + 1 ? CampaignProgress.StageLabel(i + 1) + "  " + StageName(i + 1) : "", 0, 1000);
             course = new Stepper(col, "Course", 1, i => i < courseIds.Count ? CourseName(courseIds[i]) : "—", 0, 1000);
             aiCount = new Stepper(col, "Opponents", Limits.MaxRaceVehicles, i => i == 0 ? "none" : $"{i} AI", 3, 1000);
+            trial = new Stepper(col, "Team Trial", 1, i => i < trialDefs.Count ? TrialLabel(trialDefs[i]) : "—", 0, 1000);
+            trial.Changed += _ => dirty = true;
+            difficulty = new Stepper(col, "Difficulty", 1, i => DifficultyLabel(i), 0, 1000);
             proposeEvent = UIFactory.Button("ProposeEvent", col, "Propose Event", ProposeEvent, 620, 56);
             // Freeplay vote (Addendum 01 §6): server deadline, one ticket per ballot, a server draw; the leader can still choose.
             votingToggle = UIFactory.Button("VotingToggle", col, "Voting: Off", ToggleVoting, 620, 48);
@@ -283,6 +288,20 @@ namespace NightSignal.Front
             stage.Root.SetActive(selecting && kind == "campaign");
             course.Root.SetActive(selecting && kind == "freeplay");
             aiCount.Root.SetActive(selecting && kind == "freeplay" && (string)intentObj?["submode"] != "time-attack");
+            trial.Root.SetActive(selecting && kind == "challenges");
+            difficulty.Root.SetActive(selecting && kind == "challenges");
+            if (selecting && kind == "challenges")
+            {
+                List<JObject> defs = ((c["teamTrials"] as JArray) ?? new JArray()).OfType<JObject>().ToList();
+                if (defs.Count != trialDefs.Count || defs.Where((d, i) => (string)d["id"] != (string)trialDefs[i]["id"]).Any())
+                {
+                    trialDefs = defs;
+                    trial.SetCount(Mathf.Max(1, defs.Count));
+                    trial.Set(0);
+                }
+                int levels = ((trialDefs.ElementAtOrDefault(trial.Index)?["difficulties"] as JArray) ?? new JArray()).Count;
+                if (difficulty.Count != Mathf.Max(1, levels)) difficulty.SetCount(Mathf.Max(1, levels));
+            }
             proposeEvent.gameObject.SetActive(selecting);
             proposeEvent.interactable = wait == 0;
             proposeEvent.GetComponentInChildren<TextMeshProUGUI>().text = "Propose Event" + suffix;
@@ -437,6 +456,19 @@ namespace NightSignal.Front
         /// <summary>Automation hook (UI tours): choose an intent row as a player would with the stepper.</summary>
         public void SelectIntent(int index) => intent.Set(index);
 
+        /// <summary>Selects a Team Trial (and its difficulty) in the event setup once the snapshot lists them (tours).</summary>
+        public bool SelectTrial(string trialId, string difficultyId)
+        {
+            int i = trialDefs.FindIndex(t => (string)t["id"] == trialId);
+            if (i < 0) return false;
+            trial.Set(i);
+            int d = ((trialDefs[i]["difficulties"] as JArray) ?? new JArray()).ToList().FindIndex(x => (string)x["id"] == difficultyId);
+            difficulty.SetCount(Mathf.Max(1, ((trialDefs[i]["difficulties"] as JArray) ?? new JArray()).Count));
+            difficulty.Set(Mathf.Max(0, d));
+            dirty = true;
+            return true;
+        }
+
         void ToggleVoting()
         {
             bool on = (bool?)(S.Convoy?["voting"] as JObject)?["enabled"] == true;
@@ -501,6 +533,15 @@ namespace NightSignal.Front
             if (open) dirty = true; // keep the countdown ticking
         }
 
+        string TrialLabel(JObject t) =>
+            $"{(string)t["name"]}  ·  {CourseName((string)t["course"])}" + ((bool?)t["provisional"] == true ? "  (provisional targets)" : "");
+
+        string DifficultyLabel(int i)
+        {
+            JToken level = (trialDefs.ElementAtOrDefault(trial?.Index ?? 0)?["difficulties"] as JArray)?.ElementAtOrDefault(i);
+            return level != null ? (string)level["label"] : "—";
+        }
+
         void ToggleModeReady()
         {
             bool ready = (bool?)S.MyMember?["modeReady"] == true;
@@ -511,6 +552,12 @@ namespace NightSignal.Front
         {
             string kind = (string)S.Convoy["intent"]?["kind"];
             if (kind == "campaign") Send("event.propose", new { stageId = CampaignProgress.StageLabel(stage.Index + 1) });
+            else if (kind == "challenges")
+            {
+                JObject t = trialDefs.ElementAtOrDefault(trial.Index);
+                JToken level = (t?["difficulties"] as JArray)?.ElementAtOrDefault(difficulty.Index);
+                if (t != null && level != null) Send("event.propose", new { trialId = (string)t["id"], difficulty = (string)level["id"] });
+            }
             else if (courseIds.Count > 0)
             {
                 string sub = (string)S.Convoy["intent"]?["submode"];

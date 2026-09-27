@@ -497,3 +497,28 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - `/healthz` publishes `toyContentHash`; the client compares it with its own toy documents at sign-in and, if they
   differ, keeps the online shared tables closed with an "update the game" note (Local toys unaffected). Today both are
   `698f4f53193d…`. Not exercised: 3–6 humans at one table.
+
+## V-044 — Team Trials and group Time Attack online through the convoy screen (2026-09-27)
+- Convoy screen: "Challenges · Team Trial" intent with the trial and difficulty the convoy snapshot lists (`teamTrials`,
+  control plane); the game server splits the frozen roster by team (friendly AI drive for the humans) and uses the
+  trial's hard timeout; the results line shows the team verdict and both team values.
+- `ui-tour-online.ps1 -Trial TT_BEST` (C01 sprint, best time): "Team Trial TT_BEST (standard): 1 human + 5 friendly AI
+  vs 6 opposing AI", 12 cars, P1 of 12, settled, `MUS_TT_BEST` unlocked — **PASS**. `-Trial TT_MEAN` (C03 circuit, team
+  mean): P1 of 12, **Team Trial VICTORY** (team mean 3:07.480), `MUS_TT_MEAN` unlocked — **PASS**. Screenshots
+  `Evidence/ui/online/team-trial/`.
+- `ui-tour-online.ps1 -Intent 4` (Freeplay Time Attack): 1 human, 0 AI, non-contact, settled — **PASS** (group Time
+  Attack with several humans uses the same path; not yet run with more than one).
+- Limits: the Combined Drift trial (TT_DRIFT) and Freeplay Drift Attack need drift scoring in the race server, which is
+  not implemented; the trial definitions are the control plane's provisional fixture (no authored team.trials.json).
+
+## V-045 — Customization Core model and catalogue (2026-09-27)
+- Background agent, reviewed and re-run here: `Assets/Game/Core/Customization` — catalogue
+  (`Assets/Content/Data/authored/customization.json`: all 18 chassis with stock + ≥ 2 variants per front/rear/side/rear-aero
+  family or documented equivalents, e.g. roadster lip-spoiler instead of a wing; 8 rims with per-chassis fitment that
+  keeps the tyre outer radius and never pushes a wheel past its arch; paints/finishes/two-tone; lamp tints; plates;
+  decal library with render kinds, the 15 decal cosmetics mapped), `LiveryDocument` with canonical JSON and LiveryHash,
+  strict validation and cosmetic ownership (preview vs apply), `LiveryEditor` (apply/cancel draft, 64-step undo/redo,
+  64-layer cap), `AppearanceResolver` (falls back to stock with notices), compact wire form (≤ 5,120 bytes, measured
+  worst case 4,833) and a publish gate. `dotnet test Services/CoreTests` **123/123**; compiles in Unity.
+- Not wired yet: the Garage appearance editor, mapping to the renderer's `CarAppearance`, the online livery endpoint and
+  roster sync, and `customization.json` in the content hash.

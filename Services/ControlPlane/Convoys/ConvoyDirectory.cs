@@ -2299,6 +2299,13 @@ public sealed class ConvoyDirectory
             voting = new { enabled = c.VotingEnabled, durationSeconds = c.VotingSeconds, choices = Limits.BallotSecondsChoices },
             ballot = BallotWire(c),
             freeplayAccess = FreeplayAccessWire(c),
+            teamTrials = c.Intent is { Kind: IntentKind.Challenges }
+                ? trials.Trials.Select(t => new
+                {
+                    id = t.Id, name = t.Name, kind = t.Kind, course = t.Course, format = t.Format, carCapPi = t.CarCapPi, provisional = t.Provisional,
+                    difficulties = t.Difficulties.Select(d => new { id = d.Id, label = d.Label }).ToList(),
+                }).ToList()
+                : null,
             eventProposal = c.EventProposal is { } e ? EventProposalWire(c, e) : null,
             postEvent = PostEventWire(c),
             campaignAccess = new { normal = Access(CampaignMode.Normal), hard = Access(CampaignMode.Hard) },
