@@ -20,6 +20,9 @@ namespace NightSignal.Race
         public float RaceDistance;
         public float LastSafeDistance;
         public int WallIncidents;
+        /// <summary>Debounced car-to-car contact incidents (kept separate from wall incidents; not a cleanliness fault).</summary>
+        public int VehicleContacts;
+        public double LastVehicleContactTime = double.NegativeInfinity;
         public int Resets;
         /// <summary>Time penalties (resets: 3 s each) added to the finish time.</summary>
         public long PenaltyMicros;

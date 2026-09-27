@@ -403,6 +403,16 @@ namespace NightSignal.Vehicle
             return Mathf.Lerp(1f, p.SlideGripFraction, t);
         }
 
+        /// <summary>
+        /// Re-applies barrier sweeps/depenetration after an external position change (car-to-car contact separation), so
+        /// a nudge can never carry a car through a guardrail. Same code path as a physics substep's barrier pass.
+        /// </summary>
+        public void ConstrainToBarriers(ref VehicleState s, Vector3 fromPosition)
+        {
+            if ((s.Position - fromPosition).sqrMagnitude < 1e-8f) return;
+            ResolveBarriers(ref s, fromPosition, TickDt / Substeps);
+        }
+
         void ResolveBarriers(ref VehicleState s, Vector3 oldPos, float dt)
         {
             Vector3 half = p.BodyHalfExtents;
@@ -414,7 +424,7 @@ namespace NightSignal.Vehicle
             if (world.SweepBody(fromC, toC, s.Rotation, half, out float frac, out Vector3 sweepNormal))
             {
                 s.Position = oldPos + (s.Position - oldPos) * Mathf.Max(0f, frac - 0.02f);
-                ApplyWallResponse(ref s, sweepNormal, 0, dt);
+                ApplyWallResponse(ref s, WallNormal(sweepNormal, out _), 0, dt);
             }
 
             for (int iter = 0; iter < 3; iter++)
@@ -423,10 +433,29 @@ namespace NightSignal.Vehicle
                 if (count == 0) break;
                 for (int i = 0; i < count; i++)
                 {
-                    s.Position += contacts[i].Normal * contacts[i].Depth;
-                    ApplyWallResponse(ref s, contacts[i].Normal, contacts[i].SurfaceId, dt);
+                    // Barriers are vertical walls: separate and respond horizontally, so an edge/cap normal can never
+                    // lift a car over a guardrail or convert its speed into a vertical launch.
+                    Vector3 n = WallNormal(contacts[i].Normal, out float horizontal);
+                    s.Position += horizontal > 0f ? n * (contacts[i].Depth / Mathf.Max(0.3f, horizontal)) : contacts[i].Normal * contacts[i].Depth;
+                    ApplyWallResponse(ref s, n, contacts[i].SurfaceId, dt);
                 }
             }
+        }
+
+        /// <summary>
+        /// Horizontal part of a barrier contact normal. Near-vertical normals (resting on a cap) return the original normal,
+        /// which <see cref="ApplyWallResponse"/> treats as ground-like (no bounce).
+        /// </summary>
+        static Vector3 WallNormal(Vector3 n, out float horizontalMagnitude)
+        {
+            var h = new Vector3(n.x, 0f, n.z);
+            horizontalMagnitude = h.magnitude;
+            if (horizontalMagnitude < 0.2f)
+            {
+                horizontalMagnitude = 0f;
+                return n;
+            }
+            return h / horizontalMagnitude;
         }
 
         void ApplyWallResponse(ref VehicleState s, Vector3 n, int surfaceId, float dt)

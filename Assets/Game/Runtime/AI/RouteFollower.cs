@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using NightSignal.Track;
 using NightSignal.Vehicle;
 using UnityEngine;
@@ -44,16 +45,58 @@ namespace NightSignal.AI
         }
 
         public float TargetSpeed { get; private set; }
+        /// <summary>Lateral passing offset currently held (m, + = right); 0 when following the racing line.</summary>
+        public float PassOffset { get; private set; }
+        int passSide, passHoldTicks;
 
-        public DriverInput Drive(VehicleState s)
+        public DriverInput Drive(VehicleState s) => Drive(s, null);
+
+        /// <summary>
+        /// Drives the racing line. With <paramref name="traffic"/> (other cars that can be touched) the driver matches a
+        /// slower car ahead in its lane with a safe gap and moves to the side with more room to pass — racecraft, not
+        /// contact: it never aims at another car (Addendum 01 §2.1, no pit manoeuvres).
+        /// </summary>
+        public DriverInput Drive(VehicleState s, IReadOnlyList<VehicleState> traffic)
         {
             Vector3 fwd = s.Rotation * Vector3.forward;
             TrackLocation here = locator.Locate(s.Position, fwd);
             float speed = s.Velocity.magnitude;
 
-            // Steering: pure pursuit on the racing line.
+            float followLimit = float.MaxValue;
+            int wantSide = 0;
+            if (traffic != null)
+            {
+                TrackSample me = track.SampleAt(here.Distance);
+                float myLateral = Vector3.Dot(s.Position - me.Position, me.Right);
+                float lookAhead = p.LengthM + 6f + speed * 1.2f;
+                for (int i = 0; i < traffic.Count; i++)
+                {
+                    Vector3 delta = traffic[i].Position - s.Position;
+                    float ahead = Vector3.Dot(delta, me.Tangent);
+                    if (ahead <= 0.5f || ahead > lookAhead) continue;
+                    TrackSample at = track.SampleAt(here.Distance + ahead);
+                    float otherLateral = Vector3.Dot(traffic[i].Position - at.Position, at.Right);
+                    if (Mathf.Abs(otherLateral - myLateral) > p.WidthM + 0.7f) continue; // not in our lane
+                    float otherSpeed = Vector3.Dot(traffic[i].Velocity, at.Tangent);
+                    float safeGap = p.LengthM + 2.5f;
+                    followLimit = Mathf.Min(followLimit, Mathf.Max(0f, otherSpeed + (ahead - safeGap) * 0.8f));
+                    if (otherSpeed < speed - 0.5f) wantSide = otherLateral <= 0f ? 1 : -1; // pass on the side with more room
+                }
+            }
+            if (wantSide != 0 && passHoldTicks <= 0) { passSide = wantSide; passHoldTicks = 150; }
+            else if (passHoldTicks > 0) passHoldTicks--;
+            else passSide = 0;
+
+            // Steering: pure pursuit on the racing line (shifted while passing).
             float look = Mathf.Max(Profile.MinLookahead, speed * Profile.LookaheadSeconds);
-            Vector3 aim = LinePoint(here.Distance + look);
+            TrackSample aimSample = track.SampleAt(here.Distance + look);
+            float maxOffset = Mathf.Max(0f, aimSample.Width * 0.5f - p.WidthM * 0.5f - 0.6f);
+            PassOffset = Mathf.MoveTowards(PassOffset, passSide * maxOffset, 0.05f);
+            Vector3 aim = LinePoint(here.Distance + look) + aimSample.Right * PassOffset;
+            // Stay on the road when the line and the pass offset combine.
+            float aimLateral = Vector3.Dot(aim - aimSample.Position, aimSample.Right);
+            if (Mathf.Abs(aimLateral) > aimSample.Width * 0.5f - 1.2f)
+                aim -= aimSample.Right * (aimLateral - Mathf.Sign(aimLateral) * (aimSample.Width * 0.5f - 1.2f));
             Vector3 toAim = aim - s.Position;
             float alpha = Vector3.SignedAngle(Vector3.ProjectOnPlane(fwd, Vector3.up), Vector3.ProjectOnPlane(toAim, Vector3.up), Vector3.up) * Mathf.Deg2Rad;
             float wheel = Mathf.Atan(2f * p.WheelbaseM * Mathf.Sin(alpha) / Mathf.Max(1f, toAim.magnitude));
@@ -74,6 +117,7 @@ namespace NightSignal.AI
                 float allowed = Mathf.Sqrt(vCorner * vCorner + 2f * Profile.BrakingDecel * d);
                 target = Mathf.Min(target, allowed);
             }
+            target = Mathf.Min(target, followLimit);
             TargetSpeed = target;
             float err = target - speed;
             float throttle = Mathf.Clamp01(err * 0.35f + 0.1f);

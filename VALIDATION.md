@@ -124,3 +124,30 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   waiting for joined a discoverable convoy". Both accounts were still members of the previous run's convoy under
   the old 60-second reserved-seat rule. Addendum 01 §10 replaces reserved seats with server-owned rejoin grants and
   disbands convoys with no active members; the fix lands with that control-plane change.
+
+## V-018 — Addendum 01 Core rules (2026-09-27)
+- EditMode 161/161 (Unity 6000.6.3f1): capacity H=1..6 with every legal AI count to 12 vehicles; H=7 and 13 vehicles
+  rejected; Time Attack humans-only non-contact (stale AI requests clamped); authored live opposition featured-first;
+  finales H+1 with R40/R48 live at H=1 and H=6; R40/R48 rejected in every non-finale placement context; Team Trial
+  6 v 6 for H=1..6; course-access table and all 20 dual-unlock mappings pinned; purchase idempotency and
+  purchase-vs-unlock race; sponsor/guest rules; weighted one-ticket-per-ballot draw reproducible from the stored random
+  value; handle validation/canonicalisation; Team Mean/Best/Drift scoring (a quitting teammate never helps); live-rival
+  stage condition incl. Hard ceil(H/2) and broken-event refusal; catalogue loads 29 courses and refuses to load without
+  the Addendum overlays; placements 4–12 = 1.00; 12-slot grid on the road; 8 light-contact tests.
+- .NET (at commit 2ecc1e2): 150/152 — the two failures assert the superseded reserved-seat semantics (server rework in
+  progress).
+
+## V-019 — Twelve-car light-contact race, in-process (2026-09-27)
+- PlayMode `FullGridContactTests` on C01 revision 3: autopilot in the human seat + 11 AI through the shared
+  RaceSimulation (the dedicated server's race loop), headless, fast-forwarded. Evidence
+  `Evidence/courses/C01-12car-contact.json`. Not a network run, not a human playtest.
+- First runs exposed two real defects, both fixed and re-verified:
+  1. Guardrail body depenetration never ran: `ComputePenetration` returns false for a probe collider on an inactive
+     GameObject (measured in the editor: 0 resolved vs 0.85 m with an active probe). Cars already overlapping a rail
+     (slides, rotation, contact nudges) passed through it; one AI left C01 at 1521 m and fell off the world.
+  2. Barrier responses used tilted edge normals: a graze at 133 km/h converted to +15.6 m/s vertical and vaulted a car
+     over the rail. Barrier contacts now respond horizontally.
+  Added marshal recovery for cars clearly off course.
+- Final run: 12/12 finished, 0 recoveries, 0 corridor cuts, max vertical speed 2.8 m/s, 50 debounced contact
+  incidents, 11 wall incidents, simulation 0.51 ms/tick mean (5.5 ms worst) for twelve cars. C01 solo autopilot
+  V01/V03 still finish 31/31 with 0 walls. Time Attack rejects live AI (PlayMode 5/5).

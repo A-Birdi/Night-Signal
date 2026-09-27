@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using NightSignal.Race;
 using NightSignal.Content;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

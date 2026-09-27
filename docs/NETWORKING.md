@@ -214,7 +214,7 @@ assignment (match/build/protocol/content), burns the `jti`, and maps `sub` to an
 | `ns.loaded` | C→S | reliable | `float` loading progress (1.0 = course collision, car assets, input and first state ready) |
 | `ns.phase` | S→C | reliable | `byte phase` (Loading, Countdown, Racing, Results, Aborted), `int startTick`, `long deadlineMicros` (−1 until the first human finishes; re-sent when set so clients show the finish window) |
 | `ns.input` | C→S | unreliable sequenced, every 2nd tick (30 Hz) | `int latestTick`, `byte count ≤ 8`, then `count` × input (`sbyte steer`, `byte throttle`, `byte brake`, `byte buttons`) for ticks `latestTick-count+1 … latestTick` |
-| `ns.snap` | S→C | unreliable sequenced, every 3rd tick (20 Hz) | `int tick`, `byte phase`, `byte n`, then per entrant `byte index`, `byte status`, `ushort checkpoints`, `float raceDistance`, `int finishMs`, `int inputAckTick` (latest command tick received from that human, −1 for AI), full `VehicleState` (93 bytes) — ≈ 660 bytes for six cars |
+| `ns.snap` | S→C | unreliable sequenced, every 3rd tick (20 Hz) | `int tick`, `byte phase`, `byte n`, then per entrant `byte index`, `byte status`, `ushort checkpoints`, `float raceDistance`, `int finishMs`, `int inputAckTick` (latest command tick received from that human, −1 for AI), `byte flags` (bit0 = not colliding: reset safety ghost / DQ / not racing; bit1 = full state follows), then the vehicle state: **full** (93 bytes) for the recipient's own car, **compact** (40 bytes: exact position, smallest-three rotation, half-precision velocities/steer, rpm, gear, suspension) for every other car. Protocol 2 sends one snapshot per client — ≈ 0.75 KB for twelve cars, one unfragmented datagram (a shared full-state snapshot would be ≈ 1.33 KB, too close to the ~1.4 KB payload limit) |
 | `ns.results` | S→C | reliable fragmented | JSON `MatchResults` (the same facts sent to the control plane) |
 
 **Clock and start.** The server simulates tick T at its NGO `LocalTime.Tick`. After the loading barrier (90 s, one
@@ -234,6 +234,17 @@ corrections, hitches), so both sides step each car the same number of times. Rou
 input send time to the first snapshot acknowledging that tick — the transport's reliable-pipeline RTT goes stale once
 setup traffic stops. The server counts starved ticks (simulated without that tick's command) and late commands per
 entrant and writes them into the server evidence.
+
+Car-to-car contact (Addendum 01 §2): the race loop is `Race/RaceSimulation` — the same code in the dedicated server
+and in offline play. After every car steps, the server resolves each colliding pair in entrant order with
+`VehicleContact.Resolve` (oriented body boxes, one capped restitution/friction impulse, yaw-only response ≤ 1.2 rad/s,
+Δv ≤ 3.5 m/s, separation ≤ 0.2 m per tick) and re-runs the barrier pass for moved cars so a nudge can never carry a
+car through a guardrail. Time Attack (`contact: non-contact`) skips contact entirely. Reset safety ghosts and DQ cars
+are flagged non-colliding in snapshots. The client applies the same function to its own car only, against remote cars
+extrapolated from their latest authoritative state (≤ 15 ticks); reconciliation corrects any difference. Contact
+incidents are debounced (750 ms) and counted separately from wall incidents; there is no damage state (D10). Cars
+clearly off course for 1.5 s (> 20 m past the road edge or 6 m below it), or 40 m below, get a marshal recovery with
+the normal reset penalty.
 Remote cars render at `ServerTime − 6 ticks` (100 ms) with at most 9 ticks (150 ms) of extrapolation.
 
 **Disconnects.** A racer disconnecting after admission becomes `DqDisconnected` and cannot resume driving in that

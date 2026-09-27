@@ -1,7 +1,7 @@
 {
   "schema": "night-signal/route@1",
   "course": "C01",
-  "revision": 2,
+  "revision": 3,
   "closedLoop": false,
   "startMetres": 64,
   "checkpointSpacingMetres": 100,
@@ -46,7 +46,11 @@
     { "id": "C01-S3", "name": "Bridge Run", "startMetres": 1180 },
     { "id": "C01-S4", "name": "Hairpin and Lanterns", "startMetres": 1880 }
   ],
-  "gates": [],
+  "gates": [
+    { "id": "C01-DRIFT-OPENING", "kind": "drift-zone", "challenge": "CH20", "startMetres": 300, "endMetres": 475, "lineOffset": 0, "lineTolerance": 3.5, "targetSpeedKmh": 0 },
+    { "id": "C01-DRIFT-FIELD", "kind": "drift-zone", "challenge": "CH20", "startMetres": 760, "endMetres": 980, "lineOffset": 0, "lineTolerance": 3.5, "targetSpeedKmh": 0 },
+    { "id": "C01-DRIFT-HAIRPIN", "kind": "drift-zone", "challenge": "CH20", "startMetres": 2030, "endMetres": 2175, "lineOffset": 0, "lineTolerance": 3.5, "targetSpeedKmh": 0 }
+  ],
   "landmarks": [
     { "id": "C01-LM-TEA-SHED", "name": "Tea-drying shed", "atMetres": 790, "side": "left", "offsetMetres": 26, "kit": "tea-shed" },
     { "id": "C01-LM-STONE-BRIDGE", "name": "Low stone bridge", "atMetres": 1285, "side": "left", "offsetMetres": 0, "kit": "stone-bridge" },

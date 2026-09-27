@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using NightSignal.Race;
 using NightSignal.AI;
 using NightSignal.Art;
 using NightSignal.Cameras;
@@ -35,6 +36,11 @@ namespace NightSignal.Net
             public float RaceDistance;
             public int FinishMillis;
             public VehicleView View;
+            public VehicleParams Params;
+            /// <summary>Server flag: not colliding (reset safety ghost, DQ, not racing).</summary>
+            public bool Ghost;
+            public int LatestTick = -1;
+            public VehicleState Latest;
             public readonly List<(int tick, VehicleState state)> Buffer = new List<(int, VehicleState)>();
         }
 
@@ -130,10 +136,10 @@ namespace NightSignal.Net
             var carSet = Resources.Load<CarMaterialSet>("CarMaterialSet");
             foreach (RosterEntry r in Info.Roster)
             {
-                var car = new Car { Roster = r };
+                var car = new Car { Roster = r, Params = lib.Params(r.CarId, AssistSettings.Default) };
                 if (!headless)
                 {
-                    VehicleParams p = lib.Params(r.CarId, AssistSettings.Default);
+                    VehicleParams p = car.Params;
                     car.View = VehicleView.Create($"Car_{r.Index}_{r.CarId}", p, lib.Body(r.CarId), carSet, new Color(r.Paint[0], r.Paint[1], r.Paint[2]));
                     GridSlot g = track.Grid[r.GridSlot];
                     car.View.ShowParked(g.Position - g.Rotation * Vector3.up * 0.6f, g.Rotation);
@@ -244,6 +250,8 @@ namespace NightSignal.Net
             r.ReadValueSafe(out byte phase);
             r.ReadValueSafe(out byte count);
             SnapshotsReceived++;
+            bool haveOwn = false;
+            VehicleState own = default;
             for (int i = 0; i < count; i++)
             {
                 r.ReadValueSafe(out byte index);
@@ -252,20 +260,60 @@ namespace NightSignal.Net
                 r.ReadValueSafe(out float dist);
                 r.ReadValueSafe(out int finishMs);
                 r.ReadValueSafe(out int ackTick);
-                VehicleState s = Wire.ReadState(r);
-                if (Info != null && index == Info.YourIndex) NoteAck(tick, ackTick);
+                r.ReadValueSafe(out byte flags);
+                VehicleState s = (flags & 2) != 0 ? Wire.ReadState(r) : Wire.ReadCompact(r); // bit1: full state (own car)
+                bool mine = Info != null && index == Info.YourIndex;
+                if (mine) NoteAck(tick, ackTick);
                 if (!cars.TryGetValue(index, out Car car)) continue;
                 car.Status = (EntrantStatus)status;
                 car.CheckpointsPassed = cps;
                 car.RaceDistance = dist;
                 car.FinishMillis = finishMs;
-                if (Info != null && index == Info.YourIndex) Reconcile(tick, s);
+                car.Ghost = (flags & 1) != 0;
+                car.LatestTick = tick;
+                car.Latest = s;
+                if (mine)
+                {
+                    haveOwn = true;
+                    own = s;
+                }
                 else
                 {
                     car.Buffer.Add((tick, s));
                     if (car.Buffer.Count > 32) car.Buffer.RemoveAt(0);
                 }
             }
+            // Reconcile after every remote car is updated, so the replay predicts contacts against this same tick.
+            if (haveOwn) Reconcile(tick, own);
+        }
+
+        bool ContactOn => Info != null && Info.Contact != "non-contact";
+
+        /// <summary>
+        /// Predicts light contact for our own car against remote cars extrapolated from their latest authoritative
+        /// state (≤ 15 ticks). Only our car is changed; the server resolves the real pair and reconciliation corrects
+        /// any difference.
+        /// </summary>
+        void PredictContacts(ref VehicleState state, int tick)
+        {
+            if (!ContactOn || Info == null || !cars.TryGetValue(Info.YourIndex, out Car me) || me.Ghost) return;
+            foreach (Car c in cars.Values)
+            {
+                if (c == me || c.Ghost || c.Params == null || c.LatestTick < 0) continue;
+                if (c.Status != EntrantStatus.Racing && c.Status != EntrantStatus.Finished) continue;
+                VehicleState other = Extrapolate(c.Latest, c.LatestTick, tick);
+                Vector3 from = state.Position;
+                if (VehicleContact.Resolve(ref state, ownParams, ref other, c.Params, true, false).Touching)
+                    ownSim.ConstrainToBarriers(ref state, from);
+            }
+        }
+
+        static VehicleState Extrapolate(VehicleState s, int fromTick, int toTick)
+        {
+            float dt = Mathf.Clamp(toTick - fromTick, 0, 15) * VehicleSimulation.TickDt;
+            s.Position += s.Velocity * dt;
+            s.Rotation = Quaternion.AngleAxis(s.AngularVelocity.y * dt * Mathf.Rad2Deg, Vector3.up) * s.Rotation;
+            return s;
         }
 
         /// <summary>Compare the authoritative state at tick T with our prediction; on divergence rewind and replay.</summary>
@@ -284,7 +332,11 @@ namespace NightSignal.Net
             {
                 int s = t & 255;
                 if (ticks[s] != t) break;
-                if (t >= startTick) ownSim.Step(ref replay, inputs[s]);
+                if (t >= startTick)
+                {
+                    ownSim.Step(ref replay, inputs[s]);
+                    PredictContacts(ref replay, t);
+                }
                 states[s] = replay;
             }
             ownState = replay;
@@ -315,7 +367,11 @@ namespace NightSignal.Net
             int slot = tick & 255;
             inputs[slot] = input;
             ticks[slot] = tick;
-            if (racing) ownSim.Step(ref ownState, input);
+            if (racing)
+            {
+                ownSim.Step(ref ownState, input);
+                PredictContacts(ref ownState, tick);
+            }
             states[slot] = ownState;
             lastPredictedTick = tick;
         }

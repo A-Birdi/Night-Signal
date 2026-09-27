@@ -129,19 +129,36 @@ namespace NightSignal.Vehicle
             return s;
         }
 
-        /// <summary>A hidden, disabled box collider used only as the ComputePenetration probe shape.</summary>
+        /// <summary>
+        /// A hidden box collider used only as the ComputePenetration probe shape. It must be ACTIVE and enabled —
+        /// ComputePenetration silently returns false for a probe on an inactive object (measured: barrier depenetration
+        /// never ran while it was inactive). It is a trigger on the Ignore Raycast layer, far below the world, so no
+        /// gameplay query or rigidbody ever touches it.
+        /// </summary>
         sealed class BoxProbe
         {
+            const int IgnoreRaycastLayer = 2;
             static readonly Dictionary<Vector3, BoxProbe> Probes = new Dictionary<Vector3, BoxProbe>();
             public BoxCollider Box;
 
             public static BoxProbe Get(Vector3 halfExtents)
             {
                 if (Probes.TryGetValue(halfExtents, out BoxProbe p) && p.Box != null) return p;
-                var go = new GameObject("VehicleBodyProbe") { hideFlags = HideFlags.HideAndDontSave };
-                go.SetActive(false);
-                var box = go.AddComponent<BoxCollider>();
-                box.size = halfExtents * 2f;
+                // Reuse a hidden probe that survived an editor domain reload instead of leaking another one.
+                BoxCollider box = null;
+                foreach (BoxCollider b in Resources.FindObjectsOfTypeAll<BoxCollider>())
+                    if (b != null && b.gameObject.name == "VehicleBodyProbe" && b.size == halfExtents * 2f) { box = b; break; }
+                if (box == null)
+                {
+                    var go = new GameObject("VehicleBodyProbe") { hideFlags = HideFlags.HideAndDontSave };
+                    box = go.AddComponent<BoxCollider>();
+                    box.size = halfExtents * 2f;
+                }
+                box.gameObject.layer = IgnoreRaycastLayer;
+                box.gameObject.SetActive(true);
+                box.transform.position = new Vector3(0f, -100000f, 0f);
+                box.isTrigger = true;
+                box.enabled = true;
                 p = new BoxProbe { Box = box };
                 Probes[halfExtents] = p;
                 return p;

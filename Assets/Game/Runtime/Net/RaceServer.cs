@@ -2,10 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NightSignal.AI;
 using NightSignal.Art;
 using NightSignal.Content;
-using NightSignal.Core.Content;
 using NightSignal.Core.Rules;
 using NightSignal.Core.Security;
 using NightSignal.Race;
@@ -19,18 +17,6 @@ using UnityEngine.SceneManagement;
 
 namespace NightSignal.Net
 {
-    /// <summary>Roster entry sent to clients in <see cref="Wire.MsgMatch"/>.</summary>
-    public sealed class RosterEntry
-    {
-        public int Index;
-        public string EntrantId;
-        public string DisplayName;
-        public bool Human;
-        public string CarId;
-        public float[] Paint;
-        public int GridSlot;
-    }
-
     public sealed class MatchInfo
     {
         public string MatchId, CourseId, Kind, Mode, StageId, Weather, GridNote, Contact;
@@ -39,28 +25,22 @@ namespace NightSignal.Net
     }
 
     /// <summary>
-    /// Authoritative race for one match (spec §3.2, §4.3, §18). Only ticket-validated entrants from the frozen
-    /// assignment are admitted; the server owns the clock, physics, progress, finish and classification.
+    /// Networked host for one match (spec §3.2, §4.3, §18). Only ticket-validated entrants from the frozen assignment are
+    /// admitted; loading barrier, countdown and transport live here, while the race itself — physics, progress, light
+    /// contact, finish window and classification — is the shared <see cref="RaceSimulation"/> (also used offline).
     /// </summary>
     public sealed class RaceServer : MonoBehaviour
     {
-        sealed class Entrant
+        /// <summary>Network-side state for a human entrant.</summary>
+        sealed class Link
         {
-            public RosterEntry Roster;
-            public bool Human;
+            public RaceEntrant Entrant;
             public ulong ClientId = ulong.MaxValue;
             public bool Connected;
-            public EntrantStatus Status;
-            public VehicleParams Params;
-            public VehicleSimulation Sim;
-            public VehicleState State;
-            public EntrantProgress Progress;
-            public RouteFollower Ai;
             public readonly DriverInput[] Inputs = new DriverInput[256];
             public readonly int[] InputTicks = Enumerable.Repeat(-1, 256).ToArray();
             public int LatestInputTick = -1;
             public DriverInput LastInput;
-            public float ResetHeld;
             public double LoadingProgress;
             /// <summary>Racing ticks simulated without that tick's command (input arrived late or was lost).</summary>
             public int StarvedTicks;
@@ -72,27 +52,30 @@ namespace NightSignal.Net
         MatchAssignment assignment;
         MatchTicketValidator validator;
         ContentLibrary lib;
-        TrackData track;
-        RaceProgressTracker tracker;
-        readonly List<Entrant> entrants = new List<Entrant>();
-        readonly Dictionary<ulong, Entrant> byClient = new Dictionary<ulong, Entrant>();
-        readonly Dictionary<ulong, Entrant> pendingApproval = new Dictionary<ulong, Entrant>();
+        RaceSimulation sim;
+        readonly Dictionary<RaceEntrant, Link> links = new Dictionary<RaceEntrant, Link>();
+        readonly Dictionary<ulong, Link> byClient = new Dictionary<ulong, Link>();
+        readonly Dictionary<ulong, Link> pendingApproval = new Dictionary<ulong, Link>();
         Action<MatchResults> onFinished;
         MatchPhase phase = MatchPhase.WaitingForEntrants;
-        int startTick = int.MaxValue;
         float phaseStartedAt;
-        long firstHumanFinishMicros = -1;
-        long deadlineMicros = long.MaxValue;
         bool finishedReported;
         public MatchPhase Phase => phase;
-
-        /// <summary>Per-entrant transport health for evidence: starved ticks and late commands.</summary>
-        public object Diagnostics() => entrants.Select(e => new
-        {
-            entrant = e.Roster.Index, human = e.Human, status = e.Status.ToString(),
-            starvedTicks = e.StarvedTicks, lateInputs = e.LateInputs,
-        }).ToList();
         public string MatchId => assignment?.MatchId;
+        List<RaceEntrant> Entrants => sim != null ? sim.Entrants : new List<RaceEntrant>();
+        int StartTick => sim != null ? sim.StartTick : int.MaxValue;
+
+        /// <summary>Per-entrant transport and contact health for evidence.</summary>
+        public object Diagnostics() => Entrants.Select(e =>
+        {
+            links.TryGetValue(e, out Link l);
+            return new
+            {
+                entrant = e.Roster.Index, human = e.Human, team = e.Roster.Team, role = e.Roster.Role, status = e.Status.ToString(),
+                starvedTicks = l?.StarvedTicks ?? 0, lateInputs = l?.LateInputs ?? 0,
+                vehicleContacts = e.Progress.VehicleContacts, wallIncidents = e.Progress.WallIncidents, resets = e.Progress.Resets,
+            };
+        }).ToList();
 
         public void Begin(MatchAssignment a, List<TicketKey> jwks, Action<MatchResults> finished)
         {
@@ -120,12 +103,10 @@ namespace NightSignal.Net
                 Abort("course failed to generate");
                 yield break;
             }
-            track = course.Track;
-            tracker = new RaceProgressTracker(track);
             Physics.SyncTransforms();
             try
             {
-                BuildEntrants();
+                sim = BuildSimulation(course.Track);
             }
             catch (Exception e)
             {
@@ -133,6 +114,8 @@ namespace NightSignal.Net
                 Abort("roster could not be built: " + e.Message);
                 yield break;
             }
+            sim.HumanInput = HumanInput;
+            sim.DeadlineSet += () => { foreach (ulong id in byClient.Keys.ToList()) SendPhase(id); }; // clients show the finish window
 
             nm = NetBootstrap.Ensure();
             nm.ConnectionApprovalCallback = Approve;
@@ -149,82 +132,31 @@ namespace NightSignal.Net
             nm.CustomMessagingManager.RegisterNamedMessageHandler(Wire.MsgLoaded, OnLoaded);
             nm.NetworkTickSystem.Tick += OnTick;
             SetPhase(MatchPhase.Loading);
-            Debug.Log($"[NightSignal.Server] match {assignment.MatchId} on {assignment.CourseId}: {entrants.Count(e => e.Human)} humans, {entrants.Count(e => !e.Human)} AI, port {cfg.Port}");
+            Debug.Log($"[NightSignal.Server] match {assignment.MatchId} on {assignment.CourseId}: {Entrants.Count(e => e.Human)} humans, " +
+                      $"{Entrants.Count(e => !e.Human)} AI, contact {assignment.Collision}, port {cfg.Port}");
         }
 
-        void BuildEntrants()
+        RaceSimulation BuildSimulation(TrackData track)
         {
-            ContentCatalogue cat = lib.Catalogue;
-            var world = new PhysicsVehicleWorld(Physics.defaultPhysicsScene, GameLayers.DrivableMask, GameLayers.BarrierMask);
-            int slot = 0;
-            List<AssignmentEntrant> humans = assignment.Entrants.Where(x => x.Role == "racer").ToList();
-            int vehicles = humans.Count + assignment.AiEntrants.Count;
-            // Addendum 01 D01: ≤ 6 humans, ≤ 12 vehicles. The control plane validated this; refuse rather than trim.
-            if (humans.Count < 1 || humans.Count > Limits.MaxEventHumanEntrants || vehicles > Limits.MaxRaceVehicles)
-                throw new InvalidOperationException($"roster of {humans.Count} humans / {vehicles} vehicles is outside the limits");
-            if (vehicles > track.Grid.Length)
-                throw new InvalidOperationException($"course {assignment.CourseId} has {track.Grid.Length} grid slots for {vehicles} vehicles");
-            foreach (AssignmentEntrant h in humans)
-                entrants.Add(CreateEntrant(slot++, h.AccountId, h.DisplayName, true, h.CarId, world));
-            int generic = 0;
-            foreach (string aiId in assignment.AiEntrants)
+            var rules = new RaceEventRules
             {
-                Entrant e;
-                if (cat.TryRival(aiId, out RivalDef rival))
-                {
-                    if (!FinalRivals.Allowed(rival.Id, assignment.Kind == "campaign" ? AiPlacementContext.CampaignEncounter : AiPlacementContext.FreeplayOpponent,
-                            assignment.StageId, assignment.Mode == "hard" ? CampaignMode.Hard : CampaignMode.Normal))
-                        throw new InvalidOperationException($"{rival.Id} is campaign-finale-only and cannot race in this event");
-                    string car = LegalCarFor(cat, rival.PrimaryCar, assignment.CarCapPi);
-                    e = CreateEntrant(slot++, rival.Id, rival.Name, false, car, world);
-                    e.Ai = new RouteFollower(track, e.Params, AiProfiles.For(rival, assignment.StageNumber));
-                }
-                else
-                {
-                    // Freeplay opponents without a rival identity: a legal car under the cap, neutral profile.
-                    CarDef car = cat.Cars.Where(c => assignment.CarCapPi <= 0 || c.BasePI <= assignment.CarCapPi)
-                        .OrderByDescending(c => c.BasePI).Skip(generic % 3).FirstOrDefault() ?? cat.Cars.OrderBy(c => c.BasePI).First();
-                    e = CreateEntrant(slot++, aiId, $"Driver {aiId.ToUpperInvariant()}", false, car.Id, world);
-                    e.Ai = new RouteFollower(track, e.Params, AiProfiles.Generic(generic++));
-                }
-                e.Status = EntrantStatus.Loaded;
-                entrants.Add(e);
-            }
-        }
-
-        Entrant CreateEntrant(int slot, string id, string name, bool human, string carId, IVehicleWorld world)
-        {
-            VehicleParams p = lib.Params(carId, AssistSettings.Default);
-            GridSlot g = track.Grid[slot];
-            var e = new Entrant
-            {
-                Human = human,
-                Params = p,
-                Sim = new VehicleSimulation(p, world),
-                State = VehicleState.AtRest(g.Position, g.Rotation),
-                Progress = new EntrantProgress(track),
-                Status = human ? EntrantStatus.Reserved : EntrantStatus.Loaded,
-                Roster = new RosterEntry { Index = slot, EntrantId = id, DisplayName = name, Human = human, CarId = carId, GridSlot = slot, Paint = Palette(slot, human) },
+                Kind = assignment.Kind,
+                Mode = assignment.Mode == "hard" ? CampaignMode.Hard : CampaignMode.Normal,
+                StageId = assignment.StageId,
+                StageNumber = Math.Max(1, assignment.StageNumber),
+                CarCapPi = assignment.CarCapPi,
+                Contact = assignment.Collision == "non-contact" ? ContactPolicy.NonContact : ContactPolicy.LightContact,
+                BenchmarkTargetMs = assignment.Benchmark?.TargetTimeMs ?? 0,
+                HardTimeoutMs = assignment.Benchmark?.HardTimeoutMs ?? 0,
+                RequiresBeatingFeaturedRival = assignment.Kind == "campaign" && StageBenchmark.IsFeaturedEncounter(assignment.StageType),
             };
-            tracker.Start(e.Progress, e.State.Position);
-            return e;
-        }
-
-        /// <summary>A rival whose primary car exceeds the event cap uses a declared legal alternate (spec App. B).</summary>
-        static string LegalCarFor(ContentCatalogue cat, string primary, int capPi)
-        {
-            CarDef p = cat.Car(primary);
-            if (capPi <= 0 || p.BasePI <= capPi) return primary;
-            CarDef alt = cat.Cars.Where(c => c.BasePI <= capPi && c.Drive == p.Drive).OrderByDescending(c => c.BasePI).FirstOrDefault()
-                         ?? cat.Cars.Where(c => c.BasePI <= capPi).OrderByDescending(c => c.BasePI).First();
-            return alt.Id;
-        }
-
-        static float[] Palette(int slot, bool human)
-        {
-            Color[] humans = { new Color(0.84f, 0.12f, 0.12f), new Color(0.12f, 0.45f, 0.85f), new Color(0.95f, 0.72f, 0.12f), new Color(0.15f, 0.6f, 0.35f), new Color(0.92f, 0.92f, 0.9f), new Color(0.55f, 0.25f, 0.75f) };
-            Color c = human ? humans[slot % humans.Length] : Color.Lerp(humans[(slot + 3) % humans.Length], Color.gray, 0.45f);
-            return new[] { c.r, c.g, c.b };
+            List<HumanSlot> humans = assignment.Entrants.Where(x => x.Role == "racer")
+                .Select(h => new HumanSlot { EntrantId = h.AccountId, DisplayName = h.DisplayName, CarId = h.CarId }).ToList();
+            var world = new PhysicsVehicleWorld(Physics.defaultPhysicsScene, GameLayers.DrivableMask, GameLayers.BarrierMask);
+            RaceSimulation s = RaceSimulation.Build(track, lib, rules, humans, assignment.AiEntrants, world);
+            foreach (RaceEntrant e in s.Entrants.Where(x => x.Human))
+                links[e] = new Link { Entrant = e };
+            return s;
         }
 
         // ------------------------------------------------------------------ connections
@@ -234,46 +166,47 @@ namespace NightSignal.Net
             res.CreatePlayerObject = false;
             string ticket = req.Payload != null ? Encoding.UTF8.GetString(req.Payload) : null;
             TicketFailure failure = validator.Validate(ticket, out MatchTicketClaims claims);
-            Entrant e = failure == TicketFailure.None
-                ? entrants.FirstOrDefault(x => x.Human && x.Roster.EntrantId == claims.Subject)
+            Link link = failure == TicketFailure.None
+                ? links.Values.FirstOrDefault(x => x.Entrant.Roster.EntrantId == claims.Subject)
                 : null;
-            if (failure != TicketFailure.None || claims.Role != "racer" || e == null || e.Connected || phase >= MatchPhase.Countdown)
+            if (failure != TicketFailure.None || claims.Role != "racer" || link == null || link.Connected || phase >= MatchPhase.Countdown)
             {
                 res.Approved = false;
-                res.Reason = failure != TicketFailure.None ? $"ticket_{failure}" : e == null ? "not_an_entrant" : "late_or_duplicate";
+                res.Reason = failure != TicketFailure.None ? $"ticket_{failure}" : link == null ? "not_an_entrant" : "late_or_duplicate";
                 Debug.Log($"[NightSignal.Server] connection refused: {res.Reason}");
                 return;
             }
-            pendingApproval[req.ClientNetworkId] = e;
+            pendingApproval[req.ClientNetworkId] = link;
             res.Approved = true;
         }
 
         void OnClientConnected(ulong clientId)
         {
-            if (!pendingApproval.TryGetValue(clientId, out Entrant e)) return;
+            if (!pendingApproval.TryGetValue(clientId, out Link l)) return;
             pendingApproval.Remove(clientId);
-            e.ClientId = clientId;
-            e.Connected = true;
-            e.Status = EntrantStatus.Loading;
-            byClient[clientId] = e;
+            l.ClientId = clientId;
+            l.Connected = true;
+            l.Entrant.Status = EntrantStatus.Loading;
+            byClient[clientId] = l;
             var info = new MatchInfo
             {
                 MatchId = assignment.MatchId, CourseId = assignment.CourseId, Kind = assignment.Kind, Mode = assignment.Mode,
                 StageId = assignment.StageId, Weather = assignment.Weather, Contact = assignment.Collision,
-                GridNote = assignment.GridNote, YourIndex = e.Roster.Index, Roster = entrants.Select(x => x.Roster).ToList(),
+                GridNote = assignment.GridNote, YourIndex = l.Entrant.Roster.Index, Roster = Entrants.Select(x => x.Roster).ToList(),
             };
             FastBufferWriter w = Wire.JsonWriter(JsonConvert.SerializeObject(info));
             using (w) nm.CustomMessagingManager.SendNamedMessage(Wire.MsgMatch, clientId, w, NetworkDelivery.ReliableFragmentedSequenced);
             SendPhase(clientId);
-            Debug.Log($"[NightSignal.Server] entrant {e.Roster.Index} ({e.Roster.DisplayName}) connected as client {clientId}");
+            Debug.Log($"[NightSignal.Server] entrant {l.Entrant.Roster.Index} ({l.Entrant.Roster.DisplayName}) connected as client {clientId}");
         }
 
         void OnClientDisconnected(ulong clientId)
         {
             pendingApproval.Remove(clientId);
-            if (!byClient.TryGetValue(clientId, out Entrant e)) return;
-            e.Connected = false;
-            // A lost entrant after loading began cannot resume driving in this event (spec §4.4).
+            if (!byClient.TryGetValue(clientId, out Link l)) return;
+            l.Connected = false;
+            RaceEntrant e = l.Entrant;
+            // A lost entrant after loading began cannot resume driving in this event (spec §4.4); its car stops colliding.
             if (!e.Progress.Finished && e.Status != EntrantStatus.Dnf)
                 e.Status = EntrantStatus.DqDisconnected;
             Debug.Log($"[NightSignal.Server] entrant {e.Roster.Index} disconnected → {e.Status}");
@@ -281,15 +214,16 @@ namespace NightSignal.Net
 
         void OnLoaded(ulong clientId, FastBufferReader reader)
         {
-            if (!byClient.TryGetValue(clientId, out Entrant e)) return;
+            if (!byClient.TryGetValue(clientId, out Link l)) return;
             reader.ReadValueSafe(out float progress);
-            e.LoadingProgress = progress;
-            if (progress >= 1f && e.Status == EntrantStatus.Loading) e.Status = EntrantStatus.Loaded;
+            l.LoadingProgress = progress;
+            if (progress >= 1f && l.Entrant.Status == EntrantStatus.Loading) l.Entrant.Status = EntrantStatus.Loaded;
         }
 
         void OnInput(ulong clientId, FastBufferReader reader)
         {
-            if (!byClient.TryGetValue(clientId, out Entrant e) || e.Status != EntrantStatus.Racing && e.Status != EntrantStatus.Loaded) return;
+            if (!byClient.TryGetValue(clientId, out Link l)) return;
+            if (l.Entrant.Status != EntrantStatus.Racing && l.Entrant.Status != EntrantStatus.Loaded) return;
             reader.ReadValueSafe(out int latestTick);
             reader.ReadValueSafe(out byte count);
             int now = nm.LocalTime.Tick;
@@ -301,18 +235,33 @@ namespace NightSignal.Net
                 // Late commands for ticks already simulated are ignored; far-future ones are rejected.
                 if (tick <= now - 1)
                 {
-                    if (tick > e.LatestInputTick) e.LateInputs++;
+                    if (tick > l.LatestInputTick) l.LateInputs++;
                     continue;
                 }
                 if (tick > now + 120) continue;
                 int slot = tick & 255;
-                e.Inputs[slot] = input;
-                e.InputTicks[slot] = tick;
-                if (tick > e.LatestInputTick) e.LatestInputTick = tick;
+                l.Inputs[slot] = input;
+                l.InputTicks[slot] = tick;
+                if (tick > l.LatestInputTick) l.LatestInputTick = tick;
             }
         }
 
-        // ------------------------------------------------------------------ simulation
+        DriverInput HumanInput(RaceEntrant e, int tick)
+        {
+            Link l = links[e];
+            int slot = tick & 255;
+            if (l.InputTicks[slot] == tick)
+            {
+                l.LastInput = l.Inputs[slot];
+                return l.LastInput;
+            }
+            // Missing input: repeat the last one briefly, then coast and brake (spec §4.4: never hold throttle).
+            l.StarvedTicks++;
+            float starved = (tick - l.LatestInputTick) * VehicleSimulation.TickDt;
+            return l.LastInput.Starved(starved, Limits.InputStarvationCoastMs / 1000f);
+        }
+
+        // ------------------------------------------------------------------ phases
 
         void OnTick()
         {
@@ -323,10 +272,11 @@ namespace NightSignal.Net
                     TickLoading(tick);
                     break;
                 case MatchPhase.Countdown:
-                    if (tick >= startTick) SetPhase(MatchPhase.Racing);
+                    if (tick >= sim.StartTick) SetPhase(MatchPhase.Racing);
                     break;
                 case MatchPhase.Racing:
-                    TickRacing(tick);
+                    sim.Tick(tick);
+                    if (sim.Complete) FinishRace();
                     break;
             }
             if (phase >= MatchPhase.Countdown && phase <= MatchPhase.Results && tick % 3 == 0) BroadcastSnapshot(tick);
@@ -335,89 +285,23 @@ namespace NightSignal.Net
         void TickLoading(int tick)
         {
             float elapsed = Time.realtimeSinceStartup - phaseStartedAt;
-            bool anyProgressing = entrants.Any(e => e.Human && e.Connected && e.Status == EntrantStatus.Loading && e.LoadingProgress > 0.2);
+            bool anyProgressing = links.Values.Any(l => l.Connected && l.Entrant.Status == EntrantStatus.Loading && l.LoadingProgress > 0.2);
             float limit = Limits.LoadingTimeoutMs / 1000f + (anyProgressing ? Limits.LoadingExtensionMs / 1000f : 0f);
-            bool allLoaded = entrants.Where(e => e.Human).All(e => e.Status == EntrantStatus.Loaded || e.Status == EntrantStatus.DqDisconnected);
+            bool allLoaded = links.Keys.All(e => e.Status == EntrantStatus.Loaded || e.Status == EntrantStatus.DqDisconnected);
             if (!allLoaded && elapsed < limit) return;
-            foreach (Entrant e in entrants.Where(x => x.Human && x.Status != EntrantStatus.Loaded))
-                e.Status = EntrantStatus.DqDisconnected; // failed to load in time: DQ for this event
-            if (!entrants.Any(e => e.Human && e.Status == EntrantStatus.Loaded))
+            foreach (RaceEntrant e in links.Keys.Where(x => x.Status != EntrantStatus.Loaded))
+                e.Status = EntrantStatus.DqDisconnected; // failed to load in time: DQ for this event, never replaced by AI
+            if (!links.Keys.Any(e => e.Status == EntrantStatus.Loaded))
             {
                 Abort("no human entrant finished loading");
                 return;
             }
-            startTick = tick + 60 * 4; // one second of grid settle, then 3-2-1-GO against the shared tick
+            sim.StartTick = tick + 60 * 4; // one second of grid settle, then 3-2-1-GO against the shared tick
             SetPhase(MatchPhase.Countdown);
-        }
-
-        void TickRacing(int tick)
-        {
-            long raceMicros = NetBootstrap.RaceMicros(tick, startTick);
-            foreach (Entrant e in entrants)
-            {
-                if (e.Status == EntrantStatus.Loaded) e.Status = EntrantStatus.Racing;
-                if (e.Status != EntrantStatus.Racing) continue;
-                DriverInput input = e.Human ? HumanInput(e, tick) : e.Ai.Drive(e.State);
-                VehicleState prev = e.State;
-                e.Sim.Step(ref e.State, input);
-                tracker.Step(e.Progress, prev, e.State, e.Sim.Telemetry, raceMicros, VehicleSimulation.TickDt);
-
-                e.ResetHeld = input.ResetHeld ? e.ResetHeld + VehicleSimulation.TickDt : 0f;
-                if (e.ResetHeld >= 0.7f)
-                {
-                    e.State = tracker.ResetPose(e.Progress, e.Params);
-                    e.ResetHeld = 0f;
-                }
-                if (e.Progress.Finished)
-                {
-                    e.Status = EntrantStatus.Finished;
-                    if (e.Human && firstHumanFinishMicros < 0)
-                    {
-                        firstHumanFinishMicros = e.Progress.FinishTimeMicros;
-                        deadlineMicros = ComputeDeadline(firstHumanFinishMicros);
-                        foreach (ulong id in byClient.Keys.ToList()) SendPhase(id); // clients show the finish window
-                    }
-                }
-            }
-            // Spec §6: finish early only when every remaining entrant (AI included) is done; otherwise run to the
-            // deadline. If no human is left racing and none finished, nobody can be rewarded, so settle now.
-            bool anyActive = entrants.Any(e => e.Status == EntrantStatus.Racing);
-            bool anyHumanActive = entrants.Any(e => e.Human && e.Status == EntrantStatus.Racing);
-            bool noHumanCanFinish = !anyHumanActive && firstHumanFinishMicros < 0;
-            if (!anyActive || noHumanCanFinish || raceMicros >= deadlineMicros || raceMicros > 15L * 60 * 1_000_000)
-                FinishRace();
-        }
-
-        DriverInput HumanInput(Entrant e, int tick)
-        {
-            int slot = tick & 255;
-            if (e.InputTicks[slot] == tick)
-            {
-                e.LastInput = e.Inputs[slot];
-                return e.LastInput;
-            }
-            // Missing input: repeat the last one briefly, then coast and brake (spec §4.4: never hold throttle).
-            e.StarvedTicks++;
-            float starved = (tick - e.LatestInputTick) * VehicleSimulation.TickDt;
-            return e.LastInput.Starved(starved, Limits.InputStarvationCoastMs / 1000f);
-        }
-
-        long ComputeDeadline(long firstFinish)
-        {
-            if (assignment.Kind == "campaign" && assignment.Benchmark != null && assignment.Benchmark.TargetTimeMs > 0)
-            {
-                CampaignMode mode = assignment.Mode == "hard" ? CampaignMode.Hard : CampaignMode.Normal;
-                long envelope = StageOutcome.SupportEnvelopeMs(assignment.Benchmark.TargetTimeMs, mode);
-                long hard = Math.Max(envelope, assignment.Benchmark.HardTimeoutMs);
-                return StageOutcome.DeadlineMs(firstFinish / 1000, envelope, hard) * 1000L;
-            }
-            return firstFinish + Limits.FirstFinishGraceMs * 1000L;
         }
 
         void FinishRace()
         {
-            foreach (Entrant e in entrants.Where(x => x.Status == EntrantStatus.Racing))
-                e.Status = EntrantStatus.Dnf;
             SetPhase(MatchPhase.Results);
             MatchResults results = BuildResults();
             FastBufferWriter w = Wire.JsonWriter(JsonConvert.SerializeObject(results));
@@ -427,48 +311,27 @@ namespace NightSignal.Net
 
         MatchResults BuildResults()
         {
-            int totalCps = tracker.TotalCheckpoints;
-            var finishes = entrants.Select(e => new EntrantFinish
-            {
-                EntrantId = e.Roster.EntrantId,
-                Outcome = OutcomeOf(e),
-                FinishTimeMicros = e.Progress.FinishTimeMicros,
-                LegalProgressMetres = e.Progress.RaceDistance - track.StartMetres,
-            }).ToList();
-            Dictionary<string, Placing> placings = RaceClassification.Classify(finishes).ToDictionary(p => p.EntrantId);
             var results = new MatchResults { MatchId = assignment.MatchId, ContentHash = assignment.ContentHash };
-            foreach (Entrant e in entrants)
+            foreach (RaceEntrantResult c in sim.Classify())
             {
-                RunOutcome outcome = OutcomeOf(e);
                 var r = new ResultEntrant
                 {
-                    EntrantId = e.Roster.EntrantId,
-                    Human = e.Human,
-                    Outcome = outcome.ToString(),
-                    FinishTimeMicros = outcome == RunOutcome.Finished ? e.Progress.FinishTimeMicros : 0,
-                    Placement = placings[e.Roster.EntrantId].Place,
-                    Clean = e.Progress.Clean,
-                    CheckpointFraction = totalCps > 0 ? (double)e.Progress.CheckpointsPassed / totalCps : 0,
-                    ActiveProgressVerified = e.Progress.RaceDistance - track.StartMetres > 200f,
-                    ActivelyDroveLegalCourse = outcome == RunOutcome.Finished && !e.Progress.CorridorCut && e.Progress.OutOfCorridorSeconds < 5f,
-                    LegalProgressMetres = Math.Max(0, e.Progress.RaceDistance - track.StartMetres),
+                    EntrantId = c.Entrant.Roster.EntrantId,
+                    Human = c.Entrant.Human,
+                    Outcome = c.Outcome.ToString(),
+                    FinishTimeMicros = c.FinishTimeMicros,
+                    Placement = c.Placement,
+                    Clean = c.Entrant.Progress.Clean,
+                    CheckpointFraction = c.CheckpointFraction,
+                    ActiveProgressVerified = c.ActiveProgressVerified,
+                    ActivelyDroveLegalCourse = c.ActivelyDroveLegalCourse,
+                    LegalProgressMetres = c.LegalProgressMetres,
                 };
-                if (e.Human && outcome == RunOutcome.Finished)
-                    r.ChallengesCompleted.AddRange(ChallengePredicates.Evaluate(assignment, e.Progress));
+                if (c.Entrant.Human && c.Outcome == RunOutcome.Finished)
+                    r.ChallengesCompleted.AddRange(ChallengePredicates.Evaluate(assignment, c.Entrant.Progress));
                 results.Entrants.Add(r);
             }
             return results;
-        }
-
-        static RunOutcome OutcomeOf(Entrant e)
-        {
-            switch (e.Status)
-            {
-                case EntrantStatus.Finished: return RunOutcome.Finished;
-                case EntrantStatus.Dnf: return RunOutcome.DidNotFinish;
-                case EntrantStatus.DqQuit: return RunOutcome.Quit;
-                default: return RunOutcome.DisqualifiedDisconnect;
-            }
         }
 
         void Abort(string reason)
@@ -492,7 +355,7 @@ namespace NightSignal.Net
             phase = p;
             phaseStartedAt = Time.realtimeSinceStartup;
             int now = nm != null && nm.IsListening ? nm.LocalTime.Tick : -1;
-            Debug.Log($"[NightSignal.Server] phase {p} at tick {now}" + (p == MatchPhase.Countdown ? $", start tick {startTick}" : ""));
+            Debug.Log($"[NightSignal.Server] phase {p} at tick {now}" + (p == MatchPhase.Countdown ? $", start tick {StartTick}" : ""));
             if (nm == null || !nm.IsServer) return;
             foreach (ulong id in byClient.Keys.ToList()) SendPhase(id);
         }
@@ -502,35 +365,45 @@ namespace NightSignal.Net
             using (var w = new FastBufferWriter(16, Allocator.Temp))
             {
                 w.WriteValueSafe((byte)phase);
-                w.WriteValueSafe(startTick);
-                w.WriteValueSafe(deadlineMicros == long.MaxValue ? -1L : deadlineMicros);
+                w.WriteValueSafe(StartTick);
+                w.WriteValueSafe(sim == null || sim.DeadlineMicros == long.MaxValue ? -1L : sim.DeadlineMicros);
                 nm.CustomMessagingManager.SendNamedMessage(Wire.MsgPhase, clientId, w, NetworkDelivery.ReliableSequenced);
             }
         }
 
+        /// <summary>
+        /// Per-client snapshot (protocol 2): the recipient's own car in full, every other car compact — about 0.75 KB for
+        /// twelve cars, well inside one unfragmented datagram.
+        /// </summary>
         void BroadcastSnapshot(int tick)
         {
-            if (byClient.Count == 0) return;
-            using (var w = new FastBufferWriter(1400, Allocator.Temp))
+            foreach (KeyValuePair<ulong, Link> kv in byClient)
             {
-                w.WriteValueSafe(tick);
-                w.WriteValueSafe((byte)phase);
-                w.WriteValueSafe((byte)entrants.Count);
-                foreach (Entrant e in entrants)
+                if (!kv.Value.Connected) continue;
+                using (var w = new FastBufferWriter(1200, Allocator.Temp))
                 {
-                    w.WriteValueSafe((byte)e.Roster.Index);
-                    w.WriteValueSafe((byte)e.Status);
-                    w.WriteValueSafe((ushort)e.Progress.CheckpointsPassed);
-                    w.WriteValueSafe(e.Progress.RaceDistance);
-                    w.WriteValueSafe((int)(e.Progress.FinishTimeMicros / 1000));
-                    w.WriteValueSafe(e.Human ? e.LatestInputTick : -1); // input acknowledgement (client RTT + lead)
-                    VehicleState s = e.State;
-                    s.Tick = (uint)tick;
-                    Wire.Write(w, s);
+                    w.WriteValueSafe(tick);
+                    w.WriteValueSafe((byte)phase);
+                    w.WriteValueSafe((byte)Entrants.Count);
+                    foreach (RaceEntrant e in Entrants)
+                    {
+                        bool own = e == kv.Value.Entrant;
+                        links.TryGetValue(e, out Link l);
+                        w.WriteValueSafe((byte)e.Roster.Index);
+                        w.WriteValueSafe((byte)e.Status);
+                        w.WriteValueSafe((ushort)e.Progress.CheckpointsPassed);
+                        w.WriteValueSafe(e.Progress.RaceDistance);
+                        w.WriteValueSafe((int)(e.Progress.FinishTimeMicros / 1000));
+                        w.WriteValueSafe(l != null ? l.LatestInputTick : -1); // input acknowledgement (client RTT + lead)
+                        byte flags = (byte)((e.GhostUntilTick >= 0 || !e.Collides ? 1 : 0) | (own ? 2 : 0)); // bit0 not colliding, bit1 full state
+                        w.WriteValueSafe(flags);
+                        VehicleState s = e.State;
+                        s.Tick = (uint)tick;
+                        if (own) Wire.Write(w, s);
+                        else Wire.WriteCompact(w, s);
+                    }
+                    nm.CustomMessagingManager.SendNamedMessage(Wire.MsgSnapshot, kv.Key, w, NetworkDelivery.UnreliableSequenced);
                 }
-                var targets = byClient.Where(kv => kv.Value.Connected).Select(kv => kv.Key).ToList();
-                if (targets.Count > 0)
-                    nm.CustomMessagingManager.SendNamedMessage(Wire.MsgSnapshot, targets, w, NetworkDelivery.UnreliableSequenced);
             }
         }
 
