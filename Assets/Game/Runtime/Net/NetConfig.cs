@@ -20,6 +20,10 @@ namespace NightSignal.Net
         public int AutoHumans = 2;
         public string AutoStage = "S01";
         public string AutoCar = "V01";
+        /// <summary>When set, the leader runs a Freeplay event on this course instead of a campaign stage.</summary>
+        public string AutoFreeplayCourse;
+        public int AutoFreeplayAi;
+        public string AutoFreeplayMode = "sprint";
         public int ExitAfterSeconds = 900;
 
         public static string Build => Application.version;
@@ -49,6 +53,9 @@ namespace NightSignal.Net
                     case "-nsAutoHumans": c.AutoHumans = int.Parse(next); i++; break;
                     case "-nsAutoStage": c.AutoStage = next; i++; break;
                     case "-nsAutoCar": c.AutoCar = next; i++; break;
+                    case "-nsAutoFreeplay": c.AutoFreeplayCourse = next; i++; break;
+                    case "-nsAutoFreeplayAi": c.AutoFreeplayAi = int.Parse(next); i++; break;
+                    case "-nsAutoFreeplayMode": c.AutoFreeplayMode = next; i++; break;
                     case "-nsExitAfter": c.ExitAfterSeconds = int.Parse(next); i++; break;
                 }
             }

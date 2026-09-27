@@ -94,13 +94,22 @@ namespace NightSignal.Net
 
             if (leader)
             {
-                await Retrying(() => cp.Request("destination.propose", new { destination = "campaign-normal" }));
-                await WaitFor(() => AllMembers(m => (bool?)m["destinationConsent"] == true), 60, "destination consent");
-                await cp.Request("destination.commit", new { proposalRevision = (long)cp.ConvoyState["destinationProposal"]["revision"] });
-                await Retrying(() => cp.Request("event.propose", new { stageId = cfg.AutoStage }));
+                // Addendum 01 §7: Intent → everyone Mode Ready → Enter Mode → event proposal → Event Ready → Start.
+                bool freeplay = !string.IsNullOrEmpty(cfg.AutoFreeplayCourse);
+                object intent = freeplay ? (object)new { kind = "freeplay", submode = cfg.AutoFreeplayMode } : new { kind = "campaign", mode = "normal" };
+                JToken set = await Retrying(() => cp.Request("intent.set", intent));
+                long modeRevision = (long)set["modeRevision"];
+                await WaitFor(() => AllMembers(m => (bool?)m["modeReady"] == true), 60, "mode readiness");
+                await cp.Request("mode.enter", new { modeRevision });
+                Note(freeplay ? $"entered freeplay ({cfg.AutoFreeplayMode})" : "entered Normal campaign");
+                object proposal = freeplay
+                    ? (object)new { courseId = cfg.AutoFreeplayCourse, freeplayMode = cfg.AutoFreeplayMode, aiCount = cfg.AutoFreeplayAi }
+                    : new { stageId = cfg.AutoStage };
+                JToken proposed = await Retrying(() => cp.Request("event.propose", proposal));
+                long proposalRevision = (long)proposed["proposalRevision"];
                 await WaitFor(() => AllMembers(m => (bool?)m["eventReady"] == true), 60, "event readiness");
-                await cp.Request("event.start", new { proposalRevision = (long)cp.ConvoyState["eventProposal"]["revision"] });
-                Note("event started");
+                JToken started = await cp.Request("event.start", new { proposalRevision });
+                Note($"event started ({started?["vehicles"] ?? "?"} vehicles)");
             }
 
             await WaitFor(() => allocation != null, 120, "match allocation");
@@ -149,13 +158,18 @@ namespace NightSignal.Net
         {
             try
             {
-                long rev = (long)p["proposalRevision"];
-                if ((string)p["kind"] == "destination")
-                    await cp.Request("destination.consent", new { proposalRevision = rev, consent = true });
-                else
+                switch ((string)p["kind"])
                 {
-                    JToken me = cp.ConvoyState["members"].First(m => (string)m["accountId"] == cp.AccountId);
-                    await cp.Request("event.ready", new { proposalRevision = rev, loadoutRevision = (long)me["loadoutRevision"], ready = true });
+                    case "mode":
+                        await cp.Request("mode.ready", new { modeRevision = (long)p["modeRevision"], ready = true });
+                        break;
+                    case "event":
+                        JToken me = cp.ConvoyState["members"].First(m => (string)m["accountId"] == cp.AccountId);
+                        await cp.Request("event.ready", new { proposalRevision = (long)p["proposalRevision"], loadoutRevision = (long)me["loadoutRevision"], ready = true });
+                        break;
+                    default:
+                        Note($"ready request '{(string)p["kind"]}' ignored by the scripted client");
+                        break;
                 }
             }
             catch (Exception e)
@@ -169,11 +183,12 @@ namespace NightSignal.Net
         bool AllMembers(Func<JToken, bool> pred) =>
             cp.ConvoyState?["members"] != null && Members() >= cfg.AutoHumans && cp.ConvoyState["members"].All(m => pred(m));
 
-        static async Task Retrying(Func<Task<JToken>> action)
+        /// <summary>Retries leader requests that hit the 15 s ready-request cooldown; returns the server's reply.</summary>
+        static async Task<JToken> Retrying(Func<Task<JToken>> action)
         {
             for (int attempt = 0; ; attempt++)
             {
-                try { await action(); return; }
+                try { return await action(); }
                 catch (ControlError e) when (e.Code == "rate_limited" && attempt < 5) { await Task.Delay(4000); }
             }
         }

@@ -47,17 +47,31 @@ powershell -ExecutionPolicy Bypass -File Tools/run/net-race.ps1 -Humans 2 -Stage
 3. **Hosted services / internet test** — a Supabase project, a reachable server and a budget are needed for
    WAN acceptance (§3.5, Gate 5). Not approved; stays BLOCKED, not faked.
 
-## Next actions (Addendum 01 order A → E)
+## Done since the addenda (VALIDATION V-015 … V-021)
 
-1. A: bounded car-to-car contact (server authoritative, client prediction against remote cars), 12-car race server;
-   control plane: rejoin grants + leadership epochs, intent / Mode Ready / Event Ready, ballots, course ledger +
-   purchases + guest passes, handles, friends (server agent). Rewrite the two superseded reserved-seat tests.
-2. B: re-run the network slice: 2 humans + AI, 6 humans + live rival, 6 + 6; reconnect/DQ/contact; Offline /
-   Go Online boundary.
-3. C: campaign map + right panel + records, intent strip, friends, course access UI, voting, Time Attack, Team Trials.
-4. D: FP01–FP03 and remaining courses (route agent), OST ownership + boombox (audio agent cues), visible car
-   customization.
-5. E: integration, builds, evidence.
+- Addendum 01 Core rules and data overlays; control plane for Addendum 01 + 02 (281 .NET tests); light car contact,
+  shared RaceSimulation (server + offline), protocol 2 per-client snapshots, 12-car in-process race; two real physics
+  defects fixed (barrier depenetration never ran; tilted barrier normals vaulted cars).
+- Front end: title (Online Login / Offline Play / Settings / Quit), offline practice races, results; standalone UI tour.
+  29 course scenes authored from the new routes; Test Yard facility + session; audio synthesis (24 cues).
+
+## In flight (background agents, engine-free, staged outside Assets until they compile)
+
+- `Services/BuildsCore` → Core/Builds: parts catalogue, tuning, BuildResolver, loadouts (8 per instance), visual
+  presets, protected references, Buy-and-Apply quotes, favourite-car upgrade paths.
+- `Services/ToysCore` → Core/Toys: authoritative simulations for the five diversions and DowntimeSession.
+- `Assets/Game/Core/Profiles` (already compiles): Local profile, progression, records, atomic persistence.
+
+## Next actions
+
+1. Unity client on the new control protocol (AutoClient done; interactive convoy UI next); re-run the network slice:
+   2 humans + AI, 6 humans + live rival, 6 + 6; reconnect/DQ/contact.
+2. Course sweep: autopilot every course; generator gaps (tunnels/viaducts/crossings, new landmark kits, biomes).
+3. Integrate Core/Builds into VehicleFactory + Garage (A/B Test Yard, loadouts, references); Local profile into Offline
+   Play; host the toys in the control plane and build their tabletop presentation.
+4. Campaign map + right panel + records, intent strip, friends, course access, voting, Time Attack, Team Trials UI;
+   Continue / Service Break results strip.
+5. Visible customization, car art pass, meet, OST boombox; release builds and evidence.
 
 ## Recovery notes
 

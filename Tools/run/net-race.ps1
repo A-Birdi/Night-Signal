@@ -18,7 +18,11 @@ param(
     [string]$Stage = 'S01',
     [int]$Port = 7777,
     [int]$TimeoutSeconds = 900,
-    [switch]$WindowedFirstClient
+    [switch]$WindowedFirstClient,
+    # Freeplay instead of a campaign stage: course id, live AI count (0..12-H) and mode (sprint | circuit | time-attack).
+    [string]$FreeplayCourse = '',
+    [ValidateRange(0, 11)][int]$FreeplayAi = 0,
+    [string]$FreeplayMode = 'sprint'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -30,6 +34,7 @@ try { Invoke-RestMethod -Uri 'http://127.0.0.1:5080/healthz' -TimeoutSec 5 | Out
 catch { throw 'Control plane is not running on 127.0.0.1:5080 (run Tools/run/start-control-plane.ps1).' }
 
 $run = 'run-' + (Get-Date -Format 'yyyyMMdd-HHmmss') + "-h$Humans"
+if ($FreeplayCourse) { $run += "-$FreeplayCourse-ai$FreeplayAi" }
 $logs = Join-Path $repo "Builds\NetRuns\$run"
 $evidence = "Builds/NetRuns/$run/evidence"
 New-Item -ItemType Directory -Force $logs | Out-Null
@@ -45,6 +50,7 @@ for ($i = 0; $i -lt $Humans; $i++) {
     $role = if ($i -eq 0) { 'leader' } else { 'member' }
     $clientArgs = @('-nsClient', '-nsAuto', '-nsDevAccount', "$i", '-nsAutoRole', $role, '-nsAutoHumans', "$Humans",
               '-nsAutoStage', $Stage, '-nsEvidence', $evidence, '-logFile', "`"$logs\client-$i.log`"")
+    if ($FreeplayCourse) { $clientArgs += @('-nsAutoFreeplay', $FreeplayCourse, '-nsAutoFreeplayAi', "$FreeplayAi", '-nsAutoFreeplayMode', $FreeplayMode) }
     if (-not ($WindowedFirstClient -and $i -eq 0)) { $clientArgs = @('-batchmode', '-nographics') + $clientArgs }
     else { $clientArgs += @('-screen-fullscreen', '0', '-screen-width', '1280', '-screen-height', '720') }
     $procs += [pscustomobject]@{ Name = "client-$i ($role)"; Process = (Start-Process -FilePath $exe -PassThru -WorkingDirectory $repo -ArgumentList $clientArgs) }

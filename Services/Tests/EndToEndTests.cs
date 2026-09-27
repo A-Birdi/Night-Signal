@@ -88,13 +88,13 @@ public sealed class EndToEndTests : IDisposable
             HttpClient gs = host.GameServer();
             Assert.Equal(HttpStatusCode.Unauthorized, (await host.Authed(ta).PostAsJsonAsync("/v1/servers/register", new { })).StatusCode);
             HttpResponseMessage reg = await gs.PostAsJsonAsync("/v1/servers/register",
-                new { endpoint = new { host = "127.0.0.1", port = 7777 }, build = Build, protocol = 1, contentHash, maxMatches = 2 });
+                new { endpoint = new { host = "127.0.0.1", port = 7777 }, build = Build, protocol = 2, contentHash, maxMatches = 2 });
             Assert.Equal(HttpStatusCode.OK, reg.StatusCode);
             Assert.Equal(HttpStatusCode.OK, (await gs.PostAsJsonAsync($"/v1/servers/{ControlPlaneHost.ServerId}/heartbeat", new { activeMatches = 0 })).StatusCode);
             using var stopPolling = new CancellationTokenSource(TimeSpan.FromSeconds(60));
             Task<JsonElement> assignmentTask = PollAndAckAsync(gs, stopPolling.Token);
 
-            string q = $"build={Build}&protocol=1&content={contentHash}";
+            string q = $"build={Build}&protocol=2&content={contentHash}";
             await using ControlClient ca = await host.ConnectAsync(ta, q);
             await using ControlClient cb = await host.ConnectAsync(tb, q);
             await ca.WaitForAsync(m => Type(m) == "hello");
@@ -156,7 +156,7 @@ public sealed class EndToEndTests : IDisposable
             var validator = new TicketValidator(TicketKeySet.FromJwks(jwks),
                 new TicketValidationParameters { Issuer = assignment.GetProperty("ticketIssuer").GetString()! },
                 new InMemoryTicketReplayCache(), () => clock.GetUtcNow());
-            var expected = new ExpectedTicketContext { MatchId = matchId, Build = Build, Protocol = 1, ContentHash = contentHash };
+            var expected = new ExpectedTicketContext { MatchId = matchId, Build = Build, Protocol = 2, ContentHash = contentHash };
             TicketValidationResult va = validator.Validate(ticketA.GetProperty("ticket").GetString()!, expected);
             TicketValidationResult vb = validator.Validate(ticketB.GetProperty("ticket").GetString()!, expected);
             Assert.True(va.IsValid, va.Failure.ToString());
@@ -284,14 +284,14 @@ public sealed class EndToEndTests : IDisposable
     {
         using var host = new ControlPlaneHost(dir.Path, Seed);
         string token = await host.SignInAsync(accounts[0]);
-        await using ControlClient first = await host.ConnectAsync(token, "build=b&protocol=1&content=c");
+        await using ControlClient first = await host.ConnectAsync(token, "build=b&protocol=2&content=c");
         await first.WaitForAsync(m => Type(m) == "hello");
 
-        await using ControlClient second = await host.ConnectAsync(token, "build=b&protocol=1&content=c");
+        await using ControlClient second = await host.ConnectAsync(token, "build=b&protocol=2&content=c");
         await second.WaitForAsync(m => Type(m) == "session.rejected");
         await first.RequestAsync("ping"); // the original session is unaffected
 
-        await using ControlClient third = await host.ConnectAsync(token, "build=b&protocol=1&content=c&takeover=1");
+        await using ControlClient third = await host.ConnectAsync(token, "build=b&protocol=2&content=c&takeover=1");
         await third.WaitForAsync(m => Type(m) == "hello");
         await first.WaitForAsync(m => Type(m) == "session.superseded"); // the older client is told why
         AssertOk(await third.RequestAsync("convoy.create", new { privacy = "discoverable" }));
@@ -301,7 +301,7 @@ public sealed class EndToEndTests : IDisposable
     public async Task ControlChannel_RequiresAValidToken()
     {
         using var host = new ControlPlaneHost(dir.Path, Seed);
-        await Assert.ThrowsAnyAsync<Exception>(() => host.ConnectAsync("not-a-token", "build=b&protocol=1&content=c"));
+        await Assert.ThrowsAnyAsync<Exception>(() => host.ConnectAsync("not-a-token", "build=b&protocol=2&content=c"));
     }
 
     [Fact]
@@ -309,7 +309,7 @@ public sealed class EndToEndTests : IDisposable
     {
         using var host = new ControlPlaneHost(dir.Path, Seed);
         string token = await host.SignInAsync(accounts[0]);
-        await using ControlClient c = await host.ConnectAsync(token, "build=b&protocol=1&content=c");
+        await using ControlClient c = await host.ConnectAsync(token, "build=b&protocol=2&content=c");
         AssertOk(await c.RequestAsync("session.reauth", new { accessToken = await host.SignInAsync(accounts[0]) }));
         Assert.Equal("unauthorized", ErrorCode(await c.RequestAsync("session.reauth", new { accessToken = await host.SignInAsync(accounts[1]) })));
         Assert.Equal("unauthorized", ErrorCode(await c.RequestAsync("session.reauth", new { accessToken = "garbage" })));
@@ -319,7 +319,7 @@ public sealed class EndToEndTests : IDisposable
     public async Task MalformedMessages_GetAnErrorAndTheSessionContinues()
     {
         using var host = new ControlPlaneHost(dir.Path, Seed);
-        await using ControlClient c = await host.ConnectAsync(await host.SignInAsync(accounts[0]), "build=b&protocol=1&content=c");
+        await using ControlClient c = await host.ConnectAsync(await host.SignInAsync(accounts[0]), "build=b&protocol=2&content=c");
         await c.SendRawAsync("{not json");
         await c.WaitForAsync(m => Type(m) == "error");
         Assert.Equal("unknown_type", ErrorCode(await c.RequestAsync("wallet.set", new { balance = 9_999_999 })));

@@ -103,7 +103,7 @@ public sealed class CompatibilityOptions
     public const string Section = "Compatibility";
 
     /// <summary>Control-channel/game protocol version clients and servers must present.</summary>
-    public int Protocol { get; set; } = 1;
+    public int Protocol { get; set; } = 2; // gameplay protocol 2: per-client snapshots (docs/NETWORKING.md §8)
 }
 
 public sealed class ContentOptions

@@ -35,12 +35,17 @@ namespace NightSignal.Editor.Build
                 string scene = $"{dir}/{id}.unity".Replace('\\', '/');
                 if (File.Exists(scene)) scenes.Add(scene);
             }
+            // Private Garage facility (Addendum 02 §10) — not a counted course.
+            const string yard = "Assets/Content/Facilities/TestYard/TestYard.unity";
+            if (File.Exists(yard)) scenes.Add(yard);
             return scenes.ToArray();
         }
 
         /// <summary>One Windows player serves every role (client, dedicated server via -batchmode -nographics -nsServer).</summary>
         public static BuildReport BuildGame(bool development = true)
         {
+            // The build must carry exactly the content documents the control plane reads (same ContentHash).
+            ContentTools.ContentLibraryAuthoring.Refresh();
             string[] scenes = GameScenes();
             EditorBuildSettings.scenes = System.Array.ConvertAll(scenes, s => new EditorBuildSettingsScene(s, true));
             return Build(scenes, GameOutput, BuildTarget.StandaloneWindows64, StandaloneBuildSubtarget.Player,

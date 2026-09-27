@@ -27,7 +27,7 @@ public sealed class RejoinEndToEndTests : IDisposable
     {
         using var host = new ControlPlaneHost(dir.Path, dir.File("seed.json"));
         string ta = await host.SignInAsync(accounts[0]), tb = await host.SignInAsync(accounts[1]);
-        const string q = "build=b&protocol=1&content=c";
+        const string q = "build=b&protocol=2&content=c";
         await using ControlClient ca = await host.ConnectAsync(ta, q);
         JsonElement hello = (await ca.WaitForAsync(m => Type(m) == "hello")).GetProperty("payload");
         Assert.False(hello.GetProperty("rejoin").GetProperty("canRejoin").GetBoolean());
@@ -70,7 +70,7 @@ public sealed class RejoinEndToEndTests : IDisposable
     [Fact]
     public async Task ADormantRoom_SurvivesAControlPlaneRestart_FromItsDurableSnapshot()
     {
-        const string q = "build=b&protocol=1&content=c";
+        const string q = "build=b&protocol=2&content=c";
         string convoyId, sessionId;
         using (var host = new ControlPlaneHost(dir.Path, dir.File("seed.json")))
         {

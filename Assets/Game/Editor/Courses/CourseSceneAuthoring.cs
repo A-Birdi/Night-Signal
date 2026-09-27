@@ -32,6 +32,54 @@ namespace NightSignal.Editor.Courses
         public static string AuthorTestYard() =>
             Author("YARD", "day", new TerrainStyle { TeaRowCoverage = 0f, Seed = 404, HillAmplitude = 14f }, $"{TestYardFolder}/route.json", TestYardFolder);
 
+        /// <summary>Terrain character per biome (initial values; biome-specific art is a later pass).</summary>
+        public static TerrainStyle StyleFor(string biome, int seed)
+        {
+            switch (biome)
+            {
+                case "mizuhana-foothills": return new TerrainStyle { TeaRowCoverage = 0.35f, HillAmplitude = 38f, Seed = seed };
+                case "kasumi-forest": return new TerrainStyle { HillAmplitude = 48f, HillScale = 520f, Seed = seed };
+                case "kurogawa-reservoir": return new TerrainStyle { HillAmplitude = 42f, ValleyRise = 0.26f, Seed = seed };
+                case "akebono-coast": return new TerrainStyle { HillAmplitude = 26f, HillScale = 800f, ValleyRise = 0.12f, Seed = seed };
+                case "hoshimi-uplands": return new TerrainStyle { HillAmplitude = 55f, Seed = seed };
+                case "tsukishiro-highland": return new TerrainStyle { HillAmplitude = 62f, HillScale = 560f, ValleyRise = 0.3f, Seed = seed };
+                case "amanagi-finale": return new TerrainStyle { HillAmplitude = 70f, HillScale = 600f, ValleyRise = 0.32f, Seed = seed };
+                case "hinode-campus": return new TerrainStyle { HillAmplitude = 12f, HillScale = 900f, ValleyRise = 0.08f, Seed = seed };
+                default: return new TerrainStyle { Seed = seed };
+            }
+        }
+
+        /// <summary>
+        /// Authors a scene for every route document that has none yet and puts all course scenes in the build list
+        /// (Boot first). Existing scenes are kept (their GUIDs never change).
+        /// </summary>
+        [MenuItem("Night Signal/Courses/Author All Course Scenes")]
+        public static string AuthorAllCourses()
+        {
+            var log = new System.Text.StringBuilder();
+            var scenes = new System.Collections.Generic.List<EditorBuildSettingsScene> { new EditorBuildSettingsScene("Assets/Game/Scenes/Boot.unity", true) };
+            string[] ids = Directory.GetDirectories("Assets/Content/Courses");
+            System.Array.Sort(ids, System.StringComparer.Ordinal);
+            int seed = 100;
+            foreach (string dir in ids)
+            {
+                string id = Path.GetFileName(dir);
+                string routePath = RouteIO.RoutePath(id);
+                if (!File.Exists(routePath)) continue;
+                seed++;
+                if (!File.Exists(ScenePath(id)))
+                {
+                    RouteDefinition route = RouteIO.Parse(File.ReadAllText(routePath));
+                    log.AppendLine(Author(id, string.IsNullOrEmpty(route.TimeOfDay) ? "day" : route.TimeOfDay, StyleFor(route.Biome, seed)));
+                }
+                scenes.Add(new EditorBuildSettingsScene(ScenePath(id), true));
+            }
+            scenes.Add(new EditorBuildSettingsScene($"{TestYardFolder}/TestYard.unity", true));
+            EditorBuildSettings.scenes = scenes.ToArray();
+            log.AppendLine($"build list: {scenes.Count} scenes");
+            return log.ToString();
+        }
+
         public static string Author(string courseId, string timeOfDay, TerrainStyle style) =>
             Author(courseId, timeOfDay, style, RouteIO.RoutePath(courseId), CourseFolder(courseId));
 

@@ -26,6 +26,17 @@ MonoBehaviour:
   Water: {fileID: 2100000, guid: 2b3f61fdfdac2d348a73e16c5f1fb029, type: 2}
   OffWhite: {fileID: 2100000, guid: 7c612b7637695b84596aef4a26bf3bec, type: 2}
   Graphite: {fileID: 2100000, guid: 2190020f913da244fbeca28551dd8dcf, type: 2}
+  Concrete: {fileID: 2100000, guid: ede400bc95b666242b2c1c901b66c506, type: 2}
+  Brick: {fileID: 2100000, guid: edc724986d5d5174b84ad5fcc804fb4b, type: 2}
+  SteelRed: {fileID: 2100000, guid: 660c173609b8b2a4a87166ac7e9c3486, type: 2}
+  SteelGrey: {fileID: 2100000, guid: 94a1ce8d9c840a643b144a06a5495fdb, type: 2}
+  SteelYellow: {fileID: 2100000, guid: f700963426c72f040b9b984928d76d9b, type: 2}
+  WindowLit: {fileID: 2100000, guid: 7750c53bcd4304f47a2c00a0955195d7, type: 2}
+  MetalRoof: {fileID: 2100000, guid: 453ced43ee8818840b55063e240fa0ef, type: 2}
+  Foliage: {fileID: 2100000, guid: b4286a364ab4e69458f4e6351e6d0669, type: 2}
+  Bark: {fileID: 2100000, guid: 4a90e97153c741142bb8516d4b74ede3, type: 2}
+  Sea: {fileID: 2100000, guid: 8a519e2fc004d204cb6556aca0f3342a, type: 2}
+  TunnelLining: {fileID: 2100000, guid: 37a1ce9b67f5ff9439f914c24cc218e5, type: 2}
   TerrainTemplate: {fileID: 2100000, guid: 6bca20fb202911849aec863e80eccef4, type: 2}
   TerrainLayers:
   - {fileID: 8574412962073106934, guid: ef180cab3856c844a90fbd365d560abe, type: 2}
