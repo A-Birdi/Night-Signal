@@ -16,6 +16,11 @@ namespace NightSignal.Core.Content
         public static readonly string[] RequiredFiles =
             { "courses.json", "cars.json", "crews.json", "rivals.json", "stages.json", "challenges.json", "cosmetics.json" };
 
+        /// <summary>Authored overlays merged by ID when present (Assets/Content/Data/authored/).</summary>
+        public static readonly string[] OptionalFiles = { "cars.tuning.json" };
+
+        public IReadOnlyDictionary<string, CarTuningDef> CarTunings { get; private set; } = new Dictionary<string, CarTuningDef>();
+
         public IReadOnlyList<CourseDef> Courses { get; private set; }
         public IReadOnlyList<CarDef> Cars { get; private set; }
         public IReadOnlyList<CrewDef> Crews { get; private set; }
@@ -83,6 +88,16 @@ namespace NightSignal.Core.Content
             cat.stageById = Index(cat.Stages, s => s.Id, "stage");
             cat.challengeById = Index(cat.Challenges, c => c.Id, "challenge");
             cat.cosmeticById = Index(cat.Cosmetics, c => c.Id, "cosmetic");
+
+            if (documents.ContainsKey("cars.tuning.json"))
+            {
+                CarTuningFile tuning = Parse<CarTuningFile>("cars.tuning.json", "night-signal/car-tuning@1");
+                var map = Index(tuning.Cars, t => t.Id, "car tuning");
+                foreach (string id in map.Keys)
+                    if (!cat.carById.ContainsKey(id))
+                        throw new ContentLoadException($"cars.tuning.json references unknown car {id}");
+                cat.CarTunings = map;
+            }
             cat.ContentHash = Hash(documents);
             return cat;
         }

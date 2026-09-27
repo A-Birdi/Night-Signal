@@ -61,3 +61,18 @@ Newest last. Each entry names who decided and why.
 - Commits in this repository use the repository-local identity already used by the initial commit
   (GitHub no-reply address), so no personal email is published.
 - Every checkpoint push is verified by comparing `git rev-parse HEAD` with `git ls-remote` for the branch.
+
+## D-006 — Content catalogue is imported, not hand-copied; Hard support pools derived by rule
+
+- The brief's `Night_Signal_Content_Catalogue.json` (sha256 `45fb1a45…`) was compared field-by-field with the
+  appendices of `SPECIFICATION.md` by `Tools/qa/compare-catalogue-spec.mjs`: courses, stages, cars, rivals and
+  challenges all match (2026-09-26). The specification stays authoritative; rerun the script if either changes.
+- `Tools/authoring/import-catalogue.mjs` generates `Assets/Content/Data/generated/*.json` deterministically
+  (`--check` detects drift). Generated files are never hand-edited; authored additions (dialogue, conditions,
+  tuning, predicates) live in `Assets/Content/Data/authored/` and are merged by ID.
+- Gap in both sources: Hard-mode support pools. Rule `swap-rule-v1` (Appendix B wording "crew's remaining
+  members and previously introduced rivals"): take the Normal support pool, replace the Hard lead with the
+  Normal lead, never list the Hard lead as support. The validator rejects lieutenants/finals appearing as
+  support before their featured stage and R48 anywhere before Hard S30.
+- A catalogue row is data, not delivered content: coverage counts in `REQUIREMENTS.md` only move when the
+  course/car/rival/challenge is playable and validated.

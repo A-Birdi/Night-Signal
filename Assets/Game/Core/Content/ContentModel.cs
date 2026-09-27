@@ -47,6 +47,36 @@ namespace NightSignal.Core.Content
         public string Handling;
     }
 
+    /// <summary>
+    /// Authored engineering data per car model (Assets/Content/Data/authored/cars.tuning.json). Values are
+    /// initial tuning targets; the stat harness measures the resulting behaviour.
+    /// </summary>
+    public sealed class CarTuningDef
+    {
+        public string Id;
+        /// <summary>inline4 | six | triple | rotary</summary>
+        public string EngineFamily;
+        public bool Turbo;
+        public double TurboLagSeconds;
+        public double RedlineRpm;
+        public int Gears;
+        public double LengthM;
+        public double WidthM;
+        public double HeightM;
+        public double WheelbaseM;
+        public double TrackM;
+        public double FrontWeight;
+        public double TyreGrip;
+        public double RearGripBias = 1.0;
+        public double InertiaScale = 1.0;
+        public double DragAreaCdA;
+        public double LiftAreaClA;
+        public double AwdFrontShare;
+        public string Notes;
+    }
+
+    public sealed class CarTuningFile { public string Schema; public List<CarTuningDef> Cars = new List<CarTuningDef>(); }
+
     public sealed class CrewDef
     {
         public string Id;

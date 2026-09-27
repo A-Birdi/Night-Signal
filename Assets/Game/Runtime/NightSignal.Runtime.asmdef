@@ -2,7 +2,11 @@
     "name": "NightSignal.Runtime",
     "rootNamespace": "NightSignal",
     "references": [
+        "NightSignal.Core",
         "Unity.InputSystem",
+        "Unity.Netcode.Runtime",
+        "Unity.Networking.Transport",
+        "Unity.Collections",
         "Unity.RenderPipelines.Core.Runtime",
         "Unity.RenderPipelines.Universal.Runtime"
     ],
