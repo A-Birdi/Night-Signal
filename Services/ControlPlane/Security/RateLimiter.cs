@@ -11,6 +11,12 @@ public static class SocialLimits
     public static readonly (int Limit, TimeSpan Window) FriendChange = (60, TimeSpan.FromMinutes(10));
     public static readonly (int Limit, TimeSpan Window) ConvoyInvite = (20, TimeSpan.FromMinutes(10));
     public static readonly (int Limit, TimeSpan Window) CoursePurchase = (20, TimeSpan.FromMinutes(1));
+    /// <summary>ONLINE Garage workspace operations (Addendum 02 §9.2).</summary>
+    public static readonly (int Limit, TimeSpan Window) GarageOperation = (120, TimeSpan.FromMinutes(1));
+    /// <summary>Buy-and-Apply quotes (each stored server-side).</summary>
+    public static readonly (int Limit, TimeSpan Window) GarageQuote = (30, TimeSpan.FromMinutes(1));
+    /// <summary>Buy-and-Apply settlements (retries of one quote included).</summary>
+    public static readonly (int Limit, TimeSpan Window) GarageSettle = (30, TimeSpan.FromMinutes(1));
 }
 
 /// <summary>In-process sliding-window rate limiter keyed by "action/account". Time comes from the injected clock.</summary>

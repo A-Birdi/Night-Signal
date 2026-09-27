@@ -1014,8 +1014,10 @@ public sealed class ConvoyDirectory
     }
 
     /// <summary>
-    /// A performance change (car or performance build) bumps the member's loadout revision and unreadies only them;
-    /// a cosmetic-only change keeps readiness (spec §4.2). Refused while the event is being allocated (frozen).
+    /// A performance change (car, car instance or performance build) bumps the member's loadout revision and unreadies only
+    /// them; a cosmetic-only change keeps readiness (spec §4.2, Addendum 02 §9.2). Refused while the event is being allocated
+    /// (frozen). The control channel fills <paramref name="loadout"/> from the SERVER-resolved applied build (never a client
+    /// performance claim).
     /// </summary>
     public ConvoyResult UpdateLoadout(string accountId, LoadoutInfo loadout)
     {
@@ -1026,7 +1028,8 @@ public sealed class ConvoyDirectory
                 return ConvoyResult.Fail("event_frozen", "The event is being allocated; loadouts are frozen.");
             Member m = convoy.Find(accountId)!;
             TouchMember(m);
-            bool performance = m.Loadout is null || m.Loadout.CarId != loadout.CarId || m.Loadout.PerformanceHash != loadout.PerformanceHash;
+            bool performance = m.Loadout is null || m.Loadout.CarId != loadout.CarId || m.Loadout.InstanceId != loadout.InstanceId ||
+                               m.Loadout.PerformanceHash != loadout.PerformanceHash;
             bool cosmetic = m.Loadout is null || m.Loadout.CosmeticHash != loadout.CosmeticHash;
             m.Loadout = loadout;
             if (performance)
@@ -1036,8 +1039,66 @@ public sealed class ConvoyDirectory
             }
             if (cosmetic) m.CosmeticRevision++;
             Changed(convoy);
-            return ConvoyResult.Success(new { loadoutRevision = m.LoadoutRevision, cosmeticRevision = m.CosmeticRevision });
+            return ConvoyResult.Success(new
+            {
+                loadoutRevision = m.LoadoutRevision, cosmeticRevision = m.CosmeticRevision, performanceChanged = performance,
+                carId = loadout.CarId, instanceId = loadout.InstanceId, performanceHash = loadout.PerformanceHash, carPi = loadout.CarPi,
+                piClass = PerformanceIndex.IsLegalFor(loadout.CarPi, PerformanceIndex.Max) ? PerformanceIndex.ClassOf(loadout.CarPi).ToString() : null,
+                appliedRevision = loadout.AppliedRevision,
+            });
         }
+    }
+
+    /// <summary>The member's current car selection (null when not in a convoy or no car chosen yet).</summary>
+    public LoadoutInfo? LoadoutOf(string accountId)
+    {
+        lock (gate)
+            return ConvoyOf(accountId)?.Find(accountId)?.Loadout;
+    }
+
+    /// <summary>
+    /// Builds of this car instance are frozen while its owner's convoy allocates an event with it (Addendum 02 §9.2: the
+    /// selector cannot bypass a frozen event). Returns the event label, or null when the Garage may change it.
+    /// </summary>
+    public string? BuildFrozenFor(string accountId, string instanceId)
+    {
+        lock (gate)
+        {
+            if (ConvoyOf(accountId) is not { } convoy || convoy.Phase != ConvoyPhase.Allocating) return null;
+            return convoy.Find(accountId)?.Loadout?.InstanceId == instanceId ? "the event being allocated" : null;
+        }
+    }
+
+    /// <summary>
+    /// The Garage changed the applied build of <paramref name="fresh"/>'s instance (apply, restore, Buy-and-Apply). When that
+    /// instance is the member's selected car, its server performance hash/PI replace the old ones; a PERFORMANCE change bumps
+    /// the loadout revision and unreadies only this member, a same-hash change (utility-only) keeps readiness. While
+    /// Allocating nothing changes here (the start already froze the build; the next event.ready re-reads it).
+    /// </summary>
+    public bool RefreshLoadoutFromGarage(string accountId, LoadoutInfo fresh)
+    {
+        lock (gate)
+        {
+            if (ConvoyOf(accountId) is not { } convoy || convoy.Phase == ConvoyPhase.Allocating) return false;
+            Member m = convoy.Find(accountId)!;
+            if (m.Loadout is null || m.Loadout.InstanceId is null || m.Loadout.InstanceId != fresh.InstanceId) return false;
+            bool performance = ApplyFresh(convoy, m, fresh);
+            Changed(convoy);
+            return performance;
+        }
+    }
+
+    /// <summary>Takes the server-resolved hash/PI of the member's selected instance; true when the performance hash changed.</summary>
+    static bool ApplyFresh(Convoy convoy, Member m, LoadoutInfo fresh)
+    {
+        bool performance = m.Loadout!.PerformanceHash != fresh.PerformanceHash;
+        m.Loadout = m.Loadout with { CarPi = fresh.CarPi, PerformanceHash = fresh.PerformanceHash, AppliedRevision = fresh.AppliedRevision };
+        if (performance)
+        {
+            m.LoadoutRevision++;
+            convoy.EventProposal?.Ready.Remove(m.AccountId);
+        }
+        return performance;
     }
 
     /// <summary>
@@ -1721,8 +1782,13 @@ public sealed class ConvoyDirectory
         return null;
     }
 
-    /// <summary>Readies against the exact proposal revision AND the member's current loadout revision.</summary>
-    public ConvoyResult SetReady(string accountId, long proposalRevision, long loadoutRevision, bool ready)
+    /// <summary>
+    /// Readies against the exact proposal revision AND the member's current loadout revision. <paramref name="fresh"/> is the
+    /// server-resolved applied build of the member's selected instance read just before this call: a performance change
+    /// found here (the Garage applied something else) bumps the loadout revision and answers <c>stale_revision</c>; the car
+    /// cap is checked against the server PI.
+    /// </summary>
+    public ConvoyResult SetReady(string accountId, long proposalRevision, long loadoutRevision, bool ready, LoadoutInfo? fresh = null)
     {
         lock (gate)
         {
@@ -1743,6 +1809,11 @@ public sealed class ConvoyDirectory
             }
             if (m.Loadout is null)
                 return ConvoyResult.Fail("loadout_required", "Choose a car first.");
+            if (fresh is not null && m.Loadout.InstanceId is not null && m.Loadout.InstanceId == fresh.InstanceId && ApplyFresh(convoy, m, fresh))
+            {
+                Changed(convoy);
+                return ConvoyResult.Fail("stale_revision", "Your car's applied build changed in the Garage; ready again with the current loadout.");
+            }
             if (loadoutRevision != m.LoadoutRevision)
                 return ConvoyResult.Fail("stale_revision", "Your loadout changed; ready again with the current one.");
             if (!PerformanceIndex.IsLegalFor(m.Loadout.CarPi, p.Settings.CarCapPi))
@@ -1768,8 +1839,13 @@ public sealed class ConvoyDirectory
     /// sponsorship with FRESH stored entitlements. Plans the typed roster with Core <see cref="RosterPlanner"/> and freezes
     /// guest passes. On success the convoy is frozen in Allocating and the plan is returned for allocation.
     /// </summary>
+    /// <param name="frozenBuilds">Server-resolved applied builds of the entrants' selected instances, read just before this
+    /// call (the control channel passes them; directory-level tests may omit them). Each must still match the performance
+    /// hash the entrant readied with, otherwise that entrant is unreadied and the start is refused; the car cap is checked
+    /// against these server PIs and the builds are frozen into the plan.</param>
     public (ConvoyError? Error, MatchPlan? Plan) BeginStart(string accountId, long proposalRevision,
-        IReadOnlyDictionary<string, MemberProgress> freshProgress, IReadOnlyDictionary<string, IReadOnlyCollection<string>>? freshCourses = null)
+        IReadOnlyDictionary<string, MemberProgress> freshProgress, IReadOnlyDictionary<string, IReadOnlyCollection<string>>? freshCourses = null,
+        IReadOnlyDictionary<string, Garage.EntrantBuild>? frozenBuilds = null)
     {
         lock (gate)
         {
@@ -1784,6 +1860,17 @@ public sealed class ConvoyDirectory
                 .Select(m => m.AccountId).ToArray();
             if (entrants.Count == 0 || notReady.Length > 0)
                 return (new ConvoyError("not_all_ready", $"Not ready: {string.Join(", ", notReady)}."), null);
+            if (frozenBuilds is not null)
+                foreach (Member m in entrants.Where(m => m.Loadout!.InstanceId is not null))
+                {
+                    if (!frozenBuilds.TryGetValue(m.AccountId, out Garage.EntrantBuild? frozen) || frozen.InstanceId != m.Loadout!.InstanceId)
+                        return (new ConvoyError("loadout_illegal", $"{m.DisplayName}'s applied build could not be validated by the server; it needs repair in the Garage."), null);
+                    if (ApplyFresh(convoy, m, m.Loadout with { CarPi = frozen.Pi, PerformanceHash = frozen.BuildHash, AppliedRevision = frozen.AppliedRevision }))
+                    {
+                        Changed(convoy);
+                        return (new ConvoyError("not_all_ready", $"{m.DisplayName}'s applied build changed; they must ready again."), null);
+                    }
+                }
             if (entrants.FirstOrDefault(m => !PerformanceIndex.IsLegalFor(m.Loadout!.CarPi, p.Settings.CarCapPi)) is { } illegal)
                 return (new ConvoyError("loadout_illegal", $"{illegal.AccountId}'s car is over the cap."), null);
 
@@ -1866,7 +1953,8 @@ public sealed class ConvoyDirectory
             {
                 PlanId = Hashing.RandomId("plan_", 8), ConvoyId = convoy.Id, ProposalRevision = p.Revision,
                 RosterRevision = convoy.RosterRevision, Settings = settings with { AiCount = ai.Count },
-                Entrants = entrants.Select(m => new PlannedEntrant(m.AccountId, m.DisplayName, m.Loadout!, m.LoadoutRevision)).ToList(),
+                Entrants = entrants.Select(m => new PlannedEntrant(m.AccountId, m.DisplayName, m.Loadout!, m.LoadoutRevision,
+                    frozenBuilds is not null && frozenBuilds.TryGetValue(m.AccountId, out Garage.EntrantBuild? b) && b.InstanceId == m.Loadout!.InstanceId ? b : null)).ToList(),
                 AiEntrants = ai, Roster = roster.Entries.Select(RosterSlot.From).ToList(), GuestPasses = passes, Sponsors = sponsors,
                 FeaturedRival = settings.Kind == "campaign" ? roster.FeaturedRival : null,
                 GridNote = note, PurePvP = purePvP, Version = version,

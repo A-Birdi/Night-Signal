@@ -5,6 +5,7 @@ using NightSignal.ControlPlane.Content;
 using NightSignal.ControlPlane.Control;
 using NightSignal.ControlPlane.Convoys;
 using NightSignal.ControlPlane.DevAuth;
+using NightSignal.ControlPlane.Garage;
 using NightSignal.ControlPlane.Identity;
 using NightSignal.ControlPlane.Matches;
 using NightSignal.ControlPlane.Persistence;
@@ -51,6 +52,7 @@ public static class ControlPlaneSetup
         services.AddSingleton<IPlayerStore>(sp => sp.GetRequiredService<SqlGameStore>());
         services.AddSingleton<IResultLedger>(sp => sp.GetRequiredService<SqlGameStore>());
         services.AddSingleton<ISocialStore>(sp => sp.GetRequiredService<SqlGameStore>());
+        services.AddSingleton<IGarageStore>(sp => sp.GetRequiredService<SqlGameStore>());
         services.AddHostedService<StoreInitializer>();
         services.AddSingleton<IDormantRoomStore>(sp => sp.GetRequiredService<SqlGameStore>());
         services.AddSingleton<DormantRoomPersistence>();
@@ -72,6 +74,10 @@ public static class ControlPlaneSetup
         services.AddSingleton<ControlConnections>();
         services.AddSingleton<IConvoyNotifier>(sp => sp.GetRequiredService<ControlConnections>());
         services.AddSingleton<ConvoyDirectory>();
+        // ONLINE Garage (Addendum 02 §8–10): parts/recipes from content/authored, per-instance ownership and workspaces.
+        services.AddSingleton(sp => GarageContent.FromContentDirectory(sp.GetRequiredService<IOptions<ContentOptions>>(),
+            sp.GetRequiredService<ContentService>(), sp.GetRequiredService<ILogger<GarageContent>>()));
+        services.AddSingleton<GarageService>();
         services.AddHostedService<ConvoySweeper>();
         services.AddSingleton<GameServerRegistry>();
         services.AddSingleton<TicketIssuer>();
@@ -104,6 +110,7 @@ public static class ControlPlaneSetup
         _ = app.Services.GetRequiredService<ContentService>();
         _ = app.Services.GetRequiredService<TeamTrialCatalog>();
         _ = app.Services.GetRequiredService<MusicUnlockManifest>();
+        _ = app.Services.GetRequiredService<GarageContent>(); // parts.json + build-recipes.json: the server owns performance truth
         _ = app.Services.GetRequiredService<ToyContentProvider>(); // logs honestly when the toys are unavailable; never fatal
         _ = app.Services.GetRequiredService<TicketIssuer>();
         GameServerOptions servers = app.Services.GetRequiredService<IOptions<GameServerOptions>>().Value; // creates the dev key if enabled
@@ -114,10 +121,12 @@ public static class ControlPlaneSetup
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.MapGet("/healthz", (ContentService content) => Results.Ok(new { status = "ok", contentHash = content.ContentHash }));
+        app.MapGet("/healthz", (ContentService content, GarageContent garage) =>
+            Results.Ok(new { status = "ok", contentHash = content.ContentHash, garageContentHash = garage.Hash }));
         if (dev.Enabled) app.MapDevAuth();
         app.MapPlayerEndpoints();
         app.MapSocialEndpoints();
+        app.MapGarageEndpoints();
         app.MapServerEndpoints();
         app.Map(ControlChannel.Path, (HttpContext ctx, ControlChannel channel) => channel.RunAsync(ctx)).RequireAuthorization();
         return app;

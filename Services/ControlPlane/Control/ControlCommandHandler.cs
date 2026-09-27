@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Text.Json;
 using NightSignal.ControlPlane.Content;
 using NightSignal.ControlPlane.Convoys;
+using NightSignal.ControlPlane.Garage;
 using NightSignal.ControlPlane.Matches;
 using NightSignal.ControlPlane.Persistence;
 using NightSignal.ControlPlane.Security;
@@ -20,7 +21,7 @@ public sealed record Reply(string? RequestId, bool Ok, object? Result = null, Co
 /// </summary>
 public sealed class ControlCommandHandler(ConvoyDirectory directory, IPlayerStore store, ISocialStore social, ContentService content,
     MatchAllocator allocator, TicketIssuer tickets, IConvoyNotifier notifier, RateLimiter limiter, TimeProvider clock,
-    IHostApplicationLifetime lifetime, ILogger<ControlCommandHandler> log, ToyService toys)
+    IHostApplicationLifetime lifetime, ILogger<ControlCommandHandler> log, ToyService toys, GarageService garage)
 {
     static readonly TimeSpan ReplyRetention = TimeSpan.FromMinutes(10);
     readonly ConcurrentDictionary<string, (DateTimeOffset At, Lazy<Task<Reply>> Reply)> replies = new();
@@ -44,7 +45,8 @@ public sealed class ControlCommandHandler(ConvoyDirectory directory, IPlayerStor
     sealed record InvitePayload(string? InviteId);
     sealed record AccountPayload(string? AccountId);
     sealed record PresencePayload(string? Presence);
-    sealed record LoadoutPayload(string? CarId, string? PerformanceHash, string? CosmeticHash);
+    /// <summary><c>performanceHash</c> is accepted for older clients but NEVER used: the server resolves it from the applied build.</summary>
+    sealed record LoadoutPayload(string? CarId, string? InstanceId, string? PerformanceHash, string? CosmeticHash);
     sealed record IntentPayload(string? Kind, string? Mode, string? Submode, string? TrialId);
     sealed record ModeReadyPayload(long ModeRevision, bool Ready = true);
     sealed record ModeRevisionPayload(long ModeRevision);
@@ -223,7 +225,10 @@ public sealed class ControlCommandHandler(ConvoyDirectory directory, IPlayerStor
             case "event.ready":
             {
                 ReadyPayload p = Read<ReadyPayload>(payload);
-                return directory.SetReady(a, p.ProposalRevision, p.LoadoutRevision, p.Ready);
+                if (!p.Ready) return directory.SetReady(a, p.ProposalRevision, p.LoadoutRevision, false);
+                // Readiness is always against the SERVER's current applied build of the selected car (Addendum 02 §9–10).
+                (LoadoutInfo? fresh, ConvoyError? invalid) = await garage.FreshSelectionAsync(a, ct);
+                return invalid is not null ? new ConvoyResult(invalid) : directory.SetReady(a, p.ProposalRevision, p.LoadoutRevision, true, fresh);
             }
             case "event.start":
                 return await StartAsync(a, Read<RevisionPayload>(payload).ProposalRevision, ct);
@@ -276,17 +281,19 @@ public sealed class ControlCommandHandler(ConvoyDirectory directory, IPlayerStor
         return directory.JoinByFriendInvite(a, await MemberInfoAsync(a, ct), inviteId, ok);
     }
 
-    /// <summary>Only owned cars can be selected; PI comes from the trusted catalogue, not the client.</summary>
+    /// <summary>
+    /// Only owned car INSTANCES can be selected. The performance hash, PI and applied revision come from the server-resolved
+    /// applied build of that instance (ONLINE Garage); a client-sent performanceHash is ignored, only the cosmetic hash is taken.
+    /// </summary>
     async Task<ConvoyResult> SetLoadoutAsync(string a, LoadoutPayload p, CancellationToken ct)
     {
-        if (p.CarId is null || !content.Catalogue.TryCar(p.CarId, out CarDef car))
-            return Invalid("Unknown car.");
-        if (p.PerformanceHash is not { Length: > 0 and <= 128 } || p.CosmeticHash is not { Length: > 0 and <= 128 })
-            return Invalid("performanceHash and cosmeticHash are required (≤128 characters).");
-        PlayerSnapshot s = await store.GetSnapshotAsync(a, ct);
-        if (s.Cars.All(c => c.CarId != car.Id))
-            return ConvoyResult.Fail("not_owned", $"You do not own the {car.Name}.");
-        return directory.UpdateLoadout(a, new LoadoutInfo(car.Id, car.BasePI, p.PerformanceHash, p.CosmeticHash));
+        if (p.CarId is null && p.InstanceId is null) return Invalid("carId (or instanceId) is required.");
+        if (p.CarId is not null && !content.Catalogue.TryCar(p.CarId, out _)) return Invalid("Unknown car.");
+        if (p.InstanceId is { Length: 0 or > 64 }) return Invalid("instanceId is 1–64 characters.");
+        if (p.CosmeticHash is not { Length: > 0 and <= 128 }) return Invalid("cosmeticHash is required (≤128 characters).");
+        if (p.PerformanceHash is { Length: > 128 }) return Invalid("performanceHash is ignored but must be ≤128 characters.");
+        (LoadoutInfo? loadout, ConvoyError? error) = await garage.SelectionAsync(a, p.CarId, p.InstanceId, p.CosmeticHash, ct);
+        return loadout is null ? new ConvoyResult(error) : directory.UpdateLoadout(a, loadout);
     }
 
     /// <summary>Atomic revalidation happens in the directory with freshly loaded progress and course entitlements; allocation
@@ -296,7 +303,10 @@ public sealed class ControlCommandHandler(ConvoyDirectory directory, IPlayerStor
         IReadOnlyList<string> entrants = directory.PendingEntrants(a);
         IReadOnlyDictionary<string, MemberProgress> progress = await store.GetProgressAsync(entrants, ct);
         IReadOnlyDictionary<string, IReadOnlyCollection<string>> courses = await store.GetOwnedCoursesAsync(entrants, content.Catalogue, ct);
-        (ConvoyError? error, MatchPlan? plan) = directory.BeginStart(a, proposalRevision, progress, courses);
+        // The applied builds are read and resolved by the server now; the directory checks them against what everyone readied
+        // with, checks the car caps with these server PIs and freezes them into the plan (assignment entrants[].vehicleBuild).
+        IReadOnlyDictionary<string, EntrantBuild> builds = await garage.FreezeSelectionsAsync(entrants, ct);
+        (ConvoyError? error, MatchPlan? plan) = directory.BeginStart(a, proposalRevision, progress, courses, builds);
         if (error is not null) return new ConvoyResult(error);
         _ = Task.Run(() => AllocateAsync(plan!), CancellationToken.None);
         return ConvoyResult.Success(new
@@ -317,8 +327,16 @@ public sealed class ControlCommandHandler(ConvoyDirectory directory, IPlayerStor
                 return;
             }
             directory.CompleteStart(plan, match);
-            foreach (PlannedEntrant e in plan.Entrants.Where(e => directory.RacerEligible(plan.ConvoyId, e.AccountId)))
+            List<PlannedEntrant> racers = plan.Entrants.Where(e => directory.RacerEligible(plan.ConvoyId, e.AccountId)).ToList();
+            foreach (PlannedEntrant e in racers)
                 SendTicket(e.AccountId, plan.ConvoyId, match, "racer");
+            // Authorized start: the game server accepted the frozen assignment and each racer holds a ticket. Record the frozen
+            // build as Last Race Build (Core GarageOperations.RecordRaceBegan). Never on a failed allocation, a test or a toy.
+            foreach (PlannedEntrant e in racers.Where(e => e.Build is not null))
+            {
+                try { await garage.RecordRaceBeganAsync(e.AccountId, e.Build!, match.MatchId, lifetime.ApplicationStopping); }
+                catch (Exception ex) { log.LogError(ex, "Last Race Build not recorded for match {MatchId}", match.MatchId); }
+            }
         }
         catch (Exception e)
         {

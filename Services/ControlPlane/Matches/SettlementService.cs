@@ -279,7 +279,8 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
                 ReferenceBeaten = kind == EventKind.FreeplayTimeTrial && e.Outcome == RunOutcome.Finished &&
                                   finishMs <= content.FreeplayReferenceMs(course.Id),
                 Clean = e.Clean,
-                UtilityIncomePercent = 0, // no utility items are owned/equippable in this build
+                // The utility item of the build FROZEN at allocation (server-resolved; +4 % or +8 % ordinary event pay only).
+                UtilityIncomePercent = UtilityIncomePercent(config, e.EntrantId),
                 PvPWinnerBonusEligible = e.Outcome == RunOutcome.Finished &&
                                          Economy.PvPWinnerBonusEligible(placing.Place, ai.Count, humansFinished, pvpConfiguration),
                 CheckpointFraction = e.CheckpointFraction,
@@ -371,6 +372,14 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
         }
         return (new MatchSettlement { MatchId = config.MatchId, ResultsSha256 = bodySha256, Entrants = entrants }, null);
     }
+
+    /// <summary>
+    /// Income utility of the entrant's frozen applied build (assignment <c>entrants[].vehicleBuild.utility</c>, resolved by the
+    /// control plane from owned parts at start). Anything but the two authored values (4, 8) counts as none; allocations made
+    /// before builds were frozen carry no build and pay 1.00.
+    /// </summary>
+    internal static int UtilityIncomePercent(MatchAssignment config, string accountId) =>
+        config.Entrants.FirstOrDefault(x => x.AccountId == accountId)?.VehicleBuild?.Utility?.IncomePercent is int p && (p == 4 || p == 8) ? p : 0;
 
     /// <summary>
     /// Server-observed "beat the featured rival" (Addendum 01 §1.3): a legally finished human placed strictly ahead of the

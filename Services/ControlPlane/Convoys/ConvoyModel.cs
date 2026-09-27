@@ -193,8 +193,14 @@ public sealed record ConvoyResult(ConvoyError? Error, object? Value = null)
 /// </summary>
 public sealed record MemberInfo(string DisplayName, MemberProgress Progress, IReadOnlyCollection<string>? OwnedCourses = null);
 
-/// <summary>The member's chosen car. Hashes identify the performance build and the visual build (opaque here).</summary>
-public sealed record LoadoutInfo(string CarId, int CarPi, string PerformanceHash, string CosmeticHash);
+/// <summary>
+/// The member's chosen car. <paramref name="PerformanceHash"/> and <paramref name="CarPi"/> come from the SERVER-resolved
+/// applied build of <paramref name="InstanceId"/> (the ONLINE Garage, Addendum 02 §9–10), never from a client claim;
+/// <paramref name="CosmeticHash"/> identifies the visual build (opaque here). <paramref name="AppliedRevision"/> is the
+/// workspace's applied-build revision that hash was computed from.
+/// </summary>
+public sealed record LoadoutInfo(string CarId, int CarPi, string PerformanceHash, string CosmeticHash, string? InstanceId = null,
+    long AppliedRevision = 0);
 
 /// <summary>Client build/protocol/content reported when the control channel connects.</summary>
 public sealed record ClientVersion(string Build, int Protocol, string ContentHash);
@@ -238,7 +244,10 @@ public sealed record EventSettings
     public string? Difficulty { get; init; }
 }
 
-public sealed record PlannedEntrant(string AccountId, string DisplayName, LoadoutInfo Loadout, long LoadoutRevision);
+/// <summary>One frozen human entrant. <paramref name="Build"/> is the server-resolved applied build frozen at start (null only
+/// for loadouts that carry no car instance, i.e. directory-level tests).</summary>
+public sealed record PlannedEntrant(string AccountId, string DisplayName, LoadoutInfo Loadout, long LoadoutRevision,
+    NightSignal.ControlPlane.Garage.EntrantBuild? Build = null);
 
 /// <summary>One frozen roster actor (Addendum 01 §1.1): kind, team, role and driver identity stored explicitly.</summary>
 public sealed record RosterSlot(string EntrantId, string Kind, string Team, string Role, string DriverId)

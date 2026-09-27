@@ -38,7 +38,7 @@ serves the ONLINE progression domain; nothing here accepts local/offline progres
 
 | Method, path | Body | Result / errors |
 |---|---|---|
-| `GET /healthz` | – | `{"status":"ok","contentHash"}` (no auth) |
+| `GET /healthz` **CHANGED** | – | `{"status":"ok","contentHash","garageContentHash"}` (no auth). `garageContentHash` = SHA-256 over the LF-normalised `parts.json` + `build-recipes.json` the server evaluates builds with — published separately because neither document is in Core `ContentHash` yet (§2.6 note). |
 | `GET /v1/me` **CHANGED** | – | `{accountId, card{displayName,revision}\|null, handle{handle,revision}\|null, needsHandle, wallet{balance,cap}, starterCarId, ownedCars[{carId,source}], campaign{normalCleared[30], hardCleared[30], normalFrontier, hardFrontier, hardUnlocked}, courses{domain:"online", owned[{courseId, source:"starter"\|"purchase"\|"campaign-clear"}]}, music{owned[{cueId, source}]}, teamTrialBests[{trialId, difficulty, humans, kind:"mean"\|"best"\|"drift", value, displayMeanMs\|null, matchId, category:"team"}], challengesCompleted[], cosmeticsOwned[], rank{rankPoints,index,name,threshold,next,nextThreshold}}`. `needsHandle: true` = show the handle-claim step (existing accounts keep everything else). `music.owned` = the manifest's baseline cues plus granted cues. Team bests are TEAM records, never personal bests. |
 | `POST /v1/me/card` | `{"displayName", "revision"?}` | `{displayName, revision}`; 400 `invalid_display_name`; 409 `revision_conflict` |
 | `POST /v1/me/starter` | `{"carId":"V01"\|"V02"\|"V03"}` | `{carId, balance, credited, replayed}`; 409 `starter_already_claimed` |
@@ -93,9 +93,47 @@ count as ownership. A successful purchase updates the convoy's accessible pool l
 | accept/decline/cancel/remove/block/unblock | 60 / 10 min |
 | convoy friend invitations (`convoy.invite.friend`) | 20 / 10 min |
 | course purchases | 20 / min |
+| garage operations / quotes / settlements | 120 / 30 / 30 per min |
 
 Display names: NFC-normalized, spaces collapsed, 3–20 user-perceived characters, ≤120 UTF-8 bytes, no `< > { } \`, no
 control/format (except ZWJ)/private-use/bidi characters. Not unique. Render as literal text.
+
+### 2.6 ONLINE Garage — NEW (Addendum 02 §8–10, D204–D206)
+
+The server owns part ownership **per car instance**, each instance's whole Core `CarBuildWorkspace` (applied build, ≥ 8
+named mechanical loadouts, ≥ 5 visual presets, the protected references `before-workshop` / `before-last-apply` /
+`last-race-build`, the draft and the workshop session) and Buy-and-Apply quotes. Every rule is Core
+`NightSignal.Core.Builds` (`GarageOperations`, `PurchaseQuotes`, `BuildResolver`, `PerformanceIndexEstimator`); the
+control plane adds persistence, atomicity and access control. Build data: `content/authored/parts.json` and
+`build-recipes.json` (validated against the race catalogue at startup; startup fails without them).
+
+- **Car instances.** Every owned car gets one instance (`instanceId`, stable, `ci_…`) the first time the garage, a
+  `loadout.set` or an event touches it; its workspace starts as the stock applied build (revision 1) with an empty
+  library (no invented presets). Two instances of one model are independent (the schema supports several; purchases of a
+  second copy are not offered yet). Only the owner can see or change an instance (`404 not_found` otherwise).
+- **Optimistic concurrency.** Every mutation quotes `expectedRevision` = the workspace `revision` it was computed from.
+  Core rejects a stale one (`409 stale_revision`, body carries the current `revision`), and the store writes with
+  compare-and-swap on the revision it read, so two devices can never overwrite each other's accepted change.
+- **Confirmation tokens.** Overwrite, Delete, Delete visual preset and replacing a dirty draft answer
+  `409 confirmation_required {confirmationToken, message, comparison?}`; repeat the SAME request with that token. A token is
+  bound to (operation, target, instance, revision), so it dies with any other change.
+- **Performance truth.** PI is the Core estimate (`piIsEstimate: true`, labelled everywhere) and `buildHash` the Core
+  physics hash (utility excluded), both computed by the server from the stored APPLIED build — never a draft, a preview or
+  a client claim.
+
+| Method, path | Body | Result / errors |
+|---|---|---|
+| `GET /v1/me/garage/cars` | – | `{domain:"online", shopAct, wallet{balance,cap}, partsCatalogue{revision, priceRevision, hash}, handlingModelVersion, cars[{instanceId, carId, carName, source, ordinal, revision, applied{revision, buildHash, pi, piClass, piIsEstimate, source, appliedUtc, needsRepair, repairs[]}, loadouts{count, capacity, pinned[{loadoutId, name, derivedPi, derivedClass, needsParts}]}, visualPresets{count, capacity}, draft{dirty, loadedFrom}\|null, references[kind], ownedParts}]}`. `shopAct` = act of the Normal frontier stage (parts unlock by act, never by spending). |
+| `GET /v1/me/garage/cars/{instanceId}` | – | `{domain, instanceId, carId, carName, source, ordinal, shopAct, partsCatalogue, handlingModelVersion, ownedParts[], buildFrozen\|null, workspace, appliedEvaluation, draftEvaluation\|null, draftComparison\|null}` — `workspace` = `{schema, schemaVersion, instanceId, carId, revision, applied{revision, build, buildHash, pi, piClass, piIsEstimate, handlingModelVersion, partsCatalogueRevision, appliedUtc, source}, loadouts[{loadoutId, name, carInstanceId, carModelId, build, performanceAppearance, derivedPi, derivedClass, buildHash, handlingModelVersion, partsCatalogueRevision, note, updatedUtc, pinned, needsParts, unresolvedPartIds, notices, keptLegacyDocument}], loadoutCapacity, pinnedLimit, visualPresets[{presetId, name, payloadSchema, payloadJson, updatedUtc}], visualPresetCapacity, appliedVisualPresetId, appliedLiveryHash, references{kind: {kind, build, sourceAppliedRevision, buildHash, pi, handlingModelVersion, partsCatalogueRevision, capturedUtc, context}}, draft{build, loadedFrom, basedOnAppliedRevision, previewPartIds, unresolvedPartIds, updatedUtc}\|null, draftDirty, workshop{open, openedUtc}}`. A `build` is `{parts:{slotId: partId}, utilityPartId, tuning:{version, values:{key: int}}}` (ids, never positions). An evaluation is `{resolved, buildHash, pi{value, class, isEstimate, basis}, canPreview, canSaveAsPlan, canApply, previewPartIds, missingParts[{partId, slot, name, price}], missingTotal, repairs[{kind, slot, partId, partName, detail, price, text}], utility{partId, incomePercent, showcasePercent}, …}`; repair kinds: `unknown-slot, removed-part, wrong-slot, incompatible, locked, not-owned, unavailable, tuning-invalid, out-of-safe-range, over-cap, build-locked, unresolved-legacy-part`. |
+| `GET /v1/me/garage/cars/{instanceId}/parts` | – | `{instanceId, carId, shopAct, partsCatalogue, slots[{slot, parts[{partId, name, tier, price, unlockAct, retired, available, owned, installed, inDraft, tradeoff, appearance, utility{kind, percent}\|null, tuning[{key, min, max, step, default, unit}]}]}], recipes{role, identity, capExcludedBands, steps[{id, label, kind:"main"\|"incremental"\|"longTerm", by, bands, note, build, pi, piClass, piIsEstimate, missingParts[{partId, name, price}], missingTotal, lockedParts[], canApplyNow}]}\|null}` — only parts compatible with this model; `owned` means owned by THIS instance; recipes are the authored explained options (never auto-purchases). |
+| `POST /v1/me/garage/cars/{instanceId}/operations` | `{op, expectedRevision, confirmationToken?, …}` | One Core `GarageOperations` call. `op` → fields: `save-as` {name, note?, fromApplied?} · `rename` {loadoutId, name} · `note` {loadoutId, note} · `overwrite` {loadoutId, fromApplied?, confirmationToken} · `duplicate` {loadoutId, name} · `delete` {loadoutId, confirmationToken} · `pin` {loadoutId, pinned} · `visual-preset-save` {name, payloadSchema?, payloadJson? (JSON ≤ 16 KiB, data only)} · `visual-preset-delete` {presetId, confirmationToken} · `load-into-draft` {source:{kind:"applied"}\|{kind:"loadout",id}\|{kind:"reference",id:"before-workshop"\|"before-last-apply"\|"last-race-build"}, confirmationToken?} · `edit-draft` {build} (may contain "Preview only — not owned" parts) · `discard-draft` · `apply` (the whole draft atomically) · `apply-loadout` {loadoutId} (quick selector) · `begin-workshop` (no revision; captures Before Workshop once) · `end-workshop` · `accept-baseline`. → `200 {status:"ok"\|"unchanged", op, message, revision, loadoutId, performanceChanged, evaluation, comparison, repairs[], changes[], convoy{selected, performanceChanged}\|null, workspace}`. Errors: 400 `invalid_request` (unknown op, missing `expectedRevision`/target, bad build/payload) / `invalid_name`; 404 `not_found`; 409 `stale_revision` / `confirmation_required` / `duplicate_name` / `capacity_full` / `pin_limit` / `needs_repair` (+`repairs`, nothing bought, substituted or changed) / `build_locked` (this car is in an event being allocated) / `no_draft` / `rejected`; 429 (120/min). |
+| `POST /v1/me/garage/cars/{instanceId}/quote` | `{source?:"draft"}` (default) or `{build}` | Core `PurchaseQuotes.Create` → `200 {quote{quoteId, instanceId, carId, build, buildHash, pi, piClass, piIsEstimate, lines[{partId, slot, name, tier, price}], total, priceRevision, catalogueRevision, appliedRevision, issuedUtc, expiresUtc}, affordableNow, walletBalance, message, confirmation}`. Lines are exactly the parts THIS instance does not own (owned parts are never bought again); the quote is stored server-side for 10 minutes. 409 `no_draft` / `nothing_to_buy` (everything owned: use `apply`) / `not_purchasable` (+`repairs`: locked by act, retired, incompatible, tune, cap, build lock); 429 (30/min). |
+| `POST /v1/me/garage/cars/{instanceId}/quote/{quoteId}/settle` | `{"confirm": true}` | Core `PurchaseQuotes.Settle` INSIDE one transaction with the wallet debit (ledger `garage-quote/<account>/<quoteId>`, type `part-purchase`), the part grants, the workspace change (applied revision + 1, `before-last-apply`) and the quote-ledger row (unique quote id). → `200 {status:"settled", replayed:false, quoteId, charged, debit, grants[], balance, appliedRevision, buildHash, pi, piClass, piIsEstimate, performanceChanged, message, convoy, revision, workspace}`; a retry (or a concurrent duplicate) → `200 {status:"settled", replayed:true, charged:0, debit, grants, balance, balanceAfterSettlement, appliedRevision, buildHash, settledUtc}` — never a second charge or grant. Rejections change nothing (wallet, ownership, workspace and draft stay as they were): 404 `unknown_quote`; 409 `confirmation_required` (confirm missing/false), `quote_expired`, `price_changed` (+`currentLines`: price or catalogue revision moved), `stale_revision` (this car's applied build changed since the quote), `unavailable`, `incompatible`, `already_owned`, `insufficient_funds` (+`total`, `balance`), `needs_repair`, `wrong_car`; 429 (30/min). |
+
+A Garage change of the car SELECTED in the player's convoy (apply, apply-loadout, restore, Buy-and-Apply) updates that
+member's server loadout at once: a performance-hash change bumps `loadoutRevision` and clears only THAT player's Event
+Ready; a utility-only change (same physics hash) keeps readiness. While the convoy is Allocating an event with that car,
+applying answers `build_locked`.
 
 ## 3. Control channel — `GET /v1/control` (WebSocket)
 
@@ -149,7 +187,7 @@ a server-owned **rejoin grant** is recorded (§3.4). There is no reserved seat a
 | type | payload | who | result / errors |
 |---|---|---|---|
 | `presence.set` **CHANGED** | `{presence:"InMenus"\|"Garage"\|"AtMeet"\|"Browsing"\|"LoadingRace"\|"InRace"\|"Spectating"}` | any connected account (members also publish it to the convoy) | actual coarse screen/activity, separate from the convoy Intent; never clears readiness. `Reconnecting`/`Offline` are server-only (`invalid_request`). |
-| `loadout.set` | `{carId, performanceHash, cosmeticHash}` | member | owned cars only, PI from the catalogue. Performance change → `loadoutRevision+1`, only this member unreadies; cosmetic-only → `cosmeticRevision+1`, stays ready; `event_frozen` while Allocating. |
+| `loadout.set` **CHANGED** | `{carId \| instanceId, cosmeticHash, performanceHash?}` | member | Selects an owned car INSTANCE (`instanceId`, or the account's instance of `carId`); `not_owned` otherwise. The performance hash, PI and applied revision are computed by the SERVER from that instance's stored applied build (§2.6); a client `performanceHash` is accepted for older clients but **ignored**. → `{loadoutRevision, cosmeticRevision, performanceChanged, carId, instanceId, performanceHash, carPi, piClass, appliedRevision}`. Performance change (other car/instance or other server hash) → `loadoutRevision+1`, only this member unreadies; cosmetic-only → `cosmeticRevision+1`, stays ready; `event_frozen` while Allocating; `loadout_illegal` when the applied build needs repair (e.g. a removed part). |
 | `diversion.set` **NEW** (Addendum 02 §1.2) | `{toy: "cap-clash"\|"pit-crew"\|"greenlight"\|"pocket-circuit"\|"convoy-canvas"\|"test-yard"\|null}` | member | coarse participation → `{diversion}`. Counts as real interaction (clears Away). Entering, changing or leaving a diversion NEVER clears Mode Ready or Event Ready and never readies anyone. `invalid_request` for other values. |
 
 ### 3.3 Requests — Intent → Mode Ready → vote → Event Ready (Addendum 01 §6.2, §7)
@@ -165,8 +203,8 @@ a server-owned **rejoin grant** is recorded (§3.4). There is no reserved seat a
 | `ballot.draw` **NEW** | `{ballotRevision}` | leader | after the deadline only: one server-CSPRNG draw over accepted ballots (Core `Ballot.Draw`; chance = votes / total ballots), stored with the ballot revision → `{ballotRevision, courseId, method:"draw", ballotIndex, totalBallots, votes, replayed}`; a retransmit returns the SAME winner (`replayed:true`). Creates the frozen event proposal (origin `draw`) — Event Ready from everyone is still required. `ballot_open` (no early draw), `no_votes` (select directly), `ballot_resolved`, `stale_revision`, `bad_phase` |
 | `ballot.cancel` **NEW** | `{ballotRevision}` | leader | cancels an undrawn vote (one notice); `ballot_resolved` (a draw cannot be cancelled to fish for another), `stale_revision` |
 | `event.propose` **CHANGED** | campaign `{stageId, weather?}`; freeplay `{courseId, freeplayMode?, aiCount?, aiRivals?[], carCapPi?, weather?}`; cup `{freeplayMode?:"cup", cupLegs[2–5], aiCount?, aiRivals?, carCapPi?, weather?}`; challenges `{trialId?, difficulty?, weather?}` | leader | needs an entered mode → `{proposalRevision}`; `ready.requested{kind:"event"}`. Freeplay: course must support the agreed submode and be convoy-accessible (≥1 current member owns it; others get guest passes at start); AI 0..(12 − H), none in Time Attack; `aiRivals` checked with Core `FinalRivals` (R40/R48 refused as Freeplay opponents/Cup substitutes). After a frozen vote this is a visible "leader selection"; replacing a DRAWN course is a visible override (`convoy.notice draw_overridden`) that invalidates all Event Ready. Challenges: roster/AI/cap fixed by the trial. Errors: `bad_phase`, `post_event_open`, `ballot_open`, `rate_limited`, `invalid_request`, `stage_locked`, `mode_locked`, `mode_unsupported`, `course_locked`, `capacity_exceeded`, `rival_not_allowed`, `unknown_trial` |
-| `event.ready` | `{proposalRevision, loadoutRevision, ready}` | member | both revisions current (`stale_revision`); car PI ≤ cap (`loadout_illegal`); `loadout_required`, `event_frozen`, `bad_phase` |
-| `event.start` **CHANGED** | `{proposalRevision}` | leader | atomic revalidation (below) → `{status:"allocating", entrants, aiEntrants, vehicles, guestPasses}`; `stale_revision`, `not_all_ready`, `loadout_illegal`, `version_mismatch`, `stage_locked`, **`course_locked`** (no sponsor in fresh storage), **`roster_invalid`** |
+| `event.ready` **CHANGED** | `{proposalRevision, loadoutRevision, ready}` | member | both revisions current (`stale_revision`); the server re-reads the selected car's applied build first — if its performance hash changed (e.g. applied from another device) the member's `loadoutRevision` is bumped and the answer is `stale_revision`; car cap checked with the SERVER PI (`loadout_illegal`); `loadout_required`, `event_frozen`, `bad_phase` |
+| `event.start` **CHANGED** | `{proposalRevision}` | leader | atomic revalidation (below) → `{status:"allocating", entrants, aiEntrants, vehicles, guestPasses}`; `stale_revision`, `not_all_ready` (also: an entrant's applied build changed since they readied — only they are unreadied), `loadout_illegal` (server PI over the cap, or an applied build the server cannot validate), `version_mismatch`, `stage_locked`, **`course_locked`** (no sponsor in fresh storage), **`roster_invalid`** |
 | `match.ticket` **CHANGED** | `{role:"racer"\|"spectator"}` | member | fresh ticket for the current match; racer only for frozen entrants who have not left since allocation (`not_entrant`), `not_found` |
 
 ### 3.4 Requests — post-event Continue / Service Break — NEW (Addendum 02 §7, D203)
@@ -213,7 +251,8 @@ kept (including through a service break). Undecided is never Continue; after 30 
   `membershipGeneration` (a rejoin never inherits a stale generation's input rights).
 
 **Start** re-checks, under one lock: leader, proposal and roster revision, every member ready against the current proposal
-*and* loadout revision and not Away, car caps, identical client build/protocol/content, stage access with progress freshly
+*and* loadout revision and not Away, every entrant's applied build freshly re-resolved by the server (it must still have the
+performance hash they readied with; it is frozen into the plan), car caps against those server PIs, identical client build/protocol/content, stage access with progress freshly
 read from the database, and course sponsorship with entitlements freshly read from the database. It then freezes the plan
 with Core `RosterPlanner` — campaign: the stage's authored live opposition (featured rival first; finales are H + 1 duels
 with R40/R48); Freeplay: 0..(12 − H) opposing AI (explicit picks first, then a server-shuffled pool without R40/R48; a stale
@@ -310,7 +349,7 @@ control plane stops issuing racer tickets to an entrant who left the convoy afte
 
 **Assignment CHANGED** (frozen match config): `{matchId, convoyId, serverId, kind:"campaign"|"freeplay"|"trial", mode,
 stageId, stageNumber, stageType, courseId, freeplayMode, weather, collision:"light-contact"|"non-contact", carCapPi,
-entrants[{accountId, displayName, role, carId, carPi, performanceHash, cosmeticHash, loadoutRevision}],
+entrants[{accountId, displayName, role, carId, carPi, performanceHash, cosmeticHash, loadoutRevision, vehicleBuild}],
 aiEntrants[entrantIds, featured rival first], roster[{entrantId, kind:"human"|"ai", team:"player"|"opposing",
 role:"driver"|"featured-rival"|"support-rival"|"friendly-ai"|"opposing-ai", driverId}], featuredRival,
 guestPasses[{accountId, courseId, sponsorId}], sponsors{courseId:[accountIds]}, cupLegs[], trial{trialId,
@@ -319,6 +358,26 @@ tiePolicy, provisional}, benchmark{kind, targetTimeMs, rawDriftTarget, hardTimeo
 requiresBeatingFeaturedRival}, purePvP, gridNote, build, protocol, contentHash, seed, resultsUrl, ticketIssuer,
 ticketAudience, resultsSecret}`. At most 12 vehicles (`entrants` + `aiEntrants`); an AI's `driverId` is a rival/profile
 ID, never an account. `resultsSecret` is base64url (32 bytes); keep it in server memory only.
+
+**`entrants[].vehicleBuild` NEW** (Addendum 02 §9–10): the entrant's APPLIED build frozen by the control plane at
+`event.start` (server-resolved from the stored workspace; never a draft, preview or client claim). `carPi`/`performanceHash`
+are its values. `{instanceId, carId, appliedRevision, buildHash, pi, piClass, piIsEstimate, handlingModelVersion ("hm-1"),
+partsCatalogueRevision, partsCatalogueHash (= /healthz garageContentHash), parts{slotId: partId} (absent slot = stock),
+utilityPartId, tuningVersion, tuning{key: int} (absent key = the installed part's default), utility{partId, incomePercent
+(0/4/8), showcasePercent (0/5/10)}, paramsMicro{SimParam: value × 10⁶} (every resolved simulation input; the exact integers
+`buildHash` covers), chassis{finalDriveScale, gearSpreadScale, shiftSecondsScale, brakeForceScale, brakeFrontBias,
+springScaleFront/Rear, damperScaleFront/Rear, antiRollScaleFront/Rear, cgHeightOffsetM, restLengthOffsetM,
+maxCompressionOffsetM, peakSlipDeg, slideGripFraction, slideFalloffDeg, powerSlideGripLoss, aeroFrontShare}}`. To build the
+same `VehicleParams`: resolve `parts` + `tuning` with Core `BuildResolver.Resolve` over the same `parts.json` (check
+`spec.BuildHash == buildHash`), then `VehicleFactory.Build(spec.Car, spec.Tuning, assists)` and apply `spec.Chassis`
+(= `chassis` here). Absent (null) only for allocations made before builds were frozen. Unity-side consumption is not
+implemented yet.
+
+**Last Race Build.** When the game server acknowledges the assignment and a racer ticket is issued, the control plane
+records each such entrant's frozen `vehicleBuild` as that car's protected `last-race-build` reference (Core
+`GarageOperations.RecordRaceBegan`, context = matchId). A failed or unacknowledged allocation, a Test Yard run or a toy
+never records it. (The control plane has no per-entrant "began driving" signal yet, so a load failure after the ack still
+records it.)
 
 ## 6. Result submission
 
@@ -357,6 +416,8 @@ Settlement (Core rules, one transaction, idempotent per match):
 - **Encounter stages** (lieutenant, penultimate, finale; `benchmark.requiresBeatingFeaturedRival`): a human qualifies only
   if they meet the target AND beat the live featured rival — finished strictly ahead of it (a tie shares the placing and
   does not beat it), or the rival did not finish while the human finished. Normal needs ≥1 such human, Hard ceil(H/2).
+- **Utility income CHANGED:** `payout.utilityX100` = 100 + the income utility of the entrant's FROZEN build
+  (`vehicleBuild.utility.incomePercent`, 4 or 8; anything else or no build = 100), on ordinary event pay only.
 - Placements 1–12 pay Core `Economy.PlacementX100` (4th–12th = 1.00). AI never receive transactions. The pure-PvP bonus
   never applies to AI-containing events, Team Trials or Time Attack.
 - **Team Trials:** Core `TeamTrials.Score` per six-seat side (MEAN: sum of six contributions, a DNF/DQ counts hard timeout
@@ -399,9 +460,14 @@ completionPayable, newTeamBest, recordCategory:"team", provisional}|null, rankPo
   — exactly one source per cue; lieutenant sources must name a lieutenant stage. Without the file nothing is granted.
 
 Not covered here: browser (WSS) clients (Origin check, non-header token) — out of scope (spec §3.4); Addendum 02 toy
-services (DowntimeSession, toy commands) and car-loadout storage — a separate follow-up that will attach to the
-`IConvoySessionObserver` extension point (membership start/end with generation, preemption at mode entry/race allocation,
-dormant/restored/ended) keyed by `convoySessionId`.
+services (DowntimeSession, toy commands) — a separate follow-up that will attach to the `IConvoySessionObserver` extension
+point (membership start/end with generation, preemption at mode entry/race allocation, dormant/restored/ended) keyed by
+`convoySessionId`.
+
+**Garage content hash (open).** `parts.json` and `build-recipes.json` are loaded by the control plane (§2.6) but are NOT
+part of Core `ContentCatalogue.ContentHash` (not in `ContentCatalogue.AuthoredFiles`), so the client/server/ticket
+`content` check does not cover them yet. Until Core and the Unity content hash change together, `/healthz`
+`garageContentHash` and `vehicleBuild.partsCatalogueHash` carry their hash separately.
 
 ## 8. Gameplay transport (Unity: Netcode for GameObjects 2.13.3 + Unity Transport 6.6.0)
 

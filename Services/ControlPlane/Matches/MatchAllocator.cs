@@ -10,8 +10,13 @@ using NightSignal.Core.Rules;
 
 namespace NightSignal.ControlPlane.Matches;
 
+/// <summary>
+/// One frozen human entrant. <paramref name="CarPi"/>/<paramref name="PerformanceHash"/> are the SERVER-resolved values of the
+/// entrant's applied build; <paramref name="VehicleBuild"/> is that build itself (instance, parts by slot, tuning, utility,
+/// resolved simulation inputs) so the game server builds the same vehicle (null only for instance-less test loadouts).
+/// </summary>
 public sealed record AssignedEntrant(string AccountId, string DisplayName, string Role, string CarId, int CarPi,
-    string PerformanceHash, string CosmeticHash, long LoadoutRevision);
+    string PerformanceHash, string CosmeticHash, long LoadoutRevision, Garage.EntrantBuild? VehicleBuild = null);
 
 public sealed record AssignedBenchmark(string Kind, long TargetTimeMs, long RawDriftTarget, long HardTimeoutMs, bool Provisional, string Source,
     bool RequiresBeatingFeaturedRival = false);
@@ -116,7 +121,8 @@ public sealed class MatchAllocator(GameServerRegistry registry, IResultLedger le
             StageId = s.StageId, StageNumber = s.StageNumber, StageType = s.StageType, CourseId = s.CourseId,
             FreeplayMode = s.FreeplayMode, Weather = s.Weather, Collision = s.Collision, CarCapPi = s.CarCapPi,
             Entrants = plan.Entrants.Select(e => new AssignedEntrant(e.AccountId, e.DisplayName, "racer", e.Loadout.CarId,
-                e.Loadout.CarPi, e.Loadout.PerformanceHash, e.Loadout.CosmeticHash, e.LoadoutRevision)).ToList(),
+                e.Build?.Pi ?? e.Loadout.CarPi, e.Build?.BuildHash ?? e.Loadout.PerformanceHash, e.Loadout.CosmeticHash, e.LoadoutRevision,
+                e.Build)).ToList(),
             AiEntrants = plan.AiEntrants, Roster = plan.Roster, FeaturedRival = plan.FeaturedRival, GuestPasses = plan.GuestPasses,
             Sponsors = plan.Sponsors.Count > 0 ? plan.Sponsors : null, CupLegs = s.CupLegs, Trial = trial, Benchmark = benchmark,
             PurePvP = plan.PurePvP, GridNote = plan.GridNote, Build = plan.Version.Build, Protocol = plan.Version.Protocol,

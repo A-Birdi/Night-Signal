@@ -1,0 +1,404 @@
+using System.Text.Json;
+using NightSignal.ControlPlane.Garage;
+using NightSignal.ControlPlane.Persistence;
+using NightSignal.Core.Builds;
+using NightSignal.Services.Tests.Infrastructure;
+
+namespace NightSignal.Services.Tests;
+
+/// <summary>
+/// ONLINE Garage (Addendum 02 §8–10) over the real SQLite store: per-instance ownership, workspace operations with
+/// optimistic concurrency and confirmation tokens, and Buy-and-Apply atomicity/idempotency.
+/// </summary>
+public sealed class GarageServiceTests : IAsyncLifetime
+{
+    GarageTestKit kit = null!;
+    GarageService G => kit.Garage;
+    static readonly CancellationToken None = CancellationToken.None;
+
+    public async Task InitializeAsync() => kit = await GarageTestKit.CreateAsync();
+    public async Task DisposeAsync() => await kit.DisposeAsync();
+
+    static JsonElement Ok(GarageReply r)
+    {
+        Assert.True(r.Ok, $"{r.Status}: {JsonSerializer.Serialize(r.Body, GarageTestKit.Web)}");
+        return GarageTestKit.Body(r);
+    }
+
+    static void Fails(GarageReply r, int status, string code)
+    {
+        Assert.Equal(status, r.Status);
+        Assert.Equal(code, GarageTestKit.ErrorOf(r));
+    }
+
+    async Task<long> Revision(string account, string instance) =>
+        Ok(await G.GetCarAsync(account, instance, None)).GetProperty("workspace").GetProperty("revision").GetInt64();
+
+    Task<GarageReply> Op(string account, string instance, GarageOpRequest req) => G.OperateAsync(account, instance, req, None);
+
+    // ------------------------------------------------------------------ instances, ownership, workspaces
+
+    [Fact]
+    public async Task EveryOwnedCar_GetsItsOwnInstance_AndAStockWorkspace_WithServerPiAndHash()
+    {
+        string a = await kit.PlayerAsync(1, "V01");
+        JsonElement list = Ok(await G.ListCarsAsync(a, None));
+        Assert.Equal("online", list.GetProperty("domain").GetString());
+        JsonElement car = Assert.Single(list.GetProperty("cars").EnumerateArray());
+        Assert.Equal("V01", car.GetProperty("carId").GetString());
+        Assert.Equal(1, car.GetProperty("revision").GetInt64());
+        Assert.Equal(220, car.GetProperty("applied").GetProperty("pi").GetInt32()); // stock estimate == catalogue BasePI
+        Assert.Equal(TestData.Content.Catalogue.Car("V01").BasePI, car.GetProperty("applied").GetProperty("pi").GetInt32());
+        string hash = car.GetProperty("applied").GetProperty("buildHash").GetString()!;
+        BuildContext ctx = BuildContext.Create(TestData.Content.Catalogue, GarageTestKit.Content.Parts, "V01", new PartInventory(), 1);
+        Assert.Equal(ctx.Stock.BuildHash, hash);
+        Assert.Equal(0, car.GetProperty("loadouts").GetProperty("count").GetInt32()); // no invented presets
+        Assert.Equal(CarBuildWorkspace.MinLoadoutSlots, car.GetProperty("loadouts").GetProperty("capacity").GetInt32());
+        Assert.Equal(CarBuildWorkspace.MinVisualPresetSlots, car.GetProperty("visualPresets").GetProperty("capacity").GetInt32());
+
+        // Listing twice never duplicates instances or workspaces.
+        Ok(await G.ListCarsAsync(a, None));
+        Assert.Equal(1, kit.Scalar("SELECT COUNT(*) FROM car_instances WHERE account_id = $a", ("$a", a)));
+        Assert.Equal(1, kit.Scalar("SELECT COUNT(*) FROM car_workspaces WHERE account_id = $a", ("$a", a)));
+    }
+
+    [Fact]
+    public async Task PartOwnership_IsPerInstance_TwoInstancesOfOneModelAreIndependent()
+    {
+        string a = await kit.PlayerAsync(1, "V01");
+        string b = await kit.PlayerAsync(2, "V01");
+        string ia = await kit.InstanceAsync(a), ib = await kit.InstanceAsync(b);
+        // A second instance of the same model for account A (the schema supports it; ordinal 2).
+        string ia2 = SqlGameStore.InstanceIdFor(a, "V01", 2);
+        kit.Exec("INSERT INTO car_instances (instance_id, account_id, car_id, ordinal, source) VALUES ($i, $a, 'V01', 2, 'purchase')", ("$i", ia2), ("$a", a));
+        Assert.NotEqual(ia, ia2);
+
+        kit.Grant(a, ia, "TYR-T1-STREET");
+        // The unique (instance, part) key refuses a second grant of the same part to the same instance.
+        Assert.ThrowsAny<Exception>(() => kit.Grant(a, ia, "TYR-T1-STREET"));
+
+        JsonElement partsA = Ok(await G.PartsAsync(a, ia, None));
+        JsonElement partsA2 = Ok(await G.PartsAsync(a, ia2, None));
+        JsonElement partsB = Ok(await G.PartsAsync(b, ib, None));
+        bool Owned(JsonElement parts, string id) => parts.GetProperty("slots").EnumerateArray().SelectMany(s => s.GetProperty("parts").EnumerateArray())
+            .Single(p => p.GetProperty("partId").GetString() == id).GetProperty("owned").GetBoolean();
+        Assert.True(Owned(partsA, "TYR-T1-STREET"));
+        Assert.False(Owned(partsA2, "TYR-T1-STREET")); // same model, same account, other instance
+        Assert.False(Owned(partsB, "TYR-T1-STREET"));
+
+        // Applying the part is legal on the owning instance only; the other instance gets an exact repair list.
+        long r1 = await Revision(a, ia);
+        Ok(await Op(a, ia, new GarageOpRequest("edit-draft", r1, Build: GarageTestKit.Build("TYR-T1-STREET"))));
+        Ok(await Op(a, ia, new GarageOpRequest("apply", r1 + 1)));
+        long r2 = await Revision(a, ia2);
+        Ok(await Op(a, ia2, new GarageOpRequest("edit-draft", r2, Build: GarageTestKit.Build("TYR-T1-STREET"))));
+        GarageReply refused = await Op(a, ia2, new GarageOpRequest("apply", r2 + 1));
+        Fails(refused, 409, "needs_repair");
+        Assert.Contains(GarageTestKit.Body(refused).GetProperty("repairs").EnumerateArray(), x => x.GetProperty("kind").GetString() == "not-owned");
+
+        // Another account can never read or change A's instance.
+        Fails(await G.GetCarAsync(b, ia, None), 404, "not_found");
+        Fails(await Op(b, ia, new GarageOpRequest("discard-draft", 1)), 404, "not_found");
+    }
+
+    [Fact]
+    public async Task Migrations_ApplyOnSqlite_WithTheGarageTablesAndConstraints()
+    {
+        Assert.Equal(1, kit.Scalar("SELECT COUNT(*) FROM schema_migrations WHERE version = '0005_garage'"));
+        foreach (string table in new[] { "car_instances", "car_part_ownership", "car_workspaces", "garage_quotes", "garage_quote_settlements" })
+            Assert.Equal(1, kit.Scalar("SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name = $t", ("$t", table)));
+        // Re-running the migrator is a no-op (recorded versions are skipped).
+        await kit.Store.InitializeAsync();
+        Assert.Equal(1, kit.Scalar("SELECT COUNT(*) FROM schema_migrations WHERE version = '0005_garage'"));
+    }
+
+    [Fact]
+    public void GarageContent_LoadsPartsAndRecipesFromContentAuthored_AndRefusesInconsistentData()
+    {
+        GarageContent c = GarageTestKit.Content;
+        Assert.True(c.Parts.Revision >= 1);
+        Assert.True(c.Parts.PriceRevision >= 1);
+        Assert.Equal(TestData.Content.Catalogue.Cars.Count, c.Recipes.File.Cars.Count);
+        Assert.Equal(64, c.Hash.Length);
+        string authored = Path.Combine(AppContext.BaseDirectory, "content", "authored");
+        string parts = File.ReadAllText(Path.Combine(authored, GarageContent.PartsFile));
+        string recipes = File.ReadAllText(Path.Combine(authored, GarageContent.RecipesFile));
+        Assert.Equal(c.Hash, GarageContent.From(parts, recipes, TestData.Content.Catalogue).Hash); // deterministic
+        Assert.Throws<InvalidOperationException>(() => GarageContent.From(parts.Replace("\"car\": \"V18\"", "\"car\": \"V99\""), recipes, TestData.Content.Catalogue));
+        Assert.Throws<InvalidOperationException>(() => GarageContent.From(parts, recipes.Replace("\"TYR-T1-STREET\"", "\"TYR-NOPE\""), TestData.Content.Catalogue));
+    }
+
+    // ------------------------------------------------------------------ operations, revisions, confirmation tokens
+
+    [Fact]
+    public async Task EveryOperation_QuotesTheCurrentRevision_StaleEditorsAreRejected()
+    {
+        string a = await kit.PlayerAsync(1);
+        string i = await kit.InstanceAsync(a);
+        JsonElement saved = Ok(await Op(a, i, new GarageOpRequest("save-as", 1, Name: "Wet Grip", Note: "for rain")));
+        Assert.Equal(2, saved.GetProperty("revision").GetInt64());
+        string id = saved.GetProperty("loadoutId").GetString()!;
+
+        // A second device still at revision 1 cannot overwrite the accepted state.
+        GarageReply stale = await Op(a, i, new GarageOpRequest("rename", 1, LoadoutId: id, Name: "Other"));
+        Fails(stale, 409, "stale_revision");
+        Assert.Equal(2, GarageTestKit.Body(stale).GetProperty("revision").GetInt64());
+        Assert.Equal(2, kit.WorkspaceRevision(i));
+
+        Ok(await Op(a, i, new GarageOpRequest("rename", 2, LoadoutId: id, Name: "Short Gears")));
+        Ok(await Op(a, i, new GarageOpRequest("note", 3, LoadoutId: id, Note: "tight hairpins")));
+        JsonElement dup = Ok(await Op(a, i, new GarageOpRequest("duplicate", 4, LoadoutId: id, Name: "Boss Try")));
+        Ok(await Op(a, i, new GarageOpRequest("pin", 5, LoadoutId: id, Pinned: true)));
+        Fails(await Op(a, i, new GarageOpRequest("save-as", 6, Name: "boss try")), 409, "duplicate_name");
+        Fails(await Op(a, i, new GarageOpRequest("save-as", 6, Name: "   ")), 400, "invalid_name");
+        Ok(await Op(a, i, new GarageOpRequest("visual-preset-save", 6, Name: "Night livery", PayloadSchema: "night-signal/livery@1",
+            PayloadJson: "{\"paint\":\"#101820\"}")));
+        Fails(await Op(a, i, new GarageOpRequest("visual-preset-save", 7, Name: "Bad", PayloadJson: "<script>")), 400, "invalid_request");
+
+        JsonElement ws = Ok(await G.GetCarAsync(a, i, None)).GetProperty("workspace");
+        Assert.Equal(7, ws.GetProperty("revision").GetInt64());
+        Assert.Equal(new[] { "Short Gears", "Boss Try" }, ws.GetProperty("loadouts").EnumerateArray().Select(l => l.GetProperty("name").GetString()));
+        Assert.True(ws.GetProperty("loadouts")[0].GetProperty("pinned").GetBoolean());
+        Assert.Equal("tight hairpins", ws.GetProperty("loadouts")[0].GetProperty("note").GetString());
+        Assert.Equal(dup.GetProperty("loadoutId").GetString(), ws.GetProperty("loadouts")[1].GetProperty("loadoutId").GetString());
+        Assert.Single(ws.GetProperty("visualPresets").EnumerateArray());
+        Assert.Equal(7, kit.WorkspaceRevision(i));
+
+        // Missing revision / unknown op / missing target are request errors that change nothing.
+        Fails(await Op(a, i, new GarageOpRequest("rename", null, LoadoutId: id, Name: "x")), 400, "invalid_request");
+        Fails(await Op(a, i, new GarageOpRequest("teleport", 7)), 400, "invalid_request");
+        Fails(await Op(a, i, new GarageOpRequest("delete", 7)), 400, "invalid_request");
+        Fails(await Op(a, i, new GarageOpRequest("delete", 7, LoadoutId: "ld-nope")), 404, "not_found");
+        Assert.Equal(7, kit.WorkspaceRevision(i));
+    }
+
+    [Fact]
+    public async Task DeleteOverwriteAndReplacingADirtyDraft_NeedTheConfirmationToken_OfThisRevision()
+    {
+        string a = await kit.PlayerAsync(1);
+        string i = await kit.InstanceAsync(a);
+        kit.Grant(a, i, "TYR-T1-STREET", "BRK-T1-PADS");
+        string id = Ok(await Op(a, i, new GarageOpRequest("save-as", 1, Name: "Stock"))).GetProperty("loadoutId").GetString()!;
+
+        GarageReply ask = await Op(a, i, new GarageOpRequest("delete", 2, LoadoutId: id));
+        Fails(ask, 409, "confirmation_required");
+        string token = GarageTestKit.Body(ask).GetProperty("confirmationToken").GetString()!;
+        Fails(await Op(a, i, new GarageOpRequest("delete", 2, LoadoutId: id, ConfirmationToken: "cf-forged")), 409, "confirmation_required");
+        Assert.Equal(2, kit.WorkspaceRevision(i));
+
+        // Overwrite (with the dirty draft) asks too and shows the comparison; a token from an older revision is not valid.
+        Ok(await Op(a, i, new GarageOpRequest("edit-draft", 2, Build: GarageTestKit.Build("TYR-T1-STREET", "BRK-T1-PADS"))));
+        Fails(await Op(a, i, new GarageOpRequest("delete", 3, LoadoutId: id, ConfirmationToken: token)), 409, "confirmation_required");
+        GarageReply askOverwrite = await Op(a, i, new GarageOpRequest("overwrite", 3, LoadoutId: id));
+        Fails(askOverwrite, 409, "confirmation_required");
+        Assert.True(GarageTestKit.Body(askOverwrite).GetProperty("comparison").GetProperty("parts").GetArrayLength() >= 2);
+        string overwriteToken = GarageTestKit.Body(askOverwrite).GetProperty("confirmationToken").GetString()!;
+        JsonElement overwritten = Ok(await Op(a, i, new GarageOpRequest("overwrite", 3, LoadoutId: id, ConfirmationToken: overwriteToken)));
+        Assert.Equal("TYR-T1-STREET", overwritten.GetProperty("workspace").GetProperty("loadouts")[0].GetProperty("build").GetProperty("parts")
+            .GetProperty("tyres").GetString());
+
+        // Loading the applied build over the dirty draft needs confirmation; the applied (race) build never changes.
+        GarageReply askLoad = await Op(a, i, new GarageOpRequest("load-into-draft", 4, Source: new DraftSourceInput("applied")));
+        Fails(askLoad, 409, "confirmation_required");
+        Ok(await Op(a, i, new GarageOpRequest("load-into-draft", 4, Source: new DraftSourceInput("applied"),
+            ConfirmationToken: GarageTestKit.Body(askLoad).GetProperty("confirmationToken").GetString())));
+
+        GarageReply askDelete = await Op(a, i, new GarageOpRequest("delete", 5, LoadoutId: id));
+        Ok(await Op(a, i, new GarageOpRequest("delete", 5, LoadoutId: id, ConfirmationToken: GarageTestKit.Body(askDelete).GetProperty("confirmationToken").GetString())));
+        JsonElement ws = Ok(await G.GetCarAsync(a, i, None)).GetProperty("workspace");
+        Assert.Empty(ws.GetProperty("loadouts").EnumerateArray());
+        Assert.Equal(1, ws.GetProperty("applied").GetProperty("revision").GetInt64());
+        Assert.Equal(2, kit.OwnedCount(i)); // deleting a plan never touches ownership
+    }
+
+    [Fact]
+    public async Task DraftApply_IsAtomicWholeBuild_KeepsProtectedReferences_AndApplyLoadoutRestores()
+    {
+        string a = await kit.PlayerAsync(1);
+        string i = await kit.InstanceAsync(a);
+        kit.Grant(a, i, "TYR-T1-STREET", "BRK-T1-PADS", "GBX-T1-FINAL");
+        Ok(await Op(a, i, new GarageOpRequest("begin-workshop")));
+        long r = await Revision(a, i);
+        string stock = Ok(await Op(a, i, new GarageOpRequest("save-as", r, Name: "Stock", FromApplied: true))).GetProperty("loadoutId").GetString()!;
+
+        // A draft with an unowned part cannot be applied (exact repair list; nothing bought or substituted).
+        JsonElement preview = Ok(await Op(a, i, new GarageOpRequest("edit-draft", r + 1, Build: GarageTestKit.Build("TYR-T1-STREET", "ENG-T1-INTAKE"))));
+        Assert.Contains("ENG-T1-INTAKE", preview.GetProperty("evaluation").GetProperty("previewPartIds").EnumerateArray().Select(x => x.GetString()));
+        Fails(await Op(a, i, new GarageOpRequest("apply", r + 2)), 409, "needs_repair");
+
+        var tune = new Dictionary<string, int> { ["FinalDrive"] = 1060 };
+        Ok(await Op(a, i, new GarageOpRequest("edit-draft", r + 2, Build: GarageTestKit.Build(tune, "TYR-T1-STREET", "BRK-T1-PADS", "GBX-T1-FINAL"))));
+        JsonElement applied = Ok(await Op(a, i, new GarageOpRequest("apply", r + 3)));
+        Assert.True(applied.GetProperty("performanceChanged").GetBoolean());
+        JsonElement ws = applied.GetProperty("workspace");
+        Assert.Equal(2, ws.GetProperty("applied").GetProperty("revision").GetInt64());
+        Assert.Equal(1060, ws.GetProperty("applied").GetProperty("build").GetProperty("tuning").GetProperty("values").GetProperty("FinalDrive").GetInt32());
+        Assert.True(ws.GetProperty("references").TryGetProperty("before-workshop", out _));
+        Assert.Equal(1, ws.GetProperty("references").GetProperty("before-last-apply").GetProperty("sourceAppliedRevision").GetInt64());
+        Assert.NotEqual(ws.GetProperty("references").GetProperty("before-last-apply").GetProperty("buildHash").GetString(),
+            ws.GetProperty("applied").GetProperty("buildHash").GetString());
+
+        // Quick selector: apply the saved stock loadout in one action (reusing owned parts is free).
+        long now = applied.GetProperty("revision").GetInt64();
+        JsonElement restored = Ok(await Op(a, i, new GarageOpRequest("apply-loadout", now, LoadoutId: stock)));
+        Assert.Equal(3, restored.GetProperty("workspace").GetProperty("applied").GetProperty("revision").GetInt64());
+        Assert.Empty(restored.GetProperty("workspace").GetProperty("applied").GetProperty("build").GetProperty("parts").EnumerateObject());
+        Ok(await Op(a, i, new GarageOpRequest("discard-draft", now + 1)));
+        Ok(await Op(a, i, new GarageOpRequest("end-workshop", now + 2)));
+        Assert.Equal(3, kit.OwnedCount(i));
+        // Timestamps survive the stored-document round trip in UTC (this machine's local zone must not leak in).
+        JsonElement stored = Ok(await G.GetCarAsync(a, i, None)).GetProperty("workspace");
+        Assert.Equal(kit.Clock.GetUtcNow(), stored.GetProperty("applied").GetProperty("appliedUtc").GetDateTimeOffset());
+        Assert.Equal(kit.Clock.GetUtcNow(), stored.GetProperty("references").GetProperty("before-last-apply").GetProperty("capturedUtc").GetDateTimeOffset());
+    }
+
+    [Fact]
+    public async Task StoreCompareAndSwap_RefusesAWriteComputedFromAnOlderRevision()
+    {
+        string a = await kit.PlayerAsync(1);
+        string i = await kit.InstanceAsync(a);
+        StoredWorkspace ws = (await kit.Store.GetWorkspaceAsync(i))!;
+        var write = new WorkspaceWrite(2, 2, ws.Json.Replace("\"Revision\":1", "\"Revision\":2"), 1, "h", 220);
+        Assert.Equal(WorkspaceSaveStatus.Saved, await kit.Store.SaveWorkspaceAsync(a, i, 1, write));
+        Assert.Equal(WorkspaceSaveStatus.Stale, await kit.Store.SaveWorkspaceAsync(a, i, 1, write with { Revision = 3 }));
+        Assert.Equal(WorkspaceSaveStatus.NotFound, await kit.Store.SaveWorkspaceAsync("00000000-0000-4000-8000-0000000000ff", i, 2, write));
+        Assert.Equal(2, kit.WorkspaceRevision(i));
+    }
+
+    // ------------------------------------------------------------------ Buy-and-Apply
+
+    async Task<(string Account, string Instance, JsonElement Quote)> QuotedAsync(long balance, int normalCleared = 0, params string[] parts)
+    {
+        string a = await kit.PlayerAsync(1, "V01", balance, normalCleared);
+        string i = await kit.InstanceAsync(a);
+        Ok(await Op(a, i, new GarageOpRequest("edit-draft", 1, Build: GarageTestKit.Build(parts))));
+        JsonElement quote = Ok(await G.CreateQuoteAsync(a, i, new QuoteRequest(), None));
+        return (a, i, quote);
+    }
+
+    void AssertUntouched(string account, string instance, long balance, long revision)
+    {
+        Assert.Equal(balance, kit.Balance(account));
+        Assert.Equal(0, kit.OwnedCount(instance));
+        Assert.Equal(revision, kit.WorkspaceRevision(instance));
+        Assert.Equal(0, kit.Scalar("SELECT COUNT(*) FROM garage_quote_settlements"));
+        Assert.Equal(0, kit.Scalar("SELECT COUNT(*) FROM ledger_entries WHERE reward_type = 'part-purchase'"));
+    }
+
+    [Fact]
+    public async Task BuyAndApply_ConcurrentSettlesOfOneQuote_ChargeAndGrantExactlyOnce()
+    {
+        (string a, string i, JsonElement q) = await QuotedAsync(50_000, 0, "TYR-T1-STREET", "BRK-T1-PADS");
+        JsonElement quote = q.GetProperty("quote");
+        string quoteId = quote.GetProperty("quoteId").GetString()!;
+        Assert.Equal(16_000, quote.GetProperty("total").GetInt64());
+        Assert.True(q.GetProperty("affordableNow").GetBoolean());
+        Assert.Equal(1, quote.GetProperty("appliedRevision").GetInt64()); // quoted against applied revision 1
+
+        GarageReply[] replies = await Task.WhenAll(Enumerable.Range(0, 8).Select(_ => Task.Run(() => G.SettleQuoteAsync(a, i, quoteId, true, None))));
+        Assert.All(replies, r => Assert.Equal(200, r.Status));
+        JsonElement[] bodies = replies.Select(GarageTestKit.Body).ToArray();
+        Assert.Single(bodies, b => !b.GetProperty("replayed").GetBoolean());
+        Assert.Equal(7, bodies.Count(b => b.GetProperty("replayed").GetBoolean() && b.GetProperty("charged").GetInt64() == 0));
+        JsonElement settled = bodies.Single(b => !b.GetProperty("replayed").GetBoolean());
+        Assert.Equal(16_000, settled.GetProperty("debit").GetInt64());
+        Assert.Equal(34_000, settled.GetProperty("balance").GetInt64());
+        Assert.Equal(2, settled.GetProperty("appliedRevision").GetInt64());
+
+        Assert.Equal(34_000, kit.Balance(a));
+        Assert.Equal(2, kit.OwnedCount(i));
+        Assert.Equal(1, kit.Scalar("SELECT COUNT(*) FROM garage_quote_settlements WHERE quote_id = $q", ("$q", quoteId)));
+        Assert.Equal(1, kit.Scalar("SELECT COUNT(*) FROM ledger_entries WHERE reward_type = 'part-purchase' AND account_id = $a", ("$a", a)));
+        Assert.Equal(-16_000, kit.Scalar("SELECT applied_amount FROM ledger_entries WHERE idempotency_key = $k", ("$k", $"garage-quote/{a}/{quoteId}")));
+
+        JsonElement car = Ok(await G.GetCarAsync(a, i, None));
+        JsonElement applied = car.GetProperty("workspace").GetProperty("applied");
+        Assert.Equal("quote:" + quoteId, applied.GetProperty("source").GetString());
+        Assert.Equal(settled.GetProperty("buildHash").GetString(), car.GetProperty("appliedEvaluation").GetProperty("buildHash").GetString());
+
+        // A later retry still replays; a new quote for the now-owned build has nothing to buy (owned parts are never bought again).
+        Assert.True(Ok(await G.SettleQuoteAsync(a, i, quoteId, true, None)).GetProperty("replayed").GetBoolean());
+        Fails(await G.CreateQuoteAsync(a, i, new QuoteRequest(Build: GarageTestKit.Build("TYR-T1-STREET", "BRK-T1-PADS")), None), 409, "nothing_to_buy");
+        Assert.Equal(34_000, kit.Balance(a));
+        // The settlement ledger is append-only.
+        Assert.ThrowsAny<Exception>(() => kit.Exec("DELETE FROM garage_quote_settlements"));
+    }
+
+    [Fact]
+    public async Task InsufficientFunds_LeavesWalletOwnershipAndWorkspaceUntouched()
+    {
+        (string a, string i, JsonElement q) = await QuotedAsync(5_000, 0, "TYR-T1-STREET", "BRK-T1-PADS");
+        Assert.False(q.GetProperty("affordableNow").GetBoolean());
+        long revision = kit.WorkspaceRevision(i);
+        GarageReply r = await G.SettleQuoteAsync(a, i, q.GetProperty("quote").GetProperty("quoteId").GetString()!, true, None);
+        Fails(r, 409, "insufficient_funds");
+        AssertUntouched(a, i, 5_000, revision);
+        // The planning draft is still there for later.
+        Assert.True(Ok(await G.GetCarAsync(a, i, None)).GetProperty("workspace").GetProperty("draftDirty").GetBoolean());
+    }
+
+    [Fact]
+    public async Task PriceChange_LeavesEverythingUntouched_AndReportsTheCurrentPrices()
+    {
+        (string a, string i, JsonElement q) = await QuotedAsync(50_000, 0, "TYR-T1-STREET", "BRK-T1-PADS");
+        long revision = kit.WorkspaceRevision(i);
+        GarageService repriced = kit.ServiceWith(GarageTestKit.WithPriceChange("TYR-T1-STREET", 9_500));
+        GarageReply r = await repriced.SettleQuoteAsync(a, i, q.GetProperty("quote").GetProperty("quoteId").GetString()!, true, None);
+        Fails(r, 409, "price_changed");
+        Assert.Contains(GarageTestKit.Body(r).GetProperty("currentLines").EnumerateArray(),
+            l => l.GetProperty("partId").GetString() == "TYR-T1-STREET" && l.GetProperty("price").GetInt64() == 9_500);
+        AssertUntouched(a, i, 50_000, revision);
+    }
+
+    [Fact]
+    public async Task ExpiredQuote_AndMissingConfirmation_LeaveEverythingUntouched()
+    {
+        (string a, string i, JsonElement q) = await QuotedAsync(50_000, 0, "TYR-T1-STREET");
+        string quoteId = q.GetProperty("quote").GetProperty("quoteId").GetString()!;
+        long revision = kit.WorkspaceRevision(i);
+        Fails(await G.SettleQuoteAsync(a, i, quoteId, false, None), 409, "confirmation_required");
+        AssertUntouched(a, i, 50_000, revision);
+        kit.Clock.Advance(PurchaseQuotes.DefaultLifetime + TimeSpan.FromSeconds(1));
+        Fails(await G.SettleQuoteAsync(a, i, quoteId, true, None), 409, "quote_expired");
+        AssertUntouched(a, i, 50_000, revision);
+        Fails(await G.SettleQuoteAsync(a, i, "q-unknown", true, None), 404, "unknown_quote");
+    }
+
+    [Fact]
+    public async Task AppliedBuildChangedAfterTheQuote_IsStale_AndLockedOrUnavailablePartsCannotBeQuoted()
+    {
+        (string a, string i, JsonElement q) = await QuotedAsync(500_000, 0, "TYR-T1-STREET");
+        kit.Grant(a, i, "BRK-T1-PADS");
+        long r = kit.WorkspaceRevision(i);
+        Ok(await Op(a, i, new GarageOpRequest("edit-draft", r, Build: GarageTestKit.Build("BRK-T1-PADS"))));
+        Ok(await Op(a, i, new GarageOpRequest("apply", r + 1)));
+        Fails(await G.SettleQuoteAsync(a, i, q.GetProperty("quote").GetProperty("quoteId").GetString()!, true, None), 409, "stale_revision");
+        Assert.Equal(500_000, kit.Balance(a));
+        // Act I shop: a T2 part is visible but locked, so it is not purchasable (never unlocked by spending).
+        GarageReply locked = await G.CreateQuoteAsync(a, i, new QuoteRequest(Build: GarageTestKit.Build("TYR-T2-SPORT")), None);
+        Fails(locked, 409, "not_purchasable");
+        Assert.Contains(GarageTestKit.Body(locked).GetProperty("repairs").EnumerateArray(), x => x.GetProperty("kind").GetString() == "locked");
+    }
+
+    [Fact]
+    public async Task PartsCatalogue_ShowsCompatiblePartsPricesOwnershipShopActAndRecipes()
+    {
+        string a = await kit.PlayerAsync(1, "V01", 0, normalCleared: 7); // frontier S08 → Act II shop
+        string i = await kit.InstanceAsync(a);
+        kit.Grant(a, i, "TYR-T1-STREET");
+        JsonElement parts = Ok(await G.PartsAsync(a, i, None));
+        Assert.Equal(2, parts.GetProperty("shopAct").GetInt32());
+        var all = parts.GetProperty("slots").EnumerateArray().SelectMany(s => s.GetProperty("parts").EnumerateArray()).ToList();
+        JsonElement Part(string id) => all.Single(p => p.GetProperty("partId").GetString() == id);
+        Assert.True(Part("TYR-T1-STREET").GetProperty("owned").GetBoolean());
+        Assert.Equal(9_000, Part("TYR-T1-STREET").GetProperty("price").GetInt64());
+        Assert.True(Part("TYR-T2-SPORT").GetProperty("available").GetBoolean());
+        Assert.False(Part("TYR-T3-SEMISLICK").GetProperty("available").GetBoolean());
+        Assert.DoesNotContain(all, p => p.GetProperty("partId").GetString() == "DIF-T1-FWD-HELICAL"); // V01 is RWD: incompatible parts are not listed
+        Assert.True(Part("GBX-T1-FINAL").GetProperty("tuning").GetArrayLength() > 0);
+        JsonElement steps = parts.GetProperty("recipes").GetProperty("steps");
+        JsonElement first = steps.EnumerateArray().First(s => s.GetProperty("id").GetString() == "V01-A");
+        Assert.Empty(first.GetProperty("missingParts").EnumerateArray()); // the owned tyre is not listed as missing
+        Assert.Contains(steps.EnumerateArray(), s => s.GetProperty("missingTotal").GetInt64() > 0);
+    }
+}
