@@ -42,6 +42,7 @@ namespace NightSignal.Front
         public readonly PocketCircuitScreen PocketCircuit = new PocketCircuitScreen();
         public readonly GreenlightScreen Greenlight = new GreenlightScreen();
         public readonly CapClashScreen CapClash = new CapClashScreen();
+        public readonly PitCrewScreen PitCrew = new PitCrewScreen();
         public readonly WhileWeWaitScreen WhileWeWait = new WhileWeWaitScreen();
         /// <summary>Rich-text summary of the last online race (placing, time, settled receipt) for the convoy screen.</summary>
         public string LastOnlineResult { get; private set; }
@@ -215,6 +216,26 @@ namespace NightSignal.Front
             CapClash.AutoAim = null;
             Click("Back");
             yield return new WaitForSeconds(1.2f);
+
+            // Pit-Crew: claim the first available task and lock each step near the centre, three operations.
+            Click("Toy-PitCrew");
+            yield return new WaitForSeconds(2f);
+            PitCrew.AutoLock = rel => rel < 0.05;
+            for (int k = 0; k < 3; k++)
+            {
+                int before = PitCrew.OperationsDoneByMe;
+                Click("Task0");
+                float taskUntil = Time.realtimeSinceStartup + 30f;
+                while (PitCrew.OperationsDoneByMe == before && Time.realtimeSinceStartup < taskUntil) yield return null;
+                if (k == 1) Shot("17-pit-crew");
+                yield return new WaitForSeconds(0.8f);
+            }
+            Shot("18-pit-crew-model");
+            Debug.Log($"[NightSignal.UiTour] pit-crew operations completed: {PitCrew.OperationsDoneByMe}");
+            if (PitCrew.OperationsDoneByMe < 3) failures.Add($"Pit-Crew: {PitCrew.OperationsDoneByMe} operations of 3");
+            PitCrew.AutoLock = null;
+            Click("Back");
+            yield return new WaitForSeconds(1.2f);
             Click("Back");
             yield return new WaitForSeconds(1.2f);
             string summary = failures.Count == 0 ? "PASS" : "FAILED: " + string.Join("; ", failures);
@@ -287,6 +308,7 @@ namespace NightSignal.Front
             if (Router.Current == PocketCircuit) PocketCircuit.CloseNow();
             if (Router.Current == Greenlight) Greenlight.OnHide();
             if (Router.Current == CapClash) CapClash.OnHide();
+            if (Router.Current == PitCrew) PitCrew.OnHide();
             _ = session?.Request("presence.set", new { presence = "LoadingRace" }, quiet: true);
             Canvas.gameObject.SetActive(false);
             if (backdropCamera != null) backdropCamera.SetActive(false);

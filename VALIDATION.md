@@ -321,3 +321,13 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   did); reproduced and verified in the editor (save → restore → command now executes).
 - Local tour: Pocket Circuit 3 clean laps → Greenlight 3/3 clean → **Cap Clash 3/3 shots on the scoring area** (50 pts
   at 0.9 cm, crown, card 3/6). Screenshots `Evidence/ui/campaign/15, 16`.
+
+## V-033 — Pit-Crew Project playable (2026-09-27)
+- Workbench view: the shared miniature on a turntable, parts laid out by group (chassis, wheels, body, lamps, …);
+  installed parts solid, the rest as blueprint-blue placeholders. Task board (mine first, then available in dependency
+  order, with steps done/total and "in use"), claim/release, a forgiving precision gauge per step in the family's unit
+  (mm / degrees / gauge fraction, tolerance band shown), lease renewal while working, "not quite — retry that step",
+  shelf with contribution notes, next model when finished.
+- Local tour: **3 operations completed** on the Night-Shift Coupe (claim → steps locked near the centre → "Part
+  installed!", 3/30). Screenshots `Evidence/ui/campaign/17, 18`. Art is placeholder primitives; the camera framing puts
+  part of the model behind the task panel.
