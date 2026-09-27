@@ -90,6 +90,17 @@ namespace NightSignal.Editor.Courses
             set.Water = MaterialLibrary.Water;
             set.OffWhite = MaterialLibrary.OffWhite;
             set.Graphite = MaterialLibrary.Graphite;
+            set.Concrete = MaterialLibrary.Concrete;
+            set.Brick = MaterialLibrary.Brick;
+            set.SteelRed = MaterialLibrary.SteelRed;
+            set.SteelGrey = MaterialLibrary.SteelGrey;
+            set.SteelYellow = MaterialLibrary.SteelYellow;
+            set.WindowLit = MaterialLibrary.WindowLit;
+            set.MetalRoof = MaterialLibrary.MetalRoof;
+            set.Foliage = MaterialLibrary.Foliage;
+            set.Bark = MaterialLibrary.Bark;
+            set.Sea = MaterialLibrary.Sea;
+            set.TunnelLining = MaterialLibrary.TunnelLining;
             set.TerrainTemplate = MaterialLibrary.TerrainTemplate;
             set.TerrainLayers = new[]
             {

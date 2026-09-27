@@ -23,7 +23,7 @@ namespace NightSignal.Race
         public bool Autopilot;
         /// <summary>Simulation ticks per real tick (tests fast-forward; 1 = real time).</summary>
         public int SimulationSpeed = 1;
-        public bool ShowDebugHud = true;
+        public bool ShowDebugHud;
         public CarMaterialSet CarMaterials;
 
         public EntrantProgress Progress { get; private set; }
@@ -74,12 +74,41 @@ namespace NightSignal.Race
 
             controls = new DrivingControls();
             controls.Enable();
+            if (!Application.isBatchMode)
+            {
+                hud = UI.RaceHud.Create();
+                hud.SetCourse(UI.HudHelpers.Plan(course.Track));
+            }
             Ready = true;
+        }
+
+        UI.RaceHud hud;
+        readonly UI.HudState hudState = new UI.HudState();
+
+        void RenderHud()
+        {
+            if (hud == null) return;
+            hudState.SpeedKmh = current.SpeedKmh;
+            hudState.Gear = current.Gear;
+            hudState.Rpm = current.EngineRpm;
+            hudState.Redline = parameters.RedlineRpm;
+            hudState.RaceSeconds = (Progress.Finished ? Progress.FinishTimeMicros : RaceTimeMicros) / 1e6;
+            hudState.Position = 1;
+            hudState.Entrants = 1;
+            hudState.Checkpoints = Progress.CheckpointsPassed;
+            hudState.TotalCheckpoints = tracker.TotalCheckpoints;
+            hudState.WallIncidents = Progress.WallIncidents;
+            hudState.Resets = Progress.Resets;
+            hudState.Banner = Progress.Finished ? "FINISH  " + UI.RaceHud.FormatTime(Progress.FinishTimeMicros / 1e6) + "\n<size=40%>PRACTICE — NOT RECORDED ONLINE</size>" : "";
+            hudState.Field.Clear();
+            hudState.Field.Add(new UI.HudEntrant { Name = CarId, Position = current.Position, IsYou = true, Status = "PRACTICE" });
+            hud.Render(hudState);
         }
 
         void OnDestroy()
         {
             controls?.Dispose();
+            if (hud != null) Destroy(hud.gameObject);
         }
 
         void Update()
@@ -101,6 +130,7 @@ namespace NightSignal.Race
             }
             if (steps == maxSteps) accumulator = 0; // do not spiral when the frame rate collapses
             view.Render(previous, current, (float)(accumulator / VehicleSimulation.TickDt), sim.Telemetry, Time.deltaTime);
+            RenderHud();
         }
 
         void Tick()
@@ -116,9 +146,8 @@ namespace NightSignal.Race
             resetHeld = input.ResetHeld ? resetHeld + VehicleSimulation.TickDt : 0f;
             if (resetHeld >= 0.7f && !Progress.Finished)
             {
-                current = tracker.ResetPose(Progress, parameters);
+                current = tracker.ResetPose(Progress, parameters); // adds the 3 s penalty to the finish time
                 previous = current;
-                RaceTimeMicros += Limits.ResetPenaltyMs * 1000L;
                 resetHeld = 0f;
             }
         }

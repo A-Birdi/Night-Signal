@@ -61,3 +61,45 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - Finding: the template file `Assets/TutorialInfo/Icons/URP.png` (initial check-in) was stored as a normal
   blob despite the `*.png` LFS rule; converted to an LFS pointer with `git add --renormalize` in the next
   commit (no history rewrite).
+
+## V-009 — Rules core and catalogue (2026-09-26)
+- Revision: `6d00105`. EditMode 111/111: economy (exact integer payouts, DNF, quit/DQ zero, PvP bonus rules,
+  first-clear table, wallet clamp 9,999,998 → 9,999,999), Rank Points (15,000 budget, thresholds, Living Legend
+  requirements, malformed records rejected), frontier/convoy access (spec examples [1,1], [8,12,31], [31,31],
+  Hard lock), team success/support envelopes/S29 contracts/deadlines, six-entrant grid and freeplay clamps for
+  every H/AI combination, drift scoring curves and anti-exploit cases, tie classification, Appendix G validator.
+
+## V-010 — Catalogue vs specification (2026-09-26)
+- `node Tools/qa/compare-catalogue-spec.mjs`: 26 courses, 30 stages, 18 cars, 48 rivals, 75 challenges match the
+  appendices field by field. `node Tools/authoring/import-catalogue.mjs --check`: generated files reproducible.
+
+## V-011 — Vehicle chassis and handling harness (2026-09-26)
+- Revision: `5774386`. Determinism (identical input → identical state), settling, input starvation coast/brake,
+  all 18 models within envelopes; `Evidence/handling/harness-report.json` (scripted harness driver on an analytic
+  plane — not a human). Skidpad 0.99–1.27 g scaling with tyre grip; 100–0 km/h 32–39 m; drift hold RWD > AWD > FWD
+  with no spins. Drift feel for human players is **unverified**.
+
+## V-012 — Course generation and autopilot course drive (2026-09-26)
+- Revision: `5774386`. C01 generated from route.json in ~1.9 s (editor). Track tests: 3,079 m, −80 m, 20 m
+  hairpin, 7% max grade, six separated grid slots, ordered checkpoints, locator/wrong-way.
+- PlayMode: RouteFollower autopilot (same chassis and inputs as a player) finishes C01 in V01 (86.5 s) and V03
+  (84.6 s) with 31/31 legal checkpoints, 0 wall incidents, no corridor cut. Evidence `Evidence/courses/`.
+  Proves drivability/checkpoint data only — not fun, not human handling.
+
+## V-013 — Control plane service (2026-09-26)
+- Revision: `b510285`. `dotnet test Services/NightSignal.Services.slnx`: 149/149 (worker run, re-run by the
+  coordinator). Covers JWT rejection cases, DevAuth startup guard, ledger idempotency (100 retries), wallet clamp,
+  concurrent purchase exactly-once, convoy/readiness rules, tickets, end-to-end two-account settlement with restart.
+  Postgres store, Postgres migration and RLS policies compile but were **never executed** (no PostgreSQL/Docker).
+
+## V-014 — Managed ES256 ticket verification for Unity (2026-09-26)
+- Unity's Mono runtime throws NotImplementedException for `ECDsa` (observed in the editor). Core `P256` +
+  `MatchTicketValidator` implement verify-only P-256. EditMode: RFC 6979 A.2.5 vectors verify, tampering rejected.
+  `dotnet test --filter CoreTicketParityTests`: 3/3 — real control-plane tickets validate once, replay/tamper/foreign
+  match/expiry rejected, 200 random .NET ECDSA signatures agree with the managed verifier.
+
+## V-015 — Full game player build with netcode, boot scene and HUD (2026-09-27)
+- `manage_build` (StandaloneWindows64, Mono, scenes Boot + C01) → `Builds/Game/NightSignal.exe`: succeeded, 0 errors,
+  44 warnings, 184.9 MB, 1153 s (first build compiled every URP shader variant; later builds reuse the cache).
+- That build predates the HUD code. Afterwards TMP Essential Resources were imported (LiberationSans SDF, OFL, bundled
+  with Unity's uGUI package), the UI layer compiled with no errors or warnings, and EditMode ran 127/127 passed.

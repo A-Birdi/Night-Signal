@@ -21,6 +21,8 @@ namespace NightSignal.Race
         public float LastSafeDistance;
         public int WallIncidents;
         public int Resets;
+        /// <summary>Time penalties (resets: 3 s each) added to the finish time.</summary>
+        public long PenaltyMicros;
         public bool CorridorCut;
         public float WrongWaySeconds;
         public float OutOfCorridorSeconds;
@@ -108,7 +110,7 @@ namespace NightSignal.Race
                 {
                     float frac = Mathf.Clamp01((gate - prevDist) / Mathf.Max(1e-4f, loc.Distance - prevDist));
                     long tickMicros = (long)(dt * 1_000_000f);
-                    e.FinishTimeMicros = raceTimeMicros - tickMicros + (long)(frac * tickMicros);
+                    e.FinishTimeMicros = raceTimeMicros - tickMicros + (long)(frac * tickMicros) + e.PenaltyMicros;
                     e.Finished = true;
                 }
                 else if (lastOfLap)
@@ -136,6 +138,7 @@ namespace NightSignal.Race
             TrackSample s = track.SampleAt(e.LastSafeDistance);
             var state = VehicleState.AtRest(s.Position + s.Up * (p.CgHeightM + 0.15f), Quaternion.LookRotation(s.Tangent, s.Up));
             e.Resets++;
+            e.PenaltyMicros += Limits.ResetPenaltyMs * 1000L;
             e.Locator.Reset(e.LastSafeDistance);
             e.Location = e.Locator.Locate(state.Position, s.Tangent);
             return state;

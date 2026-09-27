@@ -22,6 +22,33 @@ namespace NightSignal.Editor.Build
 
         public static void BuildSetupSmokeCli() => ExitWith(BuildSetupSmoke());
 
+        public const string BootScene = "Assets/Game/Scenes/Boot.unity";
+        public const string GameOutput = "Builds/Game/NightSignal.exe";
+
+        /// <summary>Boot scene first, then every authored course scene (Assets/Content/Courses/*/*.unity).</summary>
+        public static string[] GameScenes()
+        {
+            var scenes = new System.Collections.Generic.List<string> { BootScene };
+            foreach (string dir in Directory.GetDirectories("Assets/Content/Courses"))
+            {
+                string id = Path.GetFileName(dir);
+                string scene = $"{dir}/{id}.unity".Replace('\\', '/');
+                if (File.Exists(scene)) scenes.Add(scene);
+            }
+            return scenes.ToArray();
+        }
+
+        /// <summary>One Windows player serves every role (client, dedicated server via -batchmode -nographics -nsServer).</summary>
+        public static BuildReport BuildGame(bool development = true)
+        {
+            string[] scenes = GameScenes();
+            EditorBuildSettings.scenes = System.Array.ConvertAll(scenes, s => new EditorBuildSettingsScene(s, true));
+            return Build(scenes, GameOutput, BuildTarget.StandaloneWindows64, StandaloneBuildSubtarget.Player,
+                development ? BuildOptions.Development : BuildOptions.None);
+        }
+
+        public static void BuildGameCli() => ExitWith(BuildGame());
+
         public static BuildReport Build(string[] scenes, string outputPath, BuildTarget target,
             StandaloneBuildSubtarget subtarget, BuildOptions options)
         {

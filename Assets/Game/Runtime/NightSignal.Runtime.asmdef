@@ -4,6 +4,8 @@
     "references": [
         "NightSignal.Core",
         "Unity.InputSystem",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI",
         "Unity.Netcode.Runtime",
         "Unity.Networking.Transport",
         "Unity.Collections",

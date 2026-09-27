@@ -107,7 +107,9 @@ namespace NightSignal.Vehicle
                 Vector3 mount = p.WheelMount(i);
                 float comp = Mathf.Lerp(previous.GetCompression(i), current.GetCompression(i), alpha);
                 WheelTelemetry w = telemetry.Wheel(i);
-                float travel = w.Grounded ? p.RestLengthM - comp : p.RestLengthM;
+                // Remote cars have no local telemetry: their replicated compression tells us they are grounded.
+                bool grounded = w.Grounded || comp > 0.001f;
+                float travel = grounded ? p.RestLengthM - comp : p.RestLengthM;
                 wheels[i].localPosition = mount + Vector3.down * travel;
                 float steer = i < 2 ? Mathf.Lerp(previous.SteerAngle, current.SteerAngle, alpha) * Mathf.Rad2Deg : 0f;
                 wheels[i].localRotation = Quaternion.Euler(0f, steer, 0f);

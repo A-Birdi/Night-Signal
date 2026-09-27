@@ -20,6 +20,17 @@ namespace NightSignal.Track.Generation
         public Material Water;
         public Material OffWhite;
         public Material Graphite;
+        public Material Concrete;
+        public Material Brick;
+        public Material SteelRed;
+        public Material SteelGrey;
+        public Material SteelYellow;
+        public Material WindowLit;
+        public Material MetalRoof;
+        public Material Foliage;
+        public Material Bark;
+        public Material Sea;
+        public Material TunnelLining;
         public Material TerrainTemplate;
         /// <summary>Order: verge, field grass, tea rows, soil, rock.</summary>
         public TerrainLayer[] TerrainLayers;

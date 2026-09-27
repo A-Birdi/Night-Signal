@@ -196,3 +196,40 @@ firstClearAwarded, challengesUnlocked[], cosmeticsGranted[], rankPointsBefore, r
 
 Browser (WSS) clients would additionally need an Origin check and a non-header way to present the token (browser
 WebSockets cannot set `Authorization`); not implemented because the Web target is not in scope yet (spec §3.4).
+
+## 8. Gameplay transport (Unity: Netcode for GameObjects 2.13.3 + Unity Transport 6.6.0)
+
+One authoritative match per dedicated game-server process (`NightSignal.exe -batchmode -nographics -nsServer`).
+NGO runs with `TickRate = 60`, connection approval on, scene management off, no NetworkObjects for cars: all race
+traffic uses named messages (`Assets/Game/Runtime/Net/Wire.cs`).
+
+**Admission.** The client puts its match ticket (UTF-8 JWS) in `NetworkConfig.ConnectionData`. The server's approval
+callback validates it with Core `MatchTicketValidator` (managed P-256; Unity's Mono has no ECDSA) against this
+assignment (match/build/protocol/content), burns the `jti`, and maps `sub` to an allocated racer. Unknown, late
+(countdown started), duplicate or spectator tickets are refused with a reason code.
+
+| message | direction | delivery | payload |
+|---|---|---|---|
+| `ns.match` | S→C | reliable fragmented | JSON `MatchInfo`: match/course/kind/mode/stage/weather, roster `[{index, entrantId, displayName, human, carId, paint, gridSlot}]`, `yourIndex`, benchmark replay rival |
+| `ns.loaded` | C→S | reliable | `float` loading progress (1.0 = course collision, car assets, input and first state ready) |
+| `ns.phase` | S→C | reliable | `byte phase` (Loading, Countdown, Racing, Results, Aborted), `int startTick` |
+| `ns.input` | C→S | unreliable sequenced, every 2nd tick (30 Hz) | `int latestTick`, `byte count ≤ 8`, then `count` × input (`sbyte steer`, `byte throttle`, `byte brake`, `byte buttons`) for ticks `latestTick-count+1 … latestTick` |
+| `ns.snap` | S→C | unreliable sequenced, every 3rd tick (20 Hz) | `int tick`, `byte phase`, `byte n`, then per entrant `byte index`, `byte status`, `ushort checkpoints`, `float raceDistance`, `int finishMs`, full `VehicleState` (93 bytes) — ≈ 640 bytes for six cars |
+| `ns.results` | S→C | reliable fragmented | JSON `MatchResults` (the same facts sent to the control plane) |
+
+**Clock and start.** The server simulates tick T at its NGO `LocalTime.Tick`. After the loading barrier (90 s, one
+30 s extension while a connected client reports real progress; unloaded entrants are DQ; no humans → abort) it sets
+`startTick = now + 240` and broadcasts it; cars are held on the grid until T ≥ startTick. Clients show 3-2-1-GO from
+`ServerTime` against that tick. Race time = `(T − startTick) × 10⁶ / 60` µs; finishes are sub-tick interpolated.
+
+**Inputs.** Clients stamp inputs with their `LocalTime.Tick` (ahead of the server by the RTT estimate) so they arrive
+before the server simulates that tick. The server ignores inputs for ticks already simulated or > 120 ticks ahead.
+A missing input repeats the last one for 250 ms, then coasts and brakes (spec §4.4).
+
+**Prediction.** The client steps its own car with the same `VehicleSimulation` every local tick and keeps 256 ticks
+of inputs/states. On each snapshot it compares its prediction at the snapshot tick; beyond 3 cm / 0.2 m/s it rewinds
+to the authoritative state and replays stored inputs, blending the visual error out over ~0.1 s (snapping above 3 m).
+Remote cars render at `ServerTime − 6 ticks` (100 ms) with at most 9 ticks (150 ms) of extrapolation.
+
+**Disconnects.** A racer disconnecting after admission becomes `DqDisconnected` and cannot resume driving in that
+event; the race continues for everyone else. Results list every allocated human (H frozen) and every AI entrant.

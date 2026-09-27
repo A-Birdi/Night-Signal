@@ -49,11 +49,36 @@ namespace NightSignal.Track
         public string Id;
         public string Name;
         public float AtMetres;
-        /// <summary>left | right</summary>
+        /// <summary>left | right | over (spans the road)</summary>
         public string Side;
         public float OffsetMetres;
-        /// <summary>Kit prefab key used by the baker (e.g. tea-shed, stone-bridge, lantern-row).</summary>
+        /// <summary>Kit family (tea-shed, stone-bridge, lantern-row, structure, tower, crossing, wall, water, field, rail, sign, gate).</summary>
         public string Kit;
+        /// <summary>Kit parameters (type, sizes, materials…); see docs/COURSES.md.</summary>
+        public Dictionary<string, object> Params { get; set; } = new Dictionary<string, object>();
+    }
+
+    /// <summary>A stretch of road with special construction: tunnel (terrain above, lining mesh) or elevated.</summary>
+    [Serializable]
+    public sealed class RouteSectionDef
+    {
+        /// <summary>tunnel | viaduct | bridge</summary>
+        public string Kind;
+        public float FromMetres;
+        public float ToMetres;
+        public string Style;
+    }
+
+    /// <summary>Off-route flat areas (training skid pad, braking lanes, bays, paddock aprons).</summary>
+    [Serializable]
+    public sealed class RouteAreaDef
+    {
+        public string Id;
+        /// <summary>skid-pad | braking-lane | training-bay | apron | recovery-bay</summary>
+        public string Kind;
+        public float[] Centre = new float[3];
+        public float[] Size = new float[2];
+        public float HeadingDeg;
     }
 
     /// <summary>
@@ -74,6 +99,11 @@ namespace NightSignal.Track
         public List<RouteSectorDef> Sectors = new List<RouteSectorDef>();
         public List<RouteGateDef> Gates = new List<RouteGateDef>();
         public List<RouteLandmarkDef> Landmarks = new List<RouteLandmarkDef>();
+        public List<RouteSectionDef> Sections = new List<RouteSectionDef>();
+        public List<RouteAreaDef> Areas = new List<RouteAreaDef>();
+        /// <summary>Default lighting for the course's Normal conditions (LightingPresets id).</summary>
+        public string TimeOfDay = "day";
+        public string Surface = "dry";
     }
 
     /// <summary>One resampled point of the centreline.</summary>
