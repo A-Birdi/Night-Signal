@@ -1024,3 +1024,24 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   receipts are server records and unchanged.
 - Limits: the old saves carry no records or campaign clears (the automation profiles that existed before the addendum
   had none); the record part rests on the synthetic `RecordVersionTests` fixture.
+
+## V-064 — F08 starter campaign runs: stalled at the lieutenants (benchmarks not yet certified) (2026-09-27)
+- Revision: working tree on `6a76c5a`. PlayMode `StarterCampaignRunTests` in the editor (one Unity writer): for each
+  starter a fresh Local profile plays the whole Normal campaign through the game's Core calls — event plan (roster, live
+  featured rival, benchmark, cap), a real headless race on the stage's course at 30× simulation speed driven by the
+  validator autopilot (legal inputs; conservative, not a human), Core progression settling it, and the Garage buying the
+  starter's intended upgrade path (build-recipes.json) with the credits earned. Nothing is written as a clear.
+  Evidence: `Evidence/progression/campaign/V0x-normal.json`.
+- **Run 1** (intended schedule only): V01 13/30 and V02 13/30 — stopped at **S14** (lieutenant R16, C08); V03 20/30 —
+  stopped at **S21** (lieutenant R24, C12). Every retry was identical (deterministic races) with 156k–162k credits unspent.
+- **Run 2** (the run now also buys the next recipe step ahead of schedule after a lost attempt, as a player with savings
+  would): V01 bought V01-E early (PI 314 → 351): 176.8 → 174.7 s vs R16 160.2 s; V02 bought V02-E (PI 351 → 396):
+  173.8 → 172.2 s vs 160.3 s; later steps "not in the shop yet"; V03 at S21 could not afford V03-G (95,000 vs ~71,000)
+  and stayed 12.1 s behind R24. **F08 not passed.**
+- **Cause:** lieutenants race their identity cars within the stage cap — R16 a V08 (base PI 530) under cap 699 at S14,
+  R24 a V12 (650) under 849 — with stage-escalated profiles close to the validator's, while the starters' intended paths
+  are at PI 314–454 there; upgrades are worth ~2 s against a 12–17 s gap. Stage targets are still the provisional
+  catalogue values (S14 300 s vs ~160–177 s actual) and featured-rival pace is not calibrated to them: this is the
+  pending **benchmark certification** (spec: reference run P in a freely available class-legal car, Normal targets
+  ~1.18×P → 1.05×P, lieutenants interpolated, featured cars on authored legal reference tunes). Addendum 02 F09 rules
+  out a compulsory model change, so the fix belongs in certification, not in the test.
