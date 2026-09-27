@@ -507,9 +507,16 @@ namespace NightSignal.Net
                 if (car.View == null) continue;
                 if (car.Roster.Index == Info.YourIndex)
                 {
-                    VehicleState s = ownState;
-                    s.Position += visualOffset;
-                    car.View.Render(s, s, 0f, ownSim.Telemetry, Time.deltaTime);
+                    // Interpolate between the last two predicted ticks by the network clock's fraction, as offline play
+                    // does: rendering the newest tick alone steps the car at any frame rate other than 60 (Addendum 03
+                    // C11 measured it as chase-camera shake at 30 and 120 fps).
+                    VehicleState cur = ownState, prev = ownState;
+                    int prevSlot = (lastPredictedTick - 1) & 255;
+                    if (lastPredictedTick > 0 && ticks[prevSlot] == lastPredictedTick - 1) prev = states[prevSlot];
+                    float alpha = Mathf.Clamp01((float)(nm.LocalTime.TickWithPartial + InputLeadTicks - lastPredictedTick));
+                    prev.Position += visualOffset;
+                    cur.Position += visualOffset;
+                    car.View.Render(prev, cur, alpha, ownSim.Telemetry, Time.deltaTime);
                     continue;
                 }
                 RenderRemote(car, renderTick);

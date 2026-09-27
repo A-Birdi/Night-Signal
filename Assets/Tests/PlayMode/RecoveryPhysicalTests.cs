@@ -4,6 +4,7 @@ using System.Linq;
 using NightSignal.Core.Rules;
 using NightSignal.Race;
 using NightSignal.Track;
+using NightSignal.Track.Generation;
 using NightSignal.Vehicle;
 using NUnit.Framework;
 using UnityEngine;
@@ -181,6 +182,60 @@ namespace NightSignal.Tests
             Assert.That(r.Kind, Is.EqualTo(RecoveryKind.Stopped), "a stopped human is offered the reset");
             Assert.That(r.SecondsToAuto, Is.LessThan(0f), "with no automatic countdown");
             Assert.That(car.Progress.Recoveries.Count, Is.EqualTo(recoveries), "and the car is never taken away");
+        }
+
+        [UnityTest, Timeout(300000)]
+        public IEnumerator R08_SimultaneousRecoveries_GetSeparateNonForwardAnchors()
+        {
+            yield return LoadCourse("C01");
+            var go = new GameObject("OfflineRace");
+            session = go.AddComponent<OfflineRaceSession>();
+            session.CarId = "V01";
+            session.Autopilot = true;
+            session.Headless = true;
+            session.SimulationSpeed = 1;
+            session.Rules = new RaceEventRules { Kind = "freeplay", Contact = ContactPolicy.LightContact };
+            session.OpposingAi = new List<string> { "R01", "R02", "R03" };
+            yield return null;
+            float until = Time.realtimeSinceStartup + 60f;
+            while (session.Phase != MatchPhase.Racing && Time.realtimeSinceStartup < until) yield return null;
+            yield return Hold(9f);
+
+            // Every car is thrown off the route at the same tick onto one spot beside the road.
+            TrackData t = session.Sim.Track;
+            RaceEntrant lead = session.Sim.Entrants.OrderByDescending(e => e.Progress.RaceDistance).First();
+            TrackSample s = t.SampleAt(lead.Progress.Location.Distance);
+            Vector3 beside = s.Position + s.Right * (RoadGeometry.BarrierLateral(s, 1) + 16f);
+            if (Physics.Raycast(beside + Vector3.up * 80f, Vector3.down, out RaycastHit ground, 200f, ~0, QueryTriggerInteraction.Ignore)) beside = ground.point;
+            var before = new Dictionary<RaceEntrant, (int Recoveries, float LastSafe, int Laps)>();
+            foreach (RaceEntrant e in session.Sim.Entrants)
+            {
+                before[e] = (e.Progress.Recoveries.Count, e.Progress.LastSafeDistance, e.Progress.Lap);
+                e.State = VehicleState.AtRest(beside + Vector3.up * (1.2f + 2.5f * session.Sim.Entrants.IndexOf(e)), Quaternion.LookRotation(s.Tangent, Vector3.up));
+            }
+            session.Sim.HumanInput = (e, tick) => DriverInput.Neutral;
+            yield return Hold(5f, () => session.Sim.Entrants.All(e => e.Progress.Recoveries.Count > before[e].Recoveries));
+
+            var placed = new List<(RaceEntrant E, Vector3 At, RecoveryEvent Ev)>();
+            foreach (RaceEntrant e in session.Sim.Entrants)
+            {
+                Assert.That(e.Progress.Recoveries.Count, Is.EqualTo(before[e].Recoveries + 1), $"{e.Roster.EntrantId}: exactly one recovery");
+                RecoveryEvent ev = e.Progress.Recoveries.Last();
+                Assert.That(ev.ToDistance, Is.LessThanOrEqualTo(before[e].LastSafe + 0.01f), $"{e.Roster.EntrantId}: never forward of its last gate");
+                Assert.That(e.Progress.Lap, Is.EqualTo(before[e].Laps), "completed laps kept");
+                Assert.That(ev.PenaltyMs, Is.EqualTo(3000));
+                placed.Add((e, e.State.Position, ev));
+            }
+            float closest = float.MaxValue;
+            for (int i = 0; i < placed.Count; i++)
+                for (int j = i + 1; j < placed.Count; j++)
+                    closest = Mathf.Min(closest, Vector3.Distance(placed[i].At, placed[j].At));
+            TestContext.WriteLine("C01 simultaneous recoveries: " + string.Join("; ", placed.Select(p => $"{p.E.Roster.EntrantId} {p.Ev.Reason} {p.Ev.FromDistance:F0}->{p.Ev.ToDistance:F0} m")) + $"; closest pair {closest:F1} m");
+            Assert.That(closest, Is.GreaterThan(session.Player.Params.LengthM), "no two cars placed on top of each other");
+            // After the ghost window every car is solid again and none still overlaps another.
+            yield return Hold(2.5f);
+            foreach (RaceEntrant e in session.Sim.Entrants)
+                Assert.That(e.GhostUntilTick < 0 || e.GhostUntilTick <= session.CurrentTick, $"{e.Roster.EntrantId}: protection ended within its window");
         }
 
         static IEnumerator LoadCourse(string course)

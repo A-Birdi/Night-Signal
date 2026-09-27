@@ -1,0 +1,5 @@
+{
+  "failed": true,
+  "error": "course_locked: Nobody in this convoy has access to Blackwater Hairpins. Buy it or clear its Normal stage first.",
+  "log": "[15:44:34] signed in as account …000001\n[15:44:34] created convoy cv_b973305175fdbf44; waiting for 5 member(s)\n[15:44:38] all 6 members joined\n[15:44:39] entered freeplay (sprint)\n[15:44:55] FAILED: course_locked: Nobody in this convoy has access to Blackwater Hairpins. Buy it or clear its Normal stage first.\n"
+}

@@ -35,7 +35,10 @@ namespace NightSignal.Front
         /// </summary>
         IEnumerator CameraTour()
         {
-            string dir = System.IO.Path.GetFullPath(System.IO.Path.Combine("Builds", "Screenshots", "cameras"));
+            string[] tourArgs = System.Environment.GetCommandLineArgs();
+            int outArg = System.Array.IndexOf(tourArgs, "-nsTourOut"); // separate folders for the frame-rate / FOV passes
+            string outName = outArg >= 0 && outArg + 1 < tourArgs.Length ? tourArgs[outArg + 1] : "cameras";
+            string dir = System.IO.Path.GetFullPath(System.IO.Path.Combine("Builds", "Screenshots", outName));
             System.IO.Directory.CreateDirectory(dir);
             string profiles = System.IO.Path.Combine(dir, "profiles");
             if (System.IO.Directory.Exists(profiles)) System.IO.Directory.Delete(profiles, true);
@@ -190,6 +193,19 @@ namespace NightSignal.Front
             Note($"preference before the races: {preferred}");
             var lib = Content.ContentLibrary.Load();
             var cars = lib.Catalogue.Cars.Select(c => c.Id).ToList();
+            // -nsTourCars V01,V11 limits the run (frame-rate and field-of-view passes); -nsTourFov sets the base FOV for
+            // this run only (in memory, never saved).
+            string[] argv = System.Environment.GetCommandLineArgs();
+            int carsArg = System.Array.IndexOf(argv, "-nsTourCars");
+            if (carsArg >= 0 && carsArg + 1 < argv.Length)
+            {
+                var only = new HashSet<string>(argv[carsArg + 1].Split(','));
+                cars = cars.Where(only.Contains).ToList();
+            }
+            int fovArg = System.Array.IndexOf(argv, "-nsTourFov");
+            if (fovArg >= 0 && fovArg + 1 < argv.Length && float.TryParse(argv[fovArg + 1], NumberStyles.Float, CultureInfo.InvariantCulture, out float tourFov))
+                DrivingPreferences.Current.VerticalFov = Mathf.Clamp(tourFov, DrivingPreferences.MinFov, DrivingPreferences.MaxFov);
+            Note($"cars {string.Join(",", cars)}; base FOV {DrivingPreferences.Current.VerticalFov:0}°; target fps {Application.targetFrameRate}");
             Texture2D sheet = null;
             var coverage = new Dictionary<string, int>();
             for (int i = 0; i < cars.Count; i++)

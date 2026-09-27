@@ -12,6 +12,11 @@
 
 .EXAMPLE
     powershell -ExecutionPolicy Bypass -File Tools/run/net-race.ps1 -Humans 2 -Stage S01
+
+.EXAMPLE
+    powershell -ExecutionPolicy Bypass -File Tools/run/net-race.ps1 -Humans 6 -FreeplayCourse C12 -FreeplayAi 6 -CameraClients
+    Addendum 03 C11/C12: every client is a small rendered window with its own seeded preferences (view, speedometer
+    style, units) and frame-rate cap (30/60/120), and a camera probe; client 0 alone cycles its view mid-race.
 #>
 param(
     [ValidateRange(1, 6)][int]$Humans = 2,
@@ -22,7 +27,9 @@ param(
     # Freeplay instead of a campaign stage: course id, live AI count (0..12-H) and mode (sprint | circuit | time-attack).
     [string]$FreeplayCourse = '',
     [ValidateRange(0, 11)][int]$FreeplayAi = 0,
-    [string]$FreeplayMode = 'sprint'
+    [string]$FreeplayMode = 'sprint',
+    # Rendered clients with per-client driving preferences, frame-rate caps and camera probes (Addendum 03 C11/C12).
+    [switch]$CameraClients
 )
 
 $ErrorActionPreference = 'Stop'
@@ -51,7 +58,20 @@ for ($i = 0; $i -lt $Humans; $i++) {
     $clientArgs = @('-nsClient', '-nsAuto', '-nsDevAccount', "$i", '-nsAutoRole', $role, '-nsAutoHumans', "$Humans",
               '-nsAutoStage', $Stage, '-nsEvidence', $evidence, '-logFile', "`"$logs\client-$i.log`"")
     if ($FreeplayCourse) { $clientArgs += @('-nsAutoFreeplay', $FreeplayCourse, '-nsAutoFreeplayAi', "$FreeplayAi", '-nsAutoFreeplayMode', $FreeplayMode) }
-    if (-not ($WindowedFirstClient -and $i -eq 0)) { $clientArgs = @('-batchmode', '-nographics') + $clientArgs }
+    if ($CameraClients) {
+        $views = @('chase-close', 'chase-far', 'hood', 'bumper', 'cockpit', 'chase-far')
+        $styles = @('dial', 'strip', 'dial', 'strip', 'dial', 'strip')
+        $units = @('kmh', 'mph', 'mph', 'kmh', 'kmh', 'mph')
+        $fps = @(60, 30, 120, 60, 30, 120)
+        $prefs = Join-Path $logs "prefs-$i"
+        New-Item -ItemType Directory -Force $prefs | Out-Null
+        $seed = '{"Schema":1,"SpeedStyle":"' + $styles[$i] + '","Units":"' + $units[$i] + '","View":"' + $views[$i] + '"}'
+        [System.IO.File]::WriteAllText((Join-Path $prefs 'driving.json'), $seed)
+        $clientArgs += @('-nsPrefsFolder', "`"$prefs`"", '-nsTargetFps', "$($fps[$i])", '-nsCameraProbe', "`"$logs\camera-client-$i.json`"",
+                         '-screen-fullscreen', '0', '-screen-width', '640', '-screen-height', '360')
+        if ($i -eq 0) { $clientArgs += @('-nsProbeCycleAt', '25') }
+    }
+    elseif (-not ($WindowedFirstClient -and $i -eq 0)) { $clientArgs = @('-batchmode', '-nographics') + $clientArgs }
     else { $clientArgs += @('-screen-fullscreen', '0', '-screen-width', '1280', '-screen-height', '720') }
     $procs += [pscustomobject]@{ Name = "client-$i ($role)"; Process = (Start-Process -FilePath $exe -PassThru -WorkingDirectory $repo -ArgumentList $clientArgs) }
     Start-Sleep -Milliseconds 800
@@ -67,4 +87,5 @@ foreach ($p in $procs) {
 $dest = Join-Path $repo "Evidence\net\$run"
 New-Item -ItemType Directory -Force $dest | Out-Null
 Get-ChildItem (Join-Path $repo $evidence) -Filter *.json -ErrorAction SilentlyContinue | Copy-Item -Destination $dest
+Get-ChildItem $logs -Filter 'camera-client-*.json' -ErrorAction SilentlyContinue | Copy-Item -Destination $dest
 Write-Output "evidence: Evidence/net/$run ; logs: Builds/NetRuns/$run"

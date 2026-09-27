@@ -1,0 +1,93 @@
+{
+  "driver": "AutoClient scripted autopilot (not a human)",
+  "process": "independent client player process",
+  "account": "…000001",
+  "role": "leader",
+  "matchId": "m_02b0f06e868f896cc30de6e3",
+  "stage": "S01",
+  "course": "C01",
+  "car": "V01",
+  "rttMs": 18,
+  "inputAckMsAverage": 17.9063072,
+  "inputAckMsMax": 33.6092,
+  "minInputLeadTicks": 17,
+  "ticksFilled": 0,
+  "snapshots": 2258,
+  "inputPacketsSent": 6765,
+  "reconciliations": 464,
+  "maxCorrectionMetres": 2.567505,
+  "result": {
+    "EntrantId": "00000000-0000-4000-8000-000000000001",
+    "Human": true,
+    "Outcome": "Finished",
+    "FinishTimeMicros": 86038439,
+    "Placement": 1,
+    "Clean": true,
+    "CheckpointFraction": 1.0,
+    "ActiveProgressVerified": true,
+    "ActivelyDroveLegalCourse": true,
+    "LegalProgressMetres": 3025.5,
+    "RawDriftScore": 0,
+    "ContractsPassed": 0,
+    "ChallengesCompleted": [
+      "CH01"
+    ]
+  },
+  "entrants": 12,
+  "receipt": {
+    "matchId": "m_02b0f06e868f896cc30de6e3",
+    "accountId": "00000000-0000-4000-8000-000000000001",
+    "status": "settled",
+    "eventKind": "FreeplaySprint",
+    "mode": null,
+    "stageId": null,
+    "courseId": "C01",
+    "outcome": "Finished",
+    "placement": 1,
+    "tied": false,
+    "finishTimeMs": 86038,
+    "stage": null,
+    "payout": {
+      "base": 6460,
+      "difficultyX100": 100,
+      "placementX100": 135,
+      "cleanlinessX100": 105,
+      "utilityX100": 100,
+      "pvPX100": 100,
+      "eventCredits": 9157,
+      "firstClearBonus": 0,
+      "challengeCash": 0,
+      "total": 9157,
+      "note": ""
+    },
+    "credits": [
+      {
+        "type": "event",
+        "requested": 9157,
+        "credited": 9157,
+        "clampedAway": 0
+      }
+    ],
+    "balanceAfter": 120749,
+    "clampedAwayTotal": 0,
+    "firstClearAwarded": false,
+    "challengesUnlocked": [],
+    "cosmeticsGranted": [],
+    "coursesUnlocked": [],
+    "musicUnlocked": [],
+    "guestPass": null,
+    "teamTrial": null,
+    "rankPointsBefore": 980,
+    "rankPointsAfter": 980,
+    "rank": "Night Runner",
+    "notes": [
+      "CH01 was already completed; no repeat reward."
+    ]
+  },
+  "walletBefore": 111592,
+  "walletAfter": 120749,
+  "rankPointsBefore": 980,
+  "rankPointsAfter": 980,
+  "log": "[16:02:17] signed in as account …000001\n[16:02:18] created convoy cv_e3fde19565ef59a4; waiting for 5 member(s)\n[16:02:22] all 6 members joined\n[16:02:22] entered freeplay (sprint)\n[16:02:38] event started (12 vehicles)\n[16:02:39] connecting to match m_02b0f06e868f896cc30de6e3\n[16:04:37] ready request 'post-event' ignored by the scripted client\n",
+  "utc": "2026-09-27T16:04:37.2795705Z"
+}

@@ -260,6 +260,14 @@ namespace NightSignal.Cameras
             headOffset = hasHistory ? Vector3.SmoothDamp(headOffset, head, ref headVel, 0.12f, Mathf.Infinity, dt) : head;
             // The body transform sits at the body's ground origin; the anchors are in that model space.
             Vector3 world = mount.TransformPoint(local + headOffset + (View == DrivingView.Bumper ? Vector3.down * BodyGroundOffset() : Vector3.zero));
+            if (View == DrivingView.Bumper)
+            {
+                // Low over the road: where the road rises under the nose (a dip's far side, a crest into a compression) keep
+                // the near plane clear of it rather than clipping into the asphalt.
+                Vector3 up = car.up;
+                if (Physics.Raycast(world + up * 0.6f, -up, out RaycastHit road, 0.6f + BumperClearance, GameLayers.DrivableMask, QueryTriggerInteraction.Ignore))
+                    world = road.point + up * BumperClearance;
+            }
             Quaternion look = Quaternion.LookRotation(mount.forward, mount.up);
             transform.SetPositionAndRotation(world, look);
             if (View == DrivingView.Cockpit && target.Cockpit != null)
@@ -268,6 +276,8 @@ namespace NightSignal.Cameras
                 target.Cockpit.Update(target.SteerRad, motion.Speed, unit, LastRpm, LastRedline, LastGear);
             }
         }
+
+        const float BumperClearance = 0.16f;
 
         /// <summary>The car root is the simulation origin (centre of gravity); anchors use the body's ground-level origin.</summary>
         float BodyGroundOffset() => target.Body != null ? -target.Body.localPosition.y : 0f;

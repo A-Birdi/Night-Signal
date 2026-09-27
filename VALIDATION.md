@@ -734,3 +734,38 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   (the V-050 tour predates the shells); camera collision measurements at portals (C09).
 - Also since V-050: Arcade camera roll 0.15 → 0.2 so the Settings row (10 % steps) shows the value in use; text-size row
   label shortened; Controls columns headed KEYBOARD / CONTROLLER (seen in the V-050 instrument tour's last run).
+
+## V-052 — Camera timing at 30/60/120 fps, six clients with different views, occlusion at FOV extremes, simultaneous recoveries (2026-09-27)
+- Revision: working tree on `bc38bf0` (committed in the next checkpoint). Windows development players built from it; local
+  control plane (loopback) and dedicated server process; Unity 6000.6.3f1.
+- New launch arguments for every role (`CameraProbe`): `-nsPrefsFolder` (per-process driving preferences), `-nsTargetFps`
+  (vsync off + cap), `-nsCameraProbe` (per view: frames, achieved fps, on-screen car jitter as the second difference of
+  its viewport position in 1080p pixels, frames with the car→camera line blocked (exterior) or the camera inside a
+  collider (mounted), largest impact offset, view timeline, style/units), `-nsProbeCycleAt`. `net-race.ps1
+  -CameraClients` seeds each client's preferences and cap.
+- **C12 + C11 online** (`Evidence/net/run-20260927-120209-h6-C01-ai6`): 6 rendered clients + 6 AI on C01 (a first attempt on
+  C12 failed honestly — the dev test accounts do not own it, `course_locked`; no course was bought to get round it;
+  `run-20260927-114426-h6-C12-ai6`). Clients seeded Chase Close/dial/km/h@60, Chase Far/strip/mph@30, Hood/dial/mph@120,
+  Bumper/strip/km/h@60, Cockpit/dial/km/h@30, Chase Far/strip/mph@120; achieved 58.5, 29.3, 117.0, 58.5, 29.3, 116.9 fps.
+  Every client kept its own view, style and units for the whole race; only client 0's scripted cycle changed a view
+  (Chase Close → Chase Far at 57.7 s) and no other client's timeline moved. All six finished (exit 0).
+  Found and fixed: the online client drew its own car at the newest predicted tick without interpolation — Chase Far
+  jitter mean/p99 was 16.1/171.7 px at 30 fps and 4.7/25.7 px at 120 fps (`run-20260927-115531-h6-C01-ai6`); after
+  interpolating between the last two predicted ticks: 0.73/11.0 px at 30, 0.12/0.96 px at 120, Chase Close 0.16/0.26 px at
+  60. The bumper camera touched the road collider in 94 of 7,143 frames — now kept ≥ 0.16 m above the road: 2 of 6,811.
+  Exterior views: 0 occluded frames on every client.
+- **C11/C09 offline** (built camera tour with `-nsTourCars V01,V04,V11`, probe, `Evidence/ui/cameras/fps-fov/`): 30 fps cap
+  (29.9 achieved) chase jitter mean 0.16–0.29 px, p99 3.5–5.6 px; 120 fps (119.0) mean ≤ 0.1 px, p99 ≤ 0.7 px; FOV 80° and
+  50° (uncapped ~660 fps) mean ≤ 0.15 px. **0 occluded and 0 inside-collider frames in every view** across the yard, the
+  three races and the C08 tunnel run, at both FOV extremes and both caps; coverage 15/15 driven each pass — **PASS ×4**.
+  Tunnel frames now show the V-051 shell (tunnel lights were brightened afterwards: 2.2 → 3.6, range ×1.15; re-rendered in
+  `Evidence/courses/tunnels/`, not re-driven).
+- **R08** PlayMode `RecoveryPhysicalTests.R08_SimultaneousRecoveries_GetSeparateNonForwardAnchors`: the player and three
+  AI thrown off C01 at the same tick were each recovered once on the same tick at 164/156/148/140 m (from 214–216 m —
+  stepping back, never forward), laps kept, one +3 s each, closest pair 8.0 m, protection ended — **pass** (4/4 in the
+  class).
+- **R07** by construction (inspected): a client's only message into the race is its quantized steer/throttle/brake and a
+  button byte (`Wire.ReadInput`); a reset is the held bit, and anchor, penalty, lap and progress are chosen by the server —
+  no field can carry a forged pose, lap, checkpoint or penalty. No fuzz test of the input channel yet.
+- Not yet: authoritative-correction stress (packet loss/latency) on camera jitter; spectator target loss; R11 (recovery then
+  network loss/rejoin); bridges/viaducts.

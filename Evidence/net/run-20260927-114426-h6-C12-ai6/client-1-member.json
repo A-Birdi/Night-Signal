@@ -1,0 +1,5 @@
+{
+  "failed": true,
+  "error": "timed out waiting for match allocation",
+  "log": "[15:44:35] signed in as account …000002\n[15:44:35] joined convoy cv_b973305175fdbf44\n[15:46:35] FAILED: timed out waiting for match allocation\n"
+}

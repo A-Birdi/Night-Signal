@@ -154,8 +154,8 @@ namespace NightSignal.Track.Generation
                     l.transform.SetParent(root, false);
                     l.transform.position = p - Vector3.up * 0.3f;
                     l.type = LightType.Point;
-                    l.range = style.LightSpacing * 0.95f;
-                    l.intensity = 2.2f;
+                    l.range = style.LightSpacing * 1.15f;
+                    l.intensity = 3.6f;
                     l.color = style.Light;
                     l.shadows = LightShadows.None;
                 }

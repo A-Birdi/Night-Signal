@@ -1,0 +1,36 @@
+{
+  "targetFps": 60,
+  "measuredFps": 58.5,
+  "frameMsP95": 16.68,
+  "frames": 7167,
+  "speedStyle": "dial",
+  "units": "kmh",
+  "savedView": "chase-far",
+  "motionPreset": "arcade",
+  "scriptedCycle": "done",
+  "timeline": [
+    "27.6s ChaseClose",
+    "57.9s scripted cycle",
+    "57.9s ChaseFar"
+  ],
+  "views": {
+    "ChaseClose": {
+      "frames": 1801,
+      "seconds": 33.0,
+      "jitterMeanPx": 0.025,
+      "jitterP99Px": 0.152,
+      "occludedFrames": 0,
+      "insideColliderFrames": 0,
+      "maxImpactOffsetM": 0.0
+    },
+    "ChaseFar": {
+      "frames": 5366,
+      "seconds": 89.5,
+      "jitterMeanPx": 0.833,
+      "jitterP99Px": 21.616,
+      "occludedFrames": 0,
+      "insideColliderFrames": 0,
+      "maxImpactOffsetM": 0.0
+    }
+  }
+}
