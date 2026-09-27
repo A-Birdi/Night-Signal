@@ -118,7 +118,7 @@ namespace NightSignal.Front
             inviteLine = UIFactory.Row("InviteLine", col, "", SignalTheme.Small, SignalTheme.Label, 1000, 26);
             inviteLine.richText = true;
             // While We Wait (Addendum 02 §1): the convoy's shared Pocket Circuit table; readiness is kept while playing.
-            table = UIFactory.Button("WhileWeWait", col, "While We Wait: Pocket Circuit", () => App.Router.Show(App.PocketCircuit), 620, 52);
+            table = UIFactory.Button("WhileWeWait", col, "While We Wait", () => App.Router.Show(App.WhileWeWait), 620, 52);
             leave = UIFactory.Button("Leave", col, "Leave Convoy", () => Send("convoy.leave"), 620, 48);
             signOut = UIFactory.Button("SignOut", col, "Sign Out", SignOut, 620, 48);
         }

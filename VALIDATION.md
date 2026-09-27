@@ -297,3 +297,15 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   → Advance. PASS. Screenshot `Evidence/ui/online/06b-table-while-ready.png`.
 - A match start closes the table view on the client; the server pauses the toys at the match commit (V-028 tests).
   Not yet exercised end to end with several humans sharing one table at once.
+
+## V-031 — While We Wait selector and Greenlight (2026-09-27)
+- A generic `ToyConnection` (Local in-process session or the convoy's hosted session) now serves every diversion view:
+  typed Core state per activity, commands in the Core envelope, answers with the authority's value.
+- Greenlight station: Lights Out (five lights at a fixed cadence, all out at the seeded hidden cue), Shift Window and
+  Hold the Mark (sweep with the seeded window/mark), Forgiving/Narrow; the attempt seed comes from the authority, the
+  input is timed with the local high-resolution clock and reported; the authority judges plausibility and outcome.
+  Personal best, median of five, the shared clean chain and session bests are shown (non-progression).
+- Local tour: While We Wait selector → Pocket Circuit (3 clean laps) → Greenlight: **3/3 clean Lights Out attempts**
+  (scripted press 230 ms after lights out → "CLEAN REACTION 230 ms", chain 3/10). Screenshots
+  `Evidence/ui/campaign/10a, 13, 14`. Cap Clash, Pit-Crew and Convoy Canvas are listed but their presentation is not
+  built yet (Core + hosting exist).

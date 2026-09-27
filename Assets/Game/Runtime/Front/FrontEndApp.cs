@@ -40,6 +40,8 @@ namespace NightSignal.Front
         public readonly CampaignMapScreen CampaignMap = new CampaignMapScreen();
         public readonly ConvoyScreen Convoy = new ConvoyScreen();
         public readonly PocketCircuitScreen PocketCircuit = new PocketCircuitScreen();
+        public readonly GreenlightScreen Greenlight = new GreenlightScreen();
+        public readonly WhileWeWaitScreen WhileWeWait = new WhileWeWaitScreen();
         /// <summary>Rich-text summary of the last online race (placing, time, settled receipt) for the convoy screen.</summary>
         public string LastOnlineResult { get; private set; }
         /// <summary>UI tours drive online races with the validator autopilot (automation, labelled as such).</summary>
@@ -154,7 +156,10 @@ namespace NightSignal.Front
             // While We Wait, offline: Pocket Circuit at the Local table (Addendum 02 §5).
             Click("Back");
             yield return new WaitForSeconds(1.2f);
-            Click("PocketCircuit");
+            Click("WhileWeWait");
+            yield return new WaitForSeconds(1.2f);
+            Shot("10a-while-we-wait");
+            Click("Toy-PocketCircuit");
             yield return new WaitForSeconds(2f);
             PocketCircuit.AutoThrottle = TourThrottle;
             Shot("10-pocket-circuit-table");
@@ -170,6 +175,28 @@ namespace NightSignal.Front
             Debug.Log($"[NightSignal.UiTour] pocket circuit laps: {laps}");
             Click("Back");
             yield return new WaitForSeconds(1.5f);
+
+            // Greenlight: three Lights Out attempts, a scripted press 230 ms after the lights go out (not a human).
+            Click("Toy-Greenlight");
+            yield return new WaitForSeconds(1.5f);
+            Greenlight.AutoPress = (variant, cue, t) => variant == Core.Toys.Greenlight.GreenlightVariant.LightsOut
+                ? t >= cue.HiddenDelayMs + 230 : t >= cue.Target * cue.SweepMs;
+            for (int i = 0; i < 3; i++)
+            {
+                Click("GreenlightStart");
+                yield return new WaitForSeconds(6.5f);
+                if (i == 1) Shot("13-greenlight");
+            }
+            yield return new WaitForSeconds(1f);
+            Shot("14-greenlight-results");
+            int cleanReactions = Greenlight.CleanAttempts;
+            if (cleanReactions < 3) failures.Add($"Greenlight: {cleanReactions} clean attempts of 3");
+            Debug.Log($"[NightSignal.UiTour] greenlight clean attempts: {cleanReactions}");
+            Greenlight.AutoPress = null;
+            Click("Back");
+            yield return new WaitForSeconds(1.2f);
+            Click("Back");
+            yield return new WaitForSeconds(1.2f);
             string summary = failures.Count == 0 ? "PASS" : "FAILED: " + string.Join("; ", failures);
             bool toySaved = LocalSession.Current?.ToySnapshot(Toys.LocalToyHost.DocumentKey) != null;
             Debug.Log($"[NightSignal.UiTour] {summary} (profile wallet {s?.Profile?.WalletBalance}, S01 cleared {cleared}, toy table saved {toySaved})");
@@ -216,6 +243,7 @@ namespace NightSignal.Front
             string matchId = (string)allocation["matchId"];
             // The server has already paused the toys at the match commit; leave the table view so nothing renders under the race.
             if (Router.Current == PocketCircuit) PocketCircuit.CloseNow();
+            if (Router.Current == Greenlight) Greenlight.OnHide();
             _ = session?.Request("presence.set", new { presence = "LoadingRace" }, quiet: true);
             Canvas.gameObject.SetActive(false);
             if (backdropCamera != null) backdropCamera.SetActive(false);
@@ -350,6 +378,8 @@ namespace NightSignal.Front
 
             // While We Wait: sit at the convoy's shared Pocket Circuit table while Event Ready (Addendum 02 §1-2).
             Click("WhileWeWait");
+            yield return new WaitForSeconds(1.2f);
+            Click("Toy-PocketCircuit");
             yield return new WaitForSeconds(2.5f);
             PocketCircuit.AutoThrottle = TourThrottle;
             double before = PocketCircuit.MyCarProgress;
@@ -361,6 +391,8 @@ namespace NightSignal.Front
             if ((bool?)OnlineSession.Current.MyMember?["eventReady"] != true) failures.Add("using the diversion cleared Event Ready");
             Note($"shared table: progress {before:F2} -> {after:F2}, still event ready {(bool?)OnlineSession.Current.MyMember?["eventReady"]}");
             PocketCircuit.AutoThrottle = null;
+            Click("Back");
+            yield return new WaitForSeconds(1.5f);
             Click("Back");
             yield return new WaitForSeconds(1.5f);
             Click("StartEvent");
