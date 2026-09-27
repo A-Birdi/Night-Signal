@@ -1,0 +1,15 @@
+C08 short-rock-tunnel 3025–3255 m: roofed 46/46 (roof 6.6–6.6 m above the road), drivable 46/46, corridor intrusions 0
+C08: 11 tunnel lights
+C12 blue-marked-tunnel 4940–5220 m: roofed 56/56 (roof 6.6–6.6 m above the road), drivable 56/56, corridor intrusions 0
+C12: 14 tunnel lights
+C21 snow-shed-gallery 3247–3583 m: roofed 67/67 (roof 5.6–5.6 m above the road), drivable 67/67, corridor intrusions 0
+C21: 14 tunnel lights
+C22 stone-avalanche-gallery 2782–3003 m: roofed 44/44 (roof 5.6–5.6 m above the road), drivable 44/44, corridor intrusions 0
+C22: 9 tunnel lights
+C24 arched-stone-gallery 4993–5204 m: roofed 42/42 (roof 5.6–5.6 m above the road), drivable 42/42, corridor intrusions 0
+C24: 9 tunnel lights
+C25 horizon-tunnel-1 4642–4942 m: roofed 60/60 (roof 6.6–6.6 m above the road), drivable 60/60, corridor intrusions 0
+C25 horizon-tunnel-2 5556–5777 m: roofed 44/44 (roof 6.6–6.6 m above the road), drivable 44/44, corridor intrusions 0
+C25: 26 tunnel lights
+FP02 short-service-tunnel 1308–1518 m: roofed 42/42 (roof 5.6–5.6 m above the road), drivable 42/42, corridor intrusions 0
+FP02: 12 tunnel lights

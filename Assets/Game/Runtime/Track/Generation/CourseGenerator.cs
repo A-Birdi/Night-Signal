@@ -82,6 +82,7 @@ namespace NightSignal.Track.Generation
             AreaGeometry.Build(route, root, mats, profile);
             var ground = terrain.GetComponent<TerrainCollider>();
             Physics.SyncTransforms();
+            TunnelGeometry.Build(track, route, root, mats, ground, profile);
 
             var landmarks = new GameObject("Landmarks").transform;
             landmarks.SetParent(root, false);

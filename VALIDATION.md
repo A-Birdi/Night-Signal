@@ -713,3 +713,24 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   walls/bridge supports/tunnel mouths in every view and FOV extremes (C09); spectator target loss, replays and
   cinematic overrides; human playtest of comfort. **Tunnels are not built**: the eight authored tunnel sections
   render as open road (no shell), so the "tunnel" shots are night road, not a tunnel.
+
+## V-051 — Tunnels and galleries built for every authored tunnel section (2026-09-27)
+- Revision: working tree on `f9c4e6a` (committed in the next checkpoint). Unity 6000.6.3f1 editor PlayMode on the real
+  course scenes (runtime generation, Full profile).
+- `TunnelGeometry` builds each route section of kind `tunnel` (previously parsed but never built — the eight sections
+  rendered as open road): lining walls outside the road's own barriers, an elliptical vault (rock/horizon/blue-marked/
+  service tunnels) or a flat roof (galleries), concrete portal rings, rock faces closing the portals, a rock mound over
+  enclosed tunnels whose feet follow the terrain, galleries open to the valley between pillars with the mound on the
+  mountain side only, lamps and Forward+ point lights along the roof (warm sodium for rock/service, cool for the blue-marked
+  tunnel). Walls and pillars are Barrier colliders on every profile (the headless server builds them too); the roof is a
+  Scenery collider for the driving camera. Route revisions of C08, C12, C21, C22, C24, C25 and FP02 bumped to 2 (records
+  key on the route hash).
+- PlayMode `TunnelShellTests` (7 courses, 8 sections): roof over every 5 m probe (6.6 m arches, 5.6 m flat roofs), road
+  still drivable at every probe, **0** tunnel colliders inside the driving corridor between the barriers (0.3–4 m),
+  9–26 lights per course — **7/7 pass**; portal and interior renders in `Evidence/courses/tunnels/`.
+- Regression: `CourseSweepTests` 29/29 and `CourseProfileTests` 29/29 — the seven tunnel courses' evidence changed only in
+  `routeSourceHash` (finish times, distances and profiles identical).
+- Not yet: bridge/viaduct decks and piers (C03, C11, C13, C17, C20, C25 sections); tunnel shots in the built camera tour
+  (the V-050 tour predates the shells); camera collision measurements at portals (C09).
+- Also since V-050: Arcade camera roll 0.15 → 0.2 so the Settings row (10 % steps) shows the value in use; text-size row
+  label shortened; Controls columns headed KEYBOARD / CONTROLLER (seen in the V-050 instrument tour's last run).

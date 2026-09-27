@@ -103,8 +103,8 @@ Render Cockpit Sheets* renders the mounted views of every car.
 
 ## Next actions
 
-0. Addendum 03 remaining (before benchmark certification): tunnel/bridge shells for the authored sections (tunnels
-   currently render as open road); camera collision at cliff walls/bridge supports/tunnel mouths in every view (C09);
+0. Addendum 03 remaining (before benchmark certification): bridge/viaduct decks for the authored sections (tunnels and
+   galleries are built, V-051); camera collision at cliff walls/bridge supports/tunnel mouths in every view (C09);
    30/60/120 fps runs with corrections (C11); six clients with different views/styles/units (C12); online off-route
    countdown and R07/R08/R11 recovery cases; G04–G06 instrument checks in built races and at 720p/ultrawide;
    counter-slopes on the long descents; soak and record migration report (A3.8); then F08 and benchmark certification.
