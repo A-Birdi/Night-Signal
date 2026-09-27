@@ -1,0 +1,42 @@
+{
+  "schema": "night-signal/crew-diary@1",
+  "authoredBy": "narrative-worker-v1",
+  "crews": [
+    {
+      "crew": "tea-hour",
+      "title": "Tea Hour Motor Club, Mizuhana",
+      "unlockAfterStage": "S01",
+      "text": "The Tea Hour Motor Club began as the people who got the morning deliveries up the foothills before the tea-drying sheds opened: couriers, bakers, a potter, a bicycle mechanic, and a timekeeper who volunteered because nobody else would hold the clipboard. They race the tea roads because the roads are theirs for an hour after the lanterns go up and before the vans come down. Their jokes are small and practical. Gloves go missing and come back filled with sweets. Their lieutenant, Daigo Ibuki, has one rule, and he repeats it until it sticks: a fast run you cannot repeat is a guess. Win or lose, someone always pours you a cup at the bottom of the hill."
+    },
+    {
+      "crew": "rainline",
+      "title": "Rainline Atelier, Kasumi",
+      "unlockAfterStage": "S05",
+      "text": "Rainline Atelier is a workshop collective in the Kasumi cedar forest, where the weather changes faster than the signs do. Its members include a botanist, a road maintainer, a sound engineer, a courier and a climber. They agree on preparation and disagree on almost everything else, especially how much risk a wet line is worth. Every car carries a towel, a thermos and a notebook. Their lieutenant, Emi Takanashi, is a meteorologist who calls rain information and can't stand the word random. If you want to be respected here, don't complain about the weather. Tell them what you noticed."
+    },
+    {
+      "crew": "reservoir",
+      "title": "Reservoir Section, Kurogawa",
+      "unlockAfterStage": "S10",
+      "text": "Reservoir Section grew out of the Kurogawa dam and its service roads: electricians, drafters, hydrologists, an archivist, a machinist and a maintenance supervisor who laughs louder than the spillway. They share a love of precision and very little else. Some of them measure everything; others insist a measurement means nothing until you say what it was measured from. Their archive in the pump house holds decades of flood records and, it turns out, a few old timing slips. Their lieutenant, Jun Saegusa, builds cars to tolerances most people can't see and is slowly learning that numbers still need interpreting."
+    },
+    {
+      "crew": "breakwater",
+      "title": "Breakwater Union, Akebono",
+      "unlockAfterStage": "S15",
+      "text": "Breakwater Union is the coast's answer to the careful hill crews: ferry mechanics, boat repairers, a dancer, a poster artist, a night dispatcher, a fitness instructor and a sign painter. Some of them love the port and some only tolerate it. They race loud and friendly, and they fill the radio with harbour news, fish prices and a few overtakes that were exaggerated in the telling. Bold lines are welcome here, provided they stay legal and on the tarmac. Their lieutenant, Mako Hoshino, is a former champion with a dramatic jacket and a very careful mind, and she watches more than she lets on."
+    },
+    {
+      "crew": "datum",
+      "title": "Datum Works, Hoshimi",
+      "unlockAfterStage": "S19",
+      "text": "Datum Works is a racing shop in the Hoshimi uplands, among quarries, kilns and switchyards. It prints reference traces to three decimal places and argues about them for hours. A test engineer, an upholsterer, an engine builder, a veteran tuner, an experimental designer and a quality inspector share one workshop and several different ideas of what a perfect result means. The shop's champion, Reina Kurogane, is called The Surveyor because she treats a perfect line as proof that nobody else needs to be trusted. Her crew admire her, argue with her, and don't always agree with her."
+    },
+    {
+      "crew": "zero-frequency",
+      "title": "Zero Frequency, Tsukishiro",
+      "unlockAfterStage": "S24",
+      "text": "Zero Frequency is less a team than a habit. Its highland regulars include an observatory assistant, a radio repairer, a hiking guide, a snow-shed technician, a retired endurance mechanic, a retired train driver and a restoration specialist. They keep meeting on the same cold roads before dawn. What connects them is an old story: a dawn run over Amanagi that was never broadcast and never fully timed, told differently by everyone who claims to remember it. They are protective of that story and wary of anyone who wants it to be magic. Up here, people check each other's tyres before their own."
+    }
+  ]
+}

@@ -1,0 +1,2952 @@
+{
+  "schema": "night-signal/rival-story@1",
+  "authoredBy": "narrative-worker-v1",
+  "conventions": "Reaction keys are read from the rival's side: 'victory' = the rival won the race; 'loss' = the rival lost; 'defeatedRematch' = the rival lost again in a rematch. 'introConvoy' lines are for convoys of two or more humans; 'introSolo' lines are for a single human driver. The only placeholders are {player} (the addressed driver's display name) and {convoy} (the convoy's name). No line speaks for the player character. Livery colours are sRGB hex values; motifs contain no logos or real marks.",
+  "rivals": [
+    {
+      "id": "R01",
+      "relationships": [
+        {
+          "rival": "R07",
+          "note": "Noa times his delivery rounds and pins the splits on the kiosk wall. He pretends to hate it."
+        },
+        {
+          "rival": "R04",
+          "note": "Borrows Toma's gloves before every race. Toma has stopped expecting them back."
+        },
+        {
+          "rival": "R22",
+          "note": "Delivers tea to Kenta's dam crew every Thursday and gets paid in rice balls and jokes."
+        }
+      ],
+      "gesture": "Spins his round key reel on one finger, catches it, and points it at you like a microphone.",
+      "posture": "Loose and leaning forward, weight on his toes, always half-turned toward the next conversation.",
+      "signatureAccessory": "Round key reel clipped to the oversized delivery vest",
+      "livery": {
+        "motif": "Tea-delivery route map with numbered stops",
+        "pattern": "Dotted route line running along both sills, with numbered stop circles on the doors",
+        "primary": "#2F6B4F",
+        "secondary": "#F2E8CF",
+        "accent": "#E07A2E"
+      },
+      "sheet": "Sora runs the morning tea deliveries through the Mizuhana foothills and knows what everyone on the route drinks. He talks fast and drives smoothly, and he treats open third-gear bends as a place to save speed rather than spend it. Very slow hairpins test his patience, because he protects his momentum even when the corner wants him to let it go. He has lost gloves in every building in the region.",
+      "lines": {
+        "intro": [
+          "Hi! Sora, Tea Hour. I'll know your tea order by the end of the night. I always do.",
+          "A clean exit buys more than a brave entrance.",
+          "Third gear, open bend, nothing near the brakes. That's where I live.",
+          "Has anyone seen my gloves? No? Fine. Bare hands. Very traditional.",
+          "I drive this road forty times a week with a van full of tea. Tonight it's just lighter."
+        ],
+        "introConvoy": [
+          "{convoy}, is it? Lovely. I'll bring extra cups to the turnout.",
+          "A whole convoy! Somebody count heads at the finish. I'll forget."
+        ],
+        "introSolo": [
+          "Just you tonight, {player}? Then you get the good cup.",
+          "Solo run, {player}? Brave. And more tea to go round."
+        ],
+        "victory": [
+          "Kept the speed through the bends! Sorry. Not sorry. A bit sorry. Tea?",
+          "Third gear did all the work there. I just stayed out of its way."
+        ],
+        "loss": [
+          "You got me in the hairpin. I was hugging my momentum again. Everyone says I do that.",
+          "Well driven! I'll tell the whole route tomorrow. The whole route."
+        ],
+        "rematch": [
+          "Back again! I've been practising the slow hairpin. I brake properly now. Mostly.",
+          "Rematch! I remembered your order this time. Forgot my gloves again, obviously."
+        ],
+        "cleanRun": [
+          "Not a single scrape. The lantern people noticed. So did I."
+        ],
+        "defeatedRematch": [
+          "Twice! Right. Next time I let go of the momentum in the hairpin. Actually let go."
+        ]
+      }
+    },
+    {
+      "id": "R02",
+      "relationships": [
+        {
+          "rival": "R06",
+          "note": "Makes the plates for Akio's bakery; he pays her in bread and loud opinions."
+        },
+        {
+          "rival": "R31",
+          "note": "A fellow ceramicist from the coast. They swap glaze recipes and kiln gossip."
+        },
+        {
+          "rival": "R04",
+          "note": "Mends Toma's confidence the way she mends cups: patiently, with the seams left visible."
+        }
+      ],
+      "gesture": "Taps the ceramic pin on her apron twice, then turns her palms up as if checking them for clay.",
+      "posture": "Square and settled, shoulders broad and relaxed, like someone centring clay on a wheel.",
+      "signatureAccessory": "Ceramic pin on the folded canvas apron",
+      "livery": {
+        "motif": "Ash glaze with gold-lacquer repair seams",
+        "pattern": "Clay-brown body fading to pale ash glaze at the roof, crossed by thin gold 'mended crack' lines",
+        "primary": "#8C6A4F",
+        "secondary": "#D9CBB3",
+        "accent": "#C9A227"
+      },
+      "sheet": "Hanae is a potter who treats every corner entry like centring clay: set it early, keep it steady, repeat it. Boasting amuses her, and she tends to answer it with a raised eyebrow rather than words. Her brake release is the most repeatable in the Tea Hour club, but a committed late overtake can take a space she's too polite to close. She mends cracked cups with gold lacquer and leaves the seams showing on purpose.",
+      "lines": {
+        "intro": [
+          "I can do that corner again. Can you?",
+          "Evening. I've set my entry for the first hairpin. Same entry as last week. Same as next week.",
+          "You're allowed to boast, by the way. I'll just smile a little.",
+          "Every corner is a pot on the wheel. Centre it first, then shape it."
+        ],
+        "introConvoy": [
+          "{convoy}. Good. A convoy is like a kiln load: everyone comes out a bit different.",
+          "A whole convoy at once? Fine. I'll learn your lines one at a time."
+        ],
+        "introSolo": [
+          "Just you, {player}? Then it's a proper practice session. My favourite kind.",
+          "One driver, {player}. That makes it easy to see what you repeat."
+        ],
+        "victory": [
+          "Same entry every time. It isn't exciting. It is quick.",
+          "That was a good pot. Not a beautiful one, but it holds water."
+        ],
+        "loss": [
+          "You went late and committed. I left the door open. That's on me, and well taken.",
+          "Oh, that's good. I'd laugh if I weren't taking notes."
+        ],
+        "rematch": [
+          "Back to the wheel, then. I've kept the same entry. Let's see if you have.",
+          "Rematch. I'm closing the door on late moves this time. Politely, but closing it."
+        ],
+        "cleanRun": [
+          "Clean all the way down. No cracks. I like that in a cup and in a driver."
+        ],
+        "defeatedRematch": [
+          "Again, and fairly. Fine. I'll stop being quite so polite at the hairpin."
+        ]
+      }
+    },
+    {
+      "id": "R03",
+      "relationships": [
+        {
+          "rival": "R04",
+          "note": "Argues with Toma about whether waiting at a turnout is slow. Secretly agrees with him half the time."
+        },
+        {
+          "rival": "R19",
+          "note": "Trades old maps for copies from Michi's archive. Together they're compiling a history of the region's road closures."
+        },
+        {
+          "rival": "R07",
+          "note": "Noa keeps the lap charts that keep Kei honest."
+        }
+      ],
+      "gesture": "Unfolds a pocket map, points at the next bend on it, then folds it back along the wrong crease on purpose.",
+      "posture": "Tall and still, weight back, hands clasped behind the rain cape like a surveyor waiting for fog to lift.",
+      "signatureAccessory": "Checker cuff on the left wrist, below the cropped rain cape",
+      "livery": {
+        "motif": "Topographic contour lines and grid references",
+        "pattern": "Contour stripes wrapping the body, with a black-and-white checker band on the rear quarter",
+        "primary": "#3E5C76",
+        "secondary": "#E3DCC8",
+        "accent": "#B23A48"
+      },
+      "sheet": "Kei collects maps: old ones, hand-drawn ones, ones with roads that no longer exist. They're patient and soft-spoken right up until someone posts a better sector trace, at which point they become fiercely competitive. Their uphill exits and wet-road stability are superb, but they carry too little speed into long sweepers, as if waiting for the map to confirm the curve.",
+      "lines": {
+        "intro": [
+          "The map ends. The next bend does not.",
+          "I've mapped this road three times. Tonight is the fourth map.",
+          "Your sector trace from last week is on my wall, next to mine. Mine's better. For now.",
+          "Uphill exits are my favourite part of any map. That's where the lines get close together."
+        ],
+        "introConvoy": [
+          "{convoy}. A convoy is a promise to wait at the next turnout. I'll be watching who keeps it.",
+          "More than one of you in this convoy. Lovely. More traces to compare."
+        ],
+        "introSolo": [
+          "Solo tonight, {player}? Then your trace will be very easy to read.",
+          "Just you, {player}. I'll put your line on the map in pencil. For now."
+        ],
+        "victory": [
+          "Traction out of the last hairpin. I planned it on paper, and it worked on tarmac.",
+          "My exit trace is going on the wall. Yours can go next to it. Slightly smaller."
+        ],
+        "loss": [
+          "You carried more speed through the sweeper. I was still reading it. I'm redrawing tonight.",
+          "Well driven. I'll need a new map, and I'm oddly happy about that."
+        ],
+        "rematch": [
+          "I've revised the map since last time. The sweeper has a lot more ink on it now.",
+          "Rematch. Same road, new trace. Let's see whose updates were better."
+        ],
+        "cleanRun": [
+          "Clean line, no corrections. That's the kind of trace people frame."
+        ],
+        "defeatedRematch": [
+          "Two traces, both yours. I'll concede the sweeper. Not the hairpins. Never the hairpins."
+        ]
+      }
+    },
+    {
+      "id": "R04",
+      "relationships": [
+        {
+          "rival": "R03",
+          "note": "Calls Kei's turnout rule slow. Waits at every turnout anyway."
+        },
+        {
+          "rival": "R08",
+          "note": "Daigo is teaching him to brake later. He is teaching Daigo to use his phone."
+        },
+        {
+          "rival": "R01",
+          "note": "Keeps lending Sora gloves. Has made his peace with that."
+        }
+      ],
+      "gesture": "Bounces on his heels and reties a shoelace that was already tied.",
+      "posture": "Compact and fidgety, weight shifting from foot to foot, hands in his cardigan pockets until he remembers not to.",
+      "signatureAccessory": "Bright laces in mismatched colours",
+      "livery": {
+        "motif": "Bicycle chainring and spoke pattern",
+        "pattern": "Spoke rays fanning from each wheel arch, with contrasting patched panels like his cardigan",
+        "primary": "#D8572A",
+        "secondary": "#2B2D42",
+        "accent": "#3BCEAC"
+      },
+      "sheet": "Toma fixes bicycles in Mizuhana village and is still getting used to cars being so heavy and so honest about it. He rotates the car quickly in slow corners, but under pressure he brakes too early and apologises to nobody in particular. He's nervous and doesn't hide it. He keeps turning up anyway, which is its own kind of courage.",
+      "lines": {
+        "intro": [
+          "I fixed the brakes. Now I have to stop apologising to them.",
+          "Okay. Okay! I'm fine. My hands are fine. That's just what my hands do.",
+          "Slow corners, I'm good at. Bicycles taught me that. It's the fast bit before them that's scary.",
+          "If I brake early, don't tell Daigo. He'll know anyway. He always knows."
+        ],
+        "introConvoy": [
+          "{convoy}! Please don't all come past me at once. One at a time is fine.",
+          "A convoy? Kei says that means you wait for each other. I say that's slow. Prove one of us wrong."
+        ],
+        "introSolo": [
+          "Just you, {player}? Good. Less mirror to look at.",
+          "Solo, {player}? Me too, sort of. Nobody waits for me at turnouts either."
+        ],
+        "victory": [
+          "I won? I won! Didn't even brake that early! Well, a bit early. But I won!",
+          "Low-speed rotation. Bicycle skills. Never let anyone tell you bicycles don't count."
+        ],
+        "loss": [
+          "Braked too early. I felt it happen. I watched myself do it. Next time.",
+          "Good race! Honestly, that was fair and clean and I'm only slightly upset."
+        ],
+        "rematch": [
+          "I've been practising letting go of the brake. Out loud. The neighbours know all about it.",
+          "Rematch! I'm braking later this time. I've written LATER on my hand."
+        ],
+        "cleanRun": [
+          "You didn't touch anything all race. How? Teach me. Actually, don't. Daigo will."
+        ],
+        "defeatedRematch": [
+          "Twice! Okay. I braked early again. At least I'm consistent. That counts for something here."
+        ]
+      }
+    },
+    {
+      "id": "R05",
+      "relationships": [
+        {
+          "rival": "R07",
+          "note": "Shares a night-shift thermos with Noa at the timing post. They compare notebooks, and fonts."
+        },
+        {
+          "rival": "R26",
+          "note": "Maya defends the inside line the same way and thinks she invented it. Yui has dated notes that say otherwise."
+        },
+        {
+          "rival": "R01",
+          "note": "Keeps a page of Sora's lost gloves, with locations."
+        }
+      ],
+      "gesture": "Clicks her pen once, writes a single word in her notebook, and underlines it.",
+      "posture": "Small, upright and very still, thumbs hooked on the tool-loop belt.",
+      "signatureAccessory": "Enamel moth badge on the bomber's collar",
+      "livery": {
+        "motif": "Night-shift moth and circuit traces",
+        "pattern": "Moth wings spread across the bonnet, with fine circuit-trace lines along the doors",
+        "primary": "#1F2833",
+        "secondary": "#C5C6C7",
+        "accent": "#F2C14E"
+      },
+      "sheet": "Yui works nights maintaining the region's lantern and signal circuits and writes everything down in small, exact handwriting. Her humour is dry enough to miss. She defends the inside line legally and without ever swerving, but if she defends for too long she gives away the exit she was protecting. She considers 'interesting' the highest compliment available.",
+      "lines": {
+        "intro": [
+          "There is room. It just is not where you hoped.",
+          "I work nights. This counts as lunch.",
+          "I've written your name in my notebook. Nothing bad. Yet.",
+          "The inside line is mine. Legally, politely and entirely."
+        ],
+        "introConvoy": [
+          "{convoy}. Several of you. I've brought a larger notebook.",
+          "A convoy. Good. I'll defend against all of you in alphabetical order."
+        ],
+        "introSolo": [
+          "Just you, {player}. One column in the notebook. Tidy.",
+          "Solo, {player}? Brave. I'd have brought a friend. Or at least a thermos."
+        ],
+        "victory": [
+          "I kept the inside. You kept looking at it. That's the whole report.",
+          "Interesting race. That's not a compliment. It's a category."
+        ],
+        "loss": [
+          "I defended the corner and forgot about the exit. Noted. Underlined, even.",
+          "Well driven. That goes in the notebook in the good ink."
+        ],
+        "rematch": [
+          "I've reviewed my notes. My exits were the problem. I've written 'exits' three times.",
+          "Rematch. I'm defending less and leaving earlier. In theory."
+        ],
+        "cleanRun": [
+          "No contact, no swerves, no drama. My favourite kind of report."
+        ],
+        "defeatedRematch": [
+          "Twice. I'm starting a new notebook just for you. That's rare. Be flattered."
+        ]
+      }
+    },
+    {
+      "id": "R06",
+      "relationships": [
+        {
+          "rival": "R02",
+          "note": "Hanae makes the plates his bread is sold on. He pays in loaves and loud opinions."
+        },
+        {
+          "rival": "R13",
+          "note": "Fumio buys bread for the Kasumi road crew at five every morning. They argue about potholes and crusts."
+        }
+      ],
+      "gesture": "Brushes flour off his sleeves with two slow swipes, then smiles as if he knows something you don't.",
+      "posture": "Heavyset and unhurried, coat open, feet planted as if leaning on a warm oven.",
+      "signatureAccessory": "Flour-dusted shoes",
+      "livery": {
+        "motif": "Bread-crust score marks and wheat",
+        "pattern": "Diagonal score marks across the flanks like a loaf's crust, with flour-white lower sills",
+        "primary": "#C68B59",
+        "secondary": "#F5F0E6",
+        "accent": "#5B3A29"
+      },
+      "sheet": "Akio bakes for half of Mizuhana and starts work at three in the morning, which may be why nothing on race night seems to hurry him. He reads rough surface transitions like the crust on a loaf and finds composed lines where other people find bumps. People mistake his calm for softness, and he doesn't like it. His weakness is hesitation when a narrow passing gap opens; he'd rather wait for a better one.",
+      "lines": {
+        "intro": [
+          "The road has a crust too.",
+          "Morning. Well, it's morning for me. I've done six hundred rolls already.",
+          "People see a baker and think 'easy'. I know that look. I'll see it again in your mirror.",
+          "Rough patch after the bridge: soft in the middle, crisp at the edges. Drive the edges."
+        ],
+        "introConvoy": [
+          "{convoy}. I've brought enough buns for everyone, and I'm keeping them until afterwards.",
+          "A convoy. Lovely. Still one oven, though, and I'm the one watching it."
+        ],
+        "introSolo": [
+          "On your own, {player}? Then you get first pick of the buns. After the race.",
+          "Solo tonight, {player}. Good. I like to know exactly who I'm racing."
+        ],
+        "victory": [
+          "Easy opponent? Heh. The crust held. It usually does.",
+          "Found the firm line through the rough bit. Twenty years of reading crusts. It transfers."
+        ],
+        "loss": [
+          "You took the narrow gap while I was still deciding. That's fair. That's baking, too.",
+          "Well done. I hesitated. Don't tell anyone at the bakery."
+        ],
+        "rematch": [
+          "Back for seconds? I'll commit quicker this time. I've been practising on the oven door.",
+          "Rematch. Same road, fresh batch. Let's see how it rises."
+        ],
+        "cleanRun": [
+          "Not a scratch. Tidy as a tray of rolls. I noticed."
+        ],
+        "defeatedRematch": [
+          "Twice, eh? All right. Next time I go for the gap. Probably. Maybe."
+        ]
+      }
+    },
+    {
+      "id": "R07",
+      "relationships": [
+        {
+          "rival": "R05",
+          "note": "Night-shift thermos partner at the timing post. Yui thinks Noa's jokes are data errors."
+        },
+        {
+          "rival": "R01",
+          "note": "Times Sora's delivery rounds for fun and pins the splits up where he'll see them."
+        },
+        {
+          "rival": "R11",
+          "note": "Times Airi's corner phrasing and swears the tempo shows in the splits."
+        }
+      ],
+      "gesture": "Taps the translucent watch twice, glances at it, then grins as if it had told a joke.",
+      "posture": "Athletic and restless, bouncing on the balls of their feet, one arm always half-raised to check the watch.",
+      "signatureAccessory": "Large translucent watch",
+      "livery": {
+        "motif": "Stopwatch dial and lap-chart grid",
+        "pattern": "Sector-split bars along each side and a large watch dial on the roof",
+        "primary": "#00A6A6",
+        "secondary": "#F4F4F9",
+        "accent": "#EF476F"
+      },
+      "sheet": "Noa volunteers as a timekeeper on nights they aren't racing and has strong opinions about spreadsheet formatting. Their jokes are untidy; their data is spotless. In the car, Noa links alternating corners with hardly any steering correction, but one unexpectedly slow sector breaks their rhythm, and it takes them a while to find it again.",
+      "lines": {
+        "intro": [
+          "That was almost a sentence. Try the next corner.",
+          "I'm timing tonight and racing. If my splits look good, I promise I didn't touch them.",
+          "Left, right, left, breathe. It's basically a joke with a good punchline.",
+          "My watch is see-through so you can watch the gears panic. Very honest watch."
+        ],
+        "introConvoy": [
+          "{convoy}! Several cars, several splits. Best night of my week.",
+          "A convoy. I've made a column for each of you. Colour-coded. Don't ask what the colours mean."
+        ],
+        "introSolo": [
+          "Solo, {player}? One clean column. I love a clean column.",
+          "Just you, {player}. I'll time you fairly and mock you gently."
+        ],
+        "victory": [
+          "Linked every corner! That was a whole paragraph, full stops and everything.",
+          "Checked the splits. I won. Checked them again. Still won. Lovely data."
+        ],
+        "loss": [
+          "That slow section threw me and I never got the beat back. Classic Noa.",
+          "Nice! Your splits are cleaner than mine. I'm furious and I'm framing them."
+        ],
+        "rematch": [
+          "Rematch! I've practised getting my rhythm back. Mostly by dancing in the timing hut.",
+          "Back again? Good. I've left a column blank for tonight."
+        ],
+        "cleanRun": [
+          "Nothing in the incident log. Do you know how rare an empty incident column is?"
+        ],
+        "defeatedRematch": [
+          "Twice! Your data's better than mine. That's the most painful sentence I know."
+        ]
+      }
+    },
+    {
+      "id": "R08",
+      "relationships": [
+        {
+          "rival": "R04",
+          "note": "His student. Daigo thinks Toma is braver than he knows, and won't tell him until he brakes later."
+        },
+        {
+          "rival": "R16",
+          "note": "Fellow lieutenant. They've traded mentoring advice for a decade and still disagree about rain."
+        },
+        {
+          "rival": "R37",
+          "note": "Old workshop friend. Osamu tunes, Daigo tests, and they argue about tea."
+        }
+      ],
+      "gesture": "Clicks the brass stopwatch shut and holds it up at eye level without starting it.",
+      "posture": "Very tall and planted, sleeves rolled, arms folded low. He leans down to talk rather than make people look up.",
+      "signatureAccessory": "Heavy brass stopwatch on a leather strap",
+      "livery": {
+        "motif": "Workshop ruler graduations and a brass stopwatch",
+        "pattern": "Ruler graduations along both sills, with a single brass band over the roof from windscreen to tail",
+        "primary": "#2E3B32",
+        "secondary": "#B08D57",
+        "accent": "#E9E3D5"
+      },
+      "sheet": "Daigo runs a teaching workshop in Mizuhana and is the Tea Hour Motor Club's first lieutenant. He's generous with his time and stingy with praise for careless speed; the only runs he congratulates are ones you could repeat. He brakes later and deeper than almost anyone, with complete control. If a rival baits him into overbraking, though, his long gearing leaves him with a weak exit.",
+      "lines": {
+        "intro": [
+          "Do not follow my brake lights. Find your own marker.",
+          "Evening. I'm not here to see how fast you are. I'm here to see how fast you are twice.",
+          "I'll brake late. Very late. Don't copy it. It took me fifteen years to earn.",
+          "The stopwatch isn't running yet. It starts when you stop guessing.",
+          "Careless speed gets nothing from me. Controlled speed gets tea and a proper conversation.",
+          "Look at the bell workshop wheel. It never hurries, and it never stops. Drive like that."
+        ],
+        "introConvoy": [
+          "{convoy}. Good. I'll watch every one of you, and I'll remember every one of you.",
+          "A convoy that waits for each other learns twice as fast. Let's see if yours does.",
+          "Pick your own markers, {convoy}. If you all brake at the same spot, somebody's copying."
+        ],
+        "introSolo": [
+          "On your own, {player}? Then there's nobody to copy. Good.",
+          "Just you, {player}. I prefer that for a first lesson. Fewer places to hide.",
+          "Solo run, {player}. Show me one controlled run. Then show me the same one again."
+        ],
+        "victory": [
+          "Late on the brakes, clean on the release. That's the lesson. You'll learn it.",
+          "Fast in patches. I don't congratulate patches. Come back when it's a whole run.",
+          "The stopwatch agrees with me tonight. It won't always. Keep coming back."
+        ],
+        "loss": [
+          "You baited me into overbraking, and my gearing punished me for it. Well taught.",
+          "Controlled and repeatable. I'll say it: well done. Don't let it go to your head.",
+          "Good. That was your own marker, not mine. That's all I wanted to see."
+        ],
+        "rematch": [
+          "Back again. Good. Show me whether last time was a run or an accident.",
+          "Rematch. I've changed nothing. The question is whether you have.",
+          "Same road, same stopwatch. If you're quicker, you'd better be able to tell me why."
+        ],
+        "cleanRun": [
+          "Clean from the top to the footbridge. That's worth more than the time.",
+          "No contact, no resets. That's respect for the road. I noticed.",
+          "Clean runs are the only ones I bother remembering. I'll remember this one."
+        ],
+        "defeatedRematch": [
+          "Twice, and the same way both times. That isn't luck any more. That's craft.",
+          "Again. You've learnt how to make me overbrake. Now I have to unlearn it.",
+          "Beaten twice. I'm proud of you. That's the only time I'll say so this season."
+        ]
+      }
+    },
+    {
+      "id": "R09",
+      "relationships": [
+        {
+          "rival": "R16",
+          "note": "Her mentor in weather. Rika reads plants, Emi reads skies, and they meet in the middle at the tyres."
+        },
+        {
+          "rival": "R13",
+          "note": "Tells Fumio which drains will fail next. He says she's usually right, which from Fumio is a medal."
+        }
+      ],
+      "gesture": "Crouches, presses her palm flat to the road and holds it there for a slow count of three.",
+      "posture": "Long-limbed and tilted slightly forward, head cocked as if listening for something just out of range.",
+      "signatureAccessory": "Asymmetric reflective piping on her fitted waterproof smock",
+      "livery": {
+        "motif": "Pressed fern fronds and raindrop dots",
+        "pattern": "Fern fronds unfurling from the front arches, with a single asymmetric reflective stripe on one side only",
+        "primary": "#4F7942",
+        "secondary": "#DDE7C7",
+        "accent": "#E4B363"
+      },
+      "sheet": "Rika is a botanist who notices grip changing before anyone notices rain: the smell of the cedars, the colour of the moss, the sound the tyres make. In the wet she chooses predictable outside arcs that look slow and aren't. When the ideal line dries quickly she hesitates, as if she doesn't quite trust good news.",
+      "lines": {
+        "intro": [
+          "Listen to the tyres, not the weather report.",
+          "The moss by the trestle has gone dark. That means something. I'll tell you afterwards.",
+          "Outside arcs in the wet. People think it's timid. People are wrong.",
+          "Smell that? Cedar resin. The air's turning. You've got maybe an hour."
+        ],
+        "introConvoy": [
+          "{convoy}. Do all of you listen to your tyres? We'll find out.",
+          "A convoy in the forest. Stay together near the reservoir; the air changes quickly there."
+        ],
+        "introSolo": [
+          "Just you, {player}? Good. You'll hear more without the chatter.",
+          "Solo, {player}. Then it's you, me and whatever the cedars are about to do."
+        ],
+        "victory": [
+          "The outside arc was the right call. It usually is in the wet.",
+          "I heard the grip change a corner before you did. That was all it took."
+        ],
+        "loss": [
+          "The line dried faster than I trusted it to. You trusted it first. Well read.",
+          "Lovely driving. You were listening. I could tell."
+        ],
+        "rematch": [
+          "I've spent all week trusting dry lines on purpose. It was very uncomfortable.",
+          "Back again. The forest has changed since last time. Has your driving?"
+        ],
+        "cleanRun": [
+          "Clean in the wet, clean in the dry. You read the whole road."
+        ],
+        "defeatedRematch": [
+          "Twice. You trusted the drying line and I didn't. I'm learning. Slowly."
+        ]
+      }
+    },
+    {
+      "id": "R10",
+      "relationships": [
+        {
+          "rival": "R11",
+          "note": "Drove Airi to music lessons for three years and still times the route out of habit."
+        },
+        {
+          "rival": "R29",
+          "note": "Seiji dispatches the coast's night ferries. They compare timetables the way other people compare cars."
+        }
+      ],
+      "gesture": "Knocks his thumb ring twice on the car roof, like knocking on a door to say he's arrived.",
+      "posture": "Compact and squared up, pitched slightly forward, as if already halfway to the next address.",
+      "signatureAccessory": "Thumb ring",
+      "livery": {
+        "motif": "Parcel tape and delivery-time stamps",
+        "pattern": "Two strips of 'parcel tape' crossing the roof, with clock-face delivery stamps on the doors",
+        "primary": "#B7410E",
+        "secondary": "#EDE0D4",
+        "accent": "#22223B"
+      },
+      "sheet": "Masato spent ten years as a courier in the Kasumi valleys and still treats every journey as a promise with a delivery time. He plans two corners ahead and uses the straight between them like a parcel he's already signed for. When an apex tightens more than he planned, it catches him out, and he dislikes surprises more than he dislikes losing.",
+      "lines": {
+        "intro": [
+          "I promised I would arrive. I did not promise quietly.",
+          "Two corners ahead. That's where I'm already driving. This one's just paperwork.",
+          "Delivery window: the finish line. I'm never late. Occasionally early.",
+          "Every straight is a promise you made at the corner before it. Keep yours."
+        ],
+        "introConvoy": [
+          "{convoy}. How many of you? I'm counting drop-offs.",
+          "A convoy. Excellent. Everybody signs for their own finish."
+        ],
+        "introSolo": [
+          "One driver, {player}. One delivery. Nice and simple.",
+          "Solo, {player}? Then I know exactly who I've promised to beat."
+        ],
+        "victory": [
+          "Arrived, as promised. Signature at the finish, please.",
+          "Set up the straight two corners early. It pays every time."
+        ],
+        "loss": [
+          "That apex tightened and I'd already planned past it. You hadn't. Fair delivery.",
+          "Well driven. Late delivery on my part. It won't happen twice."
+        ],
+        "rematch": [
+          "I've replanned the route. Every tightening apex has a note on it now.",
+          "Rematch. I've made myself a promise. I'll tell you what it was afterwards."
+        ],
+        "cleanRun": [
+          "Clean delivery. No dents, no detours. Customers love that."
+        ],
+        "defeatedRematch": [
+          "Twice. I broke a promise to myself. That hurts more than losing."
+        ]
+      }
+    },
+    {
+      "id": "R11",
+      "relationships": [
+        {
+          "rival": "R10",
+          "note": "He drove her to lessons for years. She still tells him the tempo of his own route."
+        },
+        {
+          "rival": "R07",
+          "note": "Noa says they can hear her tempo in the splits. She thinks it's the nicest thing anyone has said to her."
+        },
+        {
+          "rival": "R28",
+          "note": "A dancer on the coast. They've never raced each other and argue about tempo constantly."
+        }
+      ],
+      "gesture": "Counts four beats on her fingers, then points straight at you on the fifth.",
+      "posture": "Small and springy, braids swinging, scarf tucked in, never quite standing still.",
+      "signatureAccessory": "Star barrette in one of her twin braids",
+      "livery": {
+        "motif": "Musical staff lines and a single star",
+        "pattern": "A five-line staff flowing along both flanks, with note heads at each wheel and a star on the bonnet",
+        "primary": "#F7F7F2",
+        "secondary": "#264653",
+        "accent": "#E9C46A"
+      },
+      "sheet": "Airi studies music and counts corners the way she counts phrases: in groups, with a breath at the end. Her left-right transitions are natural and quick. She hides frustration badly, though, and after a mistake she rushes the very next corner, as if that could make the bar come out right. She keeps her long scarf tucked safely into her jacket because someone told her to once, and it stuck.",
+      "lines": {
+        "intro": [
+          "You changed the beat. Good.",
+          "Four corners, then a rest, then three. It's basically a waltz with guardrails.",
+          "Don't talk to me about last time. I'm fine. I'm totally fine. Let's go.",
+          "My teacher says I rush. My teacher has never driven the esses."
+        ],
+        "introConvoy": [
+          "{convoy}! An ensemble. Try to stay in tempo with each other.",
+          "A whole convoy. Okay. I'll count you all in."
+        ],
+        "introSolo": [
+          "Solo, {player}? A duet, then. You and me.",
+          "Just you, {player}. Keep up. Or don't. I'll be in the next bar."
+        ],
+        "victory": [
+          "Left, right, left, finish! That's the phrase. That's the whole phrase!",
+          "I didn't rush once! Well, once. It still worked."
+        ],
+        "loss": [
+          "I rushed the corner after my slide. I know. I KNOW. Well driven.",
+          "Hmph. Fine. That was a lovely line. I'm not frustrated. You can't prove it."
+        ],
+        "rematch": [
+          "I've been practising the corner after a mistake. It's the hardest bar in the piece.",
+          "Rematch! Same tune, but I'm playing it slower after the slide."
+        ],
+        "cleanRun": [
+          "Not one wrong note. That was actually really beautiful. Don't let it go to your head."
+        ],
+        "defeatedRematch": [
+          "Twice! Okay. After the mistake, I breathe. Breathe. Then play."
+        ]
+      }
+    },
+    {
+      "id": "R12",
+      "relationships": [
+        {
+          "rival": "R15",
+          "note": "Photographs Itsuki's climbs. He refuses to look at the pictures until he retires."
+        },
+        {
+          "rival": "R26",
+          "note": "Maya puts Rui's photos on her posters without asking. Rui pretends to mind."
+        }
+      ],
+      "gesture": "Frames you between raised thumbs and forefingers, then lowers them without comment.",
+      "posture": "Lean and quiet, weight on one hip, poncho hanging square, goggles resting at the collar.",
+      "signatureAccessory": "Broad goggles worn at the collar",
+      "livery": {
+        "motif": "Camera aperture blades and trail contours",
+        "pattern": "An aperture iris on the bonnet, with thin wide-angle frame lines at the corners of each window",
+        "primary": "#6B705C",
+        "secondary": "#A5A58D",
+        "accent": "#FFB703"
+      },
+      "sheet": "Rui photographs the Kasumi trails and speaks rarely, and when they do it's usually about light. In the car they set up wide and turn the angle into strong exits, and they have a surprising appetite for a clean overtake. On narrow roads the wide setup leaves the inside open. Rui knows this and does it anyway, because the angle is better.",
+      "lines": {
+        "intro": [
+          "There is a better angle from out here.",
+          "Good light tonight. I'll see you from the outside.",
+          "I don't talk much before a race. The overtake will do the talking.",
+          "I've photographed this bend for eleven seasons. The best line is never the obvious one."
+        ],
+        "introConvoy": [
+          "{convoy}. Lots of cars. Good composition.",
+          "A convoy. I'll try to fit all of you in one frame. From behind, ideally."
+        ],
+        "introSolo": [
+          "One subject, {player}. Easier to focus.",
+          "Solo. Fine. I'll be the one on the outside, {player}."
+        ],
+        "victory": [
+          "Wide in, strong out. That's the picture I wanted.",
+          "Clean pass. I'll remember the angle."
+        ],
+        "loss": [
+          "You took the inside I left open. Fair. The angle still looked good.",
+          "Well driven. I'd frame that pass if it had been mine."
+        ],
+        "rematch": [
+          "I've found a new angle since last time. It might even work on narrow roads.",
+          "Rematch. Same bend, different light."
+        ],
+        "cleanRun": [
+          "No contact at all. A clean frame. Rare."
+        ],
+        "defeatedRematch": [
+          "Twice through the inside. All right. I'll narrow the angle. A little."
+        ]
+      }
+    },
+    {
+      "id": "R13",
+      "relationships": [
+        {
+          "rival": "R06",
+          "note": "Buys Akio's bread for the road crew every dawn. They argue about potholes and crusts."
+        },
+        {
+          "rival": "R09",
+          "note": "Rika tells him where the drains will fail. He fixes them before they do."
+        },
+        {
+          "rival": "R44",
+          "note": "A fellow road-keeper up on the highland snow sheds. They swap tools and grumbles by post."
+        }
+      ],
+      "gesture": "Taps the peak of his knitted cap, then points two fingers at the road surface ahead.",
+      "posture": "Round and solid, hands clasped behind his back like a foreman inspecting fresh tarmac.",
+      "signatureAccessory": "Repair patches on his short waxed coat",
+      "livery": {
+        "motif": "Road-repair patches and reflector posts",
+        "pattern": "Patchwork panels in slightly different shades, with reflector-post chevrons on the rear quarters",
+        "primary": "#5C4033",
+        "secondary": "#8A9A5B",
+        "accent": "#FF9F1C"
+      },
+      "sheet": "Fumio has maintained the Kasumi forest roads for twenty years and knows every patch, drain and lifted root by name. He's protective of newcomers and impatient with excuses in equal measure. On unsettled surfaces he's composed and quick, but he's conservative when a high-speed commitment is on offer, because he knows exactly what the repairs cost.",
+      "lines": {
+        "intro": [
+          "That patch was not there yesterday. It is there now.",
+          "I resurfaced the second ess in the spring. Be nice to it.",
+          "You're new. Good. Ask me anything. Don't make excuses to me. Those are the rules.",
+          "The road's lumpy by the shelter. Drive through the lumps, not around them."
+        ],
+        "introConvoy": [
+          "{convoy}. Stay together near the shelter. I'll be keeping an eye on the lot of you.",
+          "A convoy of newcomers. Right. Drive what's there and nobody gets a lecture."
+        ],
+        "introSolo": [
+          "On your own, {player}? Then you've no one to blame. I like that.",
+          "Just you, {player}. Mind the reflectors. I polished them."
+        ],
+        "victory": [
+          "Composed on the rough bits. That's where it was won, not on the fast bit.",
+          "Good race. No excuses from me, and I don't want any from you."
+        ],
+        "loss": [
+          "You committed on the fast sweep and I didn't. That's the whole story. Well done.",
+          "Fair win. You drove the road as it is, not as you wished it was."
+        ],
+        "rematch": [
+          "Back? Good. I've repaired nothing since, so you've no new excuses.",
+          "Rematch. I'll commit more on the sweep this time. Probably."
+        ],
+        "cleanRun": [
+          "Clean on my roads. That's the best thank-you a maintainer gets."
+        ],
+        "defeatedRematch": [
+          "Twice. All right. You've earned your place up here. Stop looking so pleased."
+        ]
+      }
+    },
+    {
+      "id": "R14",
+      "relationships": [
+        {
+          "rival": "R37",
+          "note": "Osamu sets the ratios; Ena hears whether he got them right. They respect each other deeply and correct each other constantly."
+        },
+        {
+          "rival": "R21",
+          "note": "Natsumi edits Ena's engine recordings for the Night Signal. Neither of them wastes a word."
+        }
+      ],
+      "gesture": "Tilts her head toward your engine, closes her eyes and holds up one finger for silence.",
+      "posture": "Tall and angular, one hip cocked, split-hem jacket hanging still, head always angled slightly to listen.",
+      "signatureAccessory": "Geometric earrings",
+      "livery": {
+        "motif": "Waveforms and frequency bars",
+        "pattern": "A stereo waveform running down each side, mirrored, with a spectrum-bar fade on the roof",
+        "primary": "#C0C5CE",
+        "secondary": "#343D46",
+        "accent": "#FF5A5F"
+      },
+      "sheet": "Ena is a sound engineer who can hear a bad shift from across a car park and cannot resist mentioning it. Uphill she keeps her engine exactly in its useful band, and her gear changes are almost musical. She rarely risks a sudden alternate line, though; she prefers to know how something will sound before she does it.",
+      "lines": {
+        "intro": [
+          "Your engine asked a question. You changed the subject.",
+          "I heard your downshift from the car park. We'll talk later.",
+          "Uphill, stay in the band. Out of it, the car sounds like it's apologising.",
+          "Quiet, please. I'm listening to the grid."
+        ],
+        "introConvoy": [
+          "{convoy}. Several engines. I'll be listening to all of them. Sorry in advance.",
+          "A convoy. Lovely. A chord, if you're all in the right gear."
+        ],
+        "introSolo": [
+          "One engine, {player}. I'll hear every decision you make.",
+          "Just you, {player}. A solo recording. Nowhere to hide a bad shift."
+        ],
+        "victory": [
+          "Kept it in the band all the way up. That's what a win sounds like.",
+          "Your third-to-second was flat. I'm sorry. I had to say it."
+        ],
+        "loss": [
+          "Clean shifts. Barely a stumble. I'm almost disappointed I've nothing to mention.",
+          "You took a line I'd never try. It sounded wrong and it worked. I'm still processing it."
+        ],
+        "rematch": [
+          "I've listened to the recording of last time. Several times. Shall we?",
+          "Rematch. I'm going to try an alternate line. Don't tell anyone. I'm terrified."
+        ],
+        "cleanRun": [
+          "No contact, no scrapes. The only sound was the engine. A perfect mix."
+        ],
+        "defeatedRematch": [
+          "Twice. You changed the tune and I kept playing the old one. Noted."
+        ]
+      }
+    },
+    {
+      "id": "R15",
+      "relationships": [
+        {
+          "rival": "R12",
+          "note": "Rui photographs his climbs. He won't look at the pictures."
+        },
+        {
+          "rival": "R43",
+          "note": "Climbing partner in the highlands. Neri laughs at his stories and quietly checks his knots."
+        }
+      ],
+      "gesture": "Rolls his shoulders, flexes the stitched wristwrap, and gives an easy, lopsided smile.",
+      "posture": "Broad and relaxed, weight back on his heels, arms loose, as if he's just come down from a long route.",
+      "signatureAccessory": "Stitched wristwrap",
+      "livery": {
+        "motif": "Climbing rope and carabiners",
+        "pattern": "A twisted rope line running from nose to tail, with a carabiner shape looped around the fuel filler",
+        "primary": "#3D5A80",
+        "secondary": "#E0FBFC",
+        "accent": "#EE6C4D"
+      },
+      "sheet": "Itsuki climbs rock in his spare time and is the most relaxed person in any room until the road narrows and a drop appears beside it. Then he becomes very precise, holding repeatable safe arcs that most people can't match. His weakness is courtesy: an aggressive but clean rival can set the entry pace for him, and he lets them.",
+      "lines": {
+        "intro": [
+          "Close to the edge is not the same as in control.",
+          "Nice evening for it. Let's keep our margins and have a good time.",
+          "On narrow roads I keep a hand's width to spare. Always. That hand's width is fast.",
+          "Don't worry about me. Worry about the drop. Then stop worrying and look at the apex."
+        ],
+        "introConvoy": [
+          "{convoy}. A rope team. Keep an eye on each other up here.",
+          "A convoy. Nice. Leave each other some margin and you'll all get home quicker."
+        ],
+        "introSolo": [
+          "Solo, {player}? Then keep a margin for yourself. Nobody else will.",
+          "Just you, {player}. Enjoy the view on the way down. Briefly."
+        ],
+        "victory": [
+          "Same arc every time. Boring to watch, lovely to drive.",
+          "Kept my margin all the way. It adds up by the finish."
+        ],
+        "loss": [
+          "You set the pace and I let you. That's my habit. Well played.",
+          "Great drive. You were close to the edge and in control. Both."
+        ],
+        "rematch": [
+          "Back again. I'm not letting you set the pace this time. Probably.",
+          "Rematch. Same margins, different attitude."
+        ],
+        "cleanRun": [
+          "Not a touch. Clean on a narrow road is the only kind of fast I trust."
+        ],
+        "defeatedRematch": [
+          "Twice you set the pace and twice I followed. I'll have to be ruder. Politely."
+        ]
+      }
+    },
+    {
+      "id": "R16",
+      "relationships": [
+        {
+          "rival": "R08",
+          "note": "Fellow lieutenant. They've traded mentoring advice for a decade and still disagree about rain."
+        },
+        {
+          "rival": "R09",
+          "note": "Her protégée. Rika reads plants, Emi reads pressure charts, and they agree about tyres."
+        },
+        {
+          "rival": "R23",
+          "note": "Hydrologist at the reservoir. They share rainfall data and a distrust of anyone who says 'probably'."
+        }
+      ],
+      "gesture": "Unfastens the cedar clasp at her collar, turns her face into the wind for a moment, then fastens it again.",
+      "posture": "Upright and composed, hands folded at her waist, the long coat hanging still even in a breeze.",
+      "signatureAccessory": "Cedar clasp on the asymmetric collar of her storm-grey coat",
+      "livery": {
+        "motif": "Isobar chart lines and a cedar clasp",
+        "pattern": "Curved isobars sweeping from the bonnet across the doors, with one asymmetric collar-shaped stripe over the roof",
+        "primary": "#6C757D",
+        "secondary": "#D8E2DC",
+        "accent": "#7F5539"
+      },
+      "sheet": "Emi is a meteorologist and Rainline Atelier's lieutenant: courteous, precise and quietly fierce about lazy assumptions. She anticipates traction changes from camber and surface before they happen, which makes her formidable in the rain. Her dry-road pace is less intimidating, and she knows it. When she wins, she hands over notes rather than speeches.",
+      "lines": {
+        "intro": [
+          "The rain is not against you. It is information.",
+          "Good evening. Before we start: what did you assume about tonight's surface? Be honest.",
+          "Uncertain is not the same as random. Please don't mix them up in front of me.",
+          "I've logged every rain on this pass for nine years. It still surprises me. It never fools me.",
+          "The camber tells you where the water goes. The water tells you where the grip isn't.",
+          "I don't mind losing. I mind people who stop looking because they think they already know."
+        ],
+        "introConvoy": [
+          "Good evening, {convoy}. Each of you will read the road differently. That's useful. Share it.",
+          "A convoy is a weather network. More stations, better forecast. Talk to each other.",
+          "{convoy}, please don't all copy the fastest driver's line. It rained differently for them."
+        ],
+        "introSolo": [
+          "Good evening, {player}. On your own, you'll have to be your own forecast.",
+          "Solo, {player}. Fine. Then the only assumption to question is yours.",
+          "Just you, {player}. Read the surface, not my car. My car is reading it too."
+        ],
+        "victory": [
+          "You drove last week's rain. Tonight's was different. Here, take my notes.",
+          "The traction changed at the bridge. I saw it coming. Next time, so will you.",
+          "Well driven, but you assumed. I didn't. That was the whole margin."
+        ],
+        "loss": [
+          "Well read. That's what I hoped to see. Take the notebook. It's more use than a trophy.",
+          "You questioned your assumption before I had to ask. Thank you.",
+          "I expected the dry sections to be yours. The wet ones were too. That I didn't expect."
+        ],
+        "rematch": [
+          "Back again. What did you change? Not in the car. In your head.",
+          "Rematch. Same pass, different rain. Don't drive the memory.",
+          "I've added a page to my notebook since last time. It's about you."
+        ],
+        "cleanRun": [
+          "Clean in the wet. That isn't luck. That's reading.",
+          "No contact, and no slides you didn't choose. Beautifully done.",
+          "You never once argued with the surface. You listened. I noticed."
+        ],
+        "defeatedRematch": [
+          "Twice. You read this pass better than I taught it. That's the best outcome there is.",
+          "Beaten again, and fairly. I'll need a new notebook. You keep the old one.",
+          "You didn't assume anything tonight. I did. It cost me. Well done."
+        ]
+      }
+    },
+    {
+      "id": "R17",
+      "relationships": [
+        {
+          "rival": "R21",
+          "note": "Natsumi edits his rambling radio segments down to one sentence each. He thinks that's hilarious."
+        },
+        {
+          "rival": "R22",
+          "note": "His supervisor. Kenta taught him patience with a live panel and is still working on patience in a car."
+        }
+      ],
+      "gesture": "Flicks the orange tape on his glove with a thumbnail, then gives a quick two-fingered salute.",
+      "posture": "Slim and jittery, jumpsuit sleeves knotted at the waist, bouncing right up until he gets in the car, then completely still.",
+      "signatureAccessory": "Orange insulating tape wrapped around one glove",
+      "livery": {
+        "motif": "Wiring diagram and insulating tape",
+        "pattern": "Circuit-diagram lines running from the headlamps to the tail, with an orange tape wrap round one mirror",
+        "primary": "#1D3557",
+        "secondary": "#A8DADC",
+        "accent": "#F77F00"
+      },
+      "sheet": "Shun keeps the Kurogawa dam's electrics running and is cheerfully impatient about everything except the parts that could hurt someone. On the road he feeds torque into long arcs with a smoothness that saves fuel and tyres. His heavy six-cylinder car changes direction slowly, and a quick rival can use that between corners.",
+      "lines": {
+        "intro": [
+          "Make the current work for you.",
+          "Hi! Hello! Can we start? Can we start now? Okay. I'm calm. I'm calm.",
+          "Treat a long arc like a steady load. Don't spike it. Feed it.",
+          "Orange tape means 'I've checked this one'. I've checked this one."
+        ],
+        "introConvoy": [
+          "{convoy}! Lots of you! Great, more load to share around.",
+          "A convoy. Parallel circuits! If one of you trips, the rest keep running."
+        ],
+        "introSolo": [
+          "Just you, {player}? Single circuit. Keep it steady.",
+          "Solo run, {player}! Let's go, let's go. Sorry. After the countdown."
+        ],
+        "victory": [
+          "Smooth all the way through the long arc! That's free speed, that is.",
+          "Barely touched the throttle on the crest. The current did the rest."
+        ],
+        "loss": [
+          "You got me on the direction change. The heavy car hates that. So do I! Well done.",
+          "Nice! Quick hands. Mine were busy wrestling a very heavy car."
+        ],
+        "rematch": [
+          "Rematch! I've practised quick direction changes. In a car park. At four in the morning.",
+          "Back again! I've got a plan. It's mostly 'be quicker between corners'."
+        ],
+        "cleanRun": [
+          "Clean run! No faults, no trips. That's a proper installation."
+        ],
+        "defeatedRematch": [
+          "Twice! Okay. I need a lighter car or quicker hands. I'm going with hands."
+        ]
+      }
+    },
+    {
+      "id": "R18",
+      "relationships": [
+        {
+          "rival": "R24",
+          "note": "Drafts the brackets Jun builds. They respect each other's tolerances and nothing about each other's schedules."
+        },
+        {
+          "rival": "R19",
+          "note": "Lends Michi pencils and never gets them back. Suspects the archive eats them."
+        }
+      ],
+      "gesture": "Clicks the silver mechanical pencil three times, draws a line in the air, then erases it with a flick.",
+      "posture": "Tall and square-shouldered, braid over one shoulder, head tilted slightly as if checking an angle.",
+      "signatureAccessory": "Silver mechanical pencil clipped to the cropped technical coat",
+      "livery": {
+        "motif": "Drafting grid and dimension lines",
+        "pattern": "A fine blueprint grid over the body, with dimension arrows along the wheelbase and a scale bar on the tail",
+        "primary": "#274C77",
+        "secondary": "#E7ECEF",
+        "accent": "#9EA3A8"
+      },
+      "sheet": "Kaede drafts roads, bridges and retaining walls for the Kurogawa authority, which gives her strong and gently sarcastic opinions about extravagant racing lines. She places an apex to within a tyre's width. Her rigid commitment to a drawn line makes variable-radius bends awkward, because she'd rather redraw the bend than the line.",
+      "lines": {
+        "intro": [
+          "You drew that line with your elbow.",
+          "Evening. I've looked at your trace. We'll discuss it. Gently.",
+          "Apex one tyre-width off the kerb. Not two. Two is a sketch.",
+          "That was a very expressive line last time. In my office, expressive isn't a compliment."
+        ],
+        "introConvoy": [
+          "{convoy}. Several lines to review. I've sharpened my pencil.",
+          "A convoy. Please don't all draw the same wrong line. At least be wrong differently."
+        ],
+        "introSolo": [
+          "Just you, {player}? One drawing to mark. Excellent.",
+          "Solo, {player}. I'll see every decision. Every single one."
+        ],
+        "victory": [
+          "Apex on the mark at every corner. That isn't flair. It's drafting.",
+          "Your line wandered on the shelf road. Mine didn't. That was the difference."
+        ],
+        "loss": [
+          "The radius changed and you changed with it. I didn't. Annoying, and well driven.",
+          "Fine. That was a better line than mine. I'll be redrawing it tonight."
+        ],
+        "rematch": [
+          "I've revised my drawing for the variable bends. Revision two. Shall we test it?",
+          "Rematch. Same road. Better pencil."
+        ],
+        "cleanRun": [
+          "Clean, tidy and within tolerance. I'd sign that off."
+        ],
+        "defeatedRematch": [
+          "Twice. All right. I'm adding flexibility to the specification. Under protest."
+        ]
+      }
+    },
+    {
+      "id": "R19",
+      "relationships": [
+        {
+          "rival": "R03",
+          "note": "Swaps archive copies for Kei's old maps. They're compiling a history of the region's road closures together."
+        },
+        {
+          "rival": "R18",
+          "note": "Borrows Kaede's pencils. The archive really does seem to eat them."
+        },
+        {
+          "rival": "R42",
+          "note": "Trades archive copies for Kazuma's old recordings. Both are trying to find out about the dawn run, and both pretend they aren't."
+        }
+      ],
+      "gesture": "Holds up the water-level tag on its cord and lets it swing like a pendulum, then catches it.",
+      "posture": "Short and rounded, wide sleeves flapping, leaning in eagerly as if you've just said something worth writing down.",
+      "signatureAccessory": "Water-level tag on a cord",
+      "livery": {
+        "motif": "Flood-gauge ticks and archive index cards",
+        "pattern": "Stacked water-level gauge ticks up the rear quarter, with pale index-card panels on the doors",
+        "primary": "#E9D8A6",
+        "secondary": "#005F73",
+        "accent": "#AE2012"
+      },
+      "sheet": "Michi looks after the Kurogawa flood archive and loves old mistakes, because a well-documented mistake is the best warning there is. Their driving is exciting to watch: quick recoveries from slides, with pace restored almost at once. The trouble is that Michi sometimes takes a risk just to enjoy the recovery. They found the old Amanagi timing slip with the blank final sector and haven't stopped thinking about it.",
+      "lines": {
+        "intro": [
+          "I know this mistake. It has a good ending.",
+          "Hello! Did you know the pump house floods in the same place every eleven years? I love that.",
+          "If I slide, don't worry. I've got notes on this slide. It's catalogued.",
+          "Every mistake on this road has happened before. I've got the paperwork."
+        ],
+        "introConvoy": [
+          "{convoy}! Your convoy's history starts tonight. I'll archive it properly.",
+          "A whole convoy. Lovely. More mistakes for the archive. I mean that kindly."
+        ],
+        "introSolo": [
+          "Just you, {player}? I'll start a new folder.",
+          "Solo, {player}! Try something brave. I'll write down how it ends."
+        ],
+        "victory": [
+          "Slid, caught it, won anyway. That one goes in the good drawer.",
+          "See? Good ending. I told you it had a good ending."
+        ],
+        "loss": [
+          "Took a risk I didn't need. Classic. Filed under 'again'.",
+          "Well driven! You never needed a recovery. That's the one thing I can't archive."
+        ],
+        "rematch": [
+          "Rematch! I've read my own file on last time. Very educational.",
+          "Back again. I'm taking fewer risks tonight. I've written that down. In pen."
+        ],
+        "cleanRun": [
+          "No slides, no rescues. A blank page. Honestly, it's beautiful."
+        ],
+        "defeatedRematch": [
+          "Twice! I've started a folder called 'unnecessary risks'. It's getting thick."
+        ]
+      }
+    },
+    {
+      "id": "R20",
+      "relationships": [
+        {
+          "rival": "R24",
+          "note": "Machines the parts Jun designs. Jun sends forty-page drawings; Ryo sends back the part and one word."
+        },
+        {
+          "rival": "R35",
+          "note": "Datum Works' engine builder. They trade offcuts and say nothing, which both find restful."
+        }
+      ],
+      "gesture": "Pushes his narrow spectacles up with one knuckle and nods once.",
+      "posture": "Upright and economical, hands loose at his sides, weight perfectly centred, still until he moves.",
+      "signatureAccessory": "Narrow rectangular spectacles",
+      "livery": {
+        "motif": "Machined knurling and a single swarf curl",
+        "pattern": "A knurled band across the roof and one bright swarf spiral running down each door",
+        "primary": "#495057",
+        "secondary": "#ADB5BD",
+        "accent": "#B5838D"
+      },
+      "sheet": "Ryo is a machinist who explains almost nothing and demonstrates almost everything. His mid-engine car rotates with a deliberate, precise speed that looks effortless. On downhill entries, though, he needs a clean brake release, and a rival who makes him brake while turning can unsettle it. He keeps his sentences short because he thinks talking wastes material.",
+      "lines": {
+        "intro": [
+          "Watch the release, not the turn.",
+          "Evening. Third hairpin. Watch it.",
+          "Brake straight. Then rotate. That's all.",
+          "I won't explain. I'll show you."
+        ],
+        "introConvoy": [
+          "{convoy}. Watch each other. You'll learn more that way.",
+          "A convoy. Fine. Watch the release, all of you."
+        ],
+        "introSolo": [
+          "{player}. One car. Good.",
+          "Solo. Watch my release, {player}. Then find your own."
+        ],
+        "victory": [
+          "Clean release. Good rotation. Done.",
+          "Watch it again on the replay. That's the lesson."
+        ],
+        "loss": [
+          "You made me brake while turning downhill. That works. Well done.",
+          "Good. You didn't need me to explain."
+        ],
+        "rematch": [
+          "Again. Same release.",
+          "Rematch. Brake bias, half a click forward. You'll feel it."
+        ],
+        "cleanRun": [
+          "Clean. Nothing to correct."
+        ],
+        "defeatedRematch": [
+          "Twice. You understood without being told. That's rare. Thank you."
+        ]
+      }
+    },
+    {
+      "id": "R21",
+      "relationships": [
+        {
+          "rival": "R17",
+          "note": "Edits Shun's radio segments down to a sentence each. He laughs every time."
+        },
+        {
+          "rival": "R14",
+          "note": "Cuts Ena's engine recordings for broadcast. They work in near silence and like it."
+        },
+        {
+          "rival": "R39",
+          "note": "Both wait behind you for a mistake. By unspoken agreement they have never raced each other."
+        }
+      ],
+      "gesture": "Lifts one side of her headphones off her ear, listens, and lets it snap back.",
+      "posture": "Compact and still, hands deep in her jacket pockets, chin tucked into the collar.",
+      "signatureAccessory": "Oversized headphones worn around the neck",
+      "livery": {
+        "motif": "Tape-splice marks and an editing timeline",
+        "pattern": "Blocks of an editing timeline along both flanks, with red splice marks where the blocks meet",
+        "primary": "#0B090A",
+        "secondary": "#F5F3F4",
+        "accent": "#E5383B"
+      },
+      "sheet": "Natsumi edits the Night Signal's recorded segments and speaks the way she edits: short, accurate, nothing wasted. On the road she sits close behind without contact and waits for the mistake that pressure produces. Her weakness is that she enjoys following so much she sometimes forgets to pass.",
+      "lines": {
+        "intro": [
+          "You looked in the mirror twice there.",
+          "I'll be behind you. That's all.",
+          "Most people crack at the third corner. Some at the second.",
+          "I cut forty seconds of dead air from every broadcast. Don't give me any tonight."
+        ],
+        "introConvoy": [
+          "{convoy}. Many mirrors. I'll be in all of them.",
+          "A convoy. I'll follow whoever looks back first."
+        ],
+        "introSolo": [
+          "{player}. Just you and a mirror.",
+          "Solo. I'll be close, {player}. Not touching. Close."
+        ],
+        "victory": [
+          "You checked your mirror. I passed. That's the edit.",
+          "Error at the gates. I was there."
+        ],
+        "loss": [
+          "I followed too long. Should have passed. Noted.",
+          "You never looked back. Good. That's how you lose me."
+        ],
+        "rematch": [
+          "Again. I'll pass sooner this time.",
+          "Rematch. I've listened back. You flinch at the fishway."
+        ],
+        "cleanRun": [
+          "Clean. Nothing to cut."
+        ],
+        "defeatedRematch": [
+          "Twice. You ignored me both times. Hard to edit around that."
+        ]
+      }
+    },
+    {
+      "id": "R22",
+      "relationships": [
+        {
+          "rival": "R17",
+          "note": "His apprentice electrician. Kenta is proud of him and says so loudly, often, in public."
+        },
+        {
+          "rival": "R45",
+          "note": "Crewed endurance weekends with Minae years ago. They still greet each other by shouting old car numbers."
+        },
+        {
+          "rival": "R01",
+          "note": "Sora brings tea to the dam crew on Thursdays. Kenta pays in rice balls and bad jokes."
+        }
+      ],
+      "gesture": "Pats his fabric lunch bag, laughs at something nobody said, and gives a big thumbs-up.",
+      "posture": "Large and rolling, leaning back with his thumbs hooked into the high-collar vest.",
+      "signatureAccessory": "Fabric lunch bag",
+      "livery": {
+        "motif": "Maintenance hazard banding and a gingham lunch-cloth check",
+        "pattern": "Broad diagonal hazard bands on the nose, with a gingham check across the roof",
+        "primary": "#FFD166",
+        "secondary": "#073B4C",
+        "accent": "#118AB2"
+      },
+      "sheet": "Kenta supervises maintenance at the Kurogawa reservoir and remembers every apprentice, every flood and every joke of the last twenty years. His laugh carries across the dam. He exits hairpins superbly and repeatably, lap after lap. His braking distances are longer than they should be, though, and a patient rival can take the corner off him before he has turned in.",
+      "lines": {
+        "intro": [
+          "Good. Now do it when your hands are tired.",
+          "Ha! Newcomers! I remember my first race. I remember everybody's first race.",
+          "Hairpin exits are like lifting a pump housing: use your legs, not your back. Drive out with the car.",
+          "Brought rice balls. For after. For whoever wins. For everybody, really."
+        ],
+        "introConvoy": [
+          "{convoy}! Ha! Look at you all. Enough of you to fill the pump-house break room.",
+          "A convoy. Lovely. I'll remember every one of your names, you'll see."
+        ],
+        "introSolo": [
+          "Just you, {player}? More rice balls for the rest of us, then. Ha!",
+          "Solo, {player}. Brave. I'll remember this one."
+        ],
+        "victory": [
+          "Ha! Those exits! Twenty years of hairpins, that is. Twenty years!",
+          "Good race! You'll get me eventually. Everyone does, once."
+        ],
+        "loss": [
+          "Ha! Got me on the brakes! Everyone does! Well done, well done!",
+          "You out-braked me. I'll be telling that story for years. It'll get better every time."
+        ],
+        "rematch": [
+          "Back for more! Good! I've been braking later. My knees can feel it.",
+          "Rematch! I remember everything from last time. Especially the part where you won."
+        ],
+        "cleanRun": [
+          "Clean as a new pump! Not a scratch. Ha! Love it."
+        ],
+        "defeatedRematch": [
+          "Twice! Ha! That's going in the long memory. Right at the front."
+        ]
+      }
+    },
+    {
+      "id": "R23",
+      "relationships": [
+        {
+          "rival": "R16",
+          "note": "Shares rainfall data with Emi, and a distrust of anyone who says 'probably'."
+        },
+        {
+          "rival": "R38",
+          "note": "Tsubasa keeps asking her about flow for new racing lines. She answers in single sentences they write on the workshop wall."
+        }
+      ],
+      "gesture": "Draws a slow, opening curve in the air with one hand and lets it drop.",
+      "posture": "Tall and composed, weight even, long hair tied low, standing like a gauge post: straight and unbothered.",
+      "signatureAccessory": "Thin red belt on tailored coveralls",
+      "livery": {
+        "motif": "River streamlines and a single red line",
+        "pattern": "Long flowing streamlines from nose to tail, with one thin red line at the beltline",
+        "primary": "#CAD2C5",
+        "secondary": "#52796F",
+        "accent": "#9B2226"
+      },
+      "sheet": "Sae is a hydrologist who measures how water moves through the Kurogawa catchment. She is laconic, almost silent, until someone mistakes caution for fear, and then she has plenty to say. She carries speed beautifully through arcs that open out, but loses time when a radius unexpectedly tightens, because she has already committed to the flow.",
+      "lines": {
+        "intro": [
+          "The wide line only works when it comes back.",
+          "Evening. Mind the tightening corners.",
+          "Water takes the wide line. It always arrives.",
+          "Caution isn't fear. Remember that before you call me slow."
+        ],
+        "introConvoy": [
+          "{convoy}. Flow together. Don't pool.",
+          "A convoy. Good. Each of you, stay in your own channel."
+        ],
+        "introSolo": [
+          "{player}. One stream. Let's see where it goes.",
+          "Just you. Fine, {player}. Watch the radius."
+        ],
+        "victory": [
+          "Opened the arc. Carried it. Done.",
+          "The wide line came back. It usually does."
+        ],
+        "loss": [
+          "The radius closed and I'd already committed. Well taken.",
+          "You weren't afraid. You were careful. Good."
+        ],
+        "rematch": [
+          "Again. I'll watch for the tightening this time.",
+          "Rematch. Same channel. Different flow rate."
+        ],
+        "cleanRun": [
+          "Clean. No spill."
+        ],
+        "defeatedRematch": [
+          "Twice. You read the tightening and I didn't. That's all it was."
+        ]
+      }
+    },
+    {
+      "id": "R24",
+      "relationships": [
+        {
+          "rival": "R18",
+          "note": "Kaede drafts, Jun builds. Their arguments about tolerance are the Reservoir's favourite entertainment."
+        },
+        {
+          "rival": "R20",
+          "note": "Ryo machines Jun's parts. Jun sends forty pages of drawings and gets one word back."
+        },
+        {
+          "rival": "R33",
+          "note": "Datum's test engineer. They exchange data sheets like letters, and each thinks the other is slightly too rigid."
+        }
+      ],
+      "gesture": "Opens the small steel caliper, measures the air between finger and thumb, then snaps it shut.",
+      "posture": "Slender and exact, coat buttoned to the collar, feet together, turning the whole body rather than just the head.",
+      "signatureAccessory": "Small steel caliper",
+      "livery": {
+        "motif": "Vernier scale and a white workshop coat",
+        "pattern": "A precise vernier scale along both sills, pale body with dark inner panels on the bonnet like the coat's lining",
+        "primary": "#D9D9D9",
+        "secondary": "#22333B",
+        "accent": "#5FA8D3"
+      },
+      "sheet": "Jun builds cars for Reservoir Section to tolerances most people can't see, and is its third lieutenant. Their consistency is exceptional: the same apex, the same speed, the same braking point, every time. That predictability is also the weakness, because a patient rival knows exactly where Jun's car will be. Over the season Jun begins to admit, reluctantly, that numbers still need interpreting.",
+      "lines": {
+        "intro": [
+          "Measure twice. Brake once.",
+          "Good evening. I've measured your last three runs. They vary. I don't.",
+          "My line is the same every lap. You can see it coming. That hasn't helped anyone yet.",
+          "A fast accident is still an accident. I won't congratulate it.",
+          "The tolerance on this road is about a hand's width. I use half of it.",
+          "I'll be exactly where I was last time, to the centimetre. The question is where you'll be."
+        ],
+        "introConvoy": [
+          "{convoy}. Several data sets. Try at least to be consistent with each other.",
+          "A convoy. Interesting. I've never needed one. We'll see whether you do.",
+          "{convoy}, if one of you gets lucky tonight, I'll know. The numbers always tell."
+        ],
+        "introSolo": [
+          "Good evening, {player}. One variable. That makes this cleaner.",
+          "Solo, {player}. Good. I'll compare you against my line and nothing else.",
+          "Just you, {player}. Show me a run that measures well."
+        ],
+        "victory": [
+          "Same apex, same speed, every hairpin. That's the result.",
+          "Your run had variance. Mine didn't. The clock prefers mine.",
+          "Consistent, correct, measured. I accept nothing less, and tonight I didn't have to."
+        ],
+        "loss": [
+          "You waited for my line and used it. Legal and clever. I need to think.",
+          "Your run left options. Mine didn't. Tonight, options won.",
+          "I measured correctly and interpreted wrongly. That's a new sentence for me."
+        ],
+        "rematch": [
+          "Back again. I've adjusted nothing, on purpose. I want to see if it holds.",
+          "Rematch. I've changed one variable. I won't tell you which.",
+          "Measure twice, brake once. And tonight, perhaps, reconsider once."
+        ],
+        "cleanRun": [
+          "No contact, no resets, within tolerance throughout. Acceptable. More than acceptable.",
+          "Clean. That's the first thing I check, and you passed it.",
+          "A clean run is a measurable run. Thank you for giving me something I can read."
+        ],
+        "defeatedRematch": [
+          "Twice. The numbers are clear. I'm revising my assumptions.",
+          "Beaten again. My line was perfect and it wasn't enough. I'm writing that down.",
+          "You've made me doubt a measurement. I didn't think anyone could. Well done."
+        ]
+      }
+    },
+    {
+      "id": "R25",
+      "relationships": [
+        {
+          "rival": "R28",
+          "note": "They share a garage by the ferry slip. Koharu practises footwork on his creeper board."
+        },
+        {
+          "rival": "R32",
+          "note": "Mako gave him his first race. He still calls her 'Captain'. She pretends to hate it."
+        }
+      ],
+      "gesture": "Spreads both arms wide like the curve of a bay, then drops them and grins.",
+      "posture": "Tall and loose, rocking slightly from heel to toe like someone used to a moving deck.",
+      "signatureAccessory": "Rope bracelet",
+      "livery": {
+        "motif": "Ferry deck stripes and braided rope",
+        "pattern": "Broad shoulder stripes across the roof like his deck jacket, with a braided rope line along both sills",
+        "primary": "#003049",
+        "secondary": "#FDF0D5",
+        "accent": "#669BBC"
+      },
+      "sheet": "Hiroto keeps the Akebono ferries running, gets restless whenever he's on dry land for long, and turns into a generous host the moment you step into his garage. He reads fast sweeping corners like swells and carries stable speed through them. Slow compound corners make him impatient, and his impatience shows.",
+      "lines": {
+        "intro": [
+          "The long way can still be the quick way.",
+          "Welcome to the coast! The kettle's on in the garage. For afterwards, obviously.",
+          "Long fast arcs are like a following sea. Don't fight them. Ride them.",
+          "I get restless on land. The car helps."
+        ],
+        "introConvoy": [
+          "{convoy}! A whole crew. Come by the ferry garage afterwards. There's room for everyone.",
+          "A convoy. Like a ferry crossing: everyone arrives together, or it was a bad crossing."
+        ],
+        "introSolo": [
+          "Just you, {player}? Then you get the good chair in the garage afterwards.",
+          "A solo crossing, {player}. Brave. Let's go."
+        ],
+        "victory": [
+          "Rode the long arc all the way! Come on, the kettle's on.",
+          "The long way was the quick way. Told you."
+        ],
+        "loss": [
+          "Lost patience in the chicane again. The sea's more forgiving than that corner.",
+          "Good race! Come to the garage anyway. Winners get the good biscuits."
+        ],
+        "rematch": [
+          "Back again! I've practised the slow corners. It was agony.",
+          "Rematch. I'm going to be patient. Watch me be patient. It'll be dramatic."
+        ],
+        "cleanRun": [
+          "Clean crossing! Not a mark on you. Ferry standard."
+        ],
+        "defeatedRematch": [
+          "Twice! Okay. The slow corners and I need a proper talk."
+        ]
+      }
+    },
+    {
+      "id": "R26",
+      "relationships": [
+        {
+          "rival": "R05",
+          "note": "Defends the inside exactly the way Yui does, and refuses to believe Yui thought of it first."
+        },
+        {
+          "rival": "R12",
+          "note": "Puts Rui's trail photos on her posters. Always credits them afterwards, in very small print."
+        },
+        {
+          "rival": "R31",
+          "note": "Shares a studio with Yori. They bicker about lettering every single day."
+        }
+      ],
+      "gesture": "Frames a rectangle with her fingers, then slashes a triangle through the middle of it.",
+      "posture": "Compact and square, feet set wide, chin up, like a figure on a poster mid-stride.",
+      "signatureAccessory": "Triangular earrings",
+      "livery": {
+        "motif": "Bold print-poster blocks and triangles",
+        "pattern": "Large flat triangles in poster colours, with a halftone dot fade over the rear quarters",
+        "primary": "#EF233C",
+        "secondary": "#EDF2F4",
+        "accent": "#2B2D42"
+      },
+      "sheet": "Maya designs the posters for Akebono's night events and wants every overtake to look inevitable, as if it had been drawn in advance. She holds the inside line with assertive, fully legal positioning. Her stubbornness costs her, though: a long defence eats her front tyres, and she's usually the last to notice.",
+      "lines": {
+        "intro": [
+          "I left you a space. Not the one you chose.",
+          "I've already drawn how tonight ends. You're in it. You're behind.",
+          "The inside line is mine. It's on the poster, so it's official.",
+          "Bold shapes, clean edges. That's a good poster, and a good pass."
+        ],
+        "introConvoy": [
+          "{convoy}. Good-looking group. I'll fit you all in the background.",
+          "A convoy! More shapes for the poster. Try to be interesting ones."
+        ],
+        "introSolo": [
+          "Just you, {player}? A portrait, then. Close-up.",
+          "Solo, {player}. One figure on the poster. Strike a strong pose."
+        ],
+        "victory": [
+          "Inevitable. I drew it, and it happened.",
+          "You aimed for the space I left. It was a trap. A very well-drawn trap."
+        ],
+        "loss": [
+          "I defended too long and ran out of front tyre. I'll redraw that panel.",
+          "Fine. You made it look inevitable. I hate how good that looked."
+        ],
+        "rematch": [
+          "New poster. Same composition, better ending. For me.",
+          "Rematch. I've painted over last time. Completely."
+        ],
+        "cleanRun": [
+          "Clean lines, no smudges. That would print beautifully."
+        ],
+        "defeatedRematch": [
+          "Twice. I'm going to have to put you in the foreground. Ugh."
+        ]
+      }
+    },
+    {
+      "id": "R27",
+      "relationships": [
+        {
+          "rival": "R29",
+          "note": "Old harbour friends. Seiji times the ferries; Renji fixes the ones that miss the timetable."
+        },
+        {
+          "rival": "R30",
+          "note": "Repaired Akane's rowing skiff for free. She's been training him ever since, whether he likes it or not."
+        }
+      ],
+      "gesture": "Tugs both knitted wrist cuffs down with a straight face, then bursts out laughing without warning.",
+      "posture": "Broad and steady, feet apart as if on a deck, greying braids tucked into the collar of his long coat.",
+      "signatureAccessory": "Knitted wrist cuffs",
+      "livery": {
+        "motif": "Varnished hull planking and fishing knots",
+        "pattern": "Horizontal planking lines along the doors, with a reef knot drawn across the bonnet",
+        "primary": "#6F1D1B",
+        "secondary": "#BB9457",
+        "accent": "#FFE6A7"
+      },
+      "sheet": "Renji repairs boats in Akebono harbour and is as patient as drying varnish, until something strikes him as funny and he laughs loud enough to rattle the shutters. He uses torque and gear ratios with real economy. His turbocharged car punishes a rushed exit, though, and when he's laughing he sometimes rushes.",
+      "lines": {
+        "intro": [
+          "That gear was a choice. Make it a good one.",
+          "Evening. Calm evening. Very calm. HA! Sorry. Something funny happened at work.",
+          "You don't fix a hull in a hurry, and you don't take a hairpin in one either.",
+          "Torque's like the tide. Wait for it, then use all of it."
+        ],
+        "introConvoy": [
+          "{convoy}! Ha! That's a whole fleet, that is!",
+          "A convoy. Stay in formation. I'll be the one laughing in the middle."
+        ],
+        "introSolo": [
+          "One boat, {player}. Single-handed. Respect.",
+          "Solo, {player}? Ha! Good. I like a brave sailor."
+        ],
+        "victory": [
+          "Right gear, right moment. The tide came in. HA!",
+          "Patience in the corner, then everything at once. That's the whole trick."
+        ],
+        "loss": [
+          "Boost bit me on the exit! HA! Serves me right for rushing. Well done.",
+          "You made the gear a good one. Oh, I'm furious. Wonderful."
+        ],
+        "rematch": [
+          "Back! Good! I've been practising patient exits. Seiji says I'm still loud.",
+          "Rematch. Same gearbox, calmer me. Mostly calmer."
+        ],
+        "cleanRun": [
+          "Not a scratch on the hull! Ha! That's a seaworthy run."
+        ],
+        "defeatedRematch": [
+          "Twice! HA! That's the funniest thing that's happened all month. Well done."
+        ]
+      }
+    },
+    {
+      "id": "R28",
+      "relationships": [
+        {
+          "rival": "R25",
+          "note": "Shares Hiroto's garage by the ferry slip and practises footwork on his creeper board."
+        },
+        {
+          "rival": "R11",
+          "note": "A musician from the forest. They've never raced each other and argue about tempo on the radio."
+        }
+      ],
+      "gesture": "Taps out a quick footwork step, spins once, and stops dead with one finger raised.",
+      "posture": "Very short and light on her feet, windbreaker sleeves pushed up, weight always ready to shift.",
+      "signatureAccessory": "Shell-shaped hair clip",
+      "livery": {
+        "motif": "Choreography step marks and a shell",
+        "pattern": "Sweeping ribbon curves with scattered step marks, and varsity-style panels on the doors",
+        "primary": "#FF8FAB",
+        "secondary": "#1B263B",
+        "accent": "#FFE5EC"
+      },
+      "sheet": "Koharu dances professionally and treats a road as choreography: linked, rehearsed, precise. Her linked drifts are smooth enough to look effortless, which is exactly what she hates hearing, because it took years. Isolated late-braking hairpins break the flow, and that's where she hesitates.",
+      "lines": {
+        "intro": [
+          "It took practice to make that look easy.",
+          "Don't call me a natural. I've practised this climb forty times.",
+          "Five, six, seven, eight. Go.",
+          "Linked corners are easy. Kidding. They're years of work."
+        ],
+        "introConvoy": [
+          "{convoy}! A whole company. Stay in time with each other.",
+          "A convoy. An ensemble piece. Somebody always misses the count."
+        ],
+        "introSolo": [
+          "A solo, {player}? Bold. Solos show everything.",
+          "Just you, {player}. Don't miss your cue."
+        ],
+        "victory": [
+          "Every link clean. Forty rehearsals. Don't you dare say 'natural'.",
+          "That's the choreography. Hit every mark."
+        ],
+        "loss": [
+          "I hesitated at the hairpin. Always that one. Always the isolated one.",
+          "Fine. That was good. You practised, I can tell. Don't let anyone call you a natural either."
+        ],
+        "rematch": [
+          "I've drilled that hairpin a hundred times since. Watch.",
+          "Rematch. Same routine. New ending."
+        ],
+        "cleanRun": [
+          "No missed steps. That's a clean performance. I respect that."
+        ],
+        "defeatedRematch": [
+          "Twice. The hairpin got me again. Back to the studio."
+        ]
+      }
+    },
+    {
+      "id": "R29",
+      "relationships": [
+        {
+          "rival": "R10",
+          "note": "The courier from Kasumi. They compare timetables for hours and never once disagree."
+        },
+        {
+          "rival": "R27",
+          "note": "Old harbour friend. Seiji sends the ferries out; Renji repairs the ones that come back grumbling."
+        }
+      ],
+      "gesture": "Unfolds the harbour timetable, runs a thumb down one column, and folds it away again, very slowly.",
+      "posture": "Thin and stooped, rain jacket layered up to the chin, head tilted as if listening to a quiet radio.",
+      "signatureAccessory": "Folded harbour timetable",
+      "livery": {
+        "motif": "Harbour timetable columns and a departure lamp",
+        "pattern": "Narrow timetable columns running up the doors, with a single amber departure-lamp roundel on the tail",
+        "primary": "#2F3E46",
+        "secondary": "#84A98C",
+        "accent": "#F6BD60"
+      },
+      "sheet": "Seiji dispatches the night ferries from Akebono and cannot be hurried in conversation, in traffic or in a race. He finishes clean however the surface changes, keeping margins that more aggressive drivers throw away. What he gives up is top-end aggression: on the fast sections he is merely correct.",
+      "lines": {
+        "intro": [
+          "There is still time to do the corner properly.",
+          "Ah. Good evening. Yes. We'll start when... ah, when they say.",
+          "The last ferry leaves at one. I'd like to be back for it. There's time.",
+          "I don't rush corners. They've been there much longer than I have."
+        ],
+        "introConvoy": [
+          "Good evening, {convoy}. That's... quite a few of you. Welcome.",
+          "A convoy. Like a sailing list. Everyone has a slot. Keep to yours."
+        ],
+        "introSolo": [
+          "Ah. Just you, {player}. That's... restful. Good evening.",
+          "Solo tonight, {player}? Then there's no need to rush for anyone."
+        ],
+        "victory": [
+          "Arrived on time. That's all. That's usually enough.",
+          "The surface changed twice. I didn't. That was, ah, the point."
+        ],
+        "loss": [
+          "You were quicker on the fast parts. I expected that. Well done.",
+          "Ah. Yes. Well driven. I'll... think about that on the last ferry."
+        ],
+        "rematch": [
+          "Good evening again. Same timetable. I've added a little speed to it.",
+          "Rematch. Ah. There's still time. There's always time."
+        ],
+        "cleanRun": [
+          "Clean all the way. That's... rarer than fast. Thank you."
+        ],
+        "defeatedRematch": [
+          "Twice. I may need to hurry. A little. Don't tell the harbour."
+        ]
+      }
+    },
+    {
+      "id": "R30",
+      "relationships": [
+        {
+          "rival": "R27",
+          "note": "Renji fixed her rowing skiff for nothing. She's been coaching him ever since."
+        },
+        {
+          "rival": "R44",
+          "note": "Another late braker, up in the highlands. They post each other braking data with no message attached."
+        }
+      ],
+      "gesture": "Claps twice like a coach blowing a whistle, then points straight at the grid.",
+      "posture": "Tall and athletic, weight forward on the balls of her feet, side braid tucked in, shoulders back.",
+      "signatureAccessory": "Square medallion on a short cord",
+      "livery": {
+        "motif": "Running-track lanes and a square medallion",
+        "pattern": "Lane stripes wrapping the car from nose to tail, with a square medallion roundel on each door",
+        "primary": "#D62828",
+        "secondary": "#FCBF49",
+        "accent": "#F1FAEE"
+      },
+      "sheet": "Akane runs a fitness studio by the Akebono fish market and coaches everyone she meets, whether they've signed up or not. She's direct, warm and ferociously competitive. Her braking attacks are late, powerful and controlled. Bait her into a late lunge, though, and she'll often pick the wrong exit gear.",
+      "lines": {
+        "intro": [
+          "You can be brave after you are accurate.",
+          "Warm-up! Shoulders, neck, hands. Good. Now let's race.",
+          "I brake late because I've trained to. Don't copy me until you have.",
+          "Supportive coach, competitive driver. I'll cheer for you right up until the lights go."
+        ],
+        "introConvoy": [
+          "{convoy}! Team session! Everybody bring your best.",
+          "A convoy! Good. Push each other. Not literally."
+        ],
+        "introSolo": [
+          "A one-to-one session, {player}. My favourite. No hiding.",
+          "Solo, {player}? Great. Personal best tonight. Let's go."
+        ],
+        "victory": [
+          "Yes! Late and accurate! Great session!",
+          "Nice try! Brave on the brakes, loose on the line. Accuracy first, then we talk."
+        ],
+        "loss": [
+          "You baited the late brake and I chose the wrong gear. Great tactic. Ugh. Great tactic.",
+          "Accurate AND brave! That's everything I teach! Well done!"
+        ],
+        "rematch": [
+          "Back for another session! I've been drilling exit gears. Twelve reps a night.",
+          "Rematch! You're not getting me with that bait again. Probably."
+        ],
+        "cleanRun": [
+          "Clean run! Perfect form! That's what I like to see!"
+        ],
+        "defeatedRematch": [
+          "Twice! Okay. The coach needs coaching. Well done. Stretch afterwards!"
+        ]
+      }
+    },
+    {
+      "id": "R31",
+      "relationships": [
+        {
+          "rival": "R02",
+          "note": "A potter up in the tea hills. They trade glaze recipes and kiln gossip."
+        },
+        {
+          "rival": "R26",
+          "note": "Shares a studio with Maya and letters her posters when her handwriting gets too dramatic."
+        }
+      ],
+      "gesture": "Takes a fine brush from the woven pouch, turns it once between two fingers, and puts it back.",
+      "posture": "Broad and unhurried, weight settled, long shirt hanging open, one hand resting on the pouch.",
+      "signatureAccessory": "Woven pouch worn at the hip",
+      "livery": {
+        "motif": "Hand-painted enamel signboards",
+        "pattern": "Signboard rectangles with brush-edged borders along the doors, and a woven-pouch pattern across the roof",
+        "primary": "#2A6F97",
+        "secondary": "#F2E9E4",
+        "accent": "#E76F51"
+      },
+      "sheet": "Yori paints enamel and ceramic signs for the Akebono shops, one careful letter at a time. On the road they prefer clever positioning to force: patient pressure, a wait, then a clean pass without contact. A short straight on its own rarely tempts them, and quick rivals can make use of that.",
+      "lines": {
+        "intro": [
+          "I am not rushing you. The finish is.",
+          "Good evening. I'll be close for a while. Just company.",
+          "Letters and overtakes: both are about spacing.",
+          "I'd rather be clever than strong. Strong is easy."
+        ],
+        "introConvoy": [
+          "{convoy}. A lot of letters to space out. I'll find the gaps.",
+          "A convoy. Lovely. One of you will hurry. I'll be there when you do."
+        ],
+        "introSolo": [
+          "Just you, {player}. One brush stroke. Take your time.",
+          "Solo, {player}. I'll stay close. Try not to let it bother you."
+        ],
+        "victory": [
+          "You hurried. I was patient. That's the whole painting.",
+          "Clean pass, no contact. That's how I sign my work."
+        ],
+        "loss": [
+          "You used the straight. I didn't. I never do. Well done.",
+          "You didn't hurry once. There was no gap to paint. Nicely done."
+        ],
+        "rematch": [
+          "Again? Good. I've been practising on short straights. Reluctantly.",
+          "Rematch. Same brush. Finer tip."
+        ],
+        "cleanRun": [
+          "No contact, no smudges. That's careful work."
+        ],
+        "defeatedRematch": [
+          "Twice. You never hurried. I ran out of canvas."
+        ]
+      }
+    },
+    {
+      "id": "R32",
+      "relationships": [
+        {
+          "rival": "R25",
+          "note": "Gave Hiroto his first race. He still calls her 'Captain', and she pretends to hate it."
+        },
+        {
+          "rival": "R40",
+          "note": "Rivals from the years Mako held the coastal title. Mako performed; Reina surveyed. Neither has forgotten."
+        },
+        {
+          "rival": "R48",
+          "note": "Saw Shiori drive once, years ago, and has never tried to copy her. She knows she couldn't."
+        }
+      ],
+      "gesture": "Swirls the cape-like jacket off one shoulder, points at you, winks, and lets it settle.",
+      "posture": "Tall and theatrical, weight on one leg, jacket flared. When she forgets the audience she stands perfectly still and watches.",
+      "signatureAccessory": "Copper ear cuff",
+      "livery": {
+        "motif": "A sweeping cape silhouette with copper edging",
+        "pattern": "One dramatic cape-shaped sweep from the A-pillar to the tail, edged in copper, over a deep midnight base",
+        "primary": "#14213D",
+        "secondary": "#B87333",
+        "accent": "#E5E5E5"
+      },
+      "sheet": "Mako is Breakwater Union's fourth lieutenant and a former coastal champion, famous for her dramatic jacket and her bold rotation through combined corners. The bravado is real, but it also hides a careful strategist who watches everything. Her weakness is style: she will sometimes overrotate for the crowd and give away the straight that follows.",
+      "lines": {
+        "intro": [
+          "Show me the line you would choose without an audience.",
+          "Hello, darlings. Big night. Lights, crowd, cape. Everything I love.",
+          "I rotate through combined corners like a dance. Some nights it's even a quick dance.",
+          "They call me a showman. The show is how I stop people seeing the plan.",
+          "I watched you from the funicular last week. I learnt more than you'd like.",
+          "Win or lose, look up at the crowd afterwards. Then forget they were ever there."
+        ],
+        "introConvoy": [
+          "{convoy}! A proper ensemble. Now, which of you checks the others' results first?",
+          "A convoy with an audience. Let's see if you're still a convoy when everyone's watching.",
+          "{convoy}. I'll be watching the gaps between you as closely as the gap to me."
+        ],
+        "introSolo": [
+          "Just you, {player}? A solo under the lights. Brave. Very brave.",
+          "Solo, {player}. Nobody to hide behind, and me watching. Lovely.",
+          "One driver, {player}, and one question: can you stay composed with everyone watching?"
+        ],
+        "victory": [
+          "The rotation was perfect. The crowd loved it. So did I, for once.",
+          "You drove for the audience. I know that line. I invented that line.",
+          "Style and speed tonight, darlings. They don't always agree."
+        ],
+        "loss": [
+          "Overrotated for the crowd and handed you the straight. That one's on me.",
+          "You kept your head under the lights. I've seen champions who couldn't. Well done.",
+          "You drove the line you'd choose without an audience. That's all I asked for."
+        ],
+        "rematch": [
+          "Back under the lights? Good. No cape voice tonight. Mostly.",
+          "Rematch. I've cut the extra rotation. The crowd will be devastated.",
+          "Again. Let's see if you're still composed now they expect you to win."
+        ],
+        "cleanRun": [
+          "Clean, even with the crowd watching. That's real composure.",
+          "No contact, no drama. The quietest run of the night, and the best one.",
+          "You didn't perform once. You just drove. Beautiful."
+        ],
+        "defeatedRematch": [
+          "Twice. I'll have to retire the cape. Temporarily. For a week.",
+          "Beaten again, and quietly. That's the kind of loss I respect most.",
+          "You've learnt to ignore the audience. I'm still learning. Well done."
+        ]
+      }
+    },
+    {
+      "id": "R33",
+      "relationships": [
+        {
+          "rival": "R24",
+          "note": "Exchanges data sheets with Jun like letters. Each thinks the other is slightly too rigid."
+        },
+        {
+          "rival": "R36",
+          "note": "Lina translates his data into instructions humans can follow. He would be lost without her and knows it."
+        },
+        {
+          "rival": "R40",
+          "note": "Treats Reina's line as the reference standard. Lately he's begun to wonder who set the standard for her."
+        }
+      ],
+      "gesture": "Pulls a bolt off the magnetic band on his wrist, holds it up like a test sample, then snaps it back.",
+      "posture": "Square and planted, arms folded across the split-tone suit, standing exactly on a floor marking if there is one.",
+      "signatureAccessory": "Magnetic parts band on the wrist",
+      "livery": {
+        "motif": "Split-tone test car with calibration targets",
+        "pattern": "Body split front-to-back in two tones, with black-and-white calibration target circles on the doors and roof",
+        "primary": "#495867",
+        "secondary": "#F5F5F5",
+        "accent": "#FE5F55"
+      },
+      "sheet": "Tetsu is Datum Works' test engineer and finds a repeated result far more interesting than a lucky one. His technical-sector times barely differ from run to run. Under pressure his decisions become predictable, and a rival who has watched him once can guess what he'll do next. He treats Reina's line as the reference standard and has only recently wondered where she got it.",
+      "lines": {
+        "intro": [
+          "One good lap is a story. Three are evidence.",
+          "I've brought your printout. Three decimal places. You're welcome.",
+          "Luck doesn't interest me. Show me something you could repeat.",
+          "Same brake point, same apex, same exit. In my workshop, boring is a compliment."
+        ],
+        "introConvoy": [
+          "{convoy}. Several samples. That's useful. Try to be consistent.",
+          "A convoy. Good. If one of you is fast by accident, the others will show it."
+        ],
+        "introSolo": [
+          "One sample, {player}. I'll need to see you again before I believe anything.",
+          "Solo, {player}. Fine. Let's generate some evidence."
+        ],
+        "victory": [
+          "Sectors matched the reference. Again. That's the point.",
+          "Your times wandered. Mine didn't. Numbers aren't cruel. They're patient."
+        ],
+        "loss": [
+          "You predicted my decision. That's legal and annoying and correct.",
+          "Repeatable. I'll want to see it again, of course. That isn't doubt. It's method."
+        ],
+        "rematch": [
+          "Rematch. Good. Now we have two samples. Let's make it three.",
+          "I've analysed last time. I'm changing one decision under pressure. Just one."
+        ],
+        "cleanRun": [
+          "No incidents. Clean data. My favourite kind."
+        ],
+        "defeatedRematch": [
+          "Twice. That's approaching evidence. I'd need a third to be sure. Please don't."
+        ]
+      }
+    },
+    {
+      "id": "R34",
+      "relationships": [
+        {
+          "rival": "R35",
+          "note": "Stitches Naozumi's seats. He complains about the colour; she ignores him."
+        },
+        {
+          "rival": "R40",
+          "note": "Upholstered Reina's seat and tells her the truth about it, and about most other things. Reina tolerates this from nobody else."
+        }
+      ],
+      "gesture": "Pulls out a length of her measuring-tape sash, measures you by eye, and lets it snap back.",
+      "posture": "Slim and poised, ponytail swung over one shoulder, hands in her overall pockets, one eyebrow always slightly raised.",
+      "signatureAccessory": "Bright measuring-tape sash",
+      "livery": {
+        "motif": "Contrast stitching and a measuring tape",
+        "pattern": "Contrast stitch lines tracing every panel edge, with a tape-measure sash running diagonally across the bonnet",
+        "primary": "#7D4E57",
+        "secondary": "#F7E1D7",
+        "accent": "#F4D35E"
+      },
+      "sheet": "Chika upholsters seats for Datum Works and can tell how a car will lean before it moves, just from how it sits. Her wit is quick and her throttle is quicker, applied cleanly out of every corner. She gives away entry speed, as if she wants to feel the car settle before committing. She's the only person at Datum who tells Reina exactly what she thinks.",
+      "lines": {
+        "intro": [
+          "The seat is comfortable. Do not get comfortable.",
+          "Everyone asks me about horsepower. Nobody asks how the car feels to sit in.",
+          "Your car leans left. I can tell from here. Don't argue. I measure seats for a living.",
+          "I'll be slow in and quick out. You'll be the other way round. We'll see who's right."
+        ],
+        "introConvoy": [
+          "{convoy}. So many seats. I bet half of them are adjusted wrong.",
+          "A convoy! Lovely. Let's see whose car actually feels settled."
+        ],
+        "introSolo": [
+          "Just you, {player}? Sit up straight. The car can tell.",
+          "Solo, {player}. One car, one seat, one very honest exit."
+        ],
+        "victory": [
+          "Clean throttle out of every corner. That's the stitch that holds.",
+          "You were quicker on the way in. I was quicker everywhere after that. That's the maths."
+        ],
+        "loss": [
+          "You carried the entry speed I gave away. Fine. Sharp. Fine.",
+          "Your car looked settled all race. I noticed. I always notice."
+        ],
+        "rematch": [
+          "Rematch. I've tightened up my entries. And your seat's still wrong.",
+          "Back again? Good. I've been practising committing earlier. It feels rude."
+        ],
+        "cleanRun": [
+          "No contact, no jolts. The seat must have loved that."
+        ],
+        "defeatedRematch": [
+          "Twice. All right, you've earned a compliment. A small one. Your exits are nice."
+        ]
+      }
+    },
+    {
+      "id": "R35",
+      "relationships": [
+        {
+          "rival": "R34",
+          "note": "Chika stitches his seats in colours he complains about and secretly likes."
+        },
+        {
+          "rival": "R20",
+          "note": "Trades machining offcuts with Ryo in comfortable silence."
+        },
+        {
+          "rival": "R37",
+          "note": "Has argued with Osamu about intake lengths for twenty years, at the same lunch table."
+        }
+      ],
+      "gesture": "Flexes his repaired driving gloves finger by finger, then smooths his beard once.",
+      "posture": "Long-limbed and a little stiff, waistcoat buttoned, one hand resting on the nearest engine.",
+      "signatureAccessory": "Repaired driving gloves",
+      "livery": {
+        "motif": "Intake trumpets and old waistcoat pinstripe",
+        "pattern": "Fine vertical pinstripes over the body, with a row of intake-trumpet silhouettes across the bonnet",
+        "primary": "#264027",
+        "secondary": "#B6A97A",
+        "accent": "#E4DFDA"
+      },
+      "sheet": "Naozumi builds naturally aspirated engines for Datum Works and is proud of their response, though he is grudgingly fair about turbocharged cars when they're driven well. His throttle is efficient and his lines waste almost nothing. In a crowded opening sector he's less aggressive than he should be, and that's usually where he loses places.",
+      "lines": {
+        "intro": [
+          "Power is useful. Wasting it is expensive.",
+          "Naturally aspirated, of course. I like to know what the engine will do before it does it.",
+          "Turbos? Fine. They're fine. When they're driven properly. Which is rare.",
+          "Don't spend it all in the first sector. You'll want it later."
+        ],
+        "introConvoy": [
+          "{convoy}. A crowded start. Not my favourite. Try not to waste anything.",
+          "A convoy. Fine. Stay out of each other's way at the start. And mine."
+        ],
+        "introSolo": [
+          "Just you, {player}. Good. Clean start, clean budget.",
+          "Solo, {player}. Spend it wisely."
+        ],
+        "victory": [
+          "Efficient to the last metre. That's how an engine is meant to be used.",
+          "You wasted a little in every corner. It adds up. It always adds up."
+        ],
+        "loss": [
+          "You got me in the crowded start. I'm too polite there. Always have been.",
+          "You spent your power better than I did. That's the whole of it. Well done."
+        ],
+        "rematch": [
+          "Rematch. I'll be firmer at the start. Politely firmer.",
+          "Back again. My engine's the same. My opening lap won't be."
+        ],
+        "cleanRun": [
+          "Clean. Nothing wasted, nothing bent. Good."
+        ],
+        "defeatedRematch": [
+          "Twice. Fine. Your car is well driven, whatever's under the bonnet."
+        ]
+      }
+    },
+    {
+      "id": "R36",
+      "relationships": [
+        {
+          "rival": "R33",
+          "note": "Translates Tetsu's data into instructions humans can follow."
+        },
+        {
+          "rival": "R40",
+          "note": "Has known Reina longest of anyone at Datum, and remembers the roadster she used to arrive in. Keeps that to herself. Mostly."
+        }
+      ],
+      "gesture": "Holds up the transparent tool pouch so you can see every tool inside, then zips it shut with a flourish.",
+      "posture": "Short and athletic, weight balanced, padded jacket squared, ready to move in any direction.",
+      "signatureAccessory": "Transparent tool pouch",
+      "livery": {
+        "motif": "Task-board cards and two-way translation arrows",
+        "pattern": "Rows of task-card rectangles along the doors, linked by double-headed arrows",
+        "primary": "#1B4965",
+        "secondary": "#BEE9E8",
+        "accent": "#FB8500"
+      },
+      "sheet": "Lina coordinates the Datum Works shop in two languages and turns everyone's excuses into useful tasks. On the road she catches a slide with a single clean correction and never overcorrects. The flaw is that she's so good at recovering that she sometimes stops trying to avoid the first mistake. She has known Reina longer than anyone else at Datum and remembers more than she says.",
+      "lines": {
+        "intro": [
+          "That is recoverable. Your pride may take longer.",
+          "Excuse received. Translated. Your task is to brake earlier at the lattice bridge.",
+          "Every tool I need is in this pouch. You can see them all. No surprises.",
+          "If I slide, I'll catch it. I always catch it. That's the problem, apparently."
+        ],
+        "introConvoy": [
+          "{convoy}. Task list for tonight: everybody finishes, nobody sulks.",
+          "A convoy. Good. Whoever makes the first excuse gets a job."
+        ],
+        "introSolo": [
+          "Just you, {player}? One to-do list. Very manageable.",
+          "Solo, {player}. No excuses tonight. I'll know."
+        ],
+        "victory": [
+          "Slid, caught it, won. Recovery is a skill. Don't let anyone tell you otherwise.",
+          "I assume you've got an excuse ready? I'll translate it into a task."
+        ],
+        "loss": [
+          "You never slid once. No recovery needed. I'm not sure I like how that feels.",
+          "Fair win. My task for next time: don't make the first mistake. Simple. Hard."
+        ],
+        "rematch": [
+          "Rematch. I've been practising not needing to recover. It's very dull.",
+          "Back again. New task list. Top item: you."
+        ],
+        "cleanRun": [
+          "No recoveries needed at all. The cleanest to-do list I've ever seen."
+        ],
+        "defeatedRematch": [
+          "Twice. Task assigned to myself: stop relying on the catch. Noted."
+        ]
+      }
+    },
+    {
+      "id": "R37",
+      "relationships": [
+        {
+          "rival": "R08",
+          "note": "Daigo tests, Osamu tunes, and they argue about tea."
+        },
+        {
+          "rival": "R14",
+          "note": "Ena listens to his ratios. When she says nothing, he counts it as a triumph."
+        },
+        {
+          "rival": "R35",
+          "note": "Twenty years of arguing about intake lengths at the same lunch table."
+        }
+      ],
+      "gesture": "Peers at you through the magnifier, nods slowly, and lowers it as if the diagnosis were obvious.",
+      "posture": "Large and relaxed, apron strings loose, one hand around a teacup that is always exactly the right temperature.",
+      "signatureAccessory": "Magnifier on a cord",
+      "livery": {
+        "motif": "Stepped gear-ratio chart and a tea bowl",
+        "pattern": "Stepped ratio-chart bars rising along the doors, with a single tea-bowl roundel on the bonnet",
+        "primary": "#5E503F",
+        "secondary": "#C6AC8F",
+        "accent": "#EAE0D5"
+      },
+      "sheet": "Osamu has tuned cars in Hoshimi for thirty years. His tea preferences are elaborate; his racing advice fits on one line. On terrain he knows, his gear ratios are perfect and his engine is always exactly where it wants to be. Push him off his planned rhythm, though, and he struggles to adapt, because the plan was so good.",
+      "lines": {
+        "intro": [
+          "The engine is not tired. You chose the wrong ratio.",
+          "Tea first. Genmaicha, a little cooler than you'd expect. Then we race.",
+          "Advice: choose the right gear. That's it. That's all the advice.",
+          "I set these ratios for this road in the spring. They haven't needed changing since."
+        ],
+        "introConvoy": [
+          "{convoy}. Lots of gearboxes. I hope some of you read the chart I left.",
+          "A convoy. Good. Tea for everyone afterwards. Not before. It spoils the palate."
+        ],
+        "introSolo": [
+          "Just you, {player}? One gearbox. Choose well.",
+          "Solo, {player}. Right gear, right place. That's the whole race."
+        ],
+        "victory": [
+          "Right ratio at every corner. Nothing more to say.",
+          "You were in fourth at the bridge. Should have been third. I'll draw you a chart."
+        ],
+        "loss": [
+          "You pushed me off my rhythm and I couldn't find it again. Clever. Very clever.",
+          "Right ratio, clean edges. Good. Your tea's gone cold, though."
+        ],
+        "rematch": [
+          "Rematch. The ratios are the same. The tea is different. Hojicha tonight.",
+          "Back again. This time I've planned for you pushing me off my rhythm. We'll see."
+        ],
+        "cleanRun": [
+          "Clean run. No clashes, no scrapes. The gearbox thanks you."
+        ],
+        "defeatedRematch": [
+          "Twice. Fine. I'll change a ratio. I haven't said that in eleven years."
+        ]
+      }
+    },
+    {
+      "id": "R38",
+      "relationships": [
+        {
+          "rival": "R23",
+          "note": "Keeps asking Sae about flow and writes her one-sentence answers on the workshop wall."
+        },
+        {
+          "rival": "R39",
+          "note": "Ayame inspects their prototypes. Most fail. Tsubasa keeps every single one."
+        }
+      ],
+      "gesture": "Sketches a curve in the air with the cuffed hand, crosses it out, and sketches a different one.",
+      "posture": "Tall and narrow, leaning at an angle against whatever's nearby, fringe falling into their eyes.",
+      "signatureAccessory": "Fingerless cuff on one arm",
+      "livery": {
+        "motif": "Exploded-view prototype sketch lines",
+        "pattern": "Dashed construction lines and exploded panel outlines over a sketch-grey base, with reflective strips at the edges",
+        "primary": "#E0E1DD",
+        "secondary": "#0D1B2A",
+        "accent": "#06A77D"
+      },
+      "sheet": "Tsubasa is an industrial designer who loves experiments and keeps every failed prototype on a shelf labelled 'Useful'. On the road they try creative, fully legal alternative arcs that nobody else would consider, and some of them work. On a closing-radius corner, though, the urge to experiment often goes one step too far.",
+      "lines": {
+        "intro": [
+          "The usual line was getting lonely.",
+          "I've got three new lines tonight. All legal. One of them is good.",
+          "A failure is just a prototype. I have a whole shelf of them. It's a lovely shelf.",
+          "Why take a corner the same way twice? Actually, don't answer that. Ayame will."
+        ],
+        "introConvoy": [
+          "{convoy}! Multiple test subjects! I mean drivers. Friends. Drivers.",
+          "A convoy. Great. Try some different lines, all of you. It's more interesting."
+        ],
+        "introSolo": [
+          "Solo, {player}? A perfectly controlled experiment.",
+          "Just you, {player}. Let's see your line. Then let's see a different one."
+        ],
+        "victory": [
+          "The strange line worked! Write that down. Somebody write that down!",
+          "Alternative arc, completely legal, and faster. I love it when that happens."
+        ],
+        "loss": [
+          "Overexperimented on the tightening corner. It's going on the shelf. Fondly.",
+          "You took the sensible line and won. That's still data. Good data."
+        ],
+        "rematch": [
+          "New prototype! I've revised the line for the closing corner. Revision four.",
+          "Rematch. I kept last time's failure. It's on the shelf. It says hello."
+        ],
+        "cleanRun": [
+          "Clean run! No failures at all. Honestly, a bit suspicious. Well done."
+        ],
+        "defeatedRematch": [
+          "Twice! Two data points make a trend. Back to the drawing board."
+        ]
+      }
+    },
+    {
+      "id": "R39",
+      "relationships": [
+        {
+          "rival": "R38",
+          "note": "Inspects Tsubasa's prototypes and fails most of them. Keeps a private list of the good ones."
+        },
+        {
+          "rival": "R21",
+          "note": "Both specialise in waiting behind you. They've never raced each other, and neither will suggest it."
+        }
+      ],
+      "gesture": "Lowers the dark oval glasses a centimetre, looks over them, and pushes them back up.",
+      "posture": "Perfectly straight, hands clasped behind the long vest, head tilted slightly as if checking alignment.",
+      "signatureAccessory": "Dark oval glasses",
+      "livery": {
+        "motif": "Inspection stamps and tolerance hatching",
+        "pattern": "Pass-stamp roundels on the doors, with tight tolerance hatching along the sills",
+        "primary": "#3D405B",
+        "secondary": "#F4F1DE",
+        "accent": "#81B29A"
+      },
+      "sheet": "Ayame is Datum Works' quality inspector. She notices an inconsistency before she notices a compliment, and she mentions it first. On the road she sits close behind without dirty contact and lets the pressure produce the mistake. A driver who simply ignores her in the mirror and drives their own race can outpace her.",
+      "lines": {
+        "intro": [
+          "You were quicker before you started watching me.",
+          "I've inspected your last run. Two inconsistencies. I'll mention them later.",
+          "I'll be close. Legally close. It's surprising how many people find that unbearable.",
+          "Compliments come after inspection. Inspection takes a while."
+        ],
+        "introConvoy": [
+          "{convoy}. Several units to inspect. I'll start with whoever flinches first.",
+          "A convoy. Consistency between you would be nice. I'm not holding my breath."
+        ],
+        "introSolo": [
+          "One unit, {player}. A thorough inspection, then.",
+          "Solo, {player}. I'll be in your mirror. Try not to look."
+        ],
+        "victory": [
+          "You looked in the mirror. The mistake followed. As expected.",
+          "Two inconsistencies at the pylons. I've written them down."
+        ],
+        "loss": [
+          "You ignored me completely. That's the only way to beat me, and you found it.",
+          "No inconsistencies. I checked twice. Well driven."
+        ],
+        "rematch": [
+          "Re-inspection. Let's see whether the faults were fixed.",
+          "Rematch. I'll be even closer this time. Legally."
+        ],
+        "cleanRun": [
+          "Clean run. Nothing to report. That's the best report I ever write."
+        ],
+        "defeatedRematch": [
+          "Twice you ignored me. I'll have to revise my method. That's rare."
+        ]
+      }
+    },
+    {
+      "id": "R40",
+      "relationships": [
+        {
+          "rival": "R48",
+          "note": "Someone she once depended on and no longer mentions. The old timing slip means more to her than she admits."
+        },
+        {
+          "rival": "R32",
+          "note": "Old rival from Mako's coastal-title years. Mako played to the crowd; Reina never looked at it."
+        },
+        {
+          "rival": "R34",
+          "note": "Chika upholstered her seat and tells her the truth. Reina tolerates that from nobody else."
+        }
+      ],
+      "gesture": "Draws a single straight line in the air with two fingers, from her chest toward the horizon, then lowers her hand.",
+      "posture": "Tall and poised, coat buttoned, heels together, eyes on a point further down the road than anyone else is looking.",
+      "signatureAccessory": "Single red seam on the white-and-graphite race coat",
+      "livery": {
+        "motif": "Surveyor's crosshair and a single red seam",
+        "pattern": "White-and-graphite split along the beltline, one red seam line from nose to tail, and a fine survey crosshair on the roof",
+        "primary": "#F5F5F2",
+        "secondary": "#3A3A3C",
+        "accent": "#C1121F"
+      },
+      "sheet": "Reina Kurogane is Datum Works' champion, called The Surveyor for the way she reads a road as a set of fixed points. Her linked braking is near-perfect and her pace is repeatable to the tenth. She believes solitary precision is the only reliable form of trust, because a line can't let you down and people can; she's disciplined, never cruel. Her weakness is commitment: she holds the ideal line even when the road asks for a different rhythm.",
+      "lines": {
+        "intro": [
+          "A convoy still reaches the corner one driver at a time.",
+          "Good evening. I've surveyed this road more times than I can count. It hasn't changed. Nor have I.",
+          "The line is the only thing I trust completely. It has never let me down.",
+          "Don't take it personally when I pass you. I'm not racing you. I'm racing the line.",
+          "Precision isn't coldness. It's a promise I can actually keep.",
+          "Every braking point on this road has a number. I know all of them.",
+          "I don't need anyone to wait for me at the turnout. I never have."
+        ],
+        "introConvoy": [
+          "{convoy}. You'll all be very supportive of each other. The corner won't be.",
+          "A convoy is a pleasant idea. At the apex it's still one driver and one decision.",
+          "Good evening, {convoy}. I'll race each of you, separately. There's no other way."
+        ],
+        "introSolo": [
+          "{player}. Alone, as it should be. Now we'll see what you actually are.",
+          "Solo, {player}. Good. No one to blame, and no one to thank.",
+          "Just you, {player}. That, I understand."
+        ],
+        "victory": [
+          "The line held, as it always does. Yours bent. That was the difference.",
+          "Every braking point, exactly as surveyed. Nothing left to chance, or to anyone else.",
+          "You drove well. I drove exactly. The difference is small, and it's everything."
+        ],
+        "loss": [
+          "You found a rhythm my line didn't allow for. I'll have to think about that.",
+          "You didn't drive my line. You drove yours, and tonight it was better. Noted.",
+          "I was precise. You were better. I'm not sure yet how those two fit together."
+        ],
+        "rematch": [
+          "Again. I've surveyed your last run. I know where you'll be.",
+          "Rematch. The line hasn't changed. If yours has, show me.",
+          "You beat me once. Once is a result. I'd like to see whether it's a pattern."
+        ],
+        "cleanRun": [
+          "Clean. No contact, no correction. I respect that more than you'd think.",
+          "Not a single wasted movement. That's how I'd have driven it.",
+          "A clean run. At least we agree on something."
+        ],
+        "defeatedRematch": [
+          "Twice. Then it isn't an accident. I'll stop pretending it was.",
+          "Beaten again. Perhaps the line isn't the only thing worth trusting.",
+          "Twice, and together. I'm beginning to understand what I gave up."
+        ]
+      }
+    },
+    {
+      "id": "R41",
+      "relationships": [
+        {
+          "rival": "R43",
+          "note": "Neri walked her up her first highland trail and has been quietly checking on her ever since."
+        },
+        {
+          "rival": "R46",
+          "note": "Gaku tells her jokes on the observatory night shift. She laughs about ten minutes later, which suits him perfectly."
+        }
+      ],
+      "gesture": "Tugs her fleece cap down over her ears, opens her mouth to say something, and decides not to.",
+      "posture": "Small and bundled, arms wrapped round the long vest, shoulders up against the cold. In the car, perfectly still.",
+      "signatureAccessory": "Mountain-flower patch on the long insulated vest",
+      "livery": {
+        "motif": "Star-chart dots and a mountain flower",
+        "pattern": "Constellation dots scattered over the roof, with a single mountain-flower patch on the driver's door",
+        "primary": "#0F4C5C",
+        "secondary": "#E3D5CA",
+        "accent": "#FFB4A2"
+      },
+      "sheet": "Fuyu assists at the Tsukishiro observatory and chatters nervously right up until she's behind the wheel, when she goes completely quiet. Her judgement on narrow highland roads is clear and calm. On broad lowland corners she's overcautious, as if all that space must be a trick. She doesn't believe the legends about the high road and gets a little flustered when other people do.",
+      "lines": {
+        "intro": [
+          "I can see the exit. That is enough.",
+          "Hi. Sorry. I talk a lot beforehand. It stops when I drive. I promise.",
+          "The observatory's open tonight and Jupiter's up. Sorry, that's not relevant. It's nice, though.",
+          "Narrow roads are easy. You can see everything. Wide ones have too many choices."
+        ],
+        "introConvoy": [
+          "Oh, {convoy}, hi. That's a lot of headlights. Okay. Good. Hi.",
+          "A convoy. That's nice. Somebody will always see the exit."
+        ],
+        "introSolo": [
+          "Just you, {player}? Okay. Hi. I'll be quiet in a minute.",
+          "Solo, {player}. That's brave. Or calm. Calm is good up here."
+        ],
+        "victory": [
+          "I could see the exit every time. That's all I needed. Sorry. Good race.",
+          "Oh. I won. Um. Thank you. You were really good on the wide parts."
+        ],
+        "loss": [
+          "You were quicker in the broad corners. I was too careful. I know. I always know.",
+          "Oh! You didn't hesitate in the wide corners at all. That was really good. Sorry. Well driven."
+        ],
+        "rematch": [
+          "Hi again. I've practised wide corners. On purpose. It was terrifying.",
+          "Rematch? Okay. Okay. I won't talk. I'll just drive."
+        ],
+        "cleanRun": [
+          "You didn't touch anything. That's the nicest kind of fast."
+        ],
+        "defeatedRematch": [
+          "Twice. That's fair. The wide corners are yours. I'm working on it. Really."
+        ]
+      }
+    },
+    {
+      "id": "R42",
+      "relationships": [
+        {
+          "rival": "R19",
+          "note": "Trades old recordings for Michi's archive copies. Both want the whole story; neither will guess at it."
+        },
+        {
+          "rival": "R48",
+          "note": "Heard the dawn run on the relay that morning. He has only ever said that he heard it, never what he heard."
+        }
+      ],
+      "gesture": "Turns the dial of the old receiver a fraction, listens with his head bowed, then switches it off.",
+      "posture": "Broad and stooped, cable-knit jacket hanging loose, head tilted forward as if leaning toward a faint signal.",
+      "signatureAccessory": "Old radio receiver carried on a strap",
+      "livery": {
+        "motif": "Analogue tuning dial and cable-knit",
+        "pattern": "A radio dial scale running along both sills with a single needle on the door, and cable-knit texture on the bonnet",
+        "primary": "#7A6C5D",
+        "secondary": "#D6CCC2",
+        "accent": "#F2A65A"
+      },
+      "sheet": "Kazuma repairs radios in Tsukishiro and heard the legendary dawn run on the relay the morning it happened. He refuses to embellish it: he'll tell you exactly what he heard and not a word more. On the road he reads camber and cold-road transitions with great sensitivity. He dislikes aggressive defending and will often let a determined rival through rather than fight.",
+      "lines": {
+        "intro": [
+          "The quiet part is where you hear the car.",
+          "Evening. I'll tell you what I heard, and nothing I didn't.",
+          "Cold road and warm road sound different. Listen for the change.",
+          "I don't defend much. If you're faster, go. If you're not, you'll know."
+        ],
+        "introConvoy": [
+          "{convoy}. Lots of engines. Somewhere in there is the one that matters. Listen for it.",
+          "A convoy. Good. Tell each other what you hear, not what you imagine."
+        ],
+        "introSolo": [
+          "Just you, {player}. Quiet enough to hear the road, then.",
+          "Solo, {player}. Good. Fewer voices on the channel."
+        ],
+        "victory": [
+          "Heard the cold patch before the gallery. That was all.",
+          "You rushed the camber. I listened. Nothing more to it."
+        ],
+        "loss": [
+          "You didn't need to fight me for it, and you didn't. Well driven.",
+          "You listened to the road. I heard you do it. Good."
+        ],
+        "rematch": [
+          "Again. I've been listening back to the last one. Quietly.",
+          "Rematch. I'll defend a little more tonight. Only a little."
+        ],
+        "cleanRun": [
+          "Clean all the way. No noise but the engine. That's a good recording."
+        ],
+        "defeatedRematch": [
+          "Twice. I'll say it on air exactly as it happened. You won."
+        ]
+      }
+    },
+    {
+      "id": "R43",
+      "relationships": [
+        {
+          "rival": "R41",
+          "note": "Walked Fuyu up her first highland trail and still checks she gets home."
+        },
+        {
+          "rival": "R15",
+          "note": "Climbing partner. Laughs at Itsuki's stories and quietly checks his knots."
+        }
+      ],
+      "gesture": "Taps the constellation brooch, points at the ridge, then counts the heads around them without seeming to.",
+      "posture": "Long and angular, windbreaker hanging unevenly, one foot always pointed back toward the way home.",
+      "signatureAccessory": "Constellation brooch",
+      "livery": {
+        "motif": "Painted trail blazes and a constellation",
+        "pattern": "A sequence of small painted trail-blaze rectangles running along the car, with one long asymmetric stripe like the windbreaker",
+        "primary": "#588157",
+        "secondary": "#DAD7CD",
+        "accent": "#BC4749"
+      },
+      "sheet": "Neri guides hikers across the Tsukishiro highland, laughs openly at heroic mountain stories, and quietly makes sure every group comes home. On the open ridge they read high-speed arcs beautifully and flow where others brake. Braking zones that look blind but are clearly marked demand more discipline than Neri naturally has, and they know it.",
+      "lines": {
+        "intro": [
+          "Leave yourself a road home.",
+          "Heroic stories about this ridge? I've heard them all. Most end with someone needing a lift.",
+          "Fast on the ridge, careful at the markers. I'm still working on the second part.",
+          "I'll count everyone at the finish. Habit."
+        ],
+        "introConvoy": [
+          "{convoy}. How many of you? Right. That's how many I'm counting at the end.",
+          "A convoy. Good. Nobody gets left on the mountain."
+        ],
+        "introSolo": [
+          "Just you, {player}? Then leave yourself a road home. Nobody else will.",
+          "Solo, {player}. Fine. I'll still count you at the end."
+        ],
+        "victory": [
+          "Flowed along the whole ridge and still stopped at the markers. Both. Good night.",
+          "The ridge is quick if you let it be. Everyone home? Good."
+        ],
+        "loss": [
+          "You braked properly at the marker I rushed. That's the lesson. I'll take it.",
+          "Ha! Well driven. Everyone home? Good. Then that's the best result."
+        ],
+        "rematch": [
+          "Back again. I've been practising at the markers. Discipline. Ugh.",
+          "Rematch. Same ridge. I'll brake where they tell me to this time."
+        ],
+        "cleanRun": [
+          "Clean all the way. A safe return. My favourite kind of fast."
+        ],
+        "defeatedRematch": [
+          "Twice. The markers were right both times, and you trusted them. I didn't."
+        ]
+      }
+    },
+    {
+      "id": "R44",
+      "relationships": [
+        {
+          "rival": "R13",
+          "note": "Swaps tools and grumbles with Fumio by post. They've met in person twice."
+        },
+        {
+          "rival": "R30",
+          "note": "Another late braker, on the coast. They post each other braking data with no message attached."
+        },
+        {
+          "rival": "R47",
+          "note": "His best apprentice. He only says so when she can't hear."
+        }
+      ],
+      "gesture": "Unwraps the cloth thermos, pours one cap of tea, drinks it in one go, and wraps it up again.",
+      "posture": "Compact and square, feet planted, quilted jumpsuit zipped to the chin, arms crossed.",
+      "signatureAccessory": "Cloth-wrapped thermos",
+      "livery": {
+        "motif": "Snow-shed ribs and quilting",
+        "pattern": "Repeating shed-rib bars across the roof, with quilted diamond panels on the doors",
+        "primary": "#8D99AE",
+        "secondary": "#1F2421",
+        "accent": "#F5CB5C"
+      },
+      "sheet": "Satoshi maintains the snow sheds on the Tsukishiro high roads and has the manners of a man who spends his winters alone with concrete. He remembers every apprentice he has trained, good and bad. On descents his braking is hard, late and completely controlled. Across a long, gentle sector he loses his flow, because there is nothing to brake for.",
+      "lines": {
+        "intro": [
+          "The marker is there for a reason. Then there is your reason.",
+          "Every apprentice who took this descent badly, I remember. Don't join the list.",
+          "Descents are easy. Brake hard, brake right. It's the flat parts that are hard.",
+          "Tea? No? Your loss. It's a long night."
+        ],
+        "introConvoy": [
+          "{convoy}. Right. Don't bunch up at the markers. I'll know if you do.",
+          "A convoy. I've trained bigger groups. They were worse."
+        ],
+        "introSolo": [
+          "Just you, {player}. Fine. Brake where the marker says.",
+          "Solo, {player}. Don't make me remember you for the wrong reason."
+        ],
+        "victory": [
+          "Late on the brakes, right on the marker. That's all a descent is.",
+          "You lost it on the descent. Braking is a trade. You'll learn it."
+        ],
+        "loss": [
+          "You kept your flow on the long section. That's my weak sector, and you found it. I'll remember that.",
+          "Good. You'll be remembered for the right reason. Don't let it go to your head."
+        ],
+        "rematch": [
+          "Back? I remember you. That isn't a threat. Mostly.",
+          "Rematch. I've been working on the gentle sections. Hated every minute."
+        ],
+        "cleanRun": [
+          "Clean. Not a mark. I'll remember that one."
+        ],
+        "defeatedRematch": [
+          "Twice. Fine. You're one of the good apprentices now. Don't tell anyone I said so."
+        ]
+      }
+    },
+    {
+      "id": "R45",
+      "relationships": [
+        {
+          "rival": "R22",
+          "note": "Crewed endurance weekends with Kenta years ago. They still greet each other by shouting old car numbers."
+        },
+        {
+          "rival": "R47",
+          "note": "Checks Yuna's work on the dawn car, finds nothing wrong, and checks again anyway."
+        }
+      ],
+      "gesture": "Lifts the rescue whistle, doesn't blow it, and taps it twice against her palm.",
+      "posture": "Broad and grounded, hair in a high knot, hands in the pockets of her heavy coat, eyes already on your tyres.",
+      "signatureAccessory": "Mountain rescue whistle on a lanyard",
+      "livery": {
+        "motif": "Endurance-race number roundels and a rescue whistle",
+        "pattern": "Classic endurance-style number roundels on the doors and bonnet, with a high-visibility band at the beltline",
+        "primary": "#354F52",
+        "secondary": "#F0EAD2",
+        "accent": "#FF7F11"
+      },
+      "sheet": "Minae spent fifteen years as an endurance mechanic and still checks other people's cars before her own, every time. She values consistency over brilliance and drives low-waste lines that pay off over a long event. She rarely makes a surprise attack, so a well-timed one against her usually works.",
+      "lines": {
+        "intro": [
+          "Keep some of the car for the last hill.",
+          "Your left front is a little low. I'd check it. I already checked mine.",
+          "Long race. Waste nothing now and you'll have it at the end.",
+          "The whistle? Mountain rescue. I've never needed it at a race. Let's keep it that way."
+        ],
+        "introConvoy": [
+          "{convoy}. I've looked at all your cars. Two of you need a word afterwards. Nothing serious.",
+          "A convoy. Good. Look after each other's cars as well as your own."
+        ],
+        "introSolo": [
+          "Just you, {player}? Then I'll check your car twice.",
+          "Solo, {player}. Pace yourself. The last hill always comes."
+        ],
+        "victory": [
+          "Car left at the end. That's the whole trick. Most people don't believe it.",
+          "You spent everything early, and the last hill collected. It always does."
+        ],
+        "loss": [
+          "You attacked when I didn't expect it. I never do that. Maybe I should.",
+          "Good race. Your car's in good shape, too. I looked."
+        ],
+        "rematch": [
+          "Back again. I've checked your car. It's fine. Let's go.",
+          "Rematch. I might even try a surprise tonight. Don't hold me to it."
+        ],
+        "cleanRun": [
+          "Clean run. The car will thank you tomorrow."
+        ],
+        "defeatedRematch": [
+          "Twice. You've got a good car and a better head. Well done."
+        ]
+      }
+    },
+    {
+      "id": "R46",
+      "relationships": [
+        {
+          "rival": "R41",
+          "note": "Tells Fuyu jokes on the observatory night shift. She laughs ten minutes later, which suits him."
+        },
+        {
+          "rival": "R48",
+          "note": "Drove the first train along the coast on the morning of the dawn run. He knows what he saw from the cab and is waiting to be asked properly."
+        }
+      ],
+      "gesture": "Lets the round spectacles drop on their cord, checks an imaginary pocket watch, and nods.",
+      "posture": "Very tall and thin, coat collar turned up, hands behind his back like a driver waiting on a platform.",
+      "signatureAccessory": "Round spectacles on a cord",
+      "livery": {
+        "motif": "Railway livery band and signal lamps",
+        "pattern": "One long band running the length of the car like an old train livery, with signal-lamp roundels on the tail",
+        "primary": "#0A3D62",
+        "secondary": "#F8EFD4",
+        "accent": "#E58F65"
+      },
+      "sheet": "Gaku drove trains on the coast line for thirty years, including the first train of the morning, and still brakes like a man stopping a carriage at a platform: long, smooth and exactly on the mark. His jokes arrive late; his braking never does. His car has modest power, so every exit has to be perfect. He was driving that first train on the morning of the dawn run.",
+      "lines": {
+        "intro": [
+          "On time is a kind of fast.",
+          "Good evening. I've a joke about the pine grove. I'll tell it later. It'll be funnier then.",
+          "Brake like a train at a platform: early enough, long enough, and gently at the end.",
+          "I've never been late in my life. I don't intend to start tonight."
+        ],
+        "introConvoy": [
+          "Good evening, {convoy}. Quite a train. Mind the gaps between the carriages.",
+          "A convoy. Lovely. Everyone off at the same station, I hope."
+        ],
+        "introSolo": [
+          "Just you, {player}? A single carriage. Nice and light.",
+          "Solo, {player}. Good. Mind the platform edge."
+        ],
+        "victory": [
+          "Arrived on time. To the second. Old habits.",
+          "You were early at the gallery and late at the finish. Ha. That's the joke, you see."
+        ],
+        "loss": [
+          "You exited better than I could. Modest power needs perfect exits. Mine weren't.",
+          "Well done. Oh, the pine grove joke. It was about a timetable. I'll explain later."
+        ],
+        "rematch": [
+          "Back again. Same timetable. I've adjusted my exits by a few seconds.",
+          "Rematch? Splendid. I've nearly thought of the ending to that joke."
+        ],
+        "cleanRun": [
+          "A clean run. Smooth as a well-kept line. Lovely to see."
+        ],
+        "defeatedRematch": [
+          "Twice. You've kept better time than me. That hasn't happened since the old line."
+        ]
+      }
+    },
+    {
+      "id": "R47",
+      "relationships": [
+        {
+          "rival": "R48",
+          "note": "Restoring Shiori's old car. Treats the job with respect, and Shiori with a nervousness she can't hide."
+        },
+        {
+          "rival": "R44",
+          "note": "Her old teacher from the snow sheds. He has never told her she's his best apprentice."
+        },
+        {
+          "rival": "R45",
+          "note": "Minae checks her work on the dawn car, finds nothing wrong, and checks again anyway."
+        }
+      ],
+      "gesture": "Pulls on one embroidered glove cuff, then the other, and flexes her hands as if about to lift an engine.",
+      "posture": "Short and muscular, feet apart, shirt sleeves rolled, weight forward like someone about to get under a car.",
+      "signatureAccessory": "Two embroidered glove cuffs",
+      "livery": {
+        "motif": "Restoration masking lines and embroidered cuffs",
+        "pattern": "Primer-tan body with deliberate masking-tape edges left visible in a grid, and small embroidered-flower motifs on the mirrors",
+        "primary": "#B08968",
+        "secondary": "#22223B",
+        "accent": "#E6CCB2"
+      },
+      "sheet": "Yuna restores old cars in the Tsukishiro highland and is rebuilding the dawn car, a Kogane Kestrel S, with respect rather than nostalgia: every part that can be saved is saved. Her transitions are rapid and composed. When the legend is watching, though, she tries too hard and loses the composure that makes her quick.",
+      "lines": {
+        "intro": [
+          "Old does not mean finished.",
+          "Evening. I've been under a car since noon. This is my break.",
+          "Restore, don't replace. Same with a line. Fix what's there before you invent a new one.",
+          "Left, right, left. Quick hands, quiet head. That's the rhythm."
+        ],
+        "introConvoy": [
+          "{convoy}. Several cars. I hope somebody's been looking after all of them.",
+          "A convoy! Good. Keep each other in rhythm."
+        ],
+        "introSolo": [
+          "Just you, {player}? Fine. One car, one rhythm.",
+          "Solo, {player}. Good. Show me you can keep the car together."
+        ],
+        "victory": [
+          "Linked it. Kept it together. That's all I wanted.",
+          "Quick hands, quiet head. The head part took years."
+        ],
+        "loss": [
+          "I tried too hard. I know. I always do when someone's watching.",
+          "You kept your rhythm and I lost mine. Well driven. Honestly."
+        ],
+        "rematch": [
+          "Back again. I've been working on my head, not my car.",
+          "Rematch. Nobody watching tonight. I think. I hope."
+        ],
+        "cleanRun": [
+          "Clean all the way, and you looked after the car. That matters more than you know."
+        ],
+        "defeatedRematch": [
+          "Twice. Okay. I'll stop trying to impress anyone. I'll just drive."
+        ]
+      }
+    },
+    {
+      "id": "R48",
+      "relationships": [
+        {
+          "rival": "R40",
+          "note": "An old student. Shiori has never spoken of her unkindly, and always leaves a space on the radio bench."
+        },
+        {
+          "rival": "R47",
+          "note": "Yuna is restoring the car Shiori kept alive for eighteen years. Shiori asks about tyre temperatures instead of saying thank you."
+        },
+        {
+          "rival": "R46",
+          "note": "Old friends from the coast line. He saw something from his cab that morning and has kept it to himself."
+        }
+      ],
+      "gesture": "Touches the scarf tucked at her collar with two fingers, then folds her hands and waits.",
+      "posture": "Compact and upright, silver braid down her back, hands folded in front of the worn indigo coat, perfectly still.",
+      "signatureAccessory": "Repaired cream scarf, tucked safely inside the collar of her indigo coat",
+      "livery": {
+        "motif": "Worn indigo and cream, with a mended seam and a small zero circle",
+        "pattern": "Cream body over an indigo lower sill, one fine mended-seam line along the flank, and a small open circle on the tail",
+        "primary": "#F1E9D2",
+        "secondary": "#2E3A59",
+        "accent": "#A68A64"
+      },
+      "sheet": "Shiori Kuze is Zero Signal, the driver whose unbroadcast dawn run over Amanagi became highland folklore. In person she's patient, unshowy and kind in small, practical ways, and she never lets anyone call it a legend in front of her. She preserves speed through observation and restraint: minimal steering, a measured late release, nothing wasted. Her restored roadster has little power, so any real loss of flow costs her dearly, and there's no magic in how she drives.",
+      "lines": {
+        "intro": [
+          "You do not have to hurry every part of the road.",
+          "Good morning. I'm told you've been very patient. Good. So have I.",
+          "Watch the road for a moment before you drive it. It's usually telling you something.",
+          "The car has very little power, so I try not to waste any.",
+          "People tell a lot of stories about that morning. Most are kinder to me than I deserve.",
+          "Your left rear will be cool at the start. Give it one corner.",
+          "I'm not here to be a legend. I'm here to drive down to the sea."
+        ],
+        "introConvoy": [
+          "Good morning, {convoy}. Look after each other on the way down. That's all I ask.",
+          "A convoy. How nice. Someone always notices what the others missed.",
+          "{convoy}. You don't all have to be fast in the same places."
+        ],
+        "introSolo": [
+          "Good morning, {player}. Just the two of us and the road. That's plenty.",
+          "Solo, {player}? Then watch closely. There's no one else to do it for you.",
+          "Just you, {player}. Take your time. The sun won't rise any faster."
+        ],
+        "victory": [
+          "Thank you. You were quick everywhere, and hurried in a few places. That was all.",
+          "You attacked every corner. Some of them didn't need it.",
+          "Nothing magic about it. I just didn't waste anything. You'll find it."
+        ],
+        "loss": [
+          "Lovely. You used every metre and wasted none of them. Thank you for the race.",
+          "You kept your speed without spending it. That's all there is to it. Well done.",
+          "Beautifully observed. I lost my flow for a moment, and that was enough."
+        ],
+        "rematch": [
+          "Good morning again. Same road, same car. You'll have noticed something new.",
+          "Again? Of course. There's no hurry.",
+          "Rematch. Watch the road first. It's changed a little since last time."
+        ],
+        "cleanRun": [
+          "Clean all the way. That's a kindness to the road, and to the car.",
+          "You didn't touch anything. You didn't need to. Good.",
+          "A clean run is a quiet run. I heard every bit of it."
+        ],
+        "defeatedRematch": [
+          "Twice. Then you've learnt it properly. I'm very glad.",
+          "Beaten again, and nothing wasted. That's how I'd like to lose.",
+          "I'll go and sit at the radio bench for a while. You're welcome to join me."
+        ]
+      }
+    }
+  ]
+}

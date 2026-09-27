@@ -1,0 +1,86 @@
+{
+  "schema": "night-signal/meet-text@1",
+  "authoredBy": "narrative-worker-v1",
+  "host": {
+    "name": "Genzo Karasawa",
+    "role": "Terrace warden and retired timing-crew chief; keeps the radio bench and the kettle.",
+    "greeting": [
+      "Evening, {player}. Welcome to Cedar Lantern Terrace. Park where the lanterns tell you to.",
+      "I'm Genzo. I ran the timing crew for twenty years. Now I run the radio bench and the kettle, in that order.",
+      "Nobody races up here. We look at cars, drink tea and say hello properly. Go on, give me a wave."
+    ],
+    "emoteHelp": [
+      "Every greeting lives on the emote wheel. Open it, pick one, let go. That's the whole lesson.",
+      "A wave is for across the terrace. A bow is for up close, when someone has just shown you their car.",
+      "Try a wave, then a bow. I'll return both. You don't need anyone else here to practise.",
+      "Quick-chat has its own wheel: short, friendly phrases, no typing. Handy when your hands are full of tea.",
+      "If a greeting goes wrong, send another. Nobody up here keeps score of hellos."
+    ],
+    "afterGreeting": [
+      "There. Now you've properly arrived. The tea kiosk is north, and the timing board is next to it.",
+      "Walk out to the four viewpoints when you have a moment. Each placard tells you a little about the region.",
+      "Come back to the radio bench whenever you like. The frequency's quiet between races, but it's never off."
+    ]
+  },
+  "placards": {
+    "viewpoints": [
+      {
+        "id": "VIEW-N",
+        "title": "North Viewpoint: The Highland Line",
+        "text": "Past the tea kiosk roof, the Tsukishiro highland rises in layers. On a clear night the Signal Tower beacon blinks on the far ridge, and before dawn the observatory dome catches the first grey light. Beyond it, out of sight, Amanagi falls away toward the sea."
+      },
+      {
+        "id": "VIEW-E",
+        "title": "East Viewpoint: Coast and Kilns",
+        "text": "Beyond the timber fence the land drops toward Akebono. Watch for the lighthouse beam crossing the bay, and inland for the Hoshimi kiln chimneys, lit warm at every hour. Volunteers reset the retaining wall below you last spring; the newer stones are the paler ones."
+      },
+      {
+        "id": "VIEW-S",
+        "title": "South Viewpoint: The Reservoir Road",
+        "text": "Below the maintenance gate the scenic road winds into cedar forest. On still evenings the Kurogawa reservoir shines between the trees, with the spillway towers standing along the dam. The road past the berm is closed to walkers, so enjoy it from here."
+      },
+      {
+        "id": "VIEW-W",
+        "title": "West Viewpoint: Tea Hills and Cedar",
+        "text": "Under the cherry trees the view opens west over the Mizuhana foothills: terraced tea rows, a hilltop water tank and lantern strings along the old tea road. Further out, the Kasumi cedar ridges hold the evening mist long after the valley has cleared."
+      }
+    ],
+    "photoPoints": [
+      {
+        "id": "PHOTO-TEA-KIOSK",
+        "title": "The Tea Kiosk",
+        "text": "The shuttered counter opens at dusk. The short curtain over the door reads 茶 (cha, tea). Drivers hang their own mugs on the hooks by the awning, and the kiosk keeper washes every one of them anyway."
+      },
+      {
+        "id": "PHOTO-RADIO-BENCH",
+        "title": "The Radio Bench",
+        "text": "A cedar bench, an old receiver and a hand-lettered card with the Night Signal frequency. Between races it carries road closures, tea urn repairs and lost gloves. Sit for a while. Somebody usually does."
+      },
+      {
+        "id": "PHOTO-MAINTENANCE-GATE",
+        "title": "The Maintenance Gate",
+        "text": "The road crew's gate to the forest service road. The padlock is oiled, the hinges are new and the berm beside it has just been replanted. Someone keeps this place working without being asked, and never signs the logbook."
+      }
+    ]
+  },
+  "timingBoard": {
+    "header": "TERRACE TIMING BOARD: convoy proposal and your recent slips",
+    "emptyState": "No slips posted yet. Finish an event, come back, and your result will be pinned here."
+  },
+  "quickChat": [
+    "Hello!",
+    "Nice car!",
+    "Good race!",
+    "Well driven.",
+    "Great line!",
+    "Thank you!",
+    "Tea at the kiosk?",
+    "Want a photo?",
+    "Ready when you are.",
+    "Give me a minute.",
+    "Sorry about that!",
+    "Heading out soon.",
+    "See you on the road.",
+    "Good night!"
+  ]
+}

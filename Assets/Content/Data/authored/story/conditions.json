@@ -1,0 +1,429 @@
+{
+  "schema": "night-signal/stage-conditions@1",
+  "authoredBy": "narrative-worker-v1",
+  "derivationRules": "Normal values come from the stage course's defaultConditions in courses.json; Hard values come from the stage's hard.variation in stages.json. (1) Surface-to-weather mapping, applied consistently: 'wet' surface pairs with weather 'rain'; 'damp' surface pairs with weather 'light-rain'; 'dry' pairs with 'clear' unless the text names a sky (overcast) or mist. (2) Named weather wins over rule 1: any text naming mist gives weather 'mist' (surface as stated, otherwise dry); 'light rain' gives damp/light-rain; 'steady rain' gives wet/rain. (3) A missing time of day inherits the Normal value for the same course; a missing surface is 'dry'. (4) Time words map as: 'late afternoon' -> late-afternoon, 'blue hour' -> blue-hour, 'clear evening' -> evening, 'early night' -> evening, 'moonlit night', 'cold night' and 'clear night' -> night, 'cold dawn' and 'clear dawn' -> dawn, 'first light' -> first-light. Adjectives such as 'cold' or 'moonlit' are kept in the Hard note only; they never imply ice or reduced grip. (5) C07 names no time of day; it uses 'night', matching the other Kasumi forest courses C05, C06 and C08. (6) C25 lighting progresses deterministically during the run without changing grip; timeOfDay records the start of the run and the optional 'progressesTo' field records the finish. (7) Hard entries whose variation names no condition change (S29) repeat the Normal conditions, and the note records the tightened targets.",
+  "stages": [
+    {
+      "id": "S01",
+      "normal": {
+        "timeOfDay": "late-afternoon",
+        "surface": "dry",
+        "weather": "clear"
+      },
+      "hard": {
+        "timeOfDay": "dawn",
+        "surface": "damp",
+        "weather": "light-rain",
+        "note": "Dawn, damp. Greater emphasis on smooth exits."
+      }
+    },
+    {
+      "id": "S02",
+      "normal": {
+        "timeOfDay": "blue-hour",
+        "surface": "dry",
+        "weather": "clear"
+      },
+      "hard": {
+        "timeOfDay": "blue-hour",
+        "surface": "dry",
+        "weather": "clear",
+        "note": "Blue hour, dry. Tighter uphill benchmark."
+      }
+    },
+    {
+      "id": "S03",
+      "normal": {
+        "timeOfDay": "evening",
+        "surface": "dry",
+        "weather": "clear"
+      },
+      "hard": {
+        "timeOfDay": "night",
+        "surface": "dry",
+        "weather": "clear",
+        "note": "Night, dry. Two-lap consistency emphasis."
+      }
+    },
+    {
+      "id": "S04",
+      "normal": {
+        "timeOfDay": "dusk",
+        "surface": "dry",
+        "weather": "clear"
+      },
+      "hard": {
+        "timeOfDay": "pre-dawn",
+        "surface": "damp",
+        "weather": "light-rain",
+        "note": "Pre-dawn, damp. Late brake-release emphasis."
+      }
+    },
+    {
+      "id": "S05",
+      "normal": {
+        "timeOfDay": "night",
+        "surface": "dry",
+        "weather": "clear"
+      },
+      "hard": {
+        "timeOfDay": "night",
+        "surface": "damp",
+        "weather": "light-rain",
+        "note": "Night, damp. Alternate legal exit lines."
+      }
+    },
+    {
+      "id": "S06",
+      "normal": {
+        "timeOfDay": "night",
+        "surface": "dry",
+        "weather": "clear"
+      },
+      "hard": {
+        "timeOfDay": "dawn",
+        "surface": "dry",
+        "weather": "clear",
+        "note": "Clear dawn, dry. Reduced margin for early braking."
+      }
+    },
+    {
+      "id": "S07",
+      "normal": {
+        "timeOfDay": "dusk",
+        "surface": "dry",
+        "weather": "clear"
+      },
+      "hard": {
+        "timeOfDay": "dusk",
+        "surface": "damp",
+        "weather": "light-rain",
+        "note": "Damp Bellmaker surface. Later controlled braking and deliberately wider exits."
+      }
+    },
+    {
+      "id": "S08",
+      "normal": {
+        "timeOfDay": "night",
+        "surface": "dry",
+        "weather": "mist"
+      },
+      "hard": {
+        "timeOfDay": "night",
+        "surface": "damp",
+        "weather": "mist",
+        "note": "Controlled mist, damp. Apex sight lines stay readable throughout."
+      }
+    },
+    {
+      "id": "S09",
+      "normal": {
+        "timeOfDay": "night",
+        "surface": "damp",
+        "weather": "light-rain"
+      },
+      "hard": {
+        "timeOfDay": "night",
+        "surface": "wet",
+        "weather": "rain",
+        "note": "Steady rain, wet. Calibrated wet reference."
+      }
+    },
+    {
+      "id": "S10",
+      "normal": {
+        "timeOfDay": "dusk",
+        "surface": "dry",
+        "weather": "overcast"
+      },
+      "hard": {
+        "timeOfDay": "dawn",
+        "surface": "damp",
+        "weather": "light-rain",
+        "note": "Dawn, damp. Precision across the dam's expansion joints."
+      }
+    },
+    {
+      "id": "S11",
+      "normal": {
+        "timeOfDay": "night",
+        "surface": "dry",
+        "weather": "clear"
+      },
+      "hard": {
+        "timeOfDay": "night",
+        "surface": "dry",
+        "weather": "clear",
+        "note": "Clear night, dry. Gear and exit emphasis."
+      }
+    },
+    {
+      "id": "S12",
+      "normal": {
+        "timeOfDay": "dawn",
+        "surface": "damp",
+        "weather": "light-rain"
+      },
+      "hard": {
+        "timeOfDay": "night",
+        "surface": "wet",
+        "weather": "rain",
+        "note": "Night, wet. Consistency across both laps."
+      }
+    },
+    {
+      "id": "S13",
+      "normal": {
+        "timeOfDay": "night",
+        "surface": "dry",
+        "weather": "clear"
+      },
+      "hard": {
+        "timeOfDay": "pre-dawn",
+        "surface": "damp",
+        "weather": "light-rain",
+        "note": "Pre-dawn, damp. No arbitrary visibility loss."
+      }
+    },
+    {
+      "id": "S14",
+      "normal": {
+        "timeOfDay": "night",
+        "surface": "damp",
+        "weather": "light-rain"
+      },
+      "hard": {
+        "timeOfDay": "night",
+        "surface": "wet",
+        "weather": "rain",
+        "note": "Steady wet Rain Thread. Longer safe lines and a sharper traction-management benchmark; no secret grip."
+      }
+    },
+    {
+      "id": "S15",
+      "normal": {
+        "timeOfDay": "sunset",
+        "surface": "dry",
+        "weather": "clear"
+      },
+      "hard": {
+        "timeOfDay": "blue-hour",
+        "surface": "dry",
+        "weather": "clear",
+        "note": "Blue hour, dry. Tighter long-arc exits."
+      }
+    },
+    {
+      "id": "S16",
+      "normal": {
+        "timeOfDay": "night",
+        "surface": "dry",
+        "weather": "clear"
+      },
+      "hard": {
+        "timeOfDay": "dawn",
+        "surface": "damp",
+        "weather": "light-rain",
+        "note": "Dawn, damp. Measured urban-braking precision."
+      }
+    },
+    {
+      "id": "S17",
+      "normal": {
+        "timeOfDay": "evening",
+        "surface": "damp",
+        "weather": "light-rain"
+      },
+      "hard": {
+        "timeOfDay": "night",
+        "surface": "wet",
+        "weather": "rain",
+        "note": "Night, wet. Authored surface transitions, identical for every entrant."
+      }
+    },
+    {
+      "id": "S18",
+      "normal": {
+        "timeOfDay": "night",
+        "surface": "dry",
+        "weather": "clear"
+      },
+      "hard": {
+        "timeOfDay": "pre-dawn",
+        "surface": "dry",
+        "weather": "clear",
+        "note": "Pre-dawn, dry. Torque-management emphasis."
+      }
+    },
+    {
+      "id": "S19",
+      "normal": {
+        "timeOfDay": "late-afternoon",
+        "surface": "dry",
+        "weather": "clear"
+      },
+      "hard": {
+        "timeOfDay": "dusk",
+        "surface": "damp",
+        "weather": "light-rain",
+        "note": "Dusk, damp. Clean shoulder boundaries."
+      }
+    },
+    {
+      "id": "S20",
+      "normal": {
+        "timeOfDay": "night",
+        "surface": "dry",
+        "weather": "clear"
+      },
+      "hard": {
+        "timeOfDay": "night",
+        "surface": "dry",
+        "weather": "clear",
+        "note": "Night, dry. Alternate support-rival lineup."
+      }
+    },
+    {
+      "id": "S21",
+      "normal": {
+        "timeOfDay": "night",
+        "surface": "dry",
+        "weather": "clear"
+      },
+      "hard": {
+        "timeOfDay": "night",
+        "surface": "damp",
+        "weather": "light-rain",
+        "note": "Cold, damp Blackwater. Altered braking-release pattern and a legal car setup. Cold air only; no ice."
+      }
+    },
+    {
+      "id": "S22",
+      "normal": {
+        "timeOfDay": "night",
+        "surface": "dry",
+        "weather": "clear"
+      },
+      "hard": {
+        "timeOfDay": "pre-dawn",
+        "surface": "damp",
+        "weather": "light-rain",
+        "note": "Pre-dawn, damp. Composure after compression."
+      }
+    },
+    {
+      "id": "S23",
+      "normal": {
+        "timeOfDay": "night",
+        "surface": "damp",
+        "weather": "light-rain"
+      },
+      "hard": {
+        "timeOfDay": "night",
+        "surface": "wet",
+        "weather": "rain",
+        "note": "Night, wet. Tighter safe braking envelope."
+      }
+    },
+    {
+      "id": "S24",
+      "normal": {
+        "timeOfDay": "night",
+        "surface": "dry",
+        "weather": "clear"
+      },
+      "hard": {
+        "timeOfDay": "pre-dawn",
+        "surface": "dry",
+        "weather": "clear",
+        "note": "Pre-dawn, dry. No artificial ice; frost on scenery only."
+      }
+    },
+    {
+      "id": "S25",
+      "normal": {
+        "timeOfDay": "dawn",
+        "surface": "dry",
+        "weather": "clear"
+      },
+      "hard": {
+        "timeOfDay": "night",
+        "surface": "damp",
+        "weather": "light-rain",
+        "note": "Cold night, damp. Published wet setup available to every entrant."
+      }
+    },
+    {
+      "id": "S26",
+      "normal": {
+        "timeOfDay": "pre-dawn",
+        "surface": "dry",
+        "weather": "clear"
+      },
+      "hard": {
+        "timeOfDay": "first-light",
+        "surface": "dry",
+        "weather": "clear",
+        "note": "First light, dry. Momentum through the steep final sector."
+      }
+    },
+    {
+      "id": "S27",
+      "normal": {
+        "timeOfDay": "pre-dawn",
+        "surface": "dry",
+        "weather": "clear"
+      },
+      "hard": {
+        "timeOfDay": "dawn",
+        "surface": "dry",
+        "weather": "clear",
+        "note": "Dawn, dry. All four sectors assessed more tightly."
+      }
+    },
+    {
+      "id": "S28",
+      "normal": {
+        "timeOfDay": "night",
+        "surface": "damp",
+        "weather": "light-rain"
+      },
+      "hard": {
+        "timeOfDay": "night",
+        "surface": "wet",
+        "weather": "rain",
+        "note": "Wet Ember Drop. Restrained, exit-focused strategy replaces showy rotation."
+      }
+    },
+    {
+      "id": "S29",
+      "normal": {
+        "timeOfDay": "pre-dawn",
+        "surface": "dry",
+        "weather": "clear"
+      },
+      "hard": {
+        "timeOfDay": "pre-dawn",
+        "surface": "dry",
+        "weather": "clear",
+        "note": "Same Four Signals conditions; the four contracts use tighter legal targets."
+      }
+    },
+    {
+      "id": "S30",
+      "normal": {
+        "timeOfDay": "night",
+        "surface": "dry",
+        "weather": "clear",
+        "progressesTo": "dawn"
+      },
+      "hard": {
+        "timeOfDay": "pre-dawn",
+        "surface": "dry",
+        "weather": "mist",
+        "progressesTo": "dawn",
+        "note": "Authored mist clears into dawn on a fixed lighting schedule. Grip never changes during the run."
+      }
+    }
+  ]
+}

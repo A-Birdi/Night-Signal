@@ -1,0 +1,2751 @@
+{
+  "schema": "night-signal/stage-story@1",
+  "authoredBy": "narrative-worker-v1",
+  "conventions": "Outcome keys are read from the convoy's side. 'win': the convoy earned the stage clear and beat the featured rival on track. 'loss': the featured rival won and the convoy did not earn the stage clear. 'clearedButLost': the featured rival won the race but the convoy still earned the stage clear (spec 5.2). The fourth case, where the convoy beat the rival on track but missed the benchmark, has no per-stage line: the results screen should explain it, and the featured rival's generic 'loss' line from rivals.story.json can be used. Speakers are rival IDs (Rxx), 'radio' (the Night Signal frequency voice), 'timing-crew' or 'narration'. Rivals may speak in scenes they are not racing in, as the story beats require. Stage lines address the driver or drivers as 'you', which reads correctly for one driver or six. The only placeholders are {player} and {convoy}. The 'diary' text is the race-diary entry that keeps the full story available after a shortened rematch intro.",
+  "acts": [
+    {
+      "act": 1,
+      "title": "Learning the Frequency",
+      "summary": "A timing slip under a wiper brings the convoy to the Mizuhana tea roads and the Kasumi cedar forest. The Tea Hour Motor Club and Rainline Atelier teach that a controlled, repeatable run is worth more than a brave one. Daigo Ibuki gives the convoy a repaired aerial so it can hear the Night Signal properly, and the radio keeps changing the subject whenever an unrecorded dawn run over Amanagi comes up."
+    },
+    {
+      "act": 2,
+      "title": "Reading the Weather",
+      "summary": "Mist, rain and reservoir dawns show that uncertainty is not randomness. Emi Takanashi lends her weather notebook, and Reservoir Section insists on naming a reference point before chasing any number. In the Floodmark pump-house archive, Michi Kagawa finds an old carbon timing slip for the Amanagi dawn run with its final sector left blank."
+    },
+    {
+      "act": 3,
+      "title": "Between the Markers",
+      "summary": "On the Akebono coast and in the Hoshimi uplands the convoy meets bold harbour racers and the exacting Datum Works. It helps a timing crew, earns a place at a closed night event, and faces Jun Saegusa, who has to decide whether a perfect run is worth more than one that leaves options. The frequency keeps passing on small kindnesses from someone in an indigo coat who never gives her name."
+    },
+    {
+      "act": 4,
+      "title": "Before the First Train",
+      "summary": "Reina Kurogane, The Surveyor, recognises the old slip and won't say why, and a workshop argument reveals she once depended on a mentor she no longer names. In the Tsukishiro highland, Zero Frequency brings out a nearly silent radio recording and the restored dawn car. After Mako Hoshino's composure test and the Four Signals contracts, the convoy races Reina at Amanagi. On Hard it races Shiori Kuze, Zero Signal, at dawn."
+    }
+  ],
+  "stages": [
+    {
+      "id": "S01",
+      "normal": {
+        "title": "An Invitation, Not a Dare",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "A folded timing slip is tucked under your wiper: Tea Lantern Road, tonight. Bring whoever you trust."
+          },
+          {
+            "speaker": "R01",
+            "line": "That's the invite! A slip, not a dare. Someone wants to see your times, not your nerve."
+          },
+          {
+            "speaker": "R01",
+            "line": "We race here because the road's ours for an hour: lanterns up, deliveries not down yet. Seems a waste not to."
+          },
+          {
+            "speaker": "timing-crew",
+            "line": "Closed from the tea-drying shed to the stone bridge. Marshals on the hairpin. Enjoy it."
+          },
+          {
+            "speaker": "R01",
+            "line": "The hairpin before the flat is the whole lesson. A clean exit buys more than a brave entrance."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R01",
+            "line": "You read that hairpin better than I did. I'll be thinking about it all through tomorrow's round."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R01",
+            "line": "Close! The lanterns stay up all week. Come back tomorrow and I'll save you a cup."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R01",
+            "line": "I got to the bridge first, but your time made the slip. That's the part the timing crew keeps."
+          }
+        ],
+        "diary": "The invitation came tucked under a wiper: a timing slip for Tea Lantern Road, not a challenge. Sora Matsuda explained that the tea-road crowd race because the road is theirs for one hour between lantern-lighting and the first deliveries. The lesson of the night was the hairpin before the flat finish: exit speed decides more than bravery on the way in."
+      },
+      "hard": {
+        "title": "Dew on the Lantern Row",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Dawn, and the lanterns from last night are still lit. The road is damp from the tea fields."
+          },
+          {
+            "speaker": "R05",
+            "line": "Sora gave you the friendly version. I'm the version that works the night shift."
+          },
+          {
+            "speaker": "R05",
+            "line": "Damp road, so the exit is the whole race. Rush it, and you spend the flat watching my tail-lights."
+          },
+          {
+            "speaker": "R01",
+            "line": "She's being kind. That's her kind voice."
+          },
+          {
+            "speaker": "timing-crew",
+            "line": "Surface is damp and even from shed to bridge. Nothing hidden. Smooth hands."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R05",
+            "line": "Neat exits. I'm writing that down, which is the highest compliment I own."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R05",
+            "line": "There was room. Just not where you hoped. Try that exit a metre later."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R05",
+            "line": "I kept the line and you kept the clock. Both of those go in my notebook."
+          }
+        ],
+        "diary": "Tea Lantern Road again, this time at dawn on a damp surface, with Yui Morisaki leading the Tea Hour grid. She defends the inside without ever swerving, so the only real way past was a better exit from the hairpin. Smooth hands mattered more than late braking."
+      }
+    },
+    {
+      "id": "S02",
+      "normal": {
+        "title": "The Promise at the Turnout",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Blue hour over the terraced tea rows. Five hairpins up the switchback, and no two alike."
+          },
+          {
+            "speaker": "R03",
+            "line": "A convoy is a promise to wait at the next turnout. That's the whole definition."
+          },
+          {
+            "speaker": "R04",
+            "line": "Waiting is slow! No offence. Actually, a little offence."
+          },
+          {
+            "speaker": "R02",
+            "line": "You're both right, which is annoying. Let's see whose version gets up the hill."
+          },
+          {
+            "speaker": "R02",
+            "line": "Don't treat the hairpins as copies. Every pot on the wheel is a new pot."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R02",
+            "line": "You drove that climb twice in your head before you drove it once. I could tell."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R02",
+            "line": "I can do that fourth hairpin again, exactly the same. Come back and show me you can."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R03",
+            "line": "Hanae won the climb, and you still made the time without leaving anyone behind. Toma owes me a tea."
+          }
+        ],
+        "diary": "On Mizuhana Switchback, Kei Naruse and Toma Fujii argued about what a convoy is: a promise to wait at the next turnout, or a reason to go slowly. Hanae Okuno settled it the way she settles most things, by driving the same entry into each of five different hairpins. Getting up the hill together turned out not to cost any time."
+      },
+      "hard": {
+        "title": "Blue Hour, No Spare Seconds",
+        "intro": [
+          {
+            "speaker": "R06",
+            "line": "Evening. I'm the baker. No, that doesn't make me the easy one."
+          },
+          {
+            "speaker": "R06",
+            "line": "The uphill target's tighter tonight. Each hairpin wants its own gear, like each loaf wants its own oven."
+          },
+          {
+            "speaker": "R04",
+            "line": "He's been up since three baking. He's fine. He's always fine. It's terrifying."
+          },
+          {
+            "speaker": "timing-crew",
+            "line": "Dry road, clear sky, tighter climb. The surface won't give anyone an excuse tonight."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R06",
+            "line": "You found the crust by the split wall. Good. Most people only find the wall."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R06",
+            "line": "Easy opponent, was I? The water tank doesn't care what you expected."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R06",
+            "line": "I beat you to the tank, but your clock stayed honest. I'll take the race. You take the stage."
+          }
+        ],
+        "diary": "The blue-hour climb returned with a tighter uphill target and Akio Endo out in front. He reads rough transitions better than anyone in the Tea Hour club and hates being underestimated. Each hairpin needed a different gear and a different exit; copying one corner five times was not going to be quick enough."
+      }
+    },
+    {
+      "id": "S03",
+      "normal": {
+        "title": "One Sector or One Lap",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Two laps past the canal sluice and the greenhouse frames. You'll brake for the raised bridge twice."
+          },
+          {
+            "speaker": "R03",
+            "line": "Last week I set the best sector ever recorded on this loop. Also my worst lap. Same night."
+          },
+          {
+            "speaker": "R07",
+            "line": "Kei framed the sector. I kept the lap chart. Mine is less flattering."
+          },
+          {
+            "speaker": "R03",
+            "line": "One good sector is a map with one road on it. Show me two laps that agree with each other."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R03",
+            "line": "Your second lap matched your first. That's rarer than a fast one. I'm annoyed and impressed."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R03",
+            "line": "The map ends. The next bend doesn't. Try the bridge again with a gentler release."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R07",
+            "line": "Kei took the race. You took the average. The lap chart likes you better."
+          }
+        ],
+        "diary": "Canal Orchard Ring brought out an old argument in the Tea Hour club: is a brilliant single sector worth more than a repeatable lap? Kei Naruse has the best sector on the board and a lap chart that Noa Ishida keeps showing to everyone. The raised-bridge braking zone came around twice, and it rewarded whoever braked the same way both times."
+      },
+      "hard": {
+        "title": "Two Laps in the Dark",
+        "intro": [
+          {
+            "speaker": "R07",
+            "line": "Night loop, and I'm on the clock and in the car tonight. Very efficient. Terrible for my sleep."
+          },
+          {
+            "speaker": "R07",
+            "line": "Lap one asks a question. Lap two answers it. If they disagree, I'll tell you. Loudly."
+          },
+          {
+            "speaker": "R03",
+            "line": "They will. They said my packing-yard exit had the confidence of a wet napkin."
+          },
+          {
+            "speaker": "timing-crew",
+            "line": "Night, dry, two laps, one clock. Tonight the second lap decides the target."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R07",
+            "line": "Your laps rhymed. I checked twice. Best poem I've read all week."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R07",
+            "line": "That was almost a sentence. Now say it again, same words, lap two."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R07",
+            "line": "I won the race and you won the spreadsheet. I respect the spreadsheet more."
+          }
+        ],
+        "diary": "The orchard loop at night, with Noa Ishida driving and timekeeping at once. The target leaned on consistency: a quick first lap was worthless if the second lap drifted at the greenhouse offset. Noa links corners beautifully, but their rhythm breaks after one slow sector, so steady laps were the way to pressure them."
+      }
+    },
+    {
+      "id": "S04",
+      "normal": {
+        "title": "The Cracked Cup",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "The bell workshop wheel turns beside the grid. Somebody has set out a folding table and a kettle."
+          },
+          {
+            "speaker": "R04",
+            "line": "The double-apex right is flat. It's flat! Sora says it isn't flat."
+          },
+          {
+            "speaker": "R01",
+            "line": "It's flat once. It's not flat twice. That's a different thing."
+          },
+          {
+            "speaker": "R02",
+            "line": "Pass the lacquer. This cup cracked on the way up, and it'll still hold tea on the way down."
+          },
+          {
+            "speaker": "R02",
+            "line": "Argue about the fast line all you like. The cup only matters if it comes back whole. Same for you."
+          },
+          {
+            "speaker": "R04",
+            "line": "...Okay. Fine. Come back whole. But fast."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R04",
+            "line": "You braked later than me and still came back tidy. I need to stop apologising to my brakes."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R04",
+            "line": "I got down first! And I didn't touch anything! Please don't tell Daigo how early I braked."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R02",
+            "line": "Toma won the race, and you still made it back whole in time. Both cups are in one piece."
+          }
+        ],
+        "diary": "At the top of Bellmaker Descent, the Tea Hour club argued about whether the double-apex right by the workshops can be taken flat. Meanwhile Hanae Okuno mended a cracked cup with lacquer and pointed out that the fastest line means nothing unless you get back. Toma Fujii, who is still learning to trust his brakes, took that more to heart than he admitted."
+      },
+      "hard": {
+        "title": "Bellmaker Before the Kettle",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Pre-dawn. The descent is damp and the workshop windows are still dark."
+          },
+          {
+            "speaker": "R01",
+            "line": "The early vans come down here in an hour. We get it first. Damp, but ours."
+          },
+          {
+            "speaker": "R01",
+            "line": "On the wet, the release is the brake. Let go too fast and the double-apex right lets go of you."
+          },
+          {
+            "speaker": "R02",
+            "line": "The cup's mended, by the way. It's on the kettle table at the bottom. Arrive properly."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R01",
+            "line": "You let go of the brake like you meant it. I hung on too long in the slow bit. Classic me."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R01",
+            "line": "Beat you to the kettle! Sorry. I'll pour yours. Milk? No, it's green tea. Forget I asked."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R01",
+            "line": "I won the sprint, you beat the clock. Hanae says that counts double before sunrise."
+          }
+        ],
+        "diary": "Bellmaker Descent in the damp before dawn, with Sora Matsuda leading and the early delivery vans due within the hour. Brake release was everything: the longer, softer release carried through the double-apex right, and the abrupt one did not. Hanae's mended cup was waiting on the kettle table at the bottom."
+      }
+    },
+    {
+      "id": "S05",
+      "normal": {
+        "title": "Packed for Weather",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Rainline Atelier rolls in with folded tarps, a hygrometer and four thermos flasks. The sky is clear."
+          },
+          {
+            "speaker": "R09",
+            "line": "Clear for now. The cedars are sweating, though. Listen to the tyres, not the forecast."
+          },
+          {
+            "speaker": "R10",
+            "line": "She packed for rain. I packed to arrive on time. We both packed snacks."
+          },
+          {
+            "speaker": "R09",
+            "line": "The road will stay dry tonight. I just like knowing why it stays dry."
+          },
+          {
+            "speaker": "timing-crew",
+            "line": "Dry through all three esses. Reflectors cleaned this afternoon. The overlook's open."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R09",
+            "line": "You drove the dry road as if you'd checked it yourself. Maybe you had. I'll stop assuming otherwise."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R09",
+            "line": "The off-camber after the overlook needs a little patience. You'll find it on the next visit."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R10",
+            "line": "Rika won the race, and you kept your promise to the clock. That's two kinds of on time."
+          }
+        ],
+        "diary": "Rainline Atelier arrived on Cedar Ribbon ready for weather that never came, and seemed quite happy about it. Rika Aonuma reads grip changes before anyone else notices them, and for the whole crew preparation is a personality, not a chore. The road stayed dry; the off-camber turn after the overlook still caught anyone who hurried it."
+      },
+      "hard": {
+        "title": "The Patch by the Shelter",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Cedar Ribbon at night, and this time the damp is real. Rainline got here first again."
+          },
+          {
+            "speaker": "R13",
+            "line": "That patch by the timber shelter wasn't there yesterday. It's there now. Drive what's there."
+          },
+          {
+            "speaker": "R13",
+            "line": "There's more than one legal exit from those esses. Pick one you can repeat, not one off a poster."
+          },
+          {
+            "speaker": "R09",
+            "line": "Fumio recut the drainage by the trestle this afternoon. He'll tell you it was nothing."
+          },
+          {
+            "speaker": "R13",
+            "line": "It was nothing. Mind the reflectors."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R13",
+            "line": "Good. You chose your own exit and kept it. No excuses needed, so I won't hear any."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R13",
+            "line": "The damp caught you at the overlook. Don't blame the tyres. Tell me what you'll change."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R13",
+            "line": "I beat you down the ribbon. Your clock's fine, though. Newcomers who listen get there."
+          }
+        ],
+        "diary": "Cedar Ribbon came back damp, with Fumio Senda leading: the forest-road maintainer who looks after newcomers and has no patience for excuses. Several legal exits from the rhythm esses were open, and the quick drivers chose one and repeated it. Fumio had recut the drainage by the rail trestle that afternoon and wouldn't talk about it."
+      }
+    },
+    {
+      "id": "S06",
+      "normal": {
+        "title": "The Radio Changes the Subject",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "The access road below the shrine ridge. The old tram station is tonight's timing post."
+          },
+          {
+            "speaker": "radio",
+            "line": "...they say the Amanagi dawn run never went out on air. Nobody timed the end, or nobody will say. Anyway."
+          },
+          {
+            "speaker": "radio",
+            "line": "The tram station urn is fixed. Thank you to whoever did that. Next: closures on the shrine approach."
+          },
+          {
+            "speaker": "R10",
+            "line": "Did the radio just change the subject? It did. Everybody up here does that about the dawn run."
+          },
+          {
+            "speaker": "R10",
+            "line": "Doesn't matter tonight. Long braking approach, then the zigzag. I'll be there first, and loudly."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R10",
+            "line": "You set up the zigzag two corners early. That's my trick. Please give it back."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R10",
+            "line": "Arrived first, as promised. There's tea on the plateau. Come up and tell me where it went wrong."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R10",
+            "line": "I kept my promise to the finish and you kept yours to the clock. Nobody broke anything."
+          }
+        ],
+        "diary": "On the Shrine Approach access road, the roadside radio mentioned an unrecorded dawn run over Amanagi, then moved straight on to a repaired tea urn. Masato Kido says everyone in the hills changes the subject like that. His way up the zigzag is to set up two corners ahead, and anyone who planned only one was left behind."
+      },
+      "hard": {
+        "title": "Dawn Below the Shrine Roof",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Dawn light on the distant shrine roof. The road is dry and the braking approach is long."
+          },
+          {
+            "speaker": "R14",
+            "line": "I heard your downshifts from the tram station last night. We need to talk about third."
+          },
+          {
+            "speaker": "R14",
+            "line": "There's less room for early braking this morning. Brake early and the engine sags out of its useful range."
+          },
+          {
+            "speaker": "radio",
+            "line": "Morning, Shrine Approach. Clear skies. And no, we're still not discussing that other dawn."
+          },
+          {
+            "speaker": "R14",
+            "line": "Nobody ever does. Listen to your engine instead. It's more honest."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R14",
+            "line": "Clean shifts. Barely a stumble at the plateau. I'm almost disappointed I've nothing to mention."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R14",
+            "line": "Your engine asked a question at the zigzag and you changed the subject. Try answering it."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R14",
+            "line": "The race is mine and the clock is yours. Your fourth-hairpin downshift still made me wince."
+          }
+        ],
+        "diary": "Shrine Approach at clear dawn, led by Ena Kisaragi, a sound engineer who can hear a bad shift from the tram station. The Hard target left very little margin for early braking, so the long approach had to be used in full. The radio refused, cheerfully, to say anything more about the other dawn."
+      }
+    },
+    {
+      "id": "S07",
+      "normal": {
+        "title": "Find Your Own Marker",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Bellmaker Descent again. The Tea Hour Motor Club has closed the whole road for its lieutenant."
+          },
+          {
+            "speaker": "R08",
+            "line": "I'm not interested in your fastest run. I want the one you could do again tomorrow."
+          },
+          {
+            "speaker": "R08",
+            "line": "Don't follow my brake lights down here. Find your own marker. Then find it again."
+          },
+          {
+            "speaker": "R01",
+            "line": "He's giving the speech. It's a good speech. He gives it every time."
+          },
+          {
+            "speaker": "R08",
+            "line": "It's a short speech. Get in the car."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R08",
+            "line": "Repeatable. Controlled. Yours. That's the run I asked for."
+          },
+          {
+            "speaker": "R08",
+            "line": "Take this aerial. I straightened it this afternoon. You'll hear the Night Signal properly now."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R08",
+            "line": "Fast in places. Not repeatable. Come back when you can show me the same run twice."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R08",
+            "line": "I won the descent, but you gave me the controlled run I asked for. Take the aerial. You've earned it."
+          }
+        ],
+        "diary": "Daigo Ibuki, the Tea Hour lieutenant, asked for one thing on Bellmaker Descent: a controlled run that could be repeated, not a lucky fast one. He brakes later and deeper than anyone on the mountain and warned against simply copying his brake lights. Afterwards he handed over a radio aerial he'd straightened himself, so the Night Signal would come through clearly from now on."
+      },
+      "hard": {
+        "title": "The Mentor's Damp Descent",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Bellmaker again, damp from top to bottom. Daigo waits by the red footbridge with his brass stopwatch."
+          },
+          {
+            "speaker": "R08",
+            "line": "Last time I asked for a repeatable run. Today the road asks the question for me."
+          },
+          {
+            "speaker": "R08",
+            "line": "Brake later than feels comfortable, but controlled. Then take the exit wide on purpose. Not by accident."
+          },
+          {
+            "speaker": "R08",
+            "line": "I'll know the difference. So will your tyres."
+          },
+          {
+            "speaker": "R02",
+            "line": "He practised that speech on the kettle. Twice."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R08",
+            "line": "Wide on purpose. Good. I spent twenty years teaching that, and you learnt it on a damp night."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R08",
+            "line": "Those exits were wide by accident. Close. Not yet. I'll be at the footbridge."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R08",
+            "line": "The stopwatch says the race is mine and the stage is yours. The stopwatch is rarely wrong."
+          }
+        ],
+        "diary": "Daigo Ibuki's Hard descent asked something new: brake later but stay controlled on a damp surface, then choose a wider exit deliberately. He watched from the red footbridge and could tell a planned wide exit from a slide that happened to end in the same place. The mentor had new words this time, and fewer of them."
+      }
+    },
+    {
+      "id": "S08",
+      "normal": {
+        "title": "The Log Disagrees",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Mist lies low on the straights of Mistglass Hollow. The apexes stay clear and lit."
+          },
+          {
+            "speaker": "R11",
+            "line": "Your diary says 'carry Cedar Ribbon speed'. The fog-mast log says the hollow runs six degrees colder."
+          },
+          {
+            "speaker": "R13",
+            "line": "Read the mast, not the diary. The diary was written on a warmer night."
+          },
+          {
+            "speaker": "R11",
+            "line": "Colder air, cooler tyres. Same road, different tempo. Count the woodland bends like phrases."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R11",
+            "line": "You found the tempo in the fog! I lost count twice. Don't tell my teacher."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R11",
+            "line": "Ha! I mean, well driven. Mostly. Your first woodland turn was a beat early."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R11",
+            "line": "I won, but your time held. I rushed the aqueduct after my slide and you didn't. Hmph."
+          }
+        ],
+        "diary": "Advice copied from Cedar Ribbon said to carry the same speed into Mistglass Hollow. The fog-measuring mast's log said otherwise: the hollow runs colder, and cold tyres take longer to bite. Airi Shiba counts corners like musical phrases, and the tightening woodland sequence punished anyone who kept the old tempo."
+      },
+      "hard": {
+        "title": "Damp Glass, Clear Apexes",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Controlled mist and a damp road. Apex lights along the woodland sequence stay readable."
+          },
+          {
+            "speaker": "R15",
+            "line": "Fog makes people drive either timid or silly. Aim for neither."
+          },
+          {
+            "speaker": "R15",
+            "line": "Use the old viewing platform as a sighting mark. It isn't a target, and neither is the edge."
+          },
+          {
+            "speaker": "timing-crew",
+            "line": "Mist is controlled and apex visibility holds. If a marker fades, the marshals call it."
+          },
+          {
+            "speaker": "R15",
+            "line": "Keep your margin. Or let me set the entry pace. I promise it's a very pleasant pace."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R15",
+            "line": "You didn't let me set the pace. Good. I'd have made it far too comfortable."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R15",
+            "line": "You braked for the fog, not the corner. Find the apex light, then trust it."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R15",
+            "line": "I kept the margin and the lead; you kept the clock. Lovely night, all told."
+          }
+        ],
+        "diary": "Mistglass Hollow on Hard: controlled mist over a damp road, with every apex light still readable. Itsuki Hase is relaxed until the road gets narrow and exposed, then becomes very precise indeed. He will set a comfortable entry pace for anyone who lets him, so the way through was a firm but clean pace of your own."
+      }
+    },
+    {
+      "id": "S09",
+      "normal": {
+        "title": "Uncertain Is Not Random",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Light rain on Rain Thread Pass. Water runs down the chains at the shelter."
+          },
+          {
+            "speaker": "R16",
+            "line": "People call rain random. It isn't. It's uncertain, and that's a different thing entirely."
+          },
+          {
+            "speaker": "R16",
+            "line": "Uncertain means you can still read it. Camber, drainage, the sheen by the yellow bridge. Look."
+          },
+          {
+            "speaker": "R12",
+            "line": "I'll be out wide. There's a better angle from out here, especially in the wet."
+          },
+          {
+            "speaker": "R12",
+            "line": "The waterfall at the tunnel exit sounds worse than it is. Don't brake for noise."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R12",
+            "line": "You took the inside I left open. That's the price of a pretty angle. Usually worth it."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R12",
+            "line": "Good pressure. But I had the picture framed from the tunnel mouth. Next time."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R16",
+            "line": "Rui won the race. You read the surface well enough to earn the stage. That was reading, not luck."
+          }
+        ],
+        "diary": "Emi Takanashi, Rainline's lieutenant, turned up at Rain Thread Pass to make a single point: uncertainty is not randomness. Light rain was falling, but the camber, the drains and the sheen by the yellow bridge were all there to be read. Rui Takeda's wide wet entries leave the inside open on narrow roads, and that was the way past."
+      },
+      "hard": {
+        "title": "Steady Rain, Honest Grip",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Steady rain now. The road is wet from the shelter to the long drainage descent."
+          },
+          {
+            "speaker": "R09",
+            "line": "The reference time was set in this rain, on this road. No guesswork in it."
+          },
+          {
+            "speaker": "R09",
+            "line": "The outside arcs on the cambers are predictable tonight, and predictable is fast in the wet."
+          },
+          {
+            "speaker": "R16",
+            "line": "Grip is lower everywhere, and exactly where you'd expect. Nothing is hidden. Read it."
+          },
+          {
+            "speaker": "R09",
+            "line": "Listen to the tyres. They talk more in the rain."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R09",
+            "line": "You trusted the outside arc. I had doubts until the yellow bridge. Lovely."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R09",
+            "line": "The tunnel exit was drier than you thought. Mm. You'll hear it next time."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R09",
+            "line": "The race went my way and the rain went yours. That's a fair split on a night like this."
+          }
+        ],
+        "diary": "Rain Thread Pass in steady rain, against a wet reference calibrated in the same conditions. Rika Aonuma's outside wet arcs are slow to look at and quick on the clock. The surface under the tunnel roof stayed drier than the road either side, and noticing that was worth more than any amount of courage."
+      }
+    },
+    {
+      "id": "S10",
+      "normal": {
+        "title": "Name Your Reference Point",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Reservoir Section runs the dam crest. Flood-level markings glow on the spillway towers."
+          },
+          {
+            "speaker": "R17",
+            "line": "Hi! Before we race: what's your reference point? Brake board, tower, fishway? Pick one!"
+          },
+          {
+            "speaker": "R18",
+            "line": "He means it. Nobody here chases a number until they know what it's measured from."
+          },
+          {
+            "speaker": "R17",
+            "line": "The crosswind on the crest sounds nasty, but the road's steady. Make the current work for you."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R17",
+            "line": "You picked the second tower and hit it every time. I saw. That's the right answer. Ugh."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R17",
+            "line": "Your reference point wandered. Mine stayed on the fishway. That's all it was!"
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R17",
+            "line": "I won, you qualified, and you named your reference first. Kaede's going to like you."
+          }
+        ],
+        "diary": "Reservoir Section met the convoy on the Spillway Run dam crest with one demand: name your reference point before you chase a number. Shun Minato, a dam electrician, uses long smooth arcs to save his heavy car's torque. The crosswind was loud but harmless; the braking past the spillway gates decided the race."
+      },
+      "hard": {
+        "title": "Dawn Across the Joints",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Dawn on the dam crest, damp. Expansion joints cross the road as thin dark lines."
+          },
+          {
+            "speaker": "R21",
+            "line": "Joints every forty metres. Cross them straight. Don't steer on them."
+          },
+          {
+            "speaker": "R21",
+            "line": "I'll be close behind you. Not touching. Just close."
+          },
+          {
+            "speaker": "R17",
+            "line": "She's a radio editor. She cuts anything that isn't useful. Small talk included."
+          },
+          {
+            "speaker": "R21",
+            "line": "Correct."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R21",
+            "line": "You didn't look back once. That's how you get rid of me."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R21",
+            "line": "You checked your mirror twice at the gates. That was the race."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R21",
+            "line": "Race to me, clock to you. You still checked your mirror at the fishway."
+          }
+        ],
+        "diary": "Spillway Run at dawn, damp, with the dam's expansion joints to cross cleanly. Natsumi Hori follows closely without ever making contact and simply waits for a mistake. The drivers who ignored her in the mirror and drove their own line across the joints came out ahead."
+      }
+    },
+    {
+      "id": "S11",
+      "normal": {
+        "title": "The Pencil Rolls Downhill",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "At the powerhouse, a map is spread over a bonnet. A mechanical pencil rolls off the edge."
+          },
+          {
+            "speaker": "R18",
+            "line": "Ah. See? It rolled. The map's flat and the road isn't. Three hundred and sixty metres of climb."
+          },
+          {
+            "speaker": "R18",
+            "line": "You drew your line with your elbow. On a climb, the apex moves when the hill does."
+          },
+          {
+            "speaker": "R19",
+            "line": "She's been waiting all week for a pencil to roll. It's her favourite demonstration."
+          },
+          {
+            "speaker": "R18",
+            "line": "It's an excellent demonstration."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R18",
+            "line": "You moved every apex for the climb. That was drafting, not guessing. Well done."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R18",
+            "line": "Close, but you drew the shelf road with a ruler. It bends. Gently. Look again."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R18",
+            "line": "My line won, and your time still stands up to inspection. I'll sign that off."
+          }
+        ],
+        "diary": "A pencil rolling off a map at the Hydroline powerhouse gave Kaede Ueno the chance she'd been waiting for: on a long climb, elevation moves the apex. She places apexes with a draughtsman's precision but struggles when a bend changes radius. Planning for the hill, not the flat map, was what made the climb work."
+      },
+      "hard": {
+        "title": "Tired Hands on the Hydroline",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Clear night on the Hydroline. Dry, with cold air sliding down under the pipeline arch."
+          },
+          {
+            "speaker": "R22",
+            "line": "Hah! You're back! Good. Now do it when your hands are tired."
+          },
+          {
+            "speaker": "R22",
+            "line": "Tonight's all gears and exits. Five and a half kilometres of them. Every hairpin wants a proper exit."
+          },
+          {
+            "speaker": "R18",
+            "line": "Kenta has exited these hairpins about a thousand times. He's also brought lunch."
+          },
+          {
+            "speaker": "R22",
+            "line": "Rice balls for after. Only if you exit the cable station properly."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R22",
+            "line": "Ha! Those exits were better than mine! I'm eating your rice ball out of respect."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R22",
+            "line": "You braked too long before the pipeline arch. I heard it from here. Next time!"
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R22",
+            "line": "I won the climb and you kept the clock. Rice balls for everyone, then. Those are the rules."
+          }
+        ],
+        "diary": "The Hydroline Climb on a clear, dry night, led by Kenta Omi, a maintenance supervisor with a long memory and a very loud laugh. The Hard target rewarded gear choice and exits over the whole long ascent. Kenta's hairpin exits are excellent, but his braking distances can be beaten, and that was the opening."
+      }
+    },
+    {
+      "id": "S12",
+      "normal": {
+        "title": "The Slip in the Pump House",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Dawn at Floodmark Circuit. Damp steps run down to the water past the twin pump houses."
+          },
+          {
+            "speaker": "R19",
+            "line": "Look what was in the pump-house archive. A timing slip. Amanagi Dawnline. Very old."
+          },
+          {
+            "speaker": "R19",
+            "line": "Four sectors filled in. The last one's blank. Not crossed out. Just... never written."
+          },
+          {
+            "speaker": "timing-crew",
+            "line": "That's our old carbon format. We haven't printed those in years."
+          },
+          {
+            "speaker": "R19",
+            "line": "I love old mistakes; they make good warnings. I don't think this one's a mistake, though."
+          },
+          {
+            "speaker": "R19",
+            "line": "Anyway! Two laps. I know every mistake on this circuit, and they all end well."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R19",
+            "line": "You never needed a recovery. That's the one thing I can't archive. Well driven."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R19",
+            "line": "I slid at the stair and caught it. I know that mistake. It ends well, for me, tonight."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R19",
+            "line": "I won, but your laps held. Keep this copy of the slip, by the way. I made two."
+          }
+        ],
+        "diary": "Michi Kagawa found an old carbon timing slip in the Floodmark pump-house archive: the Amanagi Dawnline, four sectors timed and the fifth left completely blank. It was the first solid evidence of the dawn run the radio keeps avoiding. Michi then won or lost on their usual talent, recovering quickly from a slide, which is exciting to watch and occasionally unnecessary."
+      },
+      "hard": {
+        "title": "Floodmark in the Rain",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Night and steady rain at Floodmark. The water-level stair is running with it."
+          },
+          {
+            "speaker": "R23",
+            "line": "Two laps, wet. The wide line only works when it comes back."
+          },
+          {
+            "speaker": "R23",
+            "line": "Consistency matters more than bravery tonight. And caution isn't fear. Don't mix them up in front of me."
+          },
+          {
+            "speaker": "R19",
+            "line": "She's in a good mood. That was nearly a paragraph."
+          },
+          {
+            "speaker": "R19",
+            "line": "I've still got the old slip. The last sector's still blank, and nobody here will say why."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R23",
+            "line": "Both laps agreed. Good."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R23",
+            "line": "Lap two ran wide at the tank and didn't come back."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R23",
+            "line": "Race to me. Stage to you. Your second lap was the one worth keeping."
+          }
+        ],
+        "diary": "Floodmark Circuit at night in the wet, with the stress on matching both laps. Sae Tsukada carries speed on wide, opening arcs and loses time when a radius tightens. The service tank corner does exactly that. Michi still carries the old slip with its blank last sector, and nobody at the Reservoir will explain it."
+      }
+    },
+    {
+      "id": "S13",
+      "normal": {
+        "title": "Not a Good Accident",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Blackwater Hairpins: a long ladder of switchbacks down to the blue tunnel marker."
+          },
+          {
+            "speaker": "R24",
+            "line": "Someone set a fast time here last week by sliding off the ladder and back on. Fast. Not good."
+          },
+          {
+            "speaker": "R24",
+            "line": "I won't call an accident a good run. Show me control, and the clock can follow."
+          },
+          {
+            "speaker": "R20",
+            "line": "Watch my release on the ladder. Not the turn. The release."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R20",
+            "line": "Clean release. Good."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R20",
+            "line": "Braking was fine. Release was early. Again."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R24",
+            "line": "Ryo was faster. You were in control the whole way down. Both results are real."
+          }
+        ],
+        "diary": "Jun Saegusa, the Reservoir lieutenant, stood at the top of Blackwater Hairpins and refused to call last week's lucky fast slide a good run. The convoy had to show control on the asymmetric hairpin ladder. Ryo Senba, a machinist of very few words, rotates his mid-engine car beautifully but needs a clean brake release on downhill entries."
+      },
+      "hard": {
+        "title": "The Ladder Before Dawn",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Pre-dawn on Blackwater, damp. Every hairpin marker is lit and in plain sight."
+          },
+          {
+            "speaker": "timing-crew",
+            "line": "No fog, no surprises. Just damp. Every marker's where you last saw it."
+          },
+          {
+            "speaker": "R17",
+            "line": "I'm usually impatient. Not on the ladder. The ladder needs patience or it takes yours."
+          },
+          {
+            "speaker": "R17",
+            "line": "Heavy car, damp road. I'm slow changing direction. Use that. Legally."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R17",
+            "line": "You caught me between hairpins. The heavy car hates that. So do I! Well done."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R17",
+            "line": "Made the current work for me down the ladder. Your hands got busy in the tunnel."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R17",
+            "line": "My race, your stage. Jun will want to see your trace. They always want the trace."
+          }
+        ],
+        "diary": "Blackwater Hairpins before dawn on a damp surface, with no loss of visibility anywhere: every marker lit and every corner where it was last time. Shun Minato's heavy car flows through long arcs but changes direction slowly. Short, legal attacks between hairpins were the answer."
+      }
+    },
+    {
+      "id": "S14",
+      "normal": {
+        "title": "A Notebook, Not a Sermon",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Back on Rain Thread Pass in light rain. Rainline's lieutenant is waiting at the shelter."
+          },
+          {
+            "speaker": "R16",
+            "line": "Last time here, you assumed the tunnel exit would be wetter than the bridge. Why?"
+          },
+          {
+            "speaker": "R16",
+            "line": "It wasn't. The tunnel keeps rain off the first forty metres. That assumption cost you."
+          },
+          {
+            "speaker": "R16",
+            "line": "The rain isn't against you. It's information. Let's see what you do with it."
+          },
+          {
+            "speaker": "R09",
+            "line": "She's been looking forward to this. The notebook was out at breakfast."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R16",
+            "line": "Well read. Here's my weather notebook for this pass. It's more useful than a trophy."
+          },
+          {
+            "speaker": "R16",
+            "line": "The pages on the drainage descent are the good ones. I'd like it back eventually."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R16",
+            "line": "You were still driving last week's rain. Tonight's was different. Come back and read it again."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R16",
+            "line": "I finished first; you finished informed. Take the notebook anyway. You earned the reading."
+          }
+        ],
+        "diary": "Emi Takanashi raced the convoy on Rain Thread Pass and began by questioning an assumption from the previous rain stage: that the tunnel exit must be wetter than the bridge. It wasn't. Instead of a victory speech she handed over her weather notebook for the pass, with its best pages on the drainage-side descent."
+      },
+      "hard": {
+        "title": "Steady Rain, Long Lines",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Rain Thread Pass in steady rain. The whole road is wet and the drains are working hard."
+          },
+          {
+            "speaker": "R16",
+            "line": "The safe line is longer tonight. It's also quicker, if you manage traction instead of fighting it."
+          },
+          {
+            "speaker": "R16",
+            "line": "No secret grip anywhere. The benchmark was set in this exact rain. It's sharp, not unfair."
+          },
+          {
+            "speaker": "R16",
+            "line": "Last time I lent you a notebook. This time I'd like you to add a page to it."
+          },
+          {
+            "speaker": "R13",
+            "line": "Drains are clear. I checked them myself at six. You're welcome."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R16",
+            "line": "That's a page worth adding. Your traction at the tunnel exit: write it down before you forget."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R16",
+            "line": "You shortened the line when the rain got loud. The long line was the answer. Listen past the noise."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R16",
+            "line": "I had the race; you had the rain worked out. Honestly, I'd rather have your page than my trophy."
+          }
+        ],
+        "diary": "Emi's Hard test on Rain Thread Pass came in steady rain: longer safe lines and a sharper traction-management benchmark, with no secret grip anywhere. Fumio Senda had cleared the drains himself that morning. Emi asked the convoy to add a page to her notebook rather than take one out of it."
+      }
+    },
+    {
+      "id": "S15",
+      "normal": {
+        "title": "Harbour Voices",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Sunset over the sea viaduct. The lighthouse beam sweeps across the rust-red truss."
+          },
+          {
+            "speaker": "radio",
+            "line": "Evening, Akebono! Ferry's in, fish is on ice, and the viaduct's closed for racing. Somebody make some noise."
+          },
+          {
+            "speaker": "R25",
+            "line": "Welcome to the coast! Up in the hills they talk in decimals. Down here we talk in waves."
+          },
+          {
+            "speaker": "R25",
+            "line": "Bold line on the cliff arcs? Please do. Just keep it on the tarmac and inside the rules."
+          },
+          {
+            "speaker": "R26",
+            "line": "He's hospitable in the garage. On the viaduct he's someone else. Just so you know."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R25",
+            "line": "Now that was a coastal line! Legal and loud. Come to the garage and I'll put the kettle on."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R25",
+            "line": "The long way can still be the quick way! The port chicane just needs a bit more patience."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R25",
+            "line": "I won, you qualified, and the lighthouse saw all of it. Good evening all round."
+          }
+        ],
+        "diary": "After weeks of reservoirs and rain notebooks, Breakwater Union met the convoy on Saltwind Viaduct with harbour gossip on the radio and a sunset behind the truss. Hiroto Namioka made it clear that bold lines are welcome as long as they are legal. He is superb through fast sweeping arcs and restless in the slow port chicane."
+      },
+      "hard": {
+        "title": "Blue Hour at the Truss",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Blue hour on the viaduct. Dry and calm, with the coast railway running below."
+          },
+          {
+            "speaker": "R29",
+            "line": "Ah. Good evening. There's still time to do the corner properly."
+          },
+          {
+            "speaker": "R29",
+            "line": "The long arcs are tighter on exit tonight. Very little room to... ah... tidy up afterwards."
+          },
+          {
+            "speaker": "R25",
+            "line": "He'll finish that sentence by the finish line. You won't."
+          },
+          {
+            "speaker": "R29",
+            "line": "I will finish it. Eventually."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R29",
+            "line": "You were patient through the arcs. That's... rarer than being fast. Thank you."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R29",
+            "line": "You hurried the last arc, I think. There was still time. There usually is."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R29",
+            "line": "I arrived first. You arrived within the timetable. We are both, ah, on schedule."
+          }
+        ],
+        "diary": "Saltwind Viaduct at blue hour with tighter exits from the long arcs, led by Seiji Tanabe, the night dispatcher nobody can hurry. He finishes clean however the surface changes, but gives away top-end aggression. Patience through the cliff arcs, followed by a committed exit, was worth more than bravado."
+      }
+    },
+    {
+      "id": "S16",
+      "normal": {
+        "title": "The Poster Tells the Truth",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Fishmarket Midnight. The shutters are down, and a fresh poster is pasted by the tiled freight office."
+          },
+          {
+            "speaker": "R26",
+            "line": "Like it? Your cars on the left, mine on the right. I drew you braking early. Artistic licence."
+          },
+          {
+            "speaker": "R31",
+            "line": "Under yours you wrote 'they value patience'. Under hers: 'she values being watched'."
+          },
+          {
+            "speaker": "R26",
+            "line": "...I didn't mean to paint the honest bit that big."
+          },
+          {
+            "speaker": "R26",
+            "line": "Doesn't matter. The quay turn is square. I left you a space. Not the one you chose."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R26",
+            "line": "Fine. The overtake looked inevitable. For you. I'll redraw the poster."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R26",
+            "line": "You went for the gap I painted. Everyone does. It's a very good painting."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R26",
+            "line": "I kept position and you kept pace. The poster's going to need a second panel."
+          }
+        ],
+        "diary": "Maya Kuroda turned the rivalry into a poster for Fishmarket Midnight and, without meaning to, lettered each side's real values under the pictures: patience on one side, an audience on the other. She defends the inside assertively and legally, but a long defence costs her front grip. The square quay-side turn is where that shows."
+      },
+      "hard": {
+        "title": "Market at Dawn",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Dawn at the fish market, damp. The quay braking zone shines beneath the crane silhouettes."
+          },
+          {
+            "speaker": "R30",
+            "line": "Morning! Warmed up? No? Fine. You can be brave after you're accurate."
+          },
+          {
+            "speaker": "R30",
+            "line": "Damp quay, square turn. Measured braking, not heroic braking. I'll brake later. I've trained for it."
+          },
+          {
+            "speaker": "R26",
+            "line": "She did forty push-ups by the freight office. As a warm-up for talking."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R30",
+            "line": "Yes! Accurate and brave. Great session. Same time next week?"
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R30",
+            "line": "Good effort! Your braking was brave, not accurate. Accurate first. Again!"
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R30",
+            "line": "I won the sprint and you hit your numbers. That's a proper workout. Stretch after."
+          }
+        ],
+        "diary": "The fish market at dawn on a damp surface, with the stress on measured braking at the quay. Akane Furuya brakes later than anyone on the coast and does it well, but she can be baited into the wrong exit gear. Accuracy first, then bravery: her own advice turned out to be the way to beat her."
+      }
+    },
+    {
+      "id": "S17",
+      "normal": {
+        "title": "A Small Problem at the Ferry",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Tide Lantern Coast, early night. The storm gate is shut and the sea wall is damp."
+          },
+          {
+            "speaker": "timing-crew",
+            "line": "Our beam receiver at the ferry terminal keeps missing cars. Anybody good with a reflector?"
+          },
+          {
+            "speaker": "narration",
+            "line": "Ten minutes of careful realignment later, the next car through reads perfectly."
+          },
+          {
+            "speaker": "timing-crew",
+            "line": "Fixed! Right: tonight's event is invitation only. Consider yourselves invited."
+          },
+          {
+            "speaker": "R27",
+            "line": "Ha! They let you in! That gate's been shut to me for a month for being 'loud on the radio'."
+          },
+          {
+            "speaker": "R27",
+            "line": "Three late apexes by the inlet. Every gear is a choice. Make it a good one."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R27",
+            "line": "HA! Look at that exit! You made the gear a good one! Oh, I'm furious. Wonderful."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R27",
+            "line": "Boost bit you at the inlet, eh? Ha! Happens to me every week. Patience on the throttle."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "timing-crew",
+            "line": "Renji took the race. Your time's good for the stage, and the receiver's still reading clean. Thanks."
+          }
+        ],
+        "diary": "The timing crew on Tide Lantern Coast had a beam receiver at the ferry terminal that kept missing cars, and the convoy spent ten minutes realigning its reflector. That earned an invitation to the closed night event. Renji Sudo, a boat repairer with a laugh like a foghorn, uses torque and ratios cleverly, but his boost punishes a rushed exit from the late-apex corners by the inlet."
+      },
+      "hard": {
+        "title": "Wet Wall, Lit Ferry",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Rain on Tide Lantern Coast. Along the sea wall, the wet sections give way to drier ones at marked points."
+          },
+          {
+            "speaker": "timing-crew",
+            "line": "Surface transitions are marked with reflectors. Same for everyone, every time. We checked twice."
+          },
+          {
+            "speaker": "R31",
+            "line": "I'll stay close through the undulations. No contact. Just company you'll notice."
+          },
+          {
+            "speaker": "R31",
+            "line": "When the surface changes, you'll want to hurry. That's usually when I pass."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R31",
+            "line": "You didn't hurry at the transitions, so I never got my opening. Well played."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R31",
+            "line": "There. You hurried at the storm gate. That was all I needed."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R31",
+            "line": "I passed you and you kept your clock. We were both patient, in different directions."
+          }
+        ],
+        "diary": "Tide Lantern Coast at night in the wet, with authored surface transitions marked by reflectors and identical for every car. Yori Kamei, a ceramic sign painter, applies patient pressure and passes cleanly when a rival hurries. On a short straight Yori rarely attacks, so the transitions were the only real danger."
+      }
+    },
+    {
+      "id": "S18",
+      "normal": {
+        "title": "Who Checks the Board First",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Breakwater Ascent: harbour lamps below, the ridge radio dish above, and a funicular in between."
+          },
+          {
+            "speaker": "R28",
+            "line": "I practised this climb forty times. So if it looks easy, that's the forty times talking."
+          },
+          {
+            "speaker": "R32",
+            "line": "I'm not racing tonight, I'm watching. Don't perform for me. I'll know."
+          },
+          {
+            "speaker": "R28",
+            "line": "She says that, then critiques everybody's hands for an hour."
+          },
+          {
+            "speaker": "R32",
+            "line": "Only the interesting hands."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R28",
+            "line": "Okay, that cliff zigzag was clean. You practised. Don't let anybody call you a natural."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R28",
+            "line": "It took practice to make that look easy. It'll take you some too. That's fine. That's good, actually."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R32",
+            "line": "Koharu won. But I watched the board, and you checked everyone else's result before your own."
+          }
+        ],
+        "diary": "Mako Hoshino sat out Breakwater Ascent to watch, and what she noticed was not lap times: she noticed who checked their friends' results before their own. Koharu Akiyama, a dancer who hates being called naturally gifted, links drifts smoothly up the cliff zigzag. She hesitates at isolated late-braking hairpins, though, and the climb has several."
+      },
+      "hard": {
+        "title": "Harbour Before Sunrise",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Pre-dawn and dry. The breakwater lamps are fading as the harbour wakes up."
+          },
+          {
+            "speaker": "R25",
+            "line": "Steep zigzag, then the high road. Too much torque on the cliff and the car just shrugs."
+          },
+          {
+            "speaker": "R25",
+            "line": "Save it for the top. The high road's where the long way turns into the quick way."
+          },
+          {
+            "speaker": "R32",
+            "line": "Still watching. Hiroto gets impatient in the slow bits. Just an observation."
+          },
+          {
+            "speaker": "R25",
+            "line": "She's right. Please don't use that."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R25",
+            "line": "You used it! Of course you did. Great torque management, though. Truly."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R25",
+            "line": "Got you on the high road! Held back on the cliff, let it go at the top. That's the trick."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R25",
+            "line": "Race to me, stage to you. Mako's writing something down. That's never nothing."
+          }
+        ],
+        "diary": "Breakwater Ascent before sunrise, dry, with the emphasis on torque management up the cliff zigzag. Hiroto Namioka flies on the broad high road but gets impatient in slow compound corners, and Mako pointed that out to everyone. Holding torque back on the cliff and releasing it at the top was the whole climb."
+      }
+    },
+    {
+      "id": "S19",
+      "normal": {
+        "title": "Three Decimal Places",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Slatecut Service Road. The surveyor hut above the quarry has its lights on. Datum Works has arrived."
+          },
+          {
+            "speaker": "R33",
+            "line": "Your printout: every braking point, every apex speed, three decimal places. Compliments of Datum Works."
+          },
+          {
+            "speaker": "R39",
+            "line": "We'll call it a success if you match our reference on all three rock-cut bends. Only then."
+          },
+          {
+            "speaker": "R33",
+            "line": "Luck doesn't interest me. Show me something you could repeat, and then we'll talk."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R33",
+            "line": "Repeatable. I'll want to see it again, of course. That isn't doubt. That's method."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R33",
+            "line": "My sectors matched my reference. Yours wandered. Numbers aren't cruel. They're patient."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R39",
+            "line": "You met the stage target. By our definition, that isn't success yet. By the timing crew's, it is."
+          }
+        ],
+        "diary": "Datum Works arrived at Slatecut Service Road with printouts to three decimal places and a very selective definition of success. Tetsu Arimura believes a repeated result is more interesting than a lucky one, and he drives like it. The timing crew's clear and Datum's idea of success turned out to be two different things."
+      },
+      "hard": {
+        "title": "Dusk on the Shoulder",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Dusk, damp. The quarry's gravel shoulder is clearly bounded and the tarmac edge is sharp."
+          },
+          {
+            "speaker": "R37",
+            "line": "Tea first. Genmaicha, a little cooler than you'd think. Then we race."
+          },
+          {
+            "speaker": "R37",
+            "line": "Advice: stay off the gravel. Choose the gear that suits the bridge. That's it. That's all the advice."
+          },
+          {
+            "speaker": "R33",
+            "line": "He lectured on ratios for four hours this morning. That was the summary."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R37",
+            "line": "Right ratio, clean edges. Good. Your tea's gone cold, though. That's on you."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R37",
+            "line": "The engine isn't tired. You chose the wrong ratio. Third before the bridge, next time."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R37",
+            "line": "Race to me, stage to you. Now, a second cup. The water should be exactly right by now."
+          }
+        ],
+        "diary": "Slatecut at dusk on a damp surface, with clean boundaries between tarmac and gravel shoulder. Osamu Kitani, a veteran tuner with elaborate tea preferences, gave the simplest advice of the campaign: stay off the gravel and pick the right gear for the quarry bridge. His ratios are perfect for terrain he knows and less flexible when he's pushed off his planned rhythm."
+      }
+    },
+    {
+      "id": "S20",
+      "normal": {
+        "title": "How Does It Feel",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Kilnlight Ring. Warm light in the kiln windows, cooler light across the cooling-tower ribs."
+          },
+          {
+            "speaker": "R34",
+            "line": "Everyone asks me about power. Nobody asks what the car feels like when you sit in it. Why?"
+          },
+          {
+            "speaker": "R34",
+            "line": "I stitch seats. I can tell how a car will lean before it moves. Ask me that instead."
+          },
+          {
+            "speaker": "R35",
+            "line": "She's not wrong. It's irritating, but she's not wrong."
+          },
+          {
+            "speaker": "R34",
+            "line": "The seat is comfortable. Don't get comfortable."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R34",
+            "line": "Your throttle in the cooling yard was clean. The car looked settled. I could see it from here."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R34",
+            "line": "Too eager on entry. The car told you. You just weren't listening to the seat."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R34",
+            "line": "I won, but you drove like you'd asked the car first. The clock agrees. Good."
+          }
+        ],
+        "diary": "At Kilnlight Ring, Chika Sakurai asked why everyone talks about power before they ask what a car feels like. She is an upholsterer who can read a car's balance from the seat. Her throttle is beautifully clean on exit, but she gives away entry speed, and the tight cooling-yard loop comes around twice."
+      },
+      "hard": {
+        "title": "Different Faces at the Kiln",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Kilnlight at night, dry. Datum Works has sent a different set of drivers this time."
+          },
+          {
+            "speaker": "R38",
+            "line": "New lineup! Nobody told you? We shuffled everyone. It's an experiment."
+          },
+          {
+            "speaker": "R38",
+            "line": "The usual line was getting lonely. I'll show you three others. All legal. One of them is good."
+          },
+          {
+            "speaker": "R34",
+            "line": "It's usually the second one."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R38",
+            "line": "Beaten! That's still a result, which is still data. Filing it with my failed prototypes. Fondly."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R38",
+            "line": "The alternate arc worked! Mostly. Once. Once is a start."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R38",
+            "line": "I won with the strange line; you qualified with the sensible one. Science wins either way."
+          }
+        ],
+        "diary": "Kilnlight Ring on Hard, with a reshuffled Datum lineup led by Tsubasa Muraoka, an industrial designer who keeps every failed prototype. Tsubasa tries creative legal alternative arcs, and on the closing-radius corner under the bridge they sometimes experiment too far. A steady, ordinary line was the right response."
+      }
+    },
+    {
+      "id": "S21",
+      "normal": {
+        "title": "A Run That Leaves Options",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Blackwater Hairpins again. Jun Saegusa has brought a caliper, a clipboard and the heavy sedan."
+          },
+          {
+            "speaker": "R24",
+            "line": "My run here is technically perfect: same apex, same speed, every hairpin. You've seen it."
+          },
+          {
+            "speaker": "R24",
+            "line": "A perfect run leaves no options. If something changes, it breaks. I've never needed options."
+          },
+          {
+            "speaker": "R24",
+            "line": "Measure twice. Brake once. Then show me whether your run can bend without breaking."
+          },
+          {
+            "speaker": "R22",
+            "line": "They practise in front of a mirror. With the caliper."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R24",
+            "line": "You kept your options open and still beat the line. I don't like it. I respect it more than I expected."
+          },
+          {
+            "speaker": "R24",
+            "line": "Mine was perfect. Yours was useful. I'll have to decide which I'd rather own."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R24",
+            "line": "Your run had options. It also had errors. Remove the errors, keep the options."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R24",
+            "line": "The measurements say I won. The stage says you're ready. Both measurements are correct."
+          }
+        ],
+        "diary": "Jun Saegusa, the Reservoir lieutenant, brought their technically perfect Blackwater run to compare with a run that leaves options open. Jun's line is so consistent that a patient rival can see exactly where it will go and wait for the opening. The respect the convoy earned wasn't the kind Jun usually gives, and it was more useful."
+      },
+      "hard": {
+        "title": "Cold Blackwater, Changed Numbers",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Cold and damp on Blackwater. Jun has changed the car's setup, legally. They checked twice."
+          },
+          {
+            "speaker": "R24",
+            "line": "I assumed the perfect line would hold in any weather. It doesn't. I measured it."
+          },
+          {
+            "speaker": "R24",
+            "line": "New brake-release pattern tonight. Longer. Softer. I had to rebuild my own habit to find it."
+          },
+          {
+            "speaker": "R24",
+            "line": "I'm saying this aloud because it was hard to write down: I was wrong about something."
+          },
+          {
+            "speaker": "R18",
+            "line": "I've known Jun eleven years. That's the first time I've heard that sentence."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R24",
+            "line": "You adapted faster than I did. I needed a notebook and a week. Noted, with respect."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R24",
+            "line": "The new release works. It took me a month to admit I needed it. You'll need less."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R24",
+            "line": "I won with a line I'd have called wrong last season. You earned the stage. Things change."
+          }
+        ],
+        "diary": "On cold, damp Blackwater, Jun Saegusa arrived with a new, fully legal setup and an altered brake-release pattern, and admitted out loud that an old assumption had been wrong. Kaede Ueno had apparently never heard Jun say that before. The longer, softer release was the key to the hairpin ladder in these conditions."
+      }
+    },
+    {
+      "id": "S22",
+      "normal": {
+        "title": "She Knows the Slip",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Switchyard Skyline. Power lines crown the ridge and the service lift glows at the overlook."
+          },
+          {
+            "speaker": "R35",
+            "line": "Naturally aspirated tonight, of course. Power is useful. Wasting it is expensive."
+          },
+          {
+            "speaker": "narration",
+            "line": "A white-and-graphite coat passes the timing table and stops at the old slip pinned there."
+          },
+          {
+            "speaker": "R40",
+            "line": "Old carbon format. Nobody prints these any more. Good luck tonight."
+          },
+          {
+            "speaker": "narration",
+            "line": "She puts it down very carefully, squares it to the table's edge, and walks on."
+          },
+          {
+            "speaker": "R35",
+            "line": "That was Reina Kurogane. She doesn't stop for anything. She stopped for that."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R35",
+            "line": "You wasted less than I did. That's the only compliment I give, and I mean it."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R35",
+            "line": "You spent too much on the arcs and had nothing left for the climb. Budget, not bravado."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R35",
+            "line": "I took the race; you took the stage. And Reina's still looking at that old slip. Curious."
+          }
+        ],
+        "diary": "Reina Kurogane, The Surveyor, appeared at Switchyard Skyline only briefly. She stopped at the old Amanagi slip on the timing table, called it an old format, and set it down with far more care than that remark deserved. Naozumi Fuda, meanwhile, drove the power-line arcs with his usual efficiency and his usual caution in a crowded opening sector."
+      },
+      "hard": {
+        "title": "Composure After Compression",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Pre-dawn and damp on Switchyard Skyline. The descending arcs compress hard beside the pylons."
+          },
+          {
+            "speaker": "R39",
+            "line": "The compressions unsettle drivers. Not cars. Drivers."
+          },
+          {
+            "speaker": "R39",
+            "line": "I'll be right behind you after the pylons. If you start watching me, I've already won."
+          },
+          {
+            "speaker": "narration",
+            "line": "At the timing table, the old slip has gone. A careful photocopy has been left in its place."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R39",
+            "line": "You stopped watching me after the first compression. Unusual. Good."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R39",
+            "line": "You were quicker before you started watching me. Again."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R39",
+            "line": "Race to me. Your composure held for the stage. For accuracy, I'll note one wobble at the lift."
+          }
+        ],
+        "diary": "Switchyard Skyline before dawn, damp, where the test was composure after each compression beside the pylons. Ayame Sugiura sits close without contact and waits for an error, but a driver who ignores her mirror presence simply outpaces her. At some point in the night the original slip disappeared from the timing table, and a neat photocopy was left in its place."
+      }
+    },
+    {
+      "id": "S23",
+      "normal": {
+        "title": "Argument in the Machine Hall",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "The restored machine hall at the foot of Ember Quarry Drop. Datum Works is arguing again."
+          },
+          {
+            "speaker": "R33",
+            "line": "Reina's line is perfect and repeatable. That's the whole argument."
+          },
+          {
+            "speaker": "R36",
+            "line": "She didn't learn it alone, Tetsu. She used to ride down here in someone's little roadster. Every week."
+          },
+          {
+            "speaker": "R33",
+            "line": "...She's never mentioned that."
+          },
+          {
+            "speaker": "R36",
+            "line": "No. She stopped mentioning it. Right, argument translated: everybody, get in your cars."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R36",
+            "line": "You avoided every mistake I'd have recovered from. Tidier than me. Annoyingly."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R36",
+            "line": "That's recoverable. Your pride may take longer. I'll put the kettle on in the hall."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R36",
+            "line": "I won and you qualified. Now, nobody tell Reina what I said in the machine hall. Please."
+          }
+        ],
+        "diary": "A Datum Works argument in the restored machine hall let something slip: Reina Kurogane didn't learn her line alone. Lina Hayase remembers her riding down the quarry road every week in somebody's small roadster, and Reina has never mentioned that person since. Lina recovers from mistakes brilliantly, and sometimes relies on that instead of avoiding the mistake in the first place."
+      },
+      "hard": {
+        "title": "Wet Drop, Narrow Envelope",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Night rain on Ember Quarry Drop. The recovery zones are broad, but the safe braking envelope is tighter."
+          },
+          {
+            "speaker": "R33",
+            "line": "Wet reference, measured tonight. Brake inside the envelope and you'll be fine. Outside it, you won't."
+          },
+          {
+            "speaker": "R36",
+            "line": "Tetsu. Say the other thing."
+          },
+          {
+            "speaker": "R33",
+            "line": "...Lina says Reina learnt the lattice-bridge braking from someone else. I've filed that as evidence."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R33",
+            "line": "Three braking zones, three matches. That's evidence. I'm going to think about it quietly."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R33",
+            "line": "One good braking zone is a story. You braked outside the envelope twice. That's a pattern."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R33",
+            "line": "Race to me, stage to you. Both results reproducible. That's all I ask."
+          }
+        ],
+        "diary": "Ember Quarry Drop in the wet with a tighter safe braking envelope, led by Tetsu Arimura, who wants three matching results before he believes one. His decisions become predictable under pressure. Before the start, Lina persuaded him to repeat what she knows: Reina learnt the lattice-bridge braking from a teacher she no longer names."
+      }
+    },
+    {
+      "id": "S24",
+      "normal": {
+        "title": "Just a High Road",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Moonridge Contour. Moonlight on the ridge, the observatory dome far off, a cold dry road."
+          },
+          {
+            "speaker": "R41",
+            "line": "Hi. Sorry. Okay. The high road. People tell stories about it. It's a road. It's a nice road."
+          },
+          {
+            "speaker": "R41",
+            "line": "Open arcs, then the old snow shed. It's darker inside, but your lights are fine. Then the plateau S."
+          },
+          {
+            "speaker": "R41",
+            "line": "There's no test up here. Nobody's watching from the pavilion. Just drive what you can see."
+          },
+          {
+            "speaker": "R43",
+            "line": "She talks a lot beforehand. Wait until she's driving. Quiet as the observatory."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R41",
+            "line": "Oh, that was lovely. You saw the exit. Sorry. I mean: well driven."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R41",
+            "line": "I could see the exit. That was enough. Um. You'll see it too. Really."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R41",
+            "line": "I got the race, you got the stage. So we both got home. That's the nice version."
+          }
+        ],
+        "diary": "Fuyu Tachibana, an observatory assistant who chatters nervously until she's behind the wheel, described Moonridge Contour plainly: open ridge arcs, a darker section through the old snow shed, and a quick plateau S. No legends, no tests, just a road. She is superb on narrow highland sections and overcautious in broad corners."
+      },
+      "hard": {
+        "title": "Moonridge Before Light",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Pre-dawn on Moonridge. Cold air, dry road. Frost on the old snow fence, none on the tarmac."
+          },
+          {
+            "speaker": "timing-crew",
+            "line": "Surface is dry, checked by sensor and on foot. No ice. The frost is scenery."
+          },
+          {
+            "speaker": "R45",
+            "line": "I checked your tyre pressures. And your wheel nuts. Habit. Then I checked mine."
+          },
+          {
+            "speaker": "R45",
+            "line": "The contour is long. Keep some of the car for the plateau."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R45",
+            "line": "You had car left at the end. That's the whole trick. Most people don't believe it until they see it."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R45",
+            "line": "You spent everything on the ridge arcs and the plateau collected. Save a bit next time."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R45",
+            "line": "I finished first; you finished strong. Your car's in good shape. I looked."
+          }
+        ],
+        "diary": "Moonridge Contour before dawn, dry, with frost on the scenery and none on the road; the timing crew walked it to be sure. Minae Otsuka, a former endurance mechanic, checked everyone's car before her own. Her low-waste lines rarely include a surprise attack, so a well-timed one on the plateau S was worth trying."
+      }
+    },
+    {
+      "id": "S25",
+      "normal": {
+        "title": "What Isn't on the Tape",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "White Pine Descent at dawn. Kazuma Yorita sets an old receiver on the weather-station step."
+          },
+          {
+            "speaker": "R42",
+            "line": "This is from the Amanagi relay. That morning. Listen."
+          },
+          {
+            "speaker": "narration",
+            "line": "Hiss. An engine idling. A door. Then a long stretch of nothing."
+          },
+          {
+            "speaker": "R42",
+            "line": "Hear what's missing? No gearchanges. No braking. Whoever that was, they'd stopped racing."
+          },
+          {
+            "speaker": "R42",
+            "line": "I won't tell you more than I heard. Now then: the quiet part of this road is where you hear the car."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R42",
+            "line": "You listened to the camber. Good. Keep listening. That's where the rest of the story is, too."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R42",
+            "line": "You rushed the avalanche gallery. The rock face is cold; the road isn't. Hear the difference next time."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R42",
+            "line": "I got down first. You got the stage, and you heard the recording properly. That matters more."
+          }
+        ],
+        "diary": "At the White Pine weather station, Kazuma Yorita played an old, almost silent recording from the Amanagi relay. What mattered was what wasn't there: no gearchanges, no braking, no finish. Just an idling engine and a door. Kazuma refuses to embellish anything, and on the long cambered descent he reads cold-road transitions better than anyone."
+      },
+      "hard": {
+        "title": "Cold Pines, Published Setup",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Cold night on White Pine Descent, damp. The wet setup sheet is pinned at the weather station for everyone."
+          },
+          {
+            "speaker": "R46",
+            "line": "Everyone gets the same setup sheet. I drove it at nine and checked it again at ten."
+          },
+          {
+            "speaker": "R46",
+            "line": "Long braking into the triple bend. Release it the way a train settles at a platform."
+          },
+          {
+            "speaker": "R46",
+            "line": "Oh. That joke from the pine grove earlier. It was funny. I'll explain it later."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R46",
+            "line": "Smooth release. You'd have made a fine driver on the mountain line. That's a compliment from my era."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R46",
+            "line": "Early at the gallery, late at the finish. Ha. That's the joke, you see. On time is a kind of fast."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R46",
+            "line": "I arrived first and we both arrived on time. The timetable balances. Lovely."
+          }
+        ],
+        "diary": "White Pine Descent on a cold, damp night, with a published wet setup available to every entrant. Gaku Nishio, a retired train driver, brakes with extraordinary smoothness, though his modest power means every exit has to be perfect. His jokes arrive late. His braking never does."
+      }
+    },
+    {
+      "id": "S26",
+      "normal": {
+        "title": "The Dawn Car",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "At the transmitter service building below Signal Tower Climb, a cover slides off a small cream roadster."
+          },
+          {
+            "speaker": "R47",
+            "line": "The car from the dawn run. Kogane Kestrel S. Restored, not replaced. Every part I could save, I saved."
+          },
+          {
+            "speaker": "R48",
+            "line": "Excuse me. What were the tyres reading after the last climb? The left rear, particularly."
+          },
+          {
+            "speaker": "R47",
+            "line": "Oh. Um. Four degrees cool, left rear."
+          },
+          {
+            "speaker": "R48",
+            "line": "Thank you. That's fine. Good luck, everyone."
+          },
+          {
+            "speaker": "R43",
+            "line": "Who was that? ...Never mind. Leave yourself a road home tonight. The ridge approach is quick."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R43",
+            "line": "Ha! You flowed through the ridge and still stopped at the markers. Both. Good."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R43",
+            "line": "The steep middle ate your flow. Leave yourself a road home, then use all of it."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R43",
+            "line": "I got home first; you got home in time. Everyone home. Best possible result."
+          }
+        ],
+        "diary": "Yuna Senzaki unveiled the restored dawn car at the foot of Signal Tower Climb: a cream Kogane Kestrel S, repaired rather than replaced. A quiet woman in a worn indigo coat asked about its left-rear tyre temperature, thanked her, and wished everyone luck. Then Neri Takase led the climb, flowing along the ridge and, unusually for a fast driver, respecting every marked braking zone."
+      },
+      "hard": {
+        "title": "First Light on the Tower",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "First light on Signal Tower Climb. Dry. The beacon mast still blinks against a pale sky."
+          },
+          {
+            "speaker": "R47",
+            "line": "The final sector is steep. Momentum is everything. Lose it there and the climb won't give it back."
+          },
+          {
+            "speaker": "R47",
+            "line": "I'm racing tonight. Not in the dawn car. It isn't mine to race. In my own."
+          },
+          {
+            "speaker": "R48",
+            "line": "Your left rear will be cool at the start again. Give it one corner."
+          },
+          {
+            "speaker": "R47",
+            "line": "...She's watching. Okay. Old doesn't mean finished. Neither do I."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R47",
+            "line": "You carried more speed through the steep sector than I did. I tried too hard. I know."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R47",
+            "line": "I linked it! The last sector! With her watching! Okay. Okay. Good race."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R47",
+            "line": "I won the climb and you kept the clock. And she nodded. At both of us, I think."
+          }
+        ],
+        "diary": "Signal Tower Climb at first light, dry, where the Hard target depended on momentum through the steep final sector. Yuna Senzaki raced in her own car rather than the restored Kestrel, and tried a little too hard with the legend watching. Shiori Kuze gave her one piece of advice about a cool left-rear tyre, and it was correct."
+      }
+    },
+    {
+      "id": "S27",
+      "normal": {
+        "title": "Four Beacons Lit",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Four Signals Traverse. For the first time this season, all four coloured marshal beacons are lit."
+          },
+          {
+            "speaker": "R44",
+            "line": "Four beacons, four ways to lose speed: the entry, the arcs, the descent, the high road."
+          },
+          {
+            "speaker": "R44",
+            "line": "And four ways to keep it. The marker is there for a reason. Then there's your reason."
+          },
+          {
+            "speaker": "timing-crew",
+            "line": "Tonight's a regular race. The beacons are for reading. The old timing cabin's open for tea."
+          },
+          {
+            "speaker": "R44",
+            "line": "I remember every apprentice who drove this badly. I'd rather not remember you."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R44",
+            "line": "You kept your flow on the high road. That's my weak sector, and you found it. I'll remember that."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R44",
+            "line": "You braked well on the descent, then lost it all on the high road. Flow, not just stopping."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R44",
+            "line": "I won, and you learnt all four beacons. Next time they'll mean more. You'll see."
+          }
+        ],
+        "diary": "All four coloured marshal beacons were lit on Four Signals Traverse, each marking a different way to lose or keep momentum. Satoshi Mibe, a snow-shed technician with blunt manners and a perfect memory for apprentices, brakes superbly on the descent but loses flow over long gentle sections. The smooth high-road finish was where he could be caught."
+      },
+      "hard": {
+        "title": "Four Beacons at Dawn",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Dawn on Four Signals, dry. The four beacons glow pale against the sky."
+          },
+          {
+            "speaker": "R41",
+            "line": "Every sector's judged more tightly this morning. That's... sorry. That's not scary. It's just precise."
+          },
+          {
+            "speaker": "R41",
+            "line": "The technical entry is narrow, and I like narrow. The high road's broad. I'm less good at broad."
+          },
+          {
+            "speaker": "R44",
+            "line": "She's just told you her weakness. Mountain manners. Don't waste it."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R41",
+            "line": "You were quick on the broad parts. I was too careful. I know, I know."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R41",
+            "line": "I could see the exit every time. The beacons helped. Sorry. I mean, thank you for the race."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R41",
+            "line": "My race, your stage. All four beacons. I'm actually really pleased for you."
+          }
+        ],
+        "diary": "Four Signals at dawn, with every sector assessed more tightly. Fuyu Tachibana is precise on the narrow technical entry and too cautious on the broad high road, and she said so herself before the start. Satoshi called that mountain manners."
+      }
+    },
+    {
+      "id": "S28",
+      "normal": {
+        "title": "When Everyone Is Watching",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Ember Quarry Drop at night. Every crew on the Night Signal has come to watch the fourth lieutenant."
+          },
+          {
+            "speaker": "R32",
+            "line": "Big crowd! Lovely. Lights, lattice bridge, and everybody's favourite cape."
+          },
+          {
+            "speaker": "R32",
+            "line": "...All right. No cape voice. Honest question: can you stay composed with everyone watching?"
+          },
+          {
+            "speaker": "R32",
+            "line": "I couldn't, once. So I learnt to perform instead. It worked. It was also a hiding place."
+          },
+          {
+            "speaker": "R32",
+            "line": "Show me the line you'd choose without an audience. I'll try to do the same."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R32",
+            "line": "Composed, with the whole mountain watching. That's harder than winning. Take both."
+          },
+          {
+            "speaker": "R32",
+            "line": "Reina will be at Amanagi. She'll ask the same question without any warmth. You're ready for it."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R32",
+            "line": "You drove for the crowd at the lattice bridge. I know that line. I invented that line."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R32",
+            "line": "The race is mine, but you stayed composed. The crowd saw it. More importantly, I did."
+          }
+        ],
+        "diary": "Mako Hoshino, Breakwater's fourth lieutenant and a former champion, dropped the performance at Ember Quarry Drop and asked a plain question: can you stay composed when everyone is watching? She admitted that her bravado started as a hiding place. Her combined-corner rotation is bold and controlled, but she will sometimes overrotate for style and give away the next straight."
+      },
+      "hard": {
+        "title": "Wet Drop, No Cape",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Rain on Ember Quarry Drop. Mako is in the car without the cape, and the crowd is quieter."
+          },
+          {
+            "speaker": "R32",
+            "line": "No showy rotation tonight. Wet quarry, restrained lines, strong exits. That's the whole plan."
+          },
+          {
+            "speaker": "R32",
+            "line": "Someone once ran Amanagi at dawn with less power than anyone here, and never once looked hurried."
+          },
+          {
+            "speaker": "R32",
+            "line": "Zero Signal. Shiori Kuze. She's real, she's still around, and she drives like this: nothing wasted."
+          },
+          {
+            "speaker": "R32",
+            "line": "If you want to meet her on that road, show me you can keep speed without spending it."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R32",
+            "line": "That's her way, near enough. Restraint that's still fast. Yuna should hear about this."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R32",
+            "line": "You spent speed at the bridge. Shiori wouldn't have. I only just didn't. Again."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R32",
+            "line": "My race. But your exits were the quiet kind. I'll tell Yuna you're worth her test."
+          }
+        ],
+        "diary": "On a wet Ember Quarry Drop, Mako Hoshino left the cape and the showy rotation behind and drove a restrained, exit-first race. Before the start she named the legend outright: Shiori Kuze, Zero Signal, who ran Amanagi at dawn with less power than anyone and wasted nothing. Keeping speed without spending it was Mako's condition for passing the convoy on to Yuna."
+      }
+    },
+    {
+      "id": "S29",
+      "normal": {
+        "title": "Four Signals, Four Contracts",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Four Signals Traverse. One race, four sectors, four contracts. Reina's invitation depends on them."
+          },
+          {
+            "speaker": "R39",
+            "line": "Entry: beat the published sector time and touch both apex gates. I'll be checking both."
+          },
+          {
+            "speaker": "R37",
+            "line": "Arc: bank the drift target across the three marked corners. No circling back for points."
+          },
+          {
+            "speaker": "R46",
+            "line": "Descent: no wall contact, no reset, and release the brakes inside the marked zone."
+          },
+          {
+            "speaker": "R45",
+            "line": "Horizon: beat the posted exit-speed targets and the full-route time. Keep some car for it."
+          },
+          {
+            "speaker": "R39",
+            "line": "Pass all four to qualify. Pass three, finish legally and in time, and you've supported. Clear?"
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R39",
+            "line": "Four contracts, no inconsistencies. I looked. Reina's invitation is yours."
+          },
+          {
+            "speaker": "timing-crew",
+            "line": "Contracts confirmed. Amanagi Dawnline is open to you. Reina has been told."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R39",
+            "line": "A contract failed. The board shows which one. Practise that sector, then come back."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R39",
+            "line": "I crossed the line first, but your contracts hold for the stage. Consistent. I checked twice."
+          }
+        ],
+        "diary": "Before Reina's final invitation could be accepted, the convoy had to pass the Four Signals test: one race, judged in four contracts. Entry demanded the sector time and both apex gates; Arc, the drift target across three marked corners; Descent, no wall contact or reset and a legal brake release; Horizon, the exit-speed targets and the full-route time. Ayame Sugiura inspected every result and found no inconsistencies to mention."
+      },
+      "hard": {
+        "title": "Preserve the Car",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Four Signals, before dawn. Yuna Senzaki runs the test herself. Shiori waits at the old timing cabin."
+          },
+          {
+            "speaker": "R47",
+            "line": "Same four contracts, tighter targets: Entry, Arc, Descent, Horizon. All legal, all published."
+          },
+          {
+            "speaker": "R47",
+            "line": "What I care about: finish with a car that could do it all again. Don't spend it on the Arc."
+          },
+          {
+            "speaker": "R47",
+            "line": "No wall on the Descent, and a clean brake release. On the Horizon, keep speed without abusing it."
+          },
+          {
+            "speaker": "R48",
+            "line": "If they look after the car, I'll race them. If not, there's no hurry. There never is."
+          },
+          {
+            "speaker": "R47",
+            "line": "All four to qualify; three plus a legal finish in the envelope to support. Go gently. Go fast."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R47",
+            "line": "All four, and the car still feels sweet. She's walking to the Kestrel already. That means yes."
+          },
+          {
+            "speaker": "R48",
+            "line": "Thank you. At dawn, then, at Amanagi. Bring the same car you finished with."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R47",
+            "line": "You used the car up on the Arc. The board shows which contract broke. Rest, then try again."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R47",
+            "line": "I crossed first, but you looked after the car and your contracts held. Shiori says yes."
+          }
+        ],
+        "diary": "Yuna Senzaki ran the Four Signals test on Hard with tighter legal targets and one extra thing to care about: finish with a car that could do it all again. Shiori Kuze watched from the old timing cabin and made her condition simple: look after the car and she would race. The Arc was the temptation. Drivers who spent their tyres there had nothing left for the Horizon."
+      }
+    },
+    {
+      "id": "S30",
+      "normal": {
+        "title": "One Driver at a Time",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Amanagi Dawnline. A ridge launch in the dark, a horizon sweep through the tunnels, sunrise over the sea."
+          },
+          {
+            "speaker": "R40",
+            "line": "You came as a convoy. You'll still reach every corner one driver at a time."
+          },
+          {
+            "speaker": "R40",
+            "line": "I trust a perfect line because it can't let me down. People can. I learnt that on this road."
+          },
+          {
+            "speaker": "R40",
+            "line": "Prove me wrong on the road, not in speeches. Past the relay arch, over the valley bridge, into the sunrise."
+          },
+          {
+            "speaker": "R34",
+            "line": "She's nervous. You can tell, because she's being extremely polite."
+          },
+          {
+            "speaker": "R40",
+            "line": "I'm being precise, Chika. Grid, please."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R40",
+            "line": "My line was perfect. Yours was shared, and still every bit your own. I didn't expect that."
+          },
+          {
+            "speaker": "R40",
+            "line": "...Come up to the terrace. I think I owe a few people a conversation."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R40",
+            "line": "The line held. It always does. Come back when your convoy can hold one too."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R40",
+            "line": "I finished first and you earned the clear together. I'm beginning to think those are different questions."
+          }
+        ],
+        "diary": "Reina Kurogane, The Surveyor, raced the convoy on Amanagi Dawnline, from the dark ridge launch to the sunrise finish above the sea. She believes a perfect line is the only thing that can't let you down, and she drove one. Her weakness is commitment to the ideal line when the road asks for a different rhythm, and a convoy that shares a result without losing its individual skill was a rhythm she hadn't planned for."
+      },
+      "hard": {
+        "title": "The Dawn Run",
+        "intro": [
+          {
+            "speaker": "narration",
+            "line": "Amanagi Dawnline. Mist lies in the valley, lifting slowly. The cream Kestrel idles at the relay arch."
+          },
+          {
+            "speaker": "R48",
+            "line": "Good morning. The car is legal, the tune is published, and the mist will clear on schedule."
+          },
+          {
+            "speaker": "R48",
+            "line": "Years ago I stopped at this arch. I don't regret it. Today I'd like to finish."
+          },
+          {
+            "speaker": "R48",
+            "line": "You don't have to hurry every part of the road. Only the parts that deserve it."
+          },
+          {
+            "speaker": "R47",
+            "line": "Her tyres are warm. I checked. Then she checked after me. Good luck."
+          }
+        ],
+        "win": [
+          {
+            "speaker": "R48",
+            "line": "Thank you. The whole road, used properly. I don't mind at all that it was yours."
+          },
+          {
+            "speaker": "R48",
+            "line": "Come to the terrace later. There's a slip I've been meaning to finish."
+          }
+        ],
+        "loss": [
+          {
+            "speaker": "R48",
+            "line": "Thank you. You hurried the bridge, that's all. The sun will come up again tomorrow."
+          }
+        ],
+        "clearedButLost": [
+          {
+            "speaker": "R48",
+            "line": "I crossed first. You earned your clear without wasting a thing. That's the run I hoped to see."
+          }
+        ],
+        "diary": "Shiori Kuze raced Amanagi at dawn in her restored Kogane Kestrel S, legal in every respect, with a published tune and mist clearing on a fixed schedule. She preserves speed with minimal steering and a measured late release, and in her low-powered car any real loss of flow is expensive. She told the convoy she had stopped at the relay arch years ago and didn't regret it. This time she meant to finish."
+      }
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "schema": "night-signal/radio-records@1",
+  "authoredBy": "narrative-worker-v1",
+  "records": [
+    {
+      "id": "RADIO-01",
+      "title": "Shrine Road, After Midnight",
+      "awardedAfterStage": "S06",
+      "kind": "radio",
+      "text": "[Night Signal, tram station relay, 01:40] ...and a caller from the tea hills wants to know whether anyone still has a recording of the Amanagi dawn run. Well. There isn't one. The relay was down that morning. Some people say she broke every record on the mountain. Some say nobody timed the last part at all. And some were asleep, which is the most honest position. [pause] Anyway. The tram station urn has been fixed. Thank you to whoever did that; they left no name. Closures on the shrine approach start at two. Drive kindly."
+    },
+    {
+      "id": "RADIO-02",
+      "title": "The Floodmark Archive Slip",
+      "awardedAfterStage": "S12",
+      "kind": "timing-slip",
+      "text": "Carbon timing slip in the old series format, found in the Floodmark pump-house archive. Heading: AMANAGI DAWNLINE, DAWN RUN, UNBROADCAST. Car: Kestrel S, cream. Driver: S.K. Sector 1, ridge launch: 1:28.4. Sector 2, switchbacks: 1:21.9. Sector 3, horizon sweep: 1:12.7. Sector 4, tunnels: 0:58.3. Sector 5, descent to the sea: blank. Final time: blank. Nobody crossed the blank lines out; nobody ever wrote on them. In the margin, in pencil and in a different hand: 'relay clock stopped. cold. sorry.' The timer's initials in the corner are smudged past reading. Michi Kagawa has clipped a note to the back: 'Not a mistake. Something happened.'"
+    },
+    {
+      "id": "RADIO-03",
+      "title": "Harbour Call-In: Three Witnesses",
+      "awardedAfterStage": "S15",
+      "kind": "radio",
+      "text": "[Night Signal, Akebono harbour hour] First caller says she ran the Amanagi dawn run in under seven minutes and was at the sea wall before the first train. Second caller, from the tea hills, says no: she drove into the village late, heater on, laughing, and without her scarf. Third caller is a retired train driver. He says he'll tell us what he saw from his cab 'when somebody asks properly'. [host] Well, I'm asking properly. [the line goes quiet] ...He's hung up. That's the Night Signal for you. Three witnesses, one road, and no agreement."
+    },
+    {
+      "id": "RADIO-04",
+      "title": "The Back of a Night-Event Slip",
+      "awardedAfterStage": "S17",
+      "kind": "timing-slip",
+      "text": "Timing slip from the closed night event at Tide Lantern Coast. In the corner, the crew has logged your repair: 'Beam receiver realigned by the newcomers, 19:52, reading clean.' On the back, in the same handwriting, a running list: 'Clock batteries replaced again. Not us. Spare fuses left in the tin at Kilnlight. Rain chains at Rain Thread re-hung. Thermos of barley tea left at the storm gate, still warm.' Underlined at the bottom: 'Lady in the indigo coat. Wouldn't give a name. Wouldn't take tea. Asked for the left-rear tyre temperature of the last car through, then left.'"
+    },
+    {
+      "id": "RADIO-05",
+      "title": "Workshop Channel, 03:10",
+      "awardedAfterStage": "S23",
+      "kind": "radio",
+      "text": "[Night Signal, Tsukishiro workshop channel] Yuna Senzaki here, from the restoration bay, with a question for the frequency. The roadster I've been asked to restore came out of a shed nobody admits to owning. It hasn't been driven in years. But the tyres are at pressure, the battery has been on a trickle charger, and the oil was changed last autumn and the autumn before that. There's a logbook in the glovebox with one line for every season, each one signed with a small circle. I'm not rescuing a forgotten car. I'm finishing a job someone never stopped doing. If that's you, thank you. I'll keep the circle."
+    },
+    {
+      "id": "RADIO-06",
+      "title": "The Quiet Recording",
+      "awardedAfterStage": "S25",
+      "kind": "radio",
+      "text": "[Recording from the Amanagi relay, undated, played by Kazuma Yorita] Six minutes of carrier hiss. A small engine idling, not racing. A door opens. Wind. A young voice, far from the microphone, says something like 'it won't start.' A second voice, closer and calm: 'Here. Keep this on until your hands work. We'll do the clock together.' Two minutes of nothing. A clock restarts with a single beep, and the engine pulls away gently. [Kazuma] That's all of it. No finish horn, no braking. The old timing cabin at Four Signals still has that relay clock. Somebody should run that road properly one more time and let the clock keep the whole run."
+    }
+  ]
+}

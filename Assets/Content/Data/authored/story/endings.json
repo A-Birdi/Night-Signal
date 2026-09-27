@@ -1,0 +1,185 @@
+{
+  "schema": "night-signal/endings@1",
+  "authoredBy": "narrative-worker-v1",
+  "normal": {
+    "title": "The Terrace After Amanagi",
+    "scenes": [
+      {
+        "setting": "Cedar Lantern Terrace, the morning after the Amanagi finale. The lantern strings are still lit, the tea kiosk shutter is half open, and cars from all six crews fill the bays.",
+        "lines": [
+          {
+            "speaker": "narration",
+            "line": "By the time you park, the terrace is already full. Nobody has gone home to sleep."
+          },
+          {
+            "speaker": "R01",
+            "line": "There you are! I saved you a cup. I also lost my gloves again, so it evens out."
+          },
+          {
+            "speaker": "R02",
+            "line": "Same cup as the one I mended at Bellmaker. It came back whole. So did you."
+          },
+          {
+            "speaker": "R08",
+            "line": "I watched the last sector twice on the replay. Repeatable. That's all I ever wanted to see."
+          },
+          {
+            "speaker": "R16",
+            "line": "You read that road the way you'd read weather. Nothing on it was random. Well done."
+          },
+          {
+            "speaker": "R24",
+            "line": "I measured your run against hers. Hers was perfect. Yours left room for everybody. I've changed my notes."
+          },
+          {
+            "speaker": "R32",
+            "line": "Composed, with the whole mountain watching. I told you it was harder than winning."
+          }
+        ]
+      },
+      {
+        "setting": "The timing board beside the tea kiosk. Every convoy driver's slip from Amanagi is pinned in a row, and Reina Kurogane is standing in front of it.",
+        "lines": [
+          {
+            "speaker": "R40",
+            "line": "Every slip is different. Different lines, different mistakes. And the result is still yours, together."
+          },
+          {
+            "speaker": "R40",
+            "line": "I thought sharing a result would dilute it. It doesn't, does it. Each of you is still on there."
+          },
+          {
+            "speaker": "R34",
+            "line": "She's been standing here for twenty minutes. That's how Reina says 'I was wrong'."
+          },
+          {
+            "speaker": "R40",
+            "line": "Thank you, Chika. I'm quite capable of saying it myself. ...I was wrong. About part of it."
+          },
+          {
+            "speaker": "R40",
+            "line": "I'll keep driving alone some nights. But not because I can't trust anyone. That was never the reason."
+          },
+          {
+            "speaker": "R40",
+            "line": "There's someone I should call. Not today. Soon."
+          }
+        ]
+      },
+      {
+        "setting": "The radio bench at dusk. The receiver is on, the kettle is on, and cars are starting to leave for the evening roads.",
+        "lines": [
+          {
+            "speaker": "R19",
+            "line": "I pinned a copy of the old slip up here too. The last sector's still blank. Somebody knows why."
+          },
+          {
+            "speaker": "R42",
+            "line": "Somebody always does. Leave it on the board. The frequency has a long memory."
+          },
+          {
+            "speaker": "radio",
+            "line": "This is the Night Signal. Congratulations to {convoy}. Roads reopen at dusk. Everyone's welcome."
+          },
+          {
+            "speaker": "narration",
+            "line": "The series goes on. Every road, every rival and every slip on the board is still yours to chase."
+          }
+        ]
+      }
+    ]
+  },
+  "hard": {
+    "title": "Before the First Train",
+    "scenes": [
+      {
+        "setting": "The Amanagi Dawnline finish, above the sea. The mist has cleared on schedule and the sun is just over the horizon. A timing-crew van is parked at the final sector post.",
+        "lines": [
+          {
+            "speaker": "timing-crew",
+            "line": "Sector five, descent to the sea: recorded. Final time: recorded. Every sector, every car."
+          },
+          {
+            "speaker": "R48",
+            "line": "Recorded. Well. That only took eighteen years and a very good convoy."
+          },
+          {
+            "speaker": "R47",
+            "line": "The car's fine. Better than fine. You didn't waste a single degree of those tyres."
+          },
+          {
+            "speaker": "R48",
+            "line": "Neither did you, {convoy}. That's the part I'll remember. The time is just the proof."
+          },
+          {
+            "speaker": "narration",
+            "line": "Far below, the first train of the morning runs along the coast. It sounds its horn twice."
+          },
+          {
+            "speaker": "R46",
+            "line": "That's my old line. Somebody in the cab still knows the signal. Ha. Right on time."
+          }
+        ]
+      },
+      {
+        "setting": "Cedar Lantern Terrace, mid-morning. Shiori Kuze is sitting at the radio bench with the old receiver. Her cream scarf, mended in two places, is folded beside her.",
+        "lines": [
+          {
+            "speaker": "R48",
+            "line": "Sit down, please. You've earned the ending, and it's shorter than the legend."
+          },
+          {
+            "speaker": "R48",
+            "line": "The relay clock at the last sector died in the cold. The volunteer timer was sixteen and frozen to the bone."
+          },
+          {
+            "speaker": "R48",
+            "line": "So I stopped. I gave her my scarf, and we restarted the clock together. The run was over. I didn't mind."
+          },
+          {
+            "speaker": "R40",
+            "line": "I minded. I was the timer. I thought I'd cost you the only run that mattered."
+          },
+          {
+            "speaker": "R48",
+            "line": "You were the only part of that morning that mattered, Reina. You returned the scarf torn. I mended it."
+          },
+          {
+            "speaker": "R40",
+            "line": "...I stopped depending on anyone after that. I told myself it was discipline."
+          },
+          {
+            "speaker": "R48",
+            "line": "It was discipline. It was also lonely. You can keep the first and put the second down."
+          }
+        ]
+      },
+      {
+        "setting": "The radio bench, later. The timing crew has brought the old carbon slip from the Floodmark archive, and today's slip beside it.",
+        "lines": [
+          {
+            "speaker": "timing-crew",
+            "line": "We could copy today's fifth sector onto the old slip. Close the story properly."
+          },
+          {
+            "speaker": "R48",
+            "line": "Leave the old one blank. That morning's answer wasn't a number. Pin today's next to it instead."
+          },
+          {
+            "speaker": "R42",
+            "line": "Then that's what I'll say on air. Nothing embellished. Just both slips, side by side."
+          },
+          {
+            "speaker": "radio",
+            "line": "This is the Night Signal. The Amanagi dawn run has been timed. The old slip stays as it was."
+          },
+          {
+            "speaker": "R48",
+            "line": "I'll be here most mornings, if the kettle's on. The road will be there too. Come and use it well."
+          }
+        ]
+      }
+    ]
+  },
+  "postGameNote": "The Night Signal keeps broadcasting. Campaign replay, Freeplay, ghosts, customisation, Cedar Lantern Terrace and every remaining challenge stay open, including the reference trial at the old timing cabin on Four Signals Traverse. Your garage, wallet, convoy and progress carry on. There is no New Game, because there's nothing to start over."
+}
