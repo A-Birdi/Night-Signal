@@ -24,7 +24,7 @@ namespace NightSignal.Front
             domain = UIFactory.Row("Domain", col, "", SignalTheme.Small, SignalTheme.Caution, 700, 52);
             first = Entry(col, "PocketCircuit", "Pocket Circuit", "Six-lane tabletop slot cars: analog throttle, harmless de-slots, clean-lap collection.", () => App.Router.Show(App.PocketCircuit));
             Entry(col, "Greenlight", "Greenlight", "Reaction station: Lights Out, Shift Window, Hold the Mark.", () => App.Router.Show(App.Greenlight));
-            Entry(col, "CapClash", "Cap Clash", "Flick bottle caps across a toolbox tabletop.", null);
+            Entry(col, "CapClash", "Cap Clash", "Flick bottle caps across a toolbox tabletop; one shot each, bank shots, a shared card.", () => App.Router.Show(App.CapClash));
             Entry(col, "PitCrew", "Pit-Crew Project", "Build a model car together, one task each.", null);
             Entry(col, "Canvas", "Convoy Canvas", "Draw, stamp and letter a shared sheet or a car hood.", null);
             UIFactory.Button("Back", col, "Back", () => App.Router.Back(), 620, 52);

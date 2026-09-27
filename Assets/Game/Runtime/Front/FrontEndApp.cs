@@ -41,6 +41,7 @@ namespace NightSignal.Front
         public readonly ConvoyScreen Convoy = new ConvoyScreen();
         public readonly PocketCircuitScreen PocketCircuit = new PocketCircuitScreen();
         public readonly GreenlightScreen Greenlight = new GreenlightScreen();
+        public readonly CapClashScreen CapClash = new CapClashScreen();
         public readonly WhileWeWaitScreen WhileWeWait = new WhileWeWaitScreen();
         /// <summary>Rich-text summary of the last online race (placing, time, settled receipt) for the convoy screen.</summary>
         public string LastOnlineResult { get; private set; }
@@ -195,6 +196,25 @@ namespace NightSignal.Front
             Greenlight.AutoPress = null;
             Click("Back");
             yield return new WaitForSeconds(1.2f);
+
+            // Cap Clash: aim straight with the power the Core preview says settles closest, three queued shots.
+            Click("Toy-CapClash");
+            yield return new WaitForSeconds(2f);
+            CapClash.AutoAim = TourCapAim;
+            for (int i = 0; i < 3; i++)
+            {
+                yield return new WaitForSeconds(0.6f);
+                Click("CapShoot");
+                yield return new WaitForSeconds(4.5f);
+                if (i == 0) Shot("15-cap-clash");
+            }
+            Shot("16-cap-clash-standings");
+            Debug.Log($"[NightSignal.UiTour] cap clash shots: {CapClash.MyShots}, on the scoring area: {CapClash.MyOnBoardShots}");
+            if (CapClash.MyShots < 3) failures.Add($"Cap Clash: {CapClash.MyShots} settled shots of 3");
+            if (CapClash.MyOnBoardShots < 1) failures.Add("Cap Clash: no shot reached the scoring area");
+            CapClash.AutoAim = null;
+            Click("Back");
+            yield return new WaitForSeconds(1.2f);
             Click("Back");
             yield return new WaitForSeconds(1.2f);
             string summary = failures.Count == 0 ? "PASS" : "FAILED: " + string.Join("; ", failures);
@@ -218,6 +238,28 @@ namespace NightSignal.Front
         }
 
         int CountToyLaps() => PocketCircuit.CompletedLaps;
+
+        static readonly System.Collections.Generic.Dictionary<string, float> tourCapPower = new System.Collections.Generic.Dictionary<string, float>();
+
+        /// <summary>Tour aim for Cap Clash: straight up-table, power chosen by the Core preview (scripted, not a human).</summary>
+        static (float, float, float)? TourCapAim(Core.Toys.CapClash.CapArrangementDef a, Core.Toys.CapClash.CapTargetDef t)
+        {
+            if (t == null) return null;
+            float x = Mathf.Clamp((float)t.X, (float)a.LaunchMinX, (float)a.LaunchMaxX);
+            string key = a.Id + "/" + t.Id;
+            if (!tourCapPower.TryGetValue(key, out float best))
+            {
+                Core.Toys.CapClash.CapPhysicsDef ph = Content.ContentLibrary.Load().Toys.CapClash.Physics;
+                double bestD = double.MaxValue;
+                for (float p = 0.2f; p <= 1f; p += 0.01f)
+                {
+                    Core.Toys.CapClash.ShotOutcome o = Core.Toys.CapClash.CapPhysics.Predict(a, ph, t, new System.Collections.Generic.List<Core.Toys.CapClash.CapBody>(), "tour", 0, p, x);
+                    if (o.OnBoard && o.Distance.HasValue && o.Distance.Value < bestD) { bestD = o.Distance.Value; best = p; }
+                }
+                tourCapPower[key] = best;
+            }
+            return (0f, best, x);
+        }
 
         // ------------------------------------------------------------------ online
 
@@ -244,6 +286,7 @@ namespace NightSignal.Front
             // The server has already paused the toys at the match commit; leave the table view so nothing renders under the race.
             if (Router.Current == PocketCircuit) PocketCircuit.CloseNow();
             if (Router.Current == Greenlight) Greenlight.OnHide();
+            if (Router.Current == CapClash) CapClash.OnHide();
             _ = session?.Request("presence.set", new { presence = "LoadingRace" }, quiet: true);
             Canvas.gameObject.SetActive(false);
             if (backdropCamera != null) backdropCamera.SetActive(false);

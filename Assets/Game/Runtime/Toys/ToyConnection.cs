@@ -9,6 +9,21 @@ using UnityEngine;
 
 namespace NightSignal.Toys
 {
+    /// <summary>
+    /// Host for client-side views of Core toy state (queries such as standings, prediction and dead reckoning). It never
+    /// applies commands: the authority does.
+    /// </summary>
+    public sealed class MirrorToyHost : IToyHost
+    {
+        public static readonly MirrorToyHost Instance = new MirrorToyHost();
+        public string SessionId => "mirror";
+        public long NowMs => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        public List<string> ActiveUsers(ToyActivityId activity) => new List<string>();
+        public bool IsActiveMember(string member) => true;
+        public ulong NextSeed() => 1;
+        public string NextId(string prefix) => prefix + "-mirror";
+    }
+
     /// <summary>The answer to one toy command, from the in-process session or the control plane.</summary>
     public struct ToyAnswer
     {

@@ -45,9 +45,14 @@ namespace NightSignal.Toys
         /// <summary>Wall-clock milliseconds: toy timers survive the app closing (a restore re-bases frozen tables).</summary>
         public static long NowMs() => DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
+        // Request ids must never repeat across host instances: a restored session remembers recent ids and answers a
+        // repeat with the ORIGINAL result without executing it (found when the second diversion's first command was
+        // silently treated as a duplicate of the first diversion's).
+        readonly string requestPrefix = Guid.NewGuid().ToString("N").Substring(0, 12);
+
         public ToyResult Do(ToyActivityId activity, string kind, JObject payload = null)
         {
-            ToyCommand cmd = Session.Command(Member, activity, kind, payload ?? new JObject(), ++sequence, "local-" + (++requests));
+            ToyCommand cmd = Session.Command(Member, activity, kind, payload ?? new JObject(), ++sequence, requestPrefix + "-" + (++requests));
             return Session.Submit(cmd, NowMs());
         }
 

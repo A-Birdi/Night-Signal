@@ -309,3 +309,15 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   (scripted press 230 ms after lights out → "CLEAN REACTION 230 ms", chain 3/10). Screenshots
   `Evidence/ui/campaign/10a, 13, 14`. Cap Clash, Pit-Crew and Convoy Canvas are listed but their presentation is not
   built yet (Core + hosting exist).
+
+## V-032 — Cap Clash playable; Local toy request ids (2026-09-27)
+- Cap Clash table built from the authored arrangement (felt board, rails and bumpers, extruded rubber props, 50/25/10
+  rings, launch strip, foul line, one cap per participant); aim angle/power/launch with a preview traced by the Core
+  physics; one queued shot per person with reconfirm; standings with the crown, bests, the six-mark card; target and
+  table changes by consent. Online, moving caps are dead-reckoned between pushes with the same physics.
+- Defect found by the tour: the Cap Clash screen's first shots were silently answered as duplicates — the Local host
+  numbered toy request ids from 1 in every new host instance, and a restored session answers a remembered id with the
+  ORIGINAL result without executing it. Request ids now carry a random per-instance prefix (the online paths already
+  did); reproduced and verified in the editor (save → restore → command now executes).
+- Local tour: Pocket Circuit 3 clean laps → Greenlight 3/3 clean → **Cap Clash 3/3 shots on the scoring area** (50 pts
+  at 0.9 cm, crown, card 3/6). Screenshots `Evidence/ui/campaign/15, 16`.
