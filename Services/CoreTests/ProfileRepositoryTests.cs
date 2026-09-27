@@ -66,7 +66,7 @@ public sealed class ProfileRepositoryTests
         byte[] raw = storage.Read(ProfileRepository.MainName(p.ProfileId));
         string header = Encoding.ASCII.GetString(raw, 0, Array.IndexOf(raw, (byte)'\n'));
         Assert.StartsWith("NIGHT-SIGNAL-LOCAL-SAVE 1 sha256=", header);
-        Assert.Contains("schemaVersion=1 revision=1 profile=" + p.ProfileId, header);
+        Assert.Contains($"schemaVersion={LocalProfile.CurrentSchemaVersion} revision=1 profile=" + p.ProfileId, header);
         string payload = Encoding.UTF8.GetString(raw, header.Length + 1, raw.Length - header.Length - 1);
         Assert.Contains("\"schema\": \"night-signal/local-profile@1\"", payload);
         Assert.Contains("\"domain\": \"local\"", payload);
@@ -180,10 +180,11 @@ public sealed class ProfileRepositoryTests
         repo.Create(p);
 
         JObject future = ProfileJson.FromObject(p);
-        future["schemaVersion"] = 2;
-        future["schema"] = "night-signal/local-profile@2";
+        int newerVersion = LocalProfile.CurrentSchemaVersion + 1;
+        future["schemaVersion"] = newerVersion;
+        future["schema"] = "night-signal/local-profile@" + newerVersion;
         future["hoverboards"] = new JArray("HB01");
-        byte[] newer = ProfileFileCodec.EncodePayload(future.ToString(), 2, 5, p.ProfileId);
+        byte[] newer = ProfileFileCodec.EncodePayload(future.ToString(), newerVersion, 5, p.ProfileId);
         disk.Write(ProfileRepository.MainName(p.ProfileId), newer);
 
         ProfileLoadResult r = repo.Load(p.ProfileId);
@@ -214,7 +215,7 @@ public sealed class ProfileRepositoryTests
         Assert.Equal(ProfileError.Corrupt, noPath.Error);
         Assert.Contains(noPath.Problems, x => x.Detail.Contains("no migration"));
 
-        var migrations = new ProfileMigrations().Register(0, doc =>
+        var migrations = ProfileMigrations.Default().Register(0, doc =>
         {
             doc["displayName"] = doc["name"];
             doc.Remove("name");

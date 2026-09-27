@@ -10,7 +10,7 @@
     races with the validator autopilot through normal inputs. Screenshots: Builds/Screenshots/tour-online. Raw logs stay
     under Builds/ (git-ignored: they contain local paths).
 #>
-param([int]$DevAccount = 0, [int]$Port = 7777, [int]$TimeoutSeconds = 600)
+param([int]$DevAccount = 0, [int]$Port = 7777, [int]$TimeoutSeconds = 600, [switch]$Freeplay)
 
 $ErrorActionPreference = 'Stop'
 $repo = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
@@ -26,9 +26,10 @@ $server = Start-Process -FilePath $exe -PassThru -WorkingDirectory $repo -Argume
     '-batchmode', '-nographics', '-nsServer', '-nsPort', "$Port", '-nsExitAfterMatch',
     '-nsEvidence', 'Builds/NetRuns/tour-online/evidence', '-logFile', "`"$logs\server.log`"")
 Start-Sleep -Seconds 4
-$client = Start-Process -FilePath $exe -PassThru -WorkingDirectory $repo -ArgumentList @(
-    '-nsUiTourOnline', '-nsDevAccount', "$DevAccount", '-screen-fullscreen', '0', '-screen-width', '1920', '-screen-height', '1080',
+$clientArgs = @('-nsUiTourOnline', '-nsDevAccount', "$DevAccount", '-screen-fullscreen', '0', '-screen-width', '1920', '-screen-height', '1080',
     '-logFile', "`"$logs\client.log`"")
+if ($Freeplay) { $clientArgs += '-nsUiTourFreeplay' } # Freeplay sprint decided by a course vote
+$client = Start-Process -FilePath $exe -PassThru -WorkingDirectory $repo -ArgumentList $clientArgs
 
 $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
 while ((Get-Date) -lt $deadline -and -not $client.HasExited) { Start-Sleep -Seconds 2 }

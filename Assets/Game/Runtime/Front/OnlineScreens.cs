@@ -34,6 +34,12 @@ namespace NightSignal.Front
         TextMeshProUGUI heading, status, error, rosterText, lastResult, intentLine, proposalLine, postLine, inviteLine;
         Button create, createPrivate, joinCode, refresh, rejoin, notNow, chooseStarter;
         Button proposeIntent, modeReady, enterMode, proposeEvent, eventReady, start, cont, serviceBreak, advance, invite, leave, signOut, table;
+        Button votingToggle, openVote, castVote, drawVote, cancelVote;
+        List<string> ballotIds = new List<string>();
+        Stepper ballotCourse;
+        TextMeshProUGUI ballotLine;
+        float ballotDeadlineAt;
+        long ballotSeenRevision = -1;
         TMP_InputField codeField;
         Stepper starter, intent, stage, course, aiCount;
         readonly List<Button> listButtons = new List<Button>();
@@ -101,6 +107,15 @@ namespace NightSignal.Front
             course = new Stepper(col, "Course", 1, i => i < courseIds.Count ? CourseName(courseIds[i]) : "—", 0, 1000);
             aiCount = new Stepper(col, "Opponents", Limits.MaxRaceVehicles, i => i == 0 ? "none" : $"{i} AI", 3, 1000);
             proposeEvent = UIFactory.Button("ProposeEvent", col, "Propose Event", ProposeEvent, 620, 56);
+            // Freeplay vote (Addendum 01 §6): server deadline, one ticket per ballot, a server draw; the leader can still choose.
+            votingToggle = UIFactory.Button("VotingToggle", col, "Voting: Off", ToggleVoting, 620, 48);
+            openVote = UIFactory.Button("OpenVote", col, "Open a Course Vote", () => Send("ballot.open", new { durationSeconds = (int?)(S.Convoy?["voting"] as JObject)?["durationSeconds"] ?? 30, aiCount = aiCount.Index }), 620, 52);
+            ballotCourse = new Stepper(col, "Your vote", 1, i => i < ballotIds.Count ? CourseName(ballotIds[i]) : "—", 0, 1000);
+            castVote = UIFactory.Button("CastVote", col, "Cast / Change Vote", CastVote, 620, 52);
+            drawVote = UIFactory.Button("DrawVote", col, "Draw the Course", () => Send("ballot.draw", new { ballotRevision = (long?)(S.Convoy?["ballot"] as JObject)?["revision"] ?? 0 }), 620, 52);
+            cancelVote = UIFactory.Button("CancelVote", col, "Cancel the Vote", () => Send("ballot.cancel", new { ballotRevision = (long?)(S.Convoy?["ballot"] as JObject)?["revision"] ?? 0 }), 620, 48);
+            ballotLine = UIFactory.Row("Ballot", col, "", SignalTheme.Small, SignalTheme.Label, 1000, 110);
+            ballotLine.richText = true;
             proposalLine = UIFactory.Row("Proposal", col, "", SignalTheme.Small, SignalTheme.Label, 1000, 84);
             proposalLine.richText = true;
             eventReady = UIFactory.Button("EventReady", col, "Event Ready", ToggleEventReady, 620, 56);
@@ -146,6 +161,9 @@ namespace NightSignal.Front
         }
 
         void MarkDirty() => dirty = true;
+
+        /// <summary>True while a request is in flight: a click then is ignored (toggles must not double-send).</summary>
+        public bool Busy => busy;
 
         public override Selectable DefaultFocus => S?.InConvoy == true ? (Selectable)modeReady : create;
 
@@ -250,7 +268,9 @@ namespace NightSignal.Front
 
             // Event selection (leader).
             string kind = (string)intentObj?["kind"];
-            bool selecting = modeEntered && leader && proposal == null && post == null && !matchOn;
+            // A live course vote replaces direct selection until it is drawn or cancelled (the server refuses proposals meanwhile).
+            string ballotState = (string)(c["ballot"] as JObject)?["state"];
+            bool selecting = modeEntered && leader && proposal == null && post == null && !matchOn && ballotState != "open" && ballotState != "frozen";
             stage.Root.SetActive(selecting && kind == "campaign");
             course.Root.SetActive(selecting && kind == "freeplay");
             aiCount.Root.SetActive(selecting && kind == "freeplay" && (string)intentObj?["submode"] != "time-attack");
@@ -263,9 +283,10 @@ namespace NightSignal.Front
                 int max = (int?)c["campaignAccess"]?[mode]?["maxSelectableStage"] ?? 1;
                 if (stage.Count != Mathf.Max(1, max)) { stage.SetCount(Mathf.Max(1, max)); stage.Set(max - 1); }
             }
+            RenderBallot(c, leader, kind, modeEntered, proposal, post, matchOn);
             if (selecting && kind == "freeplay")
             {
-                List<string> ids = (c["freeplayAccess"]?["courses"] as JArray)?.Select(x => (string)x["courseId"]).ToList() ?? new List<string>();
+                List<string> ids = ((c["freeplayAccess"] as JObject)?["courses"] as JArray)?.Select(x => (string)x["courseId"]).ToList() ?? new List<string>();
                 if (!ids.SequenceEqual(courseIds)) { courseIds = ids; course.SetCount(Mathf.Max(1, ids.Count)); course.Set(0); }
                 int humans = c["members"].Count();
                 aiCount.SetCount(Mathf.Max(1, Limits.MaxRaceVehicles - humans + 1));
@@ -403,6 +424,73 @@ namespace NightSignal.Front
         }
 
         void ProposeIntent() => Send("intent.set", Intents[intent.Index].Intent);
+
+        /// <summary>Automation hook (UI tours): choose an intent row as a player would with the stepper.</summary>
+        public void SelectIntent(int index) => intent.Set(index);
+
+        void ToggleVoting()
+        {
+            bool on = (bool?)(S.Convoy?["voting"] as JObject)?["enabled"] == true;
+            Send("voting.set", new { enabled = !on, durationSeconds = 15 });
+        }
+
+        void CastVote()
+        {
+            JObject b = S.Convoy?["ballot"] as JObject;
+            if (b == null || ballotIds.Count == 0) return;
+            Send("ballot.vote", new { ballotRevision = (long)b["revision"], courseId = ballotIds[Mathf.Clamp(ballotCourse.Index, 0, ballotIds.Count - 1)] });
+        }
+
+        /// <summary>Freeplay ballot panel: counts down to the SERVER deadline, shows tallies and chances, and the draw.</summary>
+        void RenderBallot(JObject c, bool leader, string kind, bool modeEntered, JObject proposal, JObject post, bool matchOn)
+        {
+            bool freeplay = kind == "freeplay" && modeEntered && post == null && !matchOn;
+            JObject b = freeplay ? c["ballot"] as JObject : null;
+            bool votingOn = (bool?)(c?["voting"] as JObject)?["enabled"] == true;
+            string state = (string)b?["state"];
+            // A drawn or cancelled vote only matters while its proposal is on the table; after that it is history.
+            bool live = state == "open" || state == "frozen";
+            if (!live && proposal == null) b = null;
+            votingToggle.gameObject.SetActive(freeplay && leader && !live && proposal == null);
+            votingToggle.GetComponentInChildren<TextMeshProUGUI>().text = votingOn ? $"Voting: On ({(int?)(c["voting"] as JObject)?["durationSeconds"] ?? 30} s)" : "Voting: Off";
+            openVote.gameObject.SetActive(freeplay && leader && votingOn && !live && proposal == null);
+            bool open = state == "open";
+            ballotCourse.Root.SetActive(open);
+            castVote.gameObject.SetActive(open);
+            drawVote.gameObject.SetActive(leader && state == "frozen");
+            ballotLine.gameObject.SetActive(b != null);
+            if (b == null)
+            {
+                cancelVote.gameObject.SetActive(false);
+                return;
+            }
+            cancelVote.gameObject.SetActive(leader && (open || state == "frozen"));
+            List<string> ids = ((c["freeplayAccess"] as JObject)?["courses"] as JArray)?.Select(x => (string)x["courseId"]).ToList() ?? new List<string>();
+            string mine = (string)(b["ballots"] as JObject)?[S.AccountId];
+            if (!ids.SequenceEqual(ballotIds))
+            {
+                ballotIds = ids;
+                ballotCourse.SetCount(Mathf.Max(1, ids.Count));
+                ballotCourse.Set(Mathf.Max(0, ids.IndexOf(mine ?? ids.FirstOrDefault())));
+            }
+            if ((long?)b["revision"] != ballotSeenRevision)
+            {
+                ballotSeenRevision = (long?)b["revision"] ?? -1;
+                ballotDeadlineAt = Time.unscaledTime + ((long?)b["remainingMs"] ?? 0) / 1000f;
+            }
+            var sb = new System.Text.StringBuilder();
+            float left = Mathf.Max(0f, ballotDeadlineAt - Time.unscaledTime);
+            sb.Append(open ? $"<b>Vote open</b> · {left:0} s left (server deadline)" : state == "frozen" ? "<b>Voting closed</b> · ballots frozen — the leader draws" : "<b>Vote result</b>");
+            if (mine != null) sb.Append($"   ·   your vote: {Esc(CourseName(mine))}");
+            sb.Append("\n");
+            foreach (JToken t in (b["tallies"] as JArray) ?? new JArray())
+                sb.Append($"{Esc(CourseName((string)t["courseId"]))}   {(int?)t["votes"]} vote(s)   {((double?)t["chance"] ?? 0) * 100:0}%\n");
+            JToken r = b["result"];
+            if (r != null && r.Type == JTokenType.Object)
+                sb.Append($"<color=#3EC6D8>Drawn: {Esc(CourseName((string)r["courseId"]))}</color>  <size=80%>(ballot {(int?)r["ballotIndex"] + 1} of {(int?)r["totalBallots"]}, {(double?)r["chance"] * 100:0}% chance)</size>");
+            ballotLine.text = sb.ToString();
+            if (open) dirty = true; // keep the countdown ticking
+        }
 
         void ToggleModeReady()
         {

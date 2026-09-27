@@ -444,6 +444,8 @@ namespace NightSignal.Front
             Click("CreateConvoy");
             yield return Until(() => OnlineSession.Current.InConvoy && OnlineSession.Current.MyMember?["carId"]?.Type == Newtonsoft.Json.Linq.JTokenType.String, 10f, "convoy created with a loadout");
             yield return new WaitForSeconds(0.8f);
+            bool freeplayTour = Array.IndexOf(Environment.GetCommandLineArgs(), "-nsUiTourFreeplay") >= 0;
+            if (freeplayTour) Convoy.SelectIntent(2); // Freeplay · Sprint, decided by a course vote
             Click("ProposeIntent");
             yield return Until(() => State()?["intent"]?.Type == Newtonsoft.Json.Linq.JTokenType.Object, 20f, "intent set");
             yield return new WaitForSeconds(0.8f);
@@ -456,9 +458,33 @@ namespace NightSignal.Front
             yield return Until(() => (bool?)State()?["modeEntered"] == true, 10f, "mode entered");
             yield return new WaitForSeconds(0.8f);
             Shot("05-event-selection");
-            // Readiness requests are rate-limited (15 s): wait until the button says it is available, like a player would.
-            yield return Until(() => GameObject.Find("ProposeEvent")?.GetComponent<Button>()?.interactable == true, 20f, "propose available");
-            Click("ProposeEvent");
+            if (freeplayTour)
+            {
+                // Course vote: voting on (15 s) → open → cast → server deadline → leader draws → proposal from the draw.
+                Click("VotingToggle");
+                yield return Until(() => (bool?)(State()?["voting"] as Newtonsoft.Json.Linq.JObject)?["enabled"] == true, 10f, "voting on");
+                yield return Until(() => GameObject.Find("OpenVote")?.GetComponent<Button>()?.interactable == true, 20f, "vote can open");
+                yield return Until(() => !Convoy.Busy, 10f, "request settled");
+                Click("OpenVote");
+                yield return Until(() => (string)(State()?["ballot"] as Newtonsoft.Json.Linq.JObject)?["state"] == "open", 10f, "ballot open");
+                yield return new WaitForSeconds(1f);
+                yield return Until(() => !Convoy.Busy, 10f, "request settled");
+                Click("CastVote");
+                yield return new WaitForSeconds(1.5f);
+                Shot("05b-vote-open");
+                yield return Until(() => (string)(State()?["ballot"] as Newtonsoft.Json.Linq.JObject)?["state"] == "frozen", 30f, "ballot frozen at the server deadline");
+                yield return Until(() => !Convoy.Busy, 10f, "request settled");
+                Click("DrawVote");
+                yield return Until(() => (State()?["ballot"] as Newtonsoft.Json.Linq.JObject)?["result"]?.Type == Newtonsoft.Json.Linq.JTokenType.Object, 10f, "course drawn");
+                yield return new WaitForSeconds(1f);
+                Shot("05c-vote-drawn");
+            }
+            else
+            {
+                // Readiness requests are rate-limited (15 s): wait until the button says it is available, like a player would.
+                yield return Until(() => GameObject.Find("ProposeEvent")?.GetComponent<Button>()?.interactable == true, 20f, "propose available");
+                Click("ProposeEvent");
+            }
             yield return Until(() => State()?["eventProposal"]?.Type == Newtonsoft.Json.Linq.JTokenType.Object, 25f, "event proposed");
             yield return new WaitForSeconds(0.8f);
             if ((bool?)OnlineSession.Current.MyMember?["eventReady"] != true) Click("EventReady");

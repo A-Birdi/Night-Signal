@@ -109,8 +109,8 @@ namespace NightSignal.Core.Profiles
     {
         readonly Dictionary<int, Func<JObject, JObject>> steps = new Dictionary<int, Func<JObject, JObject>>();
 
-        /// <summary>No steps: version 1 is the first Local profile schema.</summary>
-        public static ProfileMigrations Default() => new ProfileMigrations();
+        /// <summary>The shipped steps: 1 → 2 moves parts to their car instance (<see cref="LocalGarage.MigrateV1ToV2"/>).</summary>
+        public static ProfileMigrations Default() => new ProfileMigrations().Register(1, LocalGarage.MigrateV1ToV2);
 
         public ProfileMigrations Register(int fromVersion, Func<JObject, JObject> step)
         {

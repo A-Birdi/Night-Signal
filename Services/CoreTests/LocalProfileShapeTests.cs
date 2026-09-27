@@ -12,7 +12,8 @@ public sealed class LocalProfileShapeTests
     [Fact]
     public void LocalProfile_CarriesNoCredentialsHandleOrOnlineReceiptShape()
     {
-        foreach (Type t in new[] { typeof(LocalProfile), typeof(CardAppearance), typeof(LocalProgressionResult), typeof(RecordEntry), typeof(RecordProvenance) })
+        foreach (Type t in new[] { typeof(LocalProfile), typeof(CardAppearance), typeof(LocalProgressionResult), typeof(RecordEntry), typeof(RecordProvenance),
+                                   typeof(OwnedCar), typeof(OwnedPart), typeof(LocalGarageOutcome) })
             foreach (MemberInfo m in t.GetMembers(BindingFlags.Public | BindingFlags.Instance))
                 Assert.DoesNotContain(Forbidden, f => m.Name.Contains(f, StringComparison.OrdinalIgnoreCase));
         Assert.Equal(ProgressionDomain.Local, new LocalProgressionResult().Domain);
@@ -21,8 +22,9 @@ public sealed class LocalProfileShapeTests
     [Fact]
     public void NoProgressionOperation_ReadsTheToyWorkspace_OrOpaqueBuildDocuments()
     {
-        // D209: the toy workspace is a non-progression domain. No LocalProgression entry point accepts it.
-        foreach (MethodInfo m in typeof(LocalProgression).GetMethods(BindingFlags.Public | BindingFlags.Static))
+        // D209: the toy workspace is a non-progression domain. No LocalProgression or LocalGarage entry point accepts it.
+        foreach (MethodInfo m in typeof(LocalProgression).GetMethods(BindingFlags.Public | BindingFlags.Static)
+                     .Concat(typeof(LocalGarage).GetMethods(BindingFlags.Public | BindingFlags.Static)))
             foreach (ParameterInfo parameter in m.GetParameters())
             {
                 Assert.NotEqual(typeof(ToyWorkspace), parameter.ParameterType);
@@ -52,7 +54,7 @@ public sealed class LocalProfileShapeTests
         ws.References[CarWorkspace.LastRaceBuild] = new VersionedDocument { Schema = "night-signal/build-reference@1", Data = new JObject { ["pi"] = 512 } };
         ws.AppliedBuild = new VersionedDocument { Schema = "night-signal/applied-build@1", Data = new JObject { ["pi"] = 512 } };
         ws.GarageDraft = new VersionedDocument { Schema = "night-signal/garage-draft@1", Data = new JObject { ["pi"] = 530 } };
-        p.Parts.Add(new OwnedPart { PartId = "P-TYRE-T2", Quantity = 1, Source = "purchase", AcquiredUtc = TestContent.T0 });
+        p.Cars[0].Parts.Add(new OwnedPart { PartId = "TYR-T2-SPORT", Quantity = 1, Source = "buy-and-apply", Reference = "q-test", PricePaid = 32_000, AcquiredUtc = TestContent.T0 });
 
         var disk = new InMemoryProfileStorage();
         var repo = new ProfileRepository(disk);
@@ -68,7 +70,9 @@ public sealed class LocalProfileShapeTests
         Assert.Equal(5, backWs.VisualPresets.Count);
         Assert.Equal(512, (int)backWs.References[CarWorkspace.LastRaceBuild].Data["pi"]);
         Assert.Equal(530, (int)backWs.GarageDraft.Data["pi"]);
-        Assert.Equal("P-TYRE-T2", back.Parts.Single().PartId);
+        Assert.Equal("TYR-T2-SPORT", back.Cars[0].Parts.Single().PartId);
+        Assert.Equal("q-test", back.Cars[0].Parts.Single().Reference);
+        Assert.Empty(back.UnassignedParts);
         Assert.True(back.Toys.Reset(ToyWorkspace.PitCrew));
         Assert.Null(back.Toys.Get(ToyWorkspace.PitCrew));
     }
@@ -82,7 +86,7 @@ public sealed class LocalProfileShapeTests
         ((JObject)doc["cars"][0])["futureCarField"] = "keep me";
         ((JObject)doc["cars"][0]["workspace"])["pinnedMechanicalLoadouts"] = new JArray("m0", "m3");
         var disk = new InMemoryProfileStorage();
-        disk.Write(ProfileRepository.MainName(p.ProfileId), ProfileFileCodec.EncodePayload(doc.ToString(), 1, 0, p.ProfileId));
+        disk.Write(ProfileRepository.MainName(p.ProfileId), ProfileFileCodec.EncodePayload(doc.ToString(), LocalProfile.CurrentSchemaVersion, 0, p.ProfileId));
 
         var repo = new ProfileRepository(disk);
         LocalProfile loaded = repo.Load(p.ProfileId).Profile;

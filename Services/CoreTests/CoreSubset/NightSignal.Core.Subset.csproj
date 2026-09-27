@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <!--
-    The engine-free Core folders these tests need (Rules, Content, Profiles), LINKED from Assets/Game/Core and compiled
+    The engine-free Core folders these tests need (Rules, Content, Builds, Profiles), LINKED from Assets/Game/Core and compiled
     exactly like Services/SharedCore: netstandard2.1, C# 9, Newtonsoft.Json only. Using a subset keeps the Core tests
     independent of Core folders other engineers are still writing. To test against the full shared build instead:
       dotnet test Services/CoreTests -p:CoreSource=SharedCore
@@ -21,6 +21,8 @@
   <ItemGroup>
     <Compile Include="../../../Assets/Game/Core/Rules/**/*.cs" Link="Core/Rules/%(RecursiveDir)%(Filename)%(Extension)" />
     <Compile Include="../../../Assets/Game/Core/Content/**/*.cs" Link="Core/Content/%(RecursiveDir)%(Filename)%(Extension)" />
+    <!-- Builds (parts, loadouts, quotes): the Local Garage in Profiles stores and settles them. -->
+    <Compile Include="../../../Assets/Game/Core/Builds/**/*.cs" Link="Core/Builds/%(RecursiveDir)%(Filename)%(Extension)" />
     <!-- Profiles is developed in ../staging/Profiles and moved into Assets/Game/Core/Profiles only when finished. -->
     <Compile Include="$(ProfilesSource)/**/*.cs" Link="Core/Profiles/%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>

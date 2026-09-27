@@ -19,16 +19,22 @@ namespace NightSignal.Core.Profiles
     /// accidental corruption.
     /// </para>
     /// <para>
-    /// Mutate it only through <see cref="LocalProgression"/> (pure functions that return a new copy) and persist it through
+    /// Mutate it only through <see cref="LocalProgression"/> and <see cref="LocalGarage"/> (pure functions that return a new
+    /// copy) and persist it through
     /// <see cref="ProfileRepository"/> (atomic, versioned saves with recovery copies). Unknown members found in a save are
     /// preserved on round-trip (<see cref="Extra"/>), so a newer optional field is never silently dropped by an older build.
     /// </para>
     /// </summary>
     public sealed class LocalProfile
     {
+        /// <summary>Document family id; the shape revision is <see cref="SchemaVersion"/>.</summary>
         public const string SchemaId = "night-signal/local-profile@1";
-        /// <summary>Bump with a registered <see cref="ProfileMigrations"/> step whenever the document shape changes.</summary>
-        public const int CurrentSchemaVersion = 1;
+        /// <summary>
+        /// Bump with a registered <see cref="ProfileMigrations"/> step whenever the document shape changes.
+        /// v2: performance parts are owned per car INSTANCE (<see cref="OwnedCar.Parts"/>); the v1 profile-level stack list
+        /// became <see cref="UnassignedParts"/> (see <see cref="LocalGarage.MigrateV1ToV2"/>).
+        /// </summary>
+        public const int CurrentSchemaVersion = 2;
         public const int MaxAppliedOperations = 512;
         public const int MaxWalletHistory = 100;
 
@@ -57,8 +63,11 @@ namespace NightSignal.Core.Profiles
         public string StarterCarModelId { get; set; } = "";
         /// <summary>Owned car INSTANCES (two instances of one model are independent).</summary>
         public List<OwnedCar> Cars { get; set; } = new List<OwnedCar>();
-        /// <summary>Reserved: owned performance parts (the parts catalogue and grant rules are owned elsewhere).</summary>
-        public List<OwnedPart> Parts { get; set; } = new List<OwnedPart>();
+        /// <summary>
+        /// Legacy (schema v1) part stacks that could not be attributed to exactly one car instance during migration. They
+        /// grant NO ownership (parts are owned per instance, <see cref="OwnedCar.Parts"/>); they are kept so nothing is dropped.
+        /// </summary>
+        public List<OwnedPart> UnassignedParts { get; set; } = new List<OwnedPart>();
         /// <summary>Stored course entitlements (purchases and campaign unlocks). Starter courses are implicit (Core CourseAccess).</summary>
         public List<CourseEntitlement> Courses { get; set; } = new List<CourseEntitlement>();
         public CampaignClears Campaign { get; set; } = new CampaignClears();
@@ -112,7 +121,7 @@ namespace NightSignal.Core.Profiles
             if (Revision < 0) e.Add("Revision cannot be negative.");
             if (WalletBalance < 0 || WalletBalance > Limits.WalletCap) e.Add($"Wallet must be 0..{Limits.WalletCap}.");
             if (Card == null) e.Add("Card appearance missing.");
-            if (Cars == null || Parts == null || Courses == null || Campaign == null || Challenges == null || Cosmetics == null ||
+            if (Cars == null || UnassignedParts == null || Courses == null || Campaign == null || Challenges == null || Cosmetics == null ||
                 Music == null || Records == null || Tutorial == null || AppliedOperations == null || Toys == null || WalletHistory == null)
             {
                 e.Add("A required section is missing.");
@@ -124,6 +133,10 @@ namespace NightSignal.Core.Profiles
                 if (car == null || !IsValidId(car.InstanceId) || !instances.Add(car.InstanceId)) e.Add("Car instance ids must be present and unique.");
                 else if (string.IsNullOrEmpty(car.ModelId)) e.Add($"Car {car.InstanceId} has no model id.");
                 else if (car.Workspace == null) e.Add($"Car {car.InstanceId} has no workspace.");
+                else if (car.Parts == null) e.Add($"Car {car.InstanceId} has no parts list.");
+                else if (car.Parts.Any(p => p == null || string.IsNullOrEmpty(p.PartId) || p.Quantity != 1) ||
+                         car.Parts.Select(p => p?.PartId).Distinct(StringComparer.Ordinal).Count() != car.Parts.Count)
+                    e.Add($"Car {car.InstanceId}: owned parts must be present, unique and held once each.");
             }
             if (Courses.Any(c => c == null || string.IsNullOrEmpty(c.CourseId)) || Courses.Select(c => c?.CourseId).Distinct().Count() != Courses.Count)
                 e.Add("Course entitlements must be present and unique.");
@@ -174,6 +187,13 @@ namespace NightSignal.Core.Profiles
         public long PricePaid { get; set; }
         public DateTime AcquiredUtc { get; set; }
         public CarWorkspace Workspace { get; set; } = new CarWorkspace();
+        /// <summary>
+        /// Performance parts owned by THIS instance (schema v2). Never shared with another instance, never removed by
+        /// applying, restoring or swapping a build; granted only by <see cref="LocalGarage.BuyAndApply"/> (or migration).
+        /// </summary>
+        public List<OwnedPart> Parts { get; set; } = new List<OwnedPart>();
+
+        public bool OwnsPart(string partId) => partId != null && Parts != null && Parts.Any(p => p != null && p.PartId == partId);
 
         [JsonExtensionData]
         public IDictionary<string, JToken> Extra { get; set; } = new Dictionary<string, JToken>();
@@ -181,9 +201,10 @@ namespace NightSignal.Core.Profiles
 
     /// <summary>
     /// Per-car-instance container for the build documents defined by <c>NightSignal.Core.Builds</c> (MechanicalLoadout,
-    /// VisualPreset, AppliedVehicleBuild, BuildReference, GarageDraft — Addendum 02 §9). This package deliberately stores
-    /// them as schema-tagged opaque documents (<see cref="VersionedDocument"/>) so it neither duplicates nor constrains that
-    /// model; the Builds package reads/writes them by schema id and version.
+    /// VisualPreset, AppliedVehicleBuild, BuildReference, GarageDraft, workspace state — Addendum 02 §9). This package
+    /// deliberately stores them as schema-tagged opaque documents (<see cref="VersionedDocument"/>) so it neither duplicates
+    /// nor constrains that model; the Builds package reads/writes them by schema id and version (via
+    /// <see cref="LocalGarage.LoadWorkspace"/> / <see cref="LocalGarage.SaveWorkspace"/>).
     /// <para>
     /// Capacity rules for the Builds owner: at least <see cref="MinMechanicalLoadoutSlots"/> named mechanical loadouts and
     /// <see cref="MinVisualPresetSlots"/> visual presets per instance. There is NO maximum enforced here and no migration in
@@ -208,6 +229,14 @@ namespace NightSignal.Core.Profiles
         public VersionedDocument AppliedBuild { get; set; }
         /// <summary>The unsaved garage draft, kept separate from the applied build.</summary>
         public VersionedDocument GarageDraft { get; set; }
+        /// <summary>Workspace state: revision (concurrency token), capacities, workshop session, applied visual/livery ids.</summary>
+        public VersionedDocument WorkspaceState { get; set; }
+
+        /// <summary>True when no build document has ever been stored for this car.</summary>
+        [JsonIgnore]
+        public bool IsEmpty =>
+            (MechanicalLoadouts == null || MechanicalLoadouts.Count == 0) && (VisualPresets == null || VisualPresets.Count == 0) &&
+            (References == null || References.Count == 0) && AppliedBuild == null && GarageDraft == null && WorkspaceState == null;
 
         [JsonExtensionData]
         public IDictionary<string, JToken> Extra { get; set; } = new Dictionary<string, JToken>();
@@ -239,12 +268,20 @@ namespace NightSignal.Core.Profiles
         };
     }
 
-    /// <summary>Reserved: an owned performance part stack (ids from the parts catalogue, owned elsewhere).</summary>
+    /// <summary>
+    /// One performance part owned by one car instance (<see cref="OwnedCar.Parts"/>; ids from the parts catalogue). Ownership
+    /// is a set: an instance holds a part once (<see cref="Quantity"/> = 1) and reusing it in any build is free.
+    /// </summary>
     public sealed class OwnedPart
     {
         public string PartId { get; set; } = "";
-        public int Quantity { get; set; }
+        /// <summary>Always 1 for per-instance ownership (schema v1 stacks in <see cref="LocalProfile.UnassignedParts"/> may differ).</summary>
+        public int Quantity { get; set; } = 1;
+        /// <summary>buy-and-apply | migrated:{v1 source}</summary>
         public string Source { get; set; } = "";
+        /// <summary>The settled Buy-and-Apply quote id (the durable local quote ledger), or "" for migrated parts.</summary>
+        public string Reference { get; set; } = "";
+        public long PricePaid { get; set; }
         public DateTime AcquiredUtc { get; set; }
 
         [JsonExtensionData]
@@ -337,7 +374,7 @@ namespace NightSignal.Core.Profiles
     public sealed class WalletEntry
     {
         public DateTime Utc { get; set; }
-        /// <summary>starter | tutorial | event | first-clear | challenge | course-purchase | car-purchase</summary>
+        /// <summary>starter | tutorial | event | first-clear | challenge | course-purchase | car-purchase | part-purchase</summary>
         public string Kind { get; set; } = "";
         public string Reference { get; set; } = "";
         public long Amount { get; set; }

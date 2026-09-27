@@ -48,6 +48,8 @@ namespace NightSignal.Net
         /// <summary>While We Wait: coalesced toy overview (toy.state) and per-toy state (toy.activity) pushes.</summary>
         public event Action<JObject> ToyState;
         public event Action<JObject> ToyActivity;
+        /// <summary>convoy.invited: a friend invited this account to their convoy (accept = convoy.join {inviteId}).</summary>
+        public event Action<JObject> Invited;
 
         public ControlPlaneClient(string baseUrl)
         {
@@ -78,6 +80,20 @@ namespace NightSignal.Net
             HttpResponseMessage r = await http.PostAsync(path, ControlPlaneHttp.Body(payload));
             string text = await r.Content.ReadAsStringAsync();
             return ((int)r.StatusCode, string.IsNullOrEmpty(text) ? new JObject() : JObject.Parse(text));
+        }
+
+        /// <summary>Any REST verb; the body may be null. Extra headers (e.g. Idempotency-Key) apply to this request only.</summary>
+        public async Task<(int status, JObject body)> Send(HttpMethod method, string path, object payload = null, IDictionary<string, string> headers = null)
+        {
+            using (var request = new HttpRequestMessage(method, path))
+            {
+                if (payload != null) request.Content = ControlPlaneHttp.Body(payload);
+                if (headers != null)
+                    foreach (KeyValuePair<string, string> h in headers) request.Headers.TryAddWithoutValidation(h.Key, h.Value);
+                HttpResponseMessage r = await http.SendAsync(request);
+                string text = await r.Content.ReadAsStringAsync();
+                return ((int)r.StatusCode, string.IsNullOrEmpty(text) ? new JObject() : JObject.Parse(text));
+            }
         }
 
         public async Task ConnectControl(string build, int protocol, string contentHash)
@@ -167,6 +183,7 @@ namespace NightSignal.Net
                     case "convoy.notice": Notice?.Invoke(payload); break;
                     case "toy.state": ToyState?.Invoke(payload); break;
                     case "toy.activity": ToyActivity?.Invoke(payload); break;
+                    case "convoy.invited": Invited?.Invoke(payload); break;
                     case "convoy.closed":
                         ConvoyState = null;
                         ConvoyRevision = -1;

@@ -1,6 +1,6 @@
 # Handoff
 
-_Last updated: 2026-09-27 — online play through the menus; 6-client network slice; all 29 courses drivable._
+_Last updated: 2026-09-27 — Freeplay course vote in the convoy screen; 12-car network grid; Local Garage Core._
 
 **Rules revision:** `docs/brief/Night_Signal_Addendum_01.txt` supersedes parts of the master (six humans + up to
 twelve vehicles, live finale rivals, light contact, course access, offline domain, rejoin grants, voting, friends,
@@ -47,28 +47,33 @@ powershell -ExecutionPolicy Bypass -File Tools/run/net-race.ps1 -Humans 2 -Stage
 3. **Hosted services / internet test** — a Supabase project, a reachable server and a budget are needed for
    WAN acceptance (§3.5, Gate 5). Not approved; stays BLOCKED, not faked.
 
-## Done since the addenda (VALIDATION V-015 … V-028)
+## Done since the addenda (VALIDATION V-015 … V-036)
 
 - Addendum 01 Core rules and data overlays; control plane for Addendum 01 + 02 incl. hosted diversions (307 .NET
   tests); light car contact, shared RaceSimulation (server + offline), protocol 2 per-client snapshots.
-- **Network slice:** 2 humans + live rival (V-022) and 6 humans + live rival (V-025) pass on protocol 2 with 0 starved
-  commands (2-tick input lead); fixed an input-send overflow, a watchdog crash on dormant rooms and replayed request ids.
+- **Network slice:** 2 humans + live rival (V-022), 6 humans + live rival (V-025) and 6 humans + 6 AI = 12 cars
+  (V-035) pass on protocol 2 with 0 starved commands (2-tick input lead).
 - **Online play through the menus** (V-027): sign-in → convoy → Intent/Mode Ready/Enter/Propose/Event Ready/Start →
-  server race → settled receipt → Continue/Advance, verified by an automated windowed tour against a real server.
-- **Local play** (V-023): profiles, Offline hub, campaign map (painted region, act reveal, sliding stage panel), Local
-  races judged by Core and saved atomically.
-- **Courses:** all 29 scenes driven start to finish by the autopilot (V-026) after fixing circuit lap gates and terrain
-  burying the lower road at crossings.
-- Cores (engine-free, tested, in Assets/Game/Core): Builds (+ VehicleFactory parity), Toys, Profiles.
+  server race → settled receipt → Continue/Advance; automated windowed tour against a real server. Freeplay course
+  vote (open → ballot → server deadline → draw → proposal) through the same screen (V-036).
+- **Local play** (V-023): profiles, Offline hub, campaign map, Local races judged by Core and saved atomically.
+- **While We Wait** (V-029 … V-034): all five diversions playable through real screens — Pocket Circuit, Greenlight,
+  Cap Clash, Pit-Crew Project, Convoy Canvas — on one `ToyConnection` (Local in-process session or the convoy's hosted
+  session). Online verified for Pocket Circuit at the shared table while Event Ready (readiness kept).
+- **Courses:** all 29 scenes driven start to finish by the autopilot (V-026).
+- Cores (engine-free, tested, in Assets/Game/Core): Builds (+ VehicleFactory parity), Toys, Profiles. Local Garage
+  (profile schema 2: parts owned per car instance, ≥ 8 loadouts / 5 presets / 3 protected references per instance,
+  quote → Buy-and-Apply settled once, Last Race Build) in `Core/Profiles/LocalGarage.cs` — Core tests only, no UI yet.
 
 ## Next actions
 
-1. Unity presentation for the diversions (Pocket Circuit first — mandatory), client toy.* handling, While We Wait
-   selector on the convoy screen; Garage (loadouts, references, Buy-and-Apply) on Core/Builds + Test Yard A/B.
-2. Online convoy extras: Freeplay ballots/voting UI, friends panel, course purchase UI, Time Attack/Team Trials,
-   6 + 6 Freeplay network run, reconnect/rejoin and DQ under load, the open native crash (V-027).
+1. Garage (loadouts, protected references, Buy-and-Apply) on Core/Builds + Test Yard A/B; parts/recipes/toys into the
+   content hash before builds affect online events.
+2. Online convoy extras: friends panel, course purchase UI, Time Attack/Team Trials,
+   reconnect/rejoin and DQ under load; the other four diversions against the hosted session with several humans;
+   controller cursor for the Canvas.
 3. Generator: bridge decks/piers, tunnel shells, `crossing`/`water`/`field`/`structure` kits; visual pass per biome.
-4. Content hash for parts/recipes/toys; visible customization; car art; meet + boombox; release builds and evidence.
+4. Visible customization; car art; meet + boombox; release builds and evidence.
 
 ## Recovery notes
 

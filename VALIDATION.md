@@ -344,3 +344,24 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - Online: Pocket Circuit verified at the convoy's shared table (V-030); the other four use the same connection code
   path but have not yet been exercised against the hosted session. Controller input for the Canvas (a virtual cursor)
   is not built; mouse drawing only.
+
+## V-035 — Six humans + six AI, full 12-car grid over the network (2026-09-27)
+- `net-race.ps1 -Humans 6 -FreeplayCourse C01 -FreeplayAi 6` → `Evidence/net/run-20260927-042251-h6-C01-ai6/`: seven OS
+  processes, Freeplay sprint, **12 vehicles** (6 humans + 6 opposing AI), light contact. All six AutoClients PASS;
+  12/12 finished (humans 86.4–100.7 s); settled Freeplay receipts.
+- Netcode: **0 starved / 0 late commands** for every human, input lead 1–2 ticks (racing ticks only), RTT 18–31 ms,
+  input-ack max 67 ms, 168–327 reconciliations per client, max correction 1.73 m. Contact: 2–9 vehicle contacts per car,
+  0–4 wall incidents, 0 resets. Localhost only.
+
+## V-036 — Freeplay course vote through the convoy screen (2026-09-27)
+- Convoy screen ballot panel (Addendum 01 §6): leader's Voting On/Off (15 s), Open a Course Vote (with the opponent
+  count), members' course ballot with a countdown to the SERVER deadline, live tallies and chances, the leader's Draw
+  after the freeze (or Cancel), and the drawn course's proposal. Direct selection is hidden while a vote is live (the
+  server refuses proposals then).
+- `Tools/run/ui-tour-online.ps1 -Freeplay` against a real dedicated server: sign-in → convoy → Freeplay Sprint →
+  Mode Ready → Enter → Voting On → Open vote → Cast → frozen at the deadline → Draw ("ballot 1 of 1, 100%") → Event
+  Ready (shared table while ready, readiness kept) → server race C01, P3 of 4 → settled receipt → Continue → Advance —
+  **PASS**. Screenshots `Evidence/ui/online/freeplay-vote/`.
+- Found and fixed on the way: JSON `null` sub-objects indexed with `?[...]` throw in Newtonsoft (guarded as `as
+  JObject`), and a click during an in-flight request was silently dropped (the tour now waits for the screen's `Busy`;
+  toggles still must not double-send). One human only: multi-member tallies are covered by control plane tests.

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NightSignal.Content;
@@ -31,14 +32,27 @@ namespace NightSignal.Front
             client.RejoinChanged += _ => Changed?.Invoke();
             client.Notice += n => { LastNotice = (string)n?["message"] ?? ""; Changed?.Invoke(); };
             client.ConvoyClosed += c => { LastNotice = ClosedText((string)c?["reason"]); Changed?.Invoke(); };
+            client.Invited += i =>
+            {
+                if (i == null) return;
+                Invites.RemoveAll(x => (string)x["inviteId"] == (string)i["inviteId"]);
+                Invites.Add(i);
+                LastNotice = $"{(string)i["fromName"] ?? "A friend"} invited you to their convoy — open Friends to accept.";
+                Changed?.Invoke();
+            };
         }
+
+        /// <summary>Friend invitations received this session (server-side they expire; accepting re-checks everything).</summary>
+        public readonly List<JObject> Invites = new List<JObject>();
 
         public string AccountId => Client.AccountId;
         public JObject Convoy => Client.ConvoyState;
         public bool InConvoy => Convoy != null && Convoy["convoyId"] != null && Convoy["convoyId"].Type != JTokenType.Null;
         public bool IsLeader => InConvoy && (string)Convoy["leaderId"] == AccountId;
         public JToken MyMember => Convoy?["members"]?.FirstOrDefault(m => (string)m["accountId"] == AccountId);
-        public string DisplayName => (string)Me?["card"]?["displayName"] ?? (string)Me?["displayName"] ?? "Driver";
+        public string DisplayName => (string)(Me?["card"] as JObject)?["displayName"] ?? "Driver";
+        /// <summary>The public @username, or null before one is claimed (Addendum 01 §9.2).</summary>
+        public string Handle => (string)(Me?["handle"] as JObject)?["handle"];
         public string StarterCarId => Me?["starterCarId"]?.Type == JTokenType.String ? (string)Me["starterCarId"] : null;
 
         /// <summary>Signs in through the identity provider, loads /v1/me and opens the control channel.</summary>
@@ -95,6 +109,28 @@ namespace NightSignal.Front
             catch (TimeoutException)
             {
                 LastError = "The online service did not answer in time. Try again.";
+            }
+            catch (Exception e)
+            {
+                LastError = "Connection problem: " + e.Message;
+            }
+            Changed?.Invoke();
+            return null;
+        }
+
+        /// <summary>A REST call (friends, handle, purchases): the body on success, null with <see cref="LastError"/> set otherwise.</summary>
+        public async Task<JObject> Rest(System.Net.Http.HttpMethod method, string path, object payload = null, IDictionary<string, string> headers = null)
+        {
+            try
+            {
+                (int status, JObject body) = await Client.Send(method, path, payload, headers);
+                if (status >= 200 && status < 300)
+                {
+                    LastError = "";
+                    return body;
+                }
+                string code = (string)body["error"] ?? status.ToString();
+                LastError = code == "rate_limited" ? "Too many requests. Try again in a moment." : (string)body["message"] ?? $"The online service refused that ({status}).";
             }
             catch (Exception e)
             {

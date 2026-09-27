@@ -153,6 +153,14 @@ namespace NightSignal.Core.Profiles
         RecordTie = 15,
         TutorialCompleted = 16,
         DisplayNameChanged = 17,
+        /// <summary>Garage (LocalGarage): a part now owned by one car instance.</summary>
+        PartGranted = 18,
+        /// <summary>Garage: a new applied build revision (Buy and Apply).</summary>
+        BuildApplied = 19,
+        /// <summary>Garage: a car's build workspace was stored.</summary>
+        WorkspaceSaved = 20,
+        /// <summary>Garage: Last Race Build recorded when a Local race began.</summary>
+        RaceBuildRecorded = 21,
     }
 
     /// <summary>One itemised line for the results screen: what changed and why.</summary>
@@ -208,6 +216,8 @@ namespace NightSignal.Core.Profiles
         public StageVerdictSummary Stage;
         public TeamTrialSummary TeamTrial;
         public List<RecordUpdateResult> Records = new List<RecordUpdateResult>();
+        /// <summary>Garage operations only (<see cref="LocalGarage"/>): the car, its stored workspace and the settlement.</summary>
+        public LocalGarageOutcome Garage;
         public long BalanceBefore;
         public long BalanceAfter;
         public int RankPointsBefore;
@@ -904,7 +914,7 @@ namespace NightSignal.Core.Profiles
             }
         }
 
-        static void History(LocalProfile p, DateTime utc, string kind, string reference, long amount, long applied, long clamped)
+        internal static void History(LocalProfile p, DateTime utc, string kind, string reference, long amount, long applied, long clamped)
         {
             p.WalletHistory.Add(new WalletEntry
             {
@@ -923,17 +933,17 @@ namespace NightSignal.Core.Profiles
                     $"Event pay: base {b.Base:N0} × difficulty {b.DifficultyX100 / 100.0:0.00} × placement {b.PlacementX100 / 100.0:0.00} × clean {b.CleanlinessX100 / 100.0:0.00}.");
         }
 
-        static void MarkApplied(LocalProfile p, string operationId)
+        internal static void MarkApplied(LocalProfile p, string operationId)
         {
             p.AppliedOperations.Add(operationId);
             int excess = p.AppliedOperations.Count - LocalProfile.MaxAppliedOperations;
             if (excess > 0) p.AppliedOperations.RemoveRange(0, excess);
         }
 
-        static void Add(LocalProgressionResult result, ProgressionChangeKind kind, string subject, long amount, string detail) =>
+        internal static void Add(LocalProgressionResult result, ProgressionChangeKind kind, string subject, long amount, string detail) =>
             result.Changes.Add(new ProgressionChange { Kind = kind, Subject = subject ?? "", Amount = amount, Detail = detail ?? "" });
 
-        static LocalProgressionResult Begin(LocalProfile profile)
+        internal static LocalProgressionResult Begin(LocalProfile profile)
         {
             if (profile == null) throw new ArgumentNullException(nameof(profile));
             var result = new LocalProgressionResult { Profile = profile, BalanceBefore = profile.WalletBalance };
@@ -945,7 +955,7 @@ namespace NightSignal.Core.Profiles
             return result;
         }
 
-        static LocalProgressionResult Finish(LocalProgressionResult result, LocalProfile p)
+        internal static LocalProgressionResult Finish(LocalProgressionResult result, LocalProfile p)
         {
             result.Profile = p;
             result.BalanceAfter = p.WalletBalance;
@@ -954,14 +964,14 @@ namespace NightSignal.Core.Profiles
             return result;
         }
 
-        static LocalProgressionResult Reject(LocalProgressionResult result, string reason)
+        internal static LocalProgressionResult Reject(LocalProgressionResult result, string reason)
         {
             result.Status = LocalOperationStatus.Rejected;
             result.Reason = reason ?? "";
             return result;
         }
 
-        static LocalProgressionResult Already(LocalProgressionResult result, string reason)
+        internal static LocalProgressionResult Already(LocalProgressionResult result, string reason)
         {
             result.Status = LocalOperationStatus.AlreadyApplied;
             result.Reason = reason ?? "";
