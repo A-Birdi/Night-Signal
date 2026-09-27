@@ -13,7 +13,12 @@ namespace NightSignal.ControlPlane.Matches;
 public sealed record AssignedEntrant(string AccountId, string DisplayName, string Role, string CarId, int CarPi,
     string PerformanceHash, string CosmeticHash, long LoadoutRevision);
 
-public sealed record AssignedBenchmark(string Kind, long TargetTimeMs, long RawDriftTarget, long HardTimeoutMs, bool Provisional, string Source);
+public sealed record AssignedBenchmark(string Kind, long TargetTimeMs, long RawDriftTarget, long HardTimeoutMs, bool Provisional, string Source,
+    bool RequiresBeatingFeaturedRival = false);
+
+/// <summary>Frozen Team Trial rules for the game server and settlement (Addendum 01 §3).</summary>
+public sealed record TrialAssignment(string TrialId, string Kind, string Difficulty, long HardTimeoutMs, long ParticipationEnvelopeMs,
+    int VictoryPlacement, int DefeatPlacement, string TiePolicy, bool Provisional);
 
 /// <summary>The frozen match configuration delivered to the game server (spec §4.3). Stored (minus the secret) in matches.config_json.</summary>
 public sealed record MatchAssignment
@@ -33,6 +38,15 @@ public sealed record MatchAssignment
     public required int CarCapPi { get; init; }
     public required IReadOnlyList<AssignedEntrant> Entrants { get; init; }
     public required IReadOnlyList<string> AiEntrants { get; init; }
+    /// <summary>Typed roster: every human and AI with kind, team (player/opposing), role and driver identity.</summary>
+    public IReadOnlyList<RosterSlot> Roster { get; init; } = Array.Empty<RosterSlot>();
+    /// <summary>Campaign: the live featured rival (entrant ID) a qualifying human must beat on encounter stages.</summary>
+    public string? FeaturedRival { get; init; }
+    /// <summary>Event-scoped guest passes frozen at allocation (Addendum 01 §5.2).</summary>
+    public IReadOnlyList<GuestPass> GuestPasses { get; init; } = Array.Empty<GuestPass>();
+    public IReadOnlyDictionary<string, IReadOnlyList<string>>? Sponsors { get; init; }
+    public IReadOnlyList<string>? CupLegs { get; init; }
+    public TrialAssignment? Trial { get; init; }
     public AssignedBenchmark? Benchmark { get; init; }
     public bool PurePvP { get; init; }
     public string? GridNote { get; init; }
@@ -49,7 +63,7 @@ public sealed record MatchAssignment
 
 /// <summary>Allocates a registered game server for a frozen plan, records the match and waits for the server's ack.</summary>
 public sealed class MatchAllocator(GameServerRegistry registry, IResultLedger ledger, ContentService content, TicketIssuer tickets,
-    ILogger<MatchAllocator> log)
+    ILogger<MatchAllocator> log, TeamTrialCatalog? trials = null)
 {
     public static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
@@ -89,8 +103,13 @@ public sealed class MatchAllocator(GameServerRegistry registry, IResultLedger le
             StageDef stage = content.Catalogue.Stage(s.StageId!);
             BenchmarkInfo b = content.BenchmarkFor(stage, s.Mode == "hard" ? CampaignMode.Hard : CampaignMode.Normal);
             benchmark = new AssignedBenchmark(b.Benchmark.Kind.ToString(), b.Benchmark.TargetTimeMs, b.Benchmark.RawDriftTarget,
-                b.Benchmark.HardTimeoutMs, b.Provisional, b.Source);
+                b.Benchmark.HardTimeoutMs, b.Provisional, b.Source, b.Benchmark.RequiresBeatingFeaturedRival);
         }
+        // Frozen before readiness: roster, team membership, car cap, metric, tie policy and hard timeout.
+        TrialAssignment? trial = null;
+        if (s.Kind == "trial" && (trials ?? TeamTrialCatalog.Fixture(content.Catalogue)).Find(s.TrialId) is { } t)
+            trial = new TrialAssignment(t.Id, t.Kind, s.Difficulty ?? t.Difficulties[0].Id, t.HardTimeoutMs, t.ParticipationEnvelopeMs,
+                t.VictoryPlacement, t.DefeatPlacement, t.TiePolicy, t.Provisional);
         return new MatchAssignment
         {
             MatchId = matchId, ConvoyId = plan.ConvoyId, ServerId = server.ServerId, Kind = s.Kind, Mode = s.Mode,
@@ -98,7 +117,8 @@ public sealed class MatchAllocator(GameServerRegistry registry, IResultLedger le
             FreeplayMode = s.FreeplayMode, Weather = s.Weather, Collision = s.Collision, CarCapPi = s.CarCapPi,
             Entrants = plan.Entrants.Select(e => new AssignedEntrant(e.AccountId, e.DisplayName, "racer", e.Loadout.CarId,
                 e.Loadout.CarPi, e.Loadout.PerformanceHash, e.Loadout.CosmeticHash, e.LoadoutRevision)).ToList(),
-            AiEntrants = plan.AiEntrants, Benchmark = benchmark,
+            AiEntrants = plan.AiEntrants, Roster = plan.Roster, FeaturedRival = plan.FeaturedRival, GuestPasses = plan.GuestPasses,
+            Sponsors = plan.Sponsors.Count > 0 ? plan.Sponsors : null, CupLegs = s.CupLegs, Trial = trial, Benchmark = benchmark,
             PurePvP = plan.PurePvP, GridNote = plan.GridNote, Build = plan.Version.Build, Protocol = plan.Version.Protocol,
             ContentHash = plan.Version.ContentHash, Seed = RandomNumberGenerator.GetInt32(int.MaxValue),
             ResultsUrl = $"/v1/matches/{matchId}/results", TicketIssuer = tickets.Issuer,

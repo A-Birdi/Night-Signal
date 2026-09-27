@@ -9,6 +9,7 @@ using NightSignal.ControlPlane.Identity;
 using NightSignal.ControlPlane.Matches;
 using NightSignal.ControlPlane.Persistence;
 using NightSignal.ControlPlane.Players;
+using NightSignal.ControlPlane.Security;
 
 namespace NightSignal.ControlPlane;
 
@@ -29,6 +30,11 @@ public static class ControlPlaneSetup
 
         services.TryAddSingleton(TimeProvider.System);
         services.AddSingleton<ContentService>();
+        services.AddSingleton(sp => TeamTrialCatalog.FromContentDirectory(sp.GetRequiredService<IOptions<ContentOptions>>(),
+            sp.GetRequiredService<ContentService>(), sp.GetRequiredService<ILogger<TeamTrialCatalog>>()));
+        services.AddSingleton(sp => MusicUnlockManifest.FromContentDirectory(sp.GetRequiredService<IOptions<ContentOptions>>(),
+            sp.GetRequiredService<ContentService>(), sp.GetRequiredService<TeamTrialCatalog>(), sp.GetRequiredService<ILogger<MusicUnlockManifest>>()));
+        services.AddSingleton<RateLimiter>();
         services.AddSingleton<DevAuthKeys>();
         services.AddSingleton<DevAuthService>();
         services.AddNightSignalIdentity();
@@ -43,7 +49,12 @@ public static class ControlPlaneSetup
         });
         services.AddSingleton<IPlayerStore>(sp => sp.GetRequiredService<SqlGameStore>());
         services.AddSingleton<IResultLedger>(sp => sp.GetRequiredService<SqlGameStore>());
+        services.AddSingleton<ISocialStore>(sp => sp.GetRequiredService<SqlGameStore>());
         services.AddHostedService<StoreInitializer>();
+        services.AddSingleton<IDormantRoomStore>(sp => sp.GetRequiredService<SqlGameStore>());
+        services.AddSingleton<DormantRoomPersistence>();
+        services.AddSingleton<IConvoySessionObserver>(sp => sp.GetRequiredService<DormantRoomPersistence>());
+        services.AddHostedService(sp => sp.GetRequiredService<DormantRoomPersistence>()); // after migrations: restores dormant rooms
 
         services.AddSingleton<ControlConnections>();
         services.AddSingleton<IConvoyNotifier>(sp => sp.GetRequiredService<ControlConnections>());
@@ -78,6 +89,8 @@ public static class ControlPlaneSetup
         }
         // Fail fast on bad content or missing keys instead of on the first request.
         _ = app.Services.GetRequiredService<ContentService>();
+        _ = app.Services.GetRequiredService<TeamTrialCatalog>();
+        _ = app.Services.GetRequiredService<MusicUnlockManifest>();
         _ = app.Services.GetRequiredService<TicketIssuer>();
         GameServerOptions servers = app.Services.GetRequiredService<IOptions<GameServerOptions>>().Value; // creates the dev key if enabled
         app.Logger.LogInformation("Game-server credentials configured: {Count} ({Ids})", servers.Credentials.Count,
@@ -90,6 +103,7 @@ public static class ControlPlaneSetup
         app.MapGet("/healthz", (ContentService content) => Results.Ok(new { status = "ok", contentHash = content.ContentHash }));
         if (dev.Enabled) app.MapDevAuth();
         app.MapPlayerEndpoints();
+        app.MapSocialEndpoints();
         app.MapServerEndpoints();
         app.Map(ControlChannel.Path, (HttpContext ctx, ControlChannel channel) => channel.RunAsync(ctx)).RequireAuthorization();
         return app;

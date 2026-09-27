@@ -65,7 +65,13 @@ public sealed class ControlChannel(ControlConnections connections, ControlComman
         }
 
         directory.Connected(accountId, version);
-        connection.Send("hello", 0, new { accountId, serverTime = clock.GetUtcNow(), protocol = compatibility.Value.Protocol, tokenExpiresAt = connection.TokenExpiresAt });
+        // "rejoin" tells a reconnecting client whether the server holds a valid rejoin grant (canRejoin + reason) so it can
+        // offer one "Rejoin [convoy]?" prompt; it is never inferred from local storage (Addendum 01 §10.2).
+        connection.Send("hello", 0, new
+        {
+            accountId, serverTime = clock.GetUtcNow(), protocol = compatibility.Value.Protocol, tokenExpiresAt = connection.TokenExpiresAt,
+            rejoin = directory.RejoinStatus(accountId),
+        });
         (long revision, object? snapshot) = directory.SnapshotFor(accountId);
         if (snapshot is not null) connection.Send("convoy.state", revision, snapshot);
 
@@ -169,7 +175,8 @@ public sealed class ControlChannel(ControlConnections connections, ControlComman
             return;
         }
 
-        if (type is not ("ping" or "convoy.state" or "convoy.list"))
+        directory.Seen(connection.AccountId);
+        if (!ControlCommandHandler.ReadOnlyTypes.Contains(type))
             directory.Touch(connection.AccountId);
         Reply reply = await handler.HandleAsync(connection.AccountId, type, requestId, payload, ct);
         (long revision, _) = directory.SnapshotFor(connection.AccountId);

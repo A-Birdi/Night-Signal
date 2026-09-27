@@ -51,6 +51,15 @@ internal static class Db
     public static string Str(this DbDataReader r, int i) => r.GetString(i);
     public static string? NStr(this DbDataReader r, int i) => r.IsDBNull(i) ? null : r.GetString(i);
 
+    /// <summary>SQLite stores CURRENT_TIMESTAMP as "yyyy-MM-dd HH:mm:ss" text (UTC); PostgreSQL returns timestamptz.</summary>
+    public static DateTimeOffset Time(this DbDataReader r, int i) => r.GetValue(i) switch
+    {
+        DateTime dt => new DateTimeOffset(DateTime.SpecifyKind(dt, DateTimeKind.Utc)),
+        DateTimeOffset dto => dto,
+        string s => DateTimeOffset.Parse(s, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AssumeUniversal),
+        _ => DateTimeOffset.MinValue,
+    };
+
     /// <summary>Ordered embedded migration scripts for a dialect ("sqlite" or "postgres").</summary>
     public static IEnumerable<(string Version, string Sql)> Migrations(string dialect)
     {

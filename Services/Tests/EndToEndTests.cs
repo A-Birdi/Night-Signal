@@ -112,14 +112,15 @@ public sealed class EndToEndTests : IDisposable
             AssertOk(await ca.RequestAsync("loadout.set", new { carId = "V01", performanceHash = "stock-v01", cosmeticHash = "paint-1" }));
             AssertOk(await cb.RequestAsync("loadout.set", new { carId = "V03", performanceHash = "stock-v03", cosmeticHash = "paint-7" }));
 
-            // Ready check 1: destination.
-            JsonElement proposed = await ca.RequestAsync("destination.propose", new { destination = "campaign-normal" }, "dest-1");
+            // Consent level 1: Intent → Mode Ready → Enter Mode (Addendum 01 §7).
+            JsonElement proposed = await ca.RequestAsync("intent.set", new { kind = "campaign", mode = "normal" }, "intent-1");
             AssertOk(proposed);
-            AssertOk(await ca.RequestAsync("destination.propose", new { destination = "campaign-normal" }, "dest-1")); // retry, not rate-limited
-            long dRev = proposed.GetProperty("result").GetProperty("proposalRevision").GetInt64();
-            Assert.Equal("not_all_ready", ErrorCode(await ca.RequestAsync("destination.commit", new { proposalRevision = dRev })));
-            AssertOk(await cb.RequestAsync("destination.consent", new { proposalRevision = dRev, consent = true }));
-            AssertOk(await ca.RequestAsync("destination.commit", new { proposalRevision = dRev }));
+            AssertOk(await ca.RequestAsync("intent.set", new { kind = "campaign", mode = "normal" }, "intent-1")); // retry, not rate-limited
+            long dRev = proposed.GetProperty("result").GetProperty("modeRevision").GetInt64();
+            Assert.Equal("not_all_ready", ErrorCode(await ca.RequestAsync("mode.enter", new { modeRevision = dRev })));
+            AssertOk(await cb.RequestAsync("mode.ready", new { modeRevision = dRev, ready = true }));
+            AssertOk(await ca.RequestAsync("mode.enter", new { modeRevision = dRev }));
+            Assert.Equal("unknown_type", ErrorCode(await ca.RequestAsync("destination.propose", new { destination = "campaign-normal" }))); // replaced
 
             // Ready check 2: the event, per proposal revision and loadout revision.
             clock.Advance(TimeSpan.FromSeconds(15));

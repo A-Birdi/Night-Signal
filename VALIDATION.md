@@ -162,3 +162,15 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - Found and fixed on the way: runtime-created cameras skipped URP post-processing (washed-out image); play mode and
   players stalled when unfocused (`runInBackground` now on for every role); results page rendered before it was built;
   labels overflowed from TMP's default rect; the bundled font has no ellipsis glyph.
+
+## V-021 — Control plane for Addendum 01 and 02 (2026-09-27)
+- `dotnet test Services/NightSignal.Services.slnx`: 281/281 (coordinator re-run). Covers rejoin grants + leadership
+  epochs (the two superseded 60 s reserved-seat tests rewritten, not deleted), intent → Mode Ready → Enter Mode,
+  Freeplay ballots (server deadline, one-ticket-per-ballot draw stored against retransmit), course ledger + idempotent
+  purchases + guest passes, handles + friends (idempotent, rate-limited), 12-vehicle rosters, final-rival rejection,
+  placements 1–12, live-rival stage settlement, Team Trial settlement (provisional in-code fixture), music
+  entitlements, 24 h dormant rooms (restart recovery), convoy-session id + membership generation, diversion field
+  that never clears readiness, Continue / Service Break post-event decision.
+- Not executed: PostgreSQL migrations/RLS (no server available; SQLite ran everything); Custom Cup multi-leg races;
+  live-room recovery after a restart (only dormant rooms recover).
+- The Unity client still speaks the removed destination.* protocol; it is updated next.

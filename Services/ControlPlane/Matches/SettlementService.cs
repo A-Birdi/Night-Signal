@@ -32,7 +32,7 @@ public sealed class EntrantFacts
     public string EntrantId { get; set; } = "";
     public bool Human { get; set; }
     public RunOutcome Outcome { get; set; }
-    /// <summary>Server race-clock finish time, integer microseconds (Finished only).</summary>
+    /// <summary>Server race-clock finish time, integer microseconds (Finished only), including ordinary penalties.</summary>
     public long FinishTimeMicros { get; set; }
     /// <summary>Placing as the server classified it; cross-checked against Core RaceClassification.</summary>
     public int Placement { get; set; }
@@ -43,7 +43,12 @@ public sealed class EntrantFacts
     public double LegalProgressMetres { get; set; }
     public long RawDriftScore { get; set; }
     public int ContractsPassed { get; set; }
-    /// <summary>Challenge predicates the game server evaluated as met in this event.</summary>
+    /// <summary>
+    /// AI only (optional, default true): false when the AI never spawned/initialised. A live opponent that never started
+    /// makes the event broken — it is aborted (no rewards), never a free win (Addendum 01 §1.3).
+    /// </summary>
+    public bool? Started { get; set; }
+    /// <summary>Challenge predicates the game server evaluated as met in this event (personal performance only).</summary>
     public List<string> ChallengesCompleted { get; set; } = new();
 }
 
@@ -51,7 +56,7 @@ public sealed record SubmissionResult(int StatusCode, object Body);
 
 /// <summary>Verifies, recomputes (with NightSignal.Core) and settles a match result idempotently.</summary>
 public sealed class SettlementService(IResultLedger ledger, IPlayerStore players, ContentService content, ConvoyDirectory convoys,
-    GameServerRegistry registry, ILogger<SettlementService> log)
+    GameServerRegistry registry, ILogger<SettlementService> log, MusicUnlockManifest? music = null)
 {
     public const string SignatureHeader = "X-NightSignal-Signature";
     public const int MaxBodyBytes = 64 * 1024;
@@ -60,6 +65,8 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
     {
         Converters = { new JsonStringEnumConverter(allowIntegerValues: false) },
     };
+
+    MusicUnlockManifest Music => music ?? MusicUnlockManifest.Empty;
 
     /// <summary>signature = "sha256=" + lowercase hex HMAC-SHA256(base64url-decoded per-match secret, raw body bytes).</summary>
     public static string Sign(string resultsSecret, byte[] body) =>
@@ -86,15 +93,20 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
         if (submission is null || submission.MatchId != matchId || submission.ContentHash != config.ContentHash)
             return Error(422, "mismatch", "Match ID or content hash does not match the allocation.");
 
-        if (submission.Aborted)
+        string? broken = submission.Aborted ? null : BrokenEventReason(config, submission);
+        if (submission.Aborted || broken is not null)
         {
             if (!await ledger.MarkAbortedAsync(matchId, ct))
                 return (await ledger.GetMatchAsync(matchId, ct))?.State == "aborted"
                     ? new SubmissionResult(200, new { status = "aborted", replayed = true })
                     : Error(409, "conflict", "This match was already settled; it cannot be aborted.");
-            log.LogWarning("Match {MatchId} reported aborted by {ServerId}; no results or progression issued", matchId, serverId);
-            await EndMatchAsync(config, ct);
-            return new SubmissionResult(200, new { status = "aborted" });
+            log.LogWarning("Match {MatchId} aborted ({Cause}) by {ServerId}; no results or progression issued", matchId,
+                broken is null ? "reported by the server" : "live opponent never started", serverId);
+            // No results were recorded, so no post-event decision opens; the convoy returns to selection with the reason.
+            registry.MatchFinished(config.ServerId);
+            convoys.MatchAborted(config.ConvoyId, config.MatchId, broken ??
+                "The race server aborted the event: no results, rank or progression were issued; retry any time.");
+            return new SubmissionResult(200, new { status = "aborted", reason = broken });
         }
 
         (MatchSettlement? settlement, string? invalid) = Compute(config, submission, Hashing.Sha256Hex(body));
@@ -118,12 +130,23 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
         }
     }
 
+    /// <summary>A live AI entrant that never spawned/initialised makes the event broken (abort, retry without fees).</summary>
+    internal static string? BrokenEventReason(MatchAssignment config, ResultSubmission s)
+    {
+        EntrantFacts? missing = s.Entrants.FirstOrDefault(e => !e.Human && e.Started == false && config.AiEntrants.Contains(e.EntrantId));
+        if (missing is null) return null;
+        return missing.EntrantId == config.FeaturedRival
+            ? "The featured rival failed to start, so the event was aborted: no results, rank or progression; retry any time."
+            : "A live opponent failed to start, so the event was aborted: no results, rank or progression; retry any time.";
+    }
+
     async Task EndMatchAsync(MatchAssignment config, CancellationToken ct)
     {
         registry.MatchFinished(config.ServerId);
-        IReadOnlyDictionary<string, MemberProgress> progress =
-            await players.GetProgressAsync(config.Entrants.Select(e => e.AccountId).ToList(), ct);
-        convoys.MatchEnded(config.ConvoyId, config.MatchId, progress);
+        List<string> ids = config.Entrants.Select(e => e.AccountId).ToList();
+        IReadOnlyDictionary<string, MemberProgress> progress = await players.GetProgressAsync(ids, ct);
+        IReadOnlyDictionary<string, IReadOnlyCollection<string>> courses = await players.GetOwnedCoursesAsync(ids, content.Catalogue, ct);
+        convoys.MatchEnded(config.ConvoyId, config.MatchId, progress, courses);
     }
 
     static SubmissionResult Error(int status, string code, string message) => new(status, new { error = code, message });
@@ -149,14 +172,17 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
                 return (null, $"{e.EntrantId}: invalid legal progress.");
             if (e.RawDriftScore < 0 || e.ContractsPassed is < 0 or > 4)
                 return (null, $"{e.EntrantId}: invalid drift score or contract count.");
+            if (e.Human && e.Started is not null)
+                return (null, $"{e.EntrantId}: 'started' is reported for AI entrants only.");
             if (!e.Human && e.ChallengesCompleted.Count > 0)
                 return (null, $"{e.EntrantId}: AI entrants cannot complete challenges.");
             if (e.ChallengesCompleted.Distinct().Count() != e.ChallengesCompleted.Count ||
                 e.ChallengesCompleted.Any(id => !content.Catalogue.Challenges.Any(c => c.Id == id)))
                 return (null, $"{e.EntrantId}: unknown or duplicate challenge ID.");
         }
+        if (BrokenEventReason(config, s) is { } broken) return (null, broken);
 
-        // Placement: recomputed with Core (drift events rank by raw score) and cross-checked with the server's.
+        // Placement: recomputed with Core (drift formats rank by raw score) and cross-checked with the server's.
         Dictionary<string, Placing> placings = Classify(config, s.Entrants);
         foreach (EntrantFacts e in s.Entrants)
             if (placings[e.EntrantId].Place != e.Placement)
@@ -164,20 +190,18 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
 
         CourseDef course = content.Catalogue.Course(config.CourseId);
         bool campaign = config.Kind == "campaign";
+        bool trial = config.Kind == "trial";
         CampaignMode mode = config.Mode == "hard" ? CampaignMode.Hard : CampaignMode.Normal;
-        EventKind kind = campaign ? EventKind.CampaignStage : config.FreeplayMode switch
-        {
-            "circuit" => EventKind.FreeplayCircuit,
-            "drift-attack" => EventKind.FreeplayDriftAttack,
-            "time-attack" => EventKind.FreeplayTimeTrial,
-            _ => EventKind.FreeplaySprint,
-        };
+        EventKind kind = campaign ? EventKind.CampaignStage : FreeplayRules.Kind(config.FreeplayMode);
         List<EntrantFacts> humanFacts = s.Entrants.Where(e => e.Human).ToList();
         int humansFinished = humanFacts.Count(e => e.Outcome == RunOutcome.Finished);
 
+        // ---- campaign stage outcome, including the live featured-rival condition on encounter stages
         StageResolution? resolution = null;
         StageBenchmark? benchmark = null;
         StageDef? stage = null;
+        string? featured = null;
+        var beatRival = new Dictionary<string, bool>(StringComparer.Ordinal);
         if (campaign)
         {
             stage = content.Catalogue.Stage(config.StageId!);
@@ -188,13 +212,46 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
                 TargetTimeMs = config.Benchmark.TargetTimeMs,
                 RawDriftTarget = config.Benchmark.RawDriftTarget,
                 HardTimeoutMs = config.Benchmark.HardTimeoutMs,
+                RequiresBeatingFeaturedRival = config.Benchmark.RequiresBeatingFeaturedRival,
             };
+            featured = config.FeaturedRival ?? config.AiEntrants.FirstOrDefault();
+            EntrantFacts? rival = featured is null ? null : s.Entrants.FirstOrDefault(e => !e.Human && e.EntrantId == featured);
+            if (benchmark.RequiresBeatingFeaturedRival && rival is null)
+                return (null, "This encounter's featured live rival is missing from the results.");
+            foreach (EntrantFacts h in humanFacts) beatRival[h.EntrantId] = BeatsFeaturedRival(h, rival, placings);
             resolution = StageOutcome.Resolve(mode, benchmark, humans.Count, humanFacts.Select(e => new HumanStageResult
             {
                 PlayerId = e.EntrantId, Outcome = e.Outcome, ActivelyDroveLegalCourse = e.ActivelyDroveLegalCourse,
                 FinishTimeMs = RaceClassification.ToReportedMillis(e.FinishTimeMicros), RawDriftScore = e.RawDriftScore,
-                ContractsPassed = e.ContractsPassed,
+                ContractsPassed = e.ContractsPassed, BeatFeaturedRival = beatRival[e.EntrantId],
             }).ToList());
+        }
+
+        // ---- Team Trial: six v six team scores with Core TeamTrials (every starting position counts)
+        TrialAssignment? rules = config.Trial;
+        TeamScore? playerScore = null, opposingScore = null;
+        TeamTrialVerdict verdict = TeamTrialVerdict.Tie;
+        List<TeamMemberResult> playerSide = new();
+        TeamTrialKind trialKind = TeamTrialKind.Mean;
+        Dictionary<string, string> teamOf = new(StringComparer.Ordinal);
+        if (trial)
+        {
+            if (rules is null || config.Roster.Count == 0) return (null, "The allocation carries no Team Trial rules or roster.");
+            trialKind = rules.Kind switch { "best" => TeamTrialKind.Best, "drift" => TeamTrialKind.Drift, _ => TeamTrialKind.Mean };
+            teamOf = config.Roster.ToDictionary(r => r.EntrantId, r => r.Team, StringComparer.Ordinal);
+            if (s.Entrants.Any(e => !teamOf.ContainsKey(e.EntrantId))) return (null, "An entrant is not on either team.");
+            List<TeamMemberResult> Side(string team) => s.Entrants.Where(e => teamOf[e.EntrantId] == team).Select(e => new TeamMemberResult
+            {
+                EntrantId = e.EntrantId, Human = e.Human, Outcome = e.Outcome,
+                AdjustedFinishMs = RaceClassification.ToReportedMillis(e.FinishTimeMicros), RawDriftScore = e.RawDriftScore,
+            }).ToList();
+            playerSide = Side("player");
+            List<TeamMemberResult> opposingSide = Side("opposing");
+            if (playerSide.Count != Limits.TeamTrialSideSize || opposingSide.Count != Limits.TeamTrialSideSize)
+                return (null, $"A Team Trial has exactly {Limits.TeamTrialSideSize} positions per team.");
+            playerScore = TeamTrials.Score(trialKind, playerSide, rules.HardTimeoutMs);
+            opposingScore = TeamTrials.Score(trialKind, opposingSide, rules.HardTimeoutMs);
+            verdict = TeamTrials.Compare(playerScore, opposingScore);
         }
 
         var entrants = new List<EntrantSettlement>();
@@ -202,19 +259,22 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
         {
             Placing placing = placings[e.EntrantId];
             long finishMs = RaceClassification.ToReportedMillis(e.FinishTimeMicros);
+            bool pvpConfiguration = config.PurePvP && !campaign && !trial && kind != EventKind.FreeplayTimeTrial; // AI or Time Attack: never
             var facts = new PayoutFacts
             {
                 AuthoredExpectedSeconds = course.ExpectedSeconds, // trusted catalogue value, never elapsed time
                 Kind = kind,
                 Mode = campaign ? mode : CampaignMode.Normal,
                 Outcome = e.Outcome,
-                Placement = placing.Place,
+                Placement = trial
+                    ? (verdict == TeamTrialVerdict.PlayerTeamWins ? rules!.VictoryPlacement : rules!.DefeatPlacement) // bounded team modifier
+                    : placing.Place,
                 ReferenceBeaten = kind == EventKind.FreeplayTimeTrial && e.Outcome == RunOutcome.Finished &&
                                   finishMs <= content.FreeplayReferenceMs(course.Id),
                 Clean = e.Clean,
                 UtilityIncomePercent = 0, // no utility items are owned/equippable in this build
                 PvPWinnerBonusEligible = e.Outcome == RunOutcome.Finished &&
-                                         Economy.PvPWinnerBonusEligible(placing.Place, ai.Count, humansFinished, config.PurePvP && !campaign),
+                                         Economy.PvPWinnerBonusEligible(placing.Place, ai.Count, humansFinished, pvpConfiguration),
                 CheckpointFraction = e.CheckpointFraction,
                 ServerVerifiedActiveProgress = e.ActiveProgressVerified,
                 TutorialRepeat = course.Kind == "tutorial",
@@ -222,11 +282,19 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
 
             var receipt = new Receipt
             {
-                MatchId = config.MatchId, AccountId = e.EntrantId, EventKind = kind.ToString(), Mode = config.Mode,
+                MatchId = config.MatchId, AccountId = e.EntrantId, EventKind = trial ? "TeamTrial" : kind.ToString(), Mode = config.Mode,
                 StageId = config.StageId, CourseId = config.CourseId, Outcome = e.Outcome.ToString(), Placement = placing.Place,
                 Tied = placing.Tied, FinishTimeMs = e.Outcome == RunOutcome.Finished ? finishMs : null,
             };
+            if (config.GuestPasses.FirstOrDefault(p => p.AccountId == e.EntrantId) is { } pass)
+                receipt.GuestPass = new GuestPassInfo { CourseId = pass.CourseId, SponsorId = pass.SponsorId };
+
             StageClearCandidate? clear = null;
+            IReadOnlyList<string> courseGrants = Array.Empty<string>();
+            IReadOnlyList<MusicGrant> clearMusic = Array.Empty<MusicGrant>();
+            var musicGrants = new List<MusicGrant>();
+            string? withheld = null;
+            TeamBestCandidate? teamBest = null;
             if (resolution is not null)
             {
                 PlayerStageVerdict v = resolution.Players.First(p => p.PlayerId == e.EntrantId);
@@ -237,9 +305,44 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
                     RequiredQualifiers = resolution.RequiredQualifiers, FrozenHumanCount = resolution.FrozenHumanCount,
                     Reason = v.Reason, BenchmarkTargetMs = benchmark!.TargetTimeMs,
                     BenchmarkProvisional = config.Benchmark!.Provisional, BenchmarkSource = config.Benchmark.Source,
+                    RequiresBeatingFeaturedRival = benchmark.RequiresBeatingFeaturedRival, FeaturedRival = featured,
+                    BeatFeaturedRival = beatRival[e.EntrantId],
                 };
                 if (v.EarnedClear)
+                {
                     clear = new StageClearCandidate(mode, stage!.Number, ContentService.ParseStageType(stage.Type));
+                    if (mode == CampaignMode.Normal) courseGrants = CourseAccess.GrantedByNormalClear(content.Catalogue, stage.Id);
+                    clearMusic = Music.ForStageClear(stage.Id, mode).Select(m => new MusicGrant(m.CueId, m.Source.Kind, m.SourceRef)).ToList();
+                }
+            }
+            if (trial)
+            {
+                TeamMemberResult me = playerSide.First(m => m.EntrantId == e.EntrantId);
+                bool payable = TeamTrials.HumanCompletionPayable(trialKind, me, playerSide, rules!.ParticipationEnvelopeMs);
+                if (!payable)
+                    withheld = e.Outcome != RunOutcome.Finished
+                        ? "Team Trials pay completion money only to active eligible human finishers."
+                        : "No human finished within the participation envelope, so no human completion pay (an AI win is not a human payout).";
+                bool bestHasTime = trialKind != TeamTrialKind.Best || playerScore!.Value != long.MaxValue;
+                receipt.TeamTrial = new TeamTrialReceipt
+                {
+                    TrialId = rules.TrialId, Kind = rules.Kind, Difficulty = rules.Difficulty, Humans = humans.Count,
+                    FriendlyAi = Limits.TeamTrialSideSize - humans.Count,
+                    PlayerTeamValue = bestHasTime ? playerScore!.Value : null,
+                    OpposingTeamValue = trialKind != TeamTrialKind.Best || opposingScore!.Value != long.MaxValue ? opposingScore!.Value : null,
+                    PlayerTeamMeanMs = trialKind == TeamTrialKind.Mean ? playerScore!.DisplayMeanMs : null,
+                    Verdict = verdict switch { TeamTrialVerdict.PlayerTeamWins => "victory", TeamTrialVerdict.OpposingTeamWins => "defeat", _ => "tie" },
+                    Contributions = playerScore!.Contributions.Concat(opposingScore!.Contributions).Select(kv => new TeamContribution
+                    {
+                        EntrantId = kv.Key, Human = humans.Contains(kv.Key), Team = teamOf[kv.Key],
+                        Value = kv.Value == long.MaxValue ? null : kv.Value,
+                    }).ToList(),
+                    CompletionPayable = payable, Provisional = rules.Provisional,
+                };
+                if (payable && bestHasTime)
+                    teamBest = new TeamBestCandidate(rules.TrialId, rules.Difficulty, humans.Count, rules.Kind, playerScore.Value, trialKind != TeamTrialKind.Drift);
+                if (payable && verdict == TeamTrialVerdict.PlayerTeamWins)
+                    musicGrants.AddRange(Music.ForTrialVictory(rules.TrialId).Select(m => new MusicGrant(m.CueId, m.Source.Kind, m.SourceRef)));
             }
 
             var grants = new List<ChallengeGrant>();
@@ -253,12 +356,27 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
             else if (e.ChallengesCompleted.Count > 0)
                 receipt.Notes.Add("Challenge claims ignored: challenges require a valid finish.");
 
-            entrants.Add(new EntrantSettlement { AccountId = e.EntrantId, Facts = facts, Clear = clear, Challenges = grants, Receipt = receipt });
+            entrants.Add(new EntrantSettlement
+            {
+                AccountId = e.EntrantId, Facts = facts, Clear = clear, Challenges = grants, Receipt = receipt,
+                ClearCourseGrants = courseGrants, ClearMusicGrants = clearMusic, MusicGrants = musicGrants, PayoutWithheld = withheld, TeamBest = teamBest,
+            });
         }
         return (new MatchSettlement { MatchId = config.MatchId, ResultsSha256 = bodySha256, Entrants = entrants }, null);
     }
 
-    /// <summary>Core RaceClassification by time; Drift Attack ranks finishers by raw score (ties share a placing).</summary>
+    /// <summary>
+    /// Server-observed "beat the featured rival" (Addendum 01 §1.3): a legally finished human placed strictly ahead of the
+    /// rival (a tie shares a placing and does not beat it), or the rival legally failed to finish while the human finished.
+    /// </summary>
+    internal static bool BeatsFeaturedRival(EntrantFacts human, EntrantFacts? rival, IReadOnlyDictionary<string, Placing> placings)
+    {
+        if (human.Outcome != RunOutcome.Finished || rival is null) return false;
+        if (rival.Outcome != RunOutcome.Finished) return true;
+        return placings[human.EntrantId].Place < placings[rival.EntrantId].Place;
+    }
+
+    /// <summary>Core RaceClassification by time; drift formats rank finishers by raw score (ties share a placing).</summary>
     static Dictionary<string, Placing> Classify(MatchAssignment config, IReadOnlyList<EntrantFacts> entrants)
     {
         if (config.FreeplayMode != "drift-attack")

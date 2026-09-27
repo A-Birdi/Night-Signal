@@ -1,6 +1,7 @@
 using System.Data.Common;
 using System.Text.Json;
 using NightSignal.ControlPlane.Players;
+using NightSignal.Core.Content;
 using NightSignal.Core.Rules;
 
 namespace NightSignal.ControlPlane.Persistence;
@@ -13,7 +14,7 @@ namespace NightSignal.ControlPlane.Persistence;
 /// (a) serializes writers per wallet (SQLite BEGIN IMMEDIATE / PostgreSQL SELECT ... FOR UPDATE) and
 /// (b) is protected by UNIQUE constraints (ledger idempotency keys, stage/challenge "once" constraints, receipts).
 /// </summary>
-public abstract class SqlGameStore : IPlayerStore, IResultLedger
+public abstract partial class SqlGameStore : IPlayerStore, IResultLedger, ISocialStore
 {
     static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
@@ -112,12 +113,94 @@ public abstract class SqlGameStore : IPlayerStore, IResultLedger
                 r => r.Str(0), ("@a", accountId));
             string? starter = await c.FirstOrDefaultAsync(tx, "SELECT item_ref FROM ledger_entries WHERE idempotency_key = @k",
                 r => r.NStr(0), ("@k", StarterKey(accountId)));
+            PlayerHandle? handle = await c.FirstOrDefaultAsync(tx,
+                "SELECT handle_display, handle_canonical, revision FROM player_handles WHERE account_id = @a",
+                r => new PlayerHandle(r.Str(0), r.Str(1), r.Long(2)), ("@a", accountId));
+            var music = await c.QueryAsync(tx, "SELECT cue_id, source_kind, source_ref FROM ost_entitlements WHERE account_id = @a ORDER BY cue_id",
+                r => new MusicEntitlement(r.Str(0), r.Str(1), r.Str(2)), ("@a", accountId));
+            var bests = await c.QueryAsync(tx,
+                "SELECT trial_id, difficulty, humans, kind, team_value, match_id FROM team_trial_bests WHERE account_id = @a ORDER BY trial_id, difficulty, humans",
+                r => new TeamBestRecord(r.Str(0), r.Str(1), r.Int(2), r.Str(3), r.Long(4), r.Str(5)), ("@a", accountId));
             return new PlayerSnapshot
             {
-                AccountId = accountId, Card = card, Balance = balance, Cars = cars, NormalCleared = normal, HardCleared = hard,
-                Challenges = challenges, Cosmetics = cosmetics, StarterCarId = starter,
+                AccountId = accountId, Card = card, Handle = handle, Balance = balance, Cars = cars, NormalCleared = normal, HardCleared = hard,
+                Challenges = challenges, Cosmetics = cosmetics, StarterCarId = starter, StoredCourses = await LoadStoredCourses(c, tx, accountId),
+                Music = music, TeamBests = bests,
             };
         }, ct);
+
+    static Task<List<CourseEntitlement>> LoadStoredCourses(DbConnection c, DbTransaction tx, string accountId) =>
+        c.QueryAsync(tx, "SELECT course_id, source FROM course_entitlements WHERE account_id = @a ORDER BY course_id",
+            r => new CourseEntitlement(r.Str(0), r.Str(1)), ("@a", accountId));
+
+    public Task<IReadOnlyDictionary<string, IReadOnlyCollection<string>>> GetOwnedCoursesAsync(IReadOnlyCollection<string> accountIds,
+        ContentCatalogue catalogue, CancellationToken ct = default) =>
+        ReadAsync<IReadOnlyDictionary<string, IReadOnlyCollection<string>>>(async (c, tx) =>
+        {
+            var result = new Dictionary<string, IReadOnlyCollection<string>>(StringComparer.Ordinal);
+            foreach (string id in accountIds.Distinct())
+            {
+                (bool[] normal, _) = await LoadClears(c, tx, id);
+                result[id] = CourseOwnership.Owned(catalogue, await LoadStoredCourses(c, tx, id), normal).Keys.ToList();
+            }
+            return result;
+        }, ct);
+
+    /// <summary>
+    /// Course purchase in ONE transaction: lock the wallet (serializing this account's purchases AND settlements), replay by
+    /// idempotency key, decide with Core against the ownership visible inside the transaction, then debit + ledger +
+    /// entitlement together. A campaign unlock that committed first makes this AlreadyOwned with no debit; a purchase that
+    /// committed first makes the later clear keep the purchased entitlement (no refund, no duplicate).
+    /// </summary>
+    public Task<CoursePurchaseResult> PurchaseCourseAsync(string accountId, string idempotencyKey, string courseId, ContentCatalogue catalogue,
+        CancellationToken ct = default)
+    {
+        string key = $"course/{accountId}/{idempotencyKey}";
+        string itemRef = $"course:{courseId}";
+        return WriteAsync(async (c, tx) =>
+        {
+            await EnsureAccount(c, tx, accountId);
+            long balance = await LockWallet(c, tx, accountId);
+            var prior = await c.FirstOrDefaultAsync(tx, "SELECT item_ref, requested_amount FROM ledger_entries WHERE idempotency_key = @k",
+                r => (Item: r.NStr(0), Amount: r.Long(1)), ("@k", key));
+            if (prior.Item is not null)
+                return prior.Item == itemRef
+                    ? new CoursePurchaseResult(CoursePurchaseStatus.Replayed, balance, -prior.Amount, -prior.Amount)
+                    : new CoursePurchaseResult(CoursePurchaseStatus.Conflict, balance, 0, 0);
+
+            (bool[] normal, _) = await LoadClears(c, tx, accountId);
+            var owned = new HashSet<string>(CourseOwnership.Owned(catalogue, await LoadStoredCourses(c, tx, accountId), normal).Keys, StringComparer.Ordinal);
+            CoursePurchaseOutcome outcome = CourseAccess.DecidePurchase(catalogue, courseId, owned, balance, out long price);
+            switch (outcome)
+            {
+                case CoursePurchaseOutcome.AlreadyOwned:
+                    return new CoursePurchaseResult(CoursePurchaseStatus.AlreadyOwned, balance, 0, 0);
+                case CoursePurchaseOutcome.NotPurchasable:
+                    return new CoursePurchaseResult(CoursePurchaseStatus.NotPurchasable, balance, 0, 0);
+                case CoursePurchaseOutcome.InsufficientFunds:
+                    return new CoursePurchaseResult(CoursePurchaseStatus.InsufficientFunds, balance, price, 0);
+            }
+            if (price <= 0 || price > Limits.WalletCap || !Wallet.TryDebit(balance, price, out long newBalance))
+                return new CoursePurchaseResult(CoursePurchaseStatus.InsufficientFunds, balance, price, 0);
+            await InsertLedger(c, tx, accountId, key, "course-purchase", null, itemRef, -price, -price, 0, newBalance);
+            await SetBalance(c, tx, accountId, newBalance);
+            await c.ExecAsync(tx, "INSERT INTO course_entitlements (account_id, course_id, source, ledger_key) VALUES (@a, @c, 'purchase', @k)",
+                ("@a", accountId), ("@c", courseId), ("@k", key));
+            return new CoursePurchaseResult(CoursePurchaseStatus.Purchased, newBalance, price, price);
+        }, ct);
+    }
+
+    public Task<bool> GrantMusicCueAsync(string accountId, string cueId, string sourceKind, string sourceRef, string? matchId, CancellationToken ct = default) =>
+        WriteAsync(async (c, tx) =>
+        {
+            await EnsureAccount(c, tx, accountId);
+            return await GrantMusic(c, tx, accountId, new MusicGrant(cueId, sourceKind, sourceRef), matchId);
+        }, ct);
+
+    static async Task<bool> GrantMusic(DbConnection c, DbTransaction tx, string accountId, MusicGrant g, string? matchId) =>
+        await c.ExecAsync(tx,
+            "INSERT INTO ost_entitlements (account_id, cue_id, source_kind, source_ref, match_id) VALUES (@a, @c, @k, @r, @m) ON CONFLICT DO NOTHING",
+            ("@a", accountId), ("@c", g.CueId), ("@k", g.SourceKind), ("@r", g.SourceRef), ("@m", matchId)) == 1;
 
     public Task<IReadOnlyDictionary<string, MemberProgress>> GetProgressAsync(IReadOnlyCollection<string> accountIds, CancellationToken ct = default) =>
         ReadAsync<IReadOnlyDictionary<string, MemberProgress>>(async (c, tx) =>
@@ -275,6 +358,7 @@ public abstract class SqlGameStore : IPlayerStore, IResultLedger
         // First clear: Core decides whether this stage may be marked (never beyond the frontier, never twice);
         // the UNIQUE constraint makes the award once-only even across concurrent matches.
         PayoutFacts facts = Copy(e.Facts); // never mutate the caller's input (the body may be re-run)
+        bool clearValid = false;
         if (e.Clear is { } clear)
         {
             (bool[] normal, bool[] hard) = await LoadClears(c, tx, a);
@@ -298,6 +382,43 @@ public abstract class SqlGameStore : IPlayerStore, IResultLedger
             }
             else if (!beyondFrontier)
                 receipt.Notes.Add("Stage already cleared: ordinary race money only, no first-clear bonus or RP.");
+            clearValid = !beyondFrontier;
+        }
+
+        // Free course unlocks from a valid Normal clear (Core CourseAccess.GrantedByNormalClear), idempotent via the
+        // (account, course) key. A course bought earlier keeps its purchase row: no refund and no duplicate.
+        if (clearValid && e.Clear!.Mode == CampaignMode.Normal)
+            foreach (string course in e.ClearCourseGrants)
+            {
+                bool inserted = await c.ExecAsync(tx,
+                    "INSERT INTO course_entitlements (account_id, course_id, source, match_id) VALUES (@a, @c, 'campaign-clear', @m) ON CONFLICT DO NOTHING",
+                    ("@a", a), ("@c", course), ("@m", matchId)) == 1;
+                if (inserted && receipt.FirstClearAwarded) receipt.CoursesUnlocked.Add(course);
+                else if (!inserted && receipt.FirstClearAwarded &&
+                         await c.FirstOrDefaultAsync(tx, "SELECT source FROM course_entitlements WHERE account_id = @a AND course_id = @c",
+                             r => r.Str(0), ("@a", a), ("@c", course)) == "purchase")
+                    receipt.Notes.Add($"You already owned {course} (purchased early); clearing keeps it — no refund or duplicate reward.");
+            }
+        // Soundtrack cues: only from eligible settled results, once per (account, cue).
+        if (clearValid)
+            foreach (MusicGrant g in e.ClearMusicGrants)
+                if (await GrantMusic(c, tx, a, g, matchId)) receipt.MusicUnlocked.Add(g.CueId);
+        foreach (MusicGrant g in e.MusicGrants)
+            if (await GrantMusic(c, tx, a, g, matchId)) receipt.MusicUnlocked.Add(g.CueId);
+
+        if (e.TeamBest is { } best && receipt.TeamTrial is { } trial)
+        {
+            long? stored = await c.FirstOrDefaultAsync<long?>(tx,
+                "SELECT team_value FROM team_trial_bests WHERE account_id = @a AND trial_id = @t AND difficulty = @d AND humans = @h" + ForUpdate,
+                r => r.Long(0), ("@a", a), ("@t", best.TrialId), ("@d", best.Difficulty), ("@h", best.Humans));
+            bool better = stored is null || (best.LowerIsBetter ? best.Value < stored : best.Value > stored);
+            if (better)
+                await c.ExecAsync(tx,
+                    "INSERT INTO team_trial_bests (account_id, trial_id, difficulty, humans, kind, team_value, match_id) VALUES (@a, @t, @d, @h, @k, @v, @m) " +
+                    "ON CONFLICT (account_id, trial_id, difficulty, humans) DO UPDATE SET team_value = excluded.team_value, match_id = excluded.match_id, " +
+                    "kind = excluded.kind, updated_at = CURRENT_TIMESTAMP",
+                    ("@a", a), ("@t", best.TrialId), ("@d", best.Difficulty), ("@h", best.Humans), ("@k", best.Kind), ("@v", best.Value), ("@m", matchId));
+            trial.NewTeamBest = better;
         }
 
         long challengeCash = 0;
@@ -321,7 +442,9 @@ public abstract class SqlGameStore : IPlayerStore, IResultLedger
         }
         facts.NewlyCompletedChallengeCash = challengeCash;
 
-        PayoutBreakdown payout = Economy.Compute(facts);
+        PayoutBreakdown payout = e.PayoutWithheld is { } withheld
+            ? new PayoutBreakdown { Note = withheld, ChallengeCash = challengeCash }
+            : Economy.Compute(facts);
         receipt.Payout = PayoutInfo.From(payout);
 
         var lines = new List<(string Type, long Amount)> { ("event", payout.EventCredits) };

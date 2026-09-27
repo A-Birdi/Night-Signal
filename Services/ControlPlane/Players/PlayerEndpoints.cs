@@ -2,8 +2,10 @@ using System.Security.Claims;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using NightSignal.ControlPlane.Content;
+using NightSignal.ControlPlane.Convoys;
 using NightSignal.ControlPlane.Identity;
 using NightSignal.ControlPlane.Persistence;
+using NightSignal.ControlPlane.Security;
 using NightSignal.Core.Content;
 using NightSignal.Core.Rules;
 
@@ -13,9 +15,11 @@ namespace NightSignal.ControlPlane.Players;
 public static partial class PlayerEndpoints
 {
     public static readonly string[] StarterCars = { "V01", "V02", "V03" };
+    public const string IdempotencyKeyHeader = "Idempotency-Key";
 
     public sealed record CardRequest(string? DisplayName, long? Revision);
     public sealed record StarterRequest(string? CarId);
+    public sealed record HandleRequest(string? Handle);
     /// <summary><c>ExpectedPrice</c> is the price the client showed the player; the server's catalogue price decides.</summary>
     public sealed record PurchaseBody(string? IdempotencyKey, string? ItemKind, string? ItemId, JsonElement? ExpectedPrice);
 
@@ -23,11 +27,11 @@ public static partial class PlayerEndpoints
     {
         RouteGroupBuilder me = app.MapGroup("/v1/me").RequireAuthorization();
 
-        me.MapGet("", async (ClaimsPrincipal user, IPlayerStore store, CancellationToken ct) =>
+        me.MapGet("", async (ClaimsPrincipal user, IPlayerStore store, ContentService content, MusicUnlockManifest music, CancellationToken ct) =>
         {
             string id = user.AccountId();
             await store.EnsureAccountAsync(id, ct);
-            return Results.Ok(Describe(await store.GetSnapshotAsync(id, ct)));
+            return Results.Ok(Describe(await store.GetSnapshotAsync(id, ct), content.Catalogue, music));
         });
 
         me.MapPost("/card", async (CardRequest body, ClaimsPrincipal user, IPlayerStore store, CancellationToken ct) =>
@@ -38,6 +42,19 @@ public static partial class PlayerEndpoints
             return result.Status == WriteStatus.Conflict
                 ? Problem(409, "revision_conflict", "Your card changed elsewhere; reload it and apply your edit again.")
                 : Results.Ok(new { displayName = result.Card!.DisplayName, revision = result.Card.Revision });
+        });
+
+        // Public @handle claim/change (Addendum 01 §9.2). Existing accounts claim one here; nothing else is reset.
+        me.MapPut("/handle", async (HandleRequest body, ClaimsPrincipal user, ISocialStore social, RateLimiter limiter, CancellationToken ct) =>
+        {
+            string id = user.AccountId();
+            if (!limiter.TryAcquire($"handle/{id}", SocialLimits.HandleChange, out long retry))
+                return RateLimited(retry);
+            if (!Handles.Validate(body.Handle, out string error)) return Problem(400, "invalid_handle", error);
+            HandleClaimResult r = await social.ClaimHandleAsync(id, body.Handle!, Handles.Canonical(body.Handle)!, ct);
+            return r.Status == HandleClaimStatus.Taken
+                ? Problem(409, "handle_taken", "That username is already taken.")
+                : Results.Ok(new { handle = r.Handle!.Display, revision = r.Handle.Revision, status = r.Status.ToString().ToLowerInvariant() });
         });
 
         me.MapPost("/starter", async (StarterRequest body, ClaimsPrincipal user, IPlayerStore store, ContentService content, CancellationToken ct) =>
@@ -78,18 +95,113 @@ public static partial class PlayerEndpoints
                 _ => Problem(400, "invalid_purchase", r.Message ?? "Invalid purchase."),
             };
         });
+
+        // Freeplay course access purchase (Addendum 01 §5.1): Idempotency-Key header; Core decides inside the debit transaction.
+        me.MapPost("/courses/{courseId}/purchase", async (string courseId, HttpRequest request, ClaimsPrincipal user, IPlayerStore store,
+            ContentService content, ConvoyDirectory directory, RateLimiter limiter, CancellationToken ct) =>
+        {
+            string account = user.AccountId();
+            string? key = request.Headers[IdempotencyKeyHeader].FirstOrDefault();
+            if (key is null || !IdempotencyKeyPattern().IsMatch(key))
+                return Problem(400, "invalid_idempotency_key", $"Send a unique {IdempotencyKeyHeader} header (8–64 letters, digits, '-' or '_').");
+            ContentCatalogue catalogue = content.Catalogue;
+            if (!catalogue.TryCourse(courseId, out CourseDef course)) return Problem(404, "unknown_course", "Unknown course.");
+            CourseAccessRule rule = CourseAccess.RuleFor(catalogue, courseId);
+            (long? expected, string? priceError) = await ReadExpectedPriceAsync(request, ct);
+            if (priceError is not null) return Problem(400, "invalid_price", priceError);
+            if (expected is { } shown && rule.Purchasable && shown != rule.Price)
+                return Problem(409, "price_changed", $"{course.Name} costs {rule.Price:N0} credits.");
+            if (!limiter.TryAcquire($"course/{account}", SocialLimits.CoursePurchase, out long retry)) return RateLimited(retry);
+
+            CoursePurchaseResult r = await store.PurchaseCourseAsync(account, key, courseId, catalogue, ct);
+            if (r.Status is CoursePurchaseStatus.Purchased or CoursePurchaseStatus.AlreadyOwned)
+                directory.UpdateOwnedCourses(account, (await store.GetOwnedCoursesAsync(new[] { account }, catalogue, ct))[account]);
+            return r.Status switch
+            {
+                CoursePurchaseStatus.Purchased or CoursePurchaseStatus.Replayed => Results.Ok(new
+                {
+                    courseId, courseName = course.Name, outcome = "purchased", price = r.Price, charged = r.Charged, balance = r.Balance,
+                    replayed = r.Status == CoursePurchaseStatus.Replayed,
+                }),
+                CoursePurchaseStatus.AlreadyOwned => Results.Ok(new
+                {
+                    courseId, courseName = course.Name, outcome = "already_owned", price = rule.Price, charged = 0L, balance = r.Balance, replayed = false,
+                }),
+                CoursePurchaseStatus.InsufficientFunds => Problem(409, "insufficient_funds", $"{course.Name} costs {r.Price:N0}; your balance is {r.Balance:N0}."),
+                CoursePurchaseStatus.Conflict => Problem(409, "idempotency_conflict", "That idempotency key was used for a different purchase."),
+                _ => Problem(409, "not_purchasable", NotPurchasableReason(rule)),
+            };
+        });
+
+        // Course-access table for course cards (starter / buy-or-clear / reward-only / purchase-only) and supported modes.
+        app.MapGet("/v1/courses", (ContentService content) =>
+        {
+            ContentCatalogue c = content.Catalogue;
+            return Results.Ok(new
+            {
+                courses = c.Courses.Select(course =>
+                {
+                    CourseAccessRule rule = CourseAccess.RuleFor(c, course.Id);
+                    return new
+                    {
+                        courseId = course.Id, name = course.Name, kind = course.Kind, format = course.Format,
+                        access = new { kind = AccessKindWire(rule.Kind), price = rule.Price, unlockStage = rule.UnlockStage, purchasable = rule.Purchasable },
+                        freeplayModes = FreeplayRules.Submodes.Where(m => FreeplayRules.Supports(course, m)).ToList(),
+                    };
+                }).ToList(),
+            });
+        }).RequireAuthorization();
     }
 
-    /// <summary>The bootstrap document: card, wallet, garage, campaign flags and Rank Points recomputed with Core.</summary>
-    public static object Describe(PlayerSnapshot s)
+    static string AccessKindWire(CourseAccessKind kind) => kind switch
+    {
+        CourseAccessKind.Starter => "starter",
+        CourseAccessKind.PurchaseOrCampaignClear => "purchase-or-clear",
+        CourseAccessKind.CampaignRewardOnly => "reward-only",
+        CourseAccessKind.PurchaseOnly => "purchase-only",
+        _ => "none",
+    };
+
+    static string NotPurchasableReason(CourseAccessRule rule) => rule.Kind switch
+    {
+        CourseAccessKind.Starter => "Everyone has this course from the start.",
+        CourseAccessKind.CampaignRewardOnly => $"This route is not sold; it unlocks free by clearing Normal {rule.UnlockStage}.",
+        _ => "This course cannot be bought.",
+    };
+
+    static async Task<(long? Price, string? Error)> ReadExpectedPriceAsync(HttpRequest request, CancellationToken ct)
+    {
+        if (request.ContentLength is null or 0) return (null, null);
+        try
+        {
+            using JsonDocument doc = await JsonDocument.ParseAsync(request.Body, cancellationToken: ct);
+            if (doc.RootElement.ValueKind != JsonValueKind.Object || !doc.RootElement.TryGetProperty("expectedPrice", out JsonElement p)) return (null, null);
+            if (p.ValueKind != JsonValueKind.Number || !p.TryGetDouble(out double v) || !double.IsFinite(v) || Math.Floor(v) != v || v <= 0 || v > Limits.WalletCap)
+                return (null, "expectedPrice must be a whole positive number of credits.");
+            return ((long)v, null);
+        }
+        catch (JsonException)
+        {
+            return (null, "The body must be JSON: {\"expectedPrice\": number}.");
+        }
+    }
+
+    /// <summary>
+    /// The bootstrap document: card, handle, wallet, garage, campaign flags, ONLINE course access, soundtrack collection,
+    /// team bests and Rank Points recomputed with Core.
+    /// </summary>
+    public static object Describe(PlayerSnapshot s, ContentCatalogue catalogue, MusicUnlockManifest music)
     {
         int Tier(string t) => s.Challenges.Count(c => c.Tier == t);
         RankSummary rank = RankSummary.Compute(s.NormalCleared.Count(x => x), s.HardCleared.Count(x => x), Tier("bronze"), Tier("silver"), Tier("gold"));
         MemberProgress progress = s.ToProgress();
+        var baseline = music.BaselineCues.ToHashSet(StringComparer.Ordinal);
         return new
         {
             accountId = s.AccountId,
             card = s.Card is null ? null : new { displayName = s.Card.DisplayName, revision = s.Card.Revision },
+            handle = s.Handle is null ? null : new { handle = s.Handle.Display, revision = s.Handle.Revision },
+            needsHandle = s.Handle is null,
             wallet = new { balance = s.Balance, cap = Limits.WalletCap },
             starterCarId = s.StarterCarId,
             ownedCars = s.Cars.Select(c => new { carId = c.CarId, source = c.Source }),
@@ -101,6 +213,22 @@ public static partial class PlayerEndpoints
                 hardFrontier = CampaignProgress.Frontier(s.HardCleared),
                 hardUnlocked = progress.HardUnlocked,
             },
+            courses = new
+            {
+                domain = "online",
+                owned = CourseOwnership.Listing(catalogue, s.OwnedCourses(catalogue)).Select(e => new { courseId = e.CourseId, source = e.Source }),
+            },
+            music = new
+            {
+                owned = baseline.Select(id => new { cueId = id, source = MusicSourceKinds.Baseline })
+                    .Concat(s.Music.Where(m => !baseline.Contains(m.CueId)).Select(m => new { cueId = m.CueId, source = m.SourceKind }))
+                    .ToList(),
+            },
+            teamTrialBests = s.TeamBests.Select(b => new
+            {
+                trialId = b.TrialId, difficulty = b.Difficulty, humans = b.Humans, kind = b.Kind, value = b.Value,
+                displayMeanMs = b.Kind == "mean" ? b.Value / (double)Limits.TeamTrialSideSize : (double?)null, matchId = b.MatchId, category = "team",
+            }),
             challengesCompleted = s.Challenges.Select(c => c.ChallengeId),
             cosmeticsOwned = s.Cosmetics,
             rank = new { rankPoints = rank.RankPoints, index = rank.Index, name = rank.Name, threshold = rank.Threshold, next = rank.NextName, nextThreshold = rank.NextThreshold },
@@ -108,6 +236,9 @@ public static partial class PlayerEndpoints
     }
 
     public static IResult Problem(int status, string code, string message) => Results.Json(new { error = code, message }, statusCode: status);
+
+    public static IResult RateLimited(long retryAfterMs) =>
+        Results.Json(new { error = "rate_limited", message = "Too many requests. Try again later.", retryAfterMs }, statusCode: 429);
 
     [GeneratedRegex("^[A-Za-z0-9_-]{8,64}$")]
     private static partial Regex IdempotencyKeyPattern();

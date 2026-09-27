@@ -88,6 +88,8 @@ public sealed class ContentService
             Kind = stage.Type == "penultimate" ? BenchmarkKind.FourContracts : BenchmarkKind.Time,
             TargetTimeMs = target,
             HardTimeoutMs = envelope + 120_000, // must be >= the support envelope (StageOutcome.DeadlineMs)
+            // Lieutenant, penultimate and finale encounters also need a qualifying human to beat the live featured rival.
+            RequiresBeatingFeaturedRival = StageBenchmark.IsFeaturedEncounter(stage.Type),
         };
         return new BenchmarkInfo(benchmark, Provisional: true,
             Source: $"provisional: derived from {course.Id}.expectedSeconds={course.ExpectedSeconds}; no certified reference run yet");

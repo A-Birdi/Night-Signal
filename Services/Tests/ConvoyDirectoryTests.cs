@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using System.Text.Json;
 using NightSignal.ControlPlane.Convoys;
 using NightSignal.Core.Rules;
@@ -6,89 +5,19 @@ using NightSignal.Services.Tests.Infrastructure;
 
 namespace NightSignal.Services.Tests;
 
-/// <summary>Convoy rules (spec §4.1, §4.2, §4.4, §5.1) with an injectable clock.</summary>
-public sealed class ConvoyDirectoryTests
+/// <summary>Convoy rules (spec §4.1, §4.2, §5.1 as revised by Addendum 01 §7, §10) with an injectable clock.</summary>
+public sealed class ConvoyDirectoryTests : ConvoyTestBase
 {
-    sealed class RecordingNotifier : IConvoyNotifier
-    {
-        public readonly ConcurrentQueue<(string Account, string Type, long Revision, object Payload)> Sent = new();
-        public void Send(string accountId, string type, long revision, object payload) => Sent.Enqueue((accountId, type, revision, payload));
-    }
-
-    static readonly JsonSerializerOptions Web = new(JsonSerializerDefaults.Web);
-    static readonly ClientVersion V = new("build-1", 1, "content-1");
-    readonly ManualClock clock = new(new DateTimeOffset(2026, 9, 26, 20, 0, 0, TimeSpan.Zero));
-    readonly RecordingNotifier notifier = new();
-    readonly ConvoyDirectory dir;
-
-    public ConvoyDirectoryTests() => dir = new ConvoyDirectory(clock, TestData.Content, notifier);
-
-    static string Id(int i) => $"00000000-0000-4000-8000-{i:000000000000}";
-
-    static MemberProgress Progress(string id, int normalCleared = 0, int hardCleared = 0) =>
-        new(id, Enumerable.Range(0, 30).Select(i => i < normalCleared).ToArray(), Enumerable.Range(0, 30).Select(i => i < hardCleared).ToArray());
-
-    static MemberInfo Info(int i, int normalCleared = 0) => new($"Driver {i}", Progress(Id(i), normalCleared));
-
-    static long Value(ConvoyResult r, string name)
-    {
-        Assert.True(r.Ok, r.Error?.Message);
-        return JsonSerializer.SerializeToElement(r.Value).GetProperty(name).GetInt64();
-    }
-
-    JsonElement State(int member) => JsonSerializer.SerializeToElement(dir.SnapshotFor(Id(member)).Snapshot, Web);
-
-    JsonElement MemberState(int viewer, int member) =>
-        State(viewer).GetProperty("members").EnumerateArray().Single(m => m.GetProperty("accountId").GetString() == Id(member));
-
-    static LoadoutInfo Car(string perf = "perf-1", string cosmetic = "cos-1", string car = "V01", int pi = 220) => new(car, pi, perf, cosmetic);
-
-    /// <summary>Leader 1 plus members 2..n, each connected and with a car.</summary>
-    void Convoy(int members, int normalCleared = 0)
-    {
-        for (int i = 1; i <= members; i++) dir.Connected(Id(i), V);
-        Assert.True(dir.Create(Id(1), Info(1, normalCleared), ConvoyPrivacy.InviteOnly).Ok);
-        string code = Code(dir.CreateInvite(Id(1)));
-        for (int i = 2; i <= members; i++) Assert.True(dir.JoinByCode(Id(i), Info(i, normalCleared), code).Ok);
-        for (int i = 1; i <= members; i++) Assert.True(dir.UpdateLoadout(Id(i), Car()).Ok);
-    }
-
-    static string Code(ConvoyResult r)
-    {
-        Assert.True(r.Ok, r.Error?.Message);
-        return JsonSerializer.SerializeToElement(r.Value).GetProperty("code").GetString()!;
-    }
-
-    /// <summary>Commits campaign-normal and opens an event proposal; returns its revision.</summary>
-    long OpenEvent(int members, string stage = "S01", string destination = "campaign-normal")
-    {
-        long dRev = Value(dir.ProposeDestination(Id(1), ConvoyRules.ParseDestination(destination)!.Value), "proposalRevision");
-        for (int i = 2; i <= members; i++) Assert.True(dir.Consent(Id(i), dRev, true).Ok);
-        Assert.True(dir.CommitDestination(Id(1), dRev).Ok);
-        clock.Advance(TimeSpan.FromSeconds(15));
-        return Value(dir.ProposeEvent(Id(1), new EventRequest(stage, null, null, null, null, null, null)), "proposalRevision");
-    }
-
-    void ReadyAll(int members, long rev)
-    {
-        for (int i = 1; i <= members; i++)
-            Assert.True(dir.SetReady(Id(i), rev, MemberState(i, i).GetProperty("loadoutRevision").GetInt64(), true).Ok);
-    }
-
-    bool Ready(int member) => MemberState(1, member).GetProperty("eventReady").GetBoolean();
-
-    Dictionary<string, MemberProgress> Fresh(int members, int normalCleared = 0) =>
-        Enumerable.Range(1, members).ToDictionary(Id, i => Progress(Id(i), normalCleared));
-
     [Fact]
-    public void ConvoyHoldsAtMostSixMembers()
+    public void ConvoyHoldsAtMostSixMembers_NeverASeventhHuman()
     {
         Convoy(6);
         dir.Connected(Id(7), V);
         string code = Code(dir.CreateInvite(Id(1)));
         ConvoyResult r = dir.JoinByCode(Id(7), Info(7), code);
         Assert.Equal("convoy_full", r.Error?.Code);
-        Assert.Equal(6, State(1).GetProperty("members").GetArrayLength());
+        Assert.Equal(6, MemberCount(1));
+        Assert.Empty(dir.ListDiscoverable());
     }
 
     [Fact]
@@ -154,39 +83,89 @@ public sealed class ConvoyDirectoryTests
     }
 
     [Fact]
-    public void DestinationCommit_NeedsEveryConnectedMembersConsent_ToThatRevision()
+    public void EnterMode_NeedsEveryCurrentMembersModeReady_ForThatRevision()
     {
         Convoy(3);
-        long rev = Value(dir.ProposeDestination(Id(1), Destination.CampaignNormal), "proposalRevision");
-        Assert.Equal("not_all_ready", dir.CommitDestination(Id(1), rev).Error?.Code);
-        Assert.True(dir.Consent(Id(2), rev, true).Ok);
-        Assert.Equal("stale_revision", dir.Consent(Id(3), rev - 1, true).Error?.Code);
-        Assert.Equal("not_all_ready", dir.CommitDestination(Id(1), rev).Error?.Code);
-        dir.Disconnected(Id(3)); // a disconnected member is not required to consent
-        Assert.Equal("not_leader", dir.CommitDestination(Id(2), rev).Error?.Code);
-        Assert.True(dir.CommitDestination(Id(1), rev).Ok);
-        Assert.Equal("campaign-normal", State(1).GetProperty("committedDestination").GetString());
+        long rev = Value(dir.SetIntent(Id(1), Campaign()), "modeRevision");
+        Assert.Equal("ModeCheck", State(1).GetProperty("phase").GetString());
+        Assert.True(MemberState(1, 1).GetProperty("modeReady").GetBoolean()); // proposing is the leader's own consent
+        Assert.Equal("not_all_ready", dir.EnterMode(Id(1), rev).Error?.Code);
+        Assert.True(dir.SetModeReady(Id(2), rev, true).Ok);
+        Assert.Equal("stale_revision", dir.SetModeReady(Id(3), rev - 1, true).Error?.Code);
+        Assert.Equal("not_all_ready", dir.EnterMode(Id(1), rev).Error?.Code);
+        Assert.Equal(2, State(1).GetProperty("modeReadyCount").GetInt32());
+
+        dir.Disconnected(Id(3)); // leaves ACTIVE membership: nobody waits for an offline member (new revision, though)
+        long rev2 = State(1).GetProperty("modeRevision").GetInt64();
+        Assert.NotEqual(rev, rev2);
+        Assert.Equal("stale_revision", dir.EnterMode(Id(1), rev).Error?.Code);
+        Assert.True(dir.SetModeReady(Id(2), rev2, true).Ok);
+        Assert.Equal("not_leader", dir.EnterMode(Id(2), rev2).Error?.Code);
+        Assert.True(dir.EnterMode(Id(1), rev2).Ok);
+        JsonElement s = State(1);
+        Assert.Equal("EventSelection", s.GetProperty("phase").GetString());
+        Assert.True(s.GetProperty("modeEntered").GetBoolean());
+        Assert.Equal(JsonValueKind.Null, s.GetProperty("eventProposal").ValueKind); // entering never starts an event
+        Assert.Equal("Normal Campaign", s.GetProperty("intent").GetProperty("label").GetString());
+    }
+
+    [Fact]
+    public void ChangingIntent_IsANewModeRevision_OldModeReadyCannotAuthorizeIt()
+    {
+        Convoy(2);
+        long first = Value(dir.SetIntent(Id(1), Freeplay("sprint")), "modeRevision");
+        Assert.True(dir.SetModeReady(Id(2), first, true).Ok);
+        clock.Advance(TimeSpan.FromSeconds(15));
+        long second = Value(dir.SetIntent(Id(1), Freeplay("circuit")), "modeRevision");
+        Assert.True(second > first);
+        Assert.False(MemberState(1, 2).GetProperty("modeReady").GetBoolean());
+        Assert.Equal("stale_revision", dir.SetModeReady(Id(2), first, true).Error?.Code);
+        Assert.Equal("not_all_ready", dir.EnterMode(Id(1), second).Error?.Code);
+        Assert.True(dir.SetModeReady(Id(2), second, true).Ok);
+        Assert.True(dir.EnterMode(Id(1), second).Ok);
+        Assert.Equal("circuit", State(2).GetProperty("intent").GetProperty("submode").GetString());
+    }
+
+    [Fact]
+    public void Solo_UsesTheSameIntentSemantics_WithoutWaiting()
+    {
+        Convoy(1);
+        long rev = Value(dir.SetIntent(Id(1), Campaign()), "modeRevision");
+        Assert.True(dir.EnterMode(Id(1), rev).Ok);
+        Assert.Equal("EventSelection", State(1).GetProperty("phase").GetString());
+    }
+
+    [Fact]
+    public void Intent_IsSeparateFromEachMembersActualPresence()
+    {
+        Convoy(2);
+        dir.SetIntent(Id(1), Freeplay("sprint"));
+        Assert.True(dir.SetPresence(Id(1), Presence.Garage).Ok);
+        JsonElement s = State(2);
+        Assert.Equal("Freeplay — Sprint", s.GetProperty("intent").GetProperty("label").GetString());
+        Assert.Equal("Garage", MemberState(2, 1).GetProperty("presence").GetString());
+        Assert.Equal(1, s.GetProperty("modeReadyCount").GetInt32());
     }
 
     [Fact]
     public void LeaderMayRequestReadiness_AtMostOncePer15Seconds()
     {
         Convoy(2);
-        Assert.True(dir.ProposeDestination(Id(1), Destination.Freeplay).Ok);
-        ConvoyResult again = dir.ProposeDestination(Id(1), Destination.CampaignNormal);
+        Assert.True(dir.SetIntent(Id(1), Freeplay("sprint")).Ok);
+        ConvoyResult again = dir.SetIntent(Id(1), Campaign());
         Assert.Equal("rate_limited", again.Error?.Code);
         Assert.InRange(again.Error!.RetryAfterMs!.Value, 1, 15_000);
         clock.Advance(TimeSpan.FromSeconds(14.9));
-        Assert.Equal("rate_limited", dir.ProposeDestination(Id(1), Destination.CampaignNormal).Error?.Code);
+        Assert.Equal("rate_limited", dir.SetIntent(Id(1), Campaign()).Error?.Code);
         clock.Advance(TimeSpan.FromSeconds(0.1));
-        Assert.True(dir.ProposeDestination(Id(1), Destination.CampaignNormal).Ok);
+        Assert.True(dir.SetIntent(Id(1), Campaign()).Ok);
     }
 
     [Fact]
     public void StaleReadyMessages_AreRejected()
     {
         Convoy(2);
-        long first = OpenEvent(2);
+        long first = OpenEvent();
         clock.Advance(TimeSpan.FromSeconds(15));
         long second = Value(dir.ProposeEvent(Id(1), new EventRequest("S01", null, null, "wet-night", null, null, null)), "proposalRevision");
         Assert.True(second > first);
@@ -199,8 +178,8 @@ public sealed class ConvoyDirectoryTests
     public void EventSettingChange_UnreadiesEveryone()
     {
         Convoy(3);
-        long rev = OpenEvent(3);
-        ReadyAll(3, rev);
+        long rev = OpenEvent();
+        ReadyAll(rev);
         Assert.True(Ready(1) && Ready(2) && Ready(3));
         clock.Advance(TimeSpan.FromSeconds(15));
         Assert.True(dir.ProposeEvent(Id(1), new EventRequest("S01", null, null, "fog", null, null, null)).Ok);
@@ -211,8 +190,8 @@ public sealed class ConvoyDirectoryTests
     public void PerformanceLoadoutChange_UnreadiesOnlyThatMember_CosmeticChangeDoesNot()
     {
         Convoy(3);
-        long rev = OpenEvent(3);
-        ReadyAll(3, rev);
+        long rev = OpenEvent();
+        ReadyAll(rev);
 
         Assert.True(dir.UpdateLoadout(Id(2), Car(perf: "perf-1", cosmetic: "new-livery")).Ok);
         Assert.True(Ready(1) && Ready(2) && Ready(3));
@@ -225,17 +204,20 @@ public sealed class ConvoyDirectoryTests
     }
 
     [Fact]
-    public void RosterChange_IssuesNewRevisions_AndUnreadiesEveryone()
+    public void RosterChange_IssuesNewRevisions_AndClearsModeAndEventReadiness()
     {
         Convoy(2);
-        long rev = OpenEvent(2);
-        ReadyAll(2, rev);
+        long rev = OpenEvent();
+        ReadyAll(rev);
         long roster = State(1).GetProperty("rosterRevision").GetInt64();
-        dir.Connected(Id(3), V);
-        Assert.True(dir.JoinByCode(Id(3), Info(3), Code(dir.CreateInvite(Id(1)))).Ok);
+        long mode = State(1).GetProperty("modeRevision").GetInt64();
+        Join(3);
         JsonElement s = State(1);
         Assert.Equal(roster + 1, s.GetProperty("rosterRevision").GetInt64());
         Assert.NotEqual(rev, s.GetProperty("eventProposal").GetProperty("revision").GetInt64());
+        Assert.NotEqual(mode, s.GetProperty("modeRevision").GetInt64());
+        Assert.False(MemberState(1, 2).GetProperty("modeReady").GetBoolean());
+        Assert.True(s.GetProperty("modeEntered").GetBoolean()); // the entered mode stays; agreement must be renewed for a vote
         Assert.False(Ready(1) || Ready(2));
         Assert.Equal("stale_revision", dir.SetReady(Id(1), rev, 1, true).Error?.Code);
     }
@@ -244,8 +226,8 @@ public sealed class ConvoyDirectoryTests
     public void MembersWithoutInteraction_For120Seconds_BecomeAwayAndUnready()
     {
         Convoy(2);
-        long rev = OpenEvent(2);
-        ReadyAll(2, rev);
+        long rev = OpenEvent();
+        ReadyAll(rev);
         clock.Advance(TimeSpan.FromSeconds(119));
         dir.Touch(Id(1));
         dir.Tick();
@@ -260,7 +242,7 @@ public sealed class ConvoyDirectoryTests
     }
 
     [Fact]
-    public void LeaderTransfersAfter15s_ToLongestConnected_AndDoesNotReturn()
+    public void DisconnectedLeader_KeepsA15sGrace_ThenTheLongestConnectedMemberLeads_WithANewEpoch()
     {
         dir.Connected(Id(1), V);
         dir.Create(Id(1), Info(1), ConvoyPrivacy.InviteOnly);
@@ -271,21 +253,28 @@ public sealed class ConvoyDirectoryTests
         dir.Connected(Id(2), V);
         dir.JoinByCode(Id(2), Info(2), code);
         dir.JoinByCode(Id(3), Info(3), code);
+        long epoch = State(2).GetProperty("leadershipEpoch").GetInt64();
 
         dir.Disconnected(Id(1));
+        Assert.Equal(2, MemberCount(2)); // active membership removed at once; no reserved seat
+        Assert.Equal(Id(1), State(2).GetProperty("leaderId").GetString());
+        Assert.NotEqual(JsonValueKind.Null, State(2).GetProperty("leaderUnavailable").ValueKind);
+        Assert.Equal("leader_unavailable", dir.SetIntent(Id(2), Campaign()).Error?.Code); // leader-only commits are disabled
         clock.Advance(TimeSpan.FromSeconds(14.9));
         dir.Tick();
         Assert.Equal(Id(1), State(2).GetProperty("leaderId").GetString());
-        Assert.Equal("Reconnecting", MemberState(2, 1).GetProperty("presence").GetString());
         clock.Advance(TimeSpan.FromSeconds(0.1));
         dir.Tick();
-        Assert.Equal(Id(3), State(2).GetProperty("leaderId").GetString());
-        Assert.Equal(ConvoyRules.LeaderLabel, State(2).GetProperty("leaderLabel").GetString());
+        JsonElement s = State(2);
+        Assert.Equal(Id(3), s.GetProperty("leaderId").GetString());
+        Assert.Equal(epoch + 1, s.GetProperty("leadershipEpoch").GetInt64());
+        Assert.Equal(ConvoyRules.LeaderLabel, s.GetProperty("leaderLabel").GetString());
 
-        dir.Connected(Id(1), V); // the former leader returns within the 60 s hold
-        dir.Tick();
-        Assert.Equal(Id(3), State(1).GetProperty("leaderId").GetString());
-        Assert.Equal(3, State(1).GetProperty("members").GetArrayLength());
+        dir.Connected(Id(1), V); // the former leader returns: the old grant fails the epoch condition
+        Assert.Equal("leader_changed", Rejoin(1).GetProperty("reason").GetString());
+        Assert.Equal("rejoin_leader_changed", dir.Rejoin(Id(1), Info(1)).Error?.Code);
+        Assert.Equal(Id(3), State(2).GetProperty("leaderId").GetString());
+        Assert.Equal(2, MemberCount(2));
     }
 
     [Fact]
@@ -305,29 +294,13 @@ public sealed class ConvoyDirectoryTests
     }
 
     [Fact]
-    public void DisconnectedSlot_IsReservedFor60Seconds()
-    {
-        Convoy(3);
-        dir.Disconnected(Id(3));
-        clock.Advance(TimeSpan.FromSeconds(59));
-        dir.Tick();
-        Assert.Equal(3, State(1).GetProperty("members").GetArrayLength());
-        Assert.Equal("reconnecting", MemberState(1, 3).GetProperty("connection").GetString());
-        clock.Advance(TimeSpan.FromSeconds(1));
-        dir.Tick();
-        Assert.Equal(2, State(1).GetProperty("members").GetArrayLength());
-        Assert.Contains(notifier.Sent, m => m.Account == Id(3) && m.Type == "convoy.closed");
-        Assert.Null(dir.SnapshotFor(Id(3)).Snapshot);
-    }
-
-    [Fact]
     public void HardMode_RequiresEveryMembersNormalFinale()
     {
         dir.Connected(Id(1), V);
         dir.Connected(Id(2), V);
         dir.Create(Id(1), new MemberInfo("Veteran", Progress(Id(1), normalCleared: 30)), ConvoyPrivacy.InviteOnly);
         dir.JoinByCode(Id(2), new MemberInfo("Newer", Progress(Id(2), normalCleared: 29)), Code(dir.CreateInvite(Id(1))));
-        ConvoyResult r = dir.ProposeDestination(Id(1), Destination.CampaignHard);
+        ConvoyResult r = dir.SetIntent(Id(1), Campaign("hard"));
         Assert.Equal("mode_locked", r.Error?.Code);
         Assert.False(State(1).GetProperty("campaignAccess").GetProperty("hard").GetProperty("allowed").GetBoolean());
     }
@@ -339,9 +312,7 @@ public sealed class ConvoyDirectoryTests
         dir.Connected(Id(2), V);
         dir.Create(Id(1), new MemberInfo("A", Progress(Id(1), normalCleared: 11)), ConvoyPrivacy.InviteOnly);   // frontier 12
         dir.JoinByCode(Id(2), new MemberInfo("B", Progress(Id(2), normalCleared: 7)), Code(dir.CreateInvite(Id(1)))); // frontier 8
-        long d = Value(dir.ProposeDestination(Id(1), Destination.CampaignNormal), "proposalRevision");
-        dir.Consent(Id(2), d, true);
-        dir.CommitDestination(Id(1), d);
+        EnterMode(Campaign());
         clock.Advance(TimeSpan.FromSeconds(15));
         Assert.Equal("stage_locked", dir.ProposeEvent(Id(1), new EventRequest("S09", null, null, null, null, null, null)).Error?.Code);
         Assert.True(dir.ProposeEvent(Id(1), new EventRequest("S08", null, null, null, null, null, null)).Ok);
@@ -351,11 +322,20 @@ public sealed class ConvoyDirectoryTests
     }
 
     [Fact]
+    public void EventProposal_NeedsAnEnteredMode()
+    {
+        Convoy(1);
+        Assert.Equal("bad_phase", dir.ProposeEvent(Id(1), new EventRequest("S01", null, null, null, null, null, null)).Error?.Code);
+        dir.SetIntent(Id(1), Campaign());
+        Assert.Equal("bad_phase", dir.ProposeEvent(Id(1), new EventRequest("S01", null, null, null, null, null, null)).Error?.Code);
+    }
+
+    [Fact]
     public void Start_RevalidatesReadinessLoadoutsAndVersions_ThenFreezes()
     {
         Convoy(2);
-        long rev = OpenEvent(2);
-        ReadyAll(2, rev);
+        long rev = OpenEvent();
+        ReadyAll(rev);
 
         Assert.Equal("not_leader", dir.BeginStart(Id(2), rev, Fresh(2)).Error?.Code);
         Assert.Equal("stale_revision", dir.BeginStart(Id(1), rev - 1, Fresh(2)).Error?.Code);
@@ -377,6 +357,7 @@ public sealed class ConvoyDirectoryTests
         Assert.Equal(2, plan!.Entrants.Count);
         Assert.Equal(TestData.Content.Catalogue.Stage("S01").Normal.Opponents, plan.AiEntrants); // authored live opposition (Addendum 01 §1.2)
         Assert.Equal(TestData.Content.Catalogue.Stage("S01").Normal.Lead, plan.AiEntrants[0]); // featured rival first
+        Assert.Equal(plan.AiEntrants[0], plan.FeaturedRival);
         Assert.Equal("Allocating", State(1).GetProperty("phase").GetString());
         Assert.Equal("event_frozen", dir.UpdateLoadout(Id(2), Car(perf: "perf-10")).Error?.Code);
         Assert.Equal("event_frozen", dir.SetReady(Id(2), rev, 2, false).Error?.Code);
@@ -386,8 +367,8 @@ public sealed class ConvoyDirectoryTests
     public void Start_ReevaluatesStageAccess_WithFreshServerProgress()
     {
         Convoy(2, normalCleared: 2);
-        long rev = OpenEvent(2, stage: "S03");
-        ReadyAll(2, rev);
+        long rev = OpenEvent(stage: "S03");
+        ReadyAll(rev);
         var stale = Fresh(2, normalCleared: 2);
         stale[Id(2)] = Progress(Id(2), normalCleared: 1); // stored progress says member 2 cannot select S03
         Assert.Equal("stage_locked", dir.BeginStart(Id(1), rev, stale).Error?.Code);
@@ -398,21 +379,26 @@ public sealed class ConvoyDirectoryTests
     {
         // Addendum 01 §1.3 supersedes the six-human benchmark replay: the featured rival is always a live car.
         Convoy(6);
-        long rev = OpenEvent(6);
-        ReadyAll(6, rev);
+        long rev = OpenEvent();
+        ReadyAll(rev);
         MatchPlan plan = dir.BeginStart(Id(1), rev, Fresh(6)).Plan!;
         Assert.Equal(6, plan.Entrants.Count);
         Assert.Equal(TestData.Content.Catalogue.Stage("S01").Normal.Lead, plan.AiEntrants[0]);
         Assert.True(plan.Entrants.Count + plan.AiEntrants.Count <= Limits.MaxRaceVehicles);
+        Assert.Equal(plan.Entrants.Count + plan.AiEntrants.Count, plan.Roster.Count);
+        Assert.All(plan.Roster.Where(r => r.Kind == "ai"), r => Assert.Equal("opposing", r.Team));
     }
 
     [Fact]
-    public void Leaving_PassesLeadership_AndTheLastMemberDisbandsTheConvoy()
+    public void Leaving_PassesLeadership_IncrementsTheEpoch_AndTheLastMemberDisbandsTheConvoy()
     {
         Convoy(3);
         string code = Code(dir.CreateInvite(Id(1)));
+        long epoch = State(1).GetProperty("leadershipEpoch").GetInt64();
         Assert.True(dir.Leave(Id(1)).Ok);
         Assert.Equal(Id(2), State(2).GetProperty("leaderId").GetString()); // connected earliest (tie → lowest ID)
+        Assert.Equal(epoch + 1, State(2).GetProperty("leadershipEpoch").GetInt64());
+        Assert.Equal("none", Rejoin(1).GetProperty("reason").GetString()); // an explicit Leave keeps no rejoin grant
         Assert.Equal("not_in_convoy", dir.Leave(Id(1)).Error?.Code);
         Assert.True(dir.Leave(Id(2)).Ok);
         Assert.True(dir.Leave(Id(3)).Ok);
@@ -435,33 +421,35 @@ public sealed class ConvoyDirectoryTests
     [Fact]
     public void Freeplay_AllowsAiUpToTwelveVehicles_ClampsStaleOverflow_AndFlagsPurePvP()
     {
-        // Addendum 01 D01: 1–6 humans, at most 12 vehicles. 11 AI is the most any request may ask for.
+        // Addendum 01 D01: 1–6 humans, at most 12 vehicles. With two humans the leader may ask for ten AI, not eleven.
         Convoy(2);
-        long d = Value(dir.ProposeDestination(Id(1), Destination.Freeplay), "proposalRevision");
-        dir.Consent(Id(2), d, true);
-        dir.CommitDestination(Id(1), d);
+        EnterMode(Freeplay("sprint"));
         clock.Advance(TimeSpan.FromSeconds(15));
-        Assert.Equal("invalid_request", dir.ProposeEvent(Id(1), new EventRequest(null, "C05", "sprint", null, 12, null, null)).Error?.Code);
-        long rev = Value(dir.ProposeEvent(Id(1), new EventRequest(null, "C05", "sprint", null, 11, null, null)), "proposalRevision");
-        ReadyAll(2, rev);
-        MatchPlan plan = dir.BeginStart(Id(1), rev, Fresh(2)).Plan!;
-        Assert.Equal(10, plan.AiEntrants.Count); // 2 humans + 10 AI = 12 vehicles; the stale request for 11 is clamped
+        Assert.Equal("capacity_exceeded", dir.ProposeEvent(Id(1), new EventRequest(null, "C01", "sprint", null, 11, null, null)).Error?.Code);
+        long rev = Value(dir.ProposeEvent(Id(1), new EventRequest(null, "C01", "sprint", null, 10, null, null)), "proposalRevision");
+        Assert.Equal(12, State(1).GetProperty("eventProposal").GetProperty("rosterPreview").GetProperty("vehicles").GetInt32());
+
+        Join(3); // the request is now stale: three humans leave room for nine AI
+        rev = State(1).GetProperty("eventProposal").GetProperty("revision").GetInt64();
+        ReadyAll(rev);
+        MatchPlan plan = dir.BeginStart(Id(1), rev, Fresh(3)).Plan!;
+        Assert.Equal(9, plan.AiEntrants.Count); // clamped with an explanation, no human ejected
         Assert.Contains("12 cars", plan.GridNote);
         Assert.False(plan.PurePvP);
 
         dir.FailStart(plan, "test");
         clock.Advance(TimeSpan.FromSeconds(15));
-        long pvp = Value(dir.ProposeEvent(Id(1), new EventRequest(null, "C05", "sprint", null, 0, null, null)), "proposalRevision");
-        ReadyAll(2, pvp);
-        Assert.True(dir.BeginStart(Id(1), pvp, Fresh(2)).Plan!.PurePvP);
+        long pvp = Value(dir.ProposeEvent(Id(1), new EventRequest(null, "C01", "sprint", null, 0, null, null)), "proposalRevision");
+        ReadyAll(pvp);
+        Assert.True(dir.BeginStart(Id(1), pvp, Fresh(3)).Plan!.PurePvP);
     }
 
     [Fact]
     public void ConvoyRevisions_AreStrictlyMonotonic()
     {
         Convoy(3);
-        long rev = OpenEvent(3);
-        ReadyAll(3, rev);
+        long rev = OpenEvent();
+        ReadyAll(rev);
         dir.Disconnected(Id(3));
         clock.Advance(TimeSpan.FromSeconds(61));
         dir.Tick();

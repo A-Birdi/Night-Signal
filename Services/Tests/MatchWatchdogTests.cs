@@ -52,8 +52,9 @@ public sealed class MatchWatchdogTests : IAsyncLifetime
         convoys.Connected(Id(1), V);
         convoys.Create(Id(1), new MemberInfo("Solo", P(Id(1))), ConvoyPrivacy.InviteOnly);
         convoys.UpdateLoadout(Id(1), new LoadoutInfo("V01", 220, "p", "c"));
-        long d = JsonSerializer.SerializeToElement(convoys.ProposeDestination(Id(1), Destination.CampaignNormal).Value).GetProperty("proposalRevision").GetInt64();
-        convoys.CommitDestination(Id(1), d);
+        long d = JsonSerializer.SerializeToElement(convoys.SetIntent(Id(1), new ConvoyIntent(IntentKind.Campaign, "normal", null, null)).Value)
+            .GetProperty("modeRevision").GetInt64();
+        convoys.EnterMode(Id(1), d); // solo: the leader's intent is their own Mode Ready
         clock.Advance(TimeSpan.FromSeconds(15));
         long e = JsonSerializer.SerializeToElement(convoys.ProposeEvent(Id(1), new EventRequest("S01", null, null, null, null, null, null)).Value)
             .GetProperty("proposalRevision").GetInt64();
