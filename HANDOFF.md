@@ -105,7 +105,7 @@ Render Cockpit Sheets* renders the mounted views of every car.
 
 0. Addendum 03 remaining (before benchmark certification; tunnels V-051, camera timing/occlusion and six-client views
    V-052, readability and bridges V-053, online recovery/impairment/soak V-054 are done): prediction hitches for a
-   heavy-contact client under ~190 ms RTT; R11 (recovery then network loss/rejoin); the ~0.5 MB/race managed growth; G04/G05 instrument checks in built races;
+   heavy-contact client under ~190 ms RTT; the ~0.5 MB/race managed growth (40-race soak running); G04/G05 instrument checks in built races;
    soak and record migration report (A3.8); then F08 and benchmark certification.
 1. Customization follow-ups: two humans in one race seeing each other's liveries; meet refresh of liveries; pearl flip
    tint; rename/delete presets in the UI (the ops exist).

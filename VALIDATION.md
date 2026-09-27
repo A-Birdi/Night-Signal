@@ -870,3 +870,14 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   number equalled the road speed within 1 km/h, with 0 negative values, 0 needle positions outside the 250° sweep and 0
   NaN/blank — **PASS**. Crest airtime and void falls stay covered by EditMode `InstrumentTests` (G04), not this run.
 - Long soak (40 races, same car) is still running from a separate copy of the previous build.
+
+## V-057 — R11: recovery then network loss and a re-entry attempt (2026-09-27)
+- Revision: working tree on `716ec13` (committed in the next checkpoint). Built dedicated server + 3 client player processes
+  (batch mode) + local control plane, loopback; `net-race.ps1 -Humans 3 -FreeplayCourse C01 -FreeplayAi 3 -ResetAt 20
+  -DropAfterReset` (`Evidence/net/run-20260927-141143-h3-C01-ai3`).
+- Client 0 held reset at 20 s; the server completed the recovery (client received total 1); the client then dropped its
+  connection and, 2.5 s later, tried to come back into the race with the same ticket: **refused** (`ticket_Replayed` —
+  single-use tickets; the server also refuses any entry after the countdown). The server recorded the entrant once as
+  `DisqualifiedDisconnect` (checkpoint fraction 0.19, not clean — the reset counts), the event still had 6 entrants (no
+  new entrant, no AI replacement), the two other humans finished and were credited normally (6,460 and 7,461), and client
+  0's receipt settled once as DisqualifiedDisconnect with a payout of 0 and an unchanged wallet — **PASS**. Localhost only.

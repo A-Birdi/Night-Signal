@@ -132,12 +132,37 @@ namespace NightSignal.Net
             DontDestroyOnLoad(go);
             race = go.AddComponent<RaceClient>();
             race.Autopilot = true;
-            race.Connect((string)allocation["server"]["host"], (ushort)(int)allocation["server"]["port"], (string)allocation["ticket"]);
+            string host = (string)allocation["server"]["host"], ticket = (string)allocation["ticket"];
+            ushort port = (ushort)(int)allocation["server"]["port"];
+            race.Connect(host, port, ticket);
             Note($"connecting to match {matchId}");
 
-            await WaitFor(() => race.Results != null || race.Phase == MatchPhase.Aborted || race.DisconnectReason != null, cfg.ExitAfterSeconds, "race results");
-            if (race.Results == null) throw new InvalidOperationException($"no results: phase {race.Phase}, disconnect '{race.DisconnectReason}'");
-            ResultEntrant mine = race.Results.Entrants.FirstOrDefault(e => e.EntrantId == cp.AccountId);
+            ResultEntrant mine = null;
+            string reconnect = null;
+            int recoveriesBeforeDrop = -1;
+            if (cfg.AutoDropAfterReset)
+            {
+                // Addendum 03 R11: a recovery immediately followed by a lost connection, then an attempt to drive on.
+                await WaitFor(() => race.ServerRecoveries >= 1 || race.Results != null, cfg.ExitAfterSeconds, "the scripted recovery");
+                recoveriesBeforeDrop = race.ServerRecoveries;
+                Note($"server completed the recovery (total {recoveriesBeforeDrop}); dropping the connection");
+                Destroy(go);
+                await Task.Delay(2500);
+                var again = new GameObject("RaceClientReconnect");
+                DontDestroyOnLoad(again);
+                race = again.AddComponent<RaceClient>();
+                race.Autopilot = true;
+                race.Connect(host, port, ticket);
+                await WaitFor(() => race.DisconnectReason != null || race.Info != null, 30, "reconnect outcome");
+                reconnect = race.DisconnectReason ?? "connected (match info received)";
+                Note($"reconnect attempt with the same ticket: {reconnect}");
+            }
+            else
+            {
+                await WaitFor(() => race.Results != null || race.Phase == MatchPhase.Aborted || race.DisconnectReason != null, cfg.ExitAfterSeconds, "race results");
+                if (race.Results == null) throw new InvalidOperationException($"no results: phase {race.Phase}, disconnect '{race.DisconnectReason}'");
+                mine = race.Results.Entrants.FirstOrDefault(e => e.EntrantId == cp.AccountId);
+            }
 
             JObject receipt = null;
             await WaitFor(async () =>
@@ -145,7 +170,7 @@ namespace NightSignal.Net
                 (int status, JObject body) = await cp.GetWithStatus($"/v1/matches/{matchId}/receipt");
                 if (status == 200 && (string)body["status"] != "pending") { receipt = body; return true; }
                 return false;
-            }, 60, "receipt");
+            }, cfg.AutoDropAfterReset ? cfg.ExitAfterSeconds : 60, "receipt");
             me = await cp.Get("/v1/me");
             long walletAfter = (long)me["wallet"]["balance"];
 
@@ -160,12 +185,22 @@ namespace NightSignal.Net
                 snapshots = race.SnapshotsReceived, inputPacketsSent = race.InputsSent,
                 reconciliations = race.Corrections, maxCorrectionMetres = race.MaxCorrectionMetres,
                 serverRecoveries = race.ServerRecoveries, impairedSnapshotDrops = race.ImpairedSnapshotDrops, impairedInputDrops = race.ImpairedInputDrops,
-                result = mine, entrants = race.Results.Entrants.Count, receipt,
+                result = mine, entrants = race.Results?.Entrants.Count ?? -1, receipt, reconnect, recoveriesBeforeDrop,
                 walletBefore, walletAfter, rankPointsBefore = rpBefore, rankPointsAfter = (int)me["rank"]["rankPoints"],
                 log, utc = DateTime.UtcNow.ToString("o"),
             });
-            bool ok = mine != null && mine.Outcome == "Finished" && walletAfter > walletBefore;
-            Note(ok ? "PASS" : "FAIL: no finish or no credit");
+            bool ok;
+            if (cfg.AutoDropAfterReset)
+            {
+                // Refused re-entry, one settled receipt, no finish credited for a disqualified run.
+                ok = reconnect != null && !reconnect.StartsWith("connected") && receipt != null && (string)receipt["outcome"] != "Finished";
+                Note(ok ? $"PASS (settled as {(string)receipt["outcome"]}, wallet {walletBefore} -> {walletAfter})" : $"FAIL: reconnect '{reconnect}', receipt outcome {(string)receipt?["outcome"]}");
+            }
+            else
+            {
+                ok = mine != null && mine.Outcome == "Finished" && walletAfter > walletBefore;
+                Note(ok ? "PASS" : "FAIL: no finish or no credit");
+            }
             return ok;
         }
 

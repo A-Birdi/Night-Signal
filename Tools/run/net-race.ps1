@@ -33,7 +33,9 @@ param(
     # Application-level impairment on every client: 'delayMs,jitterMs,dropPercent' each way (evidence runs only).
     [string]$Impair = '',
     # Client 0 holds reset this many seconds after the start (a scripted manual recovery; negative = none).
-    [int]$ResetAt = -1
+    [int]$ResetAt = -1,
+    # Client 0 drops its connection right after that recovery and tries to come back (Addendum 03 R11).
+    [switch]$DropAfterReset
 )
 
 $ErrorActionPreference = 'Stop'
@@ -65,6 +67,7 @@ for ($i = 0; $i -lt $Humans; $i++) {
     if ($FreeplayCourse) { $clientArgs += @('-nsAutoFreeplay', $FreeplayCourse, '-nsAutoFreeplayAi', "$FreeplayAi", '-nsAutoFreeplayMode', $FreeplayMode) }
     if ($Impair) { $clientArgs += @('-nsImpair', $Impair) }
     if ($ResetAt -ge 0 -and $i -eq 0) { $clientArgs += @('-nsAutoResetAt', "$ResetAt") }
+    if ($DropAfterReset -and $i -eq 0) { $clientArgs += @('-nsAutoDropAfterReset') }
     if ($CameraClients) {
         $views = @('chase-close', 'chase-far', 'hood', 'bumper', 'cockpit', 'chase-far')
         $styles = @('dial', 'strip', 'dial', 'strip', 'dial', 'strip')
