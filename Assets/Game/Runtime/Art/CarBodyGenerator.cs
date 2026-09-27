@@ -26,7 +26,7 @@ namespace NightSignal.Art
     {
         const int Stations = 80; // ~5 cm spacing so wheel arches read as curves
 
-        sealed class Profile
+        internal sealed class Profile
         {
             public CarBodyDef D;
             public VehicleParams P;
@@ -50,6 +50,109 @@ namespace NightSignal.Art
             m.RecalculateNormals();
             m.RecalculateTangents();
             return m;
+        }
+
+        /// <summary>The loft of one car body, for placing things on its surface (decals).</summary>
+        public static BodySurface Surface(CarBodyDef d, VehicleParams p) => new BodySurface(Layout(d, p));
+
+        /// <summary>
+        /// Body-surface queries from the same loft as the mesh: a decal zone frame (u across, v along/up, both 0..1) with the
+        /// outward normal and a tangent (the decal "right"), and conforming any point of a decal back onto the surface so
+        /// large shapes follow the curvature instead of standing off it.
+        /// </summary>
+        public sealed class BodySurface
+        {
+            readonly Profile pr;
+
+            internal BodySurface(Profile profile) => pr = profile;
+
+            float SideX(float z, float y)
+            {
+                float yb = Bottom(pr, z), yt = TopLine(pr, z);
+                float t = Mathf.Clamp01((y - yb) / Mathf.Max(0.01f, yt - yb));
+                float w = HalfWidth(pr, z);
+                return t >= 0.38f ? w * (1f - pr.D.Tumblehome * 0.15f * (t - 0.38f) / 0.46f) : w * (0.97f + 0.03f * t / 0.38f);
+            }
+
+            float HoodY(float x, float z)
+            {
+                float wTop = Mathf.Max(0.01f, HalfWidth(pr, z) * 0.55f);
+                return TopLine(pr, z) + pr.D.Crown * (1f - 0.25f * Sq(Mathf.Clamp(x / wTop, -1.5f, 1.5f)));
+            }
+
+            public bool Frame(string zone, float u, float v, out Vector3 pos, out Vector3 normal, out Vector3 tangent)
+            {
+                CarBodyDef d = pr.D;
+                u = Mathf.Clamp01(u);
+                v = Mathf.Clamp01(v);
+                pos = normal = tangent = Vector3.zero;
+                switch (zone)
+                {
+                    case "left":
+                    case "right":
+                    {
+                        float side = zone == "right" ? 1f : -1f;
+                        float z = Mathf.Lerp(pr.Zr + 0.3f, pr.Zf - 0.3f, u);
+                        float yb = Bottom(pr, z), yt = TopLine(pr, z);
+                        float y = yb + Mathf.Lerp(0.12f, 0.82f, v) * (yt - yb);
+                        pos = new Vector3(side * SideX(z, y), y, z);
+                        normal = new Vector3(side, (y - yb) / Mathf.Max(0.01f, yt - yb) > 0.38f ? d.Tumblehome * 0.3f : 0f, 0f).normalized;
+                        tangent = side > 0f ? Vector3.back : Vector3.forward; // reads front-to-back on both sides
+                        return true;
+                    }
+                    case "hood":
+                    {
+                        float z = Mathf.Lerp(pr.ZWs + 0.12f, pr.Zf - 0.18f, v);
+                        float wTop = HalfWidth(pr, z) * 0.55f;
+                        float x = Mathf.Lerp(-wTop, wTop, u);
+                        float slope = (TopLine(pr, z + 0.05f) - TopLine(pr, z - 0.05f)) / 0.1f;
+                        pos = new Vector3(x, HoodY(x, z), z);
+                        normal = new Vector3(0f, 1f, -slope).normalized;
+                        tangent = Vector3.right;
+                        return true;
+                    }
+                    case "roof":
+                    {
+                        if (d.Style == "roadster") return false;
+                        float z = Mathf.Lerp(pr.ZRoofR + 0.06f, pr.ZRoofF - 0.06f, v);
+                        float wRoof = HalfWidth(pr, z) * d.RoofTaper * 0.8f;
+                        pos = new Vector3(Mathf.Lerp(-wRoof, wRoof, u), CabinTop(pr, z) + d.Crown * 0.2f, z);
+                        normal = Vector3.up;
+                        tangent = Vector3.right;
+                        return true;
+                    }
+                    case "rear":
+                    case "front":
+                    {
+                        bool front = zone == "front";
+                        float z = front ? pr.Zf : pr.Zr;
+                        float w = HalfWidth(pr, z + (front ? -0.05f : 0.05f)) * 0.8f;
+                        float yb = Bottom(pr, z) + 0.08f, yt = TopLine(pr, z) - 0.04f;
+                        pos = new Vector3(front ? Mathf.Lerp(-w, w, u) : Mathf.Lerp(w, -w, u), Mathf.Lerp(yb, yt, v), z);
+                        normal = front ? Vector3.forward : Vector3.back;
+                        tangent = front ? Vector3.right : Vector3.left;
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            /// <summary>Moves a point of a decal in <paramref name="zone"/> back onto the body surface, <paramref name="lift"/> above it.</summary>
+            public Vector3 Conform(string zone, Vector3 q, float lift)
+            {
+                float z = Mathf.Clamp(q.z, pr.Zr + 0.02f, pr.Zf - 0.02f);
+                float zRoof = Mathf.Clamp(q.z, pr.ZRoofR, pr.ZRoofF);
+                switch (zone)
+                {
+                    case "left": return new Vector3(-(SideX(z, q.y) + lift), q.y, z);
+                    case "right": return new Vector3(SideX(z, q.y) + lift, q.y, z);
+                    case "hood": return new Vector3(q.x, HoodY(q.x, z) + lift, z);
+                    case "roof": return new Vector3(q.x, CabinTop(pr, zRoof) + pr.D.Crown * 0.2f + lift, zRoof);
+                    case "front": return new Vector3(q.x, q.y, pr.Zf + lift);
+                    case "rear": return new Vector3(q.x, q.y, pr.Zr - lift);
+                    default: return q;
+                }
+            }
         }
 
         /// <summary>Centre of the rear number plate in model space (the plate panel faces −z).</summary>

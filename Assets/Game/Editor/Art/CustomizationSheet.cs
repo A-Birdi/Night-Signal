@@ -36,6 +36,7 @@ namespace NightSignal.Editor.ArtTools
                 RenderSheet(Path.Combine(dir, $"families-{car}-rear.png"), FamilyTiles(car, 172f), 3);
             }
             RenderSheet(Path.Combine(dir, "rims.png"), RimTiles("V01"), 4, closeUp: true);
+            RenderSheet(Path.Combine(dir, "decals-V01.png"), DecalTiles("V01"), 2);
             Debug.Log("[NightSignal.Art] customization sheets written to " + dir);
         }
 
@@ -63,6 +64,31 @@ namespace NightSignal.Editor.ArtTools
             };
             foreach (Tile t in tiles) t.YawDeg = yaw;
             return tiles;
+        }
+
+        public static List<Tile> DecalTiles(string car)
+        {
+            var white = Color.white;
+            var gold = new Color(0.95f, 0.75f, 0.2f);
+            var a = new CarAppearance { Primary = new Color(0.1f, 0.12f, 0.16f), Finish = "metallic", Front = "lip", RimStyle = "6-spoke" };
+            a.Decals.Add(new CarDecal { Render = "twin-stripe", Zone = "left", U = 0.5f, V = 0.35f, Scale = 1.4f, Color = gold, Mirror = true });
+            a.Decals.Add(new CarDecal { Render = "digit", Glyph = "27", Zone = "left", U = 0.55f, V = 0.62f, Scale = 0.2f, Color = white, Mirror = true });
+            a.Decals.Add(new CarDecal { Render = "ring", Zone = "left", U = 0.55f, V = 0.62f, Scale = 0.42f, Color = white, Mirror = true });
+            a.Decals.Add(new CarDecal { Render = "star", Zone = "hood", U = 0.5f, V = 0.5f, Scale = 0.45f, Color = gold });
+            a.Decals.Add(new CarDecal { Render = "arcs", Zone = "left", U = 0.18f, V = 0.55f, Scale = 0.4f, Color = new Color(0.9f, 0.2f, 0.2f), RotationDeg = -20f, Mirror = true });
+            var b = new CarAppearance { Primary = new Color(0.95f, 0.95f, 0.93f), Front = "aero", RimStyle = "mesh" };
+            b.Decals.Add(new CarDecal { Render = "flame", Zone = "left", U = 0.78f, V = 0.35f, Scale = 0.9f, Color = new Color(0.95f, 0.35f, 0.1f), Mirror = true, Flip = true });
+            b.Decals.Add(new CarDecal { Render = "chevron", Zone = "hood", U = 0.5f, V = 0.35f, Scale = 0.35f, Color = new Color(0.1f, 0.1f, 0.12f), RotationDeg = 90f });
+            b.Decals.Add(new CarDecal { Render = "text", Glyph = "NIGHT SIGNAL", Zone = "left", U = 0.4f, V = 0.74f, Scale = 0.07f, Color = new Color(0.1f, 0.1f, 0.12f), Mirror = true });
+            b.Decals.Add(new CarDecal { Render = "bars", Zone = "rear", U = 0.8f, V = 0.7f, Scale = 0.18f, Color = new Color(0.1f, 0.1f, 0.12f) });
+            b.Decals.Add(new CarDecal { Render = "hex", Zone = "roof", U = 0.5f, V = 0.5f, Scale = 0.4f, Color = new Color(0.9f, 0.1f, 0.15f) });
+            return new List<Tile>
+            {
+                new Tile { CarId = car, Label = "stripes, number ring, hood star, arcs", Appearance = a, YawDeg = -8f },
+                new Tile { CarId = car, Label = "flames, chevron, lettering, roof hex", Appearance = b, YawDeg = -8f },
+                new Tile { CarId = car, Label = "same, rear", Appearance = a, YawDeg = 172f },
+                new Tile { CarId = car, Label = "same, rear", Appearance = b, YawDeg = 172f },
+            };
         }
 
         public static List<Tile> RimTiles(string car)

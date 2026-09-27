@@ -480,6 +480,11 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - Evidence sheets rendered from real `VehicleView`s in an isolated preview scene (`Night Signal/Art/Render
   Customization Sheets`): `Evidence/art/customization/families-V01-front|rear.png`, `families-V06-front|rear.png`
   (six before/after tiles each), `rims.png`. EditMode 191/191; the yard tour still passes on the stock view path.
+- Decals (up to 64 layers): stripe, twin-stripe, pinstripe, circle, ring, arrow, chevron, star, bars, arcs, flame, hex
+  as procedural shapes, digits and lettering from the font baked into a mesh; every vertex conformed onto the body
+  surface from the same loft as the mesh (no floating planes), later layers lifted above earlier ones, mirror places the
+  symmetric copy (lettering stays readable, shapes are flipped), zones hood / roof / left / right / front / rear.
+  `Evidence/art/customization/decals-V01.png`.
 - Honest limits: procedural prototype art (the A-pillar paint panel and the mirrors' placement predate this work);
-  fitment per chassis, ownership, decals (64 layers) and presets come with the Core customization model (in
-  progress); the variants are not yet selectable in the Garage nor sent to other players.
+  fitment per chassis, ownership and presets come with the Core customization model (in progress); the variants are
+  not yet selectable in the Garage nor sent to other players.

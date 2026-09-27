@@ -18,7 +18,7 @@ namespace NightSignal.Vehicle
         Vector3 leanVelocity;
         Vector2 lean;
         Material paint;
-        readonly System.Collections.Generic.List<Material> owned = new System.Collections.Generic.List<Material>();
+        readonly System.Collections.Generic.List<Object> owned = new System.Collections.Generic.List<Object>(); // per-car materials and meshes
         Light[] headlights;
 
         public Material Paint => paint;
@@ -68,6 +68,7 @@ namespace NightSignal.Vehicle
             body.gameObject.AddComponent<MeshFilter>().sharedMesh = CarBodyGenerator.BuildBody(def, p, a);
             body.gameObject.AddComponent<MeshRenderer>().sharedMaterials = cm.BodyArray;
             if (!string.IsNullOrEmpty(a.PlateText)) Plate(def, a.PlateText);
+            CarDecals.Build(body, def, p, a.Decals, mats.Paint, owned);
 
             Mesh wheelMesh = CarBodyGenerator.BuildWheel(def, a);
             for (int i = 0; i < 4; i++)
@@ -125,11 +126,12 @@ namespace NightSignal.Vehicle
             t.enableAutoSizing = true;
             t.fontSizeMin = 0.2f;
             t.fontSizeMax = 1f;
+            t.ForceMeshUpdate();
         }
 
         void OnDestroy()
         {
-            foreach (Material m in owned) if (m != null) Destroy(m);
+            foreach (Object o in owned) if (o != null) Destroy(o);
         }
 
         float StaticCompression()

@@ -60,6 +60,10 @@ namespace NightSignal.Art
     public sealed class CarDecal
     {
         public string ShapeId = "";
+        /// <summary>stripe | twin-stripe | pinstripe | circle | ring | arrow | chevron | star | bars | arcs | flame | hex | digit | text</summary>
+        public string Render = "stripe";
+        /// <summary>digit / text only: the literal characters (never markup).</summary>
+        public string Glyph = "";
         public Color Color = Color.white;
         /// <summary>hood | roof | left | right | rear | front</summary>
         public string Zone = "left";
