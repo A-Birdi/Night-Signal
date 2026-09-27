@@ -468,3 +468,18 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   ab6c3d46f265 … applied revision 4, 1 part(s) — hash verified", P1 of 4.
 - Not covered: two clients editing the same online car at once (the server's revision check answers `stale_revision`;
   the screen then shows the server's car), online Test Yard entry (the yard is local practice either way).
+
+## V-042 — Visible customization renderer: body-kit families, two-tone, finishes, eight rim designs (2026-09-27)
+- `CarAppearance` → `CarBodyGenerator` / `VehicleView` (Addendum 01 §13): front stock|lip|aero|track, rear
+  stock|diffuser|valance, side stock|skirt|sculpted, rear aero stock|ducktail|wing|gt-wing|lip-spoiler, exhaust
+  stock|dual|quad|center; paint primary/secondary/accent with finishes gloss|metallic|pearl|matte|satin; two-tone
+  lower|roof|hood-stripe|side-stripe on real mesh edges (extra loft ring points, three-panel roof); lamp tints
+  clear|amber|smoke-light (never invisible); rear plate text (literal); eight rim designs 5-spoke, 6-spoke, mesh,
+  split, dish, turbofan, multi-spoke, 3-spoke. Appearance never touches `VehicleParams`. Tyres are now closed (sidewalls,
+  dark barrel) instead of open tubes.
+- Evidence sheets rendered from real `VehicleView`s in an isolated preview scene (`Night Signal/Art/Render
+  Customization Sheets`): `Evidence/art/customization/families-V01-front|rear.png`, `families-V06-front|rear.png`
+  (six before/after tiles each), `rims.png`. EditMode 191/191; the yard tour still passes on the stock view path.
+- Honest limits: procedural prototype art (the A-pillar paint panel and the mirrors' placement predate this work);
+  fitment per chassis, ownership, decals (64 layers) and presets come with the Core customization model (in
+  progress); the variants are not yet selectable in the Garage nor sent to other players.

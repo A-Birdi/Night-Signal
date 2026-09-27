@@ -18,34 +18,58 @@ namespace NightSignal.Vehicle
         Vector3 leanVelocity;
         Vector2 lean;
         Material paint;
+        readonly System.Collections.Generic.List<Material> owned = new System.Collections.Generic.List<Material>();
         Light[] headlights;
 
         public Material Paint => paint;
 
-        public static VehicleView Create(string name, VehicleParams p, CarBodyDef body, CarMaterialSet mats, Color paintColor)
+        /// <summary>The appearance this view was built with.</summary>
+        public CarAppearance Appearance { get; private set; }
+
+        public static VehicleView Create(string name, VehicleParams p, CarBodyDef body, CarMaterialSet mats, Color paintColor, CarAppearance appearance = null)
         {
             var root = new GameObject(name);
             var view = root.AddComponent<VehicleView>();
-            view.Build(p, body, mats, paintColor);
+            view.Build(p, body, mats, appearance ?? CarAppearance.Stock(paintColor));
             return view;
         }
 
-        void Build(VehicleParams parameters, CarBodyDef def, CarMaterialSet mats, Color paintColor)
+        Material Instance(Material source, string name, Color color, string finish)
+        {
+            var m = new Material(source) { name = name };
+            m.SetColor("_BaseColor", color);
+            if (finish != null)
+            {
+                (float metallic, float smoothness) = CarAppearance.FinishValues(finish);
+                m.SetFloat("_Metallic", metallic);
+                m.SetFloat("_Smoothness", smoothness);
+            }
+            owned.Add(m);
+            return m;
+        }
+
+        void Build(VehicleParams parameters, CarBodyDef def, CarMaterialSet mats, CarAppearance a)
         {
             p = parameters;
-            paint = new Material(mats.Paint) { name = $"{def.Id}_Paint" };
-            paint.SetColor("_BaseColor", paintColor);
+            Appearance = a;
+            paint = Instance(mats.Paint, $"{def.Id}_Paint", a.Primary, a.Finish);
             CarMaterials cm = mats.ForPaint(paint);
+            cm.Paint2 = Instance(mats.Paint, $"{def.Id}_Paint2", a.Secondary, a.Finish);
+            cm.Accent = Instance(mats.Paint, $"{def.Id}_Accent", a.Accent, "satin");
+            cm.Rim = Instance(mats.Rim, $"{def.Id}_Rim", a.RimColor, null);
+            if (a.HeadTint != "clear") cm.HeadLamp = Instance(mats.HeadLamp, $"{def.Id}_Head", CarAppearance.LampTint(a.HeadTint, mats.HeadLamp.GetColor("_BaseColor")), null);
+            if (a.TailTint != "clear") cm.TailLamp = Instance(mats.TailLamp, $"{def.Id}_Tail", CarAppearance.LampTint(a.TailTint, mats.TailLamp.GetColor("_BaseColor")), null);
 
             // Model space has the ground at y = 0; the simulation origin is the CG.
             float groundOffset = p.CgHeightM - StaticCompression();
             body = new GameObject("Body").transform;
             body.SetParent(transform, false);
             body.localPosition = new Vector3(0f, -groundOffset, 0f);
-            body.gameObject.AddComponent<MeshFilter>().sharedMesh = CarBodyGenerator.BuildBody(def, p);
+            body.gameObject.AddComponent<MeshFilter>().sharedMesh = CarBodyGenerator.BuildBody(def, p, a);
             body.gameObject.AddComponent<MeshRenderer>().sharedMaterials = cm.BodyArray;
+            if (!string.IsNullOrEmpty(a.PlateText)) Plate(def, a.PlateText);
 
-            Mesh wheelMesh = CarBodyGenerator.BuildWheel(def);
+            Mesh wheelMesh = CarBodyGenerator.BuildWheel(def, a);
             for (int i = 0; i < 4; i++)
             {
                 var pivot = new GameObject($"Wheel{i}").transform;
@@ -82,6 +106,30 @@ namespace NightSignal.Vehicle
                 headlights[s] = l;
             }
             SetLayerRecursive(transform, GameLayers.Vehicle);
+        }
+
+        /// <summary>The number plate lettering (literal text, never markup) on the rear plate panel.</summary>
+        void Plate(CarBodyDef def, string text)
+        {
+            var go = new GameObject("Plate");
+            go.transform.SetParent(body, false);
+            go.transform.localPosition = CarBodyGenerator.RearPlateCentre(def, p);
+            // TextMeshPro faces −z: readable by someone standing behind the car.
+            var t = go.AddComponent<TMPro.TextMeshPro>();
+            t.richText = false;
+            t.text = text;
+            t.fontSize = 0.9f;
+            t.alignment = TMPro.TextAlignmentOptions.Center;
+            t.color = new Color(0.08f, 0.08f, 0.1f);
+            t.rectTransform.sizeDelta = new Vector2(0.5f, 0.12f);
+            t.enableAutoSizing = true;
+            t.fontSizeMin = 0.2f;
+            t.fontSizeMax = 1f;
+        }
+
+        void OnDestroy()
+        {
+            foreach (Material m in owned) if (m != null) Destroy(m);
         }
 
         float StaticCompression()
@@ -143,9 +191,5 @@ namespace NightSignal.Vehicle
             foreach (Transform c in t) SetLayerRecursive(c, layer);
         }
 
-        void OnDestroy()
-        {
-            if (paint != null) Destroy(paint);
-        }
     }
 }
