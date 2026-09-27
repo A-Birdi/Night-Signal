@@ -1,0 +1,7 @@
+[NightSignal.SoakTour] query probe on C01: idle 600 frames 1 KB; 60000 sphere casts 1 KB (0.0 B each); 60000 raycasts 1 KB (0.0 B each)
+[NightSignal.SoakTour] baseline in the menus: cameras 1, driving cameras 0, views 0, HUDs 0, speed lines 0, listeners 0, lights 1, managed 3.8 MB
+[NightSignal.SoakTour] race 1 C01: objects (meshes, materials, textures, clips, GameObjects, terrain data, ScriptableObjects; Unity allocated/reserved, Mono heap, graphics driver MB; rigidbodies) 204,112,126,0,240,1,98,233,818,61,91,0,535.6,1.7,1.4,0.0,90.9,87.1,12.2,0.5,4214,2752,1462,112
+[NightSignal.SoakTour] race 1 C01: 42042 frames
+[NightSignal.SoakTour] race 1 C01: 6 reset requests → 6 resets, 10 gates; then cameras 1, driving cameras 0, views 0, HUDs 0, speed lines 0, listeners 0, lights 1, managed 6.3 MB; frame 1.74/3.08 ms
+[NightSignal.SoakTour] static collections/handlers after race 1 vs the end (87 non-empty): none grew
+[NightSignal.SoakTour] PASS

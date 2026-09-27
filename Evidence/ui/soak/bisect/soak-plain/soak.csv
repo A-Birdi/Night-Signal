@@ -1,0 +1,7 @@
+race,course,cameras,drivingCameras,vehicleViews,raceHuds,speedLines,prefListeners,lights,managedMB,meshes,materials,textures,audioClips,gameObjects,terrainData,scriptableObjects,unityAllocatedMB,unityReservedMB,monoHeapMB,gfxDriverMB,physicsBodies,SystemUsedMemory,ProfilerUsedMemory,AudioUsedMemory,VideoUsedMemory,GfxUsedMemory,TextureMemory,MeshMemory,MaterialMemory,ObjectCount,AssetCount,SceneObjectCount,MaterialCount,frameMsMean,frameMsP99,raceFinished,playerResets,playerCheckpoints,playerFinishS
+1,C01,1,0,0,0,0,0,1,6.8,204,112,126,0,246,1,98,226,822,90,121,0,559.6,1.7,1.4,0.0,120.9,113.2,12.2,0.5,4232,2752,1480,112,3.56,5.93,False,6,10,-1.0
+2,C08,1,0,0,0,0,0,1,7.4,204,113,126,0,246,1,98,234,824,90,121,0,581.1,1.7,1.4,0.0,120.9,113.2,12.2,0.5,4233,2753,1480,113,3.75,5.83,False,6,10,-1.0
+3,C12,1,0,0,0,0,0,1,7.6,204,113,126,0,246,1,98,243,824,90,121,0,599.4,1.7,1.4,0.0,120.9,113.2,12.2,0.5,4233,2753,1480,113,3.00,5.71,False,6,10,-1.0
+4,C03,1,0,0,0,0,0,1,7.5,204,113,126,0,246,1,98,262,826,90,121,0,620.0,1.7,1.4,0.0,120.9,113.2,12.2,0.5,4233,2753,1480,113,1.84,3.30,False,6,9,-1.0
+5,C01,1,0,0,0,0,0,1,7.5,204,112,126,0,246,1,98,275,826,90,121,0,636.0,1.7,1.4,0.0,120.9,113.2,12.2,0.5,4232,2752,1480,112,2.07,3.60,False,6,10,-1.0
+6,C08,1,0,0,0,0,0,1,7.7,204,113,126,0,246,1,98,289,826,90,121,0,657.8,1.7,1.4,0.0,120.9,113.2,12.2,0.5,4233,2753,1480,113,2.07,3.52,False,6,10,-1.0

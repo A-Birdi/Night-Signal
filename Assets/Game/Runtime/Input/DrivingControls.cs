@@ -178,10 +178,21 @@ namespace NightSignal.InputBindings
             InputAction a = Map.FindAction(actionName);
             if (a == null) return actionName;
             int k = BindingIndex(a, "<Keyboard>", null), g = BindingIndex(a, "<Gamepad>", null);
+            string keyPath = k >= 0 ? a.bindings[k].effectivePath : null, padPath = g >= 0 ? a.bindings[g].effectivePath : null;
+            // Cached per effective binding: the Input System's display-string lookup kept native memory on every call, and
+            // the HUD asks every frame (the soak measured ~0.4 KB per frame, ~10-17 MB per race). A remap changes the
+            // effective path, so the prompt still follows it.
+            if (labels.TryGetValue(actionName, out (string key, string pad, string label) cached) && cached.key == keyPath && cached.pad == padPath)
+                return cached.label;
             string key = k >= 0 ? a.GetBindingDisplayString(k) : "";
             string pad = g >= 0 ? a.GetBindingDisplayString(g) : "";
-            return key.Length > 0 && pad.Length > 0 ? key + " / " + pad : key + pad;
+            string label = key.Length > 0 && pad.Length > 0 ? key + " / " + pad : key + pad;
+            labels[actionName] = (keyPath, padPath, label);
+            return label;
         }
+
+        readonly System.Collections.Generic.Dictionary<string, (string key, string pad, string label)> labels =
+            new System.Collections.Generic.Dictionary<string, (string key, string pad, string label)>();
 
         public bool ShiftUpPressedThisFrame => shiftUp.WasPressedThisFrame();
         public bool ShiftDownPressedThisFrame => shiftDown.WasPressedThisFrame();

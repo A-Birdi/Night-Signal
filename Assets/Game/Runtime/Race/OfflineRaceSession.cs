@@ -61,6 +61,10 @@ namespace NightSignal.Race
         readonly Dictionary<RaceEntrant, VehicleState> previous = new Dictionary<RaceEntrant, VehicleState>();
         readonly Dictionary<RaceEntrant, VehicleView> views = new Dictionary<RaceEntrant, VehicleView>();
         DrivingControls controls;
+        /// <summary>Soak diagnostic only: skip drawing the cars and HUD (the simulation runs on).</summary>
+        internal static bool SoakSkipRender;
+        /// <summary>Soak diagnostic only: stop reading the local controls.</summary>
+        internal void SoakDropControls() { controls?.Dispose(); controls = null; }
         RouteFollower pilot;
         /// <summary>The autopilot driving the player's car (null without autopilot) — diagnostics and tests.</summary>
         public RouteFollower Pilot => Autopilot ? pilot : null;
@@ -161,7 +165,7 @@ namespace NightSignal.Race
                 steps++;
             }
             if (steps == maxSteps) accumulator = 0;
-            if (!Headless) Render();
+            if (!Headless && !SoakSkipRender) Render();
         }
 
         void FixedTick()

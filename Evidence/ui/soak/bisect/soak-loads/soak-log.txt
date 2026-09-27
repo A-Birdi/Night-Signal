@@ -1,0 +1,19 @@
+[NightSignal.SoakTour] baseline in the menus: cameras 1, driving cameras 0, views 0, HUDs 0, speed lines 0, listeners 0, lights 1, managed 3.8 MB
+[NightSignal.SoakTour] load 1 C01: objects 204,103,124,0,239,1,97,209,568,83,121,0,521.2,1.6,1.4,0.0,120.6,112.6,12.2,0.4,4197,2741,1456,103; managed 3.8 MB
+[NightSignal.SoakTour] load 2 C08: objects 204,103,124,0,239,1,97,211,568,83,121,0,531.9,1.7,1.4,0.0,120.6,112.6,12.2,0.4,4197,2741,1456,103; managed 4.4 MB
+[NightSignal.SoakTour] load 3 C12: objects 204,103,124,0,239,1,97,211,570,83,121,0,542.0,1.7,1.4,0.0,120.6,112.6,12.2,0.4,4197,2741,1456,103; managed 4.4 MB
+[NightSignal.SoakTour] load 4 C03: objects 204,103,124,0,239,1,97,212,570,83,121,0,547.0,1.7,1.4,0.0,120.6,112.6,12.2,0.4,4197,2741,1456,103; managed 4.4 MB
+[NightSignal.SoakTour] load 5 C01: objects 204,103,124,0,239,1,97,212,570,83,121,0,553.3,1.7,1.4,0.0,120.6,112.6,12.2,0.4,4197,2741,1456,103; managed 4.4 MB
+[NightSignal.SoakTour] load 6 C08: objects 204,103,124,0,239,1,97,212,570,83,121,0,557.2,1.7,1.4,0.0,120.6,112.6,12.2,0.4,4197,2741,1456,103; managed 4.4 MB
+[NightSignal.SoakTour] load 7 C12: objects 204,103,124,0,239,1,97,212,570,83,121,0,556.5,1.7,1.4,0.0,120.6,112.6,12.2,0.4,4197,2741,1456,103; managed 4.4 MB
+[NightSignal.SoakTour] load 8 C03: objects 204,103,124,0,239,1,97,212,570,83,121,0,551.3,1.7,1.4,0.0,120.6,112.6,12.2,0.4,4197,2741,1456,103; managed 4.4 MB
+[NightSignal.SoakTour] load 9 C01: objects 204,103,124,0,239,1,97,212,570,83,121,0,552.6,1.7,1.4,0.0,120.6,112.6,12.2,0.4,4197,2741,1456,103; managed 4.4 MB
+[NightSignal.SoakTour] load 10 C08: objects 204,103,124,0,239,1,97,212,570,83,121,0,554.6,1.7,1.4,0.0,120.6,112.6,12.2,0.4,4197,2741,1456,103; managed 4.4 MB
+[NightSignal.SoakTour] load 11 C12: objects 204,103,124,0,239,1,97,212,570,83,121,0,555.0,1.7,1.4,0.0,120.6,112.6,12.2,0.4,4197,2741,1456,103; managed 4.4 MB
+[NightSignal.SoakTour] load 12 C03: objects 204,103,124,0,239,1,97,212,570,83,121,0,552.9,1.7,1.4,0.0,120.6,112.6,12.2,0.4,4197,2741,1456,103; managed 4.4 MB
+[NightSignal.SoakTour] load 13 C01: objects 204,103,124,0,239,1,97,212,570,83,121,0,554.7,1.7,1.4,0.0,120.6,112.6,12.2,0.4,4197,2741,1456,103; managed 4.4 MB
+[NightSignal.SoakTour] load 14 C08: objects 204,103,124,0,239,1,97,212,570,83,121,0,557.8,1.7,1.4,0.0,120.6,112.6,12.2,0.4,4197,2741,1456,103; managed 4.4 MB
+[NightSignal.SoakTour] load 15 C12: objects 204,103,124,0,239,1,97,212,570,83,121,0,559.0,1.7,1.4,0.0,120.6,112.6,12.2,0.4,4197,2741,1456,103; managed 4.4 MB
+[NightSignal.SoakTour] load 16 C03: objects 204,103,124,0,239,1,97,212,570,83,121,0,554.7,1.7,1.4,0.0,120.6,112.6,12.2,0.4,4197,2741,1456,103; managed 4.4 MB
+[NightSignal.SoakTour] static collections/handlers after race 1 vs the end (67 non-empty): none grew
+[NightSignal.SoakTour] PASS

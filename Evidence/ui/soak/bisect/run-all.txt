@@ -1,0 +1,12 @@
+[NightSignal.SoakTour] baseline in the menus: cameras 1, driving cameras 0, views 0, HUDs 0, speed lines 0, listeners 0, lights 1, managed 3.8 MB
+[NightSignal.SoakTour] race 1 C01: objects (meshes, materials, textures, clips, GameObjects, terrain data, ScriptableObjects; Unity allocated/reserved, Mono heap, graphics driver MB; rigidbodies) 204,112,126,0,240,1,98,221,818,69,91,0,516.5,1.7,1.4,0.0,90.9,87.1,12.2,0.5,4214,2752,1462,112
+[NightSignal.SoakTour] race 1 C01: 68135 frames with camera+drivingcam+views+input+hud+lines+audio off
+[NightSignal.SoakTour] race 1 C01: 6 reset requests → 6 resets, 10 gates; then cameras 1, driving cameras 0, views 0, HUDs 0, speed lines 0, listeners 0, lights 1, managed 6.4 MB; frame 1.07/4.92 ms
+[NightSignal.SoakTour] race 2 C08: objects (meshes, materials, textures, clips, GameObjects, terrain data, ScriptableObjects; Unity allocated/reserved, Mono heap, graphics driver MB; rigidbodies) 204,113,126,0,240,1,98,223,824,69,91,0,530.7,1.7,1.4,0.0,90.9,87.1,12.2,0.5,4215,2753,1462,113
+[NightSignal.SoakTour] race 2 C08: 77291 frames with camera+drivingcam+views+input+hud+lines+audio off
+[NightSignal.SoakTour] race 2 C08: 6 reset requests → 6 resets, 10 gates; then cameras 1, driving cameras 0, views 0, HUDs 0, speed lines 0, listeners 0, lights 1, managed 6.9 MB; frame 0.94/4.79 ms
+[NightSignal.SoakTour] race 3 C12: objects (meshes, materials, textures, clips, GameObjects, terrain data, ScriptableObjects; Unity allocated/reserved, Mono heap, graphics driver MB; rigidbodies) 204,113,126,0,240,1,98,223,824,109,91,0,555.4,1.7,1.4,0.0,91.0,87.1,12.2,0.5,4215,2753,1462,113
+[NightSignal.SoakTour] race 3 C12: 88116 frames with camera+drivingcam+views+input+hud+lines+audio off
+[NightSignal.SoakTour] race 3 C12: 6 reset requests → 6 resets, 10 gates; then cameras 1, driving cameras 0, views 0, HUDs 0, speed lines 0, listeners 0, lights 1, managed 7.0 MB; frame 0.83/4.37 ms
+[NightSignal.SoakTour] static collections/handlers after race 1 vs the end (87 non-empty): none grew
+[NightSignal.SoakTour] PASS

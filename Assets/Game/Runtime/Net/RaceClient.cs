@@ -126,6 +126,15 @@ namespace NightSignal.Net
         float rttSmoothedMs = -1f;
         long deadlineMicros = -1;
         Vector3 visualOffset, visualOffsetVelocity;
+        /// <summary>Correction blending keeps velocity continuous as well as position (<c>-nsCorrectionBlend position</c> = off, for A/B runs).</summary>
+        static readonly bool VelocityBlend = CorrectionBlendArg() != "position";
+
+        static string CorrectionBlendArg()
+        {
+            string[] a = System.Environment.GetCommandLineArgs();
+            int i = System.Array.IndexOf(a, "-nsCorrectionBlend");
+            return i >= 0 && i + 1 < a.Length ? a[i + 1] : null;
+        }
         RouteFollower autopilot;
         DrivingControls controls;
         DrivingCamera chase;
@@ -644,7 +653,7 @@ namespace NightSignal.Net
             if (error < 0.03f && velError < 0.2f) return;
 
             if (!Finite(server)) NoteNonFinite("server snapshot", $"tick {tick}");
-            Vector3 before = ownState.Position;
+            Vector3 before = ownState.Position, beforeVelocity = ownState.Velocity;
             VehicleState replay = server;
             for (int t = tick + 1; t <= lastPredictedTick; t++)
             {
@@ -660,6 +669,10 @@ namespace NightSignal.Net
             ownState = replay;
             float jump = Vector3.Distance(before, ownState.Position);
             visualOffset += before - ownState.Position; // hide corrections by blending the drawn car back onto the truth
+            // Keep the drawn car's velocity continuous too: without this the corrected prediction's new velocity showed at
+            // once as a kink in the chase camera (Addendum 03 C11, a heavy-contact client under ~190 ms RTT). Only small
+            // differences are absorbed — a real hit should still be felt.
+            if (VelocityBlend) visualOffsetVelocity += Vector3.ClampMagnitude(beforeVelocity - ownState.Velocity, 3f);
             // Beyond 8 m it is a discontinuity (a server recovery, a rejoin): snap, and the camera cuts with it.
             if (visualOffset.magnitude > 8f) { visualOffset = Vector3.zero; visualOffsetVelocity = Vector3.zero; }
             Corrections++;

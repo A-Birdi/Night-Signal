@@ -84,6 +84,22 @@ namespace NightSignal.Tests.Vehicle
         }
 
         [Test]
+        public void ThePromptLabelIsCached_AndStillFollowsARemap()
+        {
+            using (var c = new DrivingControls())
+            {
+                string before = c.BindingLabel("Reset");
+                StringAssert.StartsWith("R", before, "the keyboard key leads the prompt");
+                Assert.That(c.BindingLabel("Reset"), Is.SameAs(before), "asked again (every frame): the cached string, no new lookup");
+                InputAction reset = c.Map.FindAction("Reset");
+                reset.ApplyBindingOverride(DrivingControls.BindingIndex(reset, "<Keyboard>", null), "<Keyboard>/t");
+                string after = c.BindingLabel("Reset");
+                StringAssert.StartsWith("T", after, "a remap changes the prompt");
+                Assert.That(after, Is.Not.EqualTo(before));
+            }
+        }
+
+        [Test]
         public void CorruptStoredBindingsFallBackToDefaults()
         {
             DrivingPreferences p = DrivingPreferences.Current;

@@ -903,8 +903,9 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   payout — **PASS**. Localhost only; the Spectate button itself was not driven by automation (the protocol path it calls
   was).
 
-## V-059 — Soak memory: generated course assets released; managed growth gone, native growth measured (2026-09-27)
-- Revision: working tree on `6c69aa0` (committed in the next checkpoint). Built Windows development players on this machine,
+## V-059 — Soak memory: generated course assets released; per-frame native growth found and fixed (2026-09-27)
+- Revision: course-asset release and census in `182ac6e`; bisect switches, the display-string fix and the final soak on the
+  working tree of `df0d13a` (committed in the next checkpoint). Built Windows development players on this machine,
   `-nsSoakTour N -nsSoakSameCar` (the V-054 soak: twelve cars, light contact, view cycled every 1.5 s, look-back, style/units
   switched, a held reset every 12 s, then back to the menus), working set sampled every 15 s from outside the process.
 - **Before:** the 40-race run of `6c69aa0` was stopped at race 20 to fix what it showed: managed heap after a full
@@ -922,8 +923,26 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   their frame times are not clean): **PASS**; managed 7.0–7.7 MB; 84 non-empty static collections/handlers, **none grew**;
   Mono heap 90 MB, graphics driver 121 MB and 0 live rigidbodies in the menus throughout — but Unity's own allocated memory
   rose 228 → 340 MB (~9–10 MB per race, steady) inside an unchanged 822–826 MB reservation; working set 536 → 691 MB.
-  **Native growth not yet explained** (open): no counted object type, static, handler, texture, graphics or physics body
-  accumulates.
+  Not explained by any counted object type, static, handler, texture, graphics or physics body.
+- **Bisect of the native growth** (built players, `-nsSoakTour` switches; per-category `ProfilerRecorder` counters):
+  course loads alone (`-nsSoakLoadsOnly`, 16 loads) flat at 212 MB; races without view/style switching (`-nsSoakPlain`)
+  still +~12 MB/race; the player's car alone (`-nsSoakAi 0`) +~17 MB/race at ~560 fps but only +~1.4 MB/race capped at 60
+  fps → **per rendered frame** (~0.35–0.43 KB each), not per car or per simulation tick. Every Unity memory category
+  (textures, meshes, materials, graphics, audio, profiler, 4,214 objects, 2,752 assets) stayed flat. Camera rendering off,
+  HUD/speed lines off, audio off and the driving camera's logic off all kept growing at the same rate per frame; 60,000
+  camera sphere casts and 60,000 raycasts allocated nothing; skipping car/HUD drawing or dropping the local controls
+  stopped it. The one call both bypass: the recovery prompt asked `DrivingControls.BindingLabel("Reset")` every frame,
+  and the Input System's `GetBindingDisplayString` keeps native memory on every call.
+- **Fix:** labels are cached per action and recomputed only when its effective binding changes (a remap still updates
+  the prompt; EditMode `ControlsTests.ThePromptLabelIsCached_AndStillFollowsARemap`). The spectator prompt used the same
+  path. **After:** the uncapped player-only case that grew +~10 MB per ~23k frames holds at 222 → 223 → 223 MB over
+  43–48k frames per race.
+- **Final standard soak** (`Evidence/ui/soak/soak-final`, 10 races, the full V-054 soak: twelve cars, view/look-back/style/
+  units cycling, a held reset every 12 s, alone on the machine): **PASS** — every accumulation check clear, 60/60 reset
+  requests → one reset each, 9–10 gates per race; managed 7.1–7.8 MB; **Unity allocated 223 → 225 MB, flat from race 3**
+  (was 228 → 340 MB over 12 races); system-used 542 → 577 MB, levelling (+3 MB over the last five races); working set
+  552–577 MB (was 516 → 678 MB over 8); frame 1.59–2.21 ms mean, 2.73–4.11 ms p99; 88 non-empty static collections,
+  none grew.
 
 ## V-060 — Spectate the Race through the real screens; NaN wheels after a disconnect (2026-09-27)
 - Revision: working tree on `182ac6e` (committed in the next checkpoint). Two windowed development clients (development

@@ -67,6 +67,50 @@ namespace NightSignal.Front
             "Mesh Memory", "Material Memory", "Object Count", "Asset Count", "Scene Object Count", "Material Count",
         };
 
+        /// <summary>
+        /// Soak diagnostic (<c>-nsSoakQueryProbe</c>): Unity's allocated native memory across idle menu frames, then across
+        /// frames running the driving camera's physics queries (sphere casts on the collision mask, bumper raycasts) against
+        /// the loaded backdrop course, then the same queries on a course without terrain hits — bytes per query.
+        /// </summary>
+        IEnumerator QueryProbe(System.Action<string> note)
+        {
+            long Alloc() => UnityEngine.Profiling.Profiler.GetTotalAllocatedMemoryLong();
+            NightSignal.Track.CourseRuntime course = NightSignal.Track.CourseRuntime.Active;
+            if (course == null || course.Track == null) { note("query probe: no course loaded"); yield break; }
+            const int Frames = 600, PerFrame = 100;
+            int mask = (1 << NightSignal.Art.GameLayers.Drivable) | (1 << NightSignal.Art.GameLayers.Barrier) | (1 << NightSignal.Art.GameLayers.Scenery);
+            yield return new WaitForSeconds(2f);
+            long a0 = Alloc();
+            for (int f = 0; f < Frames; f++) yield return null;
+            long a1 = Alloc();
+            float length = course.Track.LengthMetres;
+            for (int f = 0; f < Frames; f++)
+            {
+                for (int q = 0; q < PerFrame; q++)
+                {
+                    var s = course.Track.SampleAt((f * PerFrame + q) * 0.37f % length);
+                    Vector3 pivot = s.Position + Vector3.up * 0.8f;
+                    Vector3 cam = pivot - s.Tangent * 6f + Vector3.up * 2f;
+                    Vector3 to = cam - pivot;
+                    Physics.SphereCast(pivot, 0.28f, to.normalized, out RaycastHit _, to.magnitude, mask, QueryTriggerInteraction.Ignore);
+                }
+                yield return null;
+            }
+            long a2 = Alloc();
+            for (int f = 0; f < Frames; f++)
+            {
+                for (int q = 0; q < PerFrame; q++)
+                {
+                    var s = course.Track.SampleAt((f * PerFrame + q) * 0.37f % length);
+                    Physics.Raycast(s.Position + Vector3.up * 0.9f, Vector3.down, out RaycastHit _, 0.76f, NightSignal.Art.GameLayers.DrivableMask, QueryTriggerInteraction.Ignore);
+                }
+                yield return null;
+            }
+            long a3 = Alloc();
+            note($"query probe on {course.Route?.Course}: idle {Frames} frames {(a1 - a0) / 1024f:F0} KB; {Frames * PerFrame} sphere casts {(a2 - a1) / 1024f:F0} KB " +
+                 $"({(a2 - a1) / (float)(Frames * PerFrame):F1} B each); {Frames * PerFrame} raycasts {(a3 - a2) / 1024f:F0} KB ({(a3 - a2) / (float)(Frames * PerFrame):F1} B each)");
+        }
+
         IEnumerator SoakTour(int races)
         {
             string dir = System.IO.Path.GetFullPath(System.IO.Path.Combine("Builds", "Screenshots", "soak"));
@@ -110,6 +154,7 @@ namespace NightSignal.Front
             }
             var baseline = Census();
             Dictionary<string, int> staticsAfterFirst = null;
+            if (System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-nsSoakQueryProbe") >= 0) yield return QueryProbe(Note);
             Note($"baseline in the menus: cameras {baseline.cams}, driving cameras {baseline.driving}, views {baseline.views}, HUDs {baseline.huds}, speed lines {baseline.lines}, listeners {baseline.listeners}, lights {baseline.lights}, managed {baseline.mb:F1} MB");
 
             // -nsSoakLoadsOnly: the course scenes alone (generation, terrain, colliders, back to the menus), no cars or race —
@@ -121,6 +166,9 @@ namespace NightSignal.Front
             // -nsSoakAi N: only the first N AI rivals (0 = the player's car alone) — separates per-car growth.
             int aiArg = System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-nsSoakAi");
             if (aiArg >= 0) ai = ai.Take(int.Parse(System.Environment.GetCommandLineArgs()[aiArg + 1])).ToList();
+            // -nsSoakDisable camera,hud,lines,audio: switch those off for each race (bisecting per-frame native growth).
+            int offArg = System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-nsSoakDisable");
+            var disabled = new HashSet<string>(offArg >= 0 ? System.Environment.GetCommandLineArgs()[offArg + 1].Split(',') : new string[0]);
             for (int n = 0; n < races; n++)
             {
                 string course = courses[n % courses.Length];
@@ -149,6 +197,13 @@ namespace NightSignal.Front
                 if (activeRace == null || activeRace.Camera == null) { failures.Add($"race {n + 1} did not start"); continue; }
                 activeRace.Autopilot = true;
                 DrivingCamera cam = activeRace.Camera;
+                if (disabled.Contains("camera")) foreach (Camera rc in cam.GetComponentsInChildren<Camera>()) rc.enabled = false;
+                if (disabled.Contains("hud")) foreach (RaceHud h in FindObjectsByType<RaceHud>()) h.gameObject.SetActive(false);
+                if (disabled.Contains("lines")) foreach (SpeedLines l in FindObjectsByType<SpeedLines>()) l.gameObject.SetActive(false);
+                if (disabled.Contains("audio")) foreach (AudioSource a in FindObjectsByType<AudioSource>()) a.enabled = false;
+                if (disabled.Contains("drivingcam")) cam.enabled = false;
+                OfflineRaceSession.SoakSkipRender = disabled.Contains("views");
+                if (disabled.Contains("input")) activeRace.SoakDropControls();
                 OfflineRaceSession race = activeRace;
                 var frameMs = new List<float>();
                 float raceStart = -1f, lastCycle = 0f, lastReset = 0f;
@@ -206,6 +261,7 @@ namespace NightSignal.Front
                 Note($"race {n + 1} {course}: objects (meshes, materials, textures, clips, GameObjects, terrain data, ScriptableObjects; Unity allocated/reserved, Mono heap, graphics driver MB; rigidbodies) {objects}");
                 report.AppendLine(string.Join(",", n + 1, course, c.cams, c.driving, c.views, c.huds, c.lines, c.listeners, c.lights, c.mb.ToString("F1"),
                     objects, mean.ToString("F2"), p99.ToString("F2"), finished, playerResets, checkpoints, finishS.ToString("F1")));
+                Note($"race {n + 1} {course}: {frameMs.Count} frames{(disabled.Count > 0 ? " with " + string.Join("+", disabled) + " off" : "")}");
                 Note($"race {n + 1} {course}: {resetsRequested} reset requests → {playerResets} resets, {checkpoints} gates; then cameras {c.cams}, driving cameras {c.driving}, views {c.views}, HUDs {c.huds}, speed lines {c.lines}, listeners {c.listeners}, lights {c.lights}, managed {c.mb:F1} MB; frame {mean:F2}/{p99:F2} ms");
                 if (c.driving > baseline.driving || c.views > baseline.views || c.huds > baseline.huds || c.lines > baseline.lines || c.listeners > baseline.listeners || c.cams > baseline.cams + 1)
                     failures.Add($"race {n + 1}: something accumulated (cameras {c.cams}, driving {c.driving}, views {c.views}, HUDs {c.huds}, lines {c.lines}, listeners {c.listeners})");

@@ -37,7 +37,9 @@ param(
     # Client 0 drops its connection right after that recovery and tries to come back (Addendum 03 R11).
     [switch]$DropAfterReset,
     # Client 1 leaves the race this many seconds after the start; client 0 (if spectating) settles on entrant 1.
-    [int]$DropAt = -1
+    [int]$DropAt = -1,
+    # Extra arguments for every client (e.g. '-nsCorrectionBlend position' for an A/B run).
+    [string]$ClientExtra = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -68,6 +70,7 @@ for ($i = 0; $i -lt $Humans; $i++) {
               '-nsAutoStage', $Stage, '-nsEvidence', $evidence, '-logFile', "`"$logs\client-$i.log`"")
     if ($FreeplayCourse) { $clientArgs += @('-nsAutoFreeplay', $FreeplayCourse, '-nsAutoFreeplayAi', "$FreeplayAi", '-nsAutoFreeplayMode', $FreeplayMode) }
     if ($Impair) { $clientArgs += @('-nsImpair', $Impair) }
+    if ($ClientExtra) { $clientArgs += ($ClientExtra -split ' ') }
     if ($ResetAt -ge 0 -and $i -eq 0) { $clientArgs += @('-nsAutoResetAt', "$ResetAt") }
     if ($DropAfterReset -and $i -eq 0) { $clientArgs += @('-nsAutoDropAfterReset') }
     if ($DropAt -ge 0 -and $i -eq 1) { $clientArgs += @('-nsAutoDropAt', "$DropAt") }
