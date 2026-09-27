@@ -63,7 +63,7 @@ namespace NightSignal.Vehicle
 
         public bool Equals(DriverInput o) => SteerQ == o.SteerQ && ThrottleQ == o.ThrottleQ && BrakeQ == o.BrakeQ && Buttons == o.Buttons;
         public override bool Equals(object obj) => obj is DriverInput o && Equals(o);
-        public override int GetHashCode() => SteerQ | (ThrottleQ << 8) | (BrakeQ << 16) | ((int)Buttons << 24);
+        public override int GetHashCode() => (byte)SteerQ | (ThrottleQ << 8) | (BrakeQ << 16) | ((int)Buttons << 24);
         public override string ToString() => $"steer {Steer:F2} thr {Throttle:F2} brk {Brake:F2} {Buttons}";
     }
 }

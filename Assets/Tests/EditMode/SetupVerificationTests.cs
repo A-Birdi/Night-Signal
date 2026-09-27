@@ -47,6 +47,16 @@ namespace NightSignal.Tests
         }
 
         [Test]
+        public void GameLayers_MatchTagManager()
+        {
+            Assert.That(LayerMask.NameToLayer("Drivable"), Is.EqualTo(NightSignal.Art.GameLayers.Drivable));
+            Assert.That(LayerMask.NameToLayer("Barrier"), Is.EqualTo(NightSignal.Art.GameLayers.Barrier));
+            Assert.That(LayerMask.NameToLayer("Vehicle"), Is.EqualTo(NightSignal.Art.GameLayers.Vehicle));
+            Assert.That(LayerMask.NameToLayer("Scenery"), Is.EqualTo(NightSignal.Art.GameLayers.Scenery));
+            Assert.That(LayerMask.NameToLayer("Avatar"), Is.EqualTo(NightSignal.Art.GameLayers.Avatar));
+        }
+
+        [Test]
         public void ColorSpace_IsLinear()
         {
             Assert.That(PlayerSettings.colorSpace, Is.EqualTo(ColorSpace.Linear));

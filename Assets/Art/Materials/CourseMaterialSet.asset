@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6e92dae8dd931847ab1c6de5a91f229, type: 3}
+  m_Name: CourseMaterialSet
+  m_EditorClassIdentifier: NightSignal.Runtime::NightSignal.Track.Generation.CourseMaterialSet
+  Asphalt: {fileID: 2100000, guid: a3d689812082c8c4d852dd6d5846d141, type: 2}
+  Gravel: {fileID: 2100000, guid: f3c4d1c6e1618834491a5b78352e7803, type: 2}
+  LinePaint: {fileID: 2100000, guid: f582ce88238c91a43ae01ae5822f42be, type: 2}
+  Guardrail: {fileID: 2100000, guid: 426fbb87dbf6fad43b6bb8205f575758, type: 2}
+  Post: {fileID: 2100000, guid: 92862221ecad9914abe0cf449b3805f1, type: 2}
+  Stone: {fileID: 2100000, guid: 4efee6a9f15f6854385d925ca8717925, type: 2}
+  WoodDark: {fileID: 2100000, guid: 84d09653a2d1f714582dab3467b2cc5d, type: 2}
+  WoodLight: {fileID: 2100000, guid: 49362f9ec85b28d4c9a4a9016bb51d4e, type: 2}
+  RoofTiles: {fileID: 2100000, guid: 40dfabb99f5e92242b603d5359f091fc, type: 2}
+  LanternPaper: {fileID: 2100000, guid: ed939e114fcf9e249aa94feb873470f2, type: 2}
+  Rope: {fileID: 2100000, guid: 8a4c1114df9aca047b303d2aa909b303, type: 2}
+  Water: {fileID: 2100000, guid: 2b3f61fdfdac2d348a73e16c5f1fb029, type: 2}
+  OffWhite: {fileID: 2100000, guid: 7c612b7637695b84596aef4a26bf3bec, type: 2}
+  Graphite: {fileID: 2100000, guid: 2190020f913da244fbeca28551dd8dcf, type: 2}
+  TerrainTemplate: {fileID: 2100000, guid: 6bca20fb202911849aec863e80eccef4, type: 2}
+  TerrainLayers:
+  - {fileID: 8574412962073106934, guid: ef180cab3856c844a90fbd365d560abe, type: 2}
+  - {fileID: 8574412962073106934, guid: 7c5d204abe2dc424babbed1fe77c9ffc, type: 2}
+  - {fileID: 8574412962073106934, guid: 1ebf7821645e30f4eb78814a2f5be1b5, type: 2}
+  - {fileID: 8574412962073106934, guid: 14262be1dd0299747a2dcb99d3da42ec, type: 2}
+  - {fileID: 8574412962073106934, guid: 2eaaa860fa4953f49b722eb389254f3d, type: 2}

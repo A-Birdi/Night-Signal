@@ -76,3 +76,18 @@ Newest last. Each entry names who decided and why.
   support before their featured stage and R48 anywhere before Hard S30.
 - A catalogue row is data, not delivered content: coverage counts in `REQUIREMENTS.md` only move when the
   course/car/rival/challenge is playable and validated.
+
+## D-007 — Course geometry is generated deterministically at load from versioned route recipes
+
+- A first "bake everything to assets" pass for C01 produced 28 MB of text-serialized meshes/terrain for one
+  course (13 MB terrain alone) — roughly 0.7 GB for 26 courses, unsuitable for the repository and LFS quota.
+- Now: `Assets/Content/Courses/<ID>/route.json` (control points, widths, banking, sectors, gates, landmarks) plus
+  the kit recipes in `Assets/Game/Runtime/Track/Generation/` are the versioned source. `CourseRuntime` generates
+  track data, road/shoulders/markings/guardrails, terrain and landmarks on load (C01: 1.9 s in the editor).
+  The same text always yields the same geometry (no geometry change between launches, spec §3.1); the route's
+  SHA-256 (`TrackData.SourceHash`) is part of the content identity checked between server and clients.
+- Players generate full visuals; the dedicated server (batch mode) generates collision only.
+- Committed per course: route.json, a ~9 KB scene (entry point, sun, sky material, volume profile).
+  Shared: generated texture PNGs (LFS) and material/terrain-layer assets.
+- Consequence: any change to a generator recipe changes course geometry, so recipe changes must bump the
+  affected course revisions and re-validate benchmarks/ghosts (spec §8 compatibility headers).
