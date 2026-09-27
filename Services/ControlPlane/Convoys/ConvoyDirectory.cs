@@ -2140,6 +2140,10 @@ public sealed class ConvoyDirectory
         var progress = c.Members.Select(m => m.Progress).ToList();
         object Access(CampaignMode mode)
         {
+            // A Dormant room has no present members (Addendum 02 D208) but is still snapshotted, e.g. when the watchdog
+            // aborts its lost match. Nothing is selectable until someone rejoins.
+            if (progress.Count == 0)
+                return new { allowed = false, maxSelectableStage = 0, explanation = "No members are present.", limitingPlayers = Array.Empty<string>() };
             ConvoyStageAccess a = CampaignProgress.Evaluate(mode, progress);
             return new { allowed = a.ModeAllowed, maxSelectableStage = a.MaxSelectableStage, explanation = a.Explanation, limitingPlayers = a.LimitingPlayers };
         }

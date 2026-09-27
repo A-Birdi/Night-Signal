@@ -77,23 +77,9 @@ public sealed class ContentService
     /// (spec §2.5 requires legal reference runs), so this derives a PROVISIONAL one from the course's
     /// server-owned ExpectedSeconds and labels it as such everywhere it is shown or settled.
     /// </summary>
-    public BenchmarkInfo BenchmarkFor(StageDef stage, CampaignMode mode)
-    {
-        CourseDef course = Catalogue.Course(stage.Course);
-        long expectedMs = course.ExpectedSeconds * 1000L;
-        long target = mode == CampaignMode.Hard ? expectedMs * 95 / 100 : expectedMs;
-        long envelope = StageOutcome.SupportEnvelopeMs(target, mode);
-        var benchmark = new StageBenchmark
-        {
-            Kind = stage.Type == "penultimate" ? BenchmarkKind.FourContracts : BenchmarkKind.Time,
-            TargetTimeMs = target,
-            HardTimeoutMs = envelope + 120_000, // must be >= the support envelope (StageOutcome.DeadlineMs)
-            // Lieutenant, penultimate and finale encounters also need a qualifying human to beat the live featured rival.
-            RequiresBeatingFeaturedRival = StageBenchmark.IsFeaturedEncounter(stage.Type),
-        };
-        return new BenchmarkInfo(benchmark, Provisional: true,
-            Source: $"provisional: derived from {course.Id}.expectedSeconds={course.ExpectedSeconds}; no certified reference run yet");
-    }
+    public BenchmarkInfo BenchmarkFor(StageDef stage, CampaignMode mode) =>
+        // Shared with the Local campaign (Core) so online and offline judge a stage by the same numbers.
+        new(StageBenchmarks.Provisional(Catalogue, stage, mode), Provisional: true, Source: StageBenchmarks.ProvisionalSource(Catalogue, stage));
 
     /// <summary>Freeplay time-trial reference (for the 1.20 "reference beaten" band); provisional like the above.</summary>
     public long FreeplayReferenceMs(string courseId) => Catalogue.Course(courseId).ExpectedSeconds * 1000L;

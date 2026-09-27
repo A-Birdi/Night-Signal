@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Tests for NightSignal.Core.Builds (parts, resolver, PI estimate, loadouts, quotes, upgrade paths).
+    Run: dotnet test Services/BuildsTests   (deliberately NOT part of NightSignal.Services.slnx).
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+    <AssemblyName>NightSignal.BuildsTests</AssemblyName>
+    <RootNamespace>NightSignal.BuildsTests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- NightSignal.Core.Builds lives in Assets/Game/Core/Builds and is compiled by SharedCore (linked sources). -->
+    <ProjectReference Include="../SharedCore/NightSignal.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+</Project>

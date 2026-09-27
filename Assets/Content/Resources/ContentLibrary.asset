@@ -23,4 +23,5 @@ MonoBehaviour:
   - {fileID: 4900000, guid: 46e070343affcec4c9cce180eae4bb8d, type: 3}
   - {fileID: 4900000, guid: 5d9601cd98358c9468a011ceec919378, type: 3}
   - {fileID: 4900000, guid: 676163243478e354781177f766af232a, type: 3}
+  - {fileID: 4900000, guid: 30ea107ce80cc184eb59124f81571c26, type: 3}
   CarBodies: {fileID: 4900000, guid: d1916b9e892ad2744a9d4c7a980c66ac, type: 3}

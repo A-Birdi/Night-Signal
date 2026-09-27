@@ -174,3 +174,43 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - Not executed: PostgreSQL migrations/RLS (no server available; SQLite ran everything); Custom Cup multi-leg races;
   live-room recovery after a restart (only dormant rooms recover).
 - The Unity client still speaks the removed destination.* protocol; it is updated next.
+
+## V-022 — Network slice re-measured on protocol 2 (2026-09-27)
+- First attempts with the post-V-016 netcode (evidence kept): `run-20260927-015012-h2` failed at convoy.create (the
+  control plane still spoke protocol 1); `run-20260927-015134-h2` raced 9+ minutes without a result and was killed by
+  the runner; `run-20260927-020809-h2` (`trace-excerpt.txt`) showed why with the new 15 s server/client traces: both
+  clients sent **0 input packets** (the send throttle started from `int.MinValue`, so `tick - lastSentTick` overflowed
+  negative), the server coasted both human cars on the grid (`starved2700`, 0 m) while the AI raced. Fixed.
+- The killed match also exposed a control-plane defect: the watchdog aborted the lost match, then threw while
+  snapshotting the member-less Dormant room ("A convoy needs at least one member"), leaving the room stuck. Fixed
+  (`ConvoyDirectory.Snapshot`); regression test `ALostMatch_AfterEveryMemberDisconnected_AbortsCleanly…` fails
+  without the fix and passes with it; the next real abort logged no error.
+- **Pass:** `Tools/run/net-race.ps1 -Humans 2 -Stage S01` → `Evidence/net/run-20260927-021237-h2/`. Three OS
+  processes, protocol 2, content `ed1fdef41467` (now includes `music.unlocks.json`). 2 humans + live featured rival
+  R01, light contact; humans P1 87.010 s / P2 87.210 s, AI finished too; 0 contacts / walls / resets; RTT 25 ms
+  (input-ack), 111 / 91 reconciliations, max correction 0.85 m; HMAC-signed results settled: first clear, CH01,
+  wallets 12,000 → 32,157 / 31,139, RP 0 → 140, soundtrack `MUS_RACE_MIZUHANA` granted.
+- Measured weakness: 160 and 46 of ~5,300 racing ticks simulated without that tick's command (inputs arrived just in
+  time, lead 0). The client now predicts 2 ticks past the network clock and sends every tick — **not yet re-measured**.
+
+## V-023 — Local campaign in the standalone player (2026-09-27)
+- `NightSignal.exe -nsUiTour` (1920×1080 windowed; isolated save folder under the tour directory): REAL buttons from
+  title → Offline Play → Local profiles → New Local Profile ("Tour Driver", starter car) → Offline hub → Campaign Map
+  (painted region map, act 1 revealed, S01 pulsing as next) → S01 panel (live featured rival, provisional target,
+  record, car) → Race (autopilot, sped up) → Results → map. Exit 0, `PASS`; log: `CampaignStage S01: Applied wallet
+  12000 -> 29157; 6 change(s) Saved.` Results listed first clear, race money 9,157 + first-clear 8,000, RP 0 → 100,
+  soundtrack unlock and a Local/unverified personal best 01:26.485. After Continue, S01 shows cleared and S02 next.
+- Progression is judged only by Core (`LocalProgression.ApplyEvent`, `StageBenchmarks.Provisional` shared with the
+  control plane) and saved atomically by `ProfileRepository`. Automation, not a human playtest; the screenshots showed
+  layout defects (header in the strip, panel off-screen by half its width, column collision) that were fixed after
+  this run and are not yet re-captured.
+
+## V-024 — Builds, Toys and Local-profile cores (2026-09-27)
+- `dotnet test`: Services/BuildsTests 222/222 (parts catalogue, resolver + fixed-point build hash, PI estimate,
+  8 loadouts + 5 visual presets per instance, protected references, quotes/settlement, migration, upgrade paths),
+  Services/ToysTests 92/92 (DowntimeSession + all five diversions, pause/resume, non-progression, sizes),
+  Services/CoreTests 86/86 (Local profile, progression, records, atomic persistence), Services/Tests 282/282.
+  Unity compiles all of them into NightSignal.Core; EditMode 161/161.
+- Data-level only: no driving evidence for builds, no control-plane hosting or presentation for the toys yet. The
+  builds agent's open questions (cap-excluded favourite cars, starter PI under the real economy, unmeasured PI
+  estimate) are recorded in docs/EFFECTIVE_RULES.md.

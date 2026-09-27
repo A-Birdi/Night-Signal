@@ -33,6 +33,9 @@ namespace NightSignal.Front
         public readonly OfflineHubScreen OfflineHub = new OfflineHubScreen();
         public readonly SettingsScreen Settings = new SettingsScreen();
         public readonly ResultsScreen Results = new ResultsScreen();
+        public readonly ProfileSelectScreen ProfileSelect = new ProfileSelectScreen();
+        public readonly NewProfileScreen NewProfile = new NewProfileScreen();
+        public readonly CampaignMapScreen CampaignMap = new CampaignMapScreen();
 
         TextMeshProUGUI stripDomain, stripName, stripScreen;
         Image stripBar;
@@ -68,39 +71,78 @@ namespace NightSignal.Front
         }
 
         /// <summary>
-        /// Standalone evidence run (<c>-nsUiTour</c>): drives the REAL buttons through title → Offline Play → a short
-        /// autopilot race → results, saving a screenshot of each page to Builds/Screenshots/tour. Labelled automation,
-        /// not a human playtest.
+        /// Standalone evidence run (<c>-nsUiTour</c>): drives the REAL buttons through title → Offline Play → a new Local
+        /// profile → the campaign map → the S01 panel → an autopilot race → results with Local progression → the map again,
+        /// saving a screenshot of each page to Builds/Screenshots/tour. Saves go to an isolated folder under the tour
+        /// directory (never a player's real profiles). Labelled automation, not a human playtest.
         /// </summary>
         IEnumerator UiTour()
         {
             string dir = System.IO.Path.GetFullPath(System.IO.Path.Combine("Builds", "Screenshots", "tour")); // players resolve relative capture paths against the Data folder
             System.IO.Directory.CreateDirectory(dir);
+            string profiles = System.IO.Path.Combine(dir, "profiles");
+            if (System.IO.Directory.Exists(profiles)) System.IO.Directory.Delete(profiles, true);
+            LocalSession.UseFolder(profiles);
+            var failures = new List<string>();
+            void Shot(string name) => ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(dir, name + ".png"));
+            bool Click(string name)
+            {
+                Button b = GameObject.Find(name)?.GetComponent<Button>();
+                if (b == null || !b.interactable) { failures.Add("button not available: " + name); return false; }
+                b.onClick.Invoke();
+                return true;
+            }
+
             yield return new WaitForSeconds(3f);
-            ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(dir, "01-title.png"));
+            Shot("01-title");
             yield return new WaitForSeconds(1f);
-            GameObject.Find("OfflinePlay")?.GetComponent<Button>()?.onClick.Invoke();
-            yield return new WaitForSeconds(1.5f);
-            ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(dir, "02-offline.png"));
-            yield return new WaitForSeconds(1f);
-            GameObject.Find("Start")?.GetComponent<Button>()?.onClick.Invoke();
-            float until = Time.realtimeSinceStartup + 20f;
+            Click("OfflinePlay");
+            yield return new WaitForSeconds(1.2f);
+            Shot("02-profiles");
+            Click("NewProfile");
+            yield return new WaitForSeconds(1.2f);
+            TMPro.TMP_InputField field = GameObject.Find("ProfileName")?.GetComponent<TMPro.TMP_InputField>();
+            if (field != null) field.text = "Tour Driver"; else failures.Add("name field missing");
+            yield return new WaitForSeconds(0.5f);
+            Shot("03-new-profile");
+            Click("Create");
+            yield return new WaitForSeconds(1.2f);
+            if (Router.Current != OfflineHub) failures.Add("profile creation did not reach the Offline hub");
+            Shot("04-offline-hub");
+            Click("Campaign");
+            float until = Time.realtimeSinceStartup + 30f;
+            while (Time.realtimeSinceStartup < until && (Router.Current != CampaignMap || GameObject.Find("Map")?.GetComponent<RawImage>()?.texture == null)) yield return null;
+            yield return new WaitForSeconds(2f); // act banner and reveal fade
+            Shot("05-campaign-map");
+            Click("Node-S01");
+            yield return new WaitForSeconds(0.8f);
+            Shot("06-stage-panel");
+            Click("Race");
+            until = Time.realtimeSinceStartup + 30f;
             while (activeRace == null && Time.realtimeSinceStartup < until) yield return null;
             if (activeRace != null)
             {
                 activeRace.Autopilot = true;
                 yield return new WaitForSeconds(9f);
-                ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(dir, "03-race.png"));
+                Shot("07-race");
                 yield return new WaitForSeconds(1f);
                 if (activeRace != null) activeRace.SimulationSpeed = 12;
             }
-            until = Time.realtimeSinceStartup + 120f;
+            else failures.Add("the campaign race did not start");
+            until = Time.realtimeSinceStartup + 180f;
             while (Router.Current != Results && Time.realtimeSinceStartup < until) yield return null;
             yield return new WaitForSeconds(1.5f);
-            ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(dir, "04-results.png"));
-            Debug.Log("[NightSignal.UiTour] complete: " + (Router.Current == Results ? "results reached" : "results NOT reached"));
+            Shot("08-results");
+            LocalSession s = LocalSession.Current;
+            bool cleared = s?.Profile != null && s.Profile.Campaign.IsCleared(CampaignMode.Normal, 1);
+            if (!cleared) failures.Add("S01 not cleared in the Local profile");
+            Click("Continue");
+            yield return new WaitForSeconds(2.5f);
+            Shot("09-campaign-after");
+            string summary = failures.Count == 0 ? "PASS" : "FAILED: " + string.Join("; ", failures);
+            Debug.Log($"[NightSignal.UiTour] {summary} (profile wallet {s?.Profile?.WalletBalance}, S01 cleared {cleared})");
             yield return new WaitForSeconds(1f);
-            Application.Quit(Router.Current == Results ? 0 : 1);
+            Application.Quit(failures.Count == 0 ? 0 : 1);
         }
 
         // ------------------------------------------------------------------ top strip
@@ -181,19 +223,60 @@ namespace NightSignal.Front
 
         // ------------------------------------------------------------------ offline races
 
+        /// <summary>
+        /// Drives a Local event (campaign stage, Freeplay or tutorial) for the open Local profile, then applies the result
+        /// with the Core progression rules, saves atomically, and shows Results (which return to <paramref name="returnTo"/>).
+        /// </summary>
+        public void StartLocalEvent(LocalEventPlan plan, UIScreen returnTo)
+        {
+            StartCoroutine(RunLocalEvent(plan, returnTo));
+        }
+
+        IEnumerator RunLocalEvent(LocalEventPlan plan, UIScreen returnTo)
+        {
+            string courseRevision = "";
+            List<RaceEntrantResult> results = null;
+            yield return RunOfflineRace(plan.CourseId, plan.Car.ModelId, plan.Rules, plan.OpposingAi, false,
+                (r, rev) => { results = r; courseRevision = rev; });
+            LocalSession session = LocalSession.Current;
+            Core.Profiles.LocalProgressionResult applied = null;
+            string saveNote = "";
+            if (session?.Profile != null)
+            {
+                Core.Profiles.LocalEventFacts facts = LocalEvents.Facts(session, plan, results, courseRevision);
+                if (facts != null)
+                {
+                    applied = Core.Profiles.LocalProgression.ApplyEvent(session.Profile, session.Catalogue, session.Music, facts);
+                    if (applied.Changed && !session.Commit(applied, out saveNote))
+                        saveNote = "Not saved: " + saveNote;
+                    else if (!applied.Changed && applied.Status != Core.Profiles.LocalOperationStatus.Aborted)
+                        saveNote = applied.Reason;
+                    Debug.Log($"[NightSignal.Local] {plan.Kind} {plan.Stage?.Id ?? plan.CourseId}: {applied.Status} {applied.Reason} " +
+                              $"wallet {applied.BalanceBefore} -> {applied.BalanceAfter}; {applied.Changes.Count} change(s) {saveNote}");
+                }
+            }
+            Results.Set(plan.CourseId, plan.Rules, results, applied, saveNote, returnTo);
+            Canvas.gameObject.SetActive(true);
+            yield return LoadBackdrop();
+            Router.Show(Results, true);
+        }
+
         /// <summary>Starts a Local-domain race on a course scene: the UI steps aside; results come back to <see cref="Results"/>.</summary>
         public void StartOfflineRace(string courseId, string carId, RaceEventRules rules, List<string> opposingAi)
         {
-            StartCoroutine(RunOfflineRace(courseId, carId, rules, opposingAi));
+            StartCoroutine(RunOfflineRace(courseId, carId, rules, opposingAi, true, null));
         }
 
-        IEnumerator RunOfflineRace(string courseId, string carId, RaceEventRules rules, List<string> opposingAi)
+        IEnumerator RunOfflineRace(string courseId, string carId, RaceEventRules rules, List<string> opposingAi, bool showResults,
+            Action<List<RaceEntrantResult>, string> onResults)
         {
             Canvas.gameObject.SetActive(false);
             if (backdropCamera != null) backdropCamera.SetActive(false);
             AsyncOperation load = SceneManager.LoadSceneAsync(courseId, LoadSceneMode.Single);
             while (!load.isDone) yield return null;
             yield return null;
+            // Stage-default conditions: the course's authored surface, as the online server does (records key on it).
+            if (rules.Kind != "freeplay") rules.Surface = CourseRuntime.Active?.Route?.Surface ?? "dry";
             var go = new GameObject("OfflineRace");
             activeRace = go.AddComponent<OfflineRaceSession>();
             activeRace.CarId = carId;
@@ -203,10 +286,12 @@ namespace NightSignal.Front
             while (activeRace != null && activeRace.Phase != MatchPhase.Results) yield return null;
             yield return new WaitForSeconds(2.5f); // let the finish banner read before the results page
             List<RaceEntrantResult> results = activeRace != null ? activeRace.Results : null;
-            string course = courseId;
+            string revision = CourseRuntime.Active != null ? CourseRuntime.Active.SourceHash : "";
             if (activeRace != null) Destroy(activeRace.gameObject);
             activeRace = null;
-            Results.Set(course, rules, results);
+            onResults?.Invoke(results, revision);
+            if (!showResults) yield break;
+            Results.Set(courseId, rules, results, null, "", null);
             Canvas.gameObject.SetActive(true);
             yield return LoadBackdrop();
             Router.Show(Results, true);

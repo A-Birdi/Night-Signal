@@ -26,6 +26,8 @@ namespace NightSignal.Net
     public sealed class RaceClient : MonoBehaviour
     {
         const int InterpolationTicks = Limits.RemoteInterpolationBufferMs * 60 / 1000;  // 6
+        /// <summary>Ticks the local prediction runs ahead of the network clock (commands arrive before they are needed).</summary>
+        public const int InputLeadTicks = 2;
         const int MaxExtrapolationTicks = Limits.MaxRemoteExtrapolationMs * 60 / 1000;  // 9
 
         sealed class Car
@@ -77,7 +79,8 @@ namespace NightSignal.Net
         readonly VehicleState[] states = new VehicleState[256];
         readonly int[] ticks = new int[256];
         readonly double[] sendTimes = new double[256];
-        int lastSentTick = int.MinValue, lastAckTick = -1, ackSamples;
+        // Not int.MinValue: "tick - lastSentTick" would overflow negative and inputs would never be sent (found in a real run).
+        int lastSentTick = -1000, lastAckTick = -1, ackSamples;
         double ackSumMs;
         float rttSmoothedMs = -1f;
         long deadlineMicros = -1;
@@ -350,14 +353,19 @@ namespace NightSignal.Net
         void OnTick()
         {
             if (!loaded || Phase < MatchPhase.Countdown || Phase >= MatchPhase.Results) return;
-            int tick = nm.LocalTime.Tick;
+            // Predict (and send commands for) a small fixed lead past the network clock, so each command reaches the
+            // server before its tick is simulated. Measured without a lead: ~1-3% of ticks starved on loopback.
+            int tick = nm.LocalTime.Tick + InputLeadTicks;
             if (tick <= lastPredictedTick) return;
             // The network clock can advance several ticks in one frame (time-sync corrections, frame hitches).
             // Predict every tick so the client and server step the car the same number of times.
             int from = lastPredictedTick < 0 ? tick : Mathf.Max(lastPredictedTick + 1, tick - 30);
             TicksFilled += tick - from;
             for (int t = from; t <= tick; t++) PredictTick(t);
-            if (tick - lastSentTick >= 2) SendInputs(tick);
+            if (tick - lastSentTick >= 1) SendInputs(tick); // every tick; each packet repeats the last 8 commands
+            if (headless && tick > startTick && (tick - startTick) % (60 * 15) < tick - from + 1)
+                Debug.Log($"[NightSignal.Client] t={(tick - startTick) / 60f:F0}s {OwnStatus} pos {ownState.Position.x:F0},{ownState.Position.y:F0},{ownState.Position.z:F0} " +
+                          $"{ownState.Velocity.magnitude * 3.6f:F0}km/h sent {InputsSent} ack {(lastAckTick < 0 ? "-" : (lastAckTick - tick).ToString())} corrections {Corrections}");
         }
 
         void PredictTick(int tick)
@@ -379,7 +387,7 @@ namespace NightSignal.Net
         void NoteAck(int snapshotTick, int ackTick)
         {
             if (ackTick < 0) return;
-            MinInputLeadTicks = Mathf.Min(MinInputLeadTicks, ackTick - snapshotTick);
+            if (snapshotTick >= startTick) MinInputLeadTicks = Mathf.Min(MinInputLeadTicks, ackTick - snapshotTick); // racing ticks only
             if (ackTick <= lastAckTick) return;
             lastAckTick = ackTick;
             int slot = ackTick & 255;

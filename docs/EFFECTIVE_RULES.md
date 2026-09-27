@@ -123,3 +123,23 @@ names; the master and Addendum 01 remain binding elsewhere.
 - New dependency discovered: there is no parts/tuning system yet; Addendum 02 §8–10 require it (spec §9 always did).
   It is being built engine-free in `Core/Builds` and will feed `VehicleFactory`.
 - Test Yard needs generator support for training areas (also needed by T00).
+
+## Open questions and working interpretations (builds, 2026-09-27)
+
+These came out of the data-level build model (`Core/Builds`, 222 tests). They are interpretations in force until the
+owner decides otherwise; nothing below changes a written rule.
+
+1. **Favourite-car path vs stage PI caps (D206).** Parts never lower PI, so a car whose *stock* PI is above a stage cap
+   can never enter that stage: V05–V07 are shut out of S01–S03, V08–V12 also S04–S07, V13 and V15–V18 also S08–S14.
+   Working interpretation: "a viable path for every car" is measured from the first stage a car can legally enter;
+   capped stages below that use the Local loaner (already modelled: `LocalEventFacts.Loaner`, labelled on the stage
+   panel) or an owned lower-PI car. Alternatives for the owner: a legal detune package, or revised caps.
+2. **Starter reach under the real economy.** Affordable starter paths reach roughly 390–430 estimated PI by Act IV in
+   Normal (570–640 in Hard); band demands in `build-recipes.json` are set to what that budget reaches. Late
+   benchmarks must be calibrated against such builds, not near-cap loaners (feeds F08–F10 calibration).
+3. **PI is an estimate.** `PerformanceIndexEstimator` is a fitted lap-time proxy anchored so every stock car equals its
+   BasePI (≈33 PI residual across 18 cars). It is labelled an estimate everywhere and must be replaced by handling-
+   harness measurements before it gates anything online.
+4. **Content hash.** `music.unlocks.json` is now part of the hashed catalogue documents. `parts.json`,
+   `build-recipes.json` and the `toys/` documents are not yet; they must join before builds or toys affect an online
+   event.

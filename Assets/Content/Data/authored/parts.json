@@ -1,0 +1,2937 @@
+{
+  "schema": "night-signal/parts@1",
+  "revision": 1,
+  "priceRevision": 1,
+  "note": "INITIAL AUTHORING (Addendum 02 sections 8-9, spec sections 9-10). Effects are typed modifiers of inputs the Unity vehicle simulation implements (see Core.Builds.SimParam). Numbers are design targets to be calibrated with the Unity handling harness and real driving; nothing here is measured. Prices sit inside the spec section 10 tier ranges; shop availability is by act, never by spending.",
+  "chassis": [
+    {
+      "car": "V01",
+      "bodyClass": "hatch",
+      "weightReductionMaxKg": 70,
+      "excludeParts": []
+    },
+    {
+      "car": "V02",
+      "bodyClass": "hatch",
+      "weightReductionMaxKg": 70,
+      "excludeParts": []
+    },
+    {
+      "car": "V03",
+      "bodyClass": "sedan",
+      "weightReductionMaxKg": 90,
+      "excludeParts": []
+    },
+    {
+      "car": "V04",
+      "bodyClass": "roadster",
+      "weightReductionMaxKg": 55,
+      "excludeParts": [
+        "FI-T3-SUPERCHARGER"
+      ],
+      "note": "Low bonnet line: no room for a supercharger (the turbo kit fits)."
+    },
+    {
+      "car": "V05",
+      "bodyClass": "coupe",
+      "weightReductionMaxKg": 95,
+      "excludeParts": []
+    },
+    {
+      "car": "V06",
+      "bodyClass": "hatch",
+      "weightReductionMaxKg": 80,
+      "excludeParts": []
+    },
+    {
+      "car": "V07",
+      "bodyClass": "wagon",
+      "weightReductionMaxKg": 110,
+      "excludeParts": []
+    },
+    {
+      "car": "V08",
+      "bodyClass": "sedan",
+      "weightReductionMaxKg": 95,
+      "excludeParts": []
+    },
+    {
+      "car": "V09",
+      "bodyClass": "coupe",
+      "weightReductionMaxKg": 110,
+      "excludeParts": []
+    },
+    {
+      "car": "V10",
+      "bodyClass": "coupe",
+      "weightReductionMaxKg": 85,
+      "excludeParts": [
+        "FI-T3-SUPERCHARGER"
+      ],
+      "note": "Rotary packaging: turbo conversion only."
+    },
+    {
+      "car": "V11",
+      "bodyClass": "mid",
+      "weightReductionMaxKg": 70,
+      "excludeParts": []
+    },
+    {
+      "car": "V12",
+      "bodyClass": "sedan",
+      "weightReductionMaxKg": 110,
+      "excludeParts": []
+    },
+    {
+      "car": "V13",
+      "bodyClass": "coupe",
+      "weightReductionMaxKg": 85,
+      "excludeParts": []
+    },
+    {
+      "car": "V14",
+      "bodyClass": "coupe",
+      "weightReductionMaxKg": 90,
+      "excludeParts": []
+    },
+    {
+      "car": "V15",
+      "bodyClass": "coupe",
+      "weightReductionMaxKg": 85,
+      "excludeParts": []
+    },
+    {
+      "car": "V16",
+      "bodyClass": "mid",
+      "weightReductionMaxKg": 75,
+      "excludeParts": []
+    },
+    {
+      "car": "V17",
+      "bodyClass": "coupe",
+      "weightReductionMaxKg": 120,
+      "excludeParts": []
+    },
+    {
+      "car": "V18",
+      "bodyClass": "coupe",
+      "weightReductionMaxKg": 95,
+      "excludeParts": []
+    }
+  ],
+  "parts": [
+    {
+      "id": "TYR-T1-STREET",
+      "slot": "tyres",
+      "tier": 1,
+      "name": "Street performance tyres",
+      "price": 9000,
+      "unlockAct": 1,
+      "compat": {},
+      "effects": [
+        {
+          "param": "TyreGrip",
+          "op": "scale",
+          "value": 1.04
+        },
+        {
+          "param": "SlideGripFraction",
+          "op": "add",
+          "value": -0.01
+        },
+        {
+          "param": "PeakSlipDeg",
+          "op": "add",
+          "value": -0.2
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "More dry grip than stock; breaks away slightly sooner and a little more sharply."
+    },
+    {
+      "id": "TYR-T1-TOURING",
+      "slot": "tyres",
+      "tier": 1,
+      "name": "Progressive touring tyres",
+      "price": 8000,
+      "unlockAct": 1,
+      "compat": {},
+      "effects": [
+        {
+          "param": "TyreGrip",
+          "op": "scale",
+          "value": 1.02
+        },
+        {
+          "param": "SlideGripFraction",
+          "op": "add",
+          "value": 0.04
+        },
+        {
+          "param": "PeakSlipDeg",
+          "op": "add",
+          "value": 0.8
+        },
+        {
+          "param": "SlideFalloffDeg",
+          "op": "add",
+          "value": 3
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "Smallest peak-grip gain; very progressive breakaway that is easy to catch on damp roads. Wet grip itself is not a separate simulation input yet."
+    },
+    {
+      "id": "TYR-T2-SPORT",
+      "slot": "tyres",
+      "tier": 2,
+      "name": "Sport compound tyres",
+      "price": 32000,
+      "unlockAct": 2,
+      "compat": {},
+      "effects": [
+        {
+          "param": "TyreGrip",
+          "op": "scale",
+          "value": 1.08
+        },
+        {
+          "param": "SlideGripFraction",
+          "op": "add",
+          "value": -0.03
+        },
+        {
+          "param": "PeakSlipDeg",
+          "op": "add",
+          "value": -0.5
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "Clearly more grip and a sharper turn-in; less warning before the slide and less grip once sliding."
+    },
+    {
+      "id": "TYR-T2-DRIFT",
+      "slot": "tyres",
+      "tier": 2,
+      "name": "Drift compound tyres",
+      "price": 28000,
+      "unlockAct": 2,
+      "compat": {},
+      "effects": [
+        {
+          "param": "TyreGrip",
+          "op": "scale",
+          "value": 1.03
+        },
+        {
+          "param": "SlideGripFraction",
+          "op": "add",
+          "value": 0.06
+        },
+        {
+          "param": "SlideFalloffDeg",
+          "op": "add",
+          "value": 4
+        },
+        {
+          "param": "PeakSlipDeg",
+          "op": "add",
+          "value": -0.3
+        },
+        {
+          "param": "RearGripBias",
+          "op": "scale",
+          "value": 0.97
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "Keeps more grip at large slip angles so a slide is easier to hold; lower peak grip and the rear steps out earlier than on sport tyres."
+    },
+    {
+      "id": "TYR-T3-SEMISLICK",
+      "slot": "tyres",
+      "tier": 3,
+      "name": "Semi-slick tyres",
+      "price": 95000,
+      "unlockAct": 3,
+      "compat": {},
+      "effects": [
+        {
+          "param": "TyreGrip",
+          "op": "scale",
+          "value": 1.13
+        },
+        {
+          "param": "SlideGripFraction",
+          "op": "add",
+          "value": -0.05
+        },
+        {
+          "param": "PeakSlipDeg",
+          "op": "add",
+          "value": -0.8
+        },
+        {
+          "param": "SlideFalloffDeg",
+          "op": "add",
+          "value": -2
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "Very high dry grip; a narrow, sudden limit that punishes an untidy entry."
+    },
+    {
+      "id": "TYR-T3-RAINSPORT",
+      "slot": "tyres",
+      "tier": 3,
+      "name": "Rain-sport tyres",
+      "price": 85000,
+      "unlockAct": 3,
+      "compat": {},
+      "effects": [
+        {
+          "param": "TyreGrip",
+          "op": "scale",
+          "value": 1.07
+        },
+        {
+          "param": "SlideGripFraction",
+          "op": "add",
+          "value": 0.05
+        },
+        {
+          "param": "PeakSlipDeg",
+          "op": "add",
+          "value": 0.6
+        },
+        {
+          "param": "SlideFalloffDeg",
+          "op": "add",
+          "value": 4
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "Strong grip with a long, progressive limit for damp and mixed surfaces; less peak grip than semi-slicks."
+    },
+    {
+      "id": "TYR-T4-COMPETITION",
+      "slot": "tyres",
+      "tier": 4,
+      "name": "Competition tyres",
+      "price": 165000,
+      "unlockAct": 4,
+      "compat": {},
+      "effects": [
+        {
+          "param": "TyreGrip",
+          "op": "scale",
+          "value": 1.18
+        },
+        {
+          "param": "SlideGripFraction",
+          "op": "add",
+          "value": -0.07
+        },
+        {
+          "param": "PeakSlipDeg",
+          "op": "add",
+          "value": -1.0
+        },
+        {
+          "param": "SlideFalloffDeg",
+          "op": "add",
+          "value": -3
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "Highest grip in the catalogue; the least forgiving breakaway and the smallest window to recover."
+    },
+    {
+      "id": "SUS-T1-SPRINGS",
+      "slot": "suspension",
+      "tier": 1,
+      "name": "Lowering springs",
+      "price": 12000,
+      "unlockAct": 1,
+      "compat": {},
+      "effects": [
+        {
+          "param": "SpringScaleFront",
+          "op": "scale",
+          "value": 1.15
+        },
+        {
+          "param": "SpringScaleRear",
+          "op": "scale",
+          "value": 1.15
+        },
+        {
+          "param": "DamperScaleFront",
+          "op": "scale",
+          "value": 1.05
+        },
+        {
+          "param": "DamperScaleRear",
+          "op": "scale",
+          "value": 1.05
+        },
+        {
+          "param": "RideHeightOffsetM",
+          "op": "add",
+          "value": -0.02
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "Lower (20 mm) and firmer: quicker response and less roll; less travel, so kerbs and crests unsettle it sooner."
+    },
+    {
+      "id": "SUS-T2-SPORT",
+      "slot": "suspension",
+      "tier": 2,
+      "name": "Adjustable sport damper kit",
+      "price": 38000,
+      "unlockAct": 2,
+      "compat": {},
+      "effects": [],
+      "tuning": [
+        {
+          "key": "SpringFront",
+          "min": 900,
+          "max": 1300,
+          "step": 10,
+          "default": 1150,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "SpringScaleFront",
+              "op": "set",
+              "atMin": 0.9,
+              "atMax": 1.3
+            }
+          ]
+        },
+        {
+          "key": "SpringRear",
+          "min": 900,
+          "max": 1300,
+          "step": 10,
+          "default": 1150,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "SpringScaleRear",
+              "op": "set",
+              "atMin": 0.9,
+              "atMax": 1.3
+            }
+          ]
+        },
+        {
+          "key": "DamperFront",
+          "min": 900,
+          "max": 1300,
+          "step": 10,
+          "default": 1100,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "DamperScaleFront",
+              "op": "set",
+              "atMin": 0.9,
+              "atMax": 1.3
+            }
+          ]
+        },
+        {
+          "key": "DamperRear",
+          "min": 900,
+          "max": 1300,
+          "step": 10,
+          "default": 1100,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "DamperScaleRear",
+              "op": "set",
+              "atMin": 0.9,
+              "atMax": 1.3
+            }
+          ]
+        },
+        {
+          "key": "AntiRollFront",
+          "min": 800,
+          "max": 1300,
+          "step": 10,
+          "default": 1100,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "AntiRollScaleFront",
+              "op": "set",
+              "atMin": 0.8,
+              "atMax": 1.3
+            }
+          ]
+        },
+        {
+          "key": "AntiRollRear",
+          "min": 800,
+          "max": 1300,
+          "step": 10,
+          "default": 1100,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "AntiRollScaleRear",
+              "op": "set",
+              "atMin": 0.8,
+              "atMax": 1.3
+            }
+          ]
+        },
+        {
+          "key": "RideHeight",
+          "min": -30,
+          "max": 0,
+          "step": 5,
+          "default": -15,
+          "unit": "mm",
+          "targets": [
+            {
+              "param": "RideHeightOffsetM",
+              "op": "set",
+              "atMin": -0.03,
+              "atMax": 0.0
+            }
+          ]
+        }
+      ],
+      "tradeoff": "Adjustable springs, dampers, anti-roll bars and ride height (0 to -30 mm). Stiffer and lower sharpens response but costs travel and compliance over kerbs and crests."
+    },
+    {
+      "id": "SUS-T2-RALLY",
+      "slot": "suspension",
+      "tier": 2,
+      "name": "Rally-spec suspension",
+      "price": 34000,
+      "unlockAct": 2,
+      "compat": {},
+      "effects": [],
+      "tuning": [
+        {
+          "key": "SpringFront",
+          "min": 850,
+          "max": 1100,
+          "step": 10,
+          "default": 950,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "SpringScaleFront",
+              "op": "set",
+              "atMin": 0.85,
+              "atMax": 1.1
+            }
+          ]
+        },
+        {
+          "key": "SpringRear",
+          "min": 850,
+          "max": 1100,
+          "step": 10,
+          "default": 950,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "SpringScaleRear",
+              "op": "set",
+              "atMin": 0.85,
+              "atMax": 1.1
+            }
+          ]
+        },
+        {
+          "key": "DamperFront",
+          "min": 950,
+          "max": 1300,
+          "step": 10,
+          "default": 1150,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "DamperScaleFront",
+              "op": "set",
+              "atMin": 0.95,
+              "atMax": 1.3
+            }
+          ]
+        },
+        {
+          "key": "DamperRear",
+          "min": 950,
+          "max": 1300,
+          "step": 10,
+          "default": 1150,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "DamperScaleRear",
+              "op": "set",
+              "atMin": 0.95,
+              "atMax": 1.3
+            }
+          ]
+        },
+        {
+          "key": "AntiRollFront",
+          "min": 800,
+          "max": 1200,
+          "step": 10,
+          "default": 950,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "AntiRollScaleFront",
+              "op": "set",
+              "atMin": 0.8,
+              "atMax": 1.2
+            }
+          ]
+        },
+        {
+          "key": "AntiRollRear",
+          "min": 800,
+          "max": 1200,
+          "step": 10,
+          "default": 950,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "AntiRollScaleRear",
+              "op": "set",
+              "atMin": 0.8,
+              "atMax": 1.2
+            }
+          ]
+        },
+        {
+          "key": "RideHeight",
+          "min": 0,
+          "max": 25,
+          "step": 5,
+          "default": 15,
+          "unit": "mm",
+          "targets": [
+            {
+              "param": "RideHeightOffsetM",
+              "op": "set",
+              "atMin": 0.0,
+              "atMax": 0.025
+            }
+          ]
+        }
+      ],
+      "tradeoff": "Raised (up to +25 mm) and compliant: settles over crests and rough kerbs; the higher centre of gravity rolls more and responds more slowly."
+    },
+    {
+      "id": "SUS-T3-COILOVER",
+      "slot": "suspension",
+      "tier": 3,
+      "name": "Adjustable coilovers",
+      "price": 90000,
+      "unlockAct": 3,
+      "compat": {},
+      "effects": [],
+      "tuning": [
+        {
+          "key": "SpringFront",
+          "min": 850,
+          "max": 1450,
+          "step": 10,
+          "default": 1250,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "SpringScaleFront",
+              "op": "set",
+              "atMin": 0.85,
+              "atMax": 1.45
+            }
+          ]
+        },
+        {
+          "key": "SpringRear",
+          "min": 850,
+          "max": 1450,
+          "step": 10,
+          "default": 1250,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "SpringScaleRear",
+              "op": "set",
+              "atMin": 0.85,
+              "atMax": 1.45
+            }
+          ]
+        },
+        {
+          "key": "DamperFront",
+          "min": 850,
+          "max": 1400,
+          "step": 10,
+          "default": 1200,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "DamperScaleFront",
+              "op": "set",
+              "atMin": 0.85,
+              "atMax": 1.4
+            }
+          ]
+        },
+        {
+          "key": "DamperRear",
+          "min": 850,
+          "max": 1400,
+          "step": 10,
+          "default": 1200,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "DamperScaleRear",
+              "op": "set",
+              "atMin": 0.85,
+              "atMax": 1.4
+            }
+          ]
+        },
+        {
+          "key": "AntiRollFront",
+          "min": 700,
+          "max": 1500,
+          "step": 10,
+          "default": 1150,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "AntiRollScaleFront",
+              "op": "set",
+              "atMin": 0.7,
+              "atMax": 1.5
+            }
+          ]
+        },
+        {
+          "key": "AntiRollRear",
+          "min": 700,
+          "max": 1500,
+          "step": 10,
+          "default": 1150,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "AntiRollScaleRear",
+              "op": "set",
+              "atMin": 0.7,
+              "atMax": 1.5
+            }
+          ]
+        },
+        {
+          "key": "RideHeight",
+          "min": -40,
+          "max": 10,
+          "step": 5,
+          "default": -25,
+          "unit": "mm",
+          "targets": [
+            {
+              "param": "RideHeightOffsetM",
+              "op": "set",
+              "atMin": -0.04,
+              "atMax": 0.01
+            }
+          ]
+        }
+      ],
+      "tradeoff": "Wide adjustment of springs, dampers, bars and ride height (-40 to +10 mm): the same response-versus-compliance tradeoff with more room to get it right or wrong."
+    },
+    {
+      "id": "SUS-T4-RACE",
+      "slot": "suspension",
+      "tier": 4,
+      "name": "Remote-reservoir race suspension",
+      "price": 170000,
+      "unlockAct": 4,
+      "compat": {},
+      "effects": [
+        {
+          "param": "MassKg",
+          "op": "add",
+          "value": -4
+        }
+      ],
+      "tuning": [
+        {
+          "key": "SpringFront",
+          "min": 900,
+          "max": 1600,
+          "step": 10,
+          "default": 1350,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "SpringScaleFront",
+              "op": "set",
+              "atMin": 0.9,
+              "atMax": 1.6
+            }
+          ]
+        },
+        {
+          "key": "SpringRear",
+          "min": 900,
+          "max": 1600,
+          "step": 10,
+          "default": 1350,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "SpringScaleRear",
+              "op": "set",
+              "atMin": 0.9,
+              "atMax": 1.6
+            }
+          ]
+        },
+        {
+          "key": "DamperFront",
+          "min": 900,
+          "max": 1500,
+          "step": 10,
+          "default": 1300,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "DamperScaleFront",
+              "op": "set",
+              "atMin": 0.9,
+              "atMax": 1.5
+            }
+          ]
+        },
+        {
+          "key": "DamperRear",
+          "min": 900,
+          "max": 1500,
+          "step": 10,
+          "default": 1300,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "DamperScaleRear",
+              "op": "set",
+              "atMin": 0.9,
+              "atMax": 1.5
+            }
+          ]
+        },
+        {
+          "key": "AntiRollFront",
+          "min": 700,
+          "max": 1600,
+          "step": 10,
+          "default": 1200,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "AntiRollScaleFront",
+              "op": "set",
+              "atMin": 0.7,
+              "atMax": 1.6
+            }
+          ]
+        },
+        {
+          "key": "AntiRollRear",
+          "min": 700,
+          "max": 1600,
+          "step": 10,
+          "default": 1200,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "AntiRollScaleRear",
+              "op": "set",
+              "atMin": 0.7,
+              "atMax": 1.6
+            }
+          ]
+        },
+        {
+          "key": "RideHeight",
+          "min": -40,
+          "max": 10,
+          "step": 5,
+          "default": -30,
+          "unit": "mm",
+          "targets": [
+            {
+              "param": "RideHeightOffsetM",
+              "op": "set",
+              "atMin": -0.04,
+              "atMax": 0.01
+            }
+          ]
+        }
+      ],
+      "tradeoff": "Stiffest range and lightest hardware; very sharp on smooth roads, busy and nervous over rough surfaces unless softened."
+    },
+    {
+      "id": "DIF-T1-RWD-CLUTCH",
+      "slot": "differential",
+      "tier": 1,
+      "name": "Street clutch LSD (RWD)",
+      "price": 14000,
+      "unlockAct": 1,
+      "compat": {
+        "drive": [
+          "RWD"
+        ]
+      },
+      "effects": [
+        {
+          "param": "PowerSlideGripLoss",
+          "op": "add",
+          "value": 0.06
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "The rear axle breaks away together under power: easier to rotate and hold a slide on throttle; less forgiving if you add power mid-slide."
+    },
+    {
+      "id": "DIF-T1-FWD-HELICAL",
+      "slot": "differential",
+      "tier": 1,
+      "name": "Helical LSD (FWD)",
+      "price": 13000,
+      "unlockAct": 1,
+      "compat": {
+        "drive": [
+          "FWD"
+        ]
+      },
+      "effects": [
+        {
+          "param": "PowerSlideGripLoss",
+          "op": "add",
+          "value": -0.08
+        },
+        {
+          "param": "MassKg",
+          "op": "add",
+          "value": 3
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "Driven front tyres keep more side grip under power: less power understeer on exits. The corner-entry cost of a locked diff is not simulated yet."
+    },
+    {
+      "id": "DIF-T1-AWD-VISCOUS",
+      "slot": "differential",
+      "tier": 1,
+      "name": "Rear-biased viscous centre (AWD)",
+      "price": 12000,
+      "unlockAct": 1,
+      "compat": {
+        "drive": [
+          "AWD"
+        ]
+      },
+      "effects": [
+        {
+          "param": "AwdFrontShare",
+          "op": "add",
+          "value": -0.04
+        },
+        {
+          "param": "PowerSlideGripLoss",
+          "op": "add",
+          "value": 0.03
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "More torque to the rear: freer rotation on exit; a little less straight-line composure out of slow corners."
+    },
+    {
+      "id": "DIF-T2-RWD-ADJ",
+      "slot": "differential",
+      "tier": 2,
+      "name": "Adjustable clutch LSD (RWD)",
+      "price": 42000,
+      "unlockAct": 2,
+      "compat": {
+        "drive": [
+          "RWD"
+        ]
+      },
+      "effects": [],
+      "tuning": [
+        {
+          "key": "DiffLock",
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "default": 50,
+          "unit": "%",
+          "targets": [
+            {
+              "param": "PowerSlideGripLoss",
+              "op": "set",
+              "atMin": 0.24,
+              "atMax": 0.46
+            }
+          ]
+        }
+      ],
+      "tradeoff": "Lock 0-100%: more lock gives stronger throttle rotation and slide hold, less stability when power goes on mid-corner."
+    },
+    {
+      "id": "DIF-T2-FWD-ADJ",
+      "slot": "differential",
+      "tier": 2,
+      "name": "Adjustable plate LSD (FWD)",
+      "price": 40000,
+      "unlockAct": 2,
+      "compat": {
+        "drive": [
+          "FWD"
+        ]
+      },
+      "effects": [
+        {
+          "param": "MassKg",
+          "op": "add",
+          "value": 3
+        }
+      ],
+      "tuning": [
+        {
+          "key": "DiffLock",
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "default": 50,
+          "unit": "%",
+          "targets": [
+            {
+              "param": "PowerSlideGripLoss",
+              "op": "set",
+              "atMin": 0.34,
+              "atMax": 0.18
+            }
+          ]
+        }
+      ],
+      "tradeoff": "Lock 0-100%: more lock gives less power understeer on exits (the entry cost is not simulated yet); 3 kg heavier."
+    },
+    {
+      "id": "DIF-T2-AWD-CENTRE",
+      "slot": "differential",
+      "tier": 2,
+      "name": "Adjustable centre coupling (AWD)",
+      "price": 48000,
+      "unlockAct": 2,
+      "compat": {
+        "drive": [
+          "AWD"
+        ]
+      },
+      "effects": [],
+      "tuning": [
+        {
+          "key": "AwdFrontShare",
+          "min": 300,
+          "max": 500,
+          "step": 5,
+          "defaultFromBase": true,
+          "default": 300,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "AwdFrontShare",
+              "op": "set",
+              "atMin": 0.3,
+              "atMax": 0.5
+            }
+          ]
+        },
+        {
+          "key": "DiffLock",
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "default": 50,
+          "unit": "%",
+          "targets": [
+            {
+              "param": "PowerSlideGripLoss",
+              "op": "set",
+              "atMin": 0.26,
+              "atMax": 0.4
+            }
+          ]
+        }
+      ],
+      "tradeoff": "Front torque share 30-50% and lock: rear-biased rotates more freely, front-biased is calmer but pushes wide."
+    },
+    {
+      "id": "DIF-T3-RWD-RACE",
+      "slot": "differential",
+      "tier": 3,
+      "name": "Race differential (RWD)",
+      "price": 88000,
+      "unlockAct": 3,
+      "compat": {
+        "drive": [
+          "RWD"
+        ]
+      },
+      "effects": [
+        {
+          "param": "MassKg",
+          "op": "add",
+          "value": -2
+        }
+      ],
+      "tuning": [
+        {
+          "key": "DiffLock",
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "default": 60,
+          "unit": "%",
+          "targets": [
+            {
+              "param": "PowerSlideGripLoss",
+              "op": "set",
+              "atMin": 0.18,
+              "atMax": 0.54
+            }
+          ]
+        }
+      ],
+      "tradeoff": "Widest lock range: from very stable to very throttle-steerable; the aggressive end is hard to control."
+    },
+    {
+      "id": "DIF-T3-FWD-RACE",
+      "slot": "differential",
+      "tier": 3,
+      "name": "Race differential (FWD)",
+      "price": 85000,
+      "unlockAct": 3,
+      "compat": {
+        "drive": [
+          "FWD"
+        ]
+      },
+      "effects": [],
+      "tuning": [
+        {
+          "key": "DiffLock",
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "default": 60,
+          "unit": "%",
+          "targets": [
+            {
+              "param": "PowerSlideGripLoss",
+              "op": "set",
+              "atMin": 0.36,
+              "atMax": 0.14
+            }
+          ]
+        }
+      ],
+      "tradeoff": "Widest lock range for exits under power (the entry cost is not simulated yet)."
+    },
+    {
+      "id": "DIF-T3-AWD-ACTIVE",
+      "slot": "differential",
+      "tier": 3,
+      "name": "Active centre differential (AWD)",
+      "price": 110000,
+      "unlockAct": 3,
+      "compat": {
+        "drive": [
+          "AWD"
+        ]
+      },
+      "effects": [],
+      "tuning": [
+        {
+          "key": "AwdFrontShare",
+          "min": 250,
+          "max": 500,
+          "step": 5,
+          "defaultFromBase": true,
+          "default": 250,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "AwdFrontShare",
+              "op": "set",
+              "atMin": 0.25,
+              "atMax": 0.5
+            }
+          ]
+        },
+        {
+          "key": "DiffLock",
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "default": 50,
+          "unit": "%",
+          "targets": [
+            {
+              "param": "PowerSlideGripLoss",
+              "op": "set",
+              "atMin": 0.2,
+              "atMax": 0.44
+            }
+          ]
+        }
+      ],
+      "tradeoff": "Front share 25-50% and lock: the most rotation an AWD chassis can have, or the most stability; not both."
+    },
+    {
+      "id": "GBX-T1-SHORTFD",
+      "slot": "gearbox",
+      "tier": 1,
+      "name": "Short final drive (fixed)",
+      "price": 6000,
+      "unlockAct": 1,
+      "compat": {},
+      "effects": [
+        {
+          "param": "FinalDriveScale",
+          "op": "scale",
+          "value": 1.06
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "6% shorter overall gearing: stronger acceleration in every gear; about 6% less reachable top speed and more shifts."
+    },
+    {
+      "id": "GBX-T1-FINAL",
+      "slot": "gearbox",
+      "tier": 1,
+      "name": "Final-drive kit (adjustable)",
+      "price": 8000,
+      "unlockAct": 1,
+      "compat": {},
+      "effects": [],
+      "tuning": [
+        {
+          "key": "FinalDrive",
+          "min": 920,
+          "max": 1120,
+          "step": 10,
+          "default": 1000,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "FinalDriveScale",
+              "op": "set",
+              "atMin": 0.92,
+              "atMax": 1.12
+            }
+          ]
+        }
+      ],
+      "tradeoff": "Choose the final drive (-8% to +12%): shorter accelerates harder but reaches less top speed; longer does the reverse."
+    },
+    {
+      "id": "GBX-T2-CLOSE",
+      "slot": "gearbox",
+      "tier": 2,
+      "name": "Close-ratio gearset",
+      "price": 36000,
+      "unlockAct": 2,
+      "compat": {
+        "stockGears": [
+          6,
+          7
+        ]
+      },
+      "effects": [
+        {
+          "param": "ShiftSecondsScale",
+          "op": "scale",
+          "value": 0.92
+        },
+        {
+          "param": "MassKg",
+          "op": "add",
+          "value": 2
+        }
+      ],
+      "tuning": [
+        {
+          "key": "GearSpread",
+          "min": 880,
+          "max": 1050,
+          "step": 10,
+          "default": 940,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "GearSpreadScale",
+              "op": "set",
+              "atMin": 0.88,
+              "atMax": 1.05
+            }
+          ]
+        },
+        {
+          "key": "FinalDrive",
+          "min": 900,
+          "max": 1150,
+          "step": 10,
+          "default": 1000,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "FinalDriveScale",
+              "op": "set",
+              "atMin": 0.9,
+              "atMax": 1.15
+            }
+          ]
+        }
+      ],
+      "tradeoff": "Closer ratios keep the engine near peak power after each shift; a taller first gear launches more softly. Adjustable spread and final drive; slightly quicker shifts."
+    },
+    {
+      "id": "GBX-T2-SIX",
+      "slot": "gearbox",
+      "tier": 2,
+      "name": "Close-ratio six-speed conversion",
+      "price": 45000,
+      "unlockAct": 2,
+      "compat": {
+        "stockGears": [
+          5
+        ]
+      },
+      "effects": [
+        {
+          "param": "Gears",
+          "op": "set",
+          "value": 6
+        },
+        {
+          "param": "MassKg",
+          "op": "add",
+          "value": 8
+        },
+        {
+          "param": "ShiftSecondsScale",
+          "op": "scale",
+          "value": 0.95
+        }
+      ],
+      "tuning": [
+        {
+          "key": "GearSpread",
+          "min": 900,
+          "max": 1050,
+          "step": 10,
+          "default": 960,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "GearSpreadScale",
+              "op": "set",
+              "atMin": 0.9,
+              "atMax": 1.05
+            }
+          ]
+        },
+        {
+          "key": "FinalDrive",
+          "min": 900,
+          "max": 1150,
+          "step": 10,
+          "default": 1000,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "FinalDriveScale",
+              "op": "set",
+              "atMin": 0.9,
+              "atMax": 1.15
+            }
+          ]
+        }
+      ],
+      "tradeoff": "Adds a sixth gear for smaller rev drops; 8 kg heavier and one more shift on every straight."
+    },
+    {
+      "id": "GBX-T3-SEQ",
+      "slot": "gearbox",
+      "tier": 3,
+      "name": "Sequential gearbox",
+      "price": 100000,
+      "unlockAct": 3,
+      "compat": {},
+      "effects": [
+        {
+          "param": "Gears",
+          "op": "atLeast",
+          "value": 6
+        },
+        {
+          "param": "ShiftSecondsScale",
+          "op": "scale",
+          "value": 0.55
+        },
+        {
+          "param": "MassKg",
+          "op": "add",
+          "value": 5
+        }
+      ],
+      "tuning": [
+        {
+          "key": "GearSpread",
+          "min": 850,
+          "max": 1100,
+          "step": 10,
+          "default": 940,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "GearSpreadScale",
+              "op": "set",
+              "atMin": 0.85,
+              "atMax": 1.1
+            }
+          ]
+        },
+        {
+          "key": "FinalDrive",
+          "min": 880,
+          "max": 1180,
+          "step": 10,
+          "default": 1000,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "FinalDriveScale",
+              "op": "set",
+              "atMin": 0.88,
+              "atMax": 1.18
+            }
+          ]
+        }
+      ],
+      "tradeoff": "Much quicker shifts and at least six gears; 5 kg heavier than stock. Adjustable spread and final drive."
+    },
+    {
+      "id": "GBX-T4-DOG",
+      "slot": "gearbox",
+      "tier": 4,
+      "name": "Dog-ring race gearbox",
+      "price": 180000,
+      "unlockAct": 4,
+      "compat": {},
+      "effects": [
+        {
+          "param": "Gears",
+          "op": "atLeast",
+          "value": 6
+        },
+        {
+          "param": "ShiftSecondsScale",
+          "op": "scale",
+          "value": 0.4
+        },
+        {
+          "param": "MassKg",
+          "op": "add",
+          "value": -4
+        }
+      ],
+      "tuning": [
+        {
+          "key": "GearSpread",
+          "min": 820,
+          "max": 1120,
+          "step": 10,
+          "default": 920,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "GearSpreadScale",
+              "op": "set",
+              "atMin": 0.82,
+              "atMax": 1.12
+            }
+          ]
+        },
+        {
+          "key": "FinalDrive",
+          "min": 860,
+          "max": 1200,
+          "step": 10,
+          "default": 1000,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "FinalDriveScale",
+              "op": "set",
+              "atMin": 0.86,
+              "atMax": 1.2
+            }
+          ]
+        }
+      ],
+      "tradeoff": "Fastest shifts and the widest ratio adjustment; unforgiving to set up, and wrong ratios cost more than they gain."
+    },
+    {
+      "id": "ENG-T1-INTAKE",
+      "slot": "engine",
+      "tier": 1,
+      "name": "Cold-air intake and map",
+      "price": 10000,
+      "unlockAct": 1,
+      "compat": {},
+      "effects": [
+        {
+          "param": "PowerKw",
+          "op": "scale",
+          "value": 1.04
+        },
+        {
+          "param": "TorqueNm",
+          "op": "scale",
+          "value": 1.05
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "Stronger low and mid-range pull with a small top-end gain; the alternative to the exhaust in this slot."
+    },
+    {
+      "id": "ENG-T1-EXHAUST",
+      "slot": "engine",
+      "tier": 1,
+      "name": "Free-flow exhaust",
+      "price": 12000,
+      "unlockAct": 1,
+      "compat": {},
+      "effects": [
+        {
+          "param": "PowerKw",
+          "op": "scale",
+          "value": 1.06
+        },
+        {
+          "param": "TorqueNm",
+          "op": "scale",
+          "value": 0.99
+        },
+        {
+          "param": "MassKg",
+          "op": "add",
+          "value": -3
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "More top-end power and 3 kg lighter; slightly softer low-rpm torque than stock."
+    },
+    {
+      "id": "ENG-T2-STREET",
+      "slot": "engine",
+      "tier": 2,
+      "name": "Street breathing package (intake, exhaust, cams)",
+      "price": 48000,
+      "unlockAct": 2,
+      "compat": {
+        "engineFamily": [
+          "inline4",
+          "six",
+          "triple"
+        ]
+      },
+      "effects": [
+        {
+          "param": "PowerKw",
+          "op": "scale",
+          "value": 1.11
+        },
+        {
+          "param": "TorqueNm",
+          "op": "scale",
+          "value": 1.06
+        },
+        {
+          "param": "RedlineRpm",
+          "op": "add",
+          "value": 300
+        },
+        {
+          "param": "MassKg",
+          "op": "add",
+          "value": -3
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "Clear power gain; the torque peak moves 300 rpm higher, so pull below mid-range feels relatively softer."
+    },
+    {
+      "id": "ENG-T2-ROT-STREETPORT",
+      "slot": "engine",
+      "tier": 2,
+      "name": "Street-port rotor housings",
+      "price": 50000,
+      "unlockAct": 2,
+      "compat": {
+        "engineFamily": [
+          "rotary"
+        ]
+      },
+      "effects": [
+        {
+          "param": "PowerKw",
+          "op": "scale",
+          "value": 1.12
+        },
+        {
+          "param": "TorqueNm",
+          "op": "scale",
+          "value": 1.03
+        },
+        {
+          "param": "RedlineRpm",
+          "op": "add",
+          "value": 400
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "More top-end and 400 rpm more revs; little extra torque, so it wants high revs."
+    },
+    {
+      "id": "ENG-T3-I4-HIGHREV",
+      "slot": "engine",
+      "tier": 3,
+      "name": "Forged high-rev internals (inline-4)",
+      "price": 110000,
+      "unlockAct": 3,
+      "compat": {
+        "engineFamily": [
+          "inline4"
+        ]
+      },
+      "effects": [
+        {
+          "param": "PowerKw",
+          "op": "scale",
+          "value": 1.2
+        },
+        {
+          "param": "TorqueNm",
+          "op": "scale",
+          "value": 1.06
+        },
+        {
+          "param": "RedlineRpm",
+          "op": "add",
+          "value": 700
+        },
+        {
+          "param": "MassKg",
+          "op": "add",
+          "value": -3
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "Much more top-end and 700 rpm more revs; the torque plateau moves up, so steep climbs need shorter gearing."
+    },
+    {
+      "id": "ENG-T3-I4-STROKER",
+      "slot": "engine",
+      "tier": 3,
+      "name": "Stroker torque build (inline-4)",
+      "price": 105000,
+      "unlockAct": 3,
+      "compat": {
+        "engineFamily": [
+          "inline4"
+        ]
+      },
+      "effects": [
+        {
+          "param": "PowerKw",
+          "op": "scale",
+          "value": 1.15
+        },
+        {
+          "param": "TorqueNm",
+          "op": "scale",
+          "value": 1.18
+        },
+        {
+          "param": "RedlineRpm",
+          "op": "add",
+          "value": -300
+        },
+        {
+          "param": "MassKg",
+          "op": "add",
+          "value": 4
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "Big mid-range torque for hairpin exits and climbs; a 300 rpm lower rev ceiling and 4 kg heavier."
+    },
+    {
+      "id": "ENG-T3-SIX-HIGHREV",
+      "slot": "engine",
+      "tier": 3,
+      "name": "Forged high-rev internals (six)",
+      "price": 115000,
+      "unlockAct": 3,
+      "compat": {
+        "engineFamily": [
+          "six"
+        ]
+      },
+      "effects": [
+        {
+          "param": "PowerKw",
+          "op": "scale",
+          "value": 1.18
+        },
+        {
+          "param": "TorqueNm",
+          "op": "scale",
+          "value": 1.07
+        },
+        {
+          "param": "RedlineRpm",
+          "op": "add",
+          "value": 600
+        },
+        {
+          "param": "MassKg",
+          "op": "add",
+          "value": -3
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "More top-end and 600 rpm more revs; peakier delivery that needs the right ratios."
+    },
+    {
+      "id": "ENG-T3-SIX-STROKER",
+      "slot": "engine",
+      "tier": 3,
+      "name": "Stroker torque build (six)",
+      "price": 110000,
+      "unlockAct": 3,
+      "compat": {
+        "engineFamily": [
+          "six"
+        ]
+      },
+      "effects": [
+        {
+          "param": "PowerKw",
+          "op": "scale",
+          "value": 1.14
+        },
+        {
+          "param": "TorqueNm",
+          "op": "scale",
+          "value": 1.2
+        },
+        {
+          "param": "RedlineRpm",
+          "op": "add",
+          "value": -300
+        },
+        {
+          "param": "MassKg",
+          "op": "add",
+          "value": 6
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "Strong low and mid-range torque; a 300 rpm lower ceiling and 6 kg heavier."
+    },
+    {
+      "id": "ENG-T3-TRI-HIGHREV",
+      "slot": "engine",
+      "tier": 3,
+      "name": "Forged high-rev internals (triple)",
+      "price": 100000,
+      "unlockAct": 3,
+      "compat": {
+        "engineFamily": [
+          "triple"
+        ]
+      },
+      "effects": [
+        {
+          "param": "PowerKw",
+          "op": "scale",
+          "value": 1.2
+        },
+        {
+          "param": "TorqueNm",
+          "op": "scale",
+          "value": 1.08
+        },
+        {
+          "param": "RedlineRpm",
+          "op": "add",
+          "value": 600
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "More top-end and 600 rpm more revs; the small engine gets peakier."
+    },
+    {
+      "id": "ENG-T3-ROT-BRIDGEPORT",
+      "slot": "engine",
+      "tier": 3,
+      "name": "Bridge-port rotor housings",
+      "price": 115000,
+      "unlockAct": 3,
+      "compat": {
+        "engineFamily": [
+          "rotary"
+        ]
+      },
+      "effects": [
+        {
+          "param": "PowerKw",
+          "op": "scale",
+          "value": 1.24
+        },
+        {
+          "param": "TorqueNm",
+          "op": "scale",
+          "value": 1.02
+        },
+        {
+          "param": "RedlineRpm",
+          "op": "add",
+          "value": 800
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "Very strong top end and 800 rpm more revs; weak below mid-range, demands high revs and short ratios."
+    },
+    {
+      "id": "ENG-T4-I4-RACE",
+      "slot": "engine",
+      "tier": 4,
+      "name": "Full race engine (inline-4)",
+      "price": 190000,
+      "unlockAct": 4,
+      "compat": {
+        "engineFamily": [
+          "inline4"
+        ]
+      },
+      "effects": [
+        {
+          "param": "PowerKw",
+          "op": "scale",
+          "value": 1.3
+        },
+        {
+          "param": "TorqueNm",
+          "op": "scale",
+          "value": 1.14
+        },
+        {
+          "param": "RedlineRpm",
+          "op": "add",
+          "value": 900
+        },
+        {
+          "param": "MassKg",
+          "op": "add",
+          "value": -4
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "Maximum power and 900 rpm more revs; the narrowest useful rev band of any inline-4 option."
+    },
+    {
+      "id": "ENG-T4-SIX-RACE",
+      "slot": "engine",
+      "tier": 4,
+      "name": "Full race engine (six)",
+      "price": 200000,
+      "unlockAct": 4,
+      "compat": {
+        "engineFamily": [
+          "six"
+        ]
+      },
+      "effects": [
+        {
+          "param": "PowerKw",
+          "op": "scale",
+          "value": 1.28
+        },
+        {
+          "param": "TorqueNm",
+          "op": "scale",
+          "value": 1.16
+        },
+        {
+          "param": "RedlineRpm",
+          "op": "add",
+          "value": 800
+        },
+        {
+          "param": "MassKg",
+          "op": "add",
+          "value": -4
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "Maximum power and 800 rpm more revs; peaky delivery that rewards precise gearing."
+    },
+    {
+      "id": "ENG-T4-TRI-RACE",
+      "slot": "engine",
+      "tier": 4,
+      "name": "Full race engine (triple)",
+      "price": 180000,
+      "unlockAct": 4,
+      "compat": {
+        "engineFamily": [
+          "triple"
+        ]
+      },
+      "effects": [
+        {
+          "param": "PowerKw",
+          "op": "scale",
+          "value": 1.3
+        },
+        {
+          "param": "TorqueNm",
+          "op": "scale",
+          "value": 1.15
+        },
+        {
+          "param": "RedlineRpm",
+          "op": "add",
+          "value": 800
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "Maximum power and 800 rpm more revs from the triple; peaky and demanding."
+    },
+    {
+      "id": "ENG-T4-ROT-PERIPHERAL",
+      "slot": "engine",
+      "tier": 4,
+      "name": "Peripheral-port rotor housings",
+      "price": 195000,
+      "unlockAct": 4,
+      "compat": {
+        "engineFamily": [
+          "rotary"
+        ]
+      },
+      "effects": [
+        {
+          "param": "PowerKw",
+          "op": "scale",
+          "value": 1.34
+        },
+        {
+          "param": "TorqueNm",
+          "op": "scale",
+          "value": 1.06
+        },
+        {
+          "param": "RedlineRpm",
+          "op": "add",
+          "value": 1000
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "Enormous top end and 1,000 rpm more revs; almost nothing below mid-range."
+    },
+    {
+      "id": "FI-T1-BOOST",
+      "slot": "forced-induction",
+      "tier": 1,
+      "name": "Boost controller and intercooler",
+      "price": 16000,
+      "unlockAct": 1,
+      "compat": {
+        "aspiration": "turbo"
+      },
+      "effects": [
+        {
+          "param": "PowerKw",
+          "op": "scale",
+          "value": 1.07
+        },
+        {
+          "param": "TorqueNm",
+          "op": "scale",
+          "value": 1.08
+        },
+        {
+          "param": "TurboLagSeconds",
+          "op": "scale",
+          "value": 1.05
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "More boost: more power and torque, with slightly slower spool-up."
+    },
+    {
+      "id": "FI-T2-RESPONSE",
+      "slot": "forced-induction",
+      "tier": 2,
+      "name": "Twin-scroll response turbo",
+      "price": 44000,
+      "unlockAct": 2,
+      "compat": {
+        "aspiration": "turbo"
+      },
+      "effects": [
+        {
+          "param": "PowerKw",
+          "op": "scale",
+          "value": 1.04
+        },
+        {
+          "param": "TorqueNm",
+          "op": "scale",
+          "value": 1.06
+        },
+        {
+          "param": "TurboLagSeconds",
+          "op": "scale",
+          "value": 0.7
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "30% quicker spool for sharper exits; only a small peak-power gain."
+    },
+    {
+      "id": "FI-T3-BIGTURBO",
+      "slot": "forced-induction",
+      "tier": 3,
+      "name": "Big-frame turbo",
+      "price": 105000,
+      "unlockAct": 3,
+      "compat": {
+        "aspiration": "turbo"
+      },
+      "effects": [
+        {
+          "param": "PowerKw",
+          "op": "scale",
+          "value": 1.18
+        },
+        {
+          "param": "TorqueNm",
+          "op": "scale",
+          "value": 1.14
+        },
+        {
+          "param": "TurboLagSeconds",
+          "op": "scale",
+          "value": 1.4
+        },
+        {
+          "param": "MassKg",
+          "op": "add",
+          "value": 6
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "Much more peak power and torque; 40% more lag, so boost arrives late and can unbalance a corner exit."
+    },
+    {
+      "id": "FI-T4-HYBRID",
+      "slot": "forced-induction",
+      "tier": 4,
+      "name": "Hybrid race turbo",
+      "price": 185000,
+      "unlockAct": 4,
+      "compat": {
+        "aspiration": "turbo"
+      },
+      "effects": [
+        {
+          "param": "PowerKw",
+          "op": "scale",
+          "value": 1.26
+        },
+        {
+          "param": "TorqueNm",
+          "op": "scale",
+          "value": 1.2
+        },
+        {
+          "param": "TurboLagSeconds",
+          "op": "scale",
+          "value": 1.2
+        },
+        {
+          "param": "MassKg",
+          "op": "add",
+          "value": 8
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "Maximum boosted power with 20% more lag than stock; 8 kg heavier."
+    },
+    {
+      "id": "FI-T3-SUPERCHARGER",
+      "slot": "forced-induction",
+      "tier": 3,
+      "name": "Supercharger kit",
+      "price": 112000,
+      "unlockAct": 3,
+      "compat": {
+        "aspiration": "na",
+        "engineLayout": [
+          "front",
+          "front-mid"
+        ]
+      },
+      "effects": [
+        {
+          "param": "PowerKw",
+          "op": "scale",
+          "value": 1.12
+        },
+        {
+          "param": "TorqueNm",
+          "op": "scale",
+          "value": 1.18
+        },
+        {
+          "param": "MassKg",
+          "op": "add",
+          "value": 16
+        },
+        {
+          "param": "FrontWeight",
+          "op": "add",
+          "value": 0.006
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "Instant extra torque with no lag; 16 kg over the nose shifts balance forward. Naturally aspirated front-engine cars only."
+    },
+    {
+      "id": "FI-T4-TURBOKIT",
+      "slot": "forced-induction",
+      "tier": 4,
+      "name": "Turbo conversion kit",
+      "price": 195000,
+      "unlockAct": 4,
+      "compat": {
+        "aspiration": "na",
+        "engineLayout": [
+          "front",
+          "front-mid"
+        ]
+      },
+      "effects": [
+        {
+          "param": "Turbo",
+          "op": "set",
+          "value": 1
+        },
+        {
+          "param": "TurboLagSeconds",
+          "op": "set",
+          "value": 0.75
+        },
+        {
+          "param": "PowerKw",
+          "op": "scale",
+          "value": 1.28
+        },
+        {
+          "param": "TorqueNm",
+          "op": "scale",
+          "value": 1.25
+        },
+        {
+          "param": "MassKg",
+          "op": "add",
+          "value": 22
+        },
+        {
+          "param": "FrontWeight",
+          "op": "add",
+          "value": 0.005
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "Large power and torque gain, but the car becomes turbocharged: 0.75 s spool lag and 22 kg more over the nose. Naturally aspirated front-engine cars only; the NA route stays lighter and instant."
+    },
+    {
+      "id": "BRK-T1-PADS",
+      "slot": "brakes",
+      "tier": 1,
+      "name": "Performance pads and fluid",
+      "price": 7000,
+      "unlockAct": 1,
+      "compat": {},
+      "effects": [
+        {
+          "param": "BrakeForceScale",
+          "op": "scale",
+          "value": 1.06
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "More bite for the same pedal. Braking is still limited by tyre grip; with ABS off the wheels lock sooner."
+    },
+    {
+      "id": "BRK-T2-KIT",
+      "slot": "brakes",
+      "tier": 2,
+      "name": "Big brake kit (adjustable bias)",
+      "price": 30000,
+      "unlockAct": 2,
+      "compat": {},
+      "effects": [
+        {
+          "param": "BrakeForceScale",
+          "op": "scale",
+          "value": 1.12
+        },
+        {
+          "param": "MassKg",
+          "op": "add",
+          "value": 4
+        }
+      ],
+      "tuning": [
+        {
+          "key": "BrakeBias",
+          "min": 560,
+          "max": 700,
+          "step": 5,
+          "default": 620,
+          "unit": "permille front",
+          "targets": [
+            {
+              "param": "BrakeFrontBias",
+              "op": "set",
+              "atMin": 0.56,
+              "atMax": 0.7
+            }
+          ]
+        },
+        {
+          "key": "BrakePressure",
+          "min": 850,
+          "max": 1000,
+          "step": 10,
+          "default": 1000,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "BrakeForceScale",
+              "op": "scale",
+              "atMin": 0.85,
+              "atMax": 1.0
+            }
+          ]
+        }
+      ],
+      "tradeoff": "Stronger brakes with adjustable front/rear bias and pressure; 4 kg heavier. Rear bias helps rotation on entry but destabilises trail braking."
+    },
+    {
+      "id": "BRK-T3-RACE",
+      "slot": "brakes",
+      "tier": 3,
+      "name": "Race calipers and rotors",
+      "price": 80000,
+      "unlockAct": 3,
+      "compat": {},
+      "effects": [
+        {
+          "param": "BrakeForceScale",
+          "op": "scale",
+          "value": 1.2
+        },
+        {
+          "param": "MassKg",
+          "op": "add",
+          "value": 2
+        }
+      ],
+      "tuning": [
+        {
+          "key": "BrakeBias",
+          "min": 540,
+          "max": 720,
+          "step": 5,
+          "default": 620,
+          "unit": "permille front",
+          "targets": [
+            {
+              "param": "BrakeFrontBias",
+              "op": "set",
+              "atMin": 0.54,
+              "atMax": 0.72
+            }
+          ]
+        },
+        {
+          "key": "BrakePressure",
+          "min": 800,
+          "max": 1000,
+          "step": 10,
+          "default": 1000,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "BrakeForceScale",
+              "op": "scale",
+              "atMin": 0.8,
+              "atMax": 1.0
+            }
+          ]
+        }
+      ],
+      "tradeoff": "Strong, adjustable race brakes; only useful once the tyres can use the force."
+    },
+    {
+      "id": "BRK-T4-CARBON",
+      "slot": "brakes",
+      "tier": 4,
+      "name": "Carbon-ceramic race brakes",
+      "price": 160000,
+      "unlockAct": 4,
+      "compat": {},
+      "effects": [
+        {
+          "param": "BrakeForceScale",
+          "op": "scale",
+          "value": 1.26
+        },
+        {
+          "param": "MassKg",
+          "op": "add",
+          "value": -6
+        }
+      ],
+      "tuning": [
+        {
+          "key": "BrakeBias",
+          "min": 540,
+          "max": 720,
+          "step": 5,
+          "default": 620,
+          "unit": "permille front",
+          "targets": [
+            {
+              "param": "BrakeFrontBias",
+              "op": "set",
+              "atMin": 0.54,
+              "atMax": 0.72
+            }
+          ]
+        },
+        {
+          "key": "BrakePressure",
+          "min": 800,
+          "max": 1000,
+          "step": 10,
+          "default": 1000,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "BrakeForceScale",
+              "op": "scale",
+              "atMin": 0.8,
+              "atMax": 1.0
+            }
+          ]
+        }
+      ],
+      "tradeoff": "Strongest and 6 kg lighter; a very sharp initial bite that needs a gentle release."
+    },
+    {
+      "id": "WGT-T1-STRIP",
+      "slot": "weight-reduction",
+      "tier": 1,
+      "name": "Interior strip-out",
+      "price": 6000,
+      "unlockAct": 1,
+      "compat": {},
+      "effects": [
+        {
+          "param": "MassKg",
+          "op": "chassisWeightReduction",
+          "value": 0.35
+        },
+        {
+          "param": "FrontWeight",
+          "op": "add",
+          "value": 0.004
+        },
+        {
+          "param": "InertiaScale",
+          "op": "scale",
+          "value": 0.99
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "Removes 35% of this chassis's weight-reduction allowance from the rear cabin: quicker in every direction, balance shifts slightly forward, a little more nervous."
+    },
+    {
+      "id": "WGT-T2-PANELS",
+      "slot": "weight-reduction",
+      "tier": 2,
+      "name": "Lightweight panels and glass",
+      "price": 35000,
+      "unlockAct": 2,
+      "compat": {},
+      "effects": [
+        {
+          "param": "MassKg",
+          "op": "chassisWeightReduction",
+          "value": 0.65
+        },
+        {
+          "param": "InertiaScale",
+          "op": "scale",
+          "value": 0.98
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "Removes 65% of the allowance with little balance change; lower yaw inertia makes the car rotate faster and settle less easily."
+    },
+    {
+      "id": "WGT-T3-CARBON",
+      "slot": "weight-reduction",
+      "tier": 3,
+      "name": "Carbon weight programme",
+      "price": 90000,
+      "unlockAct": 3,
+      "compat": {},
+      "effects": [
+        {
+          "param": "MassKg",
+          "op": "chassisWeightReduction",
+          "value": 0.9
+        },
+        {
+          "param": "InertiaScale",
+          "op": "scale",
+          "value": 0.96
+        },
+        {
+          "param": "FrontWeight",
+          "op": "add",
+          "value": -0.004
+        }
+      ],
+      "tuning": [],
+      "tradeoff": "Removes 90% of the allowance, mostly from the nose: sharper and lighter, clearly less stable at the limit."
+    },
+    {
+      "id": "BKT-T2-WIDEARCH",
+      "slot": "body-kit",
+      "tier": 2,
+      "name": "Wide-arch body kit",
+      "price": 40000,
+      "unlockAct": 2,
+      "compat": {
+        "bodyClass": [
+          "hatch",
+          "coupe",
+          "sedan"
+        ]
+      },
+      "effects": [
+        {
+          "param": "TrackM",
+          "op": "add",
+          "value": 0.04
+        },
+        {
+          "param": "DragAreaCdA",
+          "op": "add",
+          "value": 0.02
+        },
+        {
+          "param": "MassKg",
+          "op": "add",
+          "value": 8
+        }
+      ],
+      "tuning": [],
+      "appearance": "body-widearch",
+      "tradeoff": "Wider track (+40 mm) for roll stability and front bite; more drag and 8 kg. Changes the car's silhouette."
+    },
+    {
+      "id": "BKT-T3-CARBONSHELL",
+      "slot": "body-kit",
+      "tier": 3,
+      "name": "Carbon body panels",
+      "price": 70000,
+      "unlockAct": 3,
+      "compat": {},
+      "effects": [
+        {
+          "param": "MassKg",
+          "op": "chassisWeightReduction",
+          "value": 0.1
+        },
+        {
+          "param": "InertiaScale",
+          "op": "scale",
+          "value": 0.98
+        }
+      ],
+      "tuning": [],
+      "appearance": "body-carbon",
+      "tradeoff": "Carbon bonnet, boot and doors: less mass and yaw inertia (quicker, less stable). Counts toward this chassis's weight-reduction limit. Visible carbon finish."
+    },
+    {
+      "id": "AER-T1-LIP",
+      "slot": "aero",
+      "tier": 1,
+      "name": "Front lip splitter",
+      "price": 7500,
+      "unlockAct": 1,
+      "compat": {},
+      "effects": [
+        {
+          "param": "LiftAreaClA",
+          "op": "add",
+          "value": 0.03
+        },
+        {
+          "param": "DragAreaCdA",
+          "op": "add",
+          "value": 0.01
+        },
+        {
+          "param": "AeroFrontShare",
+          "op": "add",
+          "value": 0.03
+        }
+      ],
+      "tuning": [],
+      "appearance": "aero-lip",
+      "tradeoff": "A little front downforce: sharper high-speed turn-in; slightly more drag and a more front-biased aero balance."
+    },
+    {
+      "id": "AER-T2-LOWDRAG",
+      "slot": "aero",
+      "tier": 2,
+      "name": "Low-drag undertray and mirrors",
+      "price": 26000,
+      "unlockAct": 2,
+      "compat": {},
+      "effects": [
+        {
+          "param": "DragAreaCdA",
+          "op": "add",
+          "value": -0.04
+        },
+        {
+          "param": "LiftAreaClA",
+          "op": "add",
+          "value": -0.02
+        }
+      ],
+      "tuning": [],
+      "appearance": "aero-lowdrag",
+      "tradeoff": "Less drag for more reachable speed; less downforce, so fast corners feel lighter."
+    },
+    {
+      "id": "AER-T2-SPOILER",
+      "slot": "aero",
+      "tier": 2,
+      "name": "Rear spoiler",
+      "price": 24000,
+      "unlockAct": 2,
+      "compat": {
+        "bodyClass": [
+          "hatch",
+          "coupe",
+          "sedan",
+          "roadster",
+          "mid"
+        ]
+      },
+      "effects": [
+        {
+          "param": "LiftAreaClA",
+          "op": "add",
+          "value": 0.07
+        },
+        {
+          "param": "DragAreaCdA",
+          "op": "add",
+          "value": 0.02
+        },
+        {
+          "param": "AeroFrontShare",
+          "op": "add",
+          "value": -0.04
+        },
+        {
+          "param": "MassKg",
+          "op": "add",
+          "value": 3
+        }
+      ],
+      "tuning": [],
+      "appearance": "aero-spoiler",
+      "tradeoff": "Rear downforce for high-speed stability; more drag and a rear-biased balance that dulls turn-in."
+    },
+    {
+      "id": "AER-T2-ROOFWING",
+      "slot": "aero",
+      "tier": 2,
+      "name": "Roof wing",
+      "price": 24000,
+      "unlockAct": 2,
+      "compat": {
+        "bodyClass": [
+          "wagon",
+          "hatch"
+        ]
+      },
+      "effects": [
+        {
+          "param": "LiftAreaClA",
+          "op": "add",
+          "value": 0.06
+        },
+        {
+          "param": "DragAreaCdA",
+          "op": "add",
+          "value": 0.018
+        },
+        {
+          "param": "AeroFrontShare",
+          "op": "add",
+          "value": -0.03
+        },
+        {
+          "param": "MassKg",
+          "op": "add",
+          "value": 3
+        }
+      ],
+      "tuning": [],
+      "appearance": "aero-roofwing",
+      "tradeoff": "Rear downforce on wagon and hatch roofs; more drag and a rear-biased balance."
+    },
+    {
+      "id": "AER-T3-GTWING",
+      "slot": "aero",
+      "tier": 3,
+      "name": "Adjustable wing and splitter",
+      "price": 75000,
+      "unlockAct": 3,
+      "compat": {
+        "bodyClass": [
+          "hatch",
+          "coupe",
+          "sedan",
+          "roadster",
+          "mid"
+        ]
+      },
+      "effects": [
+        {
+          "param": "LiftAreaClA",
+          "op": "add",
+          "value": 0.14
+        },
+        {
+          "param": "DragAreaCdA",
+          "op": "add",
+          "value": 0.045
+        },
+        {
+          "param": "MassKg",
+          "op": "add",
+          "value": 7
+        }
+      ],
+      "tuning": [
+        {
+          "key": "AeroLevel",
+          "min": 700,
+          "max": 1300,
+          "step": 50,
+          "default": 1000,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "LiftAreaClA",
+              "op": "add",
+              "atMin": -0.05,
+              "atMax": 0.05
+            },
+            {
+              "param": "DragAreaCdA",
+              "op": "add",
+              "atMin": -0.015,
+              "atMax": 0.015
+            }
+          ]
+        },
+        {
+          "key": "AeroBalance",
+          "min": 380,
+          "max": 520,
+          "step": 5,
+          "default": 440,
+          "unit": "permille front",
+          "targets": [
+            {
+              "param": "AeroFrontShare",
+              "op": "set",
+              "atMin": 0.38,
+              "atMax": 0.52
+            }
+          ]
+        }
+      ],
+      "appearance": "aero-gtwing",
+      "tradeoff": "Substantial adjustable downforce and balance; every step of wing angle trades grip against drag."
+    },
+    {
+      "id": "AER-T3-WAGONWING",
+      "slot": "aero",
+      "tier": 3,
+      "name": "Adjustable roof wing and splitter",
+      "price": 75000,
+      "unlockAct": 3,
+      "compat": {
+        "bodyClass": [
+          "wagon"
+        ]
+      },
+      "effects": [
+        {
+          "param": "LiftAreaClA",
+          "op": "add",
+          "value": 0.12
+        },
+        {
+          "param": "DragAreaCdA",
+          "op": "add",
+          "value": 0.04
+        },
+        {
+          "param": "MassKg",
+          "op": "add",
+          "value": 7
+        }
+      ],
+      "tuning": [
+        {
+          "key": "AeroLevel",
+          "min": 700,
+          "max": 1300,
+          "step": 50,
+          "default": 1000,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "LiftAreaClA",
+              "op": "add",
+              "atMin": -0.05,
+              "atMax": 0.05
+            },
+            {
+              "param": "DragAreaCdA",
+              "op": "add",
+              "atMin": -0.015,
+              "atMax": 0.015
+            }
+          ]
+        },
+        {
+          "key": "AeroBalance",
+          "min": 380,
+          "max": 520,
+          "step": 5,
+          "default": 440,
+          "unit": "permille front",
+          "targets": [
+            {
+              "param": "AeroFrontShare",
+              "op": "set",
+              "atMin": 0.38,
+              "atMax": 0.52
+            }
+          ]
+        }
+      ],
+      "appearance": "aero-wagonwing",
+      "tradeoff": "Adjustable downforce and balance shaped for a long roof; the same grip-versus-drag trade."
+    },
+    {
+      "id": "AER-T4-FULL",
+      "slot": "aero",
+      "tier": 4,
+      "name": "Full aero package",
+      "price": 150000,
+      "unlockAct": 4,
+      "compat": {},
+      "effects": [
+        {
+          "param": "LiftAreaClA",
+          "op": "add",
+          "value": 0.24
+        },
+        {
+          "param": "DragAreaCdA",
+          "op": "add",
+          "value": 0.05
+        },
+        {
+          "param": "MassKg",
+          "op": "add",
+          "value": 9
+        }
+      ],
+      "tuning": [
+        {
+          "key": "AeroLevel",
+          "min": 700,
+          "max": 1300,
+          "step": 50,
+          "default": 1000,
+          "unit": "permille",
+          "targets": [
+            {
+              "param": "LiftAreaClA",
+              "op": "add",
+              "atMin": -0.08,
+              "atMax": 0.08
+            },
+            {
+              "param": "DragAreaCdA",
+              "op": "add",
+              "atMin": -0.02,
+              "atMax": 0.02
+            }
+          ]
+        },
+        {
+          "key": "AeroBalance",
+          "min": 380,
+          "max": 520,
+          "step": 5,
+          "default": 450,
+          "unit": "permille front",
+          "targets": [
+            {
+              "param": "AeroFrontShare",
+              "op": "set",
+              "atMin": 0.38,
+              "atMax": 0.52
+            }
+          ]
+        }
+      ],
+      "appearance": "aero-full",
+      "tradeoff": "Splitter, wing and diffuser: the most downforce available, with the most drag; wide balance adjustment."
+    },
+    {
+      "id": "UTL-INC-4",
+      "slot": "utility",
+      "tier": 2,
+      "name": "Sponsor decal set (+4% event pay)",
+      "price": 45000,
+      "unlockAct": 2,
+      "compat": {},
+      "effects": [],
+      "tuning": [],
+      "utility": {
+        "kind": "income",
+        "percent": 4
+      },
+      "tradeoff": "+4% on ordinary event pay only; never first-clear bonuses, challenge cash, raw drift score, PI or RP. Occupies the single utility slot."
+    },
+    {
+      "id": "UTL-INC-8",
+      "slot": "utility",
+      "tier": 3,
+      "name": "Works sponsor package (+8% event pay)",
+      "price": 110000,
+      "unlockAct": 3,
+      "compat": {},
+      "effects": [],
+      "tuning": [],
+      "utility": {
+        "kind": "income",
+        "percent": 8
+      },
+      "tradeoff": "+8% on ordinary event pay only (the cap); never bonuses, raw score, PI or RP. Occupies the single utility slot."
+    },
+    {
+      "id": "UTL-SHW-5",
+      "slot": "utility",
+      "tier": 2,
+      "name": "Showcase light kit (+5% showcase score)",
+      "price": 30000,
+      "unlockAct": 2,
+      "compat": {},
+      "effects": [],
+      "tuning": [],
+      "utility": {
+        "kind": "showcase",
+        "percent": 5
+      },
+      "tradeoff": "+5% SHOWCASE drift score only; raw score, qualification, challenges, records and RP never change. Occupies the single utility slot."
+    },
+    {
+      "id": "UTL-SHW-10",
+      "slot": "utility",
+      "tier": 3,
+      "name": "Showcase stage kit (+10% showcase score)",
+      "price": 80000,
+      "unlockAct": 3,
+      "compat": {},
+      "effects": [],
+      "tuning": [],
+      "utility": {
+        "kind": "showcase",
+        "percent": 10
+      },
+      "tradeoff": "+10% SHOWCASE drift score only (the cap); raw score and RP never change. Occupies the single utility slot."
+    }
+  ]
+}

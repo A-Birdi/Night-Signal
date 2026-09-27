@@ -53,6 +53,26 @@ public sealed class Addendum02ConvoyTests : ConvoyTestBase
     }
 
     [Fact]
+    public void ALostMatch_AfterEveryMemberDisconnected_AbortsCleanly_AndTheDormantRoomCanBeRejoined()
+    {
+        // Real-run regression (2026-09-27): the game server and both clients were killed mid-race; the watchdog's abort
+        // snapshotted the member-less Dormant room and threw, leaving the room stuck in the event.
+        Convoy(2);
+        long rev = OpenEvent("S01");
+        ReadyAll(rev);
+        MatchPlan plan = dir.BeginStart(Id(1), rev, Fresh(2)).Plan!;
+        dir.CompleteStart(plan, new ActiveMatch("m_lost", "srv", "h", 1, V, new[] { Id(1), Id(2) }));
+        dir.Disconnected(Id(2));
+        dir.Disconnected(Id(1));
+        dir.MatchAborted(plan.ConvoyId, "m_lost", "server lost"); // must not throw
+        Assert.True(Rejoin(1).GetProperty("dormant").GetBoolean());
+        dir.Connected(Id(1), V);
+        Assert.True(dir.Rejoin(Id(1), Info(1)).Ok);
+        Assert.Equal(JsonValueKind.Null, State(1).GetProperty("postEvent").ValueKind);
+        Assert.Equal(1, State(1).GetProperty("members").GetArrayLength());
+    }
+
+    [Fact]
     public void HeartbeatsAndReconnectAttempts_DoNotExtendExpiry_ButARejoinAt23HoursRestoresTheRoom()
     {
         Convoy(2);

@@ -39,7 +39,7 @@ namespace NightSignal.Front
 
             RectTransform col = UIFactory.Column("Actions", shade.transform, new Vector2(0, 0.18f), new Vector2(1, 0.56f), new Vector2(72, 0), Vector2.zero, 16f);
             online = UIFactory.Button("OnlineLogin", col, "Online Login", () => App.Router.Show(App.SignIn), 420, 60);
-            offline = UIFactory.Button("OfflinePlay", col, "Offline Play", () => App.Router.Show(App.OfflineHub), 420, 60);
+            offline = UIFactory.Button("OfflinePlay", col, "Offline Play", () => App.Router.Show(App.ProfileSelect), 420, 60);
             UIFactory.Button("Settings", col, "Settings", () => App.Router.Show(App.Settings), 420, 60);
             UIFactory.Button("Quit", col, "Quit", Quit, 420, 60);
 
@@ -116,7 +116,7 @@ namespace NightSignal.Front
             email.contentType = TMP_InputField.ContentType.EmailAddress;
             password = UIFactory.InputField("Password", col, "Password", true, 128, 560);
             submit = UIFactory.Button("SignIn", col, "Sign In", () => _ = Submit(), 560, 60);
-            UIFactory.Button("Offline", col, "Offline Play instead", () => App.Router.Show(App.OfflineHub, false), 560, 52);
+            UIFactory.Button("Offline", col, "Offline Play instead", () => App.Router.Show(App.ProfileSelect, false), 560, 52);
             message = UIFactory.Row("Message", col, "", SignalTheme.Small, SignalTheme.LabelDim, 560, 90);
         }
 

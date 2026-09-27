@@ -1,0 +1,1582 @@
+{
+ "schema": 1,
+ "note": "Pit-Crew Project blueprints (Addendum 02 section 3). Original fictional miniatures, not maintenance instructions or real torque specifications. Families: align = align/fit, rotate = rotate/index, tighten = controlled tightening, route = connect a short route, marks = match timing/alignment marks, detail = place finishing/decorative details. 'seconds' is the forgiving target duration of the whole operation; 'steps' are the accepted checkpoints within it. A finished model is a toy on a shelf: no performance part, currency, RP or unlock (D209).",
+ "blueprints": [
+  {
+   "id": "night-shift-coupe",
+   "name": "Night-Shift Coupe",
+   "summary": "An original miniature coupe: chassis, drivetrain silhouette, panels, cabin, wheels, lights, trim and final decoration.",
+   "parts": [
+    {
+     "id": "chassis-tray",
+     "name": "Chassis tray",
+     "group": "chassis"
+    },
+    {
+     "id": "chassis-rail-l",
+     "name": "Chassis rail l",
+     "group": "chassis"
+    },
+    {
+     "id": "chassis-rail-r",
+     "name": "Chassis rail r",
+     "group": "chassis"
+    },
+    {
+     "id": "crossmember-f",
+     "name": "Crossmember f",
+     "group": "chassis"
+    },
+    {
+     "id": "crossmember-r",
+     "name": "Crossmember r",
+     "group": "chassis"
+    },
+    {
+     "id": "engine-block",
+     "name": "Engine block",
+     "group": "drivetrain"
+    },
+    {
+     "id": "gearbox",
+     "name": "Gearbox",
+     "group": "drivetrain"
+    },
+    {
+     "id": "driveshaft",
+     "name": "Driveshaft",
+     "group": "drivetrain"
+    },
+    {
+     "id": "engine-mounts",
+     "name": "Engine mounts",
+     "group": "drivetrain"
+    },
+    {
+     "id": "axle-f",
+     "name": "Axle f",
+     "group": "wheels"
+    },
+    {
+     "id": "axle-r",
+     "name": "Axle r",
+     "group": "wheels"
+    },
+    {
+     "id": "wheel-fl",
+     "name": "Wheel fl",
+     "group": "wheels"
+    },
+    {
+     "id": "wheel-fr",
+     "name": "Wheel fr",
+     "group": "wheels"
+    },
+    {
+     "id": "wheel-rl",
+     "name": "Wheel rl",
+     "group": "wheels"
+    },
+    {
+     "id": "wheel-rr",
+     "name": "Wheel rr",
+     "group": "wheels"
+    },
+    {
+     "id": "cabin-tub",
+     "name": "Cabin tub",
+     "group": "cabin"
+    },
+    {
+     "id": "seat-l",
+     "name": "Seat l",
+     "group": "cabin"
+    },
+    {
+     "id": "seat-r",
+     "name": "Seat r",
+     "group": "cabin"
+    },
+    {
+     "id": "steering-wheel",
+     "name": "Steering wheel",
+     "group": "cabin"
+    },
+    {
+     "id": "cabin-pins",
+     "name": "Cabin pins",
+     "group": "chassis"
+    },
+    {
+     "id": "body-shell",
+     "name": "Body shell",
+     "group": "body"
+    },
+    {
+     "id": "door-l",
+     "name": "Door l",
+     "group": "body"
+    },
+    {
+     "id": "door-r",
+     "name": "Door r",
+     "group": "body"
+    },
+    {
+     "id": "bonnet",
+     "name": "Bonnet",
+     "group": "body"
+    },
+    {
+     "id": "bootlid",
+     "name": "Bootlid",
+     "group": "body"
+    },
+    {
+     "id": "lamp-loom",
+     "name": "Lamp loom",
+     "group": "lights"
+    },
+    {
+     "id": "headlamp-l",
+     "name": "Headlamp l",
+     "group": "lights"
+    },
+    {
+     "id": "headlamp-r",
+     "name": "Headlamp r",
+     "group": "lights"
+    },
+    {
+     "id": "taillamp-bar",
+     "name": "Taillamp bar",
+     "group": "lights"
+    },
+    {
+     "id": "mirror-l",
+     "name": "Mirror l",
+     "group": "trim"
+    },
+    {
+     "id": "mirror-r",
+     "name": "Mirror r",
+     "group": "trim"
+    },
+    {
+     "id": "grille",
+     "name": "Grille",
+     "group": "trim"
+    },
+    {
+     "id": "spoiler",
+     "name": "Spoiler",
+     "group": "trim"
+    },
+    {
+     "id": "stripe-decal",
+     "name": "Stripe decal",
+     "group": "decoration"
+    },
+    {
+     "id": "number-roundel",
+     "name": "Number roundel",
+     "group": "decoration"
+    },
+    {
+     "id": "plate",
+     "name": "Plate",
+     "group": "decoration"
+    },
+    {
+     "id": "gauge-cluster",
+     "name": "Gauge cluster",
+     "group": "cabin"
+    },
+    {
+     "id": "fuel-line",
+     "name": "Fuel line",
+     "group": "drivetrain"
+    }
+   ],
+   "operations": [
+    {
+     "id": "co-01",
+     "label": "Seat the chassis tray on the jig",
+     "family": "align",
+     "parts": [
+      "chassis-tray"
+     ],
+     "requires": [],
+     "steps": 2,
+     "seconds": 6
+    },
+    {
+     "id": "co-02",
+     "label": "Align the left chassis rail",
+     "family": "align",
+     "parts": [
+      "chassis-rail-l"
+     ],
+     "requires": [
+      "co-01"
+     ],
+     "steps": 1,
+     "seconds": 5
+    },
+    {
+     "id": "co-03",
+     "label": "Align the right chassis rail",
+     "family": "align",
+     "parts": [
+      "chassis-rail-r"
+     ],
+     "requires": [
+      "co-01"
+     ],
+     "steps": 1,
+     "seconds": 5
+    },
+    {
+     "id": "co-04",
+     "label": "Tighten the crossmembers",
+     "family": "tighten",
+     "parts": [
+      "crossmember-f",
+      "crossmember-r"
+     ],
+     "requires": [
+      "co-02",
+      "co-03"
+     ],
+     "steps": 4,
+     "seconds": 10
+    },
+    {
+     "id": "co-05",
+     "label": "Set the engine block on its stand",
+     "family": "align",
+     "parts": [
+      "engine-block"
+     ],
+     "requires": [],
+     "steps": 1,
+     "seconds": 5
+    },
+    {
+     "id": "co-06",
+     "label": "Match the gearbox bellhousing marks",
+     "family": "marks",
+     "parts": [
+      "gearbox"
+     ],
+     "requires": [
+      "co-05"
+     ],
+     "steps": 2,
+     "seconds": 7
+    },
+    {
+     "id": "co-07",
+     "label": "Index the driveshaft yoke",
+     "family": "rotate",
+     "parts": [
+      "driveshaft"
+     ],
+     "requires": [
+      "co-06"
+     ],
+     "steps": 1,
+     "seconds": 5
+    },
+    {
+     "id": "co-08",
+     "label": "Bolt the drivetrain mounts",
+     "family": "tighten",
+     "parts": [
+      "engine-mounts"
+     ],
+     "requires": [
+      "co-04",
+      "co-07"
+     ],
+     "steps": 3,
+     "seconds": 9
+    },
+    {
+     "id": "co-09",
+     "label": "Index the front hubs",
+     "family": "rotate",
+     "parts": [
+      "axle-f"
+     ],
+     "requires": [],
+     "steps": 2,
+     "seconds": 6
+    },
+    {
+     "id": "co-10",
+     "label": "Index the rear hubs",
+     "family": "rotate",
+     "parts": [
+      "axle-r"
+     ],
+     "requires": [],
+     "steps": 2,
+     "seconds": 6
+    },
+    {
+     "id": "co-11",
+     "label": "Tighten the front wheels",
+     "family": "tighten",
+     "parts": [
+      "wheel-fl",
+      "wheel-fr"
+     ],
+     "requires": [
+      "co-09",
+      "co-04"
+     ],
+     "steps": 2,
+     "seconds": 8
+    },
+    {
+     "id": "co-12",
+     "label": "Tighten the rear wheels",
+     "family": "tighten",
+     "parts": [
+      "wheel-rl",
+      "wheel-rr"
+     ],
+     "requires": [
+      "co-10",
+      "co-04"
+     ],
+     "steps": 2,
+     "seconds": 8
+    },
+    {
+     "id": "co-13",
+     "label": "Fit the seats into the cabin tub",
+     "family": "align",
+     "parts": [
+      "cabin-tub",
+      "seat-l",
+      "seat-r"
+     ],
+     "requires": [],
+     "steps": 2,
+     "seconds": 7
+    },
+    {
+     "id": "co-14",
+     "label": "Index the steering wheel",
+     "family": "rotate",
+     "parts": [
+      "steering-wheel"
+     ],
+     "requires": [
+      "co-13",
+      "co-29"
+     ],
+     "steps": 1,
+     "seconds": 4
+    },
+    {
+     "id": "co-15",
+     "label": "Lower the cabin onto the chassis",
+     "family": "align",
+     "parts": [
+      "cabin-pins"
+     ],
+     "requires": [
+      "co-13",
+      "co-04"
+     ],
+     "steps": 1,
+     "seconds": 6
+    },
+    {
+     "id": "co-16",
+     "label": "Hang the body shell",
+     "family": "align",
+     "parts": [
+      "body-shell"
+     ],
+     "requires": [
+      "co-15",
+      "co-08"
+     ],
+     "steps": 2,
+     "seconds": 8
+    },
+    {
+     "id": "co-17",
+     "label": "Hang the left door",
+     "family": "align",
+     "parts": [
+      "door-l"
+     ],
+     "requires": [
+      "co-16"
+     ],
+     "steps": 1,
+     "seconds": 5
+    },
+    {
+     "id": "co-18",
+     "label": "Hang the right door",
+     "family": "align",
+     "parts": [
+      "door-r"
+     ],
+     "requires": [
+      "co-16"
+     ],
+     "steps": 1,
+     "seconds": 5
+    },
+    {
+     "id": "co-19",
+     "label": "Match the bonnet shut-line marks",
+     "family": "marks",
+     "parts": [
+      "bonnet"
+     ],
+     "requires": [
+      "co-16"
+     ],
+     "steps": 2,
+     "seconds": 7
+    },
+    {
+     "id": "co-20",
+     "label": "Match the bootlid gap marks",
+     "family": "marks",
+     "parts": [
+      "bootlid"
+     ],
+     "requires": [
+      "co-16"
+     ],
+     "steps": 2,
+     "seconds": 7
+    },
+    {
+     "id": "co-21",
+     "label": "Route the lamp loom on the harness board",
+     "family": "route",
+     "parts": [
+      "lamp-loom"
+     ],
+     "requires": [],
+     "steps": 3,
+     "seconds": 10
+    },
+    {
+     "id": "co-22",
+     "label": "Clip in the headlamps",
+     "family": "align",
+     "parts": [
+      "headlamp-l",
+      "headlamp-r"
+     ],
+     "requires": [
+      "co-21",
+      "co-19"
+     ],
+     "steps": 2,
+     "seconds": 6
+    },
+    {
+     "id": "co-23",
+     "label": "Fit the tail-lamp bar",
+     "family": "align",
+     "parts": [
+      "taillamp-bar"
+     ],
+     "requires": [
+      "co-21",
+      "co-20"
+     ],
+     "steps": 1,
+     "seconds": 5
+    },
+    {
+     "id": "co-24",
+     "label": "Place the mirrors",
+     "family": "detail",
+     "parts": [
+      "mirror-l",
+      "mirror-r"
+     ],
+     "requires": [
+      "co-17",
+      "co-18"
+     ],
+     "steps": 2,
+     "seconds": 6
+    },
+    {
+     "id": "co-25",
+     "label": "Set the grille",
+     "family": "detail",
+     "parts": [
+      "grille"
+     ],
+     "requires": [
+      "co-19"
+     ],
+     "steps": 1,
+     "seconds": 4
+    },
+    {
+     "id": "co-26",
+     "label": "Bolt on the ducktail spoiler",
+     "family": "tighten",
+     "parts": [
+      "spoiler"
+     ],
+     "requires": [
+      "co-20"
+     ],
+     "steps": 2,
+     "seconds": 7
+    },
+    {
+     "id": "co-27",
+     "label": "Lay the pinstripe decal",
+     "family": "detail",
+     "parts": [
+      "stripe-decal"
+     ],
+     "requires": [
+      "co-16"
+     ],
+     "steps": 3,
+     "seconds": 12
+    },
+    {
+     "id": "co-28",
+     "label": "Place the number roundel and plate",
+     "family": "detail",
+     "parts": [
+      "number-roundel",
+      "plate"
+     ],
+     "requires": [
+      "co-27",
+      "co-23"
+     ],
+     "steps": 2,
+     "seconds": 6
+    },
+    {
+     "id": "co-29",
+     "label": "Match the gauge needles to their marks",
+     "family": "marks",
+     "parts": [
+      "gauge-cluster"
+     ],
+     "requires": [],
+     "steps": 2,
+     "seconds": 6
+    },
+    {
+     "id": "co-30",
+     "label": "Run the fuel line",
+     "family": "route",
+     "parts": [
+      "fuel-line"
+     ],
+     "requires": [
+      "co-08"
+     ],
+     "steps": 3,
+     "seconds": 9
+    }
+   ]
+  },
+  {
+   "id": "cutaway-four",
+   "name": "Cutaway Four",
+   "summary": "A fictional four-cylinder display engine: staged block, crank and pistons, timing marks, pipes and wiring under a clear display cover.",
+   "parts": [
+    {
+     "id": "display-base",
+     "name": "Display base",
+     "group": "base"
+    },
+    {
+     "id": "base-feet",
+     "name": "Base feet",
+     "group": "base"
+    },
+    {
+     "id": "block-lower",
+     "name": "Block lower",
+     "group": "block"
+    },
+    {
+     "id": "crank",
+     "name": "Crank",
+     "group": "rotating"
+    },
+    {
+     "id": "main-caps",
+     "name": "Main caps",
+     "group": "block"
+    },
+    {
+     "id": "piston-1",
+     "name": "Piston 1",
+     "group": "rotating"
+    },
+    {
+     "id": "piston-2",
+     "name": "Piston 2",
+     "group": "rotating"
+    },
+    {
+     "id": "piston-3",
+     "name": "Piston 3",
+     "group": "rotating"
+    },
+    {
+     "id": "piston-4",
+     "name": "Piston 4",
+     "group": "rotating"
+    },
+    {
+     "id": "rod-caps-a",
+     "name": "Rod caps a",
+     "group": "rotating"
+    },
+    {
+     "id": "rod-caps-b",
+     "name": "Rod caps b",
+     "group": "rotating"
+    },
+    {
+     "id": "block-upper",
+     "name": "Block upper",
+     "group": "block"
+    },
+    {
+     "id": "block-bolts",
+     "name": "Block bolts",
+     "group": "block"
+    },
+    {
+     "id": "head",
+     "name": "Head",
+     "group": "block"
+    },
+    {
+     "id": "camshaft",
+     "name": "Camshaft",
+     "group": "rotating"
+    },
+    {
+     "id": "cam-caps",
+     "name": "Cam caps",
+     "group": "rotating"
+    },
+    {
+     "id": "crank-gear",
+     "name": "Crank gear",
+     "group": "timing"
+    },
+    {
+     "id": "cam-gear",
+     "name": "Cam gear",
+     "group": "timing"
+    },
+    {
+     "id": "timing-belt",
+     "name": "Timing belt",
+     "group": "timing"
+    },
+    {
+     "id": "tensioner",
+     "name": "Tensioner",
+     "group": "timing"
+    },
+    {
+     "id": "intake-pipes",
+     "name": "Intake pipes",
+     "group": "pipes"
+    },
+    {
+     "id": "exhaust-pipes",
+     "name": "Exhaust pipes",
+     "group": "pipes"
+    },
+    {
+     "id": "wiring-loom",
+     "name": "Wiring loom",
+     "group": "wiring"
+    },
+    {
+     "id": "spark-leads",
+     "name": "Spark leads",
+     "group": "wiring"
+    },
+    {
+     "id": "coil-pack",
+     "name": "Coil pack",
+     "group": "wiring"
+    },
+    {
+     "id": "cam-cover",
+     "name": "Cam cover",
+     "group": "display"
+    },
+    {
+     "id": "turntable",
+     "name": "Turntable",
+     "group": "base"
+    },
+    {
+     "id": "display-cover",
+     "name": "Display cover",
+     "group": "display"
+    },
+    {
+     "id": "plaque",
+     "name": "Plaque",
+     "group": "display"
+    },
+    {
+     "id": "flow-arrows",
+     "name": "Flow arrows",
+     "group": "display"
+    }
+   ],
+   "operations": [
+    {
+     "id": "ck-01",
+     "label": "Level the display base",
+     "family": "align",
+     "parts": [
+      "display-base",
+      "base-feet"
+     ],
+     "requires": [],
+     "steps": 2,
+     "seconds": 6
+    },
+    {
+     "id": "ck-02",
+     "label": "Stage the lower block half",
+     "family": "align",
+     "parts": [
+      "block-lower"
+     ],
+     "requires": [
+      "ck-01"
+     ],
+     "steps": 1,
+     "seconds": 5
+    },
+    {
+     "id": "ck-03",
+     "label": "Index the crankshaft journals",
+     "family": "rotate",
+     "parts": [
+      "crank"
+     ],
+     "requires": [],
+     "steps": 2,
+     "seconds": 7
+    },
+    {
+     "id": "ck-04",
+     "label": "Seat the crank under its caps",
+     "family": "tighten",
+     "parts": [
+      "main-caps"
+     ],
+     "requires": [
+      "ck-02",
+      "ck-03"
+     ],
+     "steps": 4,
+     "seconds": 11
+    },
+    {
+     "id": "ck-05",
+     "label": "Fit pistons one and two to their rods",
+     "family": "align",
+     "parts": [
+      "piston-1",
+      "piston-2"
+     ],
+     "requires": [],
+     "steps": 2,
+     "seconds": 7
+    },
+    {
+     "id": "ck-06",
+     "label": "Fit pistons three and four to their rods",
+     "family": "align",
+     "parts": [
+      "piston-3",
+      "piston-4"
+     ],
+     "requires": [],
+     "steps": 2,
+     "seconds": 7
+    },
+    {
+     "id": "ck-07",
+     "label": "Drop pistons one and four at the top mark",
+     "family": "rotate",
+     "parts": [
+      "rod-caps-a"
+     ],
+     "requires": [
+      "ck-04",
+      "ck-05",
+      "ck-06"
+     ],
+     "steps": 2,
+     "seconds": 7
+    },
+    {
+     "id": "ck-08",
+     "label": "Drop pistons two and three",
+     "family": "rotate",
+     "parts": [
+      "rod-caps-b"
+     ],
+     "requires": [
+      "ck-07"
+     ],
+     "steps": 2,
+     "seconds": 7
+    },
+    {
+     "id": "ck-09",
+     "label": "Stage the upper block half",
+     "family": "align",
+     "parts": [
+      "block-upper"
+     ],
+     "requires": [
+      "ck-08"
+     ],
+     "steps": 1,
+     "seconds": 5
+    },
+    {
+     "id": "ck-10",
+     "label": "Tighten the block halves together",
+     "family": "tighten",
+     "parts": [
+      "block-bolts"
+     ],
+     "requires": [
+      "ck-09"
+     ],
+     "steps": 4,
+     "seconds": 12
+    },
+    {
+     "id": "ck-11",
+     "label": "Set the cylinder head",
+     "family": "align",
+     "parts": [
+      "head"
+     ],
+     "requires": [
+      "ck-10"
+     ],
+     "steps": 1,
+     "seconds": 6
+    },
+    {
+     "id": "ck-12",
+     "label": "Index the camshaft lobes",
+     "family": "rotate",
+     "parts": [
+      "camshaft"
+     ],
+     "requires": [],
+     "steps": 2,
+     "seconds": 6
+    },
+    {
+     "id": "ck-13",
+     "label": "Seat the camshaft in the head",
+     "family": "tighten",
+     "parts": [
+      "cam-caps"
+     ],
+     "requires": [
+      "ck-11",
+      "ck-12"
+     ],
+     "steps": 3,
+     "seconds": 9
+    },
+    {
+     "id": "ck-14",
+     "label": "Match the crank gear timing mark",
+     "family": "marks",
+     "parts": [
+      "crank-gear"
+     ],
+     "requires": [
+      "ck-04"
+     ],
+     "steps": 1,
+     "seconds": 5
+    },
+    {
+     "id": "ck-15",
+     "label": "Match the cam gear timing mark",
+     "family": "marks",
+     "parts": [
+      "cam-gear"
+     ],
+     "requires": [
+      "ck-13"
+     ],
+     "steps": 1,
+     "seconds": 5
+    },
+    {
+     "id": "ck-16",
+     "label": "Wrap the timing belt",
+     "family": "route",
+     "parts": [
+      "timing-belt"
+     ],
+     "requires": [
+      "ck-14",
+      "ck-15"
+     ],
+     "steps": 3,
+     "seconds": 10
+    },
+    {
+     "id": "ck-17",
+     "label": "Set the belt tensioner",
+     "family": "tighten",
+     "parts": [
+      "tensioner"
+     ],
+     "requires": [
+      "ck-16"
+     ],
+     "steps": 2,
+     "seconds": 6
+    },
+    {
+     "id": "ck-18",
+     "label": "Route the intake pipes",
+     "family": "route",
+     "parts": [
+      "intake-pipes"
+     ],
+     "requires": [
+      "ck-11"
+     ],
+     "steps": 3,
+     "seconds": 9
+    },
+    {
+     "id": "ck-19",
+     "label": "Route the exhaust pipes",
+     "family": "route",
+     "parts": [
+      "exhaust-pipes"
+     ],
+     "requires": [
+      "ck-11"
+     ],
+     "steps": 3,
+     "seconds": 9
+    },
+    {
+     "id": "ck-20",
+     "label": "Loom the ignition wiring on the harness board",
+     "family": "route",
+     "parts": [
+      "wiring-loom"
+     ],
+     "requires": [],
+     "steps": 3,
+     "seconds": 10
+    },
+    {
+     "id": "ck-21",
+     "label": "Plug in the spark leads",
+     "family": "align",
+     "parts": [
+      "spark-leads"
+     ],
+     "requires": [
+      "ck-20",
+      "ck-13"
+     ],
+     "steps": 4,
+     "seconds": 10
+    },
+    {
+     "id": "ck-22",
+     "label": "Mount the coil pack",
+     "family": "align",
+     "parts": [
+      "coil-pack"
+     ],
+     "requires": [
+      "ck-21"
+     ],
+     "steps": 1,
+     "seconds": 5
+    },
+    {
+     "id": "ck-23",
+     "label": "Fit the windowed cam cover",
+     "family": "detail",
+     "parts": [
+      "cam-cover"
+     ],
+     "requires": [
+      "ck-17",
+      "ck-22"
+     ],
+     "steps": 2,
+     "seconds": 7
+    },
+    {
+     "id": "ck-24",
+     "label": "Align the turntable marks",
+     "family": "marks",
+     "parts": [
+      "turntable"
+     ],
+     "requires": [
+      "ck-01"
+     ],
+     "steps": 2,
+     "seconds": 6
+    },
+    {
+     "id": "ck-25",
+     "label": "Lower the clear protective display cover",
+     "family": "align",
+     "parts": [
+      "display-cover"
+     ],
+     "requires": [
+      "ck-23",
+      "ck-18",
+      "ck-19",
+      "ck-24"
+     ],
+     "steps": 2,
+     "seconds": 8
+    },
+    {
+     "id": "ck-26",
+     "label": "Place the cutaway plaque",
+     "family": "detail",
+     "parts": [
+      "plaque"
+     ],
+     "requires": [
+      "ck-24"
+     ],
+     "steps": 1,
+     "seconds": 4
+    },
+    {
+     "id": "ck-27",
+     "label": "Add the colour-coded flow arrows",
+     "family": "detail",
+     "parts": [
+      "flow-arrows"
+     ],
+     "requires": [
+      "ck-18",
+      "ck-19"
+     ],
+     "steps": 3,
+     "seconds": 9
+    }
+   ]
+  },
+  {
+   "id": "terrace-pit-diorama",
+   "name": "Terrace Pit Diorama",
+   "summary": "A small car-meet pit display: platform, fence, lamps, a miniature car, a bench and signage with decorative touches.",
+   "parts": [
+    {
+     "id": "platform",
+     "name": "Platform",
+     "group": "platform"
+    },
+    {
+     "id": "terrace-steps",
+     "name": "Terrace steps",
+     "group": "platform"
+    },
+    {
+     "id": "fence-a",
+     "name": "Fence a",
+     "group": "fence"
+    },
+    {
+     "id": "fence-b",
+     "name": "Fence b",
+     "group": "fence"
+    },
+    {
+     "id": "fence-c",
+     "name": "Fence c",
+     "group": "fence"
+    },
+    {
+     "id": "fence-pins",
+     "name": "Fence pins",
+     "group": "fence"
+    },
+    {
+     "id": "lamp-post-1",
+     "name": "Lamp post 1",
+     "group": "lamps"
+    },
+    {
+     "id": "lamp-post-2",
+     "name": "Lamp post 2",
+     "group": "lamps"
+    },
+    {
+     "id": "lamp-post-3",
+     "name": "Lamp post 3",
+     "group": "lamps"
+    },
+    {
+     "id": "lamp-bases",
+     "name": "Lamp bases",
+     "group": "lamps"
+    },
+    {
+     "id": "lamp-wiring",
+     "name": "Lamp wiring",
+     "group": "lamps"
+    },
+    {
+     "id": "lamp-heads",
+     "name": "Lamp heads",
+     "group": "lamps"
+    },
+    {
+     "id": "mini-body",
+     "name": "Mini body",
+     "group": "miniature"
+    },
+    {
+     "id": "mini-wheels",
+     "name": "Mini wheels",
+     "group": "miniature"
+    },
+    {
+     "id": "mini-axles",
+     "name": "Mini axles",
+     "group": "miniature"
+    },
+    {
+     "id": "mini-bay",
+     "name": "Mini bay",
+     "group": "miniature"
+    },
+    {
+     "id": "bench",
+     "name": "Bench",
+     "group": "bench"
+    },
+    {
+     "id": "bench-screws",
+     "name": "Bench screws",
+     "group": "bench"
+    },
+    {
+     "id": "sign-board",
+     "name": "Sign board",
+     "group": "signage"
+    },
+    {
+     "id": "sign-letters",
+     "name": "Sign letters",
+     "group": "signage"
+    },
+    {
+     "id": "bunting",
+     "name": "Bunting",
+     "group": "decoration"
+    },
+    {
+     "id": "cones",
+     "name": "Cones",
+     "group": "decoration"
+    },
+    {
+     "id": "tyre-stack",
+     "name": "Tyre stack",
+     "group": "decoration"
+    },
+    {
+     "id": "toolbox-prop",
+     "name": "Toolbox prop",
+     "group": "decoration"
+    },
+    {
+     "id": "glow-decals",
+     "name": "Glow decals",
+     "group": "decoration"
+    },
+    {
+     "id": "sign-swivel",
+     "name": "Sign swivel",
+     "group": "signage"
+    }
+   ],
+   "operations": [
+    {
+     "id": "td-01",
+     "label": "Level the terrace platform",
+     "family": "align",
+     "parts": [
+      "platform"
+     ],
+     "requires": [],
+     "steps": 2,
+     "seconds": 6
+    },
+    {
+     "id": "td-02",
+     "label": "Fit the terrace steps",
+     "family": "align",
+     "parts": [
+      "terrace-steps"
+     ],
+     "requires": [
+      "td-01"
+     ],
+     "steps": 1,
+     "seconds": 5
+    },
+    {
+     "id": "td-03",
+     "label": "Stand fence panel A",
+     "family": "align",
+     "parts": [
+      "fence-a"
+     ],
+     "requires": [
+      "td-01"
+     ],
+     "steps": 1,
+     "seconds": 4
+    },
+    {
+     "id": "td-04",
+     "label": "Stand fence panel B",
+     "family": "align",
+     "parts": [
+      "fence-b"
+     ],
+     "requires": [
+      "td-03"
+     ],
+     "steps": 1,
+     "seconds": 4
+    },
+    {
+     "id": "td-05",
+     "label": "Stand fence panel C",
+     "family": "align",
+     "parts": [
+      "fence-c"
+     ],
+     "requires": [
+      "td-04"
+     ],
+     "steps": 1,
+     "seconds": 4
+    },
+    {
+     "id": "td-06",
+     "label": "Pin the fence joints",
+     "family": "tighten",
+     "parts": [
+      "fence-pins"
+     ],
+     "requires": [
+      "td-05"
+     ],
+     "steps": 3,
+     "seconds": 8
+    },
+    {
+     "id": "td-07",
+     "label": "Index lamp post one",
+     "family": "rotate",
+     "parts": [
+      "lamp-post-1"
+     ],
+     "requires": [],
+     "steps": 1,
+     "seconds": 4
+    },
+    {
+     "id": "td-08",
+     "label": "Index lamp post two",
+     "family": "rotate",
+     "parts": [
+      "lamp-post-2"
+     ],
+     "requires": [],
+     "steps": 1,
+     "seconds": 4
+    },
+    {
+     "id": "td-09",
+     "label": "Index lamp post three",
+     "family": "rotate",
+     "parts": [
+      "lamp-post-3"
+     ],
+     "requires": [],
+     "steps": 1,
+     "seconds": 4
+    },
+    {
+     "id": "td-10",
+     "label": "Plant the lamp posts",
+     "family": "tighten",
+     "parts": [
+      "lamp-bases"
+     ],
+     "requires": [
+      "td-01",
+      "td-07",
+      "td-08",
+      "td-09"
+     ],
+     "steps": 3,
+     "seconds": 9
+    },
+    {
+     "id": "td-11",
+     "label": "Run the lamp wiring under the deck",
+     "family": "route",
+     "parts": [
+      "lamp-wiring"
+     ],
+     "requires": [
+      "td-10"
+     ],
+     "steps": 3,
+     "seconds": 10
+    },
+    {
+     "id": "td-12",
+     "label": "Aim the lamp heads at their marks",
+     "family": "marks",
+     "parts": [
+      "lamp-heads"
+     ],
+     "requires": [
+      "td-11"
+     ],
+     "steps": 3,
+     "seconds": 8
+    },
+    {
+     "id": "td-13",
+     "label": "Build the miniature car body",
+     "family": "align",
+     "parts": [
+      "mini-body"
+     ],
+     "requires": [],
+     "steps": 2,
+     "seconds": 7
+    },
+    {
+     "id": "td-14",
+     "label": "Index the miniature wheels",
+     "family": "rotate",
+     "parts": [
+      "mini-wheels"
+     ],
+     "requires": [],
+     "steps": 2,
+     "seconds": 5
+    },
+    {
+     "id": "td-15",
+     "label": "Fix the wheels to the miniature",
+     "family": "tighten",
+     "parts": [
+      "mini-axles"
+     ],
+     "requires": [
+      "td-13",
+      "td-14"
+     ],
+     "steps": 2,
+     "seconds": 6
+    },
+    {
+     "id": "td-16",
+     "label": "Park the miniature on its bay marks",
+     "family": "marks",
+     "parts": [
+      "mini-bay"
+     ],
+     "requires": [
+      "td-15",
+      "td-02"
+     ],
+     "steps": 1,
+     "seconds": 5
+    },
+    {
+     "id": "td-17",
+     "label": "Assemble the bench",
+     "family": "align",
+     "parts": [
+      "bench"
+     ],
+     "requires": [],
+     "steps": 2,
+     "seconds": 6
+    },
+    {
+     "id": "td-18",
+     "label": "Screw the bench to the deck",
+     "family": "tighten",
+     "parts": [
+      "bench-screws"
+     ],
+     "requires": [
+      "td-17",
+      "td-01"
+     ],
+     "steps": 2,
+     "seconds": 6
+    },
+    {
+     "id": "td-19",
+     "label": "Raise the sign board",
+     "family": "align",
+     "parts": [
+      "sign-board"
+     ],
+     "requires": [
+      "td-06"
+     ],
+     "steps": 1,
+     "seconds": 5
+    },
+    {
+     "id": "td-20",
+     "label": "Space the sign letters on the guide marks",
+     "family": "marks",
+     "parts": [
+      "sign-letters"
+     ],
+     "requires": [
+      "td-19"
+     ],
+     "steps": 3,
+     "seconds": 10
+    },
+    {
+     "id": "td-21",
+     "label": "String the bunting between the lamps",
+     "family": "route",
+     "parts": [
+      "bunting"
+     ],
+     "requires": [
+      "td-12"
+     ],
+     "steps": 2,
+     "seconds": 8
+    },
+    {
+     "id": "td-22",
+     "label": "Place the cone row",
+     "family": "detail",
+     "parts": [
+      "cones"
+     ],
+     "requires": [
+      "td-02"
+     ],
+     "steps": 3,
+     "seconds": 8
+    },
+    {
+     "id": "td-23",
+     "label": "Stack the tyres by the fence",
+     "family": "detail",
+     "parts": [
+      "tyre-stack"
+     ],
+     "requires": [
+      "td-06"
+     ],
+     "steps": 2,
+     "seconds": 6
+    },
+    {
+     "id": "td-24",
+     "label": "Set the toolbox prop beside the bench",
+     "family": "detail",
+     "parts": [
+      "toolbox-prop"
+     ],
+     "requires": [
+      "td-18"
+     ],
+     "steps": 1,
+     "seconds": 3
+    },
+    {
+     "id": "td-25",
+     "label": "Add the puddle-light glow decals",
+     "family": "detail",
+     "parts": [
+      "glow-decals"
+     ],
+     "requires": [
+      "td-12",
+      "td-16"
+     ],
+     "steps": 2,
+     "seconds": 7
+    },
+    {
+     "id": "td-26",
+     "label": "Turn the sign to face the terrace",
+     "family": "rotate",
+     "parts": [
+      "sign-swivel"
+     ],
+     "requires": [
+      "td-20"
+     ],
+     "steps": 1,
+     "seconds": 4
+    }
+   ]
+  }
+ ]
+}

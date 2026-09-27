@@ -3,4 +3,7 @@
   <Project Path="TicketValidation/NightSignal.TicketValidation.csproj" />
   <Project Path="ControlPlane/NightSignal.ControlPlane.csproj" />
   <Project Path="Tests/NightSignal.Services.Tests.csproj" />
+  <Project Path="CoreTests/NightSignal.CoreTests.csproj" />
+  <Project Path="BuildsTests/NightSignal.BuildsTests.csproj" />
+  <Project Path="ToysTests/NightSignal.Toys.Tests.csproj" />
 </Solution>

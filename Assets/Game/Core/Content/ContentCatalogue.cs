@@ -17,7 +17,7 @@ namespace NightSignal.Core.Content
             { "courses.json", "cars.json", "crews.json", "rivals.json", "stages.json", "challenges.json", "cosmetics.json" };
 
         /// <summary>Authored overlays loaded from Assets/Content/Data/authored/ when present.</summary>
-        public static readonly string[] AuthoredFiles = { "cars.tuning.json", "stages.opposition.json", "courses.addendum.json" };
+        public static readonly string[] AuthoredFiles = { "cars.tuning.json", "stages.opposition.json", "courses.addendum.json", "music.unlocks.json" };
 
         /// <summary>
         /// Authored overlays that must be present: they carry Addendum 01 rules (live opposition, 29 courses, course
@@ -57,6 +57,14 @@ namespace NightSignal.Core.Content
         public bool TryCar(string id, out CarDef c) => carById.TryGetValue(id ?? "", out c);
         public bool TryRival(string id, out RivalDef r) => rivalById.TryGetValue(id ?? "", out r);
         public bool TryCosmetic(string id, out CosmeticDef c) => cosmeticById.TryGetValue(id ?? "", out c);
+
+        /// <summary>
+        /// Raw text of a loaded document that other Core systems parse themselves (e.g. music.unlocks.json for
+        /// <c>MusicUnlockTable</c>). Every loaded document is covered by <see cref="ContentHash"/>.
+        /// </summary>
+        public bool TryDocument(string name, out string text) => documentText.TryGetValue(name ?? "", out text);
+
+        Dictionary<string, string> documentText = new Dictionary<string, string>();
 
         /// <param name="documents">File name → JSON text for every entry in <see cref="RequiredFiles"/>.</param>
         public static ContentCatalogue Load(IReadOnlyDictionary<string, string> documents)
@@ -117,6 +125,7 @@ namespace NightSignal.Core.Content
                 stage.Normal.Opponents = entry.Normal;
                 stage.Hard.Opponents = entry.Hard;
             }
+            cat.documentText = documents.ToDictionary(kv => kv.Key, kv => kv.Value, StringComparer.Ordinal);
             cat.ContentHash = Hash(documents);
             return cat;
         }

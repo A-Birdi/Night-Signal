@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NightSignal.Content;
 using NightSignal.Core.Content;
+using NightSignal.Core.Profiles;
 using NightSignal.Core.Rules;
 using NightSignal.Race;
 using NightSignal.UI;
@@ -78,71 +79,106 @@ namespace NightSignal.Front
     }
 
     /// <summary>
-    /// Offline Play hub (Addendum 01 §8.2). Everything here is the LOCAL domain: nothing is uploaded or shown as online.
-    /// Until the Local progression profile lands, races run as labelled local practice that records nothing.
+    /// Offline Play hub (Addendum 01 §8.2) for the open Local profile: the campaign map, and Freeplay on owned courses
+    /// with owned cars (Race with light contact and 0..11 AI, or non-contact Time Attack). Everything here is the LOCAL
+    /// domain: nothing is uploaded or shown as online.
     /// </summary>
     public sealed class OfflineHubScreen : UIScreen
     {
         public override string ScreenName => "Offline";
         public override string MusicCue => "MUS_MENU_A";
         Stepper course, car, format, ai;
-        Button start;
-        TextMeshProUGUI note;
+        Button start, campaign;
+        TextMeshProUGUI profileLine, note;
         List<CourseDef> playable = new List<CourseDef>();
-        List<CarDef> cars = new List<CarDef>();
+        readonly List<LocalCarChoice> cars = new List<LocalCarChoice>();
 
         protected override void OnBuild(RectTransform root)
         {
             ContentCatalogue cat = ContentLibrary.Load()?.Catalogue;
-            if (cat != null)
-            {
-                playable = cat.Courses.Where(c => Application.CanStreamedLevelBeLoaded(c.Id)).ToList();
-                cars = cat.Cars.OrderBy(c => c.BasePI).ToList();
-            }
+            if (cat != null) playable = cat.Courses.Where(c => Application.CanStreamedLevelBeLoaded(c.Id)).ToList();
             Image panel = UIFactory.Panel("Panel", root, new Vector2(0, 0), new Vector2(0.44f, 1f), Vector2.zero, Vector2.zero, new Color(0.055f, 0.06f, 0.07f, 0.9f));
-            RectTransform col = UIFactory.Column("Setup", panel.transform, new Vector2(0, 0.06f), new Vector2(1, 0.9f), new Vector2(64, 0), new Vector2(-32, 0), 12f);
+            RectTransform col = UIFactory.Column("Setup", panel.transform, new Vector2(0, 0.04f), new Vector2(1, 0.92f), new Vector2(64, 0), new Vector2(-32, 0), 12f);
             UIFactory.Row("Heading", col, "OFFLINE PLAY", SignalTheme.Heading, SignalTheme.Label, 640, 0, true);
+            profileLine = UIFactory.Row("Profile", col, "", SignalTheme.Body, SignalTheme.Label, 640, 34);
+            profileLine.richText = false;
             UIFactory.Row("Domain", col,
-                "Local / Offline. Local progress is kept on this PC only and is separate from any Online profile: it is never uploaded as online currency, unlocks, rank or records.",
-                SignalTheme.Small, SignalTheme.Caution, 640, 76);
-            course = new Stepper(col, "Course", playable.Count, i => playable.Count == 0 ? "no course scenes built" : $"{playable[i].Id}  {playable[i].Name}");
-            car = new Stepper(col, "Car", cars.Count, i => cars.Count == 0 ? "—" : $"{cars[i].Name}  PI {cars[i].BasePI} {cars[i].Drive}",
-                Math.Max(0, cars.FindIndex(c => c.Starter)));
+                "Local / Offline. Kept on this PC only and separate from any Online profile: never uploaded as online currency, unlocks, rank or records.",
+                SignalTheme.Small, SignalTheme.Caution, 640, 52);
+            campaign = UIFactory.Button("Campaign", col, "Campaign Map", () => App.Router.Show(App.CampaignMap), 620, 60);
+            UIFactory.Row("FreeplayHeading", col, "FREEPLAY", SignalTheme.Small, SignalTheme.LabelDim, 640, 28, true);
+            course = new Stepper(col, "Course", playable.Count, CourseLabel);
+            car = new Stepper(col, "Car", 1, i => cars.Count == 0 ? "—" : CarLabel(cars[i]));
             format = new Stepper(col, "Format", 2, i => i == 0 ? "Race — light contact" : "Time Attack — no contact, no AI");
             ai = new Stepper(col, "Opponents", Limits.MaxRaceVehicles, i => i == 0 ? "none" : $"{i} AI", 5);
             format.Changed += i => ai.SetCount(i == 1 ? 1 : Limits.MaxRaceVehicles);
-            start = UIFactory.Button("Start", col, "Start Practice Race", StartRace, 620, 60);
+            course.Changed += _ => RefreshStart();
+            start = UIFactory.Button("Start", col, "Start Freeplay Race", StartRace, 620, 60);
+            UIFactory.Button("Switch", col, "Switch Profile", () => { LocalSession.Current?.Close(); App.Router.Show(App.ProfileSelect, false); }, 620, 52);
             UIFactory.Button("Back", col, "Back to Title", () => App.Router.Show(App.MainMenu, false), 620, 52);
-            note = UIFactory.Row("Note", col, "Practice races do not record progression yet: the Local campaign profile is being connected.",
-                SignalTheme.Small, SignalTheme.LabelDim, 640, 60);
+            note = UIFactory.Row("Note", col, "", SignalTheme.Small, SignalTheme.LabelDim, 640, 60);
         }
 
-        public override Selectable DefaultFocus => start;
+        public override Selectable DefaultFocus => campaign;
+
+        string CourseLabel(int i)
+        {
+            if (playable.Count == 0) return "no course scenes built";
+            CourseDef c = playable[i];
+            LocalProfile p = LocalSession.Current?.Profile;
+            bool owned = p != null && p.OwnsCourse(LocalSession.Current.Catalogue, c.Id);
+            return $"{c.Id}  {c.Name}" + (owned ? "" : "  (locked)");
+        }
+
+        static string CarLabel(LocalCarChoice c)
+        {
+            CarDef def = LocalSession.Current.Catalogue.Car(c.ModelId);
+            return $"{def.Name}  PI {def.BasePI} {def.Drive}";
+        }
 
         public override void OnShow()
         {
+            LocalSession s = LocalSession.Current;
+            if (s?.Profile == null)
+            {
+                App.Router.Show(App.ProfileSelect, false);
+                return;
+            }
             App.Domain = SessionDomain.Local;
-            if (string.IsNullOrEmpty(App.DisplayName)) App.DisplayName = "Local driver";
+            App.DisplayName = s.Profile.DisplayName;
             App.RefreshStrip();
-            start.interactable = playable.Count > 0 && cars.Count > 0;
+            LocalProfile p = s.Profile;
+            profileLine.text = $"{p.DisplayName}   ·   {p.ComputeRank().Name}   ·   {p.WalletBalance:N0} cr   ·   {p.Cars.Count} car(s)";
+            cars.Clear();
+            foreach (OwnedCar c in p.Cars.OrderByDescending(c => s.Catalogue.Car(c.ModelId).BasePI))
+                cars.Add(new LocalCarChoice { ModelId = c.ModelId, InstanceId = c.InstanceId });
+            car.SetCount(Math.Max(1, cars.Count));
+            course.Set(course.Index); // re-label locks for this profile
+            RefreshStart();
+        }
+
+        void RefreshStart()
+        {
+            LocalSession s = LocalSession.Current;
+            if (s?.Profile == null || playable.Count == 0 || cars.Count == 0)
+            {
+                start.interactable = false;
+                return;
+            }
+            bool ok = LocalProgression.CanStartFreeplay(s.Profile, s.Catalogue, playable[course.Index].Id, out string reason);
+            start.interactable = ok;
+            note.text = ok ? "Freeplay pays race money and keeps Local personal records." : reason + " " + LocalProgression.AccessHint(s.Catalogue, playable[course.Index].Id);
         }
 
         void StartRace()
         {
-            if (playable.Count == 0 || cars.Count == 0) return;
+            if (!start.interactable) return;
             bool timeAttack = format.Index == 1;
-            CarDef chosen = cars[car.Index];
-            var rules = new RaceEventRules
-            {
-                Kind = "freeplay",
-                Contact = timeAttack ? ContactPolicy.NonContact : ContactPolicy.LightContact,
-                StageNumber = 10,
-                CarCapPi = ClassCeiling(chosen.BasePI), // opponents in the player's class, not the fastest cars in the game
-            };
-            var opponents = new List<string>();
-            int count = timeAttack ? 0 : ai.Index;
-            for (int i = 1; i <= count; i++) opponents.Add($"ai-{i}");
-            App.StartOfflineRace(playable[course.Index].Id, chosen.Id, rules, opponents);
+            LocalCarChoice chosen = cars[car.Index];
+            CarDef def = LocalSession.Current.Catalogue.Car(chosen.ModelId);
+            // Opponents in the player's class, not the fastest cars in the game.
+            LocalEventPlan plan = LocalEvents.Freeplay(playable[course.Index], timeAttack, ai.Index, ClassCeiling(def.BasePI), chosen);
+            App.StartLocalEvent(plan, this);
         }
 
         static int ClassCeiling(int pi)
@@ -165,8 +201,11 @@ namespace NightSignal.Front
     public sealed class ResultsScreen : UIScreen
     {
         public override string ScreenName => "Results";
-        TextMeshProUGUI heading, table, summary;
+        TextMeshProUGUI heading, table, summary, progress;
         Button cont;
+        UIScreen returnTo;
+        Core.Profiles.LocalProgressionResult applied;
+        string saveNote = "";
 
         protected override void OnBuild(RectTransform root)
         {
@@ -182,12 +221,21 @@ namespace NightSignal.Front
             summary.textWrappingMode = TextWrappingModes.Normal;
             table = UIFactory.Label("Table", panel.transform, "", SignalTheme.Body, SignalTheme.Label, TextAlignmentOptions.TopLeft);
             table.rectTransform.anchorMin = new Vector2(0, 0.14f);
-            table.rectTransform.anchorMax = new Vector2(1, 0.76f);
+            table.rectTransform.anchorMax = new Vector2(0.6f, 0.76f);
             table.rectTransform.offsetMin = new Vector2(48, 0);
-            table.rectTransform.offsetMax = new Vector2(-48, 0);
+            table.rectTransform.offsetMax = new Vector2(-24, 0);
             table.richText = true;
+            // Reward itemisation stays separate from the classification (spec §15).
+            progress = UIFactory.Label("Progression", panel.transform, "", SignalTheme.Small, SignalTheme.Label, TextAlignmentOptions.TopLeft);
+            progress.rectTransform.anchorMin = new Vector2(0.6f, 0.14f);
+            progress.rectTransform.anchorMax = new Vector2(1, 0.76f);
+            progress.rectTransform.offsetMin = new Vector2(24, 0);
+            progress.rectTransform.offsetMax = new Vector2(-48, 0);
+            progress.textWrappingMode = TextWrappingModes.Normal;
+            progress.overflowMode = TextOverflowModes.Overflow;
+            progress.richText = true;
             RectTransform actions = UIFactory.Column("Actions", panel.transform, new Vector2(0, 0), new Vector2(1, 0.12f), new Vector2(48, 8), new Vector2(-48, -8));
-            cont = UIFactory.Button("Continue", actions, "Continue", () => App.Router.Show(App.OfflineHub, false), 360, 60);
+            cont = UIFactory.Button("Continue", actions, "Continue", () => App.Router.Show(returnTo ?? App.OfflineHub, false), 360, 60);
         }
 
         public override Selectable DefaultFocus => cont;
@@ -196,10 +244,14 @@ namespace NightSignal.Front
         List<RaceEntrantResult> pendingResults;
 
         /// <summary>Stores the classification; the page renders it when shown (it may not be built yet).</summary>
-        public void Set(string courseId, RaceEventRules rules, List<RaceEntrantResult> results)
+        public void Set(string courseId, RaceEventRules rules, List<RaceEntrantResult> results,
+            Core.Profiles.LocalProgressionResult progression, string note, UIScreen back)
         {
             pendingCourse = courseId;
             pendingResults = results;
+            applied = progression;
+            saveNote = note ?? "";
+            returnTo = back;
             if (heading != null) Render();
         }
 
@@ -218,10 +270,11 @@ namespace NightSignal.Front
             }
             RaceEntrantResult me = results.FirstOrDefault(r => r.Entrant.Human);
             summary.text = (me == null ? "" : me.Outcome == RunOutcome.Finished ? $"You placed {me.Placement} of {results.Count}. " : "You did not finish. ")
-                + "Local / Offline practice — not an online result and not recorded yet.";
+                + (applied != null ? "Local / Offline result: kept on this PC only, never an online result." : "Local / Offline practice — not recorded.");
+            progress.text = ProgressionText(applied, saveNote);
             var sb = new System.Text.StringBuilder();
             // Column stops via TMP <pos> so a proportional font still lines up.
-            const string cols = "<pos=0%>{0}<pos=7%>{1}<pos=38%>{2}<pos=48%>{3}<pos=66%>{4}<pos=78%>{5}<pos=88%>{6}";
+            const string cols = "<pos=0%>{0}<pos=6%>{1}<pos=38%>{2}<pos=47%>{3}<pos=64%>{4}<pos=79%>{5}<pos=90%>{6}";
             sb.Append("<color=#9A968D>").Append(string.Format(cols, "POS", "DRIVER", "CAR", "TIME", "CONTACTS", "WALLS", "RESETS")).Append("</color>\n");
             foreach (RaceEntrantResult r in results.OrderBy(x => x.Placement == 0 ? 99 : x.Placement))
             {
@@ -232,6 +285,48 @@ namespace NightSignal.Front
                 sb.Append(r.Entrant.Human ? $"<color=#D7263D>{line}</color>\n" : line + "\n");
             }
             table.text = sb.ToString();
+        }
+
+        /// <summary>What the Local profile gained, line by line, from the Core progression result (nothing invented here).</summary>
+        static string ProgressionText(Core.Profiles.LocalProgressionResult r, string note)
+        {
+            if (r == null) return string.IsNullOrEmpty(note) ? "" : note;
+            var sb = new System.Text.StringBuilder();
+            sb.Append("<color=#9A968D>LOCAL PROFILE</color>\n");
+            if (r.Stage != null)
+            {
+                string verdict = r.Stage.EarnedClear ? (r.Stage.FirstClear ? "<color=#3EC6D8>Stage cleared — first clear</color>" : "<color=#3EC6D8>Stage cleared</color>")
+                    : "<color=#F2A541>Stage not cleared</color>";
+                sb.Append(verdict).Append("\n<size=85%>").Append(Escape(r.Stage.Reason)).Append("</size>\n\n");
+            }
+            if (r.Status == Core.Profiles.LocalOperationStatus.Aborted)
+                sb.Append(Escape(r.Reason)).Append("\n");
+            if (r.Payout != null && r.Changed)
+            {
+                sb.Append($"Race money  {r.Payout.EventCredits:N0} cr\n");
+                if (r.Payout.FirstClearBonus > 0) sb.Append($"First-clear bonus  {r.Payout.FirstClearBonus:N0} cr\n");
+                if (r.Payout.ChallengeCash > 0) sb.Append($"Challenges  {r.Payout.ChallengeCash:N0} cr\n");
+                if (!string.IsNullOrEmpty(r.Payout.Note)) sb.Append("<size=85%>").Append(Escape(r.Payout.Note)).Append("</size>\n");
+                sb.Append($"<b>Wallet  {r.BalanceBefore:N0} → {r.BalanceAfter:N0} cr</b>\n");
+                if (r.RankPointsAfter != r.RankPointsBefore) sb.Append($"Rank points  {r.RankPointsBefore} → {r.RankPointsAfter}  ({Escape(r.RankAfter)})\n");
+            }
+            foreach (Core.Profiles.ProgressionChange c in r.Changes)
+                switch (c.Kind)
+                {
+                    case Core.Profiles.ProgressionChangeKind.MusicUnlocked:
+                    case Core.Profiles.ProgressionChangeKind.CourseUnlocked:
+                    case Core.Profiles.ProgressionChangeKind.ChallengeCompleted:
+                    case Core.Profiles.ProgressionChangeKind.CosmeticGranted:
+                    case Core.Profiles.ProgressionChangeKind.TutorialCompleted:
+                        sb.Append("<color=#3EC6D8>+</color> ").Append(Escape(c.Detail)).Append("\n");
+                        break;
+                }
+            foreach (Core.Profiles.RecordUpdateResult rec in r.Records)
+                if (rec.IsNewPersonalBest)
+                    sb.Append($"<color=#D7263D>New personal best</color>  {FormatRaceTime(rec.Value * 1000)}  <size=80%>(Local, unverified)</size>\n");
+            foreach (string n in r.Notes) sb.Append("<size=85%><color=#9A968D>").Append(Escape(n)).Append("</color></size>\n");
+            if (!string.IsNullOrEmpty(note)) sb.Append("<size=85%><color=#F2A541>").Append(Escape(note)).Append("</color></size>\n");
+            return sb.ToString();
         }
 
         /// <summary>Race time as mm:ss.mmm (Addendum 01 §4.3).</summary>

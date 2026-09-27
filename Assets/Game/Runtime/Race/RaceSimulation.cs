@@ -88,6 +88,13 @@ namespace NightSignal.Race
         public readonly RaceProgressTracker Tracker;
         public readonly RaceEventRules Rules;
         public readonly List<RaceEntrant> Entrants = new List<RaceEntrant>();
+        /// <summary>
+        /// Record ruleset versions (personal records only compare within one version). Bump PhysicsVersion whenever the
+        /// chassis, contact or barrier response changes; ScoringVersion when classification or timing changes.
+        /// </summary>
+        public const string PhysicsVersion = "chassis-2026.09-contact1";
+        public const string ScoringVersion = "classify-1";
+
         public int StartTick = int.MaxValue;
         public long FirstHumanFinishMicros = -1;
         public long DeadlineMicros = long.MaxValue;

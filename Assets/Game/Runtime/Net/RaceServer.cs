@@ -115,7 +115,11 @@ namespace NightSignal.Net
                 yield break;
             }
             sim.HumanInput = HumanInput;
-            sim.DeadlineSet += () => { foreach (ulong id in byClient.Keys.ToList()) SendPhase(id); }; // clients show the finish window
+            sim.DeadlineSet += () =>
+            {
+                Debug.Log($"[NightSignal.Server] first human finish; finish window closes at race time {sim.DeadlineMicros / 1e6:F1} s");
+                foreach (ulong id in byClient.Keys.ToList()) SendPhase(id); // clients show the finish window
+            };
 
             nm = NetBootstrap.Ensure();
             nm.ConnectionApprovalCallback = Approve;
@@ -279,10 +283,25 @@ namespace NightSignal.Net
                     break;
                 case MatchPhase.Racing:
                     sim.Tick(tick);
+                    if ((tick - sim.StartTick) % (60 * 15) == 0) LogProgress(tick);
                     if (sim.Complete) FinishRace();
                     break;
             }
             if (phase >= MatchPhase.Countdown && phase <= MatchPhase.Results && tick % 3 == 0) BroadcastSnapshot(tick);
+        }
+
+        /// <summary>Periodic headless-server trace: where every entrant is and how its commands are arriving.</summary>
+        void LogProgress(int tick)
+        {
+            var sb = new StringBuilder($"[NightSignal.Server] t={(tick - sim.StartTick) / 60f:F0}s");
+            foreach (RaceEntrant e in sim.Entrants)
+            {
+                sb.Append($" | #{e.Roster.Index} {(e.Human ? "H" : "AI")} {e.Status} {e.Progress.RaceDistance:F0}m {e.State.Velocity.magnitude * 3.6f:F0}km/h cp{e.Progress.CheckpointsPassed}");
+                if (e.AutoRecoveries > 0) sb.Append($" rec{e.AutoRecoveries}");
+                if (links.TryGetValue(e, out Link l))
+                    sb.Append($" starved{l.StarvedTicks} late{l.LateInputs} lead{(l.LatestInputTick < 0 ? "-" : (l.LatestInputTick - tick).ToString())}");
+            }
+            Debug.Log(sb.ToString());
         }
 
         void TickLoading(int tick)

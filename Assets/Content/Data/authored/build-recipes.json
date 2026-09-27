@@ -1,0 +1,4600 @@
+{
+  "schema": "night-signal/build-recipes@1",
+  "revision": 1,
+  "note": "INITIAL AUTHORING, NOT MEASURED. Favorite-car upgrade paths for all 18 models (Addendum 02 section 8, D206). PI values are the Core engine-free ESTIMATE; demand PIs are initial targets that the Unity handling harness, real driving and the benchmark calibration must confirm or revise. Builds use only parts the shop offers by the step's act.",
+  "economy": {
+    "startingCredits": 15000,
+    "placementCycle": [
+      2,
+      4,
+      1,
+      3,
+      5,
+      2,
+      6,
+      3,
+      4,
+      1
+    ],
+    "lostAttemptPlacement": 6,
+    "cleanEvery": 3,
+    "normalFailuresPerStage": [
+      0,
+      1,
+      0,
+      0,
+      1,
+      1,
+      0,
+      1,
+      0,
+      0
+    ],
+    "hardFailuresPerStage": [
+      1,
+      0,
+      2,
+      1,
+      0,
+      1,
+      1,
+      2,
+      0,
+      1
+    ],
+    "discretionaryPercent": 10,
+    "countChallengeCash": false,
+    "note": "Starter grant 12,000 + tutorial 3,000. Ordinary campaign races paid by Core Economy.Compute (expected seconds, placements 1.35/1.20/1.10/1.00, clean 1.05 every third attempt, Hard 1.35), first clears once, lost attempts still paid as legal finishers. Normal ~29% and Hard ~47% of attempts fail qualification. 10% of every payout is reserved for optional cosmetics/course purchases. No challenge cash, no Freeplay grinding."
+  },
+  "bands": [
+    {
+      "id": "N1a",
+      "mode": "normal",
+      "firstStage": "S01",
+      "lastStage": "S03",
+      "demandPi": 215,
+      "note": "Act I opening (D cap 299): stock starters are enough; first grip is optional."
+    },
+    {
+      "id": "N1b",
+      "mode": "normal",
+      "firstStage": "S04",
+      "lastStage": "S07",
+      "demandPi": 280,
+      "note": "Act I C-cap stages and the first lieutenant: fundamentals (tyres, brakes, usable gearing) expected."
+    },
+    {
+      "id": "N2",
+      "mode": "normal",
+      "firstStage": "S08",
+      "lastStage": "S14",
+      "demandPi": 300,
+      "note": "Act II (B cap 699): balanced T2 grip and chassis."
+    },
+    {
+      "id": "N3",
+      "mode": "normal",
+      "firstStage": "S15",
+      "lastStage": "S21",
+      "demandPi": 345,
+      "note": "Act III (A cap 849): T2/T3 combinations."
+    },
+    {
+      "id": "N4",
+      "mode": "normal",
+      "firstStage": "S22",
+      "lastStage": "S30",
+      "demandPi": 385,
+      "note": "Act IV (uncapped): a well-developed car; selective T3. Set at what the budget-feasible starter path reaches when Act IV opens."
+    },
+    {
+      "id": "H1a",
+      "mode": "hard",
+      "firstStage": "S01",
+      "lastStage": "S03",
+      "demandPi": 265,
+      "note": "Hard D-cap stages: a class-legal preset from owned parts, tuned near the cap."
+    },
+    {
+      "id": "H1b",
+      "mode": "hard",
+      "firstStage": "S04",
+      "lastStage": "S07",
+      "demandPi": 380,
+      "note": "Hard C-cap stages: near-cap preset."
+    },
+    {
+      "id": "H2",
+      "mode": "hard",
+      "firstStage": "S08",
+      "lastStage": "S14",
+      "demandPi": 440,
+      "note": "Hard B-cap stages."
+    },
+    {
+      "id": "H3",
+      "mode": "hard",
+      "firstStage": "S15",
+      "lastStage": "S21",
+      "demandPi": 490,
+      "note": "Hard A-cap stages: selective T4 where the economy allows."
+    },
+    {
+      "id": "H4",
+      "mode": "hard",
+      "firstStage": "S22",
+      "lastStage": "S30",
+      "demandPi": 540,
+      "note": "Hard Act IV: the developed favorite car with selective T4, not T4 in every slot."
+    }
+  ],
+  "cars": [
+    {
+      "car": "V01",
+      "role": "starter",
+      "capExcludedBands": [],
+      "identity": "Light RWD liftback: responsive rotation, gentle power. The path keeps it light and rev-happy; the turbo kit is a late Hard option, not a requirement.",
+      "path": [
+        {
+          "id": "V01-A",
+          "label": "First grip",
+          "kind": "main",
+          "for": [
+            "N1a"
+          ],
+          "by": "N:S02",
+          "parts": [
+            "TYR-T1-STREET"
+          ],
+          "tuning": {},
+          "note": "Optional low-cost first step; stock is enough for S01-S03."
+        },
+        {
+          "id": "V01-B",
+          "label": "Fundamentals",
+          "kind": "main",
+          "for": [
+            "N1b"
+          ],
+          "by": "N:S04",
+          "parts": [
+            "TYR-T1-STREET",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "ENG-T1-INTAKE",
+            "BRK-T1-PADS",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Tyres, brakes, usable (shorter) gearing and a diff before the C-cap stages and the first lieutenant."
+        },
+        {
+          "id": "V01-C",
+          "label": "Act II grip",
+          "kind": "main",
+          "for": [
+            "N2"
+          ],
+          "by": "N:S08",
+          "parts": [
+            "TYR-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "ENG-T1-INTAKE",
+            "BRK-T1-PADS",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "T2 opens with Act II; sport tyres are the biggest single step."
+        },
+        {
+          "id": "V01-D",
+          "label": "Chassis and brakes",
+          "kind": "main",
+          "for": [
+            "N2"
+          ],
+          "by": "N:S11",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "ENG-T1-INTAKE",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Adjustable dampers and brake bias for the wet Act II roads."
+        },
+        {
+          "id": "V01-E",
+          "label": "Act III power",
+          "kind": "main",
+          "for": [
+            "N3"
+          ],
+          "by": "N:S15",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T2-SIX",
+            "ENG-T2-STREET",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V01-F",
+          "label": "Internals",
+          "kind": "main",
+          "for": [
+            "N3",
+            "N4"
+          ],
+          "by": "N:S19",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T2-SIX",
+            "ENG-T3-I4-HIGHREV",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "T3 internals once Act III opens."
+        },
+        {
+          "id": "V01-G",
+          "label": "Act IV grip",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S23",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T2-SIX",
+            "ENG-T3-I4-HIGHREV",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Semi-slicks: the Act IV grip step."
+        },
+        {
+          "id": "V01-H",
+          "label": "Act IV balance",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S29",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T3-COILOVER",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T2-SIX",
+            "ENG-T3-I4-HIGHREV",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP",
+            "AER-T1-LIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Coilovers before the penultimate and the finale."
+        },
+        {
+          "id": "V01-H1a",
+          "label": "Hard D-class preset",
+          "kind": "main",
+          "for": [
+            "H1a"
+          ],
+          "by": "H:S01",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Class-legal preset built only from parts this car already owns (no purchase)."
+        },
+        {
+          "id": "V01-H1b",
+          "label": "Hard C-class preset",
+          "kind": "main",
+          "for": [
+            "H1b"
+          ],
+          "by": "H:S04",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T3-COILOVER",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T2-SIX",
+            "ENG-T3-I4-HIGHREV",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP",
+            "AER-T1-LIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Class-legal preset built only from parts this car already owns (no purchase)."
+        },
+        {
+          "id": "V01-H2",
+          "label": "Hard Act II upgrade",
+          "kind": "main",
+          "for": [
+            "H2"
+          ],
+          "by": "H:S08",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T3-COILOVER",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T2-SIX",
+            "ENG-T3-I4-HIGHREV",
+            "FI-T3-SUPERCHARGER",
+            "BRK-T3-RACE",
+            "WGT-T2-PANELS",
+            "AER-T1-LIP"
+          ],
+          "tuning": {
+            "DiffLock": 45,
+            "FinalDrive": 1060
+          },
+          "note": "Supercharger keeps the response instant."
+        },
+        {
+          "id": "V01-H3",
+          "label": "Hard Act III",
+          "kind": "main",
+          "for": [
+            "H3"
+          ],
+          "by": "H:S15",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T3-COILOVER",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T3-SEQ",
+            "ENG-T3-I4-HIGHREV",
+            "FI-T3-SUPERCHARGER",
+            "BRK-T3-RACE",
+            "WGT-T3-CARBON",
+            "AER-T1-LIP"
+          ],
+          "tuning": {
+            "DiffLock": 45,
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V01-H4",
+          "label": "Hard Act IV: selective T4",
+          "kind": "main",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T4-COMPETITION",
+            "SUS-T3-COILOVER",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T3-SEQ",
+            "ENG-T3-I4-HIGHREV",
+            "FI-T4-TURBOKIT",
+            "BRK-T3-RACE",
+            "WGT-T3-CARBON",
+            "AER-T1-LIP"
+          ],
+          "tuning": {
+            "DiffLock": 45,
+            "FinalDrive": 1060
+          },
+          "note": "Two T4 parts only: competition tyres and the turbo conversion."
+        }
+      ],
+      "alternatives": [
+        {
+          "id": "V01-B-inc",
+          "label": "Fundamentals on a tighter budget",
+          "kind": "incremental",
+          "for": [
+            "N1b"
+          ],
+          "by": "N:S04",
+          "parts": [
+            "TYR-T1-STREET",
+            "GBX-T1-SHORTFD",
+            "ENG-T1-EXHAUST",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {},
+          "note": "Cheaper route to C-cap readiness: fixed short final drive and the exhaust instead of the diff and strip-out."
+        },
+        {
+          "id": "V01-H4-long",
+          "label": "Race engine AND turbo kit",
+          "kind": "longTerm",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T3-COILOVER",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T3-SEQ",
+            "ENG-T4-I4-RACE",
+            "FI-T4-TURBOKIT",
+            "BRK-T3-RACE",
+            "WGT-T3-CARBON",
+            "AER-T1-LIP"
+          ],
+          "tuning": {
+            "DiffLock": 45,
+            "FinalDrive": 1060
+          },
+          "note": "Longer-term alternative to the H4 tyres: both T4 power parts on the owned Act III chassis."
+        }
+      ]
+    },
+    {
+      "car": "V02",
+      "role": "starter",
+      "capExcludedBands": [],
+      "identity": "FWD turbo triple hatch: predictable entry and wet confidence; diff and tyres fight power understeer before boost grows.",
+      "path": [
+        {
+          "id": "V02-A",
+          "label": "First grip",
+          "kind": "main",
+          "for": [
+            "N1a"
+          ],
+          "by": "N:S02",
+          "parts": [
+            "TYR-T1-STREET"
+          ],
+          "tuning": {},
+          "note": "Optional low-cost first step; stock is enough for S01-S03."
+        },
+        {
+          "id": "V02-B",
+          "label": "Fundamentals",
+          "kind": "main",
+          "for": [
+            "N1b"
+          ],
+          "by": "N:S04",
+          "parts": [
+            "TYR-T1-STREET",
+            "DIF-T1-FWD-HELICAL",
+            "GBX-T1-FINAL",
+            "FI-T1-BOOST",
+            "BRK-T1-PADS",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Tyres, brakes, usable (shorter) gearing and a diff before the C-cap stages and the first lieutenant."
+        },
+        {
+          "id": "V02-C",
+          "label": "Act II grip",
+          "kind": "main",
+          "for": [
+            "N2"
+          ],
+          "by": "N:S08",
+          "parts": [
+            "TYR-T2-SPORT",
+            "DIF-T1-FWD-HELICAL",
+            "GBX-T1-FINAL",
+            "FI-T1-BOOST",
+            "BRK-T1-PADS",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "T2 opens with Act II; sport tyres are the biggest single step."
+        },
+        {
+          "id": "V02-D",
+          "label": "Chassis and brakes",
+          "kind": "main",
+          "for": [
+            "N2"
+          ],
+          "by": "N:S11",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-FWD-HELICAL",
+            "GBX-T1-FINAL",
+            "FI-T1-BOOST",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Adjustable dampers and brake bias for the wet Act II roads."
+        },
+        {
+          "id": "V02-E",
+          "label": "Act III power",
+          "kind": "main",
+          "for": [
+            "N3"
+          ],
+          "by": "N:S15",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-FWD-HELICAL",
+            "GBX-T1-FINAL",
+            "ENG-T2-STREET",
+            "FI-T2-RESPONSE",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V02-F",
+          "label": "Internals",
+          "kind": "main",
+          "for": [
+            "N3",
+            "N4"
+          ],
+          "by": "N:S19",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-FWD-HELICAL",
+            "GBX-T1-FINAL",
+            "ENG-T3-TRI-HIGHREV",
+            "FI-T2-RESPONSE",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "T3 internals once Act III opens."
+        },
+        {
+          "id": "V02-G",
+          "label": "Act IV grip",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S23",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T2-SPORT",
+            "DIF-T1-FWD-HELICAL",
+            "GBX-T1-FINAL",
+            "ENG-T3-TRI-HIGHREV",
+            "FI-T2-RESPONSE",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Semi-slicks: the Act IV grip step."
+        },
+        {
+          "id": "V02-H",
+          "label": "Act IV balance",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S29",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T3-COILOVER",
+            "DIF-T1-FWD-HELICAL",
+            "GBX-T2-SIX",
+            "ENG-T3-TRI-HIGHREV",
+            "FI-T2-RESPONSE",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Coilovers before the penultimate and the finale."
+        },
+        {
+          "id": "V02-H1a",
+          "label": "Hard D-class preset",
+          "kind": "main",
+          "for": [
+            "H1a"
+          ],
+          "by": "H:S01",
+          "parts": [
+            "TYR-T1-STREET",
+            "SUS-T2-SPORT",
+            "DIF-T1-FWD-HELICAL",
+            "GBX-T1-FINAL",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Class-legal preset built only from parts this car already owns (no purchase)."
+        },
+        {
+          "id": "V02-H1b",
+          "label": "Hard C-class preset",
+          "kind": "main",
+          "for": [
+            "H1b"
+          ],
+          "by": "H:S04",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T3-COILOVER",
+            "DIF-T1-FWD-HELICAL",
+            "GBX-T2-SIX",
+            "ENG-T2-STREET",
+            "FI-T2-RESPONSE",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Class-legal preset built only from parts this car already owns (no purchase)."
+        },
+        {
+          "id": "V02-H2",
+          "label": "Hard Act II upgrade",
+          "kind": "main",
+          "for": [
+            "H2"
+          ],
+          "by": "H:S08",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T3-COILOVER",
+            "DIF-T2-FWD-ADJ",
+            "GBX-T2-SIX",
+            "ENG-T3-TRI-HIGHREV",
+            "FI-T3-BIGTURBO",
+            "BRK-T3-RACE",
+            "WGT-T2-PANELS"
+          ],
+          "tuning": {
+            "DiffLock": 60,
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V02-H3",
+          "label": "Hard Act III",
+          "kind": "main",
+          "for": [
+            "H3"
+          ],
+          "by": "H:S15",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T3-COILOVER",
+            "DIF-T2-FWD-ADJ",
+            "GBX-T3-SEQ",
+            "ENG-T3-TRI-HIGHREV",
+            "FI-T3-BIGTURBO",
+            "BRK-T3-RACE",
+            "WGT-T3-CARBON"
+          ],
+          "tuning": {
+            "DiffLock": 60,
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V02-H4",
+          "label": "Hard Act IV: selective T4",
+          "kind": "main",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T4-COMPETITION",
+            "SUS-T3-COILOVER",
+            "DIF-T2-FWD-ADJ",
+            "GBX-T3-SEQ",
+            "ENG-T3-TRI-HIGHREV",
+            "FI-T4-HYBRID",
+            "BRK-T3-RACE",
+            "WGT-T3-CARBON"
+          ],
+          "tuning": {
+            "DiffLock": 60,
+            "FinalDrive": 1060
+          },
+          "note": "Two T4 parts only."
+        }
+      ],
+      "alternatives": [
+        {
+          "id": "V02-B-inc",
+          "label": "Fundamentals on a tighter budget",
+          "kind": "incremental",
+          "for": [
+            "N1b"
+          ],
+          "by": "N:S04",
+          "parts": [
+            "TYR-T1-STREET",
+            "GBX-T1-SHORTFD",
+            "FI-T1-BOOST",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {},
+          "note": "Tyres, pads, fixed short gearing and a boost controller only."
+        },
+        {
+          "id": "V02-H4-long",
+          "label": "Race triple AND hybrid turbo",
+          "kind": "longTerm",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T3-COILOVER",
+            "DIF-T2-FWD-ADJ",
+            "GBX-T3-SEQ",
+            "ENG-T4-TRI-RACE",
+            "FI-T4-HYBRID",
+            "BRK-T3-RACE",
+            "WGT-T3-CARBON"
+          ],
+          "tuning": {
+            "DiffLock": 60,
+            "FinalDrive": 1060
+          },
+          "note": "Longer-term alternative to the H4 tyres: both T4 power parts."
+        }
+      ]
+    },
+    {
+      "car": "V03",
+      "role": "starter",
+      "capExcludedBands": [],
+      "identity": "AWD turbo sedan: stable traction and forgiving exits; the path frees rotation and trims weight instead of only adding power.",
+      "path": [
+        {
+          "id": "V03-A",
+          "label": "First grip",
+          "kind": "main",
+          "for": [
+            "N1a"
+          ],
+          "by": "N:S02",
+          "parts": [
+            "TYR-T1-TOURING"
+          ],
+          "tuning": {},
+          "note": "Optional low-cost first step; stock is enough for S01-S03."
+        },
+        {
+          "id": "V03-B",
+          "label": "Fundamentals",
+          "kind": "main",
+          "for": [
+            "N1b"
+          ],
+          "by": "N:S04",
+          "parts": [
+            "TYR-T1-STREET",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T1-FINAL",
+            "FI-T1-BOOST",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Tyres, brakes, usable (shorter) gearing and a diff before the C-cap stages and the first lieutenant."
+        },
+        {
+          "id": "V03-C",
+          "label": "Act II grip",
+          "kind": "main",
+          "for": [
+            "N2"
+          ],
+          "by": "N:S08",
+          "parts": [
+            "TYR-T2-SPORT",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T1-FINAL",
+            "FI-T1-BOOST",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "T2 opens with Act II; sport tyres are the biggest single step."
+        },
+        {
+          "id": "V03-D",
+          "label": "Chassis and brakes",
+          "kind": "main",
+          "for": [
+            "N2"
+          ],
+          "by": "N:S11",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T1-FINAL",
+            "FI-T1-BOOST",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Adjustable dampers and brake bias for the wet Act II roads."
+        },
+        {
+          "id": "V03-E",
+          "label": "Act III power",
+          "kind": "main",
+          "for": [
+            "N3"
+          ],
+          "by": "N:S15",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T1-FINAL",
+            "ENG-T2-STREET",
+            "FI-T2-RESPONSE",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V03-F",
+          "label": "Internals",
+          "kind": "main",
+          "for": [
+            "N3",
+            "N4"
+          ],
+          "by": "N:S19",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T1-FINAL",
+            "ENG-T3-I4-HIGHREV",
+            "FI-T2-RESPONSE",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "T3 internals once Act III opens."
+        },
+        {
+          "id": "V03-G",
+          "label": "Act IV grip",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S23",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T2-SPORT",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T1-FINAL",
+            "ENG-T3-I4-HIGHREV",
+            "FI-T2-RESPONSE",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Semi-slicks: the Act IV grip step."
+        },
+        {
+          "id": "V03-H",
+          "label": "Act IV balance",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S29",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T3-COILOVER",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T2-SIX",
+            "ENG-T3-I4-HIGHREV",
+            "FI-T2-RESPONSE",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Coilovers before the penultimate and the finale."
+        },
+        {
+          "id": "V03-H1a",
+          "label": "Hard D-class preset",
+          "kind": "main",
+          "for": [
+            "H1a"
+          ],
+          "by": "H:S01",
+          "parts": [
+            "TYR-T1-TOURING",
+            "SUS-T2-SPORT",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T1-FINAL",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Class-legal preset built only from parts this car already owns (no purchase)."
+        },
+        {
+          "id": "V03-H1b",
+          "label": "Hard C-class preset",
+          "kind": "main",
+          "for": [
+            "H1b"
+          ],
+          "by": "H:S04",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T3-COILOVER",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T2-SIX",
+            "ENG-T2-STREET",
+            "FI-T1-BOOST",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Class-legal preset built only from parts this car already owns (no purchase)."
+        },
+        {
+          "id": "V03-H2",
+          "label": "Hard Act II upgrade",
+          "kind": "main",
+          "for": [
+            "H2"
+          ],
+          "by": "H:S08",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T3-COILOVER",
+            "DIF-T2-AWD-CENTRE",
+            "GBX-T2-SIX",
+            "ENG-T3-I4-HIGHREV",
+            "FI-T3-BIGTURBO",
+            "BRK-T3-RACE",
+            "WGT-T2-PANELS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Centre coupling set rear-biased for rotation."
+        },
+        {
+          "id": "V03-H3",
+          "label": "Hard Act III",
+          "kind": "main",
+          "for": [
+            "H3"
+          ],
+          "by": "H:S15",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T3-COILOVER",
+            "DIF-T2-AWD-CENTRE",
+            "GBX-T3-SEQ",
+            "ENG-T3-I4-HIGHREV",
+            "FI-T3-BIGTURBO",
+            "BRK-T3-RACE",
+            "WGT-T3-CARBON"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V03-H4",
+          "label": "Hard Act IV: selective T4",
+          "kind": "main",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T4-COMPETITION",
+            "SUS-T3-COILOVER",
+            "DIF-T2-AWD-CENTRE",
+            "GBX-T3-SEQ",
+            "ENG-T3-I4-HIGHREV",
+            "FI-T4-HYBRID",
+            "BRK-T3-RACE",
+            "WGT-T3-CARBON"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Two T4 parts only."
+        }
+      ],
+      "alternatives": [
+        {
+          "id": "V03-B-inc",
+          "label": "Fundamentals on a tighter budget",
+          "kind": "incremental",
+          "for": [
+            "N1b"
+          ],
+          "by": "N:S04",
+          "parts": [
+            "TYR-T1-STREET",
+            "GBX-T1-SHORTFD",
+            "FI-T1-BOOST",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {},
+          "note": "Tyres, pads, fixed short gearing and a boost controller only."
+        },
+        {
+          "id": "V03-H4-long",
+          "label": "Race engine AND hybrid turbo",
+          "kind": "longTerm",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T3-COILOVER",
+            "DIF-T2-AWD-CENTRE",
+            "GBX-T3-SEQ",
+            "ENG-T4-I4-RACE",
+            "FI-T4-HYBRID",
+            "BRK-T3-RACE",
+            "WGT-T3-CARBON"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Longer-term alternative to the H4 tyres: both T4 power parts."
+        }
+      ]
+    },
+    {
+      "car": "V04",
+      "role": "purchase",
+      "buyBy": "N:S04",
+      "capExcludedBands": [],
+      "identity": "Light roadster: momentum and clean exits. Grip and brakes first; power only late, so it stays a momentum car.",
+      "path": [
+        {
+          "id": "V04-A",
+          "label": "First grip",
+          "kind": "main",
+          "for": [
+            "N1b"
+          ],
+          "by": "N:S04",
+          "parts": [
+            "TYR-T1-STREET",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {},
+          "note": "Bought at S04 with little left over: tyres and pads first."
+        },
+        {
+          "id": "V04-B",
+          "label": "Act II grip",
+          "kind": "main",
+          "for": [
+            "N2"
+          ],
+          "by": "N:S08",
+          "parts": [
+            "TYR-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V04-C",
+          "label": "Chassis",
+          "kind": "main",
+          "for": [
+            "N2"
+          ],
+          "by": "N:S12",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V04-D",
+          "label": "Act III",
+          "kind": "main",
+          "for": [
+            "N3"
+          ],
+          "by": "N:S15",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "ENG-T2-STREET",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V04-E",
+          "label": "Internals",
+          "kind": "main",
+          "for": [
+            "N3",
+            "N4"
+          ],
+          "by": "N:S19",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "ENG-T3-I4-HIGHREV",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V04-F",
+          "label": "Act IV grip",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S23",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "ENG-T3-I4-HIGHREV",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V04-G",
+          "label": "Act IV balance",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S29",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T3-COILOVER",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T2-CLOSE",
+            "ENG-T3-I4-HIGHREV",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V04-H1a",
+          "label": "Hard D-class preset",
+          "kind": "main",
+          "for": [
+            "H1a"
+          ],
+          "by": "H:S01",
+          "parts": [
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Stock engine and tyres keep it just under 299."
+        },
+        {
+          "id": "V04-H1b",
+          "label": "Hard C-class preset",
+          "kind": "main",
+          "for": [
+            "H1b"
+          ],
+          "by": "H:S04",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T3-COILOVER",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T2-CLOSE",
+            "ENG-T2-STREET",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Class-legal preset built only from parts this car already owns (no purchase)."
+        },
+        {
+          "id": "V04-H2",
+          "label": "Hard Act II",
+          "kind": "main",
+          "for": [
+            "H2"
+          ],
+          "by": "H:S08",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T3-COILOVER",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T2-CLOSE",
+            "ENG-T3-I4-HIGHREV",
+            "BRK-T3-RACE",
+            "WGT-T2-PANELS",
+            "AER-T1-LIP"
+          ],
+          "tuning": {
+            "DiffLock": 45,
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V04-H3",
+          "label": "Hard Act III",
+          "kind": "main",
+          "for": [
+            "H3"
+          ],
+          "by": "H:S15",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T3-COILOVER",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T3-SEQ",
+            "ENG-T3-I4-HIGHREV",
+            "BRK-T3-RACE",
+            "WGT-T3-CARBON",
+            "AER-T1-LIP"
+          ],
+          "tuning": {
+            "DiffLock": 45,
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V04-H4",
+          "label": "Hard Act IV: selective T4",
+          "kind": "main",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T4-COMPETITION",
+            "SUS-T3-COILOVER",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T3-SEQ",
+            "ENG-T3-I4-HIGHREV",
+            "FI-T4-TURBOKIT",
+            "BRK-T3-RACE",
+            "WGT-T3-CARBON",
+            "AER-T1-LIP"
+          ],
+          "tuning": {
+            "DiffLock": 45,
+            "FinalDrive": 1060
+          },
+          "note": "Two T4 parts only."
+        }
+      ],
+      "alternatives": [
+        {
+          "id": "V04-B-inc",
+          "label": "Act II on a budget",
+          "kind": "incremental",
+          "for": [
+            "N2"
+          ],
+          "by": "N:S08",
+          "parts": [
+            "TYR-T2-DRIFT",
+            "GBX-T1-SHORTFD",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {},
+          "note": "Drift tyres and a fixed short final drive only."
+        },
+        {
+          "id": "V04-H4-long",
+          "label": "Race engine instead of competition tyres",
+          "kind": "longTerm",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T3-COILOVER",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T3-SEQ",
+            "ENG-T4-I4-RACE",
+            "FI-T4-TURBOKIT",
+            "BRK-T3-RACE",
+            "WGT-T3-CARBON",
+            "AER-T1-LIP"
+          ],
+          "tuning": {
+            "DiffLock": 45,
+            "FinalDrive": 1060
+          },
+          "note": "Both T4 power parts on the Act III chassis."
+        }
+      ]
+    },
+    {
+      "car": "V05",
+      "role": "purchase",
+      "buyBy": "N:S06",
+      "capExcludedBands": [
+        "N1a",
+        "H1a"
+      ],
+      "identity": "Long-nose six coupe: flexible and moderate mass; a balanced, lieutenant-friendly torque build.",
+      "path": [
+        {
+          "id": "V05-A",
+          "label": "Fundamentals",
+          "kind": "main",
+          "for": [
+            "N1b"
+          ],
+          "by": "N:S06",
+          "parts": [
+            "TYR-T1-STREET",
+            "GBX-T1-FINAL",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V05-B",
+          "label": "Act II grip",
+          "kind": "main",
+          "for": [
+            "N2"
+          ],
+          "by": "N:S08",
+          "parts": [
+            "TYR-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V05-C",
+          "label": "Chassis",
+          "kind": "main",
+          "for": [
+            "N2"
+          ],
+          "by": "N:S12",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V05-D",
+          "label": "Act III",
+          "kind": "main",
+          "for": [
+            "N3"
+          ],
+          "by": "N:S15",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "ENG-T2-STREET",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V05-E",
+          "label": "Torque build",
+          "kind": "main",
+          "for": [
+            "N3",
+            "N4"
+          ],
+          "by": "N:S20",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "ENG-T3-SIX-STROKER",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Stroker six: strong mid-range for climbs."
+        },
+        {
+          "id": "V05-F",
+          "label": "Act IV grip",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S23",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "ENG-T3-SIX-STROKER",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V05-G",
+          "label": "Act IV balance",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S29",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T3-COILOVER",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T2-SIX",
+            "ENG-T3-SIX-STROKER",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V05-H1b",
+          "label": "Hard C-class preset",
+          "kind": "main",
+          "for": [
+            "H1b"
+          ],
+          "by": "H:S04",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Class-legal preset built only from parts this car already owns (no purchase)."
+        },
+        {
+          "id": "V05-H2",
+          "label": "Hard Act II",
+          "kind": "main",
+          "for": [
+            "H2"
+          ],
+          "by": "H:S08",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T3-COILOVER",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T2-SIX",
+            "ENG-T3-SIX-STROKER",
+            "BRK-T3-RACE",
+            "WGT-T2-PANELS"
+          ],
+          "tuning": {
+            "DiffLock": 45,
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V05-H3",
+          "label": "Hard Act III",
+          "kind": "main",
+          "for": [
+            "H3"
+          ],
+          "by": "H:S15",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T3-COILOVER",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T2-SIX",
+            "ENG-T3-SIX-STROKER",
+            "FI-T3-SUPERCHARGER",
+            "BRK-T3-RACE",
+            "WGT-T2-PANELS"
+          ],
+          "tuning": {
+            "DiffLock": 45,
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V05-H4",
+          "label": "Hard Act IV: selective T4",
+          "kind": "main",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T4-COMPETITION",
+            "SUS-T3-COILOVER",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T2-SIX",
+            "ENG-T3-SIX-STROKER",
+            "FI-T3-SUPERCHARGER",
+            "BRK-T3-RACE",
+            "WGT-T3-CARBON"
+          ],
+          "tuning": {
+            "DiffLock": 45,
+            "FinalDrive": 1060
+          },
+          "note": "One T4 part."
+        }
+      ],
+      "alternatives": [
+        {
+          "id": "V05-B-inc",
+          "label": "Act II on a budget",
+          "kind": "incremental",
+          "for": [
+            "N2"
+          ],
+          "by": "N:S08",
+          "parts": [
+            "TYR-T1-STREET",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "ENG-T1-EXHAUST",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "T1 diff and exhaust instead of sport tyres."
+        },
+        {
+          "id": "V05-H4-long",
+          "label": "Race six instead of competition tyres",
+          "kind": "longTerm",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T3-COILOVER",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T2-SIX",
+            "ENG-T4-SIX-RACE",
+            "FI-T3-SUPERCHARGER",
+            "BRK-T3-RACE",
+            "WGT-T2-PANELS"
+          ],
+          "tuning": {
+            "DiffLock": 45,
+            "FinalDrive": 1060
+          },
+          "note": "Save for the race six."
+        }
+      ]
+    },
+    {
+      "car": "V06",
+      "role": "purchase",
+      "buyBy": "N:S07",
+      "capExcludedBands": [
+        "N1a",
+        "H1a"
+      ],
+      "identity": "Wide-track FWD hot hatch: quick front end; the path manages front grip under power (diff, tyres) before revs.",
+      "path": [
+        {
+          "id": "V06-A",
+          "label": "Fundamentals",
+          "kind": "main",
+          "for": [
+            "N1b",
+            "N2"
+          ],
+          "by": "N:S07",
+          "parts": [
+            "TYR-T1-STREET",
+            "DIF-T1-FWD-HELICAL",
+            "GBX-T1-FINAL",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V06-B",
+          "label": "Act II grip",
+          "kind": "main",
+          "for": [
+            "N2"
+          ],
+          "by": "N:S09",
+          "parts": [
+            "TYR-T2-SPORT",
+            "DIF-T1-FWD-HELICAL",
+            "GBX-T1-FINAL",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V06-C",
+          "label": "Chassis",
+          "kind": "main",
+          "for": [
+            "N2",
+            "N3"
+          ],
+          "by": "N:S13",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-FWD-HELICAL",
+            "GBX-T1-FINAL",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V06-D",
+          "label": "Act III",
+          "kind": "main",
+          "for": [
+            "N3"
+          ],
+          "by": "N:S16",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-FWD-HELICAL",
+            "GBX-T1-FINAL",
+            "ENG-T2-STREET",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V06-E",
+          "label": "Internals",
+          "kind": "main",
+          "for": [
+            "N3",
+            "N4"
+          ],
+          "by": "N:S20",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-FWD-HELICAL",
+            "GBX-T1-FINAL",
+            "ENG-T3-I4-HIGHREV",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V06-F",
+          "label": "Act IV grip",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S24",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-FWD-HELICAL",
+            "GBX-T1-FINAL",
+            "ENG-T3-I4-HIGHREV",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V06-G",
+          "label": "Act IV balance",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S29",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T2-SPORT",
+            "DIF-T2-FWD-ADJ",
+            "GBX-T2-CLOSE",
+            "ENG-T3-I4-HIGHREV",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "DiffLock": 60,
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V06-H1b",
+          "label": "Hard C-class preset",
+          "kind": "main",
+          "for": [
+            "H1b"
+          ],
+          "by": "H:S04",
+          "parts": [
+            "TYR-T1-STREET",
+            "SUS-T2-SPORT",
+            "DIF-T1-FWD-HELICAL",
+            "GBX-T1-FINAL",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Class-legal preset built only from parts this car already owns (no purchase)."
+        },
+        {
+          "id": "V06-H2",
+          "label": "Hard Act II",
+          "kind": "main",
+          "for": [
+            "H2"
+          ],
+          "by": "H:S08",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T3-COILOVER",
+            "DIF-T2-FWD-ADJ",
+            "GBX-T2-CLOSE",
+            "ENG-T3-I4-HIGHREV",
+            "BRK-T2-KIT",
+            "WGT-T2-PANELS",
+            "AER-T1-LIP"
+          ],
+          "tuning": {
+            "DiffLock": 60,
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V06-H3",
+          "label": "Hard Act III",
+          "kind": "main",
+          "for": [
+            "H3"
+          ],
+          "by": "H:S15",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T3-COILOVER",
+            "DIF-T2-FWD-ADJ",
+            "GBX-T3-SEQ",
+            "ENG-T3-I4-HIGHREV",
+            "FI-T3-SUPERCHARGER",
+            "BRK-T3-RACE",
+            "WGT-T2-PANELS",
+            "AER-T1-LIP"
+          ],
+          "tuning": {
+            "DiffLock": 60,
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V06-H4",
+          "label": "Hard Act IV: selective T4",
+          "kind": "main",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T4-COMPETITION",
+            "SUS-T3-COILOVER",
+            "DIF-T2-FWD-ADJ",
+            "GBX-T3-SEQ",
+            "ENG-T3-I4-HIGHREV",
+            "FI-T3-SUPERCHARGER",
+            "BRK-T3-RACE",
+            "WGT-T3-CARBON",
+            "AER-T1-LIP"
+          ],
+          "tuning": {
+            "DiffLock": 60,
+            "FinalDrive": 1060
+          },
+          "note": "One T4 part."
+        }
+      ],
+      "alternatives": [
+        {
+          "id": "V06-B-inc",
+          "label": "Act II on a budget",
+          "kind": "incremental",
+          "for": [
+            "N2"
+          ],
+          "by": "N:S09",
+          "parts": [
+            "TYR-T1-STREET",
+            "DIF-T1-FWD-HELICAL",
+            "GBX-T1-FINAL",
+            "ENG-T1-INTAKE",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Intake instead of sport tyres."
+        },
+        {
+          "id": "V06-H4-long",
+          "label": "Race engine instead of competition tyres",
+          "kind": "longTerm",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T3-COILOVER",
+            "DIF-T2-FWD-ADJ",
+            "GBX-T3-SEQ",
+            "ENG-T4-I4-RACE",
+            "FI-T3-SUPERCHARGER",
+            "BRK-T3-RACE",
+            "WGT-T2-PANELS",
+            "AER-T1-LIP"
+          ],
+          "tuning": {
+            "DiffLock": 60,
+            "FinalDrive": 1060
+          },
+          "note": "Save for the race engine."
+        }
+      ]
+    },
+    {
+      "car": "V07",
+      "role": "purchase",
+      "buyBy": "N:S08",
+      "capExcludedBands": [
+        "N1a",
+        "H1a"
+      ],
+      "identity": "Touring wagon, AWD turbo: composed on rough roads, slow to rotate, heavy on brakes. Brakes and rotation first; rally suspension suits it.",
+      "path": [
+        {
+          "id": "V07-A",
+          "label": "Fundamentals",
+          "kind": "main",
+          "for": [
+            "N2"
+          ],
+          "by": "N:S08",
+          "parts": [
+            "TYR-T1-STREET",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T1-FINAL",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V07-B",
+          "label": "Act II grip",
+          "kind": "main",
+          "for": [
+            "N2"
+          ],
+          "by": "N:S10",
+          "parts": [
+            "TYR-T2-SPORT",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T1-FINAL",
+            "FI-T1-BOOST",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V07-C",
+          "label": "Chassis",
+          "kind": "main",
+          "for": [
+            "N2",
+            "N3"
+          ],
+          "by": "N:S13",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-RALLY",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T1-FINAL",
+            "FI-T1-BOOST",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Rally suspension suits the wagon's rough-road character."
+        },
+        {
+          "id": "V07-D",
+          "label": "Act III",
+          "kind": "main",
+          "for": [
+            "N3"
+          ],
+          "by": "N:S16",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-RALLY",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T1-FINAL",
+            "ENG-T2-STREET",
+            "FI-T1-BOOST",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V07-E",
+          "label": "Response",
+          "kind": "main",
+          "for": [
+            "N3",
+            "N4"
+          ],
+          "by": "N:S20",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-RALLY",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T1-FINAL",
+            "ENG-T2-STREET",
+            "FI-T2-RESPONSE",
+            "BRK-T2-KIT",
+            "WGT-T2-PANELS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V07-F",
+          "label": "Act IV grip",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S24",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T2-RALLY",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T1-FINAL",
+            "ENG-T2-STREET",
+            "FI-T2-RESPONSE",
+            "BRK-T2-KIT",
+            "WGT-T2-PANELS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V07-G",
+          "label": "Act IV balance",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S29",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T2-RALLY",
+            "DIF-T2-AWD-CENTRE",
+            "GBX-T2-SIX",
+            "ENG-T2-STREET",
+            "FI-T2-RESPONSE",
+            "BRK-T2-KIT",
+            "WGT-T2-PANELS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V07-H1b",
+          "label": "Hard C-class preset",
+          "kind": "main",
+          "for": [
+            "H1b"
+          ],
+          "by": "H:S04",
+          "parts": [
+            "TYR-T1-STREET",
+            "SUS-T2-RALLY",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T1-FINAL",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Class-legal preset built only from parts this car already owns (no purchase)."
+        },
+        {
+          "id": "V07-H2",
+          "label": "Hard Act II",
+          "kind": "main",
+          "for": [
+            "H2"
+          ],
+          "by": "H:S08",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T3-COILOVER",
+            "DIF-T2-AWD-CENTRE",
+            "GBX-T2-SIX",
+            "ENG-T3-I4-HIGHREV",
+            "FI-T2-RESPONSE",
+            "BRK-T2-KIT",
+            "WGT-T2-PANELS",
+            "AER-T2-ROOFWING"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V07-H3",
+          "label": "Hard Act III",
+          "kind": "main",
+          "for": [
+            "H3"
+          ],
+          "by": "H:S15",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T3-COILOVER",
+            "DIF-T2-AWD-CENTRE",
+            "GBX-T2-SIX",
+            "ENG-T3-I4-HIGHREV",
+            "FI-T3-BIGTURBO",
+            "BRK-T3-RACE",
+            "WGT-T2-PANELS",
+            "AER-T2-ROOFWING"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V07-H4",
+          "label": "Hard Act IV: selective T4",
+          "kind": "main",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T4-COMPETITION",
+            "SUS-T3-COILOVER",
+            "DIF-T2-AWD-CENTRE",
+            "GBX-T3-SEQ",
+            "ENG-T3-I4-HIGHREV",
+            "FI-T3-BIGTURBO",
+            "BRK-T3-RACE",
+            "WGT-T2-PANELS",
+            "AER-T2-ROOFWING"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "One T4 part."
+        }
+      ],
+      "alternatives": [
+        {
+          "id": "V07-B-inc",
+          "label": "Act II on a budget",
+          "kind": "incremental",
+          "for": [
+            "N2"
+          ],
+          "by": "N:S10",
+          "parts": [
+            "TYR-T1-STREET",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T1-FINAL",
+            "FI-T1-BOOST",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Boost controller without sport tyres."
+        },
+        {
+          "id": "V07-H4-long",
+          "label": "Hybrid turbo instead of competition tyres",
+          "kind": "longTerm",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T3-COILOVER",
+            "DIF-T2-AWD-CENTRE",
+            "GBX-T3-SEQ",
+            "ENG-T3-I4-HIGHREV",
+            "FI-T4-HYBRID",
+            "BRK-T3-RACE",
+            "WGT-T2-PANELS",
+            "AER-T2-ROOFWING"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Save for the hybrid turbo."
+        }
+      ]
+    },
+    {
+      "car": "V08",
+      "role": "purchase",
+      "buyBy": "N:S09",
+      "capExcludedBands": [
+        "N1a",
+        "N1b",
+        "H1a",
+        "H1b"
+      ],
+      "identity": "Rally-derived AWD four-door: strong exits and wet lines; can understeer with an aggressive diff, so the centre diff is freed first.",
+      "path": [
+        {
+          "id": "V08-A",
+          "label": "Fundamentals",
+          "kind": "main",
+          "for": [
+            "N2"
+          ],
+          "by": "N:S09",
+          "parts": [
+            "TYR-T1-STREET",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T1-FINAL",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V08-B",
+          "label": "Act II grip",
+          "kind": "main",
+          "for": [
+            "N2"
+          ],
+          "by": "N:S12",
+          "parts": [
+            "TYR-T2-SPORT",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T1-FINAL",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V08-C",
+          "label": "Act III chassis",
+          "kind": "main",
+          "for": [
+            "N3"
+          ],
+          "by": "N:S15",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T1-FINAL",
+            "FI-T1-BOOST",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V08-D",
+          "label": "Act III power",
+          "kind": "main",
+          "for": [
+            "N3",
+            "N4"
+          ],
+          "by": "N:S19",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T1-FINAL",
+            "ENG-T2-STREET",
+            "FI-T1-BOOST",
+            "BRK-T2-KIT",
+            "WGT-T2-PANELS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V08-E",
+          "label": "Act IV grip",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S23",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T1-FINAL",
+            "ENG-T2-STREET",
+            "FI-T1-BOOST",
+            "BRK-T2-KIT",
+            "WGT-T2-PANELS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Rain-sport tyres suit its wet-line character."
+        },
+        {
+          "id": "V08-F",
+          "label": "Act IV balance",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S29",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T2-SPORT",
+            "DIF-T2-AWD-CENTRE",
+            "GBX-T2-CLOSE",
+            "ENG-T2-STREET",
+            "FI-T1-BOOST",
+            "BRK-T2-KIT",
+            "WGT-T2-PANELS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V08-H2",
+          "label": "Hard B-class preset",
+          "kind": "main",
+          "for": [
+            "H2"
+          ],
+          "by": "H:S08",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T1-FINAL",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Class-legal preset built only from parts this car already owns (no purchase)."
+        },
+        {
+          "id": "V08-H3",
+          "label": "Hard Act III",
+          "kind": "main",
+          "for": [
+            "H3"
+          ],
+          "by": "H:S15",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T3-COILOVER",
+            "DIF-T2-AWD-CENTRE",
+            "GBX-T2-CLOSE",
+            "ENG-T2-STREET",
+            "FI-T3-BIGTURBO",
+            "BRK-T3-RACE",
+            "WGT-T2-PANELS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V08-H4",
+          "label": "Hard Act IV: selective T4",
+          "kind": "main",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T4-COMPETITION",
+            "SUS-T3-COILOVER",
+            "DIF-T2-AWD-CENTRE",
+            "GBX-T2-CLOSE",
+            "ENG-T2-STREET",
+            "FI-T3-BIGTURBO",
+            "BRK-T3-RACE",
+            "WGT-T3-CARBON",
+            "AER-T2-SPOILER"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "One T4 part."
+        }
+      ],
+      "alternatives": [
+        {
+          "id": "V08-B-inc",
+          "label": "Act II on a budget",
+          "kind": "incremental",
+          "for": [
+            "N2"
+          ],
+          "by": "N:S12",
+          "parts": [
+            "TYR-T1-STREET",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T1-FINAL",
+            "FI-T1-BOOST",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Boost controller instead of sport tyres."
+        },
+        {
+          "id": "V08-H4-long",
+          "label": "Hybrid turbo instead of competition tyres",
+          "kind": "longTerm",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T3-COILOVER",
+            "DIF-T2-AWD-CENTRE",
+            "GBX-T2-CLOSE",
+            "ENG-T2-STREET",
+            "FI-T4-HYBRID",
+            "BRK-T3-RACE",
+            "WGT-T3-CARBON"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Save for the hybrid turbo."
+        }
+      ]
+    },
+    {
+      "car": "V09",
+      "role": "purchase",
+      "buyBy": "N:S09",
+      "capExcludedBands": [
+        "N1a",
+        "N1b",
+        "H1a",
+        "H1b"
+      ],
+      "identity": "Six-cylinder grand tourer: stable fast arcs, less agile in hairpins; rotation (diff, springs) before power.",
+      "path": [
+        {
+          "id": "V09-A",
+          "label": "Fundamentals",
+          "kind": "main",
+          "for": [
+            "N2"
+          ],
+          "by": "N:S09",
+          "parts": [
+            "TYR-T1-STREET",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V09-B",
+          "label": "Act II grip",
+          "kind": "main",
+          "for": [
+            "N2"
+          ],
+          "by": "N:S12",
+          "parts": [
+            "TYR-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V09-C",
+          "label": "Act III chassis",
+          "kind": "main",
+          "for": [
+            "N3"
+          ],
+          "by": "N:S15",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V09-D",
+          "label": "Act III power",
+          "kind": "main",
+          "for": [
+            "N3",
+            "N4"
+          ],
+          "by": "N:S19",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T2-CLOSE",
+            "ENG-T2-STREET",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V09-E",
+          "label": "Act IV grip",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S23",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T2-CLOSE",
+            "ENG-T2-STREET",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V09-F",
+          "label": "Act IV balance",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S29",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T2-SPORT",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T2-CLOSE",
+            "ENG-T2-STREET",
+            "BRK-T2-KIT",
+            "WGT-T2-PANELS"
+          ],
+          "tuning": {
+            "DiffLock": 55,
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V09-H2",
+          "label": "Hard B-class preset",
+          "kind": "main",
+          "for": [
+            "H2"
+          ],
+          "by": "H:S08",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Class-legal preset built only from parts this car already owns (no purchase)."
+        },
+        {
+          "id": "V09-H3",
+          "label": "Hard Act III",
+          "kind": "main",
+          "for": [
+            "H3"
+          ],
+          "by": "H:S15",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T3-COILOVER",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T2-CLOSE",
+            "ENG-T3-SIX-HIGHREV",
+            "BRK-T3-RACE",
+            "WGT-T2-PANELS"
+          ],
+          "tuning": {
+            "DiffLock": 55,
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V09-H4",
+          "label": "Hard Act IV: selective T4",
+          "kind": "main",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T4-COMPETITION",
+            "SUS-T3-COILOVER",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T2-CLOSE",
+            "ENG-T3-SIX-HIGHREV",
+            "FI-T3-SUPERCHARGER",
+            "BRK-T3-RACE",
+            "WGT-T2-PANELS",
+            "AER-T2-SPOILER"
+          ],
+          "tuning": {
+            "DiffLock": 55,
+            "FinalDrive": 1060
+          },
+          "note": "One T4 part."
+        }
+      ],
+      "alternatives": [
+        {
+          "id": "V09-B-inc",
+          "label": "Act II on a budget",
+          "kind": "incremental",
+          "for": [
+            "N2"
+          ],
+          "by": "N:S12",
+          "parts": [
+            "TYR-T1-STREET",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "ENG-T1-INTAKE",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Intake instead of sport tyres."
+        },
+        {
+          "id": "V09-H4-long",
+          "label": "Race six instead of competition tyres",
+          "kind": "longTerm",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T3-COILOVER",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T2-CLOSE",
+            "ENG-T4-SIX-RACE",
+            "FI-T3-SUPERCHARGER",
+            "BRK-T3-RACE",
+            "WGT-T2-PANELS"
+          ],
+          "tuning": {
+            "DiffLock": 55,
+            "FinalDrive": 1060
+          },
+          "note": "Save for the race six."
+        }
+      ]
+    },
+    {
+      "car": "V10",
+      "role": "purchase",
+      "buyBy": "N:S10",
+      "capExcludedBands": [
+        "N1a",
+        "N1b",
+        "H1a",
+        "H1b"
+      ],
+      "identity": "Rotary-like lightweight coupe: fast response and high revs; ratio choice matters on climbs, so gearing leads.",
+      "path": [
+        {
+          "id": "V10-A",
+          "label": "Fundamentals",
+          "kind": "main",
+          "for": [
+            "N2"
+          ],
+          "by": "N:S10",
+          "parts": [
+            "TYR-T1-STREET",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1080
+          }
+        },
+        {
+          "id": "V10-B",
+          "label": "Act II grip",
+          "kind": "main",
+          "for": [
+            "N2",
+            "N3"
+          ],
+          "by": "N:S13",
+          "parts": [
+            "TYR-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1080
+          }
+        },
+        {
+          "id": "V10-C",
+          "label": "Act III chassis",
+          "kind": "main",
+          "for": [
+            "N3"
+          ],
+          "by": "N:S16",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1080
+          }
+        },
+        {
+          "id": "V10-D",
+          "label": "Act III revs",
+          "kind": "main",
+          "for": [
+            "N3",
+            "N4"
+          ],
+          "by": "N:S20",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "ENG-T2-ROT-STREETPORT",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1080
+          }
+        },
+        {
+          "id": "V10-E",
+          "label": "Act IV grip",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S23",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "ENG-T2-ROT-STREETPORT",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1080
+          }
+        },
+        {
+          "id": "V10-F",
+          "label": "Act IV ratios",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S29",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T2-SPORT",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T2-CLOSE",
+            "ENG-T2-ROT-STREETPORT",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1080,
+            "GearSpread": 920
+          }
+        },
+        {
+          "id": "V10-H2",
+          "label": "Hard B-class preset",
+          "kind": "main",
+          "for": [
+            "H2"
+          ],
+          "by": "H:S08",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1080
+          },
+          "note": "Class-legal preset built only from parts this car already owns (no purchase)."
+        },
+        {
+          "id": "V10-H3",
+          "label": "Hard Act III",
+          "kind": "main",
+          "for": [
+            "H3"
+          ],
+          "by": "H:S15",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T3-COILOVER",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T2-CLOSE",
+            "ENG-T3-ROT-BRIDGEPORT",
+            "BRK-T2-KIT",
+            "WGT-T2-PANELS"
+          ],
+          "tuning": {
+            "FinalDrive": 1080,
+            "GearSpread": 920
+          }
+        },
+        {
+          "id": "V10-H4",
+          "label": "Hard Act IV: selective T4",
+          "kind": "main",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T4-COMPETITION",
+            "SUS-T3-COILOVER",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T2-CLOSE",
+            "ENG-T3-ROT-BRIDGEPORT",
+            "BRK-T3-RACE",
+            "WGT-T2-PANELS",
+            "AER-T3-GTWING"
+          ],
+          "tuning": {
+            "FinalDrive": 1080,
+            "GearSpread": 920
+          },
+          "note": "One T4 part."
+        }
+      ],
+      "alternatives": [
+        {
+          "id": "V10-B-inc",
+          "label": "Act II on a budget",
+          "kind": "incremental",
+          "for": [
+            "N2"
+          ],
+          "by": "N:S13",
+          "parts": [
+            "TYR-T1-STREET",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "ENG-T1-EXHAUST",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1080
+          },
+          "note": "Exhaust instead of sport tyres."
+        },
+        {
+          "id": "V10-H4-long",
+          "label": "Peripheral port instead of competition tyres",
+          "kind": "longTerm",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T3-COILOVER",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T2-CLOSE",
+            "ENG-T4-ROT-PERIPHERAL",
+            "BRK-T3-RACE",
+            "WGT-T2-PANELS"
+          ],
+          "tuning": {
+            "FinalDrive": 1080,
+            "GearSpread": 920
+          },
+          "note": "Save for the peripheral-port housings."
+        }
+      ]
+    },
+    {
+      "car": "V11",
+      "role": "purchase",
+      "buyBy": "N:S11",
+      "capExcludedBands": [
+        "N1a",
+        "N1b",
+        "H1a",
+        "H1b"
+      ],
+      "identity": "Compact mid-engine coupe: precise rotation, needs smooth brake release. No forced-induction package fits; the NA path stays light.",
+      "path": [
+        {
+          "id": "V11-A",
+          "label": "Fundamentals",
+          "kind": "main",
+          "for": [
+            "N2"
+          ],
+          "by": "N:S11",
+          "parts": [
+            "TYR-T1-STREET",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V11-B",
+          "label": "Act II grip",
+          "kind": "main",
+          "for": [
+            "N2",
+            "N3"
+          ],
+          "by": "N:S14",
+          "parts": [
+            "TYR-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V11-C",
+          "label": "Act III chassis",
+          "kind": "main",
+          "for": [
+            "N3"
+          ],
+          "by": "N:S17",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V11-D",
+          "label": "Act III power",
+          "kind": "main",
+          "for": [
+            "N3",
+            "N4"
+          ],
+          "by": "N:S20",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "ENG-T2-STREET",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V11-E",
+          "label": "Act IV grip",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S24",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "ENG-T2-STREET",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V11-F",
+          "label": "Act IV balance",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S29",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T2-SPORT",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T2-CLOSE",
+            "ENG-T2-STREET",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "DiffLock": 40,
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V11-H2",
+          "label": "Hard B-class preset",
+          "kind": "main",
+          "for": [
+            "H2"
+          ],
+          "by": "H:S08",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Class-legal preset built only from parts this car already owns (no purchase)."
+        },
+        {
+          "id": "V11-H3",
+          "label": "Hard Act III",
+          "kind": "main",
+          "for": [
+            "H3"
+          ],
+          "by": "H:S15",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T3-COILOVER",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T2-CLOSE",
+            "ENG-T3-I4-HIGHREV",
+            "BRK-T2-KIT",
+            "WGT-T2-PANELS"
+          ],
+          "tuning": {
+            "DiffLock": 40,
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V11-H4",
+          "label": "Hard Act IV: selective T4",
+          "kind": "main",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T4-COMPETITION",
+            "SUS-T3-COILOVER",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T2-CLOSE",
+            "ENG-T3-I4-HIGHREV",
+            "BRK-T3-RACE",
+            "WGT-T2-PANELS",
+            "AER-T3-GTWING"
+          ],
+          "tuning": {
+            "DiffLock": 40,
+            "FinalDrive": 1060
+          },
+          "note": "One T4 part."
+        }
+      ],
+      "alternatives": [
+        {
+          "id": "V11-B-inc",
+          "label": "Act II on a budget",
+          "kind": "incremental",
+          "for": [
+            "N2"
+          ],
+          "by": "N:S14",
+          "parts": [
+            "TYR-T1-STREET",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "ENG-T1-INTAKE",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Intake instead of sport tyres."
+        },
+        {
+          "id": "V11-H4-long",
+          "label": "Race engine instead of competition tyres",
+          "kind": "longTerm",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T3-COILOVER",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T2-CLOSE",
+            "ENG-T4-I4-RACE",
+            "BRK-T3-RACE",
+            "WGT-T2-PANELS"
+          ],
+          "tuning": {
+            "DiffLock": 40,
+            "FinalDrive": 1060
+          },
+          "note": "Save for the race engine."
+        }
+      ]
+    },
+    {
+      "car": "V12",
+      "role": "purchase",
+      "buyBy": "N:S13",
+      "capExcludedBands": [
+        "N1a",
+        "N1b",
+        "H1a",
+        "H1b"
+      ],
+      "identity": "Heavy AWD turbo six sedan: huge traction, expensive momentum mistakes; brakes and weight before more boost.",
+      "path": [
+        {
+          "id": "V12-A",
+          "label": "Fundamentals",
+          "kind": "main",
+          "for": [
+            "N2"
+          ],
+          "by": "N:S13",
+          "parts": [
+            "TYR-T1-STREET",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T1-FINAL",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V12-B",
+          "label": "Act III brakes",
+          "kind": "main",
+          "for": [
+            "N3"
+          ],
+          "by": "N:S15",
+          "parts": [
+            "TYR-T1-STREET",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T1-FINAL",
+            "FI-T1-BOOST",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V12-C",
+          "label": "Act III grip",
+          "kind": "main",
+          "for": [
+            "N3",
+            "N4"
+          ],
+          "by": "N:S19",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T1-FINAL",
+            "FI-T1-BOOST",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V12-D",
+          "label": "Act IV grip",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S23",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T1-FINAL",
+            "FI-T1-BOOST",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V12-E",
+          "label": "Act IV weight",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S29",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T2-SPORT",
+            "DIF-T2-AWD-CENTRE",
+            "GBX-T1-FINAL",
+            "FI-T1-BOOST",
+            "BRK-T2-KIT",
+            "WGT-T2-PANELS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V12-H2",
+          "label": "Hard B-class preset",
+          "kind": "main",
+          "for": [
+            "H2"
+          ],
+          "by": "H:S08",
+          "parts": [
+            "TYR-T1-STREET",
+            "SUS-T2-SPORT",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T1-FINAL",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Class-legal preset built only from parts this car already owns (no purchase)."
+        },
+        {
+          "id": "V12-H3",
+          "label": "Hard Act III",
+          "kind": "main",
+          "for": [
+            "H3"
+          ],
+          "by": "H:S15",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T3-COILOVER",
+            "DIF-T2-AWD-CENTRE",
+            "GBX-T2-CLOSE",
+            "FI-T1-BOOST",
+            "BRK-T3-RACE",
+            "WGT-T2-PANELS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V12-H4",
+          "label": "Hard Act IV: selective T4",
+          "kind": "main",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T4-COMPETITION",
+            "SUS-T3-COILOVER",
+            "DIF-T2-AWD-CENTRE",
+            "GBX-T2-CLOSE",
+            "FI-T2-RESPONSE",
+            "BRK-T3-RACE",
+            "WGT-T3-CARBON"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "One T4 part."
+        }
+      ],
+      "alternatives": [
+        {
+          "id": "V12-B-inc",
+          "label": "Act III on a budget",
+          "kind": "incremental",
+          "for": [
+            "N3"
+          ],
+          "by": "N:S15",
+          "parts": [
+            "TYR-T1-STREET",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T1-FINAL",
+            "FI-T1-BOOST",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Boost controller without the brake kit."
+        },
+        {
+          "id": "V12-H4-long",
+          "label": "Hybrid turbo instead of competition tyres",
+          "kind": "longTerm",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T3-COILOVER",
+            "DIF-T2-AWD-CENTRE",
+            "GBX-T2-CLOSE",
+            "FI-T4-HYBRID",
+            "BRK-T3-RACE",
+            "WGT-T3-CARBON"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Save for the hybrid turbo."
+        }
+      ]
+    },
+    {
+      "car": "V13",
+      "role": "purchase",
+      "buyBy": "N:S16",
+      "capExcludedBands": [
+        "N1a",
+        "N1b",
+        "N2",
+        "H1a",
+        "H1b",
+        "H2"
+      ],
+      "identity": "Modern lightweight sports coupe: good high-speed balance, grip-sensitive peak; tyres and aero balance lead.",
+      "path": [
+        {
+          "id": "V13-A",
+          "label": "Fundamentals",
+          "kind": "main",
+          "for": [
+            "N3"
+          ],
+          "by": "N:S16",
+          "parts": [
+            "TYR-T1-STREET",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V13-B",
+          "label": "Act III chassis",
+          "kind": "main",
+          "for": [
+            "N3"
+          ],
+          "by": "N:S19",
+          "parts": [
+            "TYR-T1-STREET",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V13-C",
+          "label": "Act IV grip",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S22",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP",
+            "AER-T1-LIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V13-D",
+          "label": "Act IV power",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S26",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T1-FINAL",
+            "ENG-T2-STREET",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP",
+            "AER-T1-LIP"
+          ],
+          "tuning": {
+            "DiffLock": 45,
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V13-E",
+          "label": "Act IV finale grip",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S29",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T2-SPORT",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T1-FINAL",
+            "ENG-T2-STREET",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP",
+            "AER-T1-LIP"
+          ],
+          "tuning": {
+            "DiffLock": 45,
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V13-H3",
+          "label": "Hard A-class preset",
+          "kind": "main",
+          "for": [
+            "H3"
+          ],
+          "by": "H:S15",
+          "parts": [
+            "TYR-T1-STREET",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Class-legal preset built only from parts this car already owns (no purchase)."
+        },
+        {
+          "id": "V13-H4",
+          "label": "Hard Act IV",
+          "kind": "main",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T3-COILOVER",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T1-FINAL",
+            "ENG-T2-STREET",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP",
+            "AER-T3-GTWING"
+          ],
+          "tuning": {
+            "DiffLock": 45,
+            "FinalDrive": 1060
+          },
+          "note": "No T4 needed."
+        }
+      ],
+      "alternatives": [
+        {
+          "id": "V13-C-inc",
+          "label": "Act IV on a budget",
+          "kind": "incremental",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S22",
+          "parts": [
+            "TYR-T1-STREET",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "ENG-T1-EXHAUST",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Exhaust instead of sport tyres."
+        },
+        {
+          "id": "V13-H4-long",
+          "label": "Race six",
+          "kind": "longTerm",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T3-COILOVER",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T1-FINAL",
+            "ENG-T4-SIX-RACE",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP",
+            "AER-T1-LIP"
+          ],
+          "tuning": {
+            "DiffLock": 45,
+            "FinalDrive": 1060
+          },
+          "note": "Save for the race six."
+        }
+      ]
+    },
+    {
+      "car": "V14",
+      "role": "purchase",
+      "buyBy": "N:S14",
+      "capExcludedBands": [
+        "N1a",
+        "N1b",
+        "H1a",
+        "H1b"
+      ],
+      "identity": "High-power FWD fastback: braking and exit planning beat brute force; diff and tyres before boost.",
+      "path": [
+        {
+          "id": "V14-A",
+          "label": "Fundamentals",
+          "kind": "main",
+          "for": [
+            "N2",
+            "N3"
+          ],
+          "by": "N:S14",
+          "parts": [
+            "DIF-T1-FWD-HELICAL",
+            "GBX-T1-FINAL",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1000
+          },
+          "note": "Only 19 PI below the Act II cap: brakes, gearing choice and a diff, no grip yet."
+        },
+        {
+          "id": "V14-B",
+          "label": "Act III grip",
+          "kind": "main",
+          "for": [
+            "N3"
+          ],
+          "by": "N:S16",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-FWD-HELICAL",
+            "GBX-T1-FINAL",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1000
+          }
+        },
+        {
+          "id": "V14-C",
+          "label": "Act III exits",
+          "kind": "main",
+          "for": [
+            "N3",
+            "N4"
+          ],
+          "by": "N:S20",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T2-FWD-ADJ",
+            "GBX-T1-FINAL",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "DiffLock": 60,
+            "FinalDrive": 1000
+          }
+        },
+        {
+          "id": "V14-D",
+          "label": "Act IV grip",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S24",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T2-SPORT",
+            "DIF-T2-FWD-ADJ",
+            "GBX-T1-FINAL",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "DiffLock": 60,
+            "FinalDrive": 1000
+          }
+        },
+        {
+          "id": "V14-E",
+          "label": "Act IV response",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S29",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T2-SPORT",
+            "DIF-T2-FWD-ADJ",
+            "GBX-T1-FINAL",
+            "FI-T2-RESPONSE",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "DiffLock": 60,
+            "FinalDrive": 1000
+          }
+        },
+        {
+          "id": "V14-H2",
+          "label": "Hard B-class preset",
+          "kind": "main",
+          "for": [
+            "H2"
+          ],
+          "by": "H:S08",
+          "parts": [
+            "DIF-T1-FWD-HELICAL",
+            "GBX-T1-FINAL",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1000
+          },
+          "note": "Class-legal preset built only from parts this car already owns (no purchase)."
+        },
+        {
+          "id": "V14-H3",
+          "label": "Hard Act III",
+          "kind": "main",
+          "for": [
+            "H3"
+          ],
+          "by": "H:S15",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T3-COILOVER",
+            "DIF-T2-FWD-ADJ",
+            "GBX-T1-FINAL",
+            "FI-T2-RESPONSE",
+            "BRK-T3-RACE",
+            "WGT-T2-PANELS"
+          ],
+          "tuning": {
+            "DiffLock": 60,
+            "FinalDrive": 1000
+          }
+        },
+        {
+          "id": "V14-H4",
+          "label": "Hard Act IV: selective T4",
+          "kind": "main",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T4-COMPETITION",
+            "SUS-T3-COILOVER",
+            "DIF-T2-FWD-ADJ",
+            "GBX-T2-CLOSE",
+            "FI-T2-RESPONSE",
+            "BRK-T3-RACE",
+            "WGT-T2-PANELS",
+            "AER-T2-SPOILER"
+          ],
+          "tuning": {
+            "DiffLock": 60,
+            "FinalDrive": 1000
+          },
+          "note": "One T4 part."
+        }
+      ],
+      "alternatives": [
+        {
+          "id": "V14-A-inc",
+          "label": "Fundamentals on a budget",
+          "kind": "incremental",
+          "for": [
+            "N2"
+          ],
+          "by": "N:S14",
+          "parts": [
+            "GBX-T1-SHORTFD",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {},
+          "note": "Pads and a fixed short final drive only."
+        },
+        {
+          "id": "V14-H4-long",
+          "label": "Big turbo instead of competition tyres",
+          "kind": "longTerm",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T3-RAINSPORT",
+            "SUS-T3-COILOVER",
+            "DIF-T2-FWD-ADJ",
+            "GBX-T2-CLOSE",
+            "FI-T3-BIGTURBO",
+            "BRK-T3-RACE",
+            "WGT-T2-PANELS"
+          ],
+          "tuning": {
+            "DiffLock": 60,
+            "FinalDrive": 1000
+          },
+          "note": "Save for the big-frame turbo."
+        }
+      ]
+    },
+    {
+      "car": "V15",
+      "role": "purchase",
+      "buyBy": "N:S17",
+      "capExcludedBands": [
+        "N1a",
+        "N1b",
+        "N2",
+        "H1a",
+        "H1b",
+        "H2"
+      ],
+      "identity": "Compact turbo coupe: big midrange; boost punishes poor throttle. Response turbo and diff before peak power.",
+      "path": [
+        {
+          "id": "V15-A",
+          "label": "Fundamentals",
+          "kind": "main",
+          "for": [
+            "N3"
+          ],
+          "by": "N:S17",
+          "parts": [
+            "TYR-T1-STREET",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V15-B",
+          "label": "Act III chassis",
+          "kind": "main",
+          "for": [
+            "N3",
+            "N4"
+          ],
+          "by": "N:S20",
+          "parts": [
+            "TYR-T1-STREET",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V15-C",
+          "label": "Act IV grip",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S23",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "FI-T2-RESPONSE",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V15-D",
+          "label": "Act IV balance",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S29",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T1-FINAL",
+            "FI-T2-RESPONSE",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "DiffLock": 40,
+            "FinalDrive": 1060
+          }
+        },
+        {
+          "id": "V15-H3",
+          "label": "Hard A-class preset",
+          "kind": "main",
+          "for": [
+            "H3"
+          ],
+          "by": "H:S15",
+          "parts": [
+            "TYR-T1-STREET",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Class-legal preset built only from parts this car already owns (no purchase)."
+        },
+        {
+          "id": "V15-H4",
+          "label": "Hard Act IV",
+          "kind": "main",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T3-COILOVER",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T1-FINAL",
+            "FI-T2-RESPONSE",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP",
+            "AER-T3-GTWING"
+          ],
+          "tuning": {
+            "DiffLock": 40,
+            "FinalDrive": 1060
+          },
+          "note": "No T4 needed."
+        }
+      ],
+      "alternatives": [
+        {
+          "id": "V15-C-inc",
+          "label": "Act IV on a budget",
+          "kind": "incremental",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S23",
+          "parts": [
+            "TYR-T1-STREET",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "FI-T1-BOOST",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1060
+          },
+          "note": "Boost controller instead of sport tyres."
+        },
+        {
+          "id": "V15-H4-long",
+          "label": "Big turbo",
+          "kind": "longTerm",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T3-COILOVER",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T1-FINAL",
+            "FI-T3-BIGTURBO",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "DiffLock": 40,
+            "FinalDrive": 1060
+          },
+          "note": "Save for the big-frame turbo."
+        }
+      ]
+    },
+    {
+      "car": "V16",
+      "role": "purchase",
+      "buyBy": "N:S19",
+      "capExcludedBands": [
+        "N1a",
+        "N1b",
+        "N2",
+        "H1a",
+        "H1b",
+        "H2"
+      ],
+      "identity": "Mid-engine flagship: quick and exacting; never the universal best car. Brakes and balance; no forced induction fits.",
+      "path": [
+        {
+          "id": "V16-A",
+          "label": "Fundamentals",
+          "kind": "main",
+          "for": [
+            "N3",
+            "N4"
+          ],
+          "by": "N:S19",
+          "parts": [
+            "TYR-T1-TOURING",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1000
+          }
+        },
+        {
+          "id": "V16-B",
+          "label": "Act IV grip",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S23",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1000
+          }
+        },
+        {
+          "id": "V16-C",
+          "label": "Act IV brakes",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S27",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T1-FINAL",
+            "BRK-T2-KIT",
+            "AER-T1-LIP"
+          ],
+          "tuning": {
+            "DiffLock": 35,
+            "FinalDrive": 1000
+          }
+        },
+        {
+          "id": "V16-H3",
+          "label": "Hard A-class preset",
+          "kind": "main",
+          "for": [
+            "H3"
+          ],
+          "by": "H:S15",
+          "parts": [
+            "TYR-T1-TOURING",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1000
+          },
+          "note": "Class-legal preset built only from parts this car already owns (no purchase)."
+        },
+        {
+          "id": "V16-H4",
+          "label": "Hard Act IV",
+          "kind": "main",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T3-COILOVER",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T1-FINAL",
+            "BRK-T2-KIT",
+            "WGT-T2-PANELS",
+            "AER-T1-LIP"
+          ],
+          "tuning": {
+            "DiffLock": 35,
+            "FinalDrive": 1000
+          },
+          "note": "No T4 needed."
+        }
+      ],
+      "alternatives": [
+        {
+          "id": "V16-B-inc",
+          "label": "Act IV on a budget",
+          "kind": "incremental",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S23",
+          "parts": [
+            "TYR-T1-STREET",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1000
+          },
+          "note": "Street tyres only."
+        },
+        {
+          "id": "V16-H4-long",
+          "label": "Race six",
+          "kind": "longTerm",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T3-COILOVER",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T1-FINAL",
+            "ENG-T4-SIX-RACE",
+            "BRK-T2-KIT",
+            "AER-T1-LIP"
+          ],
+          "tuning": {
+            "DiffLock": 35,
+            "FinalDrive": 1000
+          },
+          "note": "Save for the race six."
+        }
+      ]
+    },
+    {
+      "car": "V17",
+      "role": "purchase",
+      "buyBy": "N:S20",
+      "capExcludedBands": [
+        "N1a",
+        "N1b",
+        "N2",
+        "H1a",
+        "H1b",
+        "H2"
+      ],
+      "identity": "AWD turbo grand tourer: strong acceleration and stability, heavy braking and tyre loading; brakes lead.",
+      "path": [
+        {
+          "id": "V17-A",
+          "label": "Fundamentals",
+          "kind": "main",
+          "for": [
+            "N3",
+            "N4"
+          ],
+          "by": "N:S20",
+          "parts": [
+            "TYR-T1-TOURING",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T1-FINAL",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1000
+          }
+        },
+        {
+          "id": "V17-B",
+          "label": "Act IV grip",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S23",
+          "parts": [
+            "TYR-T2-SPORT",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T1-FINAL",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1000
+          }
+        },
+        {
+          "id": "V17-C",
+          "label": "Act IV weight",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S27",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T2-AWD-CENTRE",
+            "GBX-T1-FINAL",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1000
+          }
+        },
+        {
+          "id": "V17-H3",
+          "label": "Hard A-class preset",
+          "kind": "main",
+          "for": [
+            "H3"
+          ],
+          "by": "H:S15",
+          "parts": [
+            "TYR-T1-TOURING",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T1-FINAL",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1000
+          },
+          "note": "Class-legal preset built only from parts this car already owns (no purchase)."
+        },
+        {
+          "id": "V17-H4",
+          "label": "Hard Act IV",
+          "kind": "main",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T2-SPORT",
+            "DIF-T2-AWD-CENTRE",
+            "GBX-T1-FINAL",
+            "BRK-T3-RACE",
+            "WGT-T2-PANELS"
+          ],
+          "tuning": {
+            "FinalDrive": 1000
+          },
+          "note": "No T4 needed."
+        }
+      ],
+      "alternatives": [
+        {
+          "id": "V17-B-inc",
+          "label": "Act IV on a budget",
+          "kind": "incremental",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S23",
+          "parts": [
+            "TYR-T1-TOURING",
+            "DIF-T1-AWD-VISCOUS",
+            "GBX-T1-FINAL",
+            "BRK-T2-KIT"
+          ],
+          "tuning": {
+            "FinalDrive": 1000
+          },
+          "note": "Brake kit only."
+        },
+        {
+          "id": "V17-H4-long",
+          "label": "Hybrid turbo",
+          "kind": "longTerm",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T2-AWD-CENTRE",
+            "GBX-T1-FINAL",
+            "FI-T4-HYBRID",
+            "BRK-T3-RACE",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "FinalDrive": 1000
+          },
+          "note": "Save for the hybrid turbo."
+        }
+      ]
+    },
+    {
+      "car": "V18",
+      "role": "purchase",
+      "buyBy": "N:S21",
+      "capExcludedBands": [
+        "N1a",
+        "N1b",
+        "N2",
+        "H1a",
+        "H1b",
+        "H2"
+      ],
+      "identity": "Balanced front-mid six coupe: high performance with controllable rotation; an alternative, not a required finale key.",
+      "path": [
+        {
+          "id": "V18-A",
+          "label": "Fundamentals",
+          "kind": "main",
+          "for": [
+            "N3",
+            "N4"
+          ],
+          "by": "N:S21",
+          "parts": [
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1000
+          },
+          "note": "Only 14 PI below the Act III cap: brakes, gearing choice and a diff change handling without leaving the class."
+        },
+        {
+          "id": "V18-B",
+          "label": "Act IV grip",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S24",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1000
+          }
+        },
+        {
+          "id": "V18-C",
+          "label": "Act IV balance",
+          "kind": "main",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S28",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T2-SPORT",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T1-FINAL",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "DiffLock": 40,
+            "FinalDrive": 1000
+          }
+        },
+        {
+          "id": "V18-H3",
+          "label": "Hard A-class preset",
+          "kind": "main",
+          "for": [
+            "H3"
+          ],
+          "by": "H:S15",
+          "parts": [
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1000
+          },
+          "note": "Class-legal preset built only from parts this car already owns (no purchase)."
+        },
+        {
+          "id": "V18-H4",
+          "label": "Hard Act IV",
+          "kind": "main",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T3-SEMISLICK",
+            "SUS-T3-COILOVER",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T1-FINAL",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP",
+            "AER-T3-GTWING"
+          ],
+          "tuning": {
+            "DiffLock": 40,
+            "FinalDrive": 1000
+          },
+          "note": "No T4 needed."
+        }
+      ],
+      "alternatives": [
+        {
+          "id": "V18-B-inc",
+          "label": "Act IV on a budget",
+          "kind": "incremental",
+          "for": [
+            "N4"
+          ],
+          "by": "N:S24",
+          "parts": [
+            "TYR-T1-STREET",
+            "DIF-T1-RWD-CLUTCH",
+            "GBX-T1-FINAL",
+            "BRK-T1-PADS"
+          ],
+          "tuning": {
+            "FinalDrive": 1000
+          },
+          "note": "Street tyres only."
+        },
+        {
+          "id": "V18-H4-long",
+          "label": "Race six",
+          "kind": "longTerm",
+          "for": [
+            "H4"
+          ],
+          "by": "H:S22",
+          "parts": [
+            "TYR-T2-SPORT",
+            "SUS-T3-COILOVER",
+            "DIF-T2-RWD-ADJ",
+            "GBX-T1-FINAL",
+            "ENG-T4-SIX-RACE",
+            "BRK-T2-KIT",
+            "WGT-T1-STRIP"
+          ],
+          "tuning": {
+            "DiffLock": 40,
+            "FinalDrive": 1000
+          },
+          "note": "Save for the race six."
+        }
+      ]
+    }
+  ]
+}

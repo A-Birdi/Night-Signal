@@ -50,7 +50,27 @@ namespace NightSignal.Core.Content
             ValidateChallenges(c, r);
             ValidateOpposition(c, r);
             ValidateCourseAccess(c, r);
+            ValidateMusicUnlocks(c, r);
             return r;
+        }
+
+        /// <summary>Soundtrack unlock rules (Addendum 01 §10) must name real stages/lieutenant encounters when present.</summary>
+        static void ValidateMusicUnlocks(ContentCatalogue c, ValidationReport r)
+        {
+            if (!c.TryDocument(Profiles.MusicUnlockTable.FileName, out string json))
+            {
+                r.Warn("MUSIC_UNLOCKS", "music.unlocks.json is not loaded: no soundtrack cues can be granted.");
+                return;
+            }
+            try
+            {
+                Profiles.MusicUnlockTable table = Profiles.MusicUnlockTable.Parse(json, c);
+                if (table.Baseline().Count == 0) r.Error("MUSIC_UNLOCKS", "music.unlocks.json grants no baseline cues.");
+            }
+            catch (ContentLoadException e)
+            {
+                r.Error("MUSIC_UNLOCKS", e.Message);
+            }
         }
 
         static void ValidateCourses(ContentCatalogue c, ValidationReport r)

@@ -1,0 +1,40 @@
+[NightSignal.Server] registered as dev-local; build 0.1.0; content cee6e386e52b; 1 ticket key(s)
+[NightSignal.Server] phase Loading at tick 0
+[NightSignal.Server] match m_5244321b0124dc916396f6dd on C01: 2 humans, 1 AI, contact light-contact, port 7777
+[NightSignal.Server] entrant 1 (Driver 2) connected as client 1
+[NightSignal.Server] entrant 0 (Driver 1) connected as client 2
+[NightSignal.Server] phase Countdown at tick 143, start tick 383
+[NightSignal.Server] phase Racing at tick 383
+[NightSignal.Server] t=15s | #0 H Racing 0m 55km/h cp0 starved900 late0 lead- | #1 H Racing 0m 55km/h cp0 starved900 late0 lead- | #2 AI Racing 165m 107km/h cp1
+[NightSignal.Server] t=30s | #0 H Racing 0m 55km/h cp0 starved1800 late0 lead- | #1 H Racing 0m 55km/h cp0 starved1800 late0 lead- | #2 AI Racing 750m 158km/h cp6
+[NightSignal.Server] t=45s | #0 H Racing 0m 0km/h cp0 starved2700 late0 lead- | #1 H Racing 0m 0km/h cp0 starved2700 late0 lead- | #2 AI Racing 1308m 132km/h cp12
+[NightSignal.Server] t=60s | #0 H Racing 0m 0km/h cp0 starved3600 late0 lead- | #1 H Racing 0m 0km/h cp0 starved3600 late0 lead- | #2 AI Racing 1881m 155km/h cp18
+[NightSignal.Server] t=75s | #0 H Racing 0m 0km/h cp0 starved4500 late0 lead- | #1 H Racing 0m 0km/h cp0 starved4500 late0 lead- | #2 AI Racing 2273m 111km/h cp22
+[NightSignal.Server] t=90s | #0 H Racing 0m 0km/h cp0 starved5400 late0 lead- | #1 H Racing 0m 0km/h cp0 starved5400 late0 lead- | #2 AI Racing 2879m 173km/h cp28
+[NightSignal.Server] t=105s | #0 H Racing 0m 0km/h cp0 starved6300 late0 lead- | #1 H Racing 0m 0km/h cp0 starved6300 late0 lead- | #2 AI Finished 3090m 182km/h cp31
+[NightSignal.Auto] signed in as account …000001
+[NightSignal.Auto] entered Normal campaign
+[NightSignal.Auto] event started (3 vehicles)
+[NightSignal.Auto] connecting to match m_5244321b0124dc916396f6dd
+[NightSignal.Client] phase Loading (start tick 2147483647, local tick 66)
+[NightSignal.Client] phase Countdown (start tick 383, local tick 231)
+[NightSignal.Client] phase Racing (start tick 383, local tick 384)
+[NightSignal.Client] t=15s Racing pos -1,81,-147 55km/h sent 0 ack - corrections 319
+[NightSignal.Client] t=30s Racing pos 1,83,-377 55km/h sent 0 ack - corrections 619
+[NightSignal.Client] t=45s Racing pos 4,90,-429 0km/h sent 0 ack - corrections 848
+[NightSignal.Client] t=60s Racing pos 4,90,-429 0km/h sent 0 ack - corrections 998
+[NightSignal.Client] t=75s Racing pos 4,90,-429 0km/h sent 0 ack - corrections 1148
+[NightSignal.Client] t=90s Racing pos 4,90,-429 0km/h sent 0 ack - corrections 1298
+[NightSignal.Client] t=105s Racing pos 5,90,-429 0km/h sent 0 ack - corrections 1448
+[NightSignal.Auto] signed in as account …000002
+[NightSignal.Auto] connecting to match m_5244321b0124dc916396f6dd
+[NightSignal.Client] phase Loading (start tick 2147483647, local tick 66)
+[NightSignal.Client] phase Countdown (start tick 383, local tick 231)
+[NightSignal.Client] phase Racing (start tick 383, local tick 384)
+[NightSignal.Client] t=15s Racing pos 1,80,-168 55km/h sent 0 ack - corrections 318
+[NightSignal.Client] t=30s Racing pos 1,84,-398 55km/h sent 0 ack - corrections 618
+[NightSignal.Client] t=45s Racing pos -2,92,-435 1km/h sent 0 ack - corrections 838
+[NightSignal.Client] t=60s Racing pos -2,92,-435 1km/h sent 0 ack - corrections 988
+[NightSignal.Client] t=75s Racing pos -3,92,-435 1km/h sent 0 ack - corrections 1138
+[NightSignal.Client] t=90s Racing pos -3,92,-435 1km/h sent 0 ack - corrections 1288
+[NightSignal.Client] t=105s Racing pos -3,92,-435 1km/h sent 0 ack - corrections 1438

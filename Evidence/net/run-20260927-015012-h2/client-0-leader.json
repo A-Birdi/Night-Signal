@@ -1,0 +1,5 @@
+{
+  "failed": true,
+  "error": "control request convoy.create timed out",
+  "log": "[05:50:17] signed in as account …000001\n[05:50:37] FAILED: control request convoy.create timed out\n"
+}

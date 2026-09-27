@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    The engine-free Core folders these tests need (Rules, Content, Profiles), LINKED from Assets/Game/Core and compiled
+    exactly like Services/SharedCore: netstandard2.1, C# 9, Newtonsoft.Json only. Using a subset keeps the Core tests
+    independent of Core folders other engineers are still writing. To test against the full shared build instead:
+      dotnet test Services/CoreTests -p:CoreSource=SharedCore
+  -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <AssemblyName>NightSignal.Core.Subset</AssemblyName>
+    <RootNamespace>NightSignal.Core</RootNamespace>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <ProfilesSource Condition="'$(ProfilesSource)' == '' And Exists('../staging/Profiles/LocalProfile.cs')">../staging/Profiles</ProfilesSource>
+    <ProfilesSource Condition="'$(ProfilesSource)' == ''">../../../Assets/Game/Core/Profiles</ProfilesSource>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="../../../Assets/Game/Core/Rules/**/*.cs" Link="Core/Rules/%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="../../../Assets/Game/Core/Content/**/*.cs" Link="Core/Content/%(RecursiveDir)%(Filename)%(Extension)" />
+    <!-- Profiles is developed in ../staging/Profiles and moved into Assets/Game/Core/Profiles only when finished. -->
+    <Compile Include="$(ProfilesSource)/**/*.cs" Link="Core/Profiles/%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+</Project>

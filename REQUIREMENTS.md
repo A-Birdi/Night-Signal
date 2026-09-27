@@ -28,25 +28,25 @@ lists the superseded rules and where each lands. Rows marked _(A01)_ carry the r
 
 | ID | Spec | Requirement | State |
 |---|---|---|---|
-| R1.1 | §1, A01 D01 | 1–6 simultaneous human entrants over a real network | unverified — 2-client localhost run passed (V-016); 6-client and remote runs pending |
+| R1.1 | §1, A01 D01 | 1–6 simultaneous human entrants over a real network | unverified — 2-client localhost runs passed (V-016 pre-addendum, V-022 protocol 2); 6-client and remote runs pending |
 | R1.2 | A01 §1 _(A01)_ | Named limits: ≤6 convoy humans, ≤6 event humans, ≤12 race vehicles, ≤6 meet humans; DQ never refilled by AI; spectators/replays never entrants | implemented (Limits, RosterPlanner, RaceServer) — unit-tested; 12-vehicle network run pending |
 | R1.3 | A01 §1.3 _(A01)_ | ~~Six-human benchmark replay~~ superseded: featured rival always live; finales are H+1 duels; encounter stages require beating the live rival | implemented (RosterPlanner, StageOutcome) — unit-tested |
 | R1.4 | A01 §1.2 _(A01)_ | Authored live opposition per stage (featured first); humans never displace it | implemented (stages.opposition.json, control plane, server) |
 | R1.5 | §2.5 | Benchmarks from legal reference runs | not started (control plane uses labelled provisional benchmarks) |
-| R1.6 | A01 §2 _(A01)_ | Bounded light car-to-car contact by default; Time Attack non-contact; no damage (D10) | in progress (contact policy in rosters; vehicle contact solver pending) |
+| R1.6 | A01 §2 _(A01)_ | Bounded light car-to-car contact by default; Time Attack non-contact; no damage (D10) | implemented (VehicleContact, RaceSimulation, client prediction) — 12-car in-process run (V-019); contact under network load pending |
 | R1.7 | A01 §12 _(A01)_ | R40/R48 finale-only, rejected server-side in every other placement | implemented (FinalRivals, RosterPlanner, RaceServer, validator) — unit-tested |
 | R1.8 | A01 §5 _(A01)_ | Course access ledger: starters, 45k purchase or regular-stage clear, C25 reward, FP01–03 purchases, guest passes | in progress (Core rules + tests; control-plane ledger/endpoints pending) |
 | R1.9 | A01 §6 _(A01)_ | Mode Ready → vote (server deadline, one-ticket-per-ballot draw, frozen) → Event Ready; group Time Attack | in progress (Core ballot rules + tests) |
 | R1.10 | A01 §3 _(A01)_ | Three Team Trials (6 v 6), no mastery RP | in progress (Core scoring + roster + tests) |
-| R1.11 | A01 §8 _(A01)_ | Main menu, full separate Local profile, Go Online boundary | not started |
+| R1.11 | A01 §8 _(A01)_ | Main menu, full separate Local profile, Go Online boundary | in progress — Local profiles, Offline hub, Local campaign map + races + progression verified in the player (V-023); Go Online boundary not started |
 | R1.12 | A01 §9–10 _(A01)_ | @handles, friends panel, rejoin grants keyed to leadership epoch (no reserved seat) | in progress (handle rules; interim disconnect removal) |
-| R1.13 | A01 §11 _(A01)_ | 24 authored cues, unlock manifest, shared meet boombox | in progress (cue synthesis by audio worker) |
+| R1.13 | A01 §11 _(A01)_ | 24 authored cues, unlock manifest, shared meet boombox | in progress — 24 synthesized cues; music.unlocks.json in the content hash; unlocks granted online (V-022) and locally (V-023); boombox pending |
 | R1.14 | A01 §13 _(A01)_ | Visible per-car customization families, 8+ rim designs | not started |
-| R2.1 | A02 §1–6 _(A02)_ | Five diversions (Cap Clash, Pit-Crew, Greenlight, Pocket Circuit, Canvas), 1–6 humans + solo, preemption/resume, dormant persistence | in progress (engine-free simulation core being written) |
+| R2.1 | A02 §1–6 _(A02)_ | Five diversions (Cap Clash, Pit-Crew, Greenlight, Pocket Circuit, Canvas), 1–6 humans + solo, preemption/resume, dormant persistence | in progress — Core/Toys simulation + DowntimeSession, 92 tests (V-024); hosting and presentation pending |
 | R2.2 | A02 §7 _(A02)_ | Continue / Service Break post-event flow | in progress (control plane) |
-| R2.3 | A02 §9 _(A02)_ | ≥ 8 mechanical loadouts per car instance, ≥ 5 visual presets, 3 protected references, atomic whole-build apply/restore | in progress (Core/Builds) |
+| R2.3 | A02 §9 _(A02)_ | ≥ 8 mechanical loadouts per car instance, ≥ 5 visual presets, 3 protected references, atomic whole-build apply/restore | in progress — Core/Builds data model, 222 tests (V-024); Garage UI pending |
 | R2.4 | A02 §10 _(A02)_ | Garage Test Yard: drivable, same controller, A/B, preview unowned parts, no progression | not started |
-| R2.5 | A02 §8, master §9 _(A02)_ | Parts/tuning system with real tradeoffs; favourite-car upgrade path for all 18 cars; calibrated pacing | in progress (Core/Builds parts catalogue) |
+| R2.5 | A02 §8, master §9 _(A02)_ | Parts/tuning system with real tradeoffs; favourite-car upgrade path for all 18 cars; calibrated pacing | in progress — 67 parts, resolver, recipes for 18 cars (data level); VehicleFactory integration and measurement pending; cap question in EFFECTIVE_RULES |
 | R2.6 | A02 D208 _(A02)_ | 24 h dormant convoy for all-disconnected case | in progress (control plane) |
 | R3.1 | §3.1 | URP, C#, Input System, uGUI+TMP single UI stack | in progress (UI stack not built; developer OnGUI HUDs only) |
 | R3.2 | §3.2 | Dedicated authoritative server process (NGO + Unity Transport) | implemented — run pending |

@@ -1,0 +1,228 @@
+{
+  "schema": 1,
+  "note": "Pocket Circuit tabletop slot layouts (Addendum 02 \u00c2\u00a75.2). Units: metres and degrees at toy scale. Positive arc angle = left turn. 'rise' is an eased elevation change across the piece. Every piece start is a de-slot reset point. Lane 1 is the rightmost slot at the gantry. Miniature tracks are NOT full-size courses and never count toward the 29-course minimum (D210).",
+  "layouts": [
+    {
+      "id": "workshop-oval",
+      "name": "Workshop Oval",
+      "summary": "Fast sweepers and one slow chicane that teaches throttle release.",
+      "lanes": 6,
+      "laneSpacing": 0.06,
+      "start": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "heading": 0.0
+      },
+      "pieces": [
+        {
+          "type": "straight",
+          "length": 0.5,
+          "label": "Timing gantry"
+        },
+        {
+          "type": "straight",
+          "length": 1.234196
+        },
+        {
+          "type": "arc",
+          "radius": 0.45,
+          "angle": 90,
+          "label": "Sweeper one"
+        },
+        {
+          "type": "arc",
+          "radius": 0.45,
+          "angle": 90
+        },
+        {
+          "type": "straight",
+          "length": 0.1
+        },
+        {
+          "type": "arc",
+          "radius": 0.32,
+          "angle": 35,
+          "label": "Release chicane"
+        },
+        {
+          "type": "arc",
+          "radius": 0.32,
+          "angle": -70
+        },
+        {
+          "type": "arc",
+          "radius": 0.32,
+          "angle": 35
+        },
+        {
+          "type": "straight",
+          "length": 0.9,
+          "label": "Back straight"
+        },
+        {
+          "type": "arc",
+          "radius": 0.45,
+          "angle": 90,
+          "label": "Sweeper two"
+        },
+        {
+          "type": "arc",
+          "radius": 0.45,
+          "angle": 90
+        }
+      ]
+    },
+    {
+      "id": "coil-pass",
+      "name": "Coil Pass",
+      "summary": "Two tightening coils, a climb to the upper deck and a descending run back down.",
+      "lanes": 6,
+      "laneSpacing": 0.06,
+      "start": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "heading": 0.0
+      },
+      "pieces": [
+        {
+          "type": "straight",
+          "length": 0.35,
+          "label": "Timing gantry"
+        },
+        {
+          "type": "straight",
+          "length": 0.55
+        },
+        {
+          "type": "straight",
+          "length": 0.6,
+          "rise": 0.07,
+          "label": "Climb"
+        },
+        {
+          "type": "arc",
+          "radius": 0.6,
+          "angle": 60,
+          "label": "Upper coil"
+        },
+        {
+          "type": "arc",
+          "radius": 0.45,
+          "angle": 60
+        },
+        {
+          "type": "arc",
+          "radius": 0.32,
+          "angle": 60
+        },
+        {
+          "type": "arc",
+          "radius": 0.3,
+          "angle": 30,
+          "label": "Deck esses"
+        },
+        {
+          "type": "arc",
+          "radius": 0.3,
+          "angle": -60
+        },
+        {
+          "type": "arc",
+          "radius": 0.3,
+          "angle": 30
+        },
+        {
+          "type": "straight",
+          "length": 0.9,
+          "rise": -0.07,
+          "label": "Descent"
+        },
+        {
+          "type": "arc",
+          "radius": 0.6,
+          "angle": 60,
+          "label": "Lower coil"
+        },
+        {
+          "type": "arc",
+          "radius": 0.45,
+          "angle": 60
+        },
+        {
+          "type": "arc",
+          "radius": 0.32,
+          "angle": 60
+        }
+      ]
+    },
+    {
+      "id": "midnight-figure-eight",
+      "name": "Midnight Figure Eight",
+      "summary": "An over/under crossing, a wide right-hand loop and a tight technical left loop back to the gantry.",
+      "lanes": 6,
+      "laneSpacing": 0.06,
+      "start": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "heading": 45.0
+      },
+      "pieces": [
+        {
+          "type": "straight",
+          "length": 0.25,
+          "label": "Timing gantry"
+        },
+        {
+          "type": "straight",
+          "length": 0.722132,
+          "label": "Underpass"
+        },
+        {
+          "type": "arc",
+          "radius": 0.46,
+          "angle": -90,
+          "rise": 0.03,
+          "label": "Wide loop"
+        },
+        {
+          "type": "arc",
+          "radius": 0.46,
+          "angle": -90,
+          "rise": 0.03
+        },
+        {
+          "type": "arc",
+          "radius": 0.46,
+          "angle": -90,
+          "rise": 0.03
+        },
+        {
+          "type": "straight",
+          "length": 0.972132,
+          "label": "Bridge"
+        },
+        {
+          "type": "arc",
+          "radius": 0.3,
+          "angle": 135,
+          "rise": -0.045,
+          "label": "Technical loop"
+        },
+        {
+          "type": "straight",
+          "length": 0.3,
+          "label": "Short chute"
+        },
+        {
+          "type": "arc",
+          "radius": 0.3,
+          "angle": 135,
+          "rise": -0.045
+        }
+      ]
+    }
+  ]
+}

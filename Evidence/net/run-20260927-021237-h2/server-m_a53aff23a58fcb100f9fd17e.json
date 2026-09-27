@@ -1,0 +1,108 @@
+{
+  "role": "dedicated game server (separate process)",
+  "matchId": "m_a53aff23a58fcb100f9fd17e",
+  "kind": "campaign",
+  "stageId": "S01",
+  "courseId": "C01",
+  "humans": 2,
+  "ai": 1,
+  "build": "0.1.0",
+  "contentHash": "ed1fdef41467cb3be2af0d0948e104df5e0d6181fb4d8d10876cc9fe53f60a4e",
+  "results": {
+    "MatchId": "m_a53aff23a58fcb100f9fd17e",
+    "ContentHash": "ed1fdef41467cb3be2af0d0948e104df5e0d6181fb4d8d10876cc9fe53f60a4e",
+    "AbortReason": null,
+    "Aborted": false,
+    "Entrants": [
+      {
+        "EntrantId": "00000000-0000-4000-8000-000000000001",
+        "Human": true,
+        "Outcome": "Finished",
+        "FinishTimeMicros": 87210896,
+        "Placement": 2,
+        "Clean": true,
+        "CheckpointFraction": 1.0,
+        "ActiveProgressVerified": true,
+        "ActivelyDroveLegalCourse": true,
+        "LegalProgressMetres": 3025.2919921875,
+        "RawDriftScore": 0,
+        "ContractsPassed": 0,
+        "ChallengesCompleted": [
+          "CH01"
+        ]
+      },
+      {
+        "EntrantId": "00000000-0000-4000-8000-000000000002",
+        "Human": true,
+        "Outcome": "Finished",
+        "FinishTimeMicros": 87010412,
+        "Placement": 1,
+        "Clean": true,
+        "CheckpointFraction": 1.0,
+        "ActiveProgressVerified": true,
+        "ActivelyDroveLegalCourse": true,
+        "LegalProgressMetres": 3025.31689453125,
+        "RawDriftScore": 0,
+        "ContractsPassed": 0,
+        "ChallengesCompleted": [
+          "CH01"
+        ]
+      },
+      {
+        "EntrantId": "R01",
+        "Human": false,
+        "Outcome": "Finished",
+        "FinishTimeMicros": 88112559,
+        "Placement": 3,
+        "Clean": true,
+        "CheckpointFraction": 1.0,
+        "ActiveProgressVerified": true,
+        "ActivelyDroveLegalCourse": true,
+        "LegalProgressMetres": 3025.204833984375,
+        "RawDriftScore": 0,
+        "ContractsPassed": 0,
+        "ChallengesCompleted": []
+      }
+    ]
+  },
+  "transport": [
+    {
+      "entrant": 0,
+      "human": true,
+      "team": "player",
+      "role": "driver",
+      "status": "Finished",
+      "starvedTicks": 160,
+      "lateInputs": 0,
+      "vehicleContacts": 0,
+      "wallIncidents": 0,
+      "resets": 0
+    },
+    {
+      "entrant": 1,
+      "human": true,
+      "team": "player",
+      "role": "driver",
+      "status": "Finished",
+      "starvedTicks": 46,
+      "lateInputs": 0,
+      "vehicleContacts": 0,
+      "wallIncidents": 0,
+      "resets": 0
+    },
+    {
+      "entrant": 2,
+      "human": false,
+      "team": "opposing",
+      "role": "featured",
+      "status": "Finished",
+      "starvedTicks": 0,
+      "lateInputs": 0,
+      "vehicleContacts": 0,
+      "wallIncidents": 0,
+      "resets": 0
+    }
+  ],
+  "controlPlaneResponse": "200 {\"status\":\"settled\",\"receipts\":[{\"matchId\":\"m_a53aff23a58fcb100f9fd17e\",\"accountId\":\"00000000-0000-4000-8000-000000000001\",\"status\":\"settled\",\"eventKind\":\"CampaignStage\",\"mode\":\"normal\",\"stageId\":\"S01\",\"courseId\":\"C01\",\"outcome\":\"Finished\",\"placement\":2,\"tied\":false,\"finishTimeMs\":87210,\"stage\":{\"qualified\":true,\"withinSupport\":true,\"earnedClear\":true,\"teamSuccess\":true,\"qualifiers\":2,\"requiredQualifiers\":1,\"frozenHumanCount\":2,\"reason\":\"Qualified.\",\"benchmarkTargetMs\":180000,\"benchmarkProvisional\":true,\"benchmarkSource\":\"provisional: derived from C01.expectedSeconds=180; no certified reference run yet\",\"requiresBeatingFeaturedRival\":false,\"featuredRival\":\"R01\",\"beatFeaturedRival\":true},\"payout\":{\"base\":6460,\"difficultyX100\":100,\"placementX100\":120,\"cleanlinessX100\":105,\"utilityX100\":100,\"pvPX100\":100,\"eventCredits\":8139,\"firstClearBonus\":8000,\"challengeCash\":3000,\"total\":19139,\"note\":\"\"},\"credits\":[{\"type\":\"event\",\"requested\":8139,\"credited\":8139,\"clampedAway\":0},{\"type\":\"first-clear\",\"requested\":8000,\"credited\":8000,\"clampedAway\":0},{\"type\":\"challenge:CH01\",\"requested\":3000,\"credited\":3000,\"clampedAway\":0}],\"balanceAfter\":31139,\"clampedAwayTotal\":0,\"firstClearAwarded\":true,\"challengesUnlocked\":[\"CH01\"],\"cosmeticsGranted\":[\"COS-CH01\"],\"coursesUnlocked\":[],\"musicUnlocked\":[\"MUS_RACE_MIZUHANA\"],\"guestPass\":null,\"teamTrial\":null,\"rankPointsBefore\":0,\"rankPointsAfter\":140,\"rank\":\"New Signal\",\"notes\":[]},{\"matchId\":\"m_a53aff23a58fcb100f9fd17e\",\"accountId\":\"00000000-0000-4000-8000-000000000002\",\"status\":\"settled\",\"eventKind\":\"CampaignStage\",\"mode\":\"normal\",\"stageId\":\"S01\",\"courseId\":\"C01\",\"outcome\":\"Finished\",\"placement\":1,\"tied\":false,\"finishTimeMs\":87010,\"stage\":{\"qualified\":true,\"withinSupport\":true,\"earnedClear\":true,\"teamSuccess\":true,\"qualifiers\":2,\"requiredQualifiers\":1,\"frozenHumanCount\":2,\"reason\":\"Qualified.\",\"benchmarkTargetMs\":180000,\"benchmarkProvisional\":true,\"benchmarkSource\":\"provisional: derived from C01.expectedSeconds=180; no certified reference run yet\",\"requiresBeatingFeaturedRival\":false,\"featuredRival\":\"R01\",\"beatFeaturedRival\":true},\"payout\":{\"base\":6460,\"difficultyX100\":100,\"placementX100\":135,\"cleanlinessX100\":105,\"utilityX100\":100,\"pvPX100\":100,\"eventCredits\":9157,\"firstClearBonus\":8000,\"challengeCash\":3000,\"total\":20157,\"note\":\"\"},\"credits\":[{\"type\":\"event\",\"requested\":9157,\"credited\":9157,\"clampedAway\":0},{\"type\":\"first-clear\",\"requested\":8000,\"credited\":8000,\"clampedAway\":0},{\"type\":\"challenge:CH01\",\"requested\":3000,\"credited\":3000,\"clampedAway\":0}],\"balanceAfter\":32157,\"clampedAwayTotal\":0,\"firstClearAwarded\":true,\"challengesUnlocked\":[\"CH01\"],\"cosmeticsGranted\":[\"COS-CH01\"],\"coursesUnlocked\":[],\"musicUnlocked\":[\"MUS_RACE_MIZUHANA\"],\"guestPass\":null,\"teamTrial\":null,\"rankPointsBefore\":0,\"rankPointsAfter\":140,\"rank\":\"New Signal\",\"notes\":[]}]}",
+  "utc": "2026-09-27T06:14:35.9899558Z"
+}

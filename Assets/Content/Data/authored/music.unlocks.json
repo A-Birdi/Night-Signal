@@ -1,0 +1,166 @@
+{
+  "schema": "night-signal/music-unlocks@1",
+  "note": "Addendum 01 §11.3: one declared acquisition rule per collectible cue. Regional race cues unlock on the first eligible Normal clear of the first stage in that region; lieutenant cues on that lieutenant first campaign defeat; finals on Normal/Hard S30. Hearing, spectating or buying a course never unlocks a cue. No mastery RP.",
+  "cues": [
+    {
+      "cueId": "MUS_TITLE",
+      "source": {
+        "kind": "baseline"
+      }
+    },
+    {
+      "cueId": "MUS_MENU_A",
+      "source": {
+        "kind": "baseline"
+      }
+    },
+    {
+      "cueId": "MUS_MENU_B",
+      "source": {
+        "kind": "baseline"
+      }
+    },
+    {
+      "cueId": "MUS_GARAGE",
+      "source": {
+        "kind": "baseline"
+      }
+    },
+    {
+      "cueId": "MUS_MEET",
+      "source": {
+        "kind": "baseline"
+      }
+    },
+    {
+      "cueId": "MUS_TUTORIAL",
+      "source": {
+        "kind": "baseline"
+      }
+    },
+    {
+      "cueId": "MUS_RESULTS_WIN",
+      "source": {
+        "kind": "baseline"
+      }
+    },
+    {
+      "cueId": "MUS_RESULTS_LOSS",
+      "source": {
+        "kind": "baseline"
+      }
+    },
+    {
+      "cueId": "MUS_RACE_MIZUHANA",
+      "source": {
+        "kind": "stage-first-normal-clear",
+        "stageId": "S01"
+      }
+    },
+    {
+      "cueId": "MUS_RACE_KASUMI",
+      "source": {
+        "kind": "stage-first-normal-clear",
+        "stageId": "S05"
+      }
+    },
+    {
+      "cueId": "MUS_RACE_KUROGAWA",
+      "source": {
+        "kind": "stage-first-normal-clear",
+        "stageId": "S10"
+      }
+    },
+    {
+      "cueId": "MUS_RACE_AKEBONO",
+      "source": {
+        "kind": "stage-first-normal-clear",
+        "stageId": "S15"
+      }
+    },
+    {
+      "cueId": "MUS_RACE_HOSHIMI",
+      "source": {
+        "kind": "stage-first-normal-clear",
+        "stageId": "S19"
+      }
+    },
+    {
+      "cueId": "MUS_RACE_TSUKISHIRO",
+      "source": {
+        "kind": "stage-first-normal-clear",
+        "stageId": "S24"
+      }
+    },
+    {
+      "cueId": "MUS_LT_DAIGO",
+      "source": {
+        "kind": "lieutenant-first-defeat",
+        "stageId": "S07"
+      }
+    },
+    {
+      "cueId": "MUS_LT_EMI",
+      "source": {
+        "kind": "lieutenant-first-defeat",
+        "stageId": "S14"
+      }
+    },
+    {
+      "cueId": "MUS_LT_JUN",
+      "source": {
+        "kind": "lieutenant-first-defeat",
+        "stageId": "S21"
+      }
+    },
+    {
+      "cueId": "MUS_LT_MAKO",
+      "source": {
+        "kind": "lieutenant-first-defeat",
+        "stageId": "S28"
+      }
+    },
+    {
+      "cueId": "MUS_PENULTIMATE",
+      "source": {
+        "kind": "stage-first-normal-clear",
+        "stageId": "S29"
+      }
+    },
+    {
+      "cueId": "MUS_FINAL_REINA",
+      "source": {
+        "kind": "stage-first-normal-clear",
+        "stageId": "S30"
+      }
+    },
+    {
+      "cueId": "MUS_FINAL_SHIORI",
+      "source": {
+        "kind": "stage-first-hard-clear",
+        "stageId": "S30"
+      }
+    },
+    {
+      "cueId": "MUS_TT_MEAN",
+      "source": {
+        "kind": "trial-first-victory",
+        "trialId": "TT_MEAN"
+      }
+    },
+    {
+      "cueId": "MUS_TT_BEST",
+      "source": {
+        "kind": "trial-first-victory",
+        "trialId": "TT_BEST"
+      }
+    },
+    {
+      "cueId": "MUS_TT_DRIFT",
+      "source": {
+        "kind": "trial-first-victory",
+        "trialId": "TT_DRIFT"
+      }
+    }
+  ]
+}

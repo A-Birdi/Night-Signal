@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    xUnit tests for the engine-free Core (Assets/Game/Core). Deliberately NOT part of Services/NightSignal.Services.slnx.
+      dotnet test Services/CoreTests                          (Rules + Content + Profiles via CoreSubset, netstandard2.1 / C# 9)
+      dotnet test Services/CoreTests -p:CoreSource=SharedCore (the full Services/SharedCore build of Assets/Game/Core/**)
+    Content is read from Assets/Content/Data/{generated,authored} relative to the repository root.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+    <AssemblyName>NightSignal.CoreTests</AssemblyName>
+    <RootNamespace>NightSignal.CoreTests</RootNamespace>
+    <CoreSource Condition="'$(CoreSource)' == ''">Subset</CoreSource>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The subset library lives in a subfolder; never glob its sources or generated files into the test assembly. -->
+    <Compile Remove="CoreSubset/**" />
+    <None Remove="CoreSubset/**" />
+    <!-- Core sources staged here are compiled by CoreSubset (netstandard2.1 / C# 9), never into the test assembly. -->
+    <Compile Remove="staging/**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(CoreSource)' == 'SharedCore'">
+    <ProjectReference Include="../SharedCore/NightSignal.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(CoreSource)' != 'SharedCore'">
+    <ProjectReference Include="CoreSubset/NightSignal.Core.Subset.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+</Project>
