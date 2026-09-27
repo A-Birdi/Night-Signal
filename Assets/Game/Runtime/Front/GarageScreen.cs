@@ -24,7 +24,7 @@ namespace NightSignal.Front
         public override string ScreenName => "Garage";
         public override string MusicCue => "MUS_MENU_B";
 
-        const int PartRows = 9, LoadoutRows = 8;
+        const int PartRows = 8, LoadoutRows = 8;
         static readonly PartSlot[] SlotOrder =
         {
             PartSlot.Tyres, PartSlot.Suspension, PartSlot.Brakes, PartSlot.Differential, PartSlot.Gearbox, PartSlot.Engine,
@@ -35,9 +35,16 @@ namespace NightSignal.Front
         ContentCatalogue cat;
         PartsCatalogue parts;
         Stepper carStep;
-        TextMeshProUGUI carLine, walletLine, partsTitle, partInfo, compare, message;
+        TextMeshProUGUI carLine, walletLine, partsTitle, partInfo, compare, message, yardLine;
+        TMP_InputField yardNotes;
+        Button preferA, preferB;
         readonly Dictionary<PartSlot, Button> slotButtons = new Dictionary<PartSlot, Button>();
         readonly List<Button> partButtons = new List<Button>();
+        // Tuning page: one line per control the installed parts expose (label, −, +).
+        readonly List<(GameObject Root, TextMeshProUGUI Label, Button Minus, Button Plus)> tuneRows = new List<(GameObject, TextMeshProUGUI, Button, Button)>();
+        Button tuneSlot, tuneDefaults, tuneNormalize;
+        bool tuning;
+        List<TuningControlInfo> controls = new List<TuningControlInfo>();
         readonly List<Button> loadoutButtons = new List<Button>();
         readonly Dictionary<BuildReferenceKind, Button> referenceButtons = new Dictionary<BuildReferenceKind, Button>();
         Button apply, buyApply, discard, saveLoadout, partPrev, partNext;
@@ -78,11 +85,14 @@ namespace NightSignal.Front
             foreach (PartSlot s in SlotOrder)
             {
                 PartSlot captured = s;
-                Button b = UIFactory.Button("Slot-" + PartSlots.Id(s), lcol, "", () => { slot = captured; partPage = 0; dirty = true; }, 520, 44);
+                Button b = UIFactory.Button("Slot-" + PartSlots.Id(s), lcol, "", () => { slot = captured; tuning = false; partPage = 0; dirty = true; }, 520, 44);
                 b.GetComponentInChildren<TextMeshProUGUI>().richText = true;
                 b.GetComponentInChildren<TextMeshProUGUI>().fontSize = SignalTheme.Small * SignalTheme.TextScale;
                 slotButtons[s] = b;
             }
+            tuneSlot = UIFactory.Button("Slot-tuning", lcol, "", () => { tuning = true; dirty = true; }, 520, 44);
+            tuneSlot.GetComponentInChildren<TextMeshProUGUI>().richText = true;
+            tuneSlot.GetComponentInChildren<TextMeshProUGUI>().fontSize = SignalTheme.Small * SignalTheme.TextScale;
 
             // Middle: parts for the chosen slot.
             RectTransform mcol = UIFactory.Column("Parts", root, new Vector2(0.31f, 0.02f), new Vector2(0.62f, 0.95f), Vector2.zero, Vector2.zero, 6f);
@@ -96,10 +106,42 @@ namespace NightSignal.Front
                 b.GetComponentInChildren<TextMeshProUGUI>().fontSize = SignalTheme.Small * SignalTheme.TextScale;
                 partButtons.Add(b);
             }
+            for (int i = 0; i < PartRows; i++)
+            {
+                int index = i;
+                RectTransform row = UIFactory.Rect("Tune" + i, mcol, new Vector2(0, 1), new Vector2(0, 1), Vector2.zero, Vector2.zero);
+                row.sizeDelta = new Vector2(580, 50);
+                TextMeshProUGUI label = UIFactory.Label("Label", row, "", SignalTheme.Small, SignalTheme.Label, TextAlignmentOptions.MidlineLeft);
+                label.rectTransform.anchorMin = Vector2.zero;
+                label.rectTransform.anchorMax = Vector2.one;
+                label.rectTransform.offsetMin = new Vector2(12, 0);
+                label.rectTransform.offsetMax = new Vector2(-136, 0);
+                label.richText = true;
+                Button minus = UIFactory.Button("TuneMinus" + i, row, "−", () => Nudge(index, -1), 60, 46);
+                Button plus = UIFactory.Button("TunePlus" + i, row, "+", () => Nudge(index, +1), 60, 46);
+                Place(minus, 580 - 128);
+                Place(plus, 580 - 62);
+                row.gameObject.SetActive(false);
+                tuneRows.Add((row.gameObject, label, minus, plus));
+            }
+            tuneDefaults = UIFactory.Button("TuneDefaults", mcol, "Reset Tune to the Parts' Defaults", ResetTune, 580, 40);
+            tuneNormalize = UIFactory.Button("TuneNormalize", mcol, "Fit the Tune to These Parts", NormalizeTune, 580, 40);
             partPrev = UIFactory.Button("PartsPrev", mcol, "Previous", () => { partPage = Mathf.Max(0, partPage - 1); dirty = true; }, 280, 40);
             partNext = UIFactory.Button("PartsNext", mcol, "More parts", () => { partPage++; dirty = true; }, 280, 40);
-            partInfo = UIFactory.Row("PartInfo", mcol, "", SignalTheme.Small, SignalTheme.LabelDim, 580, 120);
+            partInfo = UIFactory.Row("PartInfo", mcol, "", SignalTheme.Small, SignalTheme.LabelDim, 580, 96);
             partInfo.richText = true;
+
+            // Test Yard (Addendum 02 §10): drive A (the race build) or B (this draft) before committing.
+            (Button yardA, Button yardB) = Pair("TestYard", mcol, 580, 46);
+            Bind(yardA, "Yard: drive A (race build)", () => OpenYard(false));
+            Bind(yardB, "Yard: drive B (draft)", () => OpenYard(true));
+            yardLine = UIFactory.Row("YardRuns", mcol, "", SignalTheme.Small, SignalTheme.Label, 580, 90);
+            yardLine.richText = true;
+            yardNotes = UIFactory.InputField("YardNotes", mcol, "Notes on how A and B felt (kept on this device)", false, 200, 580, 46);
+            yardNotes.onEndEdit.AddListener(_ => SaveYardNotes());
+            (preferA, preferB) = Pair("Prefer", mcol, 580, 40);
+            Bind(preferA, "Prefer A", () => SetPreference("A"));
+            Bind(preferB, "Prefer B", () => SetPreference("B"));
 
             // Right: draft vs applied, actions, loadouts and references.
             RectTransform rcol = UIFactory.Column("Draft", root, new Vector2(0.64f, 0.02f), new Vector2(0.99f, 0.95f), Vector2.zero, Vector2.zero, 6f);
@@ -130,6 +172,34 @@ namespace NightSignal.Front
             UIFactory.Button("Back", rcol, "Back", () => App.Router.Back(), 300, 42);
         }
 
+        /// <summary>Two half-width buttons on one line.</summary>
+        static (Button, Button) Pair(string name, Transform parent, float width, float height)
+        {
+            RectTransform row = UIFactory.Rect(name + "Row", parent, new Vector2(0, 1), new Vector2(0, 1), Vector2.zero, Vector2.zero);
+            row.sizeDelta = new Vector2(width, height);
+            float half = (width - 8f) * 0.5f;
+            Button a = UIFactory.Button(name + "A", row, "", null, half, height);
+            Button b = UIFactory.Button(name + "B", row, "", null, half, height);
+            Place(a, 0f);
+            Place(b, half + 8f);
+            return (a, b);
+        }
+
+        static void Place(Button btn, float x)
+        {
+            var r = (RectTransform)btn.transform;
+            r.anchorMin = r.anchorMax = new Vector2(0, 0.5f);
+            r.pivot = new Vector2(0, 0.5f);
+            r.anchoredPosition = new Vector2(x, 0);
+            btn.GetComponentInChildren<TextMeshProUGUI>().fontSize = SignalTheme.Small * SignalTheme.TextScale;
+        }
+
+        static void Bind(Button b, string label, Action action)
+        {
+            b.GetComponentInChildren<TextMeshProUGUI>().text = label;
+            b.onClick.AddListener(() => action());
+        }
+
         public override void OnShow()
         {
             if (L?.Profile == null || cat == null || parts == null)
@@ -140,6 +210,7 @@ namespace NightSignal.Front
             cars = L.Profile.Cars.ToList();
             carStep.SetCount(Mathf.Max(1, cars.Count));
             LoadCar();
+            LoadYardNotes();
             // Entering the workshop captures "Before Workshop" (kept until the session ends).
             if (ws != null)
             {
@@ -267,6 +338,20 @@ namespace NightSignal.Front
                     $"{mark}<size=80%>{SlotLabel(s).ToUpperInvariant()}</size>  {label}{(changed ? "  <color=#3EC6D8>●</color>" : "")}";
             }
 
+            controls = TuningModel.Controls(draft.Parts.Values.Select(id => parts.TryPart(id, out PartDef pd) ? pd : null).Where(pd => pd != null && pd.SlotValue != PartSlot.Utility), ctx.Stock.Get);
+            int changedTunes = controls.Count(c => TuningModel.ValueOrDefault(draft.Tuning, c) != c.Default);
+            tuneSlot.GetComponentInChildren<TextMeshProUGUI>().text = (tuning ? "<color=#E5484D>›</color> " : "") +
+                $"<size=80%>TUNING</size>  {(controls.Count == 0 ? "<color=#9A968D>no adjustable parts</color>" : $"{controls.Count} control{(controls.Count == 1 ? "" : "s")}{(changedTunes > 0 ? $", {changedTunes} changed" : "")}")}";
+            if (tuning)
+            {
+                RenderTuning(draft, ev);
+                RenderCompare(ws, draft, applied, ev);
+                return;
+            }
+            foreach (var t in tuneRows) t.Root.SetActive(false);
+            tuneDefaults.gameObject.SetActive(false);
+            tuneNormalize.gameObject.SetActive(false);
+
             // Parts for the chosen slot: stock first, then by tier and price.
             slotParts = parts.CompatibleParts(model, cat.CarTunings[model.Id], slot)
                 .Where(p => !p.Retired || p.Id == (slot == PartSlot.Utility ? draft.UtilityPartId : draft.PartIn(slot)))
@@ -294,6 +379,7 @@ namespace NightSignal.Front
                     ? $"{mark}Stock  <size=85%>{state}</size>"
                     : $"{mark}<size=80%>T{p.Tier}</size>  {Esc(p.Name)}   <size=85%>{state}</size>";
             }
+            RenderYard();
             partPrev.gameObject.SetActive(pages > 1);
             partNext.gameObject.SetActive(pages > 1);
             partPrev.interactable = partPage > 0;
@@ -302,6 +388,38 @@ namespace NightSignal.Front
             partInfo.text = shown == null ? "Factory part: the car's stock specification." :
                 $"<b>{Esc(shown.Name)}</b>  <size=85%>T{shown.Tier} · {shown.Price:N0} cr</size>\n{Esc(shown.Tradeoff ?? "")}";
 
+            RenderCompare(ws, draft, applied, ev);
+        }
+
+        void RenderTuning(MechanicalSnapshot draft, BuildEvaluation ev)
+        {
+            RenderYard();
+            foreach (Button b in partButtons) b.gameObject.SetActive(false);
+            partPrev.gameObject.SetActive(false);
+            partNext.gameObject.SetActive(false);
+            partsTitle.text = "<b>Tuning</b>  <size=80%>bounded by the installed parts; every step changes a simulation input</size>";
+            for (int i = 0; i < tuneRows.Count; i++)
+            {
+                bool on = i < controls.Count;
+                tuneRows[i].Root.SetActive(on);
+                if (!on) continue;
+                TuningControlInfo c = controls[i];
+                int v = TuningModel.ValueOrDefault(draft.Tuning, c);
+                string partName = parts.TryPart(c.PartId, out PartDef pd) ? pd.Name : c.PartId;
+                tuneRows[i].Label.text = $"<b>{Esc(c.Key)}</b>  {v} <size=80%>{Esc(c.Unit)}</size>{(v != c.Default ? "  <color=#3EC6D8>●</color>" : "")}\n" +
+                                         $"<size=75%><color=#9A968D>{c.Min}–{c.Max}, step {c.Step}, default {c.Default} · {Esc(partName)}</color></size>";
+                tuneRows[i].Minus.interactable = v > c.Min;
+                tuneRows[i].Plus.interactable = v < c.Max;
+            }
+            tuneDefaults.gameObject.SetActive(controls.Count > 0);
+            tuneNormalize.gameObject.SetActive(ev.Repairs.Any(r => r.Kind == RepairKind.TuningInvalid));
+            partInfo.text = controls.Count == 0
+                ? "Adjustable parts (gearbox, differential, suspension, brakes, aero) add tuning controls here."
+                : "Change one value at a time and feel it in the Test Yard before applying.";
+        }
+
+        void RenderCompare(CarBuildWorkspace ws, MechanicalSnapshot draft, BuildEvaluation applied, BuildEvaluation ev)
+        {
             // Draft vs applied.
             BuildComparison c = BuildComparison.Of(ws.Applied.Build, draft, ws.Car.InstanceId, ctx);
             var sb = new System.Text.StringBuilder();
@@ -373,6 +491,32 @@ namespace NightSignal.Front
 
         // ------------------------------------------------------------------ actions
 
+        void Nudge(int row, int direction)
+        {
+            if (ws == null || row >= controls.Count) return;
+            TuningControlInfo c = controls[row];
+            int v = Mathf.Clamp(TuningModel.ValueOrDefault(Draft.Tuning, c) + direction * c.Step, c.Min, c.Max);
+            Result(GarageOperations.EditDraft(ws, ws.Revision, Draft.WithTune(c.Key, v), ctx, DateTime.UtcNow), "");
+        }
+
+        void ResetTune()
+        {
+            if (ws == null) return;
+            MechanicalSnapshot d = Draft.Clone();
+            d.Tuning = new TuningSetup();
+            Result(GarageOperations.EditDraft(ws, ws.Revision, d, ctx, DateTime.UtcNow), "Tune reset to the parts' defaults.");
+        }
+
+        /// <summary>Explicit action after a part swap: drop values the parts cannot adjust, snap the rest (listed).</summary>
+        void NormalizeTune()
+        {
+            if (ws == null) return;
+            var changes = new List<string>();
+            MechanicalSnapshot d = Draft.Clone();
+            d.Tuning = TuningModel.Normalize(Draft.Tuning, controls, changes);
+            Result(GarageOperations.EditDraft(ws, ws.Revision, d, ctx, DateTime.UtcNow), changes.Count > 0 ? string.Join(" ", changes) : "The tune already fits these parts.");
+        }
+
         void ChoosePart(int row)
         {
             if (ws == null) return;
@@ -390,6 +534,86 @@ namespace NightSignal.Front
             OperationResult r = GarageOperations.EditDraft(ws, ws.Revision, Draft.With(p.SlotValue, partId), ctx, DateTime.UtcNow);
             Result(r, "");
             return r.Accepted;
+        }
+
+        // ------------------------------------------------------------------ Test Yard
+
+        /// <summary>A frozen A/B side: resolved physics of a snapshot (preview parts allowed — driving never buys).</summary>
+        Race.TestYardBuild YardBuild(MechanicalSnapshot snap, string label)
+        {
+            CarDef model = cat.Car(ws.Car.ModelId);
+            ResolveResult r = BuildResolver.Resolve(model, cat.CarTunings[model.Id], parts, snap);
+            if (!r.Ok) return null;
+            BuildEvaluation ev = BuildEvaluator.Evaluate(snap, ws.Car.InstanceId, ctx);
+            return new Race.TestYardBuild
+            {
+                Label = label, BuildHash = r.Spec.BuildHash, Pi = ev.Resolved ? ev.Pi.Value : model.BasePI,
+                Params = Vehicle.VehicleFactory.Build(r.Spec, Vehicle.AssistSettings.Default, ContentLibrary.Load().Body(model.Id).WheelRadius),
+            };
+        }
+
+        void OpenYard(bool driveB)
+        {
+            if (ws == null) return;
+            bool preview = Draft.AllPartIds().Any(id => !ctx.Ownership.Owns(ws.Car.InstanceId, id));
+            string candidate = ws.Draft != null && ws.DraftIsDirty
+                ? "Draft candidate" + (preview ? " (includes parts you do not own yet)" : "")
+                : "Draft (same as A: change a part first)";
+            Race.TestYardBuild a = YardBuild(ws.Applied.Build, "Current race build");
+            Race.TestYardBuild b = YardBuild(Draft, candidate);
+            if (a == null || b == null)
+            {
+                message.text = "This build cannot be driven: resolve its repairs first.";
+                dirty = true;
+                return;
+            }
+            App.StartTestYard(ws.Car.ModelId, a, b, driveB, this);
+        }
+
+        void RenderYard()
+        {
+            List<Race.TestYardRun> runs = App.LastYardRuns;
+            if (runs.Count == 0)
+            {
+                yardLine.text = "<color=#9A968D>Drive A and B on the service campus: launch & braking straight, skid pad, handling loop, dry or wet.</color>";
+                return;
+            }
+            var sb = new System.Text.StringBuilder("<b>Last visit</b>\n");
+            Race.TestYardRun lastA = runs.LastOrDefault(r => !r.B), lastB = runs.LastOrDefault(r => r.B);
+            foreach (Race.TestYardRun r in new[] { lastA, lastB })
+                if (r != null) sb.Append($"<size=85%>{(r.B ? "B" : "A")} · {r.Station} · {r.Surface}: {Esc(r.Summary())}</size>\n");
+            yardLine.text = sb.ToString();
+        }
+
+        string NotesKey => ws == null ? null : "ns.yard." + L.Profile.ProfileId + "." + ws.Car.InstanceId;
+
+        void LoadYardNotes()
+        {
+            if (NotesKey == null) return;
+            yardNotes.SetTextWithoutNotify(PlayerPrefs.GetString(NotesKey + ".notes", ""));
+            MarkPreference(PlayerPrefs.GetString(NotesKey + ".prefer", ""));
+        }
+
+        void SaveYardNotes()
+        {
+            if (NotesKey == null) return;
+            PlayerPrefs.SetString(NotesKey + ".notes", yardNotes.text ?? "");
+            PlayerPrefs.Save();
+        }
+
+        void SetPreference(string side)
+        {
+            if (NotesKey == null) return;
+            string now = PlayerPrefs.GetString(NotesKey + ".prefer", "") == side ? "" : side; // pressing again clears it
+            PlayerPrefs.SetString(NotesKey + ".prefer", now);
+            PlayerPrefs.Save();
+            MarkPreference(now);
+        }
+
+        void MarkPreference(string side)
+        {
+            preferA.GetComponentInChildren<TextMeshProUGUI>().text = side == "A" ? "Prefer A (marked)" : "Prefer A";
+            preferB.GetComponentInChildren<TextMeshProUGUI>().text = side == "B" ? "Prefer B (marked)" : "Prefer B";
         }
 
         void ApplyDraft()

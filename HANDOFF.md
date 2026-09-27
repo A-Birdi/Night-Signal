@@ -1,6 +1,6 @@
 # Handoff
 
-_Last updated: 2026-09-27 — Local Garage in the UI; upgrades race; friends and course purchases online._
+_Last updated: 2026-09-27 — Test Yard; online Garage server side; frozen builds race online; shared diversions with two humans._
 
 **Rules revision:** `docs/brief/Night_Signal_Addendum_01.txt` supersedes parts of the master (six humans + up to
 twelve vehicles, live finale rivals, light contact, course access, offline domain, rejoin grants, voting, friends,
@@ -47,7 +47,7 @@ powershell -ExecutionPolicy Bypass -File Tools/run/net-race.ps1 -Humans 2 -Stage
 3. **Hosted services / internet test** — a Supabase project, a reachable server and a budget are needed for
    WAN acceptance (§3.5, Gate 5). Not approved; stays BLOCKED, not faked.
 
-## Done since the addenda (VALIDATION V-015 … V-038)
+## Done since the addenda (VALIDATION V-015 … V-040)
 
 - Addendum 01 Core rules and data overlays; control plane for Addendum 01 + 02 incl. hosted diversions (307 .NET
   tests); light car contact, shared RaceSimulation (server + offline), protocol 2 per-client snapshots.
@@ -67,11 +67,15 @@ powershell -ExecutionPolicy Bypass -File Tools/run/net-race.ps1 -Humans 2 -Stage
   (profile schema 2: parts owned per car instance, ≥ 8 loadouts / 5 presets / 3 protected references per instance,
   quote → Buy-and-Apply settled once, Last Race Build) in `Core/Profiles/LocalGarage.cs`; **Garage screen** (Local)
   verified in the UI tour, Local races drive the applied build and record Last Race Build (V-038).
+- **Test Yard + tuning** (V-039): A/B reset-and-drive on the T00 campus, dry/wet, run observations; tuning page.
+- **Online Garage (control plane)** and frozen builds racing online with a verified BuildHash; two humans at the hosted
+  Cap Clash, Pit-Crew and Canvas; control requests now go through one ordered send loop (V-040).
 
 ## Next actions
 
-1. Garage: tuning controls, the Test Yard (T00 geometry, A/B reset-and-drive, run observations), the online Garage
-   against the control plane's /v1/me/garage; parts/recipes/toys into the content hash before builds affect online events.
+1. Online Garage UI on `/v1/me/garage` (reuse the Garage screen with a server backend; Test Yard from it), then an
+   online race with a bought part; parts/recipes/toys into the Core content hash (today `garageContentHash` +
+   per-entrant BuildHash verification guard it); visual presets UI.
 2. Online convoy extras: block UI, Local course purchases, Time Attack/Team Trials,
    reconnect/rejoin and DQ under load; the other four diversions against the hosted session with several humans;
    controller cursor for the Canvas.

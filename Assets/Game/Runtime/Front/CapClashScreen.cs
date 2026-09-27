@@ -40,6 +40,8 @@ namespace NightSignal.Front
         public System.Func<CapArrangementDef, CapTargetDef, (float angle, float power, float launchX)?> AutoAim;
         public int MyShots => Table()?.Board.History.Count(h => h.Member == toys?.Member) ?? 0;
         public int MyOnBoardShots => Table()?.Board.History.Count(h => h.Member == toys?.Member && h.OnBoard) ?? 0;
+        /// <summary>Settled shots by the other people at this (shared) table.</summary>
+        public int OthersShots => Table()?.Board.History.Count(h => h.Member != toys?.Member) ?? 0;
 
         protected override void OnBuild(RectTransform root)
         {

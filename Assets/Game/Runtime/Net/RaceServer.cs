@@ -140,6 +140,8 @@ namespace NightSignal.Net
                       $"{Entrants.Count(e => !e.Human)} AI, contact {assignment.Collision}, port {cfg.Port}");
         }
 
+        static string Short(string hash) => string.IsNullOrEmpty(hash) ? "none" : hash.Substring(0, Math.Min(12, hash.Length));
+
         RaceSimulation BuildSimulation(TrackData track)
         {
             var rules = new RaceEventRules
@@ -157,8 +159,28 @@ namespace NightSignal.Net
                 Surface = assignment.Weather != null && assignment.Weather.Contains("wet") ? "wet"
                     : CourseRuntime.Active?.Route?.Surface ?? "dry",
             };
-            List<HumanSlot> humans = assignment.Entrants.Where(x => x.Role == "racer")
-                .Select(h => new HumanSlot { EntrantId = h.AccountId, DisplayName = h.DisplayName, CarId = h.CarId }).ToList();
+            var humans = new List<HumanSlot>();
+            foreach (AssignmentEntrant h in assignment.Entrants.Where(x => x.Role == "racer"))
+            {
+                var slot = new HumanSlot { EntrantId = h.AccountId, DisplayName = h.DisplayName, CarId = h.CarId };
+                if (h.VehicleBuild != null)
+                {
+                    // Race exactly the build the control plane froze: re-resolve it here with Core and require the same hash.
+                    // A mismatch means different build data on the two sides — a broken event, never a silent stock car.
+                    if (lib.Parts == null) throw new InvalidOperationException("this game server has no parts catalogue");
+                    Core.Builds.MechanicalSnapshot snap = h.VehicleBuild.Snapshot();
+                    Core.Builds.ResolveResult r = Core.Builds.BuildResolver.Resolve(lib.Catalogue.Car(h.CarId), lib.Catalogue.CarTunings[h.CarId], lib.Parts, snap);
+                    if (!r.Ok || r.Spec.BuildHash != h.VehicleBuild.BuildHash)
+                        throw new InvalidOperationException($"{h.DisplayName}'s build {Short(h.VehicleBuild.BuildHash)} resolves to {(r.Ok ? Short(r.Spec.BuildHash) : "nothing")} here " +
+                                                            $"(parts data {Short(h.VehicleBuild.PartsCatalogueHash)} vs {Short(lib.Parts.Hash)})");
+                    slot.Spec = r.Spec;
+                    slot.Build = snap;
+                    Debug.Log($"[NightSignal.Server] {h.DisplayName} races the frozen build {Short(r.Spec.BuildHash)} of {h.VehicleBuild.InstanceId} " +
+                              $"(applied revision {h.VehicleBuild.AppliedRevision}, {snap.Parts.Count} part(s), PI {h.VehicleBuild.Pi}) — hash verified");
+                }
+                else Debug.Log($"[NightSignal.Server] {h.DisplayName}: no vehicleBuild in the assignment; racing the stock {h.CarId}");
+                humans.Add(slot);
+            }
             var world = new PhysicsVehicleWorld(Physics.defaultPhysicsScene, GameLayers.DrivableMask, GameLayers.BarrierMask);
             RaceSimulation s = RaceSimulation.Build(track, lib, rules, humans, assignment.AiEntrants, world);
             foreach (RaceEntrant e in s.Entrants.Where(x => x.Human))

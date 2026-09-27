@@ -139,7 +139,10 @@ owner decides otherwise; nothing below changes a written rule.
    benchmarks must be calibrated against such builds, not near-cap loaners (feeds F08–F10 calibration).
 3. **PI is an estimate.** `PerformanceIndexEstimator` is a fitted lap-time proxy anchored so every stock car equals its
    BasePI (≈33 PI residual across 18 cars). It is labelled an estimate everywhere and must be replaced by handling-
-   harness measurements before it gates anything online.
+   harness measurements before it gates anything online. **Now in conflict (V-040):** online event caps use the server's
+   estimate of the applied build (a stock car estimates to exactly its BasePI, so stock entries are unaffected; an
+   upgraded car is capped by the estimate). Owner decision needed: keep the estimate as the interim gate, or gate on
+   BasePI until the harness calibration lands.
 4. **Content hash.** `music.unlocks.json` is now part of the hashed catalogue documents. `parts.json`,
    `build-recipes.json` and the `toys/` documents are not yet; they must join before builds or toys affect an online
    event.

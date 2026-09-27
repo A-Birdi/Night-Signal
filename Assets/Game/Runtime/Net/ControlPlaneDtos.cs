@@ -15,6 +15,34 @@ namespace NightSignal.Net
     {
         public string AccountId, DisplayName, Role, CarId, PerformanceHash, CosmeticHash;
         public int CarPi, LoadoutRevision;
+        /// <summary>The frozen server-resolved applied build (null from an older control plane: race the stock car).</summary>
+        public AssignmentVehicleBuild VehicleBuild;
+    }
+
+    /// <summary>
+    /// <c>entrants[].vehicleBuild</c> (docs/NETWORKING.md §2.6): parts by slot and tuning integers of the car instance's
+    /// applied build, and the BuildHash Core computed from them on the control plane. The game server re-resolves the same
+    /// snapshot with Core and must arrive at the same hash.
+    /// </summary>
+    public sealed class AssignmentVehicleBuild
+    {
+        public string InstanceId, CarId, BuildHash, UtilityPartId, PartsCatalogueHash, HandlingModelVersion;
+        public long AppliedRevision;
+        public int Pi, TuningVersion;
+        public Dictionary<string, string> Parts = new Dictionary<string, string>();
+        public Dictionary<string, int> Tuning = new Dictionary<string, int>();
+
+        public Core.Builds.MechanicalSnapshot Snapshot()
+        {
+            var s = new Core.Builds.MechanicalSnapshot
+            {
+                UtilityPartId = string.IsNullOrEmpty(UtilityPartId) ? null : UtilityPartId,
+                Tuning = new Core.Builds.TuningSetup { Version = TuningVersion > 0 ? TuningVersion : Core.Builds.TuningModel.CurrentVersion },
+            };
+            foreach (KeyValuePair<string, string> kv in Parts ?? new Dictionary<string, string>()) s.Parts[kv.Key] = kv.Value;
+            foreach (KeyValuePair<string, int> kv in Tuning ?? new Dictionary<string, int>()) s.Tuning.Values[kv.Key] = kv.Value;
+            return s;
+        }
     }
 
     public sealed class AssignmentBenchmark

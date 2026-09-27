@@ -87,6 +87,8 @@ namespace NightSignal.Front
                 StartCoroutine(UiTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsUiTourOnline") >= 0)
                 StartCoroutine(UiTourOnline());
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsYardTour") >= 0)
+                StartCoroutine(YardTour());
             int social = Array.IndexOf(Environment.GetCommandLineArgs(), "-nsUiTourSocial");
             if (social >= 0 && social + 1 < Environment.GetCommandLineArgs().Length)
                 StartCoroutine(UiTourSocial(Environment.GetCommandLineArgs()[social + 1]));
@@ -252,6 +254,7 @@ namespace NightSignal.Front
             Shot("19-convoy-canvas");
             Debug.Log($"[NightSignal.UiTour] canvas marks: {ConvoyCanvas.MyObjects}");
             if (ConvoyCanvas.MyObjects < 3) failures.Add($"Canvas: {ConvoyCanvas.MyObjects} marks of 3");
+            if (ConvoyCanvas.MyStrokePoints < 94) failures.Add($"Canvas: {ConvoyCanvas.MyStrokePoints} stroke points of 94 reached the sheet");
             ConvoyCanvas.AutoDraw = null;
             Click("Back");
             yield return new WaitForSeconds(1.2f);
@@ -288,6 +291,45 @@ namespace NightSignal.Front
             Shot("24-garage-restore");
             bool restoredStock = Garage.Workspace?.Draft?.Build.PartIn(Core.Builds.PartSlot.Tyres) == null;
             if (!restoredStock) failures.Add("Garage: before-last-apply did not restore the stock tyres into the draft");
+
+            // Test Yard: B = the restored stock draft, A = the race build with the bought tyres; the same scripted launch
+            // to 100 km/h and full stop on the braking straight for each (identical inputs, same surface and station).
+            Click("TestYardB");
+            until = Time.realtimeSinceStartup + 40f;
+            while ((ActiveYard == null || !ActiveYard.Ready) && Time.realtimeSinceStartup < until) yield return null;
+            if (ActiveYard == null) failures.Add("the Test Yard did not open");
+            else
+            {
+                bool stopPhase = false;
+                ActiveYard.Script = (st, t) =>
+                {
+                    if (t < 0.05f) stopPhase = false;
+                    if (st.SpeedKmh >= 100f) stopPhase = true;
+                    if (stopPhase && st.SpeedKmh < 0.3f) return Vehicle.DriverInput.Neutral; // at rest: do not select reverse
+                    return stopPhase ? Vehicle.DriverInput.Quantize(0f, 0f, 1f, Vehicle.InputButtons.None) : Vehicle.DriverInput.Quantize(0f, 1f, 0f, Vehicle.InputButtons.None);
+                };
+                foreach (bool side in new[] { true, false })
+                {
+                    if (!side) ActiveYard.ResetAndDrive(false, 0);
+                    until = Time.realtimeSinceStartup + 40f;
+                    while (ActiveYard.CurrentRun != null && ActiveYard.CurrentRun.StopMetres < 0f && Time.realtimeSinceStartup < until) yield return null;
+                    yield return new WaitForSeconds(1f);
+                    Shot(side ? "27-test-yard-b" : "28-test-yard-a");
+                    yield return new WaitForSeconds(0.3f); // let the capture land before the next reset
+                }
+                ActiveYard.ResetAndDrive(true, 0); // closes A's run into the comparison
+                yield return new WaitForSeconds(0.5f);
+                ActiveYard.RequestExit();
+                until = Time.realtimeSinceStartup + 40f;
+                while ((ActiveYard != null || Router.Current != Garage) && Time.realtimeSinceStartup < until) yield return null;
+                yield return new WaitForSeconds(1.5f);
+                Shot("29-garage-after-yard");
+                TestYardRun yardA = LastYardRuns.FirstOrDefault(r => !r.B), yardB = LastYardRuns.FirstOrDefault(r => r.B);
+                Debug.Log($"[NightSignal.UiTour] test yard A (bought tyres): {yardA?.Summary()}");
+                Debug.Log($"[NightSignal.UiTour] test yard B (stock draft): {yardB?.Summary()}");
+                if (yardA == null || yardB == null || yardA.StopMetres <= 0f || yardB.StopMetres <= 0f || yardA.ZeroTo100 <= 0f || yardB.ZeroTo100 <= 0f)
+                    failures.Add("Test Yard: A/B launch-and-stop runs were not both measured");
+            }
             Click("DiscardDraft");
             yield return new WaitForSeconds(0.8f);
             Click("Back");
@@ -759,6 +801,48 @@ namespace NightSignal.Front
         public void StartOfflineRace(string courseId, string carId, RaceEventRules rules, List<string> opposingAi)
         {
             StartCoroutine(RunOfflineRace(courseId, carId, rules, opposingAi, true, null));
+        }
+
+        /// <summary>The Test Yard session while one is open (tours drive it).</summary>
+        public TestYardSession ActiveYard { get; private set; }
+        /// <summary>Runs kept from the last yard visit (A then B), shown back in the Garage.</summary>
+        public List<TestYardRun> LastYardRuns { get; } = new List<TestYardRun>();
+
+        /// <summary>
+        /// Opens the Garage Test Yard (Addendum 02 §10) on the T00 service campus with A (baseline) and B (candidate); returns to
+        /// <paramref name="returnTo"/> when the player leaves. Nothing is recorded, rewarded or bought.
+        /// </summary>
+        public void StartTestYard(string carId, TestYardBuild a, TestYardBuild b, bool driveB, UIScreen returnTo) =>
+            StartCoroutine(RunTestYard(carId, a, b, driveB, returnTo));
+
+        IEnumerator RunTestYard(string carId, TestYardBuild a, TestYardBuild b, bool driveB, UIScreen returnTo)
+        {
+            Canvas.gameObject.SetActive(false);
+            if (backdropCamera != null) backdropCamera.SetActive(false);
+            AsyncOperation load = SceneManager.LoadSceneAsync("T00", LoadSceneMode.Single);
+            while (!load.isDone) yield return null;
+            yield return null;
+            var go = new GameObject("TestYard");
+            ActiveYard = go.AddComponent<TestYardSession>();
+            ActiveYard.CarId = carId;
+            ActiveYard.A = a;
+            ActiveYard.B = b;
+            ActiveYard.StartWithB = driveB;
+            while (ActiveYard != null && !ActiveYard.ExitRequested) yield return null;
+            LastYardRuns.Clear();
+            if (ActiveYard != null)
+            {
+                LastYardRuns.AddRange(ActiveYard.RunsA);
+                LastYardRuns.AddRange(ActiveYard.RunsB);
+            }
+            Destroy(go);
+            ActiveYard = null;
+            Canvas.gameObject.SetActive(true);
+            yield return LoadBackdrop();
+            // The Garage stayed the current screen while the menus were hidden: refresh it in place (keeps the stack,
+            // and re-entering its workshop session is idempotent), otherwise push it.
+            if (Router.Current == returnTo) returnTo.OnShow();
+            else Router.Show(returnTo, true);
         }
 
         IEnumerator RunOfflineRace(string courseId, string carId, RaceEventRules rules, List<string> opposingAi, bool showResults,

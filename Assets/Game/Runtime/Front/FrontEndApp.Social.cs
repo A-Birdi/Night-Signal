@@ -59,6 +59,78 @@ namespace NightSignal.Front
             bool Listed(string section, string handle) =>
                 ((Friends.Graph?[section] as JArray) ?? new JArray()).Any(p => string.Equals((string)p["handle"], handle, StringComparison.OrdinalIgnoreCase));
 
+            // While We Wait with two humans at the convoy's HOSTED tables: each plays through the real screens and must see
+            // the other's shots, operations and marks arrive from the control plane.
+            IEnumerator SharedToys(bool isHost)
+            {
+                if (Router.Current != Convoy) Router.Show(Convoy, false);
+                yield return new WaitForSeconds(1f);
+                Click("WhileWeWait");
+                yield return Until(() => Router.Current == WhileWeWait, 10f, "While We Wait open");
+                yield return new WaitForSeconds(1f);
+
+                Click("Toy-CapClash");
+                yield return new WaitForSeconds(2.5f);
+                CapClash.AutoAim = TourCapAim;
+                float capUntil = Time.realtimeSinceStartup + 90f;
+                while ((CapClash.MyShots < 2 || CapClash.OthersShots < 2) && Time.realtimeSinceStartup < capUntil)
+                {
+                    int before = CapClash.MyShots;
+                    if (before < 2)
+                    {
+                        Button shoot = GameObject.Find("CapShoot")?.GetComponent<Button>();
+                        if (shoot != null && shoot.interactable) shoot.onClick.Invoke();
+                    }
+                    yield return new WaitForSeconds(2f);
+                }
+                Shot("10-shared-cap-clash");
+                Note($"cap clash (shared): mine {CapClash.MyShots}, others {CapClash.OthersShots}");
+                if (CapClash.MyShots < 2 || CapClash.OthersShots < 2) failures.Add($"shared Cap Clash: mine {CapClash.MyShots}, others {CapClash.OthersShots}");
+                CapClash.AutoAim = null;
+                Click("Back");
+                yield return new WaitForSeconds(1.5f);
+
+                Click("Toy-PitCrew");
+                yield return new WaitForSeconds(2.5f);
+                PitCrew.AutoLock = rel => rel < 0.05;
+                float pitUntil = Time.realtimeSinceStartup + 90f;
+                while ((PitCrew.OperationsDoneByMe < 1 || PitCrew.OperationsDoneByOthers < 1) && Time.realtimeSinceStartup < pitUntil)
+                {
+                    if (PitCrew.OperationsDoneByMe < 1)
+                    {
+                        // Host takes the first available task, the guest the second, so they do not queue on one claim.
+                        Button task = GameObject.Find(isHost ? "Task0" : "Task1")?.GetComponent<Button>() ?? GameObject.Find("Task0")?.GetComponent<Button>();
+                        if (task != null && task.interactable) task.onClick.Invoke();
+                    }
+                    yield return new WaitForSeconds(3f);
+                }
+                Shot("11-shared-pit-crew");
+                Note($"pit-crew (shared): mine {PitCrew.OperationsDoneByMe}, others {PitCrew.OperationsDoneByOthers}");
+                if (PitCrew.OperationsDoneByMe < 1 || PitCrew.OperationsDoneByOthers < 1)
+                    failures.Add($"shared Pit-Crew: mine {PitCrew.OperationsDoneByMe}, others {PitCrew.OperationsDoneByOthers}");
+                PitCrew.AutoLock = null;
+                Click("Back");
+                yield return new WaitForSeconds(1.5f);
+
+                Click("Toy-Canvas");
+                yield return new WaitForSeconds(2.5f);
+                ConvoyCanvas.AutoDraw = TourStrokes();
+                float canvasUntil = Time.realtimeSinceStartup + 90f;
+                while ((ConvoyCanvas.MyObjects < 2 || ConvoyCanvas.OthersObjects < 2) && Time.realtimeSinceStartup < canvasUntil) yield return null;
+                yield return new WaitForSeconds(1.5f);
+                Shot("12-shared-canvas");
+                Note($"canvas (shared): mine {ConvoyCanvas.MyObjects} ({ConvoyCanvas.MyStrokePoints} points), others {ConvoyCanvas.OthersObjects}");
+                if (ConvoyCanvas.MyStrokePoints < 94) failures.Add($"shared Canvas: {ConvoyCanvas.MyStrokePoints} of my 94 stroke points reached the hosted sheet");
+                if (ConvoyCanvas.MyObjects < 2 || ConvoyCanvas.OthersObjects < 2)
+                    failures.Add($"shared Canvas: mine {ConvoyCanvas.MyObjects}, others {ConvoyCanvas.OthersObjects}");
+                ConvoyCanvas.AutoDraw = null;
+                yield return new WaitForSeconds(4f); // let the other client finish seeing these marks
+                Click("Back");
+                yield return new WaitForSeconds(1.5f);
+                Click("Back");
+                yield return Until(() => Router.Current == Convoy, 10f, "back at the convoy");
+            }
+
             NetConfig cfg = NetConfig.FromCommandLine();
             JToken account = JObject.Parse(System.IO.File.ReadAllText(cfg.DevSeedFile))["accounts"][cfg.DevAccount];
             string myHandle = "nsdriver" + cfg.DevAccount;
@@ -135,6 +207,7 @@ namespace NightSignal.Front
                 yield return new WaitForSeconds(1.5f);
                 Shot("05-together");
                 Note("convoy members: " + string.Join(", ", ((JArray)S().Convoy["members"]).Select(m => (string)m["displayName"])));
+                yield return SharedToys(true);
 
                 // Course access: buy the first course this profile can afford and does not hold (in-game credits).
                 Click("OpenCourses");
@@ -186,6 +259,7 @@ namespace NightSignal.Front
                 yield return new WaitForSeconds(2f);
                 Shot("04-joined");
                 Note("joined " + (string)S().Convoy?["leaderName"] + "'s convoy");
+                yield return SharedToys(false);
                 yield return new WaitForSeconds(3f);
             }
 
@@ -198,6 +272,7 @@ namespace NightSignal.Front
             }
             string summary = failures.Count == 0 ? "PASS" : "FAILED: " + string.Join("; ", failures);
             Note(summary);
+
             yield return new WaitForSeconds(1f);
             Application.Quit(failures.Count == 0 ? 0 : 1);
         }

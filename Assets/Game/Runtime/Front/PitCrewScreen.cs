@@ -42,6 +42,8 @@ namespace NightSignal.Front
         bool stepSent;
         public System.Func<double, bool> AutoLock;
         public int OperationsDoneByMe => Workshop()?.State.Project.Ops.Values.Count(o => o.CompletedBy == toys?.Member) ?? 0;
+        /// <summary>Operations on the shared model completed by anyone else.</summary>
+        public int OperationsDoneByOthers => Workshop()?.State.Project.Ops.Values.Count(o => !string.IsNullOrEmpty(o.CompletedBy) && o.CompletedBy != toys?.Member) ?? 0;
 
         protected override void OnBuild(RectTransform root)
         {

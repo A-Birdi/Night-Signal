@@ -20,5 +20,8 @@ namespace NightSignal.Race
         public string Team = "player";
         /// <summary>driver | featured | support | friendly | opponent</summary>
         public string Role = "driver";
+        /// <summary>A human's frozen applied build (null = the model's stock car) and its Core BuildHash.</summary>
+        public Core.Builds.MechanicalSnapshot Build;
+        public string BuildHash = "";
     }
 }

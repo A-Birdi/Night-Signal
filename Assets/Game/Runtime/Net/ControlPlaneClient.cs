@@ -23,6 +23,10 @@ namespace NightSignal.Net
         readonly CancellationTokenSource cts = new CancellationTokenSource();
         readonly ConcurrentDictionary<string, TaskCompletionSource<JObject>> pending = new ConcurrentDictionary<string, TaskCompletionSource<JObject>>();
         readonly ConcurrentQueue<JObject> inbox = new ConcurrentQueue<JObject>();
+        // ClientWebSocket allows ONE outstanding send: overlapping SendAsync calls (a stroke's append, then its end) could be
+        // refused or reach the server out of order. Every request goes through this FIFO and a single send loop.
+        readonly ConcurrentQueue<byte[]> outbox = new ConcurrentQueue<byte[]>();
+        readonly SemaphoreSlim outboxSignal = new SemaphoreSlim(0);
         int nextRequest;
         // Request ids must be unique across client sessions: the control plane replays a cached reply for the same
         // (account, type, requestId) for 10 minutes so retransmits stay idempotent. A counter restarting at "r1" in a new
@@ -103,6 +107,7 @@ namespace NightSignal.Net
             string ws = http.BaseAddress.ToString().Replace("http://", "ws://").Replace("https://", "wss://").TrimEnd('/');
             await socket.ConnectAsync(new Uri($"{ws}/v1/control?build={Uri.EscapeDataString(build)}&protocol={protocol}&content={contentHash}"), cts.Token);
             _ = ReceiveLoop();
+            _ = SendLoop();
         }
 
         /// <summary>Sends a request and awaits its reply; throws on error replies.</summary>
@@ -113,7 +118,8 @@ namespace NightSignal.Net
             pending[id] = tcs;
             var envelope = new JObject { ["type"] = type, ["requestId"] = id, ["payload"] = payload != null ? JObject.FromObject(payload) : new JObject() };
             byte[] bytes = Encoding.UTF8.GetBytes(envelope.ToString(Newtonsoft.Json.Formatting.None));
-            await socket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, cts.Token);
+            outbox.Enqueue(bytes); // call order = wire order
+            outboxSignal.Release();
             Task done = await Task.WhenAny(tcs.Task, Task.Delay(TimeSpan.FromSeconds(20)));
             pending.TryRemove(id, out _);
             if (done != tcs.Task) throw new TimeoutException($"control request {type} timed out");
@@ -121,6 +127,24 @@ namespace NightSignal.Net
             if (!(bool)reply["ok"])
                 throw new ControlError((string)reply["error"]?["code"], (string)reply["error"]?["message"]);
             return reply["result"];
+        }
+
+        async Task SendLoop()
+        {
+            try
+            {
+                while (!cts.IsCancellationRequested)
+                {
+                    await outboxSignal.WaitAsync(cts.Token);
+                    if (!outbox.TryDequeue(out byte[] bytes)) continue;
+                    if (socket.State != WebSocketState.Open) continue; // the request times out and reports the problem
+                    await socket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, cts.Token);
+                }
+            }
+            catch (Exception e) when (!(e is OperationCanceledException))
+            {
+                Debug.LogWarning($"[NightSignal.Control] send loop stopped: {e.Message}");
+            }
         }
 
         async Task ReceiveLoop()

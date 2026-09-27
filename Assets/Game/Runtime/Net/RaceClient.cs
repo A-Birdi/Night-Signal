@@ -139,7 +139,7 @@ namespace NightSignal.Net
             var carSet = Resources.Load<CarMaterialSet>("CarMaterialSet");
             foreach (RosterEntry r in Info.Roster)
             {
-                var car = new Car { Roster = r, Params = lib.Params(r.CarId, AssistSettings.Default) };
+                var car = new Car { Roster = r, Params = ParamsFor(lib, r) };
                 if (!headless)
                 {
                     VehicleParams p = car.Params;
@@ -151,7 +151,7 @@ namespace NightSignal.Net
                 cars[r.Index] = car;
             }
             RosterEntry me = Info.Roster[Info.YourIndex];
-            ownParams = lib.Params(me.CarId, AssistSettings.Default);
+            ownParams = ParamsFor(lib, me);
             ownSim = new VehicleSimulation(ownParams, world);
             GridSlot slot = track.Grid[me.GridSlot];
             ownState = VehicleState.AtRest(slot.Position, slot.Rotation);
@@ -506,6 +506,24 @@ namespace NightSignal.Net
         }
 
         /// <summary>Interactive clients return to the menus after a race: leave nothing connected or on screen.</summary>
+        /// <summary>
+        /// An entrant's vehicle as the server races it: the frozen build from the roster resolved with Core (verified against
+        /// its BuildHash), or the stock model. A mismatch is logged — the server stays authoritative, prediction may drift.
+        /// </summary>
+        static VehicleParams ParamsFor(ContentLibrary lib, RosterEntry r)
+        {
+            if (r.Build == null || lib.Parts == null) return lib.Params(r.CarId, AssistSettings.Default);
+            Core.Builds.ResolveResult res = Core.Builds.BuildResolver.Resolve(lib.Catalogue.Car(r.CarId), lib.Catalogue.CarTunings[r.CarId], lib.Parts, r.Build);
+            if (!res.Ok)
+            {
+                Debug.LogWarning($"[NightSignal.Client] entrant {r.Index}'s build does not resolve here ({string.Join("; ", res.Issues)}); predicting the stock car");
+                return lib.Params(r.CarId, AssistSettings.Default);
+            }
+            if (!string.IsNullOrEmpty(r.BuildHash) && res.Spec.BuildHash != r.BuildHash)
+                Debug.LogWarning($"[NightSignal.Client] entrant {r.Index}'s build resolves to a different hash here; prediction may drift");
+            return VehicleFactory.Build(res.Spec, AssistSettings.Default, lib.Body(r.CarId).WheelRadius);
+        }
+
         void OnDestroy()
         {
             Disconnect();

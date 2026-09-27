@@ -155,7 +155,8 @@ namespace NightSignal.Front
 
         void Update()
         {
-            if (back.WasPressedThisFrame() && !Transitioning) Back();
+            // Menus hidden (a race or the Test Yard owns the screen): Back belongs to that session, not the menu stack.
+            if (back.WasPressedThisFrame() && !Transitioning && app != null && app.Canvas != null && app.Canvas.gameObject.activeInHierarchy) Back();
             Current?.Tick();
             if (transitionT < 0f) return;
 

@@ -42,13 +42,33 @@ namespace NightSignal.Front
         Tool tool = Tool.Pen;
         long drawnRevision = -1;
         string drawnSheet;
-        readonly List<int> pending = new List<int>();
-        string openStroke;
+        /// <summary>
+        /// One stroke being drawn: its points wait here until the authority names it (online that takes a round trip, and
+        /// the next stroke may already have begun), then go out in ≤ 128-point chunks and the stroke is closed.
+        /// </summary>
+        sealed class StrokeDraft
+        {
+            public string Id;
+            public bool Sent, Named, Failed, EndRequested, Ended;
+            public int X, Y, Width;
+            public long Color;
+            public readonly List<int> Pending = new List<int>();
+        }
+
+        StrokeDraft stroke;
+        // Core keeps one stroke in progress per person (a begin finalizes the previous one), so a stroke begun while the
+        // previous one still waits for its name online is held here and begun right after that one is complete.
+        StrokeDraft unnamed;
+        readonly Queue<StrokeDraft> heldBegins = new Queue<StrokeDraft>();
         Vector2Int dragStart;
         bool dragging;
         readonly List<TextMeshProUGUI> labels = new List<TextMeshProUGUI>();
         public System.Collections.Generic.IEnumerator<Vector2Int[]> AutoDraw;
         public int MyObjects => Sheet()?.Objects.Count(o => !o.Deleted && o.Author == toys?.Member) ?? 0;
+        /// <summary>Points in my strokes as the authority holds them (a dropped chunk shows up here, not in the object count).</summary>
+        public int MyStrokePoints => Sheet()?.Objects.Where(o => !o.Deleted && o.Author == toys?.Member && o.Kind == CanvasObjectKind.Stroke).Sum(o => (o.Points?.Length ?? 0) / 2) ?? 0;
+        /// <summary>Marks on the shared sheet made by anyone else.</summary>
+        public int OthersObjects => Sheet()?.Objects.Count(o => !o.Deleted && o.Author != toys?.Member) ?? 0;
 
         protected override void OnBuild(RectTransform root)
         {
@@ -107,7 +127,7 @@ namespace NightSignal.Front
 
         public override void OnHide()
         {
-            if (openStroke != null) EndStroke();
+            if (stroke != null) EndStroke();
             toys?.Leave(ToyActivityId.Canvas);
             toys = null;
         }
@@ -157,9 +177,9 @@ namespace NightSignal.Front
                 // Tours draw scripted strokes through the same operations a player produces (automation, labelled).
                 if (AutoDraw.MoveNext() && AutoDraw.Current != null)
                 {
-                    Vector2Int[] stroke = AutoDraw.Current;
-                    BeginStroke(stroke[0]);
-                    foreach (Vector2Int q in stroke.Skip(1)) pending.AddRange(new[] { q.x, q.y });
+                    Vector2Int[] scripted = AutoDraw.Current;
+                    BeginStroke(scripted[0]);
+                    foreach (Vector2Int q in scripted.Skip(1)) stroke.Pending.AddRange(new[] { q.x, q.y });
                     FlushStroke(true);
                     EndStroke();
                 }
@@ -191,8 +211,9 @@ namespace NightSignal.Front
                         break;
                 }
             }
-            if (dragging && tool == Tool.Pen && m.leftButton.isPressed && inSheet)
+            if (dragging && tool == Tool.Pen && m.leftButton.isPressed && inSheet && stroke != null)
             {
+                List<int> pending = stroke.Pending;
                 int n = pending.Count;
                 if (n < 2 || Mathf.Abs(pending[n - 2] - p.x) + Mathf.Abs(pending[n - 1] - p.y) > 10) pending.AddRange(new[] { p.x, p.y });
                 if (pending.Count >= 64) FlushStroke(false);
@@ -224,38 +245,69 @@ namespace NightSignal.Front
 
         void BeginStroke(Vector2Int p)
         {
-            pending.Clear();
-            openStroke = "pending";
-            endRequested = false;
-            SendOnSheet("stroke.begin", new JObject { ["color"] = Palette[colourStep.Index], ["width"] = Width(), ["points"] = new JArray(p.x, p.y) }, a =>
+            var d = new StrokeDraft { X = p.x, Y = p.y, Color = Palette[colourStep.Index], Width = Width() };
+            stroke = d;
+            if (unnamed != null || heldBegins.Count > 0) heldBegins.Enqueue(d);
+            else SendBegin(d);
+        }
+
+        void SendBegin(StrokeDraft d)
+        {
+            d.Sent = true;
+            unnamed = d;
+            SendOnSheet("stroke.begin", new JObject { ["color"] = d.Color, ["width"] = d.Width, ["points"] = new JArray(d.X, d.Y) }, a =>
             {
-                openStroke = a.Accepted ? a.Value : null;
-                if (openStroke != null && endRequested) { FlushStroke(true); EndStroke(); } // released before the id arrived (online)
+                d.Named = true;
+                d.Id = a.Accepted ? a.Value : null;
+                d.Failed = d.Id == null;
+                Flush(d, false); // points drawn while the name was on its way
+                // Released before the name arrived: send this stroke's points, then close it.
+                if (d.EndRequested) Finish(d);
+                if (unnamed == d && (d.Ended || d.Failed)) BeginNextHeld();
             });
         }
 
-        bool endRequested;
+        /// <summary>The previous stroke is complete on the wire: begin the next held one (its points follow once named).</summary>
+        void BeginNextHeld()
+        {
+            unnamed = null;
+            if (heldBegins.Count > 0) SendBegin(heldBegins.Dequeue());
+        }
 
         /// <summary>Appends buffered points (≤ 128 per operation); on release everything left is sent before the end.</summary>
-        void FlushStroke(bool all)
+        void FlushStroke(bool all) => Flush(stroke, all);
+
+        void Flush(StrokeDraft d, bool all)
         {
-            while (pending.Count > 0 && openStroke != null && openStroke != "pending")
+            if (d == null || d.Id == null) return;
+            while (d.Pending.Count > 0)
             {
-                int take = Mathf.Min(pending.Count, CanvasLimits.MaxPointsPerOp * 2);
-                var pts = new JArray(pending.Take(take).Select(v => (object)v).ToArray());
-                pending.RemoveRange(0, take);
-                SendOnSheet("stroke.append", new JObject { ["object"] = openStroke, ["points"] = pts });
+                int take = Mathf.Min(d.Pending.Count, CanvasLimits.MaxPointsPerOp * 2);
+                var pts = new JArray(d.Pending.Take(take).Select(v => (object)v).ToArray());
+                d.Pending.RemoveRange(0, take);
+                SendOnSheet("stroke.append", new JObject { ["object"] = d.Id, ["points"] = pts });
                 if (!all) break;
             }
         }
 
         void EndStroke()
         {
-            if (openStroke == "pending") { endRequested = true; return; } // finish once the authority names the stroke
-            if (openStroke != null) SendOnSheet("stroke.end", new JObject { ["object"] = openStroke });
-            openStroke = null;
-            endRequested = false;
-            pending.Clear();
+            StrokeDraft d = stroke;
+            stroke = null;
+            if (d == null) return;
+            d.EndRequested = true;
+            if (!d.Named) return; // the begin answer finishes it
+            Finish(d);
+            if (unnamed == d) BeginNextHeld();
+        }
+
+        void Finish(StrokeDraft d)
+        {
+            if (d.Ended) return;
+            d.Ended = true;
+            if (d.Failed) return; // the authority refused the stroke; its points were never shown as accepted
+            Flush(d, true);
+            SendOnSheet("stroke.end", new JObject { ["object"] = d.Id });
         }
 
         void SendOnSheet(string kind, JObject payload, System.Action<ToyAnswer> done = null)

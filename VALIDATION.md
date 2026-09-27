@@ -403,3 +403,46 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - Honest limitation: a brake kit does not shorten a full-pedal ABS stop (tyre-limited, see docs/EFFECTIVE_RULES.md
   builds §5); an ABS-hold-point change was tried and rejected (noisier, sometimes longer stops). No brake fade yet.
   Tuning controls, the Test Yard and the online Garage are not built yet.
+
+## V-039 — Garage Test Yard (A/B) and tuning controls (2026-09-27)
+- Test Yard (Addendum 02 §10) on the T00 service-campus geometry (independently entered from the Garage, no lesson):
+  launch & braking straight (340 m, painted stop boxes), 30 m skid-pad ring, handling loop; dry/wet presets with the
+  SAME `CourseRuntime.SurfaceGrip` rules as events (explicit reset on change). A = the race build, B = the Garage draft
+  (preview parts allowed — driving never buys), both frozen when the yard opens; "reset & drive A/B" always restarts at
+  rest on a station start; the same controller, simulation, assists and camera as a race; last three runs per side kept
+  (0–60, 0–100 or "not reached in this test length", stop distance and from-speed, stop-box result, peak one-second
+  lateral g, loop time, top speed seen); overlay labels the limits and "no reward, record or purchase". Back in the
+  Garage: last visit per side, a notes field and a Prefer A / Prefer B marker kept on this device.
+- `-nsYardTour` (fresh Local profile, preview tyres in B, same scripted inputs): A straight 0–100 7.55 s, stop 38.3 m
+  from 100 km/h; B 7.33 s, 36.7 m from 99 km/h; skid pad peak lateral A 0.68 g, B 0.71 g, B wet 0.55 g; wallet
+  unchanged; Back from the Garage reaches the Offline hub — **PASS**. Screenshots `Evidence/ui/yard/`. In the full Local
+  tour: A (bought touring tyres) 7.43 s / 37.5 m vs B (stock draft) 7.57 s / 38.2 m (`Evidence/ui/campaign/27…29`).
+- Tuning page in the Garage: every control the installed parts expose (bounds, step, default, owning part), −/+ edits
+  the draft, reset to defaults, and an explicit "fit the tune to these parts" after a part swap (Core `Normalize`,
+  every change listed). Compiled and rendered; not yet driven by a tour (no tuneable part in the tour builds).
+- Found on the way: (1) the router handled Back while the menus were hidden (a race or the yard owning the screen) —
+  now ignored there; (2) returning from the yard with a non-push Show cleared the screen stack (Back went nowhere) —
+  the Garage is refreshed in place; (3) tour captures taken in the same frame as a reset showed a one-frame-stale view;
+  a new car view is now placed at the start pose immediately.
+
+## V-040 — Online Garage in the control plane; frozen builds race online; two humans at the hosted diversions (2026-09-27)
+- Control plane (background agent, reviewed and re-run here): `/v1/me/garage` — car instances, workspaces (≥ 8
+  loadouts, ≥ 5 presets, protected references), compatible parts with shop act/ownership/tuning, one-to-one
+  `GarageOperations`, server quotes and idempotent settlement (debit + grants + workspace in one transaction; retry =
+  `replayed`, charged 0); migration `0005_garage` (SQLite applied; Postgres/RLS written, not executed — no server);
+  `loadout.set` computes the performance hash/PI server-side; a performance change clears only that player's Event
+  Ready; caps use the server PI estimate; assignments carry `entrants[].vehicleBuild`; Last Race Build recorded at the
+  game server's acknowledgement; utility income from the frozen build. `dotnet test Services/Tests` **329/329**
+  (test classes now run one at a time: parallel classes raced on SQLite's global pool clear).
+- Game server: re-resolves each human's `vehicleBuild` with Core and requires the same BuildHash (else the match aborts
+  with the reason); clients resolve the same build from the roster for prediction and remote cars. Online tour against
+  the new control plane: "Driver 1 races the frozen build `c12c2bea1a67` of `ci_702e…` (applied revision 1, 0 parts,
+  PI 220) — hash verified", race → settled receipt → **PASS**. A build WITH parts online needs the online Garage UI
+  (next); the verified hash path is the same.
+- Two humans at the convoy's HOSTED tables (`ui-tour-social.ps1`): Cap Clash 2 shots each and each sees the other's 2;
+  Pit-Crew 1 operation each on the shared model; Convoy Canvas 3 strokes each, **94/94 points** of each player's
+  strokes on the hosted sheet — **PASS / PASS**. Screenshots `Evidence/ui/online/social-toys/`.
+- Found and fixed: (1) `ControlPlaneClient` issued overlapping `ClientWebSocket.SendAsync` calls (only one may be
+  outstanding) — all requests now go through one ordered send loop; (2) Core keeps one stroke in progress per person, so
+  online a stroke begun before the previous stroke's id arrived finalized it and its points were refused (strokes became
+  dots, `AlreadyDone`) — the client now holds the next stroke's begin until the previous one is complete.
