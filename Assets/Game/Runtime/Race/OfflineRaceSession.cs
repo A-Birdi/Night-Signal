@@ -250,7 +250,7 @@ namespace NightSignal.Race
             if (chase != null)
             {
                 // A recovery is a discontinuity: cut the camera to the new pose instead of flying through the mountain.
-                if (Player.Progress.Recoveries.Count != seenRecoveries) { seenRecoveries = Player.Progress.Recoveries.Count; chase.NotifyTeleport(); }
+                if (Player.Progress.Recoveries.Count != seenRecoveries) { seenRecoveries = Player.Progress.Recoveries.Count; chase.NotifyTeleport(); hud.NotifyDiscontinuity(); }
                 DrivingCameraFeed.Feed(chase, speedLines, Player.Sim.Telemetry, Player.State, Player.Params, Time.deltaTime);
             }
             RecoveryHud();

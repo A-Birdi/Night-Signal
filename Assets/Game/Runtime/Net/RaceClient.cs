@@ -302,6 +302,7 @@ namespace NightSignal.Net
                 if ((ownState.Position - lastCameraCarPos).sqrMagnitude > 64f)
                 {
                     chase.NotifyTeleport();
+                    hud?.NotifyDiscontinuity();
                     if (Phase == MatchPhase.Racing) recoveryNoticeUntil = Time.unscaledTime + 2.5f;
                 }
                 lastCameraCarPos = ownState.Position;

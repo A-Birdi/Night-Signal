@@ -61,6 +61,11 @@ namespace NightSignal.UI
         GameObject recoveryPanel;
         RectTransform recoveryBar;
         SpeedCluster cluster;
+        /// <summary>Evidence runs read what the instrument actually shows.</summary>
+        public SpeedCluster Cluster => cluster;
+
+        /// <summary>A discontinuity (reset, recovery, respawn, car switch): the instrument jumps to the new truth instead of gliding from the old car's speed.</summary>
+        public void NotifyDiscontinuity() => cluster?.ResetFilter();
         CanvasScaler scaler;
         Image standingsPanel;
         RawImage minimap;

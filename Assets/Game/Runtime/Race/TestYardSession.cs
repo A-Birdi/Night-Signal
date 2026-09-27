@@ -106,6 +106,9 @@ namespace NightSignal.Race
         SpeedLines speedLines;
         /// <summary>The driving camera (tours switch its view).</summary>
         public DrivingCamera Camera => chase;
+        /// <summary>Evidence runs: the driven car's latest telemetry and the HUD instrument.</summary>
+        public StepTelemetry Telemetry => sim != null ? sim.Telemetry : default;
+        public RaceHud Hud => hud;
         RaceHud hud;
         readonly HudState hudState = new HudState();
         TextMeshProUGUI panel;
@@ -199,6 +202,7 @@ namespace NightSignal.Race
             view = VehicleView.Create($"TestCar_{CarId}_{(useB ? "B" : "A")}", build.Params, lib.Body(CarId), CarMaterials, PaintColor);
             view.Render(current, current, 1f, default, 0f); // at the start pose this very frame (no frame at the origin)
             chase.SetTarget(view); // a new run is a discontinuity: the camera cuts, keeping the chosen view
+            hud?.NotifyDiscontinuity();
             accumulator = 0;
             run = new TestYardRun { B = useB, Station = s.Id, Surface = Surface };
             runSeconds = 0f;

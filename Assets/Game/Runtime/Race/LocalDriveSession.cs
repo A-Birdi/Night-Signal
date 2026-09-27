@@ -161,6 +161,7 @@ namespace NightSignal.Race
             {
                 current = tracker.ResetPose(Progress, parameters, 0, "manual"); // adds the 3 s penalty to the finish time
                 chase.NotifyTeleport();
+                hud?.NotifyDiscontinuity();
                 previous = current;
                 resetHeld = overturnedSeconds = 0f;
                 resetNeedsRelease = true;

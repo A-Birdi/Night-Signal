@@ -854,3 +854,19 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - `ReferenceRunTests` (30 Normal campaign reference runs, stock and intended build, autopilot) on the new geometry:
   **30/30 pass** (every stage finished in both builds, legal PI); 20 of the 30 evidence files changed (times on the
   reshaped courses). Benchmark certification stays deferred (Addendum 03 §9).
+
+## V-056 — Instrument extremes in a built Test Yard session (G04/G05) (2026-09-27)
+- Revision: working tree on `9660e29` (committed in the next checkpoint). Windows development player; isolated
+  preferences/profiles; Instrument Dial, km/h.
+- Found and fixed first: the dial needle is smoothed (80 ms) and nothing reset that history on a discontinuity, so after a
+  reset or recovery at speed the needle glided down from the old speed — the "stale previous-car telemetry" G04 forbids.
+  `RaceHud.NotifyDiscontinuity` now snaps it wherever the camera already cuts (offline recovery, practice reset, Test Yard
+  run/A-B switch, online server move > 8 m).
+- Built `-nsInstrumentExtremes` (`Evidence/ui/instruments/extremes/`), scripted inputs, every rendered frame sampled
+  (13,677): standstill wheelspin (handbrake + full throttle, engine to 3,588 rpm) showed ≤ 2 km/h; a full-throttle launch
+  through 3 gear changes never moved the displayed speed at a shift beyond the physical change; a reset at 112 km/h
+  showed 1 km/h two frames later with the needle at zero (124.3°, zero = 125°); braking to rest with the brake held
+  engaged reverse, shown as a positive 43 km/h; a handbrake slide on the skid pad reached 67° body slip. In all frames the
+  number equalled the road speed within 1 km/h, with 0 negative values, 0 needle positions outside the 250° sweep and 0
+  NaN/blank — **PASS**. Crest airtime and void falls stay covered by EditMode `InstrumentTests` (G04), not this run.
+- Long soak (40 races, same car) is still running from a separate copy of the previous build.
