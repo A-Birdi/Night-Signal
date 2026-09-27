@@ -39,7 +39,7 @@ namespace NightSignal.Track.Generation
         const int CoarseRes = 129;
 
         public static GameObject Build(TrackData track, Transform parent, CourseMaterialSet mats, TerrainStyle style,
-            List<TerrainCarve> carves, GenerationProfile profile)
+            List<TerrainCarve> carves, GenerationProfile profile, List<TerrainPad> pads = null)
         {
             TrackSample[] all = track.Samples;
             Vector2 min = new Vector2(float.MaxValue, float.MaxValue), max = new Vector2(float.MinValue, float.MinValue);
@@ -51,6 +51,16 @@ namespace NightSignal.Track.Generation
                 minY = Mathf.Min(minY, s.Position.y);
                 maxY = Mathf.Max(maxY, s.Position.y);
             }
+            // Off-route areas (training pads, Test Yard) extend the terrain bounds.
+            if (pads != null)
+                foreach (TerrainPad pad in pads)
+                {
+                    float reach = pad.HalfSize.magnitude + AreaGeometry.PadBlendMetres;
+                    min = Vector2.Min(min, new Vector2(pad.Centre.x - reach, pad.Centre.z - reach));
+                    max = Vector2.Max(max, new Vector2(pad.Centre.x + reach, pad.Centre.z + reach));
+                    minY = Mathf.Min(minY, pad.Centre.y);
+                    maxY = Mathf.Max(maxY, pad.Centre.y);
+                }
             min -= Vector2.one * Margin;
             max += Vector2.one * Margin;
             float size = Mathf.Ceil(Mathf.Max(max.x - min.x, max.y - min.y) / 8f) * 8f;
@@ -128,6 +138,7 @@ namespace NightSignal.Track.Generation
                 Vector3 flatRight = new Vector3(s.Right.x, 0f, s.Right.z).normalized;
                 float lateral = (wx - s.Position.x) * flatRight.x + (wz - s.Position.z) * flatRight.z;
                 float h = HeightAt(wx, wz, s, dist, lateral, style, carves);
+                if (pads != null && dist > Corridor(s, lateral) + 0.5f) h = AreaGeometry.ApplyPads(wx, wz, h, pads);
                 heights[z, x] = Mathf.Clamp01((h - baseY) / heightRange);
                 edgeDist[k] = dist - Corridor(s, lateral);
             }

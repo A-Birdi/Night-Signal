@@ -149,6 +149,9 @@ namespace NightSignal.Net
                 BenchmarkTargetMs = assignment.Benchmark?.TargetTimeMs ?? 0,
                 HardTimeoutMs = assignment.Benchmark?.HardTimeoutMs ?? 0,
                 RequiresBeatingFeaturedRival = assignment.Kind == "campaign" && StageBenchmark.IsFeaturedEncounter(assignment.StageType),
+                // Weather preset wins; "stage-default" uses the course's authored Normal surface.
+                Surface = assignment.Weather != null && assignment.Weather.Contains("wet") ? "wet"
+                    : CourseRuntime.Active?.Route?.Surface ?? "dry",
             };
             List<HumanSlot> humans = assignment.Entrants.Where(x => x.Role == "racer")
                 .Select(h => new HumanSlot { EntrantId = h.AccountId, DisplayName = h.DisplayName, CarId = h.CarId }).ToList();

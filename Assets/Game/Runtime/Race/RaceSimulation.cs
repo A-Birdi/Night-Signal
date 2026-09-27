@@ -49,6 +49,8 @@ namespace NightSignal.Race
         public long HardTimeoutMs;
         /// <summary>Lieutenant/penultimate/finale: a qualifying human must beat the featured live rival.</summary>
         public bool RequiresBeatingFeaturedRival;
+        /// <summary>dry | damp | wet — one grip rule for races and the Garage Test Yard (CourseRuntime.SurfaceGrip).</summary>
+        public string Surface = "dry";
     }
 
     public sealed class HumanSlot
@@ -163,7 +165,7 @@ namespace NightSignal.Race
             var e = new RaceEntrant
             {
                 Params = p,
-                Sim = new VehicleSimulation(p, world),
+                Sim = new VehicleSimulation(p, world) { SurfaceGripScale = CourseRuntime.SurfaceGrip(Rules.Surface) },
                 State = VehicleState.AtRest(g.Position, g.Rotation),
                 Progress = new EntrantProgress(Track),
                 Status = human ? EntrantStatus.Reserved : EntrantStatus.Loaded,

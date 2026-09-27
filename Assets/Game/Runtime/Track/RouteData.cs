@@ -79,6 +79,12 @@ namespace NightSignal.Track
         public float[] Centre = new float[3];
         public float[] Size = new float[2];
         public float HeadingDeg;
+        /// <summary>Judged zones laid out along the area from its entry end (e.g. braking-lane stop boxes).</summary>
+        public List<RouteGateDef> Gates = new List<RouteGateDef>();
+        /// <summary>slalom: number of cones on the lane centre.</summary>
+        public int ConeCount;
+        public string Surface;
+        public string Note;
     }
 
     /// <summary>

@@ -1,0 +1,281 @@
+{
+  "schema": "night-signal/route@1",
+  "course": "YARD",
+  "revision": 1,
+  "closedLoop": true,
+  "startMetres": 30,
+  "checkpointSpacingMetres": 100,
+  "biome": "hinode-campus",
+  "timeOfDay": "day",
+  "surface": "dry",
+  "controlPoints": [
+    {
+      "id": "yard-p00",
+      "p": [
+        0,
+        20,
+        0
+      ],
+      "width": 11,
+      "bank": 0,
+      "shoulderLeft": 3,
+      "shoulderRight": 3
+    },
+    {
+      "id": "yard-p01",
+      "p": [
+        0,
+        20,
+        90
+      ],
+      "width": 11,
+      "bank": 0,
+      "shoulderLeft": 3,
+      "shoulderRight": 3
+    },
+    {
+      "id": "yard-p02",
+      "p": [
+        0,
+        20,
+        180
+      ],
+      "width": 11,
+      "bank": 0,
+      "shoulderLeft": 3,
+      "shoulderRight": 3
+    },
+    {
+      "id": "yard-p03",
+      "p": [
+        2,
+        20.3,
+        255
+      ],
+      "width": 10.5,
+      "bank": 0,
+      "shoulderLeft": 3,
+      "shoulderRight": 3
+    },
+    {
+      "id": "yard-p04",
+      "p": [
+        22,
+        20.8,
+        300
+      ],
+      "width": 10,
+      "bank": -2,
+      "shoulderLeft": 3,
+      "shoulderRight": 3
+    },
+    {
+      "id": "yard-p05",
+      "p": [
+        60,
+        21.4,
+        322
+      ],
+      "width": 10,
+      "bank": -3,
+      "shoulderLeft": 3,
+      "shoulderRight": 3
+    },
+    {
+      "id": "yard-p06",
+      "p": [
+        96,
+        22,
+        318
+      ],
+      "width": 10,
+      "bank": -4,
+      "shoulderLeft": 3,
+      "shoulderRight": 3
+    },
+    {
+      "id": "yard-p07",
+      "p": [
+        116,
+        22.6,
+        296
+      ],
+      "width": 10,
+      "bank": -5,
+      "shoulderLeft": 3,
+      "shoulderRight": 3
+    },
+    {
+      "id": "yard-p08",
+      "p": [
+        128,
+        24,
+        245
+      ],
+      "width": 10,
+      "bank": 0,
+      "shoulderLeft": 3,
+      "shoulderRight": 3
+    },
+    {
+      "id": "yard-p09",
+      "p": [
+        136,
+        26.2,
+        175
+      ],
+      "width": 10,
+      "bank": 0,
+      "shoulderLeft": 3,
+      "shoulderRight": 3
+    },
+    {
+      "id": "yard-p10",
+      "p": [
+        134,
+        23.4,
+        110
+      ],
+      "width": 10,
+      "bank": 0,
+      "shoulderLeft": 3,
+      "shoulderRight": 3
+    },
+    {
+      "id": "yard-p11",
+      "p": [
+        122,
+        21.2,
+        52
+      ],
+      "width": 10.5,
+      "bank": 4,
+      "shoulderLeft": 3,
+      "shoulderRight": 3
+    },
+    {
+      "id": "yard-p12",
+      "p": [
+        92,
+        20.4,
+        8
+      ],
+      "width": 11,
+      "bank": 5,
+      "shoulderLeft": 3,
+      "shoulderRight": 3
+    },
+    {
+      "id": "yard-p13",
+      "p": [
+        50,
+        20,
+        -22
+      ],
+      "width": 11,
+      "bank": 2,
+      "shoulderLeft": 3,
+      "shoulderRight": 3
+    },
+    {
+      "id": "yard-p14",
+      "p": [
+        14,
+        20,
+        -22
+      ],
+      "width": 11,
+      "bank": 0,
+      "shoulderLeft": 3,
+      "shoulderRight": 3
+    }
+  ],
+  "sectors": [
+    {
+      "id": "YARD-S1",
+      "name": "Main Straight",
+      "startMetres": 0
+    },
+    {
+      "id": "YARD-S2",
+      "name": "Tightening Right",
+      "startMetres": 250
+    },
+    {
+      "id": "YARD-S3",
+      "name": "Crest and Banked Return",
+      "startMetres": 470
+    }
+  ],
+  "gates": [],
+  "landmarks": [],
+  "sections": [],
+  "areas": [
+    {
+      "id": "YARD-BRAKE",
+      "kind": "braking-lane",
+      "centre": [
+        -62,
+        20,
+        130
+      ],
+      "size": [
+        16,
+        300
+      ],
+      "headingDeg": 0,
+      "note": "launch/braking straight; stop boxes measured from the entry end",
+      "gates": [
+        {
+          "id": "YARD-BOX-1",
+          "kind": "brake-zone",
+          "startMetres": 200,
+          "endMetres": 206,
+          "lineOffset": 0,
+          "lineTolerance": 3,
+          "targetSpeedKmh": 0
+        },
+        {
+          "id": "YARD-BOX-2",
+          "kind": "brake-zone",
+          "startMetres": 252,
+          "endMetres": 258,
+          "lineOffset": 0,
+          "lineTolerance": 3,
+          "targetSpeedKmh": 0
+        }
+      ]
+    },
+    {
+      "id": "YARD-PAD",
+      "kind": "skid-pad",
+      "centre": [
+        70,
+        20,
+        218
+      ],
+      "size": [
+        66,
+        66
+      ],
+      "headingDeg": 0,
+      "note": "left and right sustained turns, drift recovery"
+    },
+    {
+      "id": "YARD-SLALOM",
+      "kind": "slalom",
+      "centre": [
+        64,
+        20,
+        96
+      ],
+      "size": [
+        18,
+        140
+      ],
+      "headingDeg": 0,
+      "coneCount": 7,
+      "note": "short slalom, cones on the lane centre"
+    }
+  ]
+}

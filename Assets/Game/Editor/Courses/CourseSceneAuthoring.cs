@@ -25,15 +25,23 @@ namespace NightSignal.Editor.Courses
         [MenuItem("Night Signal/Courses/Author C01 Scene")]
         public static void AuthorC01() => Author("C01", "late-afternoon", new TerrainStyle { TeaRowCoverage = 0.35f, Seed = 101 });
 
-        public static string Author(string courseId, string timeOfDay, TerrainStyle style)
+        public const string TestYardFolder = "Assets/Content/Facilities/TestYard";
+
+        /// <summary>The private Garage Test Yard facility (Addendum 02 §10): not a counted course.</summary>
+        [MenuItem("Night Signal/Courses/Author Test Yard Scene")]
+        public static string AuthorTestYard() =>
+            Author("YARD", "day", new TerrainStyle { TeaRowCoverage = 0f, Seed = 404, HillAmplitude = 14f }, $"{TestYardFolder}/route.json", TestYardFolder);
+
+        public static string Author(string courseId, string timeOfDay, TerrainStyle style) =>
+            Author(courseId, timeOfDay, style, RouteIO.RoutePath(courseId), CourseFolder(courseId));
+
+        public static string Author(string courseId, string timeOfDay, TerrainStyle style, string routePath, string folder)
         {
             // Create the scene first: opening a new single scene unloads unused assets, invalidating earlier loads.
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
             CourseMaterialSet mats = EnsureMaterialSet();
-            var route = AssetDatabase.LoadAssetAtPath<TextAsset>(RouteIO.RoutePath(courseId));
-            if (route == null) throw new FileNotFoundException("Route document missing", RouteIO.RoutePath(courseId));
-
-            string folder = CourseFolder(courseId);
+            var route = AssetDatabase.LoadAssetAtPath<TextAsset>(routePath);
+            if (route == null) throw new FileNotFoundException("Route document missing", routePath);
             string skyPath = $"{folder}/{courseId}_Sky.mat";
             var sky = AssetDatabase.LoadAssetAtPath<Material>(skyPath);
             if (sky == null)
@@ -67,7 +75,7 @@ namespace NightSignal.Editor.Courses
 
             EditorUtility.SetDirty(sky);
             AssetDatabase.SaveAssets();
-            EditorSceneManager.SaveScene(scene, ScenePath(courseId));
+            EditorSceneManager.SaveScene(scene, $"{folder}/{(courseId == "YARD" ? "TestYard" : courseId)}.unity");
             return $"{courseId} scene authored; generation {rt.GenerationSeconds:F2} s, length {rt.Track.LengthMetres:F0} m";
         }
 
