@@ -337,6 +337,32 @@ namespace NightSignal.Net
             }
             if (phase >= MatchPhase.Countdown && phase <= MatchPhase.Results && tick % 3 == 0) BroadcastSnapshot(tick);
             if (phase == MatchPhase.Racing && sim.Rules.DriftRanking && tick % 6 == 0) SendDrift();
+            if (phase == MatchPhase.Racing && tick % 6 == 3) SendRecovery();
+        }
+
+        /// <summary>
+        /// Each driver's own recovery offer (Addendum 03 §7.1) — the kind (off route, overturned, stopped), seconds until
+        /// the marshal acts, the number of completed recoveries and the last one's reason — so the client can show the
+        /// same countdown as offline play. The server alone decides and applies every recovery.
+        /// </summary>
+        void SendRecovery()
+        {
+            foreach (KeyValuePair<ulong, Link> kv in byClient)
+            {
+                if (!kv.Value.Connected) continue;
+                RaceEntrant e = kv.Value.Entrant;
+                RecoveryStatus r = sim.Recovery(e);
+                List<RecoveryEvent> done = e.Progress.Recoveries;
+                string last = done.Count > 0 ? done[done.Count - 1].Reason : "";
+                using (var w = new FastBufferWriter(24, Allocator.Temp))
+                {
+                    w.WriteValueSafe((byte)r.Kind);
+                    w.WriteValueSafe(r.SecondsToAuto);
+                    w.WriteValueSafe(done.Count);
+                    w.WriteValueSafe((byte)(last == "manual" ? 1 : last == "off-route" ? 2 : last == "overturned" ? 3 : last == "stuck" ? 4 : 0));
+                    nm.CustomMessagingManager.SendNamedMessage(Wire.MsgRecovery, kv.Key, w, NetworkDelivery.UnreliableSequenced);
+                }
+            }
         }
 
         /// <summary>Drift formats: each driver's own banked/unbanked/lost figures and chain for the HUD (the result counts).</summary>

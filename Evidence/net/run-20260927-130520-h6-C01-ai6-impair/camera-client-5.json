@@ -1,0 +1,25 @@
+{
+  "targetFps": 120,
+  "measuredFps": 117.0,
+  "frameMsP95": 8.34,
+  "frames": 14048,
+  "speedStyle": "strip",
+  "units": "mph",
+  "savedView": "chase-far",
+  "motionPreset": "arcade",
+  "scriptedCycle": "none",
+  "timeline": [
+    "23.1s ChaseFar"
+  ],
+  "views": {
+    "ChaseFar": {
+      "frames": 14048,
+      "seconds": 120.1,
+      "jitterMeanPx": 0.366,
+      "jitterP99Px": 6.65,
+      "occludedFrames": 0,
+      "insideColliderFrames": 0,
+      "maxImpactOffsetM": 0.016
+    }
+  }
+}

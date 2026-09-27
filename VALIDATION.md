@@ -795,3 +795,35 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   29/29 and `CourseProfileTests` 29/29 (only route hashes changed), `TunnelShellTests` 7/7. EditMode 237/237.
 - Not yet: bridge approaches drive-tested in the built camera tour; the C25 lower deck stands on its embankment (the upper
   road's two-level structure is not modelled as one bridge).
+
+## V-054 — Online recovery offers, camera under impaired networking, soak, record versioning (2026-09-27)
+- Revision: working tree on `1108e35` (committed in the next checkpoint). Windows development players, dedicated server
+  process and local control plane — all on this machine (loopback), so every network figure below is localhost plus the
+  application-level impairment, not a remote network.
+- **Online recovery display:** the server now sends each driver its own recovery offer 10×/s (`ns.recovery`: off route /
+  overturned / stopped, seconds to the marshal, completed count and last reason); the client counts down from it, shows a
+  notice when the server completes a recovery and logs both. `-nsAutoResetAt` makes an automated client hold reset.
+- **Impairment:** Unity Transport's debug simulator is a no-op in this Netcode version (its replacement is a package not
+  approved here), so `-nsImpair delay,jitter,drop` holds back, jitters and drops incoming snapshots and outgoing input
+  packets inside the client (stale snapshots discarded as the sequenced channel would). `net-race.ps1 -Impair -ResetAt`.
+- **Run** `Evidence/net/run-20260927-130057-h6-C01-ai6-impair` (6 rendered camera clients + 6 AI, C01, 80 ± 20 ms each way,
+  3 % loss): all six finished; RTT 175–235 ms; 47–91 snapshots and 200–242 input packets dropped per client; 32–418
+  reconciliations. Client 0's scripted reset: one recovery completed by the server ("manual", total 1). Clients 1 and 2
+  stopped in traffic, were offered the reset on the HUD ("Stopped", from the server message) and the autopilot's stuck
+  fallback held it — one recovery each. Chase Far jitter under these corrections was 4.9/140 px (30 fps) and 6.0/77 px
+  (60 fps) mean/p99. Found and fixed: correction hiding decayed exponentially from the moment a correction landed (a
+  velocity kick) and snapped anything over 3 m — now a critically damped blend with a snap only beyond 8 m (a real
+  discontinuity, where the camera cuts). **Rerun** `run-20260927-130520-h6-C01-ai6-impair`: all six finished; 30 fps Chase
+  Far 0.64/10.2 px, 120 fps 0.37/6.7 px, but client 0 (390 reconciliations, heavy contact) still 8.2/73.9 px at 60 fps —
+  **not solved**: under 190 ms RTT with contact the predicted car is corrected often enough to show hitches. 0 occluded
+  and 0 inside-collider frames on every client; each client's view/style/units unchanged except client 0's scripted cycle.
+- **I04 soak** built `-nsSoakTour 8` (`Evidence/ui/soak/soak.csv`): 8 back-to-back twelve-car light-contact races
+  (autopilot + 11 AI) on C01/C08/C12/C03, each 70 s of racing with the view cycled every 1.5 s through all five, look-back,
+  speedometer style/units switched, and a held reset every 12 s — after every race, back in the menus: 1 camera, 0
+  driving cameras, 0 vehicle views, 0 race HUDs, 0 speed-line canvases, 0 preference listeners, 1 light; every one of 48
+  reset requests gave exactly one reset; authoritative progress 9–15 gates per race; frame time 1.77–2.22 ms mean, 3.2–3.8
+  ms p99 with no drift — **PASS**. Managed heap after a full collection grew 7.2 → 10.6 MB (~0.5 MB per race) — small but
+  monotonic; source not yet identified (noted, not claimed fixed).
+- **I02/I03** EditMode `RecordVersionTests` through the game's own key builder: a best set under `classify-1` survives a
+  JSON round trip, is shown as a legacy result for the same event under `classify-2` (never compared), a slower current
+  result becomes the current best, and the old entry is not erased — pass. EditMode **238/238**.

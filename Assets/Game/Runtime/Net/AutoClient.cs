@@ -159,6 +159,7 @@ namespace NightSignal.Net
                 minInputLeadTicks = race.MinInputLeadTicks, ticksFilled = race.TicksFilled,
                 snapshots = race.SnapshotsReceived, inputPacketsSent = race.InputsSent,
                 reconciliations = race.Corrections, maxCorrectionMetres = race.MaxCorrectionMetres,
+                serverRecoveries = race.ServerRecoveries, impairedSnapshotDrops = race.ImpairedSnapshotDrops, impairedInputDrops = race.ImpairedInputDrops,
                 result = mine, entrants = race.Results.Entrants.Count, receipt,
                 walletBefore, walletAfter, rankPointsBefore = rpBefore, rankPointsAfter = (int)me["rank"]["rankPoints"],
                 log, utc = DateTime.UtcNow.ToString("o"),

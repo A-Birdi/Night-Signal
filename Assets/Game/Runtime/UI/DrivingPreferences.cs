@@ -86,6 +86,8 @@ namespace NightSignal.UI
 
         /// <summary>Raised after a saved change: HUD and cameras apply it live (no reload, no input loss).</summary>
         public static event Action<DrivingPreferences> Changed;
+        /// <summary>Soak evidence: how many listeners are subscribed (must not grow across scenes).</summary>
+        public static int ChangedListenerCount => Changed?.GetInvocationList().Length ?? 0;
 
         public static DrivingPreferences Load()
         {

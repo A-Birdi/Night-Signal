@@ -92,7 +92,7 @@ namespace NightSignal.Net
         double ackSumMs;
         float rttSmoothedMs = -1f;
         long deadlineMicros = -1;
-        Vector3 visualOffset;
+        Vector3 visualOffset, visualOffsetVelocity;
         RouteFollower autopilot;
         DrivingControls controls;
         DrivingCamera chase;
@@ -100,6 +100,27 @@ namespace NightSignal.Net
         Vector3 lastCameraCarPos;
         float resetHoldShown, overturnedShown, recoveryNoticeUntil;
         bool resetHoldSpent;
+        // The server's recovery offer for this driver (kind, seconds to the marshal, when it arrived) and completed count.
+        RecoveryKind serverRecoveryKind;
+        float serverRecoverySeconds, serverRecoveryAt = -10f;
+        int serverRecoveries = -1;
+        string recoveryNotice = "", lastOfferLogged = "";
+        /// <summary>Automation: hold reset for 1.2 s this many seconds after the start (<c>-nsAutoResetAt</c>).</summary>
+        float autoResetAt = -1f;
+        /// <summary>Completed recoveries the server reported for this driver (evidence).</summary>
+        public int ServerRecoveries => serverRecoveries;
+
+        // Application-level impairment for evidence runs (-nsImpair delayMs,jitterMs,dropPercent): incoming snapshots and
+        // outgoing inputs are held back, jittered and dropped here, above the transport (the transport's own simulator is
+        // not available in this Netcode version). Stale snapshots after jitter are discarded as the sequenced channel would.
+        struct Delayed { public float At; public byte[] Data; public int Tick; }
+        readonly List<Delayed> heldSnapshots = new List<Delayed>(), heldInputs = new List<Delayed>();
+        bool impair;
+        float impairDelayMs, impairJitterMs, impairDropPercent;
+        readonly System.Random impairRng = new System.Random(7);
+        int lastReleasedSnapshotTick = int.MinValue;
+        /// <summary>Evidence: snapshots and input packets the impairment dropped.</summary>
+        public int ImpairedSnapshotDrops, ImpairedInputDrops;
         bool latchUp, latchDown;
         bool headless;
 
@@ -107,6 +128,19 @@ namespace NightSignal.Net
         {
             headless = Application.isBatchMode;
             lib = ContentLibrary.Load();
+            string[] args = System.Environment.GetCommandLineArgs();
+            int ai = System.Array.IndexOf(args, "-nsAutoResetAt");
+            if (ai >= 0 && ai + 1 < args.Length) float.TryParse(args[ai + 1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out autoResetAt);
+            int ii = System.Array.IndexOf(args, "-nsImpair");
+            if (ii >= 0 && ii + 1 < args.Length)
+            {
+                string[] parts = args[ii + 1].Split(',');
+                var inv = System.Globalization.CultureInfo.InvariantCulture;
+                impair = parts.Length == 3 && float.TryParse(parts[0], System.Globalization.NumberStyles.Float, inv, out impairDelayMs)
+                         && float.TryParse(parts[1], System.Globalization.NumberStyles.Float, inv, out impairJitterMs)
+                         && float.TryParse(parts[2], System.Globalization.NumberStyles.Float, inv, out impairDropPercent);
+                if (impair) Debug.Log($"[NightSignal.Client] impairment: {impairDelayMs} ms ± {impairJitterMs} ms each way, {impairDropPercent} % loss (application level)");
+            }
             for (int i = 0; i < ticks.Length; i++) ticks[i] = -1;
             nm = NetBootstrap.Ensure();
             NetBootstrap.Transport(nm).SetConnectionData(host, port);
@@ -122,7 +156,25 @@ namespace NightSignal.Net
             }
             nm.CustomMessagingManager.RegisterNamedMessageHandler(Wire.MsgMatch, (id, r) => StartCoroutine(OnMatch(Wire.ReadJson(r))));
             nm.CustomMessagingManager.RegisterNamedMessageHandler(Wire.MsgPhase, OnPhase);
-            nm.CustomMessagingManager.RegisterNamedMessageHandler(Wire.MsgSnapshot, OnSnapshot);
+            nm.CustomMessagingManager.RegisterNamedMessageHandler(Wire.MsgSnapshot, OnSnapshotArrived);
+            nm.CustomMessagingManager.RegisterNamedMessageHandler(Wire.MsgRecovery, (id, r) =>
+            {
+                r.ReadValueSafe(out byte kind);
+                r.ReadValueSafe(out float seconds);
+                r.ReadValueSafe(out int count);
+                r.ReadValueSafe(out byte reason);
+                serverRecoveryKind = (RecoveryKind)kind;
+                serverRecoverySeconds = seconds;
+                serverRecoveryAt = Time.unscaledTime;
+                if (serverRecoveries >= 0 && count > serverRecoveries)
+                {
+                    string why = reason == 1 ? "RESET" : reason == 2 ? "RECOVERED — OFF ROUTE" : reason == 3 ? "RECOVERED — OVERTURNED" : "RECOVERED";
+                    recoveryNotice = $"{why}  <size=80%><color=#9A968D>+3.000 s · clock running</color></size>";
+                    recoveryNoticeUntil = Time.unscaledTime + 2.5f;
+                    Debug.Log($"[NightSignal.Client] recovery completed by the server: {(reason == 1 ? "manual" : reason == 2 ? "off-route" : reason == 3 ? "overturned" : "stuck")} (total {count})");
+                }
+                serverRecoveries = count;
+            });
             nm.CustomMessagingManager.RegisterNamedMessageHandler(Wire.MsgResults, (id, r) => Results = JsonConvert.DeserializeObject<MatchResults>(Wire.ReadJson(r)));
             nm.CustomMessagingManager.RegisterNamedMessageHandler(Wire.MsgDrift, (id, r) =>
             {
@@ -278,13 +330,23 @@ namespace NightSignal.Net
             if (resetHoldShown >= RaceSimulation.ResetHoldSeconds) { resetHoldSpent = true; resetHoldShown = 0f; }
             overturnedShown = racing && RaceSimulation.IsOverturned(ownState) ? overturnedShown + Time.deltaTime : 0f;
             var rs = new RecoveryStatus { HoldFraction = resetHoldShown / RaceSimulation.ResetHoldSeconds, SecondsToAuto = -1f };
-            if (overturnedShown >= RaceSimulation.OverturnedPromptSeconds)
+            float since = Time.unscaledTime - serverRecoveryAt;
+            if (racing && since < 0.6f && serverRecoveryKind != RecoveryKind.None)
+            {
+                // The server's own judgement (off route, overturned, stopped), counted down locally between its messages.
+                rs.Kind = serverRecoveryKind;
+                rs.SecondsToAuto = serverRecoverySeconds < 0f ? -1f : Mathf.Max(0f, serverRecoverySeconds - since);
+            }
+            else if (overturnedShown >= RaceSimulation.OverturnedPromptSeconds)
             {
                 rs.Kind = RecoveryKind.Overturned;
                 rs.SecondsToAuto = Mathf.Max(0f, RaceSimulation.OverturnedRescueSeconds - overturnedShown);
             }
             UI.RaceHud.SetRecovery(hudState, rs, controls != null ? controls.BindingLabel("Reset") : "R", true);
-            hudState.RecoveryNotice = Time.unscaledTime < recoveryNoticeUntil ? "RECOVERED  <size=80%><color=#9A968D>+3.000 s · clock running</color></size>" : "";
+            string offer = rs.Kind == RecoveryKind.None ? "" : rs.Kind.ToString();
+            if (offer != lastOfferLogged) { lastOfferLogged = offer; if (offer.Length > 0) Debug.Log($"[NightSignal.Client] recovery offer shown: {offer} ({rs.SecondsToAuto:F1} s to the marshal)"); }
+            hudState.RecoveryNotice = Time.unscaledTime < recoveryNoticeUntil
+                ? (recoveryNotice.Length > 0 ? recoveryNotice : "RECOVERED  <size=80%><color=#9A968D>+3.000 s · clock running</color></size>") : "";
         }
 
         string ResultLine()
@@ -312,6 +374,43 @@ namespace NightSignal.Net
             Phase = (MatchPhase)p;
             startTick = start;
             deadlineMicros = deadline;
+        }
+
+        void OnSnapshotArrived(ulong sender, FastBufferReader r)
+        {
+            if (!impair) { OnSnapshot(sender, r); return; }
+            var data = new byte[r.Length - r.Position];
+            r.ReadBytesSafe(ref data, data.Length);
+            if (impairRng.NextDouble() * 100.0 < impairDropPercent) { ImpairedSnapshotDrops++; return; }
+            heldSnapshots.Add(new Delayed { At = Time.unscaledTime + ImpairDelay(), Data = data, Tick = System.BitConverter.ToInt32(data, 0) });
+        }
+
+        float ImpairDelay() => Mathf.Max(0f, impairDelayMs + (float)(impairRng.NextDouble() * 2.0 - 1.0) * impairJitterMs) / 1000f;
+
+        /// <summary>Releases held snapshots and inputs whose time has come (impairment runs only).</summary>
+        void ReleaseImpaired()
+        {
+            float now = Time.unscaledTime;
+            heldSnapshots.Sort((a, b) => a.At.CompareTo(b.At));
+            while (heldSnapshots.Count > 0 && heldSnapshots[0].At <= now)
+            {
+                Delayed d = heldSnapshots[0];
+                heldSnapshots.RemoveAt(0);
+                if (d.Tick <= lastReleasedSnapshotTick) continue; // overtaken by a newer one: a sequenced channel drops it
+                lastReleasedSnapshotTick = d.Tick;
+                using (var nr = new FastBufferReader(d.Data, Allocator.Temp)) OnSnapshot(NetworkManager.ServerClientId, nr);
+            }
+            heldInputs.Sort((a, b) => a.At.CompareTo(b.At));
+            while (heldInputs.Count > 0 && heldInputs[0].At <= now)
+            {
+                Delayed d = heldInputs[0];
+                heldInputs.RemoveAt(0);
+                using (var w = new FastBufferWriter(d.Data.Length, Allocator.Temp))
+                {
+                    w.WriteBytesSafe(d.Data);
+                    nm.CustomMessagingManager.SendNamedMessage(Wire.MsgInput, NetworkManager.ServerClientId, w, NetworkDelivery.UnreliableSequenced);
+                }
+            }
         }
 
         void OnSnapshot(ulong sender, FastBufferReader r)
@@ -411,8 +510,9 @@ namespace NightSignal.Net
             }
             ownState = replay;
             float jump = Vector3.Distance(before, ownState.Position);
-            visualOffset += before - ownState.Position; // hide small corrections by blending
-            if (visualOffset.magnitude > 3f) visualOffset = Vector3.zero; // large corrections snap (safety)
+            visualOffset += before - ownState.Position; // hide corrections by blending the drawn car back onto the truth
+            // Beyond 8 m it is a discontinuity (a server recovery, a rejoin): snap, and the camera cuts with it.
+            if (visualOffset.magnitude > 8f) { visualOffset = Vector3.zero; visualOffsetVelocity = Vector3.zero; }
             Corrections++;
             MaxCorrectionMetres = Mathf.Max(MaxCorrectionMetres, jump);
         }
@@ -439,6 +539,8 @@ namespace NightSignal.Net
         {
             bool racing = tick >= startTick && OwnStatus != EntrantStatus.Finished && OwnStatus != EntrantStatus.DqDisconnected;
             DriverInput input = !racing ? DriverInput.Neutral : Autopilot ? autopilot.Drive(ownState) : SampleHuman();
+            if (racing && autoResetAt >= 0f && tick >= startTick + autoResetAt * 60f && tick < startTick + (autoResetAt + 1.2f) * 60f)
+                input.Buttons |= InputButtons.ResetHeld; // automation: a held reset request, judged by the server like any other
             int slot = tick & 255;
             inputs[slot] = input;
             ticks[slot] = tick;
@@ -483,7 +585,12 @@ namespace NightSignal.Net
                 w.WriteValueSafe((byte)count);
                 for (int t = latestTick - Wire.InputRedundancy + 1; t <= latestTick; t++)
                     if (ticks[t & 255] == t) Wire.Write(w, inputs[t & 255]);
-                nm.CustomMessagingManager.SendNamedMessage(Wire.MsgInput, NetworkManager.ServerClientId, w, NetworkDelivery.UnreliableSequenced);
+                if (impair)
+                {
+                    if (impairRng.NextDouble() * 100.0 < impairDropPercent) ImpairedInputDrops++;
+                    else heldInputs.Add(new Delayed { At = Time.unscaledTime + ImpairDelay(), Data = w.ToArray() });
+                }
+                else nm.CustomMessagingManager.SendNamedMessage(Wire.MsgInput, NetworkManager.ServerClientId, w, NetworkDelivery.UnreliableSequenced);
             }
             sendTimes[latestTick & 255] = Time.realtimeSinceStartupAsDouble;
             lastSentTick = latestTick;
@@ -492,6 +599,7 @@ namespace NightSignal.Net
 
         void Update()
         {
+            if (impair && nm != null) ReleaseImpaired();
             if (controls != null)
             {
                 if (controls.ShiftUpPressedThisFrame) latchUp = true;
@@ -500,7 +608,9 @@ namespace NightSignal.Net
                 if (chase != null) chase.LookBack = controls.LookBackHeld;
             }
             if (!loaded || headless) return;
-            visualOffset = Vector3.Lerp(visualOffset, Vector3.zero, 1f - Mathf.Exp(-10f * Time.deltaTime));
+            // Critically damped: the drawn car eases onto the corrected state without a velocity jump, so the chase camera
+            // shows no kick when a correction lands (Addendum 03 C11 measured the old exponential decay as hitches).
+            visualOffset = Vector3.SmoothDamp(visualOffset, Vector3.zero, ref visualOffsetVelocity, 0.2f, Mathf.Infinity, Time.deltaTime);
             float renderTick = (float)nm.ServerTime.TickWithPartial - InterpolationTicks;
             foreach (Car car in cars.Values)
             {

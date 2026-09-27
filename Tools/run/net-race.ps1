@@ -29,7 +29,11 @@ param(
     [ValidateRange(0, 11)][int]$FreeplayAi = 0,
     [string]$FreeplayMode = 'sprint',
     # Rendered clients with per-client driving preferences, frame-rate caps and camera probes (Addendum 03 C11/C12).
-    [switch]$CameraClients
+    [switch]$CameraClients,
+    # Application-level impairment on every client: 'delayMs,jitterMs,dropPercent' each way (evidence runs only).
+    [string]$Impair = '',
+    # Client 0 holds reset this many seconds after the start (a scripted manual recovery; negative = none).
+    [int]$ResetAt = -1
 )
 
 $ErrorActionPreference = 'Stop'
@@ -42,6 +46,7 @@ catch { throw 'Control plane is not running on 127.0.0.1:5080 (run Tools/run/sta
 
 $run = 'run-' + (Get-Date -Format 'yyyyMMdd-HHmmss') + "-h$Humans"
 if ($FreeplayCourse) { $run += "-$FreeplayCourse-ai$FreeplayAi" }
+if ($Impair) { $run += '-impair' }
 $logs = Join-Path $repo "Builds\NetRuns\$run"
 $evidence = "Builds/NetRuns/$run/evidence"
 New-Item -ItemType Directory -Force $logs | Out-Null
@@ -58,6 +63,8 @@ for ($i = 0; $i -lt $Humans; $i++) {
     $clientArgs = @('-nsClient', '-nsAuto', '-nsDevAccount', "$i", '-nsAutoRole', $role, '-nsAutoHumans', "$Humans",
               '-nsAutoStage', $Stage, '-nsEvidence', $evidence, '-logFile', "`"$logs\client-$i.log`"")
     if ($FreeplayCourse) { $clientArgs += @('-nsAutoFreeplay', $FreeplayCourse, '-nsAutoFreeplayAi', "$FreeplayAi", '-nsAutoFreeplayMode', $FreeplayMode) }
+    if ($Impair) { $clientArgs += @('-nsImpair', $Impair) }
+    if ($ResetAt -ge 0 -and $i -eq 0) { $clientArgs += @('-nsAutoResetAt', "$ResetAt") }
     if ($CameraClients) {
         $views = @('chase-close', 'chase-far', 'hood', 'bumper', 'cockpit', 'chase-far')
         $styles = @('dial', 'strip', 'dial', 'strip', 'dial', 'strip')

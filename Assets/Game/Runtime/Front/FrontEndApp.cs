@@ -103,6 +103,13 @@ namespace NightSignal.Front
                 StartCoroutine(InstrumentTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsCameraTour") >= 0)
                 StartCoroutine(CameraTour());
+            int soakArg = Array.IndexOf(Environment.GetCommandLineArgs(), "-nsSoakTour");
+            if (soakArg >= 0)
+            {
+                string[] a = Environment.GetCommandLineArgs();
+                int races = soakArg + 1 < a.Length && int.TryParse(a[soakArg + 1], out int n) ? n : 8;
+                StartCoroutine(SoakTour(races));
+            }
             int social = Array.IndexOf(Environment.GetCommandLineArgs(), "-nsUiTourSocial");
             if (social >= 0 && social + 1 < Environment.GetCommandLineArgs().Length)
                 StartCoroutine(UiTourSocial(Environment.GetCommandLineArgs()[social + 1]));
