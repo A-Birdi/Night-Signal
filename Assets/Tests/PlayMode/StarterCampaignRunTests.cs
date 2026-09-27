@@ -154,7 +154,8 @@ namespace NightSignal.Tests
             yield break;
 #endif
             yield return null;
-            plan.Rules.Surface = CourseRuntime.Active?.Route?.Surface ?? "dry"; // stage-default conditions, as the game does
+            // Stage-default conditions (the stage side's authored surface and lighting), as the game does.
+            plan.Rules.Surface = RaceConditions.Surface(ContentLibrary.Load().Catalogue, plan.Rules.Kind, plan.Rules.StageId, plan.Rules.Mode, CourseRuntime.Active);
             var go = new GameObject("CampaignRun");
             var session = go.AddComponent<OfflineRaceSession>();
             session.CarId = carId;

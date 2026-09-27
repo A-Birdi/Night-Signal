@@ -169,6 +169,31 @@ namespace NightSignal.Core.Content
 
     public sealed class StageOppositionFile { public string Schema; public string Rules; public List<StageOppositionEntry> Stages = new List<StageOppositionEntry>(); }
 
+    /// <summary>Each campaign stage side's race conditions (authored/stage-conditions.json; derivation rules in the file).</summary>
+    public sealed class StageConditionsFile
+    {
+        public string Schema;
+        public string DerivationRules;
+        public List<StageConditionsEntry> Stages = new List<StageConditionsEntry>();
+    }
+
+    public sealed class StageConditionsEntry
+    {
+        public string Id;
+        public StageConditions Normal;
+        public StageConditions Hard;
+    }
+
+    /// <summary>Time of day (lighting), surface (grip: dry/damp/wet) and weather a stage side races under.</summary>
+    public sealed class StageConditions
+    {
+        public string TimeOfDay;
+        public string Surface;
+        public string Weather;
+        public string Note;
+        public string ProgressesTo;
+    }
+
     /// <summary>Certified stage benchmarks (authored/stage-benchmarks.json), produced by the benchmark certification run.</summary>
     public sealed class StageBenchmarksFile
     {

@@ -24,6 +24,8 @@ namespace NightSignal.Net
         public string FreeplayMode;
         /// <summary>The surface the server simulates (dry | damp | wet): the client predicts its own car with the same grip.</summary>
         public string Surface = "dry";
+        /// <summary>The time of day the event is lit for (the stage side's conditions, else the course's).</summary>
+        public string TimeOfDay;
         public int YourIndex = -1;
         public List<RosterEntry> Roster = new List<RosterEntry>();
     }
@@ -160,6 +162,9 @@ namespace NightSignal.Net
         /// The livery the other drivers will see: relayed only when it decodes for this car against this server's catalogue
         /// (the control plane validated ownership when it was applied); anything else races with the palette colour.
         /// </summary>
+        string EventTimeOfDay() => RaceConditions.TimeOfDay(lib?.Catalogue, assignment.Kind, assignment.StageId,
+            assignment.Mode == "hard" ? CampaignMode.Hard : CampaignMode.Normal, CourseRuntime.Active);
+
         static string RelayLivery(ContentLibrary lib, AssignmentEntrant h)
         {
             if (string.IsNullOrEmpty(h.Livery)) return "";
@@ -182,9 +187,9 @@ namespace NightSignal.Net
                 BenchmarkTargetMs = assignment.Benchmark?.TargetTimeMs ?? 0,
                 HardTimeoutMs = assignment.Benchmark?.HardTimeoutMs ?? assignment.Trial?.HardTimeoutMs ?? 0,
                 RequiresBeatingFeaturedRival = assignment.Kind == "campaign" && StageBenchmark.IsFeaturedEncounter(assignment.StageType),
-                // Weather preset wins; "stage-default" uses the course's authored Normal surface.
+                // Weather preset wins; "stage-default" uses the stage side's authored conditions (else the course's surface).
                 Surface = assignment.Weather != null && assignment.Weather.Contains("wet") ? "wet"
-                    : CourseRuntime.Active?.Route?.Surface ?? "dry",
+                    : RaceConditions.Surface(lib.Catalogue, assignment.Kind, assignment.StageId, assignment.Mode == "hard" ? CampaignMode.Hard : CampaignMode.Normal, CourseRuntime.Active),
             };
             var humans = new List<HumanSlot>();
             foreach (AssignmentEntrant h in assignment.Entrants.Where(x => x.Role == "racer"))
@@ -270,7 +275,7 @@ namespace NightSignal.Net
                 var watch = new MatchInfo
                 {
                     MatchId = assignment.MatchId, CourseId = assignment.CourseId, Kind = assignment.Kind, Mode = assignment.Mode,
-                    StageId = assignment.StageId, Weather = assignment.Weather, Contact = assignment.Collision, FreeplayMode = assignment.FreeplayMode, Surface = sim?.Rules.Surface ?? "dry",
+                    StageId = assignment.StageId, Weather = assignment.Weather, Contact = assignment.Collision, FreeplayMode = assignment.FreeplayMode, Surface = sim?.Rules.Surface ?? "dry", TimeOfDay = EventTimeOfDay(),
                     GridNote = assignment.GridNote, YourIndex = -1, Roster = Entrants.Select(x => x.Roster).ToList(),
                 };
                 FastBufferWriter sw = Wire.JsonWriter(JsonConvert.SerializeObject(watch));
@@ -288,7 +293,7 @@ namespace NightSignal.Net
             var info = new MatchInfo
             {
                 MatchId = assignment.MatchId, CourseId = assignment.CourseId, Kind = assignment.Kind, Mode = assignment.Mode,
-                StageId = assignment.StageId, Weather = assignment.Weather, Contact = assignment.Collision, FreeplayMode = assignment.FreeplayMode, Surface = sim?.Rules.Surface ?? "dry",
+                StageId = assignment.StageId, Weather = assignment.Weather, Contact = assignment.Collision, FreeplayMode = assignment.FreeplayMode, Surface = sim?.Rules.Surface ?? "dry", TimeOfDay = EventTimeOfDay(),
                 GridNote = assignment.GridNote, YourIndex = l.Entrant.Roster.Index, Roster = Entrants.Select(x => x.Roster).ToList(),
             };
             FastBufferWriter w = Wire.JsonWriter(JsonConvert.SerializeObject(info));

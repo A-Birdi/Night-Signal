@@ -1025,8 +1025,14 @@ namespace NightSignal.Front
             AsyncOperation load = SceneManager.LoadSceneAsync(courseId, LoadSceneMode.Single);
             while (!load.isDone) yield return null;
             yield return null;
-            // Stage-default conditions: the course's authored surface, as the online server does (records key on it).
-            if (rules.Kind != "freeplay") rules.Surface = CourseRuntime.Active?.Route?.Surface ?? "dry";
+            // Stage-default conditions — a campaign side's authored surface and time of day, else the course's — as the
+            // online server does (records key on the surface).
+            if (rules.Kind != "freeplay")
+            {
+                NightSignal.Core.Content.ContentCatalogue cat = NightSignal.Content.ContentLibrary.Load()?.Catalogue;
+                rules.Surface = RaceConditions.Surface(cat, rules.Kind, rules.StageId, rules.Mode, CourseRuntime.Active);
+                CourseRuntime.Active?.ApplyConditions(RaceConditions.TimeOfDay(cat, rules.Kind, rules.StageId, rules.Mode, CourseRuntime.Active));
+            }
             var go = new GameObject("OfflineRace");
             activeRace = go.AddComponent<OfflineRaceSession>();
             activeRace.CarId = carId;

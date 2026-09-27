@@ -108,9 +108,16 @@ namespace NightSignal.Track
         /// <summary>Surface grip for the chassis: dry 1.0, damp 0.88, wet 0.76.</summary>
         public static float SurfaceGrip(string surface) => surface == "wet" ? 0.76f : surface == "damp" ? 0.88f : 1f;
 
+        /// <summary>The time of day the course is lit for (set by <see cref="ApplyConditions"/>).</summary>
+        public string TimeOfDay { get; private set; }
+
+        /// <summary>Practical lights and car headlights belong on at this time of day.</summary>
+        public bool Dark => LightingPresets.For(string.IsNullOrEmpty(TimeOfDay) ? DefaultTimeOfDay : TimeOfDay).PracticalLights;
+
         public void ApplyConditions(string timeOfDay)
         {
-            LightingPreset preset = LightingPresets.For(string.IsNullOrEmpty(timeOfDay) ? DefaultTimeOfDay : timeOfDay);
+            TimeOfDay = string.IsNullOrEmpty(timeOfDay) ? DefaultTimeOfDay : timeOfDay;
+            LightingPreset preset = LightingPresets.For(TimeOfDay);
             if (Sun != null) LightingPresets.Apply(preset, Sun, Sky);
         }
     }

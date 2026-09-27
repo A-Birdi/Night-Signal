@@ -27,6 +27,7 @@ MonoBehaviour:
   - {fileID: 4900000, guid: 016e95757dc8cd54c958ea252196fb7f, type: 3}
   - {fileID: 4900000, guid: 76e0f15cc9216164294b608b2e7d2964, type: 3}
   - {fileID: 4900000, guid: 0a9c95f138106564596cc4689e3994a7, type: 3}
+  - {fileID: 4900000, guid: eef221d50c445174ea5efaf3b3db5f15, type: 3}
   CarBodies: {fileID: 4900000, guid: d1916b9e892ad2744a9d4c7a980c66ac, type: 3}
   ToyDocuments:
   - {fileID: 4900000, guid: 786c873900cb7d44989babaa91d3e951, type: 3}

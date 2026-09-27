@@ -22,7 +22,8 @@ namespace NightSignal.Core.Content
         /// different build data is refused at connect rather than at the start of a match.
         /// </summary>
         public static readonly string[] AuthoredFiles =
-            { "cars.tuning.json", "stages.opposition.json", "courses.addendum.json", "music.unlocks.json", "parts.json", "build-recipes.json", "stage-benchmarks.json" };
+            { "cars.tuning.json", "stages.opposition.json", "courses.addendum.json", "music.unlocks.json", "parts.json", "build-recipes.json", "stage-benchmarks.json",
+              "stage-conditions.json" };
 
         /// <summary>
         /// Authored overlays that must be present: they carry Addendum 01 rules (live opposition, 29 courses, course
@@ -62,6 +63,12 @@ namespace NightSignal.Core.Content
         public bool TryCar(string id, out CarDef c) => carById.TryGetValue(id ?? "", out c);
         public bool TryRival(string id, out RivalDef r) => rivalById.TryGetValue(id ?? "", out r);
         public bool TryCosmetic(string id, out CosmeticDef c) => cosmeticById.TryGetValue(id ?? "", out c);
+
+        Dictionary<string, StageConditionsEntry> conditions = new Dictionary<string, StageConditionsEntry>(StringComparer.Ordinal);
+
+        /// <summary>A campaign stage side's authored race conditions (null when the content has none).</summary>
+        public StageConditions Conditions(string stageId, NightSignal.Core.Rules.CampaignMode mode) =>
+            conditions.TryGetValue(stageId ?? "", out StageConditionsEntry e) ? (mode == NightSignal.Core.Rules.CampaignMode.Hard ? e.Hard : e.Normal) : null;
 
         /// <summary>How the certified benchmarks were produced ("" when none are loaded).</summary>
         public string BenchmarkMethod { get; private set; } = "";
@@ -137,6 +144,18 @@ namespace NightSignal.Core.Content
                     throw new ContentLoadException($"stages.opposition.json references unknown stage {entry.Id}");
                 stage.Normal.Opponents = entry.Normal;
                 stage.Hard.Opponents = entry.Hard;
+            }
+            if (documents.ContainsKey("stage-conditions.json"))
+            {
+                StageConditionsFile file = Parse<StageConditionsFile>("stage-conditions.json", "night-signal/stage-conditions@1");
+                foreach (StageConditionsEntry e in file.Stages)
+                {
+                    if (!cat.stageById.ContainsKey(e.Id ?? "")) throw new ContentLoadException($"stage-conditions.json references unknown stage {e.Id}");
+                    foreach (StageConditions c in new[] { e.Normal, e.Hard })
+                        if (c == null || (c.Surface != "dry" && c.Surface != "damp" && c.Surface != "wet") || string.IsNullOrEmpty(c.TimeOfDay))
+                            throw new ContentLoadException($"stage-conditions.json: {e.Id} needs a time of day and a dry/damp/wet surface for both modes");
+                    cat.conditions[e.Id] = e;
+                }
             }
             if (documents.ContainsKey("stage-benchmarks.json"))
             {

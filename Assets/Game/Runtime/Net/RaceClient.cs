@@ -251,6 +251,7 @@ namespace NightSignal.Net
                 yield return null;
             }
             track = CourseRuntime.Active.Track;
+            if (!headless) CourseRuntime.Active.ApplyConditions(Info.TimeOfDay); // the event's lighting (a Hard night, a dawn)
             Physics.SyncTransforms();
             var world = new PhysicsVehicleWorld(Physics.defaultPhysicsScene, GameLayers.DrivableMask, GameLayers.BarrierMask);
             var carSet = Resources.Load<CarMaterialSet>("CarMaterialSet");
@@ -264,7 +265,7 @@ namespace NightSignal.Net
                         AppearanceMapping.ForWire(lib.Customization, r.CarId, r.Livery));
                     GridSlot g = track.Grid[r.GridSlot];
                     car.View.ShowParked(g.Position - g.Rotation * Vector3.up * 0.6f, g.Rotation);
-                    car.View.SetHeadlights(CourseRuntime.Active.DefaultTimeOfDay == "night");
+                    car.View.SetHeadlights(CourseRuntime.Active.Dark);
                 }
                 cars[r.Index] = car;
             }

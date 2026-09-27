@@ -59,7 +59,7 @@ namespace NightSignal.Tests
                 session.Rules = new RaceEventRules
                 {
                     Kind = "campaign", Mode = CampaignMode.Normal, StageId = stage.Id, StageNumber = stage.Number, CarCapPi = stage.MaxPI,
-                    Contact = ContactPolicy.LightContact, Surface = CourseRuntime.Active?.Route?.Surface ?? "dry",
+                    Contact = ContactPolicy.LightContact, Surface = RaceConditions.Surface(cat, "campaign", stage.Id, CampaignMode.Normal, CourseRuntime.Active),
                     BenchmarkTargetMs = benchmark.TargetTimeMs, HardTimeoutMs = benchmark.HardTimeoutMs, RequiresBeatingFeaturedRival = benchmark.RequiresBeatingFeaturedRival,
                 };
                 session.OpposingAi = new List<string>(stage.Normal.Opponents);

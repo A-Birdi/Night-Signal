@@ -38,15 +38,31 @@ namespace NightSignal.Tests
     public sealed class BenchmarkCertificationTests
     {
         static readonly string[] Starters = { "V01", "V02", "V03" };
-        const double FirstFactor = 1.18, LastFactor = 1.05;
+        const double FirstFactor = 1.18, LastFactor = 1.05;       // Normal (spec: ~1.18×P early → ~1.05×P in the final act)
+        const double HardFirstFactor = 1.04, HardLastFactor = 1.00; // Hard (spec: near 1.04×P → about P for the legend)
         const string Folder = "Evidence/progression/benchmarks";
         const string FileName = Folder + "/stage-benchmarks.json";
 
         static string Method() =>
-            $"Normal certification {DateTime.UtcNow:yyyy-MM-dd}: reference = slowest of the three starters' intended builds, solo, validator " +
-            $"autopilot (automation, legal inputs, not a human; S29 drives its contracts, drifting the Arc); factor {FirstFactor:0.00} → {LastFactor:0.00} " +
-            $"over S01–S30; featured rival pace calibrated solo to finish 0–1 % above the target; physics {RaceSimulation.PhysicsVersion}, " +
-            $"scoring {RaceSimulation.ScoringVersion}";
+            $"Certification {DateTime.UtcNow:yyyy-MM-dd}: per stage side under its authored conditions (stage-conditions.json), reference = slowest of " +
+            $"the three starters' intended builds, solo, validator autopilot (automation, legal inputs, not a human; S29 drives its contracts, drifting " +
+            $"the Arc); factor Normal {FirstFactor:0.00} → {LastFactor:0.00}, Hard {HardFirstFactor:0.00} → {HardLastFactor:0.00} over S01–S30; featured " +
+            $"rival pace calibrated solo to finish 0–1 % above the target; physics {RaceSimulation.PhysicsVersion}, scoring {RaceSimulation.ScoringVersion}";
+
+        /// <summary>Replaces one mode's entries in the certified file, keeping the other mode's.</summary>
+        static void Save(List<CertifiedBenchmark> entries)
+        {
+            StageBenchmarksFile file = File.Exists(FileName) ? JsonConvert.DeserializeObject<StageBenchmarksFile>(File.ReadAllText(FileName))
+                : new StageBenchmarksFile { Schema = "night-signal/stage-benchmarks@1" };
+            foreach (CertifiedBenchmark e in entries)
+            {
+                int at = file.Stages.FindIndex(x => x.Stage == e.Stage && x.Mode == e.Mode);
+                if (at >= 0) file.Stages[at] = e; else file.Stages.Add(e);
+            }
+            file.Stages = file.Stages.OrderBy(x => x.Mode == "hard" ? 1 : 0).ThenBy(x => x.Stage, StringComparer.Ordinal).ToList();
+            file.Method = Method();
+            File.WriteAllText(FileName, JsonConvert.SerializeObject(file, Formatting.Indented, Json));
+        }
 
         static readonly JsonSerializerSettings Json = new JsonSerializerSettings
         {
@@ -55,17 +71,22 @@ namespace NightSignal.Tests
         };
 
         [UnityTest, Timeout(7200000)]
-        public IEnumerator CertifyNormal()
+        public IEnumerator CertifyNormal() => CertifyMode(CampaignMode.Normal);
+
+        [UnityTest, Timeout(7200000)]
+        public IEnumerator CertifyHard() => CertifyMode(CampaignMode.Hard);
+
+        static IEnumerator CertifyMode(CampaignMode mode)
         {
             ContentLibrary lib = ContentLibrary.Load();
-            var file = new StageBenchmarksFile { Schema = "night-signal/stage-benchmarks@1", Method = Method() };
+            var entries = new List<CertifiedBenchmark>();
             Directory.CreateDirectory(Folder);
             var problems = new List<string>();
             for (int n = 1; n <= Limits.CampaignStages; n++)
-                yield return CertifyStage(lib, n, problems, c => file.Stages.Add(c));
-            File.WriteAllText(FileName, JsonConvert.SerializeObject(file, Formatting.Indented, Json));
+                yield return CertifyStage(lib, n, mode, problems, c => entries.Add(c));
+            Save(entries);
             Assert.That(problems, Is.Empty, string.Join("; ", problems));
-            Assert.That(file.Stages.Count, Is.EqualTo(Limits.CampaignStages));
+            Assert.That(entries.Count, Is.EqualTo(Limits.CampaignStages));
         }
 
         /// <summary>Re-certifies S29 alone (its contracts need contract-driving reference runs) and merges it into the file.</summary>
@@ -73,20 +94,18 @@ namespace NightSignal.Tests
         public IEnumerator CertifyFourSignals()
         {
             ContentLibrary lib = ContentLibrary.Load();
-            StageBenchmarksFile file = JsonConvert.DeserializeObject<StageBenchmarksFile>(File.ReadAllText(FileName));
             var problems = new List<string>();
             CertifiedBenchmark s29 = null;
-            yield return CertifyStage(lib, 29, problems, c => s29 = c);
+            yield return CertifyStage(lib, 29, CampaignMode.Normal, problems, c => s29 = c);
             Assert.That(s29, Is.Not.Null, string.Join("; ", problems));
-            int at = file.Stages.FindIndex(s => s.Stage == "S29" && s.Mode == "normal");
-            if (at >= 0) file.Stages[at] = s29; else file.Stages.Add(s29);
-            file.Method = Method();
-            File.WriteAllText(FileName, JsonConvert.SerializeObject(file, Formatting.Indented, Json));
+            Save(new List<CertifiedBenchmark> { s29 });
             Assert.That(problems, Is.Empty, string.Join("; ", problems));
         }
 
-        static IEnumerator CertifyStage(ContentLibrary lib, int n, List<string> problems, Action<CertifiedBenchmark> done)
+        static IEnumerator CertifyStage(ContentLibrary lib, int n, CampaignMode mode, List<string> problems, Action<CertifiedBenchmark> done)
         {
+            bool hard = mode == CampaignMode.Hard;
+            string tag = hard ? "H" : "N";
             ContentCatalogue cat = lib.Catalogue;
             StageDef stage = cat.Stage("S" + n.ToString("00"));
             bool contracts = stage.Type == "penultimate";
@@ -99,10 +118,11 @@ namespace NightSignal.Tests
             yield break;
 #endif
             yield return null;
-            string surface = CourseRuntime.Active?.Route?.Surface ?? "dry";
-            var at = new StageRef { Mode = CampaignMode.Normal, Stage = n };
+            // The stage side's authored conditions (a Hard side's damp/wet/night), as the race itself uses them.
+            string surface = RaceConditions.Surface(cat, "campaign", stage.Id, mode, CourseRuntime.Active);
+            var at = new StageRef { Mode = mode, Stage = n };
             var ev = new StageEvidence { stage = stage.Id, course = stage.Course, type = stage.Type, capPi = stage.MaxPI, surface = surface,
-                provisionalTargetMs = StageBenchmarks.Provisional(cat, stage, CampaignMode.Normal).TargetTimeMs };
+                provisionalTargetMs = StageBenchmarks.Provisional(cat, stage, mode).TargetTimeMs, mode = hard ? "hard" : "normal" };
 
             // P: the slowest intended starter build (S29: driving its contracts).
             ResolvedCarSpec slowestSpec = null;
@@ -111,7 +131,7 @@ namespace NightSignal.Tests
             {
                 CarDef model = cat.Car(car);
                 RecipeStep step = lib.Recipes.Car(car).Path
-                    .Where(s => s.Kind == "main" && s.By != null && StageRef.Parse(s.By).Mode == CampaignMode.Normal && StageRef.Parse(s.By).CompareTo(at) <= 0)
+                    .Where(s => s.Kind == "main" && s.By != null && StageRef.Parse(s.By).CompareTo(at) <= 0)
                     .OrderBy(s => StageRef.Parse(s.By)).LastOrDefault();
                 ResolvedCarSpec spec = step == null ? BuildResolver.ResolveStock(model, cat.CarTunings[car], lib.Parts)
                     : BuildResolver.Resolve(model, cat.CarTunings[car], lib.Parts, RecipeBook.ToSnapshot(step, lib.Parts)).Spec;
@@ -139,7 +159,8 @@ namespace NightSignal.Tests
                 if (ms > ev.referenceMs) { ev.referenceMs = ms; ev.referenceCar = car; ev.referenceBuild = step?.Id ?? "stock"; slowestSpec = spec; }
             }
             if (slowestSpec == null) yield break;
-            ev.factor = Math.Round(FirstFactor + (LastFactor - FirstFactor) * (n - 1) / (Limits.CampaignStages - 1.0), 4);
+            double first = hard ? HardFirstFactor : FirstFactor, last = hard ? HardLastFactor : LastFactor;
+            ev.factor = Math.Round(first + (last - first) * (n - 1) / (Limits.CampaignStages - 1.0), 4);
             ev.targetMs = (long)Math.Round(ev.referenceMs * ev.factor);
 
             FourSignalsTargets signals = null;
@@ -169,13 +190,13 @@ namespace NightSignal.Tests
             }
 
             // The featured rival: never faster than its stage profile; slowed until it finishes 0–1 % above the target.
-            ev.featured = stage.Normal.Opponents[0];
+            ev.featured = (hard ? stage.Hard : stage.Normal).Opponents[0];
             double lo = 0.5, hi = 1.0, pace = 1.0;
             double bestPace = 1.0; long bestMs = 0; double bestError = double.MaxValue;
             for (int i = 0; i < 9; i++)
             {
                 long ms = 0;
-                yield return RivalRun(stage, ev.referenceCar, slowestSpec, surface, ev.featured, (float)pace, r => ms = r);
+                yield return RivalRun(stage, mode, ev.referenceCar, slowestSpec, surface, ev.featured, (float)pace, r => ms = r);
                 ev.tries.Add(new PaceTry { pace = Math.Round(pace, 4), ms = ms });
                 double error = ms <= 0 ? double.MaxValue / 2 : ms < ev.targetMs ? (ev.targetMs - ms) * 2.0 : ms > ev.targetMs * 1.01 ? ms - ev.targetMs * 1.01 : 0;
                 if (error < bestError) { bestError = error; bestPace = pace; bestMs = ms; }
@@ -187,8 +208,8 @@ namespace NightSignal.Tests
             }
             ev.featuredPace = Math.Round(bestPace, 4);
             ev.featuredMs = bestMs;
-            File.WriteAllText($"{Folder}/N-{stage.Id}.json", JsonConvert.SerializeObject(ev, Formatting.Indented, Json));
-            Debug.Log($"[NightSignal.Certify] {stage.Id} {stage.Course} ({stage.Type}, cap {stage.MaxPI}, {surface}): " +
+            File.WriteAllText($"{Folder}/{tag}-{stage.Id}.json", JsonConvert.SerializeObject(ev, Formatting.Indented, Json));
+            Debug.Log($"[NightSignal.Certify] {tag} {stage.Id} {stage.Course} ({stage.Type}, cap {stage.MaxPI}, {surface}): " +
                       string.Join(", ", ev.starters.Select(s => $"{s.car} {s.build} {s.ms / 1000.0:F1}s")) +
                       $" → P {ev.referenceMs / 1000.0:F1}s ({ev.referenceCar}), ×{ev.factor:0.000} = target {ev.targetMs / 1000.0:F1}s " +
                       $"(provisional {ev.provisionalTargetMs / 1000.0:F0}s); featured {ev.featured} pace {ev.featuredPace:0.000} → {ev.featuredMs / 1000.0:F1}s in {ev.tries.Count} runs" +
@@ -196,7 +217,7 @@ namespace NightSignal.Tests
                                          $"Horizon {string.Join("/", signals.HorizonExitKmh.Select(k => k.ToString("F0")))} km/h" : ""));
             done(new CertifiedBenchmark
             {
-                Stage = stage.Id, Mode = "normal", ReferenceMs = ev.referenceMs, ReferenceCar = ev.referenceCar, ReferenceBuild = ev.referenceBuild,
+                Stage = stage.Id, Mode = hard ? "hard" : "normal", ReferenceMs = ev.referenceMs, ReferenceCar = ev.referenceCar, ReferenceBuild = ev.referenceBuild,
                 Factor = ev.factor, TargetMs = ev.targetMs, FeaturedRivalPace = ev.featuredPace, FeaturedRivalMs = ev.featuredMs, Contracts = signals,
             });
         }
@@ -223,7 +244,7 @@ namespace NightSignal.Tests
         }
 
         /// <summary>The stage's featured rival alone with the reference car (every car ghosted), at a given pace; its finish time (0 = none).</summary>
-        static IEnumerator RivalRun(StageDef stage, string car, ResolvedCarSpec spec, string surface, string rival, float pace, Action<long> done)
+        static IEnumerator RivalRun(StageDef stage, CampaignMode mode, string car, ResolvedCarSpec spec, string surface, string rival, float pace, Action<long> done)
         {
             var go = new GameObject("RivalCalibration");
             var session = go.AddComponent<OfflineRaceSession>();
@@ -234,7 +255,7 @@ namespace NightSignal.Tests
             session.SimulationSpeed = 30;
             session.Rules = new RaceEventRules
             {
-                Kind = "campaign", Mode = CampaignMode.Normal, StageId = stage.Id, StageNumber = stage.Number, CarCapPi = stage.MaxPI,
+                Kind = "campaign", Mode = mode, StageId = stage.Id, StageNumber = stage.Number, CarCapPi = stage.MaxPI,
                 Contact = ContactPolicy.NonContact, CalibrationGhosts = true, Surface = surface, FeaturedRivalPace = pace,
             };
             session.OpposingAi = new List<string> { rival };
@@ -249,7 +270,7 @@ namespace NightSignal.Tests
 
         sealed class StageEvidence
         {
-            public string stage, course, type, surface, referenceCar, referenceBuild, featured;
+            public string stage, mode, course, type, surface, referenceCar, referenceBuild, featured;
             public int capPi;
             public long provisionalTargetMs, referenceMs, targetMs, featuredMs;
             public double factor, featuredPace;

@@ -117,7 +117,7 @@ namespace NightSignal.Race
                     float[] c = e.Roster.Paint;
                     VehicleView v = VehicleView.Create($"Car_{e.Roster.Index}_{e.Roster.CarId}", e.Params, lib.Body(e.Roster.CarId), mats, new Color(c[0], c[1], c[2]),
                         AppearanceMapping.ForWire(lib.Customization, e.Roster.CarId, e.Roster.Livery));
-                    v.SetHeadlights(course.DefaultTimeOfDay == "night");
+                    v.SetHeadlights(course.Dark);
                     views[e] = v;
                 }
                 var camGo = CameraRig.EnsureMain("RaceCamera").gameObject;
