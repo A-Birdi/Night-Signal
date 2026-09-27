@@ -1,0 +1,880 @@
+{
+  "generated": true,
+  "generator": "Tools/authoring/import-catalogue.mjs",
+  "sourceFile": "docs/brief/Night_Signal_Content_Catalogue.json",
+  "sourceSha256": "45fb1a45d69fde63bbb719421b2270f811def4c092f9c8c4a4cee8128e183e2b",
+  "schema": "night-signal/stages@1",
+  "count": 30,
+  "stages": [
+    {
+      "id": "S01",
+      "number": 1,
+      "type": "regular",
+      "course": "C01",
+      "act": 1,
+      "maxPI": 299,
+      "normal": {
+        "lead": "R01",
+        "support": [
+          "R05",
+          "R06",
+          "R07",
+          "R02"
+        ],
+        "storyBeat": "An invitation arrives with a timing slip, not a dare. Learn why the tea-road people race."
+      },
+      "hard": {
+        "lead": "R05",
+        "support": [
+          "R01",
+          "R06",
+          "R07",
+          "R02"
+        ],
+        "supportDerivation": "swap-rule-v1",
+        "variation": "dawn, damp; greater emphasis on smooth exits"
+      }
+    },
+    {
+      "id": "S02",
+      "number": 2,
+      "type": "regular",
+      "course": "C02",
+      "act": 1,
+      "maxPI": 299,
+      "normal": {
+        "lead": "R02",
+        "support": [
+          "R05",
+          "R06",
+          "R07",
+          "R03"
+        ],
+        "storyBeat": "Kei says a convoy is a promise to wait at the next turnout; Toma calls that slow. Test the difference."
+      },
+      "hard": {
+        "lead": "R06",
+        "support": [
+          "R05",
+          "R02",
+          "R07",
+          "R03"
+        ],
+        "supportDerivation": "swap-rule-v1",
+        "variation": "blue hour, dry; tighter uphill benchmark"
+      }
+    },
+    {
+      "id": "S03",
+      "number": 3,
+      "type": "regular",
+      "course": "C03",
+      "act": 1,
+      "maxPI": 299,
+      "normal": {
+        "lead": "R03",
+        "support": [
+          "R05",
+          "R06",
+          "R07",
+          "R04"
+        ],
+        "storyBeat": "The orchard loop exposes a disagreement between a good single sector and a repeatable lap."
+      },
+      "hard": {
+        "lead": "R07",
+        "support": [
+          "R05",
+          "R06",
+          "R03",
+          "R04"
+        ],
+        "supportDerivation": "swap-rule-v1",
+        "variation": "night, dry; two-lap consistency emphasis"
+      }
+    },
+    {
+      "id": "S04",
+      "number": 4,
+      "type": "regular",
+      "course": "C04",
+      "act": 1,
+      "maxPI": 499,
+      "normal": {
+        "lead": "R04",
+        "support": [
+          "R05",
+          "R06",
+          "R07",
+          "R01"
+        ],
+        "storyBeat": "Hanae repairs a cracked cup while everyone argues about the fastest line. The return matters."
+      },
+      "hard": {
+        "lead": "R01",
+        "support": [
+          "R05",
+          "R06",
+          "R07",
+          "R04"
+        ],
+        "supportDerivation": "swap-rule-v1",
+        "variation": "pre-dawn, damp; late brake-release emphasis"
+      }
+    },
+    {
+      "id": "S05",
+      "number": 5,
+      "type": "regular",
+      "course": "C05",
+      "act": 1,
+      "maxPI": 499,
+      "normal": {
+        "lead": "R09",
+        "support": [
+          "R13",
+          "R14",
+          "R15",
+          "R10"
+        ],
+        "storyBeat": "Rainline arrives prepared for weather nobody else noticed. Preparation becomes a personality."
+      },
+      "hard": {
+        "lead": "R13",
+        "support": [
+          "R09",
+          "R14",
+          "R15",
+          "R10"
+        ],
+        "supportDerivation": "swap-rule-v1",
+        "variation": "night, damp; alternate legal exit lines"
+      }
+    },
+    {
+      "id": "S06",
+      "number": 6,
+      "type": "regular",
+      "course": "C06",
+      "act": 1,
+      "maxPI": 499,
+      "normal": {
+        "lead": "R10",
+        "support": [
+          "R13",
+          "R14",
+          "R15",
+          "R11"
+        ],
+        "storyBeat": "The roadside radio mentions an unrecorded dawn run, then changes the subject."
+      },
+      "hard": {
+        "lead": "R14",
+        "support": [
+          "R13",
+          "R10",
+          "R15",
+          "R11"
+        ],
+        "supportDerivation": "swap-rule-v1",
+        "variation": "clear dawn, dry; reduced margin for early braking"
+      }
+    },
+    {
+      "id": "S07",
+      "number": 7,
+      "type": "lieutenant",
+      "course": "C04",
+      "act": 1,
+      "maxPI": 499,
+      "normal": {
+        "lead": "R08",
+        "support": [
+          "R05",
+          "R06",
+          "R07",
+          "R01"
+        ],
+        "storyBeat": "Daigo asks for a repeatable controlled run and, after it, gives the convoy a repaired radio aerial."
+      },
+      "hard": {
+        "lead": "R08",
+        "support": [
+          "R05",
+          "R06",
+          "R07",
+          "R01"
+        ],
+        "supportDerivation": "swap-rule-v1",
+        "variation": "Damp Bellmaker surface; later controlled braking and deliberate wider exits, with new mentor dialogue."
+      }
+    },
+    {
+      "id": "S08",
+      "number": 8,
+      "type": "regular",
+      "course": "C07",
+      "act": 2,
+      "maxPI": 699,
+      "normal": {
+        "lead": "R11",
+        "support": [
+          "R13",
+          "R14",
+          "R15",
+          "R12"
+        ],
+        "storyBeat": "A weather log contradicts the dry-road advice copied in the player diary."
+      },
+      "hard": {
+        "lead": "R15",
+        "support": [
+          "R13",
+          "R14",
+          "R11",
+          "R12"
+        ],
+        "supportDerivation": "swap-rule-v1",
+        "variation": "controlled mist, damp; maintain sight-line readability"
+      }
+    },
+    {
+      "id": "S09",
+      "number": 9,
+      "type": "regular",
+      "course": "C08",
+      "act": 2,
+      "maxPI": 699,
+      "normal": {
+        "lead": "R12",
+        "support": [
+          "R13",
+          "R14",
+          "R15",
+          "R09"
+        ],
+        "storyBeat": "Emi admits that uncertainty is not the same as randomness. Read the actual surface."
+      },
+      "hard": {
+        "lead": "R09",
+        "support": [
+          "R13",
+          "R14",
+          "R15",
+          "R12"
+        ],
+        "supportDerivation": "swap-rule-v1",
+        "variation": "steady rain, wet; calibrated wet reference"
+      }
+    },
+    {
+      "id": "S10",
+      "number": 10,
+      "type": "regular",
+      "course": "C09",
+      "act": 2,
+      "maxPI": 699,
+      "normal": {
+        "lead": "R17",
+        "support": [
+          "R21",
+          "R22",
+          "R23",
+          "R18"
+        ],
+        "storyBeat": "Reservoir Section challenges the convoy to name its reference point before chasing a number."
+      },
+      "hard": {
+        "lead": "R21",
+        "support": [
+          "R17",
+          "R22",
+          "R23",
+          "R18"
+        ],
+        "supportDerivation": "swap-rule-v1",
+        "variation": "dawn, damp; precision across expansion joints"
+      }
+    },
+    {
+      "id": "S11",
+      "number": 11,
+      "type": "regular",
+      "course": "C10",
+      "act": 2,
+      "maxPI": 699,
+      "normal": {
+        "lead": "R18",
+        "support": [
+          "R21",
+          "R22",
+          "R23",
+          "R19"
+        ],
+        "storyBeat": "A loose mechanical pencil rolls across a map. Kaede points out how elevation changes the argument."
+      },
+      "hard": {
+        "lead": "R22",
+        "support": [
+          "R21",
+          "R18",
+          "R23",
+          "R19"
+        ],
+        "supportDerivation": "swap-rule-v1",
+        "variation": "clear night, dry; gear/exit emphasis"
+      }
+    },
+    {
+      "id": "S12",
+      "number": 12,
+      "type": "regular",
+      "course": "C11",
+      "act": 2,
+      "maxPI": 699,
+      "normal": {
+        "lead": "R19",
+        "support": [
+          "R21",
+          "R22",
+          "R23",
+          "R20"
+        ],
+        "storyBeat": "Michi finds an old timing slip with a missing final sector, the first concrete sign of Zero Signal."
+      },
+      "hard": {
+        "lead": "R23",
+        "support": [
+          "R21",
+          "R22",
+          "R19",
+          "R20"
+        ],
+        "supportDerivation": "swap-rule-v1",
+        "variation": "night, wet; consistency across both laps"
+      }
+    },
+    {
+      "id": "S13",
+      "number": 13,
+      "type": "regular",
+      "course": "C12",
+      "act": 2,
+      "maxPI": 699,
+      "normal": {
+        "lead": "R20",
+        "support": [
+          "R21",
+          "R22",
+          "R23",
+          "R17"
+        ],
+        "storyBeat": "Jun refuses to call the fastest accident a good run. The convoy has to show control."
+      },
+      "hard": {
+        "lead": "R17",
+        "support": [
+          "R21",
+          "R22",
+          "R23",
+          "R20"
+        ],
+        "supportDerivation": "swap-rule-v1",
+        "variation": "pre-dawn, damp; no arbitrary visibility loss"
+      }
+    },
+    {
+      "id": "S14",
+      "number": 14,
+      "type": "lieutenant",
+      "course": "C08",
+      "act": 2,
+      "maxPI": 699,
+      "normal": {
+        "lead": "R16",
+        "support": [
+          "R13",
+          "R14",
+          "R15",
+          "R09"
+        ],
+        "storyBeat": "Emi challenges an assumption made in the previous rain stage; she shares a weather notebook, not a victory sermon."
+      },
+      "hard": {
+        "lead": "R16",
+        "support": [
+          "R13",
+          "R14",
+          "R15",
+          "R09"
+        ],
+        "supportDerivation": "swap-rule-v1",
+        "variation": "Steady wet Rain Thread; longer safe lines and sharper traction-management benchmark, not secret grip."
+      }
+    },
+    {
+      "id": "S15",
+      "number": 15,
+      "type": "regular",
+      "course": "C13",
+      "act": 3,
+      "maxPI": 849,
+      "normal": {
+        "lead": "R25",
+        "support": [
+          "R29",
+          "R30",
+          "R31",
+          "R26"
+        ],
+        "storyBeat": "Harbour voices break the technical tension; a bold line is welcome if it remains legal."
+      },
+      "hard": {
+        "lead": "R29",
+        "support": [
+          "R25",
+          "R30",
+          "R31",
+          "R26"
+        ],
+        "supportDerivation": "swap-rule-v1",
+        "variation": "blue hour, dry; tighter long-arc exits"
+      }
+    },
+    {
+      "id": "S16",
+      "number": 16,
+      "type": "regular",
+      "course": "C14",
+      "act": 3,
+      "maxPI": 849,
+      "normal": {
+        "lead": "R26",
+        "support": [
+          "R29",
+          "R30",
+          "R31",
+          "R27"
+        ],
+        "storyBeat": "Maya turns a rivalry into a poster and accidentally tells both sides what the other values."
+      },
+      "hard": {
+        "lead": "R30",
+        "support": [
+          "R29",
+          "R26",
+          "R31",
+          "R27"
+        ],
+        "supportDerivation": "swap-rule-v1",
+        "variation": "dawn, damp; measured urban-braking precision"
+      }
+    },
+    {
+      "id": "S17",
+      "number": 17,
+      "type": "regular",
+      "course": "C15",
+      "act": 3,
+      "maxPI": 849,
+      "normal": {
+        "lead": "R27",
+        "support": [
+          "R29",
+          "R30",
+          "R31",
+          "R28"
+        ],
+        "storyBeat": "The convoy earns a place at a closed night event after helping the timing crew solve a small problem."
+      },
+      "hard": {
+        "lead": "R31",
+        "support": [
+          "R29",
+          "R30",
+          "R27",
+          "R28"
+        ],
+        "supportDerivation": "swap-rule-v1",
+        "variation": "night, wet; authored surface transitions"
+      }
+    },
+    {
+      "id": "S18",
+      "number": 18,
+      "type": "regular",
+      "course": "C16",
+      "act": 3,
+      "maxPI": 849,
+      "normal": {
+        "lead": "R28",
+        "support": [
+          "R29",
+          "R30",
+          "R31",
+          "R25"
+        ],
+        "storyBeat": "Mako watches instead of racing, and notices who checks their friends' results first."
+      },
+      "hard": {
+        "lead": "R25",
+        "support": [
+          "R29",
+          "R30",
+          "R31",
+          "R28"
+        ],
+        "supportDerivation": "swap-rule-v1",
+        "variation": "pre-dawn, dry; torque-management emphasis"
+      }
+    },
+    {
+      "id": "S19",
+      "number": 19,
+      "type": "regular",
+      "course": "C17",
+      "act": 3,
+      "maxPI": 849,
+      "normal": {
+        "lead": "R33",
+        "support": [
+          "R37",
+          "R38",
+          "R39",
+          "R34"
+        ],
+        "storyBeat": "Datum Works offers exact numbers and a very selective definition of success."
+      },
+      "hard": {
+        "lead": "R37",
+        "support": [
+          "R33",
+          "R38",
+          "R39",
+          "R34"
+        ],
+        "supportDerivation": "swap-rule-v1",
+        "variation": "dusk, damp; clean shoulder boundaries"
+      }
+    },
+    {
+      "id": "S20",
+      "number": 20,
+      "type": "regular",
+      "course": "C18",
+      "act": 3,
+      "maxPI": 849,
+      "normal": {
+        "lead": "R34",
+        "support": [
+          "R37",
+          "R38",
+          "R39",
+          "R35"
+        ],
+        "storyBeat": "Chika asks why everyone talks about power before asking what the car feels like."
+      },
+      "hard": {
+        "lead": "R38",
+        "support": [
+          "R37",
+          "R34",
+          "R39",
+          "R35"
+        ],
+        "supportDerivation": "swap-rule-v1",
+        "variation": "night, dry; alternate support-rival lineup"
+      }
+    },
+    {
+      "id": "S21",
+      "number": 21,
+      "type": "lieutenant",
+      "course": "C12",
+      "act": 3,
+      "maxPI": 849,
+      "normal": {
+        "lead": "R24",
+        "support": [
+          "R21",
+          "R22",
+          "R23",
+          "R17"
+        ],
+        "storyBeat": "Jun measures a technically perfect run against a run that leaves options; the convoy earns a more useful respect."
+      },
+      "hard": {
+        "lead": "R24",
+        "support": [
+          "R21",
+          "R22",
+          "R23",
+          "R17"
+        ],
+        "supportDerivation": "swap-rule-v1",
+        "variation": "Cold damp Blackwater; altered braking-release pattern and legal car setup; Jun admits a changed assumption."
+      }
+    },
+    {
+      "id": "S22",
+      "number": 22,
+      "type": "regular",
+      "course": "C19",
+      "act": 4,
+      "maxPI": 999,
+      "normal": {
+        "lead": "R35",
+        "support": [
+          "R37",
+          "R38",
+          "R39",
+          "R36"
+        ],
+        "storyBeat": "Reina appears briefly and recognizes the old timing slip without acknowledging it."
+      },
+      "hard": {
+        "lead": "R39",
+        "support": [
+          "R37",
+          "R38",
+          "R35",
+          "R36"
+        ],
+        "supportDerivation": "swap-rule-v1",
+        "variation": "pre-dawn, damp; composure after compression"
+      }
+    },
+    {
+      "id": "S23",
+      "number": 23,
+      "type": "regular",
+      "course": "C20",
+      "act": 4,
+      "maxPI": 999,
+      "normal": {
+        "lead": "R36",
+        "support": [
+          "R37",
+          "R38",
+          "R39",
+          "R33"
+        ],
+        "storyBeat": "A workshop argument reveals that Reina once depended on somebody she no longer mentions."
+      },
+      "hard": {
+        "lead": "R33",
+        "support": [
+          "R37",
+          "R38",
+          "R39",
+          "R36"
+        ],
+        "supportDerivation": "swap-rule-v1",
+        "variation": "night, wet; tighter safe braking envelope"
+      }
+    },
+    {
+      "id": "S24",
+      "number": 24,
+      "type": "regular",
+      "course": "C21",
+      "act": 4,
+      "maxPI": 999,
+      "normal": {
+        "lead": "R41",
+        "support": [
+          "R45",
+          "R46",
+          "R47",
+          "R42"
+        ],
+        "storyBeat": "Fuyu describes the high road without turning it into a supernatural test."
+      },
+      "hard": {
+        "lead": "R45",
+        "support": [
+          "R41",
+          "R46",
+          "R47",
+          "R42"
+        ],
+        "supportDerivation": "swap-rule-v1",
+        "variation": "pre-dawn, dry; no artificial ice"
+      }
+    },
+    {
+      "id": "S25",
+      "number": 25,
+      "type": "regular",
+      "course": "C22",
+      "act": 4,
+      "maxPI": 999,
+      "normal": {
+        "lead": "R42",
+        "support": [
+          "R45",
+          "R46",
+          "R47",
+          "R43"
+        ],
+        "storyBeat": "Kazuma plays an old, nearly silent radio recording. What is absent becomes important."
+      },
+      "hard": {
+        "lead": "R46",
+        "support": [
+          "R45",
+          "R42",
+          "R47",
+          "R43"
+        ],
+        "supportDerivation": "swap-rule-v1",
+        "variation": "cold night, damp; published wet setup"
+      }
+    },
+    {
+      "id": "S26",
+      "number": 26,
+      "type": "regular",
+      "course": "C23",
+      "act": 4,
+      "maxPI": 999,
+      "normal": {
+        "lead": "R43",
+        "support": [
+          "R45",
+          "R46",
+          "R47",
+          "R44"
+        ],
+        "storyBeat": "Yuna reveals the restored dawn car. Shiori is nearby, asking about tyre temperatures."
+      },
+      "hard": {
+        "lead": "R47",
+        "support": [
+          "R45",
+          "R46",
+          "R43",
+          "R44"
+        ],
+        "supportDerivation": "swap-rule-v1",
+        "variation": "first light, dry; momentum through steep final sector"
+      }
+    },
+    {
+      "id": "S27",
+      "number": 27,
+      "type": "regular",
+      "course": "C24",
+      "act": 4,
+      "maxPI": 999,
+      "normal": {
+        "lead": "R44",
+        "support": [
+          "R45",
+          "R46",
+          "R47",
+          "R41"
+        ],
+        "storyBeat": "The four marshal beacons are lit. Each represents a different way to lose or preserve momentum."
+      },
+      "hard": {
+        "lead": "R41",
+        "support": [
+          "R45",
+          "R46",
+          "R47",
+          "R44"
+        ],
+        "supportDerivation": "swap-rule-v1",
+        "variation": "dawn, dry; all four sectors assessed more tightly"
+      }
+    },
+    {
+      "id": "S28",
+      "number": 28,
+      "type": "lieutenant",
+      "course": "C20",
+      "act": 4,
+      "maxPI": 999,
+      "normal": {
+        "lead": "R32",
+        "support": [
+          "R29",
+          "R30",
+          "R31",
+          "R25"
+        ],
+        "storyBeat": "Mako drops the performance persona and asks whether the convoy can stay composed when everyone is watching."
+      },
+      "hard": {
+        "lead": "R32",
+        "support": [
+          "R29",
+          "R30",
+          "R31",
+          "R25"
+        ],
+        "supportDerivation": "swap-rule-v1",
+        "variation": "Wet Ember Drop; restrained exit-focused strategy replaces showy rotation; Mako foreshadows Shiori explicitly."
+      }
+    },
+    {
+      "id": "S29",
+      "number": 29,
+      "type": "penultimate",
+      "course": "C24",
+      "act": 4,
+      "maxPI": 999,
+      "normal": {
+        "lead": "R39",
+        "support": [
+          "R37",
+          "R38",
+          "R45",
+          "R46"
+        ],
+        "storyBeat": "Four Signals: the convoy must reconcile precision, controlled drift, braking and flow before the final invitation is accepted."
+      },
+      "hard": {
+        "lead": "R47",
+        "support": [
+          "R37",
+          "R38",
+          "R45",
+          "R46"
+        ],
+        "supportDerivation": "swap-rule-v1",
+        "variation": "Yuna conducts the same four-contract test with tighter legal targets and a different dialogue about preserving the car, before Shiori agrees to race."
+      }
+    },
+    {
+      "id": "S30",
+      "number": 30,
+      "type": "finale",
+      "course": "C25",
+      "act": 4,
+      "maxPI": 999,
+      "normal": {
+        "lead": "R40",
+        "support": [
+          "R33",
+          "R34",
+          "R35",
+          "R36"
+        ],
+        "storyBeat": "Reina races the convoy at Amanagi and must confront why a shared result need not erase individual skill. Include a real ending and meet epilogue."
+      },
+      "hard": {
+        "lead": "R48",
+        "support": [
+          "R33",
+          "R34",
+          "R35",
+          "R36"
+        ],
+        "supportDerivation": "swap-rule-v1",
+        "variation": "Shiori replaces Reina as the fixed final featured rival. Her restored V04 and measured momentum-focused dawn run are entirely legal; the ending completes the radio/timing-slip story."
+      }
+    }
+  ]
+}

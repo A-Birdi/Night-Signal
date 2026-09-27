@@ -1,0 +1,124 @@
+{
+  "generated": true,
+  "generator": "Tools/authoring/import-catalogue.mjs",
+  "sourceFile": "docs/brief/Night_Signal_Content_Catalogue.json",
+  "sourceSha256": "45fb1a45d69fde63bbb719421b2270f811def4c092f9c8c4a4cee8128e183e2b",
+  "schema": "night-signal/crews@1",
+  "count": 6,
+  "crews": [
+    {
+      "id": "tea-hour",
+      "name": "Tea Hour Motor Club",
+      "region": "mizuhana",
+      "identity": "People who keep the morning tea deliveries and workshops moving; warm rivalries and small practical jokes."
+    },
+    {
+      "id": "rainline",
+      "name": "Rainline Atelier",
+      "region": "kasumi",
+      "identity": "A weather-conscious workshop collective; thoughtful preparation, different attitudes toward risk."
+    },
+    {
+      "id": "reservoir",
+      "name": "Reservoir Section",
+      "region": "kurogawa",
+      "identity": "Infrastructure workers, researchers and local competitors; precision without a single shared personality."
+    },
+    {
+      "id": "breakwater",
+      "name": "Breakwater Union",
+      "region": "akebono",
+      "identity": "Coastal craftspeople, night workers and performers; bold silhouettes, varied relationships to the port."
+    },
+    {
+      "id": "datum",
+      "name": "Datum Works",
+      "region": "hoshimi",
+      "identity": "A technically rigorous racing shop with internal disagreements about what a perfect result means."
+    },
+    {
+      "id": "zero-frequency",
+      "name": "Zero Frequency",
+      "region": "tsukishiro",
+      "identity": "Independent highland veterans and newer observers linked by the old dawn-run legend, not a uniform team."
+    }
+  ],
+  "tendencies": [
+    {
+      "id": "momentum-reader",
+      "name": "momentum reader"
+    },
+    {
+      "id": "early-set-cornerer",
+      "name": "early-set cornerer"
+    },
+    {
+      "id": "exit-traction-specialist",
+      "name": "exit traction specialist"
+    },
+    {
+      "id": "brake-release-student",
+      "name": "brake-release student"
+    },
+    {
+      "id": "inside-line-defender",
+      "name": "inside-line defender"
+    },
+    {
+      "id": "surface-reader",
+      "name": "surface reader"
+    },
+    {
+      "id": "rhythm-linker",
+      "name": "rhythm linker"
+    },
+    {
+      "id": "late-brake-anchor",
+      "name": "late-brake anchor"
+    },
+    {
+      "id": "wet-line-reader",
+      "name": "wet-line reader"
+    },
+    {
+      "id": "straight-line-planner",
+      "name": "straight-line planner"
+    },
+    {
+      "id": "wide-entry-specialist",
+      "name": "wide-entry specialist"
+    },
+    {
+      "id": "gear-optimizer",
+      "name": "gear optimizer"
+    },
+    {
+      "id": "margin-keeper",
+      "name": "margin keeper"
+    },
+    {
+      "id": "power-conserver",
+      "name": "power conserver"
+    },
+    {
+      "id": "geometric-apexer",
+      "name": "geometric apexer"
+    },
+    {
+      "id": "recovery-specialist",
+      "name": "recovery specialist"
+    },
+    {
+      "id": "rotation-specialist",
+      "name": "rotation specialist"
+    },
+    {
+      "id": "pressure-tester",
+      "name": "pressure tester"
+    },
+    {
+      "id": "high-speed-arc-reader",
+      "name": "high-speed arc reader"
+    }
+  ]
+}

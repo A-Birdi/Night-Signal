@@ -4,6 +4,7 @@
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
+        "NightSignal.Core",
         "NightSignal.Runtime",
         "NightSignal.Editor",
         "Unity.RenderPipelines.Core.Runtime",

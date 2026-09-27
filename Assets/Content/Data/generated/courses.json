@@ -1,0 +1,530 @@
+{
+  "generated": true,
+  "generator": "Tools/authoring/import-catalogue.mjs",
+  "sourceFile": "docs/brief/Night_Signal_Content_Catalogue.json",
+  "sourceSha256": "45fb1a45d69fde63bbb719421b2270f811def4c092f9c8c4a4cee8128e183e2b",
+  "schema": "night-signal/courses@1",
+  "count": 26,
+  "courses": [
+    {
+      "id": "T00",
+      "name": "Hinode Driving Grounds",
+      "region": "training",
+      "kind": "tutorial",
+      "format": "training",
+      "laps": 1,
+      "formatDescription": "Loop, skid pad, braking lanes",
+      "targetLengthKm": 1.8,
+      "targetNetElevationM": 0,
+      "expectedSeconds": 180,
+      "sectorsBrief": "Wide apron into a gentle slalom; a banked demonstration bend; separate drift circle and recovery bay",
+      "landmarks": [
+        "Timing pavilion",
+        "striped braking lane",
+        "wind-sock gantry"
+      ],
+      "defaultConditions": "Dry daylight with a separately selected wet practice section",
+      "designNote": "The skid pad is not part of a paid race route; six independent training bays and a shared non-contact loop."
+    },
+    {
+      "id": "C01",
+      "name": "Tea Lantern Road",
+      "region": "mizuhana",
+      "kind": "regular",
+      "format": "sprint",
+      "laps": 1,
+      "formatDescription": "Accessible downhill sprint",
+      "targetLengthKm": 3.1,
+      "targetNetElevationM": -80,
+      "expectedSeconds": 180,
+      "sectorsBrief": "Broad opening left; two mild alternating bends through fields; one clearly sighted hairpin before a flat finish",
+      "landmarks": [
+        "Tea-drying shed",
+        "low stone bridge",
+        "hanging lantern row"
+      ],
+      "defaultConditions": "Late afternoon, dry",
+      "designNote": "Teach braking and exit speed; broad safe shoulders, no blind punishment on the first race."
+    },
+    {
+      "id": "C02",
+      "name": "Mizuhana Switchback",
+      "region": "mizuhana",
+      "kind": "regular",
+      "format": "sprint",
+      "laps": 1,
+      "formatDescription": "Uphill sprint",
+      "targetLengthKm": 3.8,
+      "targetNetElevationM": 160,
+      "expectedSeconds": 215,
+      "sectorsBrief": "Village-edge acceleration; five deliberately unequal hairpins; an opening-radius final S",
+      "landmarks": [
+        "Terraced tea rows",
+        "split retaining wall",
+        "hilltop water tank"
+      ],
+      "defaultConditions": "Blue hour, dry",
+      "designNote": "Different climbing ratios matter; never mirror the same hairpin five times."
+    },
+    {
+      "id": "C03",
+      "name": "Canal Orchard Ring",
+      "region": "mizuhana",
+      "kind": "regular",
+      "format": "circuit",
+      "laps": 2,
+      "formatDescription": "Two-lap circuit",
+      "targetLengthKm": 2.6,
+      "targetNetElevationM": 0,
+      "expectedSeconds": 230,
+      "sectorsBrief": "Canal-side sweep; tight orchard offset; raised bridge braking into long exit",
+      "landmarks": [
+        "Canal sluice",
+        "greenhouse frames",
+        "covered packing yard"
+      ],
+      "defaultConditions": "Clear evening, dry",
+      "designNote": "Provide a genuinely closed loop, clear lap gates and a distinct overpass silhouette."
+    },
+    {
+      "id": "C04",
+      "name": "Bellmaker Descent",
+      "region": "mizuhana",
+      "kind": "regular",
+      "format": "sprint",
+      "laps": 1,
+      "formatDescription": "Downhill sprint",
+      "targetLengthKm": 4.5,
+      "targetNetElevationM": -260,
+      "expectedSeconds": 260,
+      "sectorsBrief": "Fast hill shoulder; compression into linked corners; late double-apex right by workshops",
+      "landmarks": [
+        "Bell workshop wheel",
+        "stone stair wall outside course",
+        "red covered footbridge"
+      ],
+      "defaultConditions": "Dusk, dry",
+      "designNote": "Lieutenant rematch location; visually teach not every entrance should be attacked at full speed."
+    },
+    {
+      "id": "C05",
+      "name": "Cedar Ribbon",
+      "region": "kasumi",
+      "kind": "regular",
+      "format": "sprint",
+      "laps": 1,
+      "formatDescription": "Undulating sprint",
+      "targetLengthKm": 4.2,
+      "targetNetElevationM": 70,
+      "expectedSeconds": 230,
+      "sectorsBrief": "Dark cedar corridor; three rhythm esses; an open overlook followed by an off-camber turn",
+      "landmarks": [
+        "Forest rail trestle",
+        "timber shelter",
+        "illuminated reservoir glimpse"
+      ],
+      "defaultConditions": "Night, dry",
+      "designNote": "Foliage density varies by sector; readable edge reflectors and uncluttered apexes."
+    },
+    {
+      "id": "C06",
+      "name": "Shrine Approach",
+      "region": "kasumi",
+      "kind": "regular",
+      "format": "sprint",
+      "laps": 1,
+      "formatDescription": "Technical uphill sprint",
+      "targetLengthKm": 3.9,
+      "targetNetElevationM": 240,
+      "expectedSeconds": 235,
+      "sectorsBrief": "Long braking approach; steep zigzag below a wooded ridge; final paired bends onto a plateau",
+      "landmarks": [
+        "Distant shrine roof",
+        "cedar gate well outside road",
+        "old tram station"
+      ],
+      "defaultConditions": "Night, dry",
+      "designNote": "The event uses the access road, not a sacred courtyard; retain cultural specificity without decorative nonsense."
+    },
+    {
+      "id": "C07",
+      "name": "Mistglass Hollow",
+      "region": "kasumi",
+      "kind": "regular",
+      "format": "sprint",
+      "laps": 1,
+      "formatDescription": "Forest downhill sprint",
+      "targetLengthKm": 4.7,
+      "targetNetElevationM": -210,
+      "expectedSeconds": 275,
+      "sectorsBrief": "Long visible entry sweeps; low valley mist over straight sections; tightening woodland sequence",
+      "landmarks": [
+        "Mossed aqueduct",
+        "fog-measuring mast",
+        "abandoned viewing platform"
+      ],
+      "defaultConditions": "Cool mist with maintained apex visibility",
+      "designNote": "Fog is atmospheric and telegraphed; never conceal road geometry beyond the safe stopping sight line."
+    },
+    {
+      "id": "C08",
+      "name": "Rain Thread Pass",
+      "region": "kasumi",
+      "kind": "regular",
+      "format": "sprint",
+      "laps": 1,
+      "formatDescription": "Mixed-elevation wet sprint",
+      "targetLengthKm": 5.2,
+      "targetNetElevationM": 90,
+      "expectedSeconds": 300,
+      "sectorsBrief": "Sheltered launch; wet cambered arcs; short tunnel into a long drainage-side descent",
+      "landmarks": [
+        "Rain chains at a shelter",
+        "yellow maintenance bridge",
+        "waterfall beside a tunnel exit"
+      ],
+      "defaultConditions": "Light rain at night",
+      "designNote": "Wet sheen, grip and AI line agree; no randomly placed invisible ice."
+    },
+    {
+      "id": "C09",
+      "name": "Spillway Run",
+      "region": "kurogawa",
+      "kind": "regular",
+      "format": "sprint",
+      "laps": 1,
+      "formatDescription": "Reservoir sprint",
+      "targetLengthKm": 4.9,
+      "targetNetElevationM": -140,
+      "expectedSeconds": 265,
+      "sectorsBrief": "Dam-crest crosswind section; braking past spillway gates; sheltered rising exit bends",
+      "landmarks": [
+        "Spillway towers",
+        "concrete fishway",
+        "flood-level markings"
+      ],
+      "defaultConditions": "Overcast dusk, dry",
+      "designNote": "Crosswind is primarily audiovisual in the baseline; do not add untested random steering forces."
+    },
+    {
+      "id": "C10",
+      "name": "Hydroline Climb",
+      "region": "kurogawa",
+      "kind": "regular",
+      "format": "sprint",
+      "laps": 1,
+      "formatDescription": "Long uphill sprint",
+      "targetLengthKm": 5.6,
+      "targetNetElevationM": 360,
+      "expectedSeconds": 310,
+      "sectorsBrief": "Powerhouse launch; multi-radius climbing turns; fast final shelf road",
+      "landmarks": [
+        "Switchyard silhouettes",
+        "pipeline arch",
+        "cable-service station"
+      ],
+      "defaultConditions": "Clear night",
+      "designNote": "Sustained ascent differentiates torque/gearing; road markings and power assets are original."
+    },
+    {
+      "id": "C11",
+      "name": "Floodmark Circuit",
+      "region": "kurogawa",
+      "kind": "regular",
+      "format": "circuit",
+      "laps": 2,
+      "formatDescription": "Two-lap technical circuit",
+      "targetLengthKm": 3.2,
+      "targetNetElevationM": 0,
+      "expectedSeconds": 280,
+      "sectorsBrief": "Lakeside kink; stepped retaining-wall sector; wide pump-yard exit",
+      "landmarks": [
+        "Water-level stair",
+        "twin pump houses",
+        "circular service tank"
+      ],
+      "defaultConditions": "Dawn, damp",
+      "designNote": "No impossible loop connection: use a separate service viaduct to return to the starting basin."
+    },
+    {
+      "id": "C12",
+      "name": "Blackwater Hairpins",
+      "region": "kurogawa",
+      "kind": "regular",
+      "format": "sprint",
+      "laps": 1,
+      "formatDescription": "Difficult downhill sprint",
+      "targetLengthKm": 6.2,
+      "targetNetElevationM": -470,
+      "expectedSeconds": 350,
+      "sectorsBrief": "Quiet launch shelf; asymmetrical hairpin ladder; long braking turn after a tunnel",
+      "landmarks": [
+        "Flood memorial sign outside course",
+        "blue tunnel marker",
+        "spillway overlook"
+      ],
+      "defaultConditions": "Night, dry",
+      "designNote": "A late-boss course: descent rhythm and brake release matter more than maximum power."
+    },
+    {
+      "id": "C13",
+      "name": "Saltwind Viaduct",
+      "region": "akebono",
+      "kind": "regular",
+      "format": "sprint",
+      "laps": 1,
+      "formatDescription": "Fast coastal sprint",
+      "targetLengthKm": 5.4,
+      "targetNetElevationM": 80,
+      "expectedSeconds": 260,
+      "sectorsBrief": "Rising sea viaduct; linked cliff arcs; slow port-side finishing chicane",
+      "landmarks": [
+        "Lighthouse beam",
+        "rust-red bridge truss",
+        "coast railway below"
+      ],
+      "defaultConditions": "Sunset, dry",
+      "designNote": "Fast sectors have safe barrier continuity and visibly different sea/land edges."
+    },
+    {
+      "id": "C14",
+      "name": "Fishmarket Midnight",
+      "region": "akebono",
+      "kind": "regular",
+      "format": "circuit",
+      "laps": 2,
+      "formatDescription": "Two-lap urban-port circuit",
+      "targetLengthKm": 3,
+      "targetNetElevationM": 0,
+      "expectedSeconds": 255,
+      "sectorsBrief": "Closed warehouse lane; market-roof S bends; quay-side braking into a square turn",
+      "landmarks": [
+        "Shuttered market signs",
+        "crane silhouettes",
+        "tiled freight office"
+      ],
+      "defaultConditions": "Night, dry",
+      "designNote": "No active pedestrians or public traffic on the closed course; scenery extends beyond fence lines."
+    },
+    {
+      "id": "C15",
+      "name": "Tide Lantern Coast",
+      "region": "akebono",
+      "kind": "regular",
+      "format": "sprint",
+      "laps": 1,
+      "formatDescription": "Coastal rhythm sprint",
+      "targetLengthKm": 5.8,
+      "targetNetElevationM": -100,
+      "expectedSeconds": 300,
+      "sectorsBrief": "Upland sweep; sea-wall undulations; three late-apex corners by the inlet",
+      "landmarks": [
+        "Storm gate",
+        "lit ferry terminal",
+        "stacked fishing floats behind fencing"
+      ],
+      "defaultConditions": "Early night, damp",
+      "designNote": "Road crowns and wet patches are authored/consistent for every entrant."
+    },
+    {
+      "id": "C16",
+      "name": "Breakwater Ascent",
+      "region": "akebono",
+      "kind": "regular",
+      "format": "sprint",
+      "laps": 1,
+      "formatDescription": "Coast-to-hill uphill sprint",
+      "targetLengthKm": 6.1,
+      "targetNetElevationM": 310,
+      "expectedSeconds": 330,
+      "sectorsBrief": "Harbour launch; steep cliff zigzag; broad high-road acceleration to finish",
+      "landmarks": [
+        "Breakwater lamps",
+        "hillside funicular",
+        "ridge radio dish"
+      ],
+      "defaultConditions": "Night, dry",
+      "designNote": "Course rises out of the port instead of copying a forest track with a sea skybox."
+    },
+    {
+      "id": "C17",
+      "name": "Slatecut Service Road",
+      "region": "hoshimi",
+      "kind": "regular",
+      "format": "sprint",
+      "laps": 1,
+      "formatDescription": "Quarry-edge sprint",
+      "targetLengthKm": 5.2,
+      "targetNetElevationM": 120,
+      "expectedSeconds": 290,
+      "sectorsBrief": "Concrete loading apron; rock-cut alternating bends; a bridge over an inactive quarry",
+      "landmarks": [
+        "Stepped quarry walls",
+        "conveyor frame",
+        "surveyor hut"
+      ],
+      "defaultConditions": "Late afternoon, dry",
+      "designNote": "Road is paved and closed; gravel shoulder has a clear physical boundary."
+    },
+    {
+      "id": "C18",
+      "name": "Kilnlight Ring",
+      "region": "hoshimi",
+      "kind": "regular",
+      "format": "circuit",
+      "laps": 2,
+      "formatDescription": "Two-lap industrial circuit",
+      "targetLengthKm": 3.5,
+      "targetNetElevationM": 0,
+      "expectedSeconds": 310,
+      "sectorsBrief": "Broad kiln approach; tight cooling-yard loop; under-bridge compression with safe sight line",
+      "landmarks": [
+        "Brick kiln chimneys",
+        "cooling-tower ribs",
+        "enamel workshop mural"
+      ],
+      "defaultConditions": "Night, dry",
+      "designNote": "Warm industrial windows and cooler exterior lighting create material contrast without neon overload."
+    },
+    {
+      "id": "C19",
+      "name": "Switchyard Skyline",
+      "region": "hoshimi",
+      "kind": "regular",
+      "format": "sprint",
+      "laps": 1,
+      "formatDescription": "High-speed technical climb",
+      "targetLengthKm": 6.4,
+      "targetNetElevationM": 290,
+      "expectedSeconds": 350,
+      "sectorsBrief": "Reservoir-link approach; descending-radius arcs beside pylons; climbing final hairpin group",
+      "landmarks": [
+        "Powerline crown",
+        "cantilever overlook",
+        "illuminated service lift"
+      ],
+      "defaultConditions": "Clear night",
+      "designNote": "Rhythm changes deliberately; no endless straight that decides the event solely by top speed."
+    },
+    {
+      "id": "C20",
+      "name": "Ember Quarry Drop",
+      "region": "hoshimi",
+      "kind": "regular",
+      "format": "sprint",
+      "laps": 1,
+      "formatDescription": "Expert downhill sprint",
+      "targetLengthKm": 6.7,
+      "targetNetElevationM": -520,
+      "expectedSeconds": 375,
+      "sectorsBrief": "High quarry shelf; alternating braking/compression; long final descent into workshop valley",
+      "landmarks": [
+        "Red stone cutting face",
+        "steel lattice bridge",
+        "restored machine hall"
+      ],
+      "defaultConditions": "Night, damp",
+      "designNote": "Final lieutenant location; fast road has broad recovery zones before the most severe bends."
+    },
+    {
+      "id": "C21",
+      "name": "Moonridge Contour",
+      "region": "tsukishiro",
+      "kind": "regular",
+      "format": "sprint",
+      "laps": 1,
+      "formatDescription": "Highland contour sprint",
+      "targetLengthKm": 6,
+      "targetNetElevationM": 170,
+      "expectedSeconds": 325,
+      "sectorsBrief": "Open ridge arcs; old snow-shed transition; fast plateau S section",
+      "landmarks": [
+        "Moon-view pavilion",
+        "disused snow fence",
+        "distant observatory"
+      ],
+      "defaultConditions": "Moonlit dry night",
+      "designNote": "Cold visual palette without automatically adding ice; headlight falloff remains readable."
+    },
+    {
+      "id": "C22",
+      "name": "White Pine Descent",
+      "region": "tsukishiro",
+      "kind": "regular",
+      "format": "sprint",
+      "laps": 1,
+      "formatDescription": "Highland downhill sprint",
+      "targetLengthKm": 6.8,
+      "targetNetElevationM": -430,
+      "expectedSeconds": 370,
+      "sectorsBrief": "Pine-lined openers; long cambered descent; final triple bend around a frozen-looking rock face",
+      "landmarks": [
+        "White-bark pine grove",
+        "stone avalanche gallery",
+        "weather station"
+      ],
+      "defaultConditions": "Cold dawn, dry",
+      "designNote": "Frost on scenery is not road ice; road-grip state is explicit and consistent."
+    },
+    {
+      "id": "C23",
+      "name": "Signal Tower Climb",
+      "region": "tsukishiro",
+      "kind": "regular",
+      "format": "sprint",
+      "laps": 1,
+      "formatDescription": "Expert uphill sprint",
+      "targetLengthKm": 7.2,
+      "targetNetElevationM": 580,
+      "expectedSeconds": 400,
+      "sectorsBrief": "Low antenna valley; steep and slow middle; high-flow ridge approach",
+      "landmarks": [
+        "Cable anchorage",
+        "transmitter service building",
+        "beacon mast"
+      ],
+      "defaultConditions": "Clear pre-dawn",
+      "designNote": "Acceleration cannot replace a good exit; apex lighting makes the final climb learnable."
+    },
+    {
+      "id": "C24",
+      "name": "Four Signals Traverse",
+      "region": "tsukishiro",
+      "kind": "regular",
+      "format": "sprint",
+      "laps": 1,
+      "formatDescription": "Four-sector mastery sprint",
+      "targetLengthKm": 8.4,
+      "targetNetElevationM": 110,
+      "expectedSeconds": 420,
+      "sectorsBrief": "Four different sectors: technical entry; sustained drift arcs; braking descent; smooth high-road finish",
+      "landmarks": [
+        "Four coloured marshal beacons",
+        "stone gallery",
+        "old timing cabin"
+      ],
+      "defaultConditions": "Pre-dawn, dry",
+      "designNote": "Normal regular race first; S29 reuses the course with explicit four-contract mastery judging, not a new course ID."
+    },
+    {
+      "id": "C25",
+      "name": "Amanagi Dawnline",
+      "region": "amanagi",
+      "kind": "finale",
+      "format": "sprint",
+      "laps": 1,
+      "formatDescription": "Dedicated final-boss sprint",
+      "targetLengthKm": 10.2,
+      "targetNetElevationM": -640,
+      "expectedSeconds": 420,
+      "sectorsBrief": "Ridge launch and linked switchbacks; long horizon sweep into tunnels; changing-radius descent into sunrise",
+      "landmarks": [
+        "Old radio relay arch",
+        "two-level valley bridge",
+        "sunrise finish above the sea"
+      ],
+      "defaultConditions": "Normal: night to dawn lighting; Hard: authored mist clearing into dawn",
+      "designNote": "At least five sectors and a unique route; lighting progression is deterministic, never changed grip or hidden hazards during the race."
+    }
+  ]
+}

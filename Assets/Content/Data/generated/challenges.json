@@ -1,0 +1,760 @@
+{
+  "generated": true,
+  "generator": "Tools/authoring/import-catalogue.mjs",
+  "sourceFile": "docs/brief/Night_Signal_Content_Catalogue.json",
+  "sourceSha256": "45fb1a45d69fde63bbb719421b2270f811def4c092f9c8c4a4cee8128e183e2b",
+  "schema": "night-signal/challenges@1",
+  "count": 75,
+  "challenges": [
+    {
+      "id": "CH01",
+      "family": "precision",
+      "tier": "bronze",
+      "name": "First Clean Signal",
+      "predicateText": "Finish C01 with no meaningful wall impacts and no reset.",
+      "reward": "COS-CH01",
+      "rankPoints": 40,
+      "cash": 3000
+    },
+    {
+      "id": "CH02",
+      "family": "precision",
+      "tier": "bronze",
+      "name": "One Deliberate Stop",
+      "predicateText": "On T00 braking lane, stop from 100 km/h inside the marked 8 m target box, three distinct starts in one lesson; server verifies speed before each start.",
+      "reward": "COS-CH02",
+      "rankPoints": 40,
+      "cash": 3000
+    },
+    {
+      "id": "CH03",
+      "family": "precision",
+      "tier": "bronze",
+      "name": "Apex Appointment",
+      "predicateText": "Finish C03 crossing all three designated apex gates without a wall incident.",
+      "reward": "COS-CH03",
+      "rankPoints": 40,
+      "cash": 3000
+    },
+    {
+      "id": "CH04",
+      "family": "precision",
+      "tier": "bronze",
+      "name": "The Exit Matters",
+      "predicateText": "Finish C02 with three specified uphill exit gates crossed above their published Bronze reference speeds.",
+      "reward": "COS-CH04",
+      "rankPoints": 40,
+      "cash": 3000
+    },
+    {
+      "id": "CH05",
+      "family": "precision",
+      "tier": "bronze",
+      "name": "No Recovery Needed",
+      "predicateText": "Finish C04 without reset, wrong-way warning, or leaving the legal corridor.",
+      "reward": "COS-CH05",
+      "rankPoints": 40,
+      "cash": 3000
+    },
+    {
+      "id": "CH06",
+      "family": "precision",
+      "tier": "silver",
+      "name": "Cedar Accuracy",
+      "predicateText": "Finish C05 touching all six alternating precision gates without touching a guardrail.",
+      "reward": "COS-CH06",
+      "rankPoints": 80,
+      "cash": 8000
+    },
+    {
+      "id": "CH07",
+      "family": "precision",
+      "tier": "silver",
+      "name": "One Release",
+      "predicateText": "In the fixed T00 loaner braking lesson, pass the trail-brake trace envelope through the test bend; no handbrake, valid lesson finish.",
+      "reward": "COS-CH07",
+      "rankPoints": 80,
+      "cash": 8000
+    },
+    {
+      "id": "CH08",
+      "family": "precision",
+      "tier": "silver",
+      "name": "Wet Window",
+      "predicateText": "Finish C08 with the two judged wet braking zones completed within the displayed speed/position envelopes and no wall incident.",
+      "reward": "COS-CH08",
+      "rankPoints": 80,
+      "cash": 8000
+    },
+    {
+      "id": "CH09",
+      "family": "precision",
+      "tier": "silver",
+      "name": "Bridge Margin",
+      "predicateText": "Finish C13 crossing both viaduct lane gates while staying at least the published 0.5 m safety margin from barriers in those zones.",
+      "reward": "COS-CH09",
+      "rankPoints": 80,
+      "cash": 8000
+    },
+    {
+      "id": "CH10",
+      "family": "precision",
+      "tier": "silver",
+      "name": "Equal Splits",
+      "predicateText": "Complete C11's two laps with lap-time difference <=2.0 seconds, both legal and within Silver reference time.",
+      "reward": "COS-CH10",
+      "rankPoints": 80,
+      "cash": 8000
+    },
+    {
+      "id": "CH11",
+      "family": "precision",
+      "tier": "gold",
+      "name": "Blackwater Needle",
+      "predicateText": "In the supplied class-capped C12 challenge loaner, beat its Gold reference with no reset and at most one meaningful wall impact.",
+      "reward": "COS-CH11",
+      "rankPoints": 120,
+      "cash": 15000
+    },
+    {
+      "id": "CH12",
+      "family": "precision",
+      "tier": "gold",
+      "name": "The Last Ten Metres",
+      "predicateText": "Finish C20, passing all four late-braking target gates within their published speed windows; no collision/reset in those sectors.",
+      "reward": "COS-CH12",
+      "rankPoints": 120,
+      "cash": 15000
+    },
+    {
+      "id": "CH13",
+      "family": "precision",
+      "tier": "gold",
+      "name": "Narrow Without Fear",
+      "predicateText": "Beat the fixed C21 Gold ghost while keeping all tyres in the paved corridor; a normal shoulder touch invalidates this challenge, not the entire race.",
+      "reward": "COS-CH13",
+      "rankPoints": 120,
+      "cash": 15000
+    },
+    {
+      "id": "CH14",
+      "family": "precision",
+      "tier": "gold",
+      "name": "Unbroken Datum",
+      "predicateText": "Finish a C17/C18/C19 three-event challenge cup with zero meaningful wall impacts across all legs; individual stage resets cannot carry progress.",
+      "reward": "COS-CH14",
+      "rankPoints": 120,
+      "cash": 15000
+    },
+    {
+      "id": "CH15",
+      "family": "precision",
+      "tier": "gold",
+      "name": "Dawn Precision",
+      "predicateText": "Beat C25's fixed challenge reference with all final-sector apex gates and no reset.",
+      "reward": "COS-CH15",
+      "rankPoints": 120,
+      "cash": 15000
+    },
+    {
+      "id": "CH16",
+      "family": "drift",
+      "tier": "bronze",
+      "name": "First Arc",
+      "predicateText": "Bank a single legal 8,000-point raw chain in T00's guided drift route and complete the lesson.",
+      "reward": "COS-CH16",
+      "rankPoints": 40,
+      "cash": 3000
+    },
+    {
+      "id": "CH17",
+      "family": "drift",
+      "tier": "bronze",
+      "name": "Change of Direction",
+      "predicateText": "Link three distinct left-right judged corners on C03 without losing the unbanked chain, then finish.",
+      "reward": "COS-CH17",
+      "rankPoints": 40,
+      "cash": 3000
+    },
+    {
+      "id": "CH18",
+      "family": "drift",
+      "tier": "bronze",
+      "name": "Settle and Go",
+      "predicateText": "On C04 bank two separate raw drift chains, each >=6,000; return below 8 degrees slip for 2 seconds between them; finish.",
+      "reward": "COS-CH18",
+      "rankPoints": 40,
+      "cash": 3000
+    },
+    {
+      "id": "CH19",
+      "family": "drift",
+      "tier": "bronze",
+      "name": "A Useful Angle",
+      "predicateText": "Hold a legal 20–35 degree drift for at least 3 seconds in the C05 demonstration zone and finish.",
+      "reward": "COS-CH19",
+      "rankPoints": 40,
+      "cash": 3000
+    },
+    {
+      "id": "CH20",
+      "family": "drift",
+      "tier": "bronze",
+      "name": "No Doughnuts",
+      "predicateText": "Score 25,000 raw in C01 drift variant using forward judged zones with no repeated-progress scoring, then finish.",
+      "reward": "COS-CH20",
+      "rankPoints": 40,
+      "cash": 3000
+    },
+    {
+      "id": "CH21",
+      "family": "drift",
+      "tier": "silver",
+      "name": "Rain Thread",
+      "predicateText": "Score 70,000 raw on C08 wet Drift Attack, with at least two banked chains and a legal finish.",
+      "reward": "COS-CH21",
+      "rankPoints": 80,
+      "cash": 8000
+    },
+    {
+      "id": "CH22",
+      "family": "drift",
+      "tier": "silver",
+      "name": "Outer Clip Reader",
+      "predicateText": "On C09 connect its three marked outer clip zones within one valid chain, without wall contact, then finish.",
+      "reward": "COS-CH22",
+      "rankPoints": 80,
+      "cash": 8000
+    },
+    {
+      "id": "CH23",
+      "family": "drift",
+      "tier": "silver",
+      "name": "Countersteer Conversation",
+      "predicateText": "Complete T00 advanced countersteer drill with four alternating valid recoveries into the next arc and no spin/reset.",
+      "reward": "COS-CH23",
+      "rankPoints": 80,
+      "cash": 8000
+    },
+    {
+      "id": "CH24",
+      "family": "drift",
+      "tier": "silver",
+      "name": "A Long Sentence",
+      "predicateText": "Bank one >=60,000 raw chain on C15 without slowing below 45 km/h during the scoring portion; finish.",
+      "reward": "COS-CH24",
+      "rankPoints": 80,
+      "cash": 8000
+    },
+    {
+      "id": "CH25",
+      "family": "drift",
+      "tier": "silver",
+      "name": "Both Hands Light",
+      "predicateText": "In the fixed C16 drift loaner, score its Silver target without using handbrake after the start gate; finish.",
+      "reward": "COS-CH25",
+      "rankPoints": 80,
+      "cash": 8000
+    },
+    {
+      "id": "CH26",
+      "family": "drift",
+      "tier": "gold",
+      "name": "Needle in the Rain",
+      "predicateText": "Beat the fixed wet C12 Gold drift reference and finish with no meaningful wall impact.",
+      "reward": "COS-CH26",
+      "rankPoints": 120,
+      "cash": 15000
+    },
+    {
+      "id": "CH27",
+      "family": "drift",
+      "tier": "gold",
+      "name": "Six Connected Corners",
+      "predicateText": "Link all six unique C19 judged transition zones in one forward chain and bank it at the final gate; finish.",
+      "reward": "COS-CH27",
+      "rankPoints": 120,
+      "cash": 15000
+    },
+    {
+      "id": "CH28",
+      "family": "drift",
+      "tier": "gold",
+      "name": "One Car, Two Languages",
+      "predicateText": "In a fixed C23 challenge build, beat both its published time and raw drift targets in the same legal run.",
+      "reward": "COS-CH28",
+      "rankPoints": 120,
+      "cash": 15000
+    },
+    {
+      "id": "CH29",
+      "family": "drift",
+      "tier": "gold",
+      "name": "No Wasted Motion",
+      "predicateText": "Bank the C24 Gold raw target with total unbanked points lost <=5% of earned raw points, no reset, and a legal finish.",
+      "reward": "COS-CH29",
+      "rankPoints": 120,
+      "cash": 15000
+    },
+    {
+      "id": "CH30",
+      "family": "drift",
+      "tier": "gold",
+      "name": "Dawn Ribbon",
+      "predicateText": "Complete the dedicated C25 Gold drift route in its loaner, scoring the published raw target and banking a valid chain in every judged sector.",
+      "reward": "COS-CH30",
+      "rankPoints": 120,
+      "cash": 15000
+    },
+    {
+      "id": "CH31",
+      "family": "racecraft",
+      "tier": "bronze",
+      "name": "Clean Pass",
+      "predicateText": "Pass one live AI or human in an eligible six-slot race without contact within 2 seconds before/after the pass; retain position for 3 seconds and finish.",
+      "reward": "COS-CH31",
+      "rankPoints": 40,
+      "cash": 3000
+    },
+    {
+      "id": "CH32",
+      "family": "racecraft",
+      "tier": "bronze",
+      "name": "Patient Mirror",
+      "predicateText": "Follow an eligible moving AI or human within the displayed 1–2 second gap for 8 seconds on C05 without contact, then finish.",
+      "reward": "COS-CH32",
+      "rankPoints": 40,
+      "cash": 3000
+    },
+    {
+      "id": "CH33",
+      "family": "racecraft",
+      "tier": "bronze",
+      "name": "Start in Control",
+      "predicateText": "In an eligible race, complete the first sector without false-start input penalty, wall impact, or off-course excursion; finish.",
+      "reward": "COS-CH33",
+      "rankPoints": 40,
+      "cash": 3000
+    },
+    {
+      "id": "CH34",
+      "family": "racecraft",
+      "tier": "bronze",
+      "name": "Let the Corner End",
+      "predicateText": "Pass a rival on the exit zone of C02's marked hairpin, not its approach, retain the gain to the next gate, then finish.",
+      "reward": "COS-CH34",
+      "rankPoints": 40,
+      "cash": 3000
+    },
+    {
+      "id": "CH35",
+      "family": "racecraft",
+      "tier": "bronze",
+      "name": "Graceful Return",
+      "predicateText": "Use one permitted reset in a race, then finish the remainder with no meaningful wall impact and all checkpoints legal.",
+      "reward": "COS-CH35",
+      "rankPoints": 40,
+      "cash": 3000
+    },
+    {
+      "id": "CH36",
+      "family": "racecraft",
+      "tier": "silver",
+      "name": "Outside Invitation",
+      "predicateText": "In a fixed C10 racecraft trial, pass its pacing rival using the outside lane gate and hold the gain through the next straight; finish.",
+      "reward": "COS-CH36",
+      "rankPoints": 80,
+      "cash": 8000
+    },
+    {
+      "id": "CH37",
+      "family": "racecraft",
+      "tier": "silver",
+      "name": "Keep the Door Open",
+      "predicateText": "Complete the scripted T00 merge lesson beside an AI pace car with both cars inside their legal lanes and no contact for the entire merge.",
+      "reward": "COS-CH37",
+      "rankPoints": 80,
+      "cash": 8000
+    },
+    {
+      "id": "CH38",
+      "family": "racecraft",
+      "tier": "silver",
+      "name": "Three Different Rivals",
+      "predicateText": "Win three eligible Freeplay races against three different authored lead-AI archetypes, with no race quit between these wins; losses do not erase completed archetypes.",
+      "reward": "COS-CH38",
+      "rankPoints": 80,
+      "cash": 8000
+    },
+    {
+      "id": "CH39",
+      "family": "racecraft",
+      "tier": "silver",
+      "name": "No Panic Reply",
+      "predicateText": "In the C14 pressure trial, maintain a valid Silver pace while its AI pressure car follows within 1 second for one sector; finish without wall contact in that sector.",
+      "reward": "COS-CH39",
+      "rankPoints": 80,
+      "cash": 8000
+    },
+    {
+      "id": "CH40",
+      "family": "racecraft",
+      "tier": "silver",
+      "name": "Late, Not Dirty",
+      "predicateText": "Perform the marked clean braking-zone overtake in C17's fixed challenge race, no contact and no checkpoint cut, then finish.",
+      "reward": "COS-CH40",
+      "rankPoints": 80,
+      "cash": 8000
+    },
+    {
+      "id": "CH41",
+      "family": "racecraft",
+      "tier": "gold",
+      "name": "From Sixth",
+      "predicateText": "Win a class-equalized C18 six-entrant challenge race from the last grid position, with no reset and no car-to-car contact. AI fills all missing human slots.",
+      "reward": "COS-CH41",
+      "rankPoints": 120,
+      "cash": 15000
+    },
+    {
+      "id": "CH42",
+      "family": "racecraft",
+      "tier": "gold",
+      "name": "Four Roads Ahead",
+      "predicateText": "Complete a fixed C06/C13/C21 three-event cup ahead of its designated benchmark in every leg; valid finish each time, no need for another human.",
+      "reward": "COS-CH42",
+      "rankPoints": 120,
+      "cash": 15000
+    },
+    {
+      "id": "CH43",
+      "family": "racecraft",
+      "tier": "gold",
+      "name": "Leave No Opening",
+      "predicateText": "Beat R32's C20 Gold practice reference while completing both marked defence/exit gates within the legal corridor; no blocking/contact requirement.",
+      "reward": "COS-CH43",
+      "rankPoints": 120,
+      "cash": 15000
+    },
+    {
+      "id": "CH44",
+      "family": "racecraft",
+      "tier": "gold",
+      "name": "Read the Surveyor",
+      "predicateText": "Clear the Normal S30 finale personally within the qualifying benchmark, not only the support envelope.",
+      "reward": "COS-CH44",
+      "rankPoints": 120,
+      "cash": 15000
+    },
+    {
+      "id": "CH45",
+      "family": "racecraft",
+      "tier": "gold",
+      "name": "Answer the Quiet",
+      "predicateText": "Clear the Hard S30 finale personally within Shiori's qualifying benchmark, not only the support envelope.",
+      "reward": "COS-CH45",
+      "rankPoints": 120,
+      "cash": 15000
+    },
+    {
+      "id": "CH46",
+      "family": "workshop",
+      "tier": "bronze",
+      "name": "Your First Setup",
+      "predicateText": "Save a legal personalized tune preset with a changed final drive and complete T00's acceleration lane with it; loaner tools are free.",
+      "reward": "COS-CH46",
+      "rankPoints": 40,
+      "cash": 3000
+    },
+    {
+      "id": "CH47",
+      "family": "workshop",
+      "tier": "bronze",
+      "name": "Before and After",
+      "predicateText": "Use the garage comparison harness on stock and a loaned tyre package, inspect the measured braking difference, then finish its braking lesson.",
+      "reward": "COS-CH47",
+      "rankPoints": 40,
+      "cash": 3000
+    },
+    {
+      "id": "CH48",
+      "family": "workshop",
+      "tier": "bronze",
+      "name": "Sign Your Car",
+      "predicateText": "Apply and save a legal livery with one owned/free decal and two paint regions; verify it appears on the meet display car.",
+      "reward": "COS-CH48",
+      "rankPoints": 40,
+      "cash": 3000
+    },
+    {
+      "id": "CH49",
+      "family": "workshop",
+      "tier": "bronze",
+      "name": "A Place for Every Gear",
+      "predicateText": "Complete the guided gearing lesson at its target shift windows using a supplied car; no purchase required.",
+      "reward": "COS-CH49",
+      "rankPoints": 40,
+      "cash": 3000
+    },
+    {
+      "id": "CH50",
+      "family": "workshop",
+      "tier": "bronze",
+      "name": "Change Without Losing",
+      "predicateText": "Create two visual presets, switch between them and restore the first exactly; confirm its saved server revision and meet preview.",
+      "reward": "COS-CH50",
+      "rankPoints": 40,
+      "cash": 3000
+    },
+    {
+      "id": "CH51",
+      "family": "workshop",
+      "tier": "silver",
+      "name": "Rain Has a Setup",
+      "predicateText": "Complete the fixed C08 challenge using the supplied wet tune, beating its Silver benchmark; ownership of parts not required.",
+      "reward": "COS-CH51",
+      "rankPoints": 80,
+      "cash": 8000
+    },
+    {
+      "id": "CH52",
+      "family": "workshop",
+      "tier": "silver",
+      "name": "Weight Is Not Free",
+      "predicateText": "Finish both T00 handling comparison routes in supplied light/heavy tune variants within their separate reference envelopes.",
+      "reward": "COS-CH52",
+      "rankPoints": 80,
+      "cash": 8000
+    },
+    {
+      "id": "CH53",
+      "family": "workshop",
+      "tier": "silver",
+      "name": "Differential Diagnosis",
+      "predicateText": "Complete the guided C03 two-corner challenge in both supplied diff setups, with each passing its declared turn-in/exit criteria.",
+      "reward": "COS-CH53",
+      "rankPoints": 80,
+      "cash": 8000
+    },
+    {
+      "id": "CH54",
+      "family": "workshop",
+      "tier": "silver",
+      "name": "One Index, Two Cars",
+      "predicateText": "Beat Silver reference targets on C09 in two different equalized loaner drive layouts; same PI cap, separate fair target times.",
+      "reward": "COS-CH54",
+      "rankPoints": 80,
+      "cash": 8000
+    },
+    {
+      "id": "CH55",
+      "family": "workshop",
+      "tier": "silver",
+      "name": "No Power Purchase",
+      "predicateText": "Beat the supplied stock V01 Silver reference on C04 without performance upgrades; cosmetics allowed.",
+      "reward": "COS-CH55",
+      "rankPoints": 80,
+      "cash": 8000
+    },
+    {
+      "id": "CH56",
+      "family": "workshop",
+      "tier": "gold",
+      "name": "A Tune for the Hill",
+      "predicateText": "Using free challenge tuning parts within a locked PI budget, beat C23 Gold reference; server validates all installed parameters.",
+      "reward": "COS-CH56",
+      "rankPoints": 120,
+      "cash": 15000
+    },
+    {
+      "id": "CH57",
+      "family": "workshop",
+      "tier": "gold",
+      "name": "Balanced, Not Maximum",
+      "predicateText": "Beat C15's fixed Gold combined grip/exit target with its tune-budget loaner; neither front nor rear aero may be at the range maximum.",
+      "reward": "COS-CH57",
+      "rankPoints": 120,
+      "cash": 15000
+    },
+    {
+      "id": "CH58",
+      "family": "workshop",
+      "tier": "gold",
+      "name": "Three Layouts, One Driver",
+      "predicateText": "Complete Gold short reference trials in the supplied FWD, RWD and AWD cars on three named T00 configurations; no ownership requirement.",
+      "reward": "COS-CH58",
+      "rankPoints": 120,
+      "cash": 15000
+    },
+    {
+      "id": "CH59",
+      "family": "workshop",
+      "tier": "gold",
+      "name": "Build Under Pressure",
+      "predicateText": "Win the scripted C19 six-slot equal-PI AI challenge using any legal self-authored loaner tune within the provided parts budget.",
+      "reward": "COS-CH59",
+      "rankPoints": 120,
+      "cash": 15000
+    },
+    {
+      "id": "CH60",
+      "family": "workshop",
+      "tier": "gold",
+      "name": "The Complete Notebook",
+      "predicateText": "Complete the 10 named advanced tuning demonstrations and their driving checks; they cover distinct systems, not ten copies of one slider task.",
+      "reward": "COS-CH60",
+      "rankPoints": 120,
+      "cash": 15000
+    },
+    {
+      "id": "CH61",
+      "family": "touring",
+      "tier": "bronze",
+      "name": "First Parking Place",
+      "predicateText": "Enter Cedar Lantern Terrace, complete or skip the arrival presentation, leave the car and inspect your own parked vehicle.",
+      "reward": "COS-CH61",
+      "rankPoints": 40,
+      "cash": 3000
+    },
+    {
+      "id": "CH62",
+      "family": "touring",
+      "tier": "bronze",
+      "name": "Four Corners of the Terrace",
+      "predicateText": "Walk to the four marked meet viewpoints without leaving scene bounds; inspect each location placard.",
+      "reward": "COS-CH62",
+      "rankPoints": 40,
+      "cash": 3000
+    },
+    {
+      "id": "CH63",
+      "family": "touring",
+      "tier": "bronze",
+      "name": "A Driver's Greeting",
+      "predicateText": "Use wave and bow at the tutorial meet host NPC, then inspect the emote help. No other human is required.",
+      "reward": "COS-CH63",
+      "rankPoints": 40,
+      "cash": 3000
+    },
+    {
+      "id": "CH64",
+      "family": "touring",
+      "tier": "bronze",
+      "name": "A Picture With a Horizon",
+      "predicateText": "Take an in-game photo at the terrace overlook with the horizon marker and own car in frame; use the built-in composition check.",
+      "reward": "COS-CH64",
+      "rankPoints": 40,
+      "cash": 3000
+    },
+    {
+      "id": "CH65",
+      "family": "touring",
+      "tier": "bronze",
+      "name": "Bring It Home",
+      "predicateText": "Complete any eligible event, return to a meet and inspect the result slip at the timing board.",
+      "reward": "COS-CH65",
+      "rankPoints": 40,
+      "cash": 3000
+    },
+    {
+      "id": "CH66",
+      "family": "touring",
+      "tier": "silver",
+      "name": "Six Places, Not Six Skies",
+      "predicateText": "Finish one legal course in each of the six regular regions; variants do not create extra regions.",
+      "reward": "COS-CH66",
+      "rankPoints": 80,
+      "cash": 8000
+    },
+    {
+      "id": "CH67",
+      "family": "touring",
+      "tier": "silver",
+      "name": "The Working Landscape",
+      "predicateText": "Discover and inspect the three named non-race photo points in the terrace scene: tea kiosk, radio bench, maintenance gate.",
+      "reward": "COS-CH67",
+      "rankPoints": 80,
+      "cash": 8000
+    },
+    {
+      "id": "CH68",
+      "family": "touring",
+      "tier": "silver",
+      "name": "Chasing Your Yesterday",
+      "predicateText": "Record a valid C07 personal ghost, then beat it by at least 1 second in a compatible ruleset; a reset-created artificially slow ghost does not qualify.",
+      "reward": "COS-CH68",
+      "rankPoints": 80,
+      "cash": 8000
+    },
+    {
+      "id": "CH69",
+      "family": "touring",
+      "tier": "silver",
+      "name": "A Quiet Cup",
+      "predicateText": "Complete the noncompetitive C01/C05/C09 touring cup within its generous legal time limits, with no quit; photo stops occur only after finishes.",
+      "reward": "COS-CH69",
+      "rankPoints": 80,
+      "cash": 8000
+    },
+    {
+      "id": "CH70",
+      "family": "touring",
+      "tier": "silver",
+      "name": "The Other Side of the Card",
+      "predicateText": "Read the six crew introductions in the race diary after encountering each crew, then complete one legal race against any crew member.",
+      "reward": "COS-CH70",
+      "rankPoints": 80,
+      "cash": 8000
+    },
+    {
+      "id": "CH71",
+      "family": "touring",
+      "tier": "gold",
+      "name": "Every Real Road",
+      "predicateText": "Legally finish T00's loop and all C01–C25 courses in any eligible normal/practice event; track IDs, not variants.",
+      "reward": "COS-CH71",
+      "rankPoints": 120,
+      "cash": 15000
+    },
+    {
+      "id": "CH72",
+      "family": "touring",
+      "tier": "gold",
+      "name": "Before the First Train",
+      "predicateText": "Finish the fixed pre-dawn C21/C22/C23 touring challenge cup without a reset, meeting each generous Silver pace; one continuous cup session.",
+      "reward": "COS-CH72",
+      "rankPoints": 120,
+      "cash": 15000
+    },
+    {
+      "id": "CH73",
+      "family": "touring",
+      "tier": "gold",
+      "name": "Twelve Different Voices",
+      "predicateText": "Complete legal races against 12 distinct rival driving archetype demonstrations in Freeplay; use named loaner trials for any rare style, not random luck.",
+      "reward": "COS-CH73",
+      "rankPoints": 120,
+      "cash": 15000
+    },
+    {
+      "id": "CH74",
+      "family": "touring",
+      "tier": "gold",
+      "name": "The Radio Remembered",
+      "predicateText": "Collect the six authored radio/timing-slip story records through Normal progression, then win the C24 post-story reference trial.",
+      "reward": "COS-CH74",
+      "rankPoints": 120,
+      "cash": 15000
+    },
+    {
+      "id": "CH75",
+      "family": "touring",
+      "tier": "gold",
+      "name": "After the Last Signal",
+      "predicateText": "Complete Hard S30, return to the terrace alone or with friends, and finish the final short story epilogue with Shiori at the radio bench.",
+      "reward": "COS-CH75",
+      "rankPoints": 120,
+      "cash": 15000
+    }
+  ]
+}

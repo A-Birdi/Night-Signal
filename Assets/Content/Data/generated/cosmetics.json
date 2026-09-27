@@ -1,0 +1,460 @@
+{
+  "generated": true,
+  "generator": "Tools/authoring/import-catalogue.mjs",
+  "sourceFile": "docs/brief/Night_Signal_Content_Catalogue.json",
+  "sourceSha256": "45fb1a45d69fde63bbb719421b2270f811def4c092f9c8c4a4cee8128e183e2b",
+  "schema": "night-signal/cosmetics@1",
+  "count": 75,
+  "cosmetics": [
+    {
+      "id": "COS-CH01",
+      "name": "Tea-Line Pinstripe",
+      "category": "decal",
+      "source": "CH01"
+    },
+    {
+      "id": "COS-CH02",
+      "name": "Brake Marker Bars",
+      "category": "decal",
+      "source": "CH02"
+    },
+    {
+      "id": "COS-CH03",
+      "name": "Orchard Apex Arcs",
+      "category": "decal",
+      "source": "CH03"
+    },
+    {
+      "id": "COS-CH04",
+      "name": "Rising Tea Arrow",
+      "category": "decal",
+      "source": "CH04"
+    },
+    {
+      "id": "COS-CH05",
+      "name": "Bellmaker Thread",
+      "category": "decal",
+      "source": "CH05"
+    },
+    {
+      "id": "COS-CH06",
+      "name": "Cedar Chevron",
+      "category": "decal",
+      "source": "CH06"
+    },
+    {
+      "id": "COS-CH07",
+      "name": "Release Trace",
+      "category": "decal",
+      "source": "CH07"
+    },
+    {
+      "id": "COS-CH08",
+      "name": "Rain Window",
+      "category": "decal",
+      "source": "CH08"
+    },
+    {
+      "id": "COS-CH09",
+      "name": "Viaduct Twin Lines",
+      "category": "decal",
+      "source": "CH09"
+    },
+    {
+      "id": "COS-CH10",
+      "name": "Reservoir Twinmark",
+      "category": "decal",
+      "source": "CH10"
+    },
+    {
+      "id": "COS-CH11",
+      "name": "Blackwater Needle",
+      "category": "decal",
+      "source": "CH11"
+    },
+    {
+      "id": "COS-CH12",
+      "name": "Quarry Last Marker",
+      "category": "decal",
+      "source": "CH12"
+    },
+    {
+      "id": "COS-CH13",
+      "name": "Moonridge Edgework",
+      "category": "decal",
+      "source": "CH13"
+    },
+    {
+      "id": "COS-CH14",
+      "name": "Datum Continuum",
+      "category": "decal",
+      "source": "CH14"
+    },
+    {
+      "id": "COS-CH15",
+      "name": "Amanagi Dawnseal",
+      "category": "decal",
+      "source": "CH15"
+    },
+    {
+      "id": "COS-CH16",
+      "name": "Warm Apricot Solid",
+      "category": "paint",
+      "source": "CH16"
+    },
+    {
+      "id": "COS-CH17",
+      "name": "Canal Jade Metallic",
+      "category": "paint",
+      "source": "CH17"
+    },
+    {
+      "id": "COS-CH18",
+      "name": "Bell Bronze Pearl",
+      "category": "paint",
+      "source": "CH18"
+    },
+    {
+      "id": "COS-CH19",
+      "name": "Cedar Mist Satin",
+      "category": "paint",
+      "source": "CH19"
+    },
+    {
+      "id": "COS-CH20",
+      "name": "Tea Cream Gloss",
+      "category": "paint",
+      "source": "CH20"
+    },
+    {
+      "id": "COS-CH21",
+      "name": "Rainline Blue Pearl",
+      "category": "paint",
+      "source": "CH21"
+    },
+    {
+      "id": "COS-CH22",
+      "name": "Spillway Graphite",
+      "category": "paint",
+      "source": "CH22"
+    },
+    {
+      "id": "COS-CH23",
+      "name": "Signal Red Metallic",
+      "category": "paint",
+      "source": "CH23"
+    },
+    {
+      "id": "COS-CH24",
+      "name": "Tide Lilac Pearl",
+      "category": "paint",
+      "source": "CH24"
+    },
+    {
+      "id": "COS-CH25",
+      "name": "Harbour Copper Satin",
+      "category": "paint",
+      "source": "CH25"
+    },
+    {
+      "id": "COS-CH26",
+      "name": "Blackwater Oil-Pearl",
+      "category": "paint",
+      "source": "CH26"
+    },
+    {
+      "id": "COS-CH27",
+      "name": "Skyline Ice Metallic",
+      "category": "paint",
+      "source": "CH27"
+    },
+    {
+      "id": "COS-CH28",
+      "name": "Transmitter Violet Pearl",
+      "category": "paint",
+      "source": "CH28"
+    },
+    {
+      "id": "COS-CH29",
+      "name": "Four-Signal White Pearl",
+      "category": "paint",
+      "source": "CH29"
+    },
+    {
+      "id": "COS-CH30",
+      "name": "Zero-Signal Indigo Shift",
+      "category": "paint",
+      "source": "CH30"
+    },
+    {
+      "id": "COS-CH31",
+      "name": "Tea-Hour Driving Gloves",
+      "category": "driver_clothing",
+      "source": "CH31"
+    },
+    {
+      "id": "COS-CH32",
+      "name": "Cedar Crew Cap",
+      "category": "driver_clothing",
+      "source": "CH32"
+    },
+    {
+      "id": "COS-CH33",
+      "name": "Signal Track Jacket",
+      "category": "driver_clothing",
+      "source": "CH33"
+    },
+    {
+      "id": "COS-CH34",
+      "name": "Mizuhana Canvas Trousers",
+      "category": "driver_clothing",
+      "source": "CH34"
+    },
+    {
+      "id": "COS-CH35",
+      "name": "Roadside Recovery Boots",
+      "category": "driver_clothing",
+      "source": "CH35"
+    },
+    {
+      "id": "COS-CH36",
+      "name": "Rainline Technical Jacket",
+      "category": "driver_clothing",
+      "source": "CH36"
+    },
+    {
+      "id": "COS-CH37",
+      "name": "Reflector-Cuff Shirt",
+      "category": "driver_clothing",
+      "source": "CH37"
+    },
+    {
+      "id": "COS-CH38",
+      "name": "Reservoir Pit Vest",
+      "category": "driver_clothing",
+      "source": "CH38"
+    },
+    {
+      "id": "COS-CH39",
+      "name": "Harbour Marshal Coat",
+      "category": "driver_clothing",
+      "source": "CH39"
+    },
+    {
+      "id": "COS-CH40",
+      "name": "Quarry Mechanic Overalls",
+      "category": "driver_clothing",
+      "source": "CH40"
+    },
+    {
+      "id": "COS-CH41",
+      "name": "Datum Racing Suit",
+      "category": "driver_clothing",
+      "source": "CH41"
+    },
+    {
+      "id": "COS-CH42",
+      "name": "Highland Windbreaker",
+      "category": "driver_clothing",
+      "source": "CH42"
+    },
+    {
+      "id": "COS-CH43",
+      "name": "Red-Horizon Driver Coat",
+      "category": "driver_clothing",
+      "source": "CH43"
+    },
+    {
+      "id": "COS-CH44",
+      "name": "Surveyor-Line Suit",
+      "category": "driver_clothing",
+      "source": "CH44"
+    },
+    {
+      "id": "COS-CH45",
+      "name": "Zero-Frequency Driving Coat",
+      "category": "driver_clothing",
+      "source": "CH45"
+    },
+    {
+      "id": "COS-CH46",
+      "name": "Workshop Grid Background",
+      "category": "card_customization",
+      "source": "CH46"
+    },
+    {
+      "id": "COS-CH47",
+      "name": "Comparison Columns Frame",
+      "category": "card_customization",
+      "source": "CH47"
+    },
+    {
+      "id": "COS-CH48",
+      "name": "Signed Build Nameplate",
+      "category": "card_customization",
+      "source": "CH48"
+    },
+    {
+      "id": "COS-CH49",
+      "name": "Ratio Ladder Motif",
+      "category": "card_customization",
+      "source": "CH49"
+    },
+    {
+      "id": "COS-CH50",
+      "name": "Two-State Card Back",
+      "category": "card_customization",
+      "source": "CH50"
+    },
+    {
+      "id": "COS-CH51",
+      "name": "Rain Chart Background",
+      "category": "card_customization",
+      "source": "CH51"
+    },
+    {
+      "id": "COS-CH52",
+      "name": "Mass Balance Frame",
+      "category": "card_customization",
+      "source": "CH52"
+    },
+    {
+      "id": "COS-CH53",
+      "name": "Differential Dial Emblem",
+      "category": "card_customization",
+      "source": "CH53"
+    },
+    {
+      "id": "COS-CH54",
+      "name": "Twin-Chassis Card Layout",
+      "category": "card_customization",
+      "source": "CH54"
+    },
+    {
+      "id": "COS-CH55",
+      "name": "Stock-Line Driver Title",
+      "category": "card_customization",
+      "source": "CH55"
+    },
+    {
+      "id": "COS-CH56",
+      "name": "Hill-Dyno Animated Trace",
+      "category": "card_customization",
+      "source": "CH56"
+    },
+    {
+      "id": "COS-CH57",
+      "name": "Balance Point Frame",
+      "category": "card_customization",
+      "source": "CH57"
+    },
+    {
+      "id": "COS-CH58",
+      "name": "Three-Drive Emblem",
+      "category": "card_customization",
+      "source": "CH58"
+    },
+    {
+      "id": "COS-CH59",
+      "name": "Engineer's Sector Card",
+      "category": "card_customization",
+      "source": "CH59"
+    },
+    {
+      "id": "COS-CH60",
+      "name": "Night-Signal Technical Passport",
+      "category": "card_customization",
+      "source": "CH60"
+    },
+    {
+      "id": "COS-CH61",
+      "name": "Cedar Lantern Keychain",
+      "category": "accessory_or_avatar",
+      "source": "CH61"
+    },
+    {
+      "id": "COS-CH62",
+      "name": "Route-Pin Lapel Badge",
+      "category": "accessory_or_avatar",
+      "source": "CH62"
+    },
+    {
+      "id": "COS-CH63",
+      "name": "Woven Wrist Cuff",
+      "category": "accessory_or_avatar",
+      "source": "CH63"
+    },
+    {
+      "id": "COS-CH64",
+      "name": "Cherry-Branch Avatar Emblem",
+      "category": "accessory_or_avatar",
+      "source": "CH64"
+    },
+    {
+      "id": "COS-CH65",
+      "name": "Timing-Slip Card Charm",
+      "category": "accessory_or_avatar",
+      "source": "CH65"
+    },
+    {
+      "id": "COS-CH66",
+      "name": "Six-Region Avatar Crest",
+      "category": "accessory_or_avatar",
+      "source": "CH66"
+    },
+    {
+      "id": "COS-CH67",
+      "name": "Workshop Cloth Satchel",
+      "category": "accessory_or_avatar",
+      "source": "CH67"
+    },
+    {
+      "id": "COS-CH68",
+      "name": "Ghostline Avatar Icon",
+      "category": "accessory_or_avatar",
+      "source": "CH68"
+    },
+    {
+      "id": "COS-CH69",
+      "name": "Road Atlas Accessory",
+      "category": "accessory_or_avatar",
+      "source": "CH69"
+    },
+    {
+      "id": "COS-CH70",
+      "name": "Radio-Dial Avatar Icon",
+      "category": "accessory_or_avatar",
+      "source": "CH70"
+    },
+    {
+      "id": "COS-CH71",
+      "name": "26-Road Crest Avatar",
+      "category": "accessory_or_avatar",
+      "source": "CH71"
+    },
+    {
+      "id": "COS-CH72",
+      "name": "Highland Travel Scarf",
+      "category": "accessory_or_avatar",
+      "source": "CH72"
+    },
+    {
+      "id": "COS-CH73",
+      "name": "Twelve-Voice Avatar Mosaic",
+      "category": "accessory_or_avatar",
+      "source": "CH73"
+    },
+    {
+      "id": "COS-CH74",
+      "name": "Old-Frequency Receiver Accessory",
+      "category": "accessory_or_avatar",
+      "source": "CH74"
+    },
+    {
+      "id": "COS-CH75",
+      "name": "Dawn Horizon Avatar",
+      "category": "accessory_or_avatar",
+      "source": "CH75"
+    }
+  ]
+}
