@@ -56,7 +56,8 @@ namespace NightSignal.Front
                 bool over = false;
                 List<RaceEntrantResult> results = null;
                 var rules = new RaceEventRules { Kind = "freeplay", Contact = ContactPolicy.LightContact, StageNumber = 10 };
-                StartCoroutine(RunOfflineRace(course, "V0" + (1 + n % 9), rules, new List<string>(ai), false, (r, rev) => { results = r; over = true; }));
+                string soakCar = System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-nsSoakSameCar") >= 0 ? "V01" : "V0" + (1 + n % 9);
+                StartCoroutine(RunOfflineRace(course, soakCar, rules, new List<string>(ai), false, (r, rev) => { results = r; over = true; }));
                 float until = Time.realtimeSinceStartup + 60f;
                 while ((activeRace == null || activeRace.Camera == null) && Time.realtimeSinceStartup < until) yield return null;
                 if (activeRace == null || activeRace.Camera == null) { failures.Add($"race {n + 1} did not start"); continue; }

@@ -827,3 +827,26 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - **I02/I03** EditMode `RecordVersionTests` through the game's own key builder: a best set under `classify-1` survives a
   JSON round trip, is shown as a legacy result for the same event under `classify-2` (never compared), a slower current
   result becomes the current best, and the old entry is not erased — pass. EditMode **238/238**.
+
+## V-055 — Relief pass: no more mathematically monotonic sprints (Addendum 03 §5.1) (2026-09-27)
+- Revision: working tree on `ca4551b` (committed in the next checkpoint). Unity 6000.6.3f1 editor PlayMode on the real
+  generated scenes.
+- The profile measurements (V-049) showed 16 of the 22 sprints strictly monotonic — every descent without a single rise
+  and every climb without a dip, against §5.1 ("do not force a mathematically monotonic descent at every vertex"; allow
+  compressions, flat staging areas and small counter-slopes). `Tools/courses-relief-pass.py` (deterministic per course)
+  re-shapes only control-point heights of C01, C02, C04, C06, C07, C10, C12, C16, C17, C19, C20, C21, C22, C23, C25, FP02:
+  the grade varies along the route (steeper and gentler stretches — compressions and sightline changes), three short
+  windows per course reverse it gently (about a quarter of the local grade for ~100 m) between flatter approach/exit
+  stretches, start and finish heights are exact, tunnels/bridges/viaducts (±60 m), the first/last 100 m and stacked
+  crossings (±80 m; separation never reduced below 6 m) are untouched. Report: `Evidence/courses/relief/relief-pass.txt`.
+  Route revisions bumped (+1 each).
+- Measured on the generated road (`CourseProfileTests`, `Evidence/courses/profile/`): every descent now has counter-slopes
+  (max grade +1.1 … +3.2 %, was 0.0), every climb dips (min grade −1.0 … −2.9 %, was 0.0); steepest measured grades
+  12.0–13.8 % (were up to 11.4 %). Regression on the new geometry: `CourseProfileTests` 29/29, `CourseSweepTests` 29/29
+  (autopilot start to finish, no corridor cuts), `TunnelShellTests` 7/7, `BridgeTests` 6/6, `RecoveryPhysicalTests` 4/4
+  (C25 fall, simultaneous recoveries, roof, stopped), `DriftAttackTests` 3/3, `FullGridContactTests` 2/2 — **80/80**;
+  EditMode 238/238.
+- Also: a second soak with the same car every race showed the same early managed-heap growth (7.3 → 7.9 MB after two
+  races), so it is not per-car caching; no growing static collection was found; still open.
+- Not yet: `ReferenceRunTests` (30 campaign reference runs) on the new geometry — running next; benchmark certification
+  stays deferred (Addendum 03 §9).

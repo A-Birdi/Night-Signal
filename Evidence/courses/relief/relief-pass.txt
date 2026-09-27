@@ -1,0 +1,16 @@
+C01: 32 pts, 3097 m plan, descent 80 m; amp 0.50 lambda 1020; counter-slope segments 3, bumps 3; max 20 m grade 7.6 %; ascent 0->2 m, descent 80->82 m; stacked pairs 0; end 0.00->0.00
+C02: 151 pts, 3785 m plan, climb 160 m; amp 0.50 lambda 780; counter-slope segments 20, bumps 3; max 20 m grade 12.0 %; ascent 160->162 m, descent 0->2 m; stacked pairs 0; end 280.00->280.00
+C04: 150 pts, 4580 m plan, descent 260 m; amp 0.17 lambda 900; counter-slope segments 13, bumps 3; max 20 m grade 12.3 %; ascent 0->3 m, descent 260->263 m; stacked pairs 0; end 160.00->160.00
+C06: 176 pts, 3964 m plan, climb 240 m; amp 0.12 lambda 1020; counter-slope segments 14, bumps 3; max 20 m grade 12.8 %; ascent 240->243 m, descent 0->3 m; stacked pairs 0; end 420.00->420.00
+C07: 144 pts, 4766 m plan, descent 210 m; amp 0.50 lambda 780; counter-slope segments 11, bumps 3; max 20 m grade 11.5 %; ascent 0->3 m, descent 210->213 m; stacked pairs 0; end 150.00->150.00
+C10: 179 pts, 5757 m plan, climb 360 m; amp 0.24 lambda 1020; counter-slope segments 13, bumps 3; max 20 m grade 12.5 %; ascent 360->362 m, descent 0->2 m; stacked pairs 0; end 480.00->480.00
+C12: 242 pts, 6208 m plan, descent 470 m; amp 0.08 lambda 840; counter-slope segments 21, bumps 3; max 20 m grade 12.6 %; ascent 0->4 m, descent 470->474 m; stacked pairs 0; end 150.00->150.00
+C16: 213 pts, 6182 m plan, climb 310 m; amp 0.24 lambda 780; counter-slope segments 9, bumps 3; max 20 m grade 12.7 %; ascent 310->312 m, descent 0->2 m; stacked pairs 0; end 315.00->315.00
+C17: 177 pts, 5131 m plan, climb 120 m; amp 0.50 lambda 840; counter-slope segments 10, bumps 3; max 20 m grade 5.7 %; ascent 120->121 m, descent 0->1 m; stacked pairs 0; end 520.00->520.00
+C19: 231 pts, 6425 m plan, climb 290 m; amp 0.35 lambda 960; counter-slope segments 17, bumps 3; max 20 m grade 12.0 %; ascent 290->293 m, descent 0->3 m; stacked pairs 0; end 550.00->550.00
+C20: 208 pts, 6864 m plan, descent 520 m; amp 0.12 lambda 780; counter-slope segments 12, bumps 3; max 20 m grade 12.9 %; ascent 0->4 m, descent 520->524 m; stacked pairs 0; end 180.00->180.00
+C21: 166 pts, 5905 m plan, climb 170 m; amp 0.50 lambda 840; counter-slope segments 8, bumps 3; max 20 m grade 7.5 %; ascent 170->171 m, descent 0->1 m; stacked pairs 0; end 1070.00->1070.00
+C22: 189 pts, 6659 m plan, descent 430 m; amp 0.35 lambda 900; counter-slope segments 11, bumps 3; max 20 m grade 11.9 %; ascent 0->3 m, descent 430->433 m; stacked pairs 0; end 670.00->670.00
+C23: 272 pts, 7321 m plan, climb 580 m; amp 0.12 lambda 960; counter-slope segments 15, bumps 3; max 20 m grade 12.8 %; ascent 580->584 m, descent 0->4 m; stacked pairs 0; end 1180.00->1180.00
+C25: 343 pts, 10516 m plan, descent 640 m; amp 0.17 lambda 780; counter-slope segments 16, bumps 3; max 20 m grade 12.4 %; ascent 0->3 m, descent 640->643 m; stacked pairs 1; end 80.00->80.00
+FP02: 183 pts, 4996 m plan, climb 230 m; amp 0.12 lambda 960; counter-slope segments 15, bumps 3; max 20 m grade 12.8 %; ascent 230->232 m, descent 0->2 m; stacked pairs 0; end 530.00->530.00
