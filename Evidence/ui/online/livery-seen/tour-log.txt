@@ -1,0 +1,38 @@
+[NightSignal.UiTourSocial:host] signed in as @nsdriver0; peer @nsdriver1
+[NightSignal.UiTourSocial:host] friends with @nsdriver1
+[NightSignal.UiTourSocial:host] convoy members: Driver 1, Driver 2
+[NightSignal.UiTourSocial:host] applied livery: plate 'NS H34', hash d290c2795aa3972661e45c07f029f6e791ede11f52472bc1665dc3339f40187c -> 5ea613e79120a687ebdc1a9c15b8cf1c872fa051584588c55d4e31c3ce650fc5 (Appearance applied — it shows in your next race.)
+[NightSignal.UiTourSocial:host] last result: <color=#9A968D>LAST RACE</color> | P1 of 4   02:21.642 | <color=#3EC6D8>Stage cleared</color> | Credits +10,248   ·   balance 199,121 cr | 
+[NightSignal.UiTourSocial:host] PASS
+[NightSignal.UiTourSocial:guest] signed in as @nsdriver1; peer @nsdriver0
+[NightSignal.UiTourSocial:guest] friends with @nsdriver0
+[NightSignal.UiTourSocial:guest] joined Driver 1's convoy
+[NightSignal.UiTourSocial:guest] the host's car as drawn here: roster livery 234 bytes, plate 'NS H34', front track, rear aero ducktail, 1 decals
+[NightSignal.UiTourSocial:guest] rejoined: spectator True, convoy phase InMatch
+[NightSignal.UiTourSocial:guest] spectating: 2 target changes; 73.9s first: Driver 1 | 77.9s next: Hanae Okuno
+[NightSignal.UiTourSocial:guest] last result: <color=#9A968D>LAST RACE</color> | DisqualifiedDisconnect | <color=#F2A541>Stage not cleared</color>  <size=85%>No valid finish.</size> | Credits +0   ·   balance 92,558 cr | 
+[NightSignal.UiTourSocial:guest] PASS
+[NightSignal.Server] Driver 1 races the frozen build ab6c3d46f265 of ci_702e155f59e36e91f69dfc14 (applied revision 4, 1 part(s), PI 240) — hash verified
+[NightSignal.Server] Driver 2 races the frozen build c12c2bea1a67 of ci_7d632aec226adb967fecd74a (applied revision 1, 0 part(s), PI 220) — hash verified
+[NightSignal.Server] phase Loading at tick 0
+[NightSignal.Server] match m_989137507f3e4fad137c6016 on C02: 2 humans, 2 AI, contact light-contact, port 7792
+[NightSignal.Server] entrant 1 (Driver 2) connected as client 1
+[NightSignal.Server] entrant 0 (Driver 1) connected as client 2
+[NightSignal.Server] phase Countdown at tick 184, start tick 424
+[NightSignal.Server] phase Racing at tick 424
+[NightSignal.Server] entrant 1 disconnected → DqDisconnected
+[NightSignal.Server] t=15s | #0 H Racing 433m 142km/h cp3 starved0 late0 lead4 | #1 H DqDisconnected 312m 129km/h cp2 starved0 late0 lead-172 | #2 AI Racing 410m 136km/h cp3 | #3 AI Racing 393m 134km/h cp3
+[NightSignal.Server] spectator connected as client 3 (1 watching)
+[NightSignal.Server] t=30s | #0 H Racing 901m 105km/h cp8 starved0 late0 lead4 | #1 H DqDisconnected 312m 129km/h cp2 starved0 late0 lead-1072 | #2 AI Racing 870m 93km/h cp8 | #3 AI Racing 861m 91km/h cp7
+[NightSignal.Server] t=45s | #0 H Racing 1297m 65km/h cp12 starved0 late0 lead4 | #1 H DqDisconnected 312m 129km/h cp2 starved0 late0 lead-1972 | #2 AI Racing 1274m 49km/h cp12 | #3 AI Racing 1268m 42km/h cp11
+[NightSignal.Server] t=60s | #0 H Racing 1656m 46km/h cp15 starved0 late0 lead4 | #1 H DqDisconnected 312m 129km/h cp2 starved0 late0 lead-2872 | #2 AI Racing 1641m 36km/h cp15 | #3 AI Racing 1636m 36km/h cp15
+[NightSignal.Server] t=75s | #0 H Racing 2102m 102km/h cp20 starved0 late0 lead4 | #1 H DqDisconnected 312m 129km/h cp2 starved0 late0 lead-3772 | #2 AI Racing 2054m 127km/h cp19 | #3 AI Racing 2034m 128km/h cp19
+[NightSignal.Server] t=90s | #0 H Racing 2431m 119km/h cp23 starved0 late0 lead4 | #1 H DqDisconnected 312m 129km/h cp2 starved0 late0 lead-4672 | #2 AI Racing 2388m 119km/h cp23 | #3 AI Racing 2373m 116km/h cp23
+[NightSignal.Server] t=105s | #0 H Racing 2745m 107km/h cp26 starved0 late0 lead4 | #1 H DqDisconnected 312m 129km/h cp2 starved0 late0 lead-5572 | #2 AI Racing 2693m 93km/h cp26 | #3 AI Racing 2679m 90km/h cp26
+[NightSignal.Server] t=120s | #0 H Racing 3115m 96km/h cp30 starved0 late0 lead4 | #1 H DqDisconnected 312m 129km/h cp2 starved0 late0 lead-6472 | #2 AI Racing 3066m 76km/h cp29 | #3 AI Racing 3053m 65km/h cp29
+[NightSignal.Server] t=135s | #0 H Racing 3521m 123km/h cp34 starved0 late0 lead4 | #1 H DqDisconnected 312m 129km/h cp2 starved0 late0 lead-7372 | #2 AI Racing 3454m 110km/h cp33 | #3 AI Racing 3430m 105km/h cp33
+[NightSignal.Server] first human finish; finish window closes at race time 322.5 s
+[NightSignal.Server] phase Results at tick 9102
+[NightSignal.Server] results for m_989137507f3e4fad137c6016: 200 {"status":"settled","receipts":[{"matchId":"m_989137507f3e4fad137c6016","accountId":"00000000-0000-4000-8000-000000000001","status":"settled","eventKind":"CampaignStage","mode":"normal","stageId":"S02","courseId":"C02","outcome":"Finished","placement":1,"tied":false,"finishTimeMs":141642,"stage":{"qualified":true,"withinSupport":true,"earnedClear":true,"teamSuccess":true,"qualifiers":1,"requir…
+[NightSignal.Server] spectator client 3 left
+[NightSignal.Server] entrant 0 disconnected → Finished

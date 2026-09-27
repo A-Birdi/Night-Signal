@@ -111,7 +111,7 @@ Render Cockpit Sheets* renders the mounted views of every car.
    V-052, readability and bridges V-053, online recovery/impairment/soak V-054 are done): prediction hitches for a
    heavy-contact client under ~190 ms RTT (a velocity-continuous correction blend is in, A/B inconclusive, V-061);
    soak and record migration report (A3.8); then F08 and benchmark certification.
-1. Customization follow-ups: two humans in one race seeing each other's liveries; meet refresh of liveries; pearl flip
+1. Customization follow-ups: decals scaled up render as flat quads crossing the glass (seen in V-062); meet refresh of liveries; pearl flip
    tint; rename/delete presets in the UI (the ops exist).
 2. F08–F10 starter progression runs with upgrades; drift skill per AI profile and campaign drift benchmarks; restrict
    Drift Attack to courses with judged zones; group Time Attack and toy tables with 3–6 humans; block UI,

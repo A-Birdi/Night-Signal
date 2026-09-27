@@ -174,6 +174,48 @@ namespace NightSignal.Front
                 yield return Until(() => Router.Current == Convoy && S() != null, 20f, "signed in");
             }
 
+            // The host's livery through the real Garage → Appearance screens (validated and frozen into the roster by the
+            // control plane); the plate carries a per-run tag so the guest can tell it is this run's livery.
+            string hostPlate = null;
+            IEnumerator ApplyHostLivery()
+            {
+                IEnumerator Press(string row, int times)
+                {
+                    for (int i = 0; i < times; i++)
+                    {
+                        Click(row + "/Next");
+                        yield return new WaitForSeconds(0.25f);
+                    }
+                }
+                Click("OpenGarage");
+                yield return Until(() => Router.Current == Garage && Garage.Workspace != null && !Garage.Busy, 20f, "online garage loaded");
+                yield return new WaitForSeconds(0.8f);
+                Click("OpenAppearance");
+                yield return Until(() => Router.Current == Appearance && Appearance.Editor != null, 10f, "appearance open");
+                yield return new WaitForSeconds(0.8f);
+                string before = Appearance.Workspace.AppliedLiveryHash;
+                yield return Press("Front", 1);
+                yield return Press("Section", 2); // paint
+                yield return Press("Colour", 1);
+                yield return Press("Section", 1); // lights & plate
+                hostPlate = "NS H" + DateTime.Now.ToString("ss");
+                var plateField = GameObject.Find("Appearance-PlateText")?.GetComponent<TMP_InputField>();
+                if (plateField != null) { plateField.text = hostPlate; plateField.onEndEdit.Invoke(plateField.text); }
+                yield return new WaitForSeconds(0.5f);
+                Click("Appearance-Apply");
+                yield return Until(() => !Appearance.Busy && !Appearance.Editor.IsDirty, 20f, "livery applied");
+                yield return new WaitForSeconds(0.8f);
+                Shot("07-livery-applied");
+                Note($"applied livery: plate '{hostPlate}', hash {before} -> {Appearance.Workspace.AppliedLiveryHash} ({Appearance.Message})");
+                if (Appearance.Workspace.AppliedLiveryHash == before) failures.Add("the host's livery was not applied: " + Appearance.Message);
+                Click("Back");
+                yield return Until(() => Router.Current == Garage, 10f, "back at the garage");
+                yield return new WaitForSeconds(0.8f);
+                Click("Back");
+                yield return Until(() => Router.Current == Convoy, 10f, "back at the convoy screen");
+                yield return new WaitForSeconds(1f);
+            }
+
             // Two humans race one online event through the real convoy buttons; the guest then leaves mid-race, comes back and
             // spectates the host.
             IEnumerator RaceTogether(bool isHost)
@@ -183,6 +225,7 @@ namespace NightSignal.Front
                 yield return new WaitForSeconds(1f);
                 if (isHost)
                 {
+                    yield return ApplyHostLivery();
                     Convoy.SelectIntent(0); // Campaign · Normal
                     Click("ProposeIntent");
                     yield return Until(() => State()?["intent"]?.Type == JTokenType.Object, 20f, "intent set");
@@ -211,7 +254,22 @@ namespace NightSignal.Front
                 }
                 yield return Until(() => onlineRace != null, 60f, "match allocated");
                 yield return Until(() => onlineRace == null || onlineRace.Phase == NightSignal.Race.MatchPhase.Racing, 90f, "race started");
-                yield return new WaitForSeconds(12f);
+                if (!isHost && onlineRace != null)
+                {
+                    // The other human's car as THIS client draws it: the roster livery the game server relayed, applied to the view.
+                    yield return new WaitForSeconds(1f);
+                    Shot("08b-host-car-on-the-grid");
+                    NightSignal.Race.RosterEntry other = onlineRace.Info.Roster.FirstOrDefault(r => r.Human && r.Index != onlineRace.Info.YourIndex);
+                    NightSignal.Art.CarAppearance seen = other != null ? onlineRace.ViewOf(other.Index)?.Appearance : null;
+                    Core.Customization.LiveryDocument doc = string.IsNullOrEmpty(other?.Livery) ? null : Core.Customization.LiveryWire.Decode(other.Livery).Document; // rosters carry the wire form
+                    Note($"the host's car as drawn here: roster livery {other?.Livery?.Length ?? 0} bytes, plate '{seen?.PlateText}', front {seen?.Front}, " +
+                         $"rear aero {seen?.RearAero}, {seen?.Decals.Count} decals");
+                    if (doc == null || seen == null || seen.PlateText != doc.Plate.Text || seen.Front != doc.Body.Front || seen.RearAero != doc.Body.RearAero
+                        || seen.Decals.Count != doc.Decals.Count)
+                        failures.Add($"the guest does not draw the host's roster livery (roster: plate '{doc?.Plate.Text}', front {doc?.Body.Front}, rear aero {doc?.Body.RearAero}, {doc?.Decals.Count} decals)");
+                    else if (seen.PlateText == null || !seen.PlateText.StartsWith("NS H")) failures.Add("the host's car shows another plate: " + seen.PlateText);
+                }
+                yield return new WaitForSeconds(isHost ? 12f : 11f);
                 Shot("09-racing");
                 if (!isHost)
                 {

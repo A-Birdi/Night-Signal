@@ -89,6 +89,8 @@ namespace NightSignal.Net
         public long DriftBanked => driftBanked;
         /// <summary>This client's own car as drawn (null before the views exist or headless).</summary>
         public VehicleView MyView => Info != null && cars.TryGetValue(Info.YourIndex, out Car c) ? c.View : null;
+        /// <summary>The drawn car of any entrant (null headless or unknown).</summary>
+        public VehicleView ViewOf(int index) => cars.TryGetValue(index, out Car c) ? c.View : null;
         public MatchPhase Phase { get; private set; } = MatchPhase.WaitingForEntrants;
         public MatchResults Results { get; private set; }
         public bool Connected => nm != null && nm.IsConnectedClient;

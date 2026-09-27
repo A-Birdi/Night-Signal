@@ -988,3 +988,17 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   harm) but it is **not shown** to fix the heavy-contact hitch; that limitation stands.
 - **NaN fix confirmed under load:** 0 invalid-transform errors and 0 non-finite events on all six clients in both runs
   (the V-052/V-054 six-client runs logged 626–803 such lines each).
+
+## V-062 — A second human draws another human's livery in the same online race (2026-09-27)
+- Revision: working tree on `7f7583d` (committed in the next checkpoint). Two windowed development clients, dedicated game
+  server, local control plane — loopback. `Tools/run/ui-tour-social.ps1 -Race` (`Evidence/ui/online/livery-seen`).
+- Before proposing the event, the host changes its livery through the real Garage → Appearance screen (front kit, paint
+  colour, plate "NS H34" — a per-run tag) and applies it: the control plane validates and stores it (hash `d290c279…` →
+  `5ea613e7…`). At the start of the race the guest looks up the other human in the roster the game server relayed,
+  decodes that roster livery (wire form, 234 bytes) and compares it with the car it draws: plate "NS H34", front
+  "track", rear aero "ducktail", 1 decal — all equal — and the grid screenshot shows the host's car with the plate
+  readable. The rest of the tour (guest crash → rejoin → Spectate the Race; host P1, +10,248) passed as in V-060 — **PASS**
+  on both clients. (An earlier attempt compared against the roster as canonical JSON and failed; rosters carry the wire
+  form — the check was wrong, not the game.)
+- Seen on the way (not fixed here): a decal scaled up in an earlier tour renders as a flat quad that leaves the body and
+  crosses the windscreen/pillar, in the Appearance preview and on the race car.
