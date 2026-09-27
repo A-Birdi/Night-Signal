@@ -43,6 +43,7 @@ namespace NightSignal.Front
         public readonly GreenlightScreen Greenlight = new GreenlightScreen();
         public readonly CapClashScreen CapClash = new CapClashScreen();
         public readonly PitCrewScreen PitCrew = new PitCrewScreen();
+        public readonly CanvasScreen ConvoyCanvas = new CanvasScreen();
         public readonly WhileWeWaitScreen WhileWeWait = new WhileWeWaitScreen();
         /// <summary>Rich-text summary of the last online race (placing, time, settled receipt) for the convoy screen.</summary>
         public string LastOnlineResult { get; private set; }
@@ -236,6 +237,18 @@ namespace NightSignal.Front
             PitCrew.AutoLock = null;
             Click("Back");
             yield return new WaitForSeconds(1.2f);
+
+            // Convoy Canvas: three scripted strokes (a wave, a ring, a signal zigzag) through the real operations.
+            Click("Toy-Canvas");
+            yield return new WaitForSeconds(2f);
+            ConvoyCanvas.AutoDraw = TourStrokes();
+            yield return new WaitForSeconds(3f);
+            Shot("19-convoy-canvas");
+            Debug.Log($"[NightSignal.UiTour] canvas marks: {ConvoyCanvas.MyObjects}");
+            if (ConvoyCanvas.MyObjects < 3) failures.Add($"Canvas: {ConvoyCanvas.MyObjects} marks of 3");
+            ConvoyCanvas.AutoDraw = null;
+            Click("Back");
+            yield return new WaitForSeconds(1.2f);
             Click("Back");
             yield return new WaitForSeconds(1.2f);
             string summary = failures.Count == 0 ? "PASS" : "FAILED: " + string.Join("; ", failures);
@@ -259,6 +272,17 @@ namespace NightSignal.Front
         }
 
         int CountToyLaps() => PocketCircuit.CompletedLaps;
+
+        /// <summary>Scripted Canvas strokes for the tour (sheet units 4096 × 2048).</summary>
+        static IEnumerator<Vector2Int[]> TourStrokes()
+        {
+            yield return Enumerable.Range(0, 40).Select(i => new Vector2Int(300 + i * 60, 1300 + (int)(Mathf.Sin(i * 0.45f) * 260))).ToArray();
+            yield return null;
+            yield return Enumerable.Range(0, 49).Select(i => new Vector2Int(2900 + (int)(Mathf.Cos(i / 48f * Mathf.PI * 2) * 420), 900 + (int)(Mathf.Sin(i / 48f * Mathf.PI * 2) * 420))).ToArray();
+            yield return null;
+            yield return new[] { new Vector2Int(500, 700), new Vector2Int(800, 300), new Vector2Int(1100, 700), new Vector2Int(1400, 300), new Vector2Int(1700, 700) };
+            while (true) yield return null;
+        }
 
         static readonly System.Collections.Generic.Dictionary<string, float> tourCapPower = new System.Collections.Generic.Dictionary<string, float>();
 
@@ -309,6 +333,7 @@ namespace NightSignal.Front
             if (Router.Current == Greenlight) Greenlight.OnHide();
             if (Router.Current == CapClash) CapClash.OnHide();
             if (Router.Current == PitCrew) PitCrew.OnHide();
+            if (Router.Current == ConvoyCanvas) ConvoyCanvas.OnHide();
             _ = session?.Request("presence.set", new { presence = "LoadingRace" }, quiet: true);
             Canvas.gameObject.SetActive(false);
             if (backdropCamera != null) backdropCamera.SetActive(false);

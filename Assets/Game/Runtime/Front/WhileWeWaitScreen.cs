@@ -26,7 +26,7 @@ namespace NightSignal.Front
             Entry(col, "Greenlight", "Greenlight", "Reaction station: Lights Out, Shift Window, Hold the Mark.", () => App.Router.Show(App.Greenlight));
             Entry(col, "CapClash", "Cap Clash", "Flick bottle caps across a toolbox tabletop; one shot each, bank shots, a shared card.", () => App.Router.Show(App.CapClash));
             Entry(col, "PitCrew", "Pit-Crew Project", "Build a miniature together, one task each; finished models go on the shelf.", () => App.Router.Show(App.PitCrew));
-            Entry(col, "Canvas", "Convoy Canvas", "Draw, stamp and letter a shared sheet or a car hood.", null);
+            Entry(col, "Canvas", "Convoy Canvas", "Draw, stamp and letter a shared sheet; undo your own marks; clear only by consent.", () => App.Router.Show(App.ConvoyCanvas));
             UIFactory.Button("Back", col, "Back", () => App.Router.Back(), 620, 52);
         }
 

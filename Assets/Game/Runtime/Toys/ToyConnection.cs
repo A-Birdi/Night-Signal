@@ -159,6 +159,16 @@ namespace NightSignal.Toys
                 raw[id] = state;
                 typed.Remove(id);
             }
+            else if (p["encoded"] is JValue enc && enc.Type == JTokenType.String)
+            {
+                // The Canvas travels as Core's compact deflated document (bounded on decode).
+                try
+                {
+                    typed[id] = Core.Toys.Canvas.CanvasCodec.Decode((string)enc);
+                    raw.Remove(id);
+                }
+                catch (Exception ex) { error = "The shared canvas could not be read: " + ex.Message; }
+            }
             else if ((bool?)p["omitted"] == true) Refetch(id);
         }
 
@@ -167,7 +177,7 @@ namespace NightSignal.Toys
             try
             {
                 JToken snap = await client.Request("toy.snapshot", new { activity = id.ToString() });
-                if (snap is JObject o && o["state"] is JObject) OnActivity(o);
+                if (snap is JObject o && (o["state"] is JObject || o["encoded"] is JValue)) OnActivity(o);
             }
             catch (Exception) { /* the next push tries again */ }
         }

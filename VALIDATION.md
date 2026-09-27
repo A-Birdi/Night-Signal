@@ -331,3 +331,16 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - Local tour: **3 operations completed** on the Night-Shift Coupe (claim → steps locked near the centre → "Part
   installed!", 3/30). Screenshots `Evidence/ui/campaign/17, 18`. Art is placeholder primitives; the camera framing puts
   part of the model behind the task panel.
+
+## V-034 — All five While We Wait diversions playable (2026-09-27)
+- Convoy Canvas: the shared vector document rasterized on the client (strokes, lines, rectangles, ellipses, stamps from
+  the authored library; lettering rendered as literal text, never markup); tools pen/line/rect/ellipse/text/stamp/
+  eraser (own marks), palette, widths, undo/redo of own actions, new sheets, whole-sheet clear by consent; every
+  operation carries the sheet AND its epoch; strokes are sent in ≤ 128-point chunks and closed once the authority has
+  named them. Online the document arrives as Core's compact encoded form.
+- One standalone Local tour now drives every diversion through its REAL screen: Pocket Circuit 3 clean laps,
+  Greenlight 3/3 clean, Cap Clash 3/3 on the scoring area, Pit-Crew 3 operations, **Convoy Canvas 3 strokes** — PASS,
+  toy table saved in the profile. Screenshots `Evidence/ui/campaign/10a…19`.
+- Online: Pocket Circuit verified at the convoy's shared table (V-030); the other four use the same connection code
+  path but have not yet been exercised against the hosted session. Controller input for the Canvas (a virtual cursor)
+  is not built; mouse drawing only.
