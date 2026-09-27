@@ -271,3 +271,16 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   WebSocket round trips), BuildsTests 222/222, Toys.Tests 92/92, CoreTests 86/86. SQLite migration 0004 applied on a
   real control-plane restart; the Postgres migration is written but not executed.
 - Not yet: the Unity client's tabletop presentation and toy.* handling (Pocket Circuit first).
+
+## V-029 — Pocket Circuit playable offline (2026-09-27)
+- Local play hosts the SAME Core `DowntimeSession` the control plane runs, in-process (commands through the full
+  envelope: sequence, request id, epoch, rate budget); the table is rendered procedurally from the Core `SlotTrack`
+  lanes (table, six-lane deck with slots/rails/borders, piers under raised pieces, start gantry, one toy car per lane,
+  table and chase cameras). Analog throttle (trigger, or a smoothed held key) sent at ~20 Hz; lanes 1–6; layouts by
+  consent (solo: immediate). The table snapshot is saved in the profile's non-progression toy workspace.
+- Standalone tour (`-nsUiTour`, continues after the campaign): Offline hub → "While We Wait: Pocket Circuit" → scripted
+  curvature-aware throttle → **3 clean laps** on Workshop Oval (0:13.800, 0:13.658, 0:13.658; lane-1 ratio 1.059
+  disclosed; normalized best 0:12.893; clean-lap collection 3/12) → leave → table saved (`toy table saved True`).
+  Screenshots `Evidence/ui/campaign/10…12`. Automation, not a human playtest.
+- Not yet: the online table (client `toy.*` handling against the hosted session), the other four diversions' views,
+  the While We Wait selector on the convoy screen.

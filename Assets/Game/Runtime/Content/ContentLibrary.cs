@@ -17,6 +17,8 @@ namespace NightSignal.Content
     {
         public TextAsset[] Documents;
         public TextAsset CarBodies;
+        /// <summary>While We Wait toy content (non-progression; not part of the race catalogue hash).</summary>
+        public TextAsset[] ToyDocuments;
 
         ContentCatalogue catalogue;
         Dictionary<string, CarBodyDef> bodies;
@@ -48,6 +50,21 @@ namespace NightSignal.Content
         {
             ContentCatalogue c = Catalogue;
             return VehicleFactory.Build(c.Car(carId), c.CarTunings[carId], assists, Body(carId).WheelRadius);
+        }
+
+        Core.Toys.ToyContent toys;
+
+        /// <summary>The five diversions' content, loaded and validated by Core (null when the documents are missing).</summary>
+        public Core.Toys.ToyContent Toys
+        {
+            get
+            {
+                if (toys != null || ToyDocuments == null || ToyDocuments.Length == 0) return toys;
+                var docs = new Dictionary<string, string>();
+                foreach (TextAsset t in ToyDocuments) docs[t.name + ".json"] = t.text;
+                toys = Core.Toys.ToyContent.Load(docs);
+                return toys;
+            }
         }
 
         public static ContentLibrary Load() => Resources.Load<ContentLibrary>("ContentLibrary");

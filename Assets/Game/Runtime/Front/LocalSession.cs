@@ -107,5 +107,27 @@ namespace NightSignal.Front
         }
 
         public void Close() => Profile = null;
+
+        /// <summary>The saved While We Wait table for this profile (non-progression domain), or null.</summary>
+        public string ToySnapshot(string key) => Profile?.Toys.Get(key)?.Data?.ToString(Newtonsoft.Json.Formatting.None);
+
+        /// <summary>
+        /// Stores the toy session snapshot in the profile's NON-PROGRESSION toy workspace (Addendum 02 D209) and saves the
+        /// profile atomically. Toy state never touches money, rank, records or unlocks.
+        /// </summary>
+        public bool SaveToys(string key, string schema, string snapshotJson, out string message)
+        {
+            if (Profile == null) { message = "No Local profile is open."; return false; }
+            LocalProfile copy = ProfileJson.Clone(Profile);
+            copy.Toys.Put(key, new VersionedDocument
+            {
+                Schema = schema, SchemaVersion = 1, UpdatedUtc = DateTime.UtcNow, Data = Newtonsoft.Json.Linq.JToken.Parse(snapshotJson),
+            });
+            ProfileSaveResult s = Repository.Save(copy);
+            message = s.Message;
+            if (!s.Ok) return false;
+            Profile = copy;
+            return true;
+        }
     }
 }

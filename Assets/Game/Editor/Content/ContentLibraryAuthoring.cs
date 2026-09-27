@@ -31,6 +31,10 @@ namespace NightSignal.Editor.ContentTools
             }
             lib.Documents = docs.ToArray();
             lib.CarBodies = Load("Assets/Content/Data/authored/cars.body.json");
+            // While We Wait toy content (Addendum 02): a separate, non-progression document set.
+            var toys = new List<TextAsset>();
+            foreach (string f in Core.Toys.ToyContent.Files) toys.Add(Load($"Assets/Content/Data/authored/toys/{f}"));
+            lib.ToyDocuments = toys.ToArray();
             if (create) AssetDatabase.CreateAsset(lib, LibraryPath);
             EditorUtility.SetDirty(lib);
 

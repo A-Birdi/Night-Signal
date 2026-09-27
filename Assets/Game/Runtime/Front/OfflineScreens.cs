@@ -109,6 +109,7 @@ namespace NightSignal.Front
                 "Local / Offline. Kept on this PC only and separate from any Online profile: never uploaded as online currency, unlocks, rank or records.",
                 SignalTheme.Small, SignalTheme.Caution, 640, 52);
             campaign = UIFactory.Button("Campaign", col, "Campaign Map", () => App.Router.Show(App.CampaignMap), 620, 60);
+            UIFactory.Button("PocketCircuit", col, "While We Wait: Pocket Circuit", () => App.Router.Show(App.PocketCircuit), 620, 52);
             UIFactory.Row("FreeplayHeading", col, "FREEPLAY", SignalTheme.Small, SignalTheme.LabelDim, 640, 28, true);
             course = new Stepper(col, "Course", playable.Count, CourseLabel);
             car = new Stepper(col, "Car", 1, i => cars.Count == 0 ? "—" : CarLabel(cars[i]));

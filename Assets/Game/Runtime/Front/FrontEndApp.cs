@@ -39,6 +39,7 @@ namespace NightSignal.Front
         public readonly NewProfileScreen NewProfile = new NewProfileScreen();
         public readonly CampaignMapScreen CampaignMap = new CampaignMapScreen();
         public readonly ConvoyScreen Convoy = new ConvoyScreen();
+        public readonly PocketCircuitScreen PocketCircuit = new PocketCircuitScreen();
         /// <summary>Rich-text summary of the last online race (placing, time, settled receipt) for the convoy screen.</summary>
         public string LastOnlineResult { get; private set; }
         /// <summary>UI tours drive online races with the validator autopilot (automation, labelled as such).</summary>
@@ -149,11 +150,47 @@ namespace NightSignal.Front
             Click("Continue");
             yield return new WaitForSeconds(2.5f);
             Shot("09-campaign-after");
+
+            // While We Wait, offline: Pocket Circuit at the Local table (Addendum 02 §5).
+            Click("Back");
+            yield return new WaitForSeconds(1.2f);
+            Click("PocketCircuit");
+            yield return new WaitForSeconds(2f);
+            PocketCircuit.AutoThrottle = TourThrottle;
+            Shot("10-pocket-circuit-table");
+            yield return new WaitForSeconds(14f);
+            Click("View");
+            yield return new WaitForSeconds(3f);
+            Shot("11-pocket-circuit-chase");
+            Click("View");
+            yield return new WaitForSeconds(30f);
+            Shot("12-pocket-circuit-laps");
+            int laps = LocalSession.Current?.Profile != null && Router.Current == PocketCircuit ? CountToyLaps() : 0;
+            if (laps < 1) failures.Add("no Pocket Circuit lap completed");
+            Debug.Log($"[NightSignal.UiTour] pocket circuit laps: {laps}");
+            Click("Back");
+            yield return new WaitForSeconds(1.5f);
             string summary = failures.Count == 0 ? "PASS" : "FAILED: " + string.Join("; ", failures);
-            Debug.Log($"[NightSignal.UiTour] {summary} (profile wallet {s?.Profile?.WalletBalance}, S01 cleared {cleared})");
+            bool toySaved = LocalSession.Current?.ToySnapshot(Toys.LocalToyHost.DocumentKey) != null;
+            Debug.Log($"[NightSignal.UiTour] {summary} (profile wallet {s?.Profile?.WalletBalance}, S01 cleared {cleared}, toy table saved {toySaved})");
             yield return new WaitForSeconds(1f);
             Application.Quit(failures.Count == 0 ? 0 : 1);
         }
+
+        /// <summary>Tour driver for the toy: brakes for the tightest bend ahead so laps stay clean (scripted, not a human).</summary>
+        static float TourThrottle(Core.Toys.PocketCircuit.PocketCircuitTable t, string member)
+        {
+            Core.Toys.PocketCircuit.SlotCarState car = t.Car(member);
+            if (car == null) return 0f;
+            Core.Toys.PocketCircuit.SlotLane lane = t.Track.Lane(car.Lane);
+            double kMax = 0;
+            for (double ahead = 0; ahead <= 0.45; ahead += 0.03)
+                kMax = System.Math.Max(kMax, System.Math.Abs(lane.Curvature[lane.IndexAt(lane.Wrap(car.S + ahead))]));
+            double vSafe = kMax > 1e-6 ? System.Math.Sqrt(t.Physics.LateralGrip * 0.8 / kMax) : t.Physics.MotorTopSpeed;
+            return (float)System.Math.Min(1.0, System.Math.Max(0.15, vSafe / t.Physics.MotorTopSpeed));
+        }
+
+        int CountToyLaps() => PocketCircuit.CompletedLaps;
 
         // ------------------------------------------------------------------ online
 
@@ -385,6 +422,12 @@ namespace NightSignal.Front
         }
 
         // ------------------------------------------------------------------ backdrop
+
+        /// <summary>Tabletop diversions draw their own room; the course backdrop camera steps aside meanwhile.</summary>
+        public void SetBackdropVisible(bool visible)
+        {
+            if (backdropCamera != null) backdropCamera.SetActive(visible);
+        }
 
         /// <summary>Loads a real course behind the menus and glides a camera along it (no fake video, no static image).</summary>
         IEnumerator LoadBackdrop()
