@@ -14,6 +14,8 @@ namespace NightSignal.Boot
     {
         void Start()
         {
+            // Networked clients and servers must keep simulating when unfocused (alt-tab must not stall a race).
+            Application.runInBackground = true;
             NetConfig cfg = NetConfig.FromCommandLine();
             var host = new GameObject("ProcessRole");
             DontDestroyOnLoad(host);
@@ -31,18 +33,11 @@ namespace NightSignal.Boot
             }
             else
             {
-                // Interactive until the menu/convoy UI lands: offline practice on the first course.
-                SceneManager.sceneLoaded += OnCourseLoaded;
-                SceneManager.LoadScene("C01");
-                Debug.Log("[NightSignal.Boot] role: interactive (offline practice)");
+                // Interactive player: title screen, Online Login / Offline Play (Addendum 01 §8.1).
+                Front.FrontEndApp.Create();
+                Debug.Log("[NightSignal.Boot] role: interactive client");
             }
         }
 
-        static void OnCourseLoaded(Scene scene, LoadSceneMode mode)
-        {
-            SceneManager.sceneLoaded -= OnCourseLoaded;
-            var session = new GameObject("PracticeSession").AddComponent<LocalDriveSession>();
-            session.CarId = "V01";
-        }
     }
 }

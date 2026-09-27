@@ -75,7 +75,7 @@ namespace NightSignal.UI
             t.alignment = align;
             t.raycastTarget = false;
             t.textWrappingMode = TextWrappingModes.NoWrap;
-            t.overflowMode = TextOverflowModes.Ellipsis;
+            t.overflowMode = TextOverflowModes.Truncate; // the bundled font has no ellipsis glyph
             if (heading)
             {
                 t.fontStyle = FontStyles.Bold | FontStyles.UpperCase;
@@ -124,6 +124,63 @@ namespace NightSignal.UI
             t.rectTransform.offsetMin = new Vector2(24, 0);
             if (onClick != null) btn.onClick.AddListener(() => onClick());
             return btn;
+        }
+
+        /// <summary>
+        /// Signal-styled TMP input field. Password fields mask input and are never logged; the caller passes the text
+        /// straight to the identity provider and clears the field afterwards.
+        /// </summary>
+        public static TMP_InputField InputField(string name, Transform parent, string placeholder, bool password = false, int characterLimit = 64,
+            float width = 520, float height = 56)
+        {
+            RectTransform rt = Rect(name, parent, new Vector2(0, 1), new Vector2(0, 1), Vector2.zero, Vector2.zero);
+            rt.sizeDelta = new Vector2(width, height);
+            var bg = rt.gameObject.AddComponent<Image>();
+            bg.sprite = White;
+            bg.color = SignalTheme.GraphiteRaised;
+            RectTransform area = Rect("TextArea", rt, Vector2.zero, Vector2.one, new Vector2(18, 6), new Vector2(-18, -6));
+            area.gameObject.AddComponent<RectMask2D>();
+            TextMeshProUGUI ph = Label("Placeholder", area, placeholder, SignalTheme.Body, SignalTheme.LabelDim);
+            Stretch(ph.rectTransform);
+            ph.fontStyle = FontStyles.Italic;
+            TextMeshProUGUI text = Label("Text", area, "", SignalTheme.Body, SignalTheme.Label);
+            Stretch(text.rectTransform);
+            text.richText = false; // user text renders literally
+            var field = rt.gameObject.AddComponent<TMP_InputField>();
+            field.textViewport = area;
+            field.textComponent = text;
+            field.placeholder = ph;
+            field.characterLimit = characterLimit;
+            field.richText = false;
+            field.contentType = password ? TMP_InputField.ContentType.Password : TMP_InputField.ContentType.Standard;
+            field.lineType = TMP_InputField.LineType.SingleLine;
+            Image bar = Panel("SelectionBar", rt, new Vector2(0, 0), new Vector2(0, 1), Vector2.zero, new Vector2(6, 0), SignalTheme.Signal);
+            bar.gameObject.AddComponent<SelectionIndicator>().Target = field;
+            return field;
+        }
+
+        /// <summary>Vertical stack that lays children top-down with fixed spacing (keeps order stable: no reordering on hover).</summary>
+        public static RectTransform Column(string name, Transform parent, Vector2 anchorMin, Vector2 anchorMax, Vector2 offsetMin, Vector2 offsetMax, float spacing = 14f)
+        {
+            RectTransform rt = Rect(name, parent, anchorMin, anchorMax, offsetMin, offsetMax);
+            var layout = rt.gameObject.AddComponent<VerticalLayoutGroup>();
+            layout.spacing = spacing;
+            layout.childAlignment = TextAnchor.UpperLeft;
+            layout.childControlWidth = false;
+            layout.childControlHeight = false;
+            layout.childForceExpandWidth = false;
+            layout.childForceExpandHeight = false;
+            return rt;
+        }
+
+        /// <summary>A text row inside a column (fixed height so layout never jumps).</summary>
+        public static TextMeshProUGUI Row(string name, Transform column, string text, float size, Color color, float width = 720f, float height = 0f, bool heading = false)
+        {
+            TextMeshProUGUI t = Label(name, column, text, size * 1f, color, TextAlignmentOptions.TopLeft, heading);
+            t.rectTransform.sizeDelta = new Vector2(width, height > 0 ? height : size * SignalTheme.TextScale * 1.5f);
+            t.textWrappingMode = TextWrappingModes.Normal;
+            t.overflowMode = TextOverflowModes.Overflow;
+            return t;
         }
 
         /// <summary>Draws a course plan polyline into a texture for the HUD minimap (once per course).</summary>

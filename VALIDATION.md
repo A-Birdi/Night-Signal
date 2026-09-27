@@ -151,3 +151,14 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - Final run: 12/12 finished, 0 recoveries, 0 corridor cuts, max vertical speed 2.8 m/s, 50 debounced contact
   incidents, 11 wall incidents, simulation 0.51 ms/tick mean (5.5 ms worst) for twelve cars. C01 solo autopilot
   V01/V03 still finish 31/31 with 0 walls. Time Attack rejects live AI (PlayMode 5/5).
+
+## V-020 — Front end in the standalone player (2026-09-27)
+- `Builds/Game/NightSignal.exe -nsUiTour` (Windows player, 1600×900 windowed): the tour presses the REAL buttons —
+  title → Offline Play → Start Practice Race (1 local seat on autopilot + 5 AI, class-capped to the chosen car's PI
+  class) → results — and saves screenshots (`Evidence/ui/01-title.png` … `04-results.png`); exit code 0,
+  "results reached". Automation, not a human playtest.
+- Title shows the online service status it actually measured ("unreachable" — no control plane running) and keeps
+  Offline Play available; the Local / Offline domain is labelled on the strip, the hub and the results page.
+- Found and fixed on the way: runtime-created cameras skipped URP post-processing (washed-out image); play mode and
+  players stalled when unfocused (`runInBackground` now on for every role); results page rendered before it was built;
+  labels overflowed from TMP's default rect; the bundled font has no ellipsis glyph.

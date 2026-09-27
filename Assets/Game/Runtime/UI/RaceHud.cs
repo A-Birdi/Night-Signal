@@ -39,6 +39,9 @@ namespace NightSignal.UI
     /// </summary>
     public sealed class RaceHud : MonoBehaviour
     {
+        /// <summary>Player preference: display mph instead of km/h (never changes the simulation).</summary>
+        public static bool UseMphGlobal;
+
         TextMeshProUGUI position, time, speed, unit, gear, banner, progress, incidents, connection;
         Image revFill;
         RawImage minimap;
@@ -132,8 +135,8 @@ namespace NightSignal.UI
 
         public void Render(HudState s)
         {
-            speed.text = Tabular(Mathf.RoundToInt(s.UseMph ? s.SpeedKmh * 0.621371f : s.SpeedKmh).ToString());
-            unit.text = s.UseMph ? "MPH" : "KM/H";
+            speed.text = Tabular(Mathf.RoundToInt((s.UseMph || UseMphGlobal) ? s.SpeedKmh * 0.621371f : s.SpeedKmh).ToString());
+            unit.text = (s.UseMph || UseMphGlobal) ? "MPH" : "KM/H";
             gear.text = s.Gear < 0 ? "R" : s.Gear == 0 ? "N" : s.Gear.ToString();
             float rev = s.Redline > 0 ? Mathf.Clamp01(s.Rpm / s.Redline) : 0f;
             revFill.fillAmount = rev;

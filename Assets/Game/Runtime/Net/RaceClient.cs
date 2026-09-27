@@ -155,7 +155,7 @@ namespace NightSignal.Net
             autopilot = new RouteFollower(track, ownParams, DriverProfile.Validator);
             if (!headless)
             {
-                var camGo = Camera.main != null ? Camera.main.gameObject : new GameObject("RaceCamera", typeof(Camera));
+                var camGo = CameraRig.EnsureMain("RaceCamera").gameObject;
                 camGo.tag = "MainCamera";
                 var chase = camGo.GetComponent<ChaseCamera>() ?? camGo.AddComponent<ChaseCamera>();
                 chase.Target = cars[me.Index].View.transform;

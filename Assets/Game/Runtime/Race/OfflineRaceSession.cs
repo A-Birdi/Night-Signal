@@ -95,7 +95,7 @@ namespace NightSignal.Race
                     v.SetHeadlights(course.DefaultTimeOfDay == "night");
                     views[e] = v;
                 }
-                var camGo = Camera.main != null ? Camera.main.gameObject : new GameObject("RaceCamera", typeof(Camera));
+                var camGo = CameraRig.EnsureMain("RaceCamera").gameObject;
                 camGo.tag = "MainCamera";
                 chase = camGo.GetComponent<ChaseCamera>() ?? camGo.AddComponent<ChaseCamera>();
                 chase.Target = views[Player].transform;

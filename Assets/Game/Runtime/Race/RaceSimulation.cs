@@ -29,6 +29,8 @@ namespace NightSignal.Race
         public float OffCourseSeconds;
         /// <summary>Automatic marshal recoveries (counted as resets, with the reset penalty).</summary>
         public int AutoRecoveries;
+        /// <summary>Continuous seconds an AI has been effectively stationary while racing.</summary>
+        public float StuckSeconds;
         public bool Collides => Status == EntrantStatus.Racing || Status == EntrantStatus.Finished;
     }
 
@@ -218,13 +220,14 @@ namespace NightSignal.Race
                     e.ResetHeld = 0f;
                     e.GhostUntilTick = tick + GhostWindowTicks;
                 }
-                else if (!e.Progress.Finished && ClearlyOffCourse(e))
+                else if (!e.Progress.Finished && (ClearlyOffCourse(e) || AiStuck(e)))
                 {
                     // Marshal recovery: a car can never leave the playable world (fall off the terrain edge, drop under the
                     // road). Same pose, penalty and safety ghost as a player reset.
                     e.State = Tracker.ResetPose(e.Progress, e.Params);
                     e.GhostUntilTick = tick + GhostWindowTicks;
                     e.OffCourseSeconds = 0f;
+                    e.StuckSeconds = 0f;
                     e.AutoRecoveries++;
                 }
                 if (e.Progress.Finished)
@@ -259,6 +262,17 @@ namespace NightSignal.Race
         }
 
         static int GhostWindowTicks => Limits.ResetGhostMaxMs * VehicleSimulation.TickRate / 1000;
+
+        /// <summary>
+        /// AI only: stationary (under 1 m/s) for 4 s while racing — wedged against a barrier or another car. Humans keep
+        /// hold-to-reset; the server never takes a human's car away from them for being slow.
+        /// </summary>
+        bool AiStuck(RaceEntrant e)
+        {
+            if (e.Human) return false;
+            e.StuckSeconds = e.State.Velocity.sqrMagnitude < 1f ? e.StuckSeconds + VehicleSimulation.TickDt : 0f;
+            return e.StuckSeconds > 4f;
+        }
 
         /// <summary>Recovery trigger: 1.5 s far outside the corridor (&gt; 20 m past the road edge or 6 m below it), or 40 m below.</summary>
         bool ClearlyOffCourse(RaceEntrant e)
