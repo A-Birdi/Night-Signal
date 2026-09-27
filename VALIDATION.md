@@ -645,3 +645,71 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   becomes a held drift, no spins; C01 810–4,225, C08 1,797–3,806, C12 527–2,163 pts).
 - Not yet: recovery prompt/countdown on the HUD, occupancy against physics obstacles (only cars), online recovery
   through the client (server authority unchanged), physical fall test in PlayMode, overturned-car prompt.
+
+## V-050 — Addendum 03 slice 2: instruments, five driving views with a fitted cockpit, arcade camera, remappable controls, recovery prompts (2026-09-27)
+- Revision: working tree on `791ea43` (committed in the next checkpoint). Windows development player built from it with
+  `BuildCommands.BuildGame` (three builds during the slice; the evidence below is from the last two). 1920×1080 windowed,
+  uncapped frame rate (380–720 fps measured — 30/60/120 fps runs NOT yet done). Isolated preference and profile folders
+  (`-nsPrefsFolder`, tour profile folders under `Builds/`), never the player's own settings.
+- **Instruments (A3.1, G01–G03, G07, G08):** `SpeedDisplay` (one canonical road speed → km/h ×3.6, mph ÷0.44704; scale
+  from the car's envelope rounded to majors; 250° dial), `SpeedCluster` (Instrument Dial or Digital Strip, RPM bar and
+  gear kept separate), `DrivingPreferences` (versioned file, defaults Dial/km/h/Chase Close/Arcade, corrupt file set
+  aside, unknown values fall back per field). `VehicleSimulation` telemetry now carries road speed (velocity on the
+  support plane; the last plane while airborne). EditMode `InstrumentTests` (G02 conversions at 0/10/26.8224/100 m/s,
+  needle vs scale in both units and end-stop over range; G04 standstill wheelspin/fall/crest/reverse; G07 defaults,
+  round trip, corruption, Reduced Motion; G08 repeated changes do not grow the cluster) — pass. Built-player
+  `-nsInstrumentTour` (Settings controls with live preview → S01 on the autopilot with the Dial in km/h → Digital Strip
+  in mph mid-run: tick advanced, checkpoints kept, build unchanged, still racing) — **PASS** on two launches (the second
+  loaded Strip/mph from the file written by the first).
+- **Five views on all 18 cars (A3.2, C01, C03–C05):** `DrivingCamera` — Chase Close, Chase Far, Hood, Bumper/Road and
+  Cockpit — anchored per car from its own body loft (`CarBodyGenerator.Cabin`: seated eye over the authored driver side,
+  hood and bumper points); `CockpitBuilder` fits a cabin into each chassis (door cards, liner, pillars, inner glass,
+  floor/firewall/bulkhead, dashboard, binnacle with live speed/unit/gear/rev bar, a three-spoke wheel that turns with
+  the steering at 13:1); in Cockpit view the car swaps to an open-cabin body variant. Built-player `-nsCameraTour`
+  (run 2, final cockpit): every one of the 18 cars raced solo on one of C01/C05/C08/C12/C03/C14 (day, night, wet, circuit)
+  by the autopilot, each view held ~3 s while driving — **coverage 90/90 car×view combinations driven** (48–178 m per
+  view), contact sheets + ledger in `Evidence/ui/cameras/` (camera pose in car space, FOV, road speed, distance driven,
+  drift framing, collision distance, speed-line strength/peripheral check, cockpit visible, wheel angle, image
+  statistics, fps). Hood vs Bumper: ≥ 0.73 m apart in height and ≥ 0.65 m fore/aft on every car; the view preference
+  survived each of the 18 race scene loads; the tour's temporary views never overwrote it. Five views also shot inside
+  the C08 tunnel section at 3,077–3,231 m. **PASS** (automation — not a human comfort/readability judgement).
+  Found and fixed on the way: run 1 PASSED its automated checks while the cockpit was visibly wrong — the lower body's
+  top skin (a closed loft) covered the dash in paint, the windscreen header hung 6 cm into the view, a spoke and the
+  hub hid the dials and a cabin light made a hot spot (`Evidence/ui/cameras/run1-before-cockpit-fix/`). Fixed with the
+  open-cabin body, a slim header, a lower seated eye, spokes at 9/3/6 o'clock, dials placed on the sightline through
+  the wheel, and no cabin light (self-lit figures). Editor sheets `cockpit-day.png`/`cockpit-night.png` show all 18.
+- **Cycling, look-back, remapping (C04):** Settings → Controls lists every driving action's keyboard/controller binding;
+  a binding is changed by pressing the new key/button (Esc cancels), shared bindings are warned, Restore defaults clears
+  them; remaps are stored in the driving preferences (by action + binding index — code-built maps get new binding ids
+  each session, so the Input System's own override JSON would not reload; found by `ControlsTests`) and loaded by every
+  driving session. In the built tour: Change View remapped to **V through the Controls screen**; afterwards C did nothing,
+  V (virtual keyboard) and Select (virtual controller) alternately cycled Chase Close → Chase Far → Hood → Bumper →
+  Cockpit → Chase Close; V typed into a focused text field did not change the view; Look Back held (camera facing −0.85
+  along the car) and released back to Hood (+1.00). Typing also releases steering/throttle and ignores reset/pause.
+  Found and fixed: in the Test Yard the controller's Select both changed the view and left the yard — leaving is now
+  the remappable Pause/menu action (Esc/Start).
+- **Camera behaviour (A3.3, C05–C08, C10):** EditMode `CameraTests` with a synthetic clock — at rest nothing moves in any
+  view (no idle wobble/zoom); five seconds of wall grinding stays ≤ 0.4 m and decays < 1 s after contact, Comfort has no
+  impact response; drift framing ignores a 0.1 s flick and frame-to-frame slip noise, a linked right→left drift changes
+  side once and only after the framing released (found: noise across the threshold flipped sides — fixed with a
+  same-side hold), no framing airborne or at walking pace; a teleport clears history and cuts; cycle order, persistence,
+  temporary overrides and look-back (found: look-back aimed forward from ahead of the car — fixed); Arcade/Comfort/
+  Custom/Reduced Motion change drift framing and speed FOV observably; speed lines none at a standstill or 20 m/s,
+  Strong > Subtle, a valid fast drift strengthens them, every streak outside the central 70 %, canvas below the HUD;
+  anchors inside every car's own cabin — **8/8 pass**. EditMode total **237/237**.
+- **Recovery prompts (A3.6, R03, R10):** the simulation reports each car's offer — reset hold progress, OFF ROUTE and
+  OVERTURNED countdowns to the marshal (2.5 s off the legal route; 3 s on its side/roof and nearly stopped — new), and
+  a plain offer for a human stopped 3 s (never taken away); the HUD shows it with the current reset binding, then
+  "RECOVERED +3.000 s · clock running". Practice and the Test Yard share the 0.75 s hold with release-to-rearm. Online
+  the client shows the hold, an overturned countdown from its predicted car and a notice when the server moves it (no
+  off-route countdown online yet). PlayMode `RecoveryPhysicalTests` with real physics on real scenes: C25 — a car
+  released beside the upper road at 6,482 m **fell 42.1 m** toward the later lower road and was recovered after 3.35 s,
+  on the upper road at/behind its last gate, one +3 s, no gate and no ranking gain; C01 — dropped on its roof, offered
+  the reset after 1.27 s, recovered upright after 3.52 s, not again afterwards; C01 — parked on the handbrake 5.9 s:
+  offered, not recovered — **3/3 pass**. `ScoringVersion` → `classify-2` (records set under the old classification no
+  longer compare). Regression: `CourseSweepTests` 29/29 (evidence unchanged byte for byte), `FullGridContactTests` 2/2
+  (12/12 finished, 0 resets, winner 83.137 s as before), `DriftAttackTests` 3/3.
+- Not yet: 30/60/120 fps and correction timing (C11); six clients with different views (C12); camera collision at cliff
+  walls/bridge supports/tunnel mouths in every view and FOV extremes (C09); spectator target loss, replays and
+  cinematic overrides; human playtest of comfort. **Tunnels are not built**: the eight authored tunnel sections
+  render as open road (no shell), so the "tunnel" shots are night road, not a tunnel.

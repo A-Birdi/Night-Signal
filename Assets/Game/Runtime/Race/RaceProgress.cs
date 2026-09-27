@@ -56,11 +56,23 @@ namespace NightSignal.Race
         }
     }
 
+    public enum RecoveryKind { None = 0, OffRoute = 1, Overturned = 2, Stopped = 3 }
+
+    /// <summary>The recovery offer for one car this frame (<see cref="RaceSimulation.Recovery"/>).</summary>
+    public struct RecoveryStatus
+    {
+        public RecoveryKind Kind;
+        /// <summary>Seconds until the marshal recovers the car automatically; −1 = no automatic recovery pending.</summary>
+        public float SecondsToAuto;
+        /// <summary>Progress of a reset hold (0..1).</summary>
+        public float HoldFraction;
+    }
+
     /// <summary>One completed authoritative recovery: when, why, from and to where on the route, and its penalty.</summary>
     public struct RecoveryEvent
     {
         public long RaceMicros;
-        /// <summary>manual | off-route | stuck</summary>
+        /// <summary>manual | off-route | overturned | stuck</summary>
         public string Reason;
         public float FromDistance, ToDistance;
         public int PenaltyMs;

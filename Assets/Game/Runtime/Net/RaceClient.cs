@@ -95,6 +95,11 @@ namespace NightSignal.Net
         Vector3 visualOffset;
         RouteFollower autopilot;
         DrivingControls controls;
+        DrivingCamera chase;
+        UI.SpeedLines speedLines;
+        Vector3 lastCameraCarPos;
+        float resetHoldShown, overturnedShown, recoveryNoticeUntil;
+        bool resetHoldSpent;
         bool latchUp, latchDown;
         bool headless;
 
@@ -184,8 +189,9 @@ namespace NightSignal.Net
             {
                 var camGo = CameraRig.EnsureMain("RaceCamera").gameObject;
                 camGo.tag = "MainCamera";
-                var chase = camGo.GetComponent<ChaseCamera>() ?? camGo.AddComponent<ChaseCamera>();
-                chase.Target = cars[me.Index].View.transform;
+                chase = DrivingCameraFeed.Attach(camGo);
+                chase.SetTarget(cars[me.Index].View);
+                speedLines = UI.SpeedLines.Create();
             }
             if (!headless)
             {
@@ -224,7 +230,8 @@ namespace NightSignal.Net
                 hudState.Field.Add(new UI.HudEntrant { Name = c.Roster.DisplayName, Status = status, Position = pos, IsYou = me, Distance = c.RaceDistance });
             }
             Car mine = cars[Info.YourIndex];
-            hudState.SpeedKmh = ownState.SpeedKmh;
+            hudState.RoadSpeedMps = ownSim.Telemetry.RoadSpeedMps;
+            hudState.EnvelopeMps = UI.SpeedDisplay.EnvelopeMps(ownParams);
             hudState.Gear = ownState.Gear;
             hudState.Rpm = ownState.EngineRpm;
             hudState.Redline = ownParams.RedlineRpm;
@@ -237,12 +244,47 @@ namespace NightSignal.Net
             long raceMicros = NetBootstrap.RaceMicros(serverTick, startTick);
             hudState.FinishWindowSeconds = deadlineMicros > 0 && Phase == MatchPhase.Racing ? Mathf.Max(0f, (deadlineMicros - raceMicros) / 1e6f) : -1f;
             hudState.RttMs = Rtt();
+            if (chase != null)
+            {
+                // A server-applied recovery moves the car far in one step: a discontinuity, so the camera cuts.
+                if ((ownState.Position - lastCameraCarPos).sqrMagnitude > 64f)
+                {
+                    chase.NotifyTeleport();
+                    if (Phase == MatchPhase.Racing) recoveryNoticeUntil = Time.unscaledTime + 2.5f;
+                }
+                lastCameraCarPos = ownState.Position;
+                DrivingCameraFeed.Feed(chase, speedLines, ownSim.Telemetry, ownState, ownParams, Time.deltaTime);
+            }
             if (driftSeen) driftFeed.Update(hudState, driftBanked, driftUnbanked, driftLost, driftChain, Time.unscaledTime);
+            OnlineRecoveryHud(mine);
             string countdown = Phase == MatchPhase.Countdown || Phase == MatchPhase.Racing ? UI.HudHelpers.Countdown((startTick - serverTick) / 60f) : "";
             hudState.Banner = Phase == MatchPhase.Loading ? "LOADING — WAITING FOR ALL DRIVERS"
                 : Results != null ? "RESULTS" + ResultLine()
                 : mine.Status == EntrantStatus.Finished ? "FINISH" : countdown;
             hud.Render(hudState);
+        }
+
+        /// <summary>
+        /// Online recovery display: the server decides every recovery; the client shows the hold progress of its own
+        /// button (released before another can start), an overturned countdown from its predicted car, and a brief notice
+        /// when the server moves the car. Off-route countdowns are not shown online (the server still rescues at 2.5 s).
+        /// </summary>
+        void OnlineRecoveryHud(Car mine)
+        {
+            bool racing = Phase == MatchPhase.Racing && mine.Status == EntrantStatus.Racing;
+            bool held = racing && controls != null && controls.ResetHeld;
+            if (!held) resetHoldSpent = false;
+            resetHoldShown = held && !resetHoldSpent ? resetHoldShown + Time.deltaTime : 0f;
+            if (resetHoldShown >= RaceSimulation.ResetHoldSeconds) { resetHoldSpent = true; resetHoldShown = 0f; }
+            overturnedShown = racing && RaceSimulation.IsOverturned(ownState) ? overturnedShown + Time.deltaTime : 0f;
+            var rs = new RecoveryStatus { HoldFraction = resetHoldShown / RaceSimulation.ResetHoldSeconds, SecondsToAuto = -1f };
+            if (overturnedShown >= RaceSimulation.OverturnedPromptSeconds)
+            {
+                rs.Kind = RecoveryKind.Overturned;
+                rs.SecondsToAuto = Mathf.Max(0f, RaceSimulation.OverturnedRescueSeconds - overturnedShown);
+            }
+            UI.RaceHud.SetRecovery(hudState, rs, controls != null ? controls.BindingLabel("Reset") : "R", true);
+            hudState.RecoveryNotice = Time.unscaledTime < recoveryNoticeUntil ? "RECOVERED  <size=80%><color=#9A968D>+3.000 s · clock running</color></size>" : "";
         }
 
         string ResultLine()
@@ -454,6 +496,8 @@ namespace NightSignal.Net
             {
                 if (controls.ShiftUpPressedThisFrame) latchUp = true;
                 if (controls.ShiftDownPressedThisFrame) latchDown = true;
+                if (chase != null && controls.CameraPressed) chase.Cycle();
+                if (chase != null) chase.LookBack = controls.LookBackHeld;
             }
             if (!loaded || headless) return;
             visualOffset = Vector3.Lerp(visualOffset, Vector3.zero, 1f - Mathf.Exp(-10f * Time.deltaTime));
@@ -528,6 +572,7 @@ namespace NightSignal.Net
             }
             controls?.Dispose();
             controls = null;
+            if (speedLines != null) Destroy(speedLines.gameObject);
         }
 
         /// <summary>Interactive clients return to the menus after a race: leave nothing connected or on screen.</summary>

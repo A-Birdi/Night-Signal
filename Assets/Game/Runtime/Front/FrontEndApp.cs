@@ -34,6 +34,7 @@ namespace NightSignal.Front
         public readonly SignInScreen SignIn = new SignInScreen();
         public readonly OfflineHubScreen OfflineHub = new OfflineHubScreen();
         public readonly SettingsScreen Settings = new SettingsScreen();
+        public readonly ControlsScreen Controls = new ControlsScreen();
         public readonly ResultsScreen Results = new ResultsScreen();
         public readonly ProfileSelectScreen ProfileSelect = new ProfileSelectScreen();
         public readonly NewProfileScreen NewProfile = new NewProfileScreen();
@@ -71,6 +72,12 @@ namespace NightSignal.Front
         void Awake()
         {
             Instance = this;
+            // Stored presentation preferences (text size, contrast, Reduced Motion) apply before any screen is built.
+            // Evidence runs keep their own preferences folder so they never touch the player's settings.
+            int prefsArg = Array.IndexOf(Environment.GetCommandLineArgs(), "-nsPrefsFolder");
+            if (prefsArg >= 0 && prefsArg + 1 < Environment.GetCommandLineArgs().Length)
+                DrivingPreferences.FolderOverride = System.IO.Path.GetFullPath(Environment.GetCommandLineArgs()[prefsArg + 1]);
+            SettingsScreen.ApplyAccessibility(DrivingPreferences.Current);
             Canvas = UIFactory.Root("FrontEndCanvas", 10);
             Canvas.transform.SetParent(transform, false);
             var root = (RectTransform)Canvas.transform;
@@ -92,6 +99,10 @@ namespace NightSignal.Front
                 StartCoroutine(YardTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsAppearanceTour") >= 0)
                 StartCoroutine(AppearanceTour());
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsInstrumentTour") >= 0)
+                StartCoroutine(InstrumentTour());
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsCameraTour") >= 0)
+                StartCoroutine(CameraTour());
             int social = Array.IndexOf(Environment.GetCommandLineArgs(), "-nsUiTourSocial");
             if (social >= 0 && social + 1 < Environment.GetCommandLineArgs().Length)
                 StartCoroutine(UiTourSocial(Environment.GetCommandLineArgs()[social + 1]));

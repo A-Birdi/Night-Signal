@@ -1,0 +1,19 @@
+Columns (left to right): ChaseClose, ChaseFar, Hood, Bumper, Cockpit
+sheet 1 row 1: V01 on C01
+sheet 1 row 2: V02 on C05
+sheet 1 row 3: V03 on C08
+sheet 1 row 4: V04 on C12
+sheet 1 row 5: V05 on C03
+sheet 1 row 6: V06 on C14
+sheet 2 row 1: V07 on C01
+sheet 2 row 2: V08 on C05
+sheet 2 row 3: V09 on C08
+sheet 2 row 4: V10 on C12
+sheet 2 row 5: V11 on C03
+sheet 2 row 6: V12 on C14
+sheet 3 row 1: V13 on C01
+sheet 3 row 2: V14 on C05
+sheet 3 row 3: V15 on C08
+sheet 3 row 4: V16 on C12
+sheet 3 row 5: V17 on C03
+sheet 3 row 6: V18 on C14

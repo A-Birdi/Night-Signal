@@ -36,12 +36,17 @@ namespace NightSignal.Art
 
         const int Paint2 = 6, Accent = 7;
 
-        public static Mesh BuildBody(CarBodyDef d, VehicleParams p, CarAppearance appearance = null)
+        /// <summary>
+        /// The body mesh. <paramref name="openCabin"/> leaves out the lower body's top skin over the cabin (the lid the
+        /// greenhouse sits on) so the fitted cockpit below it can be seen from the driver's seat; the exterior views use the
+        /// closed body.
+        /// </summary>
+        public static Mesh BuildBody(CarBodyDef d, VehicleParams p, CarAppearance appearance = null, bool openCabin = false)
         {
             Profile pr = Layout(d, p);
             pr.A = appearance ?? new CarAppearance();
             var mb = new MeshBuilder(8);
-            LowerBody(mb, pr);
+            LowerBody(mb, pr, openCabin ? CabinRear(pr) : float.PositiveInfinity);
             if (d.Style == "roadster") Roadster(mb, pr);
             else Greenhouse(mb, pr);
             Lamps(mb, pr);
@@ -153,6 +158,57 @@ namespace NightSignal.Art
                     default: return q;
                 }
             }
+        }
+
+        /// <summary>
+        /// Model-space driving-camera and cabin anchors from the same loft as the body mesh (Addendum 03 §2): the seated eye
+        /// (driver side as authored), the hood and bumper viewpoints, and the cabin shape the cockpit is built into. The ground
+        /// is y = 0, +z forward, like the body mesh.
+        /// </summary>
+        public sealed class CabinFrame
+        {
+            public float NoseZ, TailZ, WindshieldBaseZ, RoofFrontZ, RoofRearZ, RearWindowZ;
+            /// <summary>Rear end of the fitted cabin (behind the seats); the open-cabin body is open from here to the windscreen.</summary>
+            public float CabinRearZ;
+            public float CowlY, RoofY, NoseY, DeckY, HalfWidth, SillY;
+            /// <summary>+1 = right-hand drive, −1 = left-hand drive.</summary>
+            public int DriverSide;
+            public bool OpenTop;
+            public Vector3 Eye, Hood, Bumper;
+            internal Profile Loft;
+
+            /// <summary>Half width of the cabin interior at a station (inside the body side).</summary>
+            public float InteriorHalfWidth(float z) => CarBodyGenerator.HalfWidth(Loft, z) * (1f - Loft.D.Tumblehome * 0.25f) - 0.06f;
+            /// <summary>Belt line (top of the doors / base of the side glass) at a station.</summary>
+            public float BeltY(float z) => TopLine(Loft, z);
+            /// <summary>Underside of the roof at a station (open tops: the belt line).</summary>
+            public float RoofUndersideY(float z) => OpenTop ? TopLine(Loft, z) : CabinTop(Loft, z) - 0.03f;
+        }
+
+        public static CabinFrame Cabin(CarBodyDef d, VehicleParams p)
+        {
+            Profile pr = Layout(d, p);
+            int side = d.DriverSide == "left" ? -1 : 1;
+            float roofMid = Mathf.Lerp(pr.ZRoofR, pr.ZRoofF, 0.62f);
+            float eyeZ = Mathf.Lerp(pr.ZRoofR, pr.ZRoofF, 0.55f);
+            float cowl = TopLine(pr, pr.ZWs);
+            var c = new CabinFrame
+            {
+                Loft = pr, NoseZ = pr.Zf, TailZ = pr.Zr, WindshieldBaseZ = pr.ZWs, RoofFrontZ = pr.ZRoofF, RoofRearZ = pr.ZRoofR, RearWindowZ = pr.ZRw,
+                CabinRearZ = CabinRear(pr),
+                CowlY = cowl, RoofY = pr.H, NoseY = d.NoseHeight, DeckY = d.DeckHeight, HalfWidth = pr.HalfW, SillY = d.Clearance + 0.12f,
+                DriverSide = side, OpenTop = d.Style == "roadster",
+            };
+            float halfInside = c.InteriorHalfWidth(eyeZ);
+            // Seated eye: over the driver's seat, a hand's width under the roof and low enough that the windscreen header sits
+            // well above the horizon (about 10 degrees or more), with the cowl some 12-17 degrees below it.
+            float eyeY = c.OpenTop ? cowl + 0.42f : Mathf.Min(Mathf.Min(CabinTop(pr, pr.ZRoofF) - 0.15f, CabinTop(pr, roofMid) - 0.16f), cowl + 0.45f);
+            c.Eye = new Vector3(side * halfInside * 0.42f, eyeY, eyeZ);
+            // Hood: over the cowl, the bonnet in the lower part of the view.
+            c.Hood = new Vector3(0f, cowl + 0.3f, pr.ZWs + 0.12f);
+            // Bumper / road: just ahead of the nose, low but clear of the road and of the car's own body.
+            c.Bumper = new Vector3(0f, Mathf.Max(0.32f, d.NoseHeight * 0.62f), pr.Zf + 0.08f);
+            return c;
         }
 
         /// <summary>Centre of the rear number plate in model space (the plate panel faces −z).</summary>
@@ -336,8 +392,13 @@ namespace NightSignal.Art
 
         // ---------------------------------------------------------------- lower body
 
-        static void LowerBody(MeshBuilder mb, Profile pr)
+        /// <summary>Rear end of the fitted cabin: behind the seats under a roof; a roadster's tub is shorter.</summary>
+        static float CabinRear(Profile pr) => pr.D.Style == "roadster" ? pr.ZWs - 1.35f : pr.ZRoofR - 0.25f;
+
+        /// <param name="openFromZ">Leave out the top skin (ring segments 7-12) between this station and the windscreen base.</param>
+        static void LowerBody(MeshBuilder mb, Profile pr, float openFromZ)
         {
+            var stationZ = new List<float>();
             var rings = new List<int>();
             int ringSize = 0;
             for (int i = 0; i <= Stations; i++)
@@ -364,12 +425,14 @@ namespace NightSignal.Art
                 for (int k = pts.Count - 2; k >= 1; k--) pts.Add(new Vector2(-pts[k].x, pts[k].y));
                 ringSize = pts.Count;
                 rings.Add(mb.VertexCount);
+                stationZ.Add(z);
                 foreach (Vector2 q in pts)
                     mb.AddVertex(new Vector3(q.x, q.y, z), Vector3.up, new Vector2(z * 0.5f, q.y));
             }
             for (int i = 0; i < rings.Count - 1; i++)
             for (int k = 0; k < ringSize; k++)
             {
+                if (k >= 7 && k <= 12 && stationZ[i] >= openFromZ - 1e-4f && stationZ[i + 1] <= pr.ZWs + 0.03f) continue; // the cabin opening
                 int k1 = (k + 1) % ringSize;
                 mb.AddQuad(LowerZone(pr.A.TwoTone, k), rings[i] + k, rings[i] + k1, rings[i + 1] + k1, rings[i + 1] + k);
             }

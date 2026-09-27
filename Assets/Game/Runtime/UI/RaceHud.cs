@@ -18,7 +18,12 @@ namespace NightSignal.UI
     /// <summary>Per-frame HUD facts supplied by the active session (offline or networked).</summary>
     public sealed class HudState
     {
-        public float SpeedKmh;
+        /// <summary>Canonical road speed (m/s, Addendum 03 §1.3) — converted only for display.</summary>
+        public float RoadSpeedMps;
+        /// <summary>The car's speed envelope (m/s) for choosing a stable dial/strip scale once per car.</summary>
+        public float EnvelopeMps = 70f;
+        /// <summary>False when there is no valid target (disconnect, lost spectate target): a neutral instrument, never a stale car.</summary>
+        public bool SpeedAvailable = true;
         public int Gear;
         public float Rpm, Redline;
         public double RaceSeconds;
@@ -35,6 +40,14 @@ namespace NightSignal.UI
         public long DriftBanked, DriftUnbanked;
         public float DriftChain = 1f;
         public string DriftNote = "";
+        /// <summary>
+        /// Recovery (Addendum 03 §7.1): the offer/countdown text (empty = none), the reset-hold progress (0..1), progress
+        /// toward an automatic recovery (−1 = none pending) and a brief notice after a completed recovery.
+        /// </summary>
+        public string RecoveryPrompt = "";
+        public float ResetHoldFraction;
+        public float RecoveryAutoFraction = -1f;
+        public string RecoveryNotice = "";
         public readonly List<HudEntrant> Field = new List<HudEntrant>();
     }
 
@@ -44,11 +57,10 @@ namespace NightSignal.UI
     /// </summary>
     public sealed class RaceHud : MonoBehaviour
     {
-        /// <summary>Player preference: display mph instead of km/h (never changes the simulation).</summary>
-        public static bool UseMphGlobal;
-
-        TextMeshProUGUI position, time, speed, unit, gear, banner, progress, incidents, connection, drift;
-        Image revFill;
+        TextMeshProUGUI position, time, banner, progress, incidents, connection, drift, recovery;
+        GameObject recoveryPanel;
+        RectTransform recoveryBar;
+        SpeedCluster cluster;
         RawImage minimap;
         RectTransform minimapRect;
         readonly List<RectTransform> dots = new List<RectTransform>();
@@ -87,26 +99,19 @@ namespace NightSignal.UI
             banner.rectTransform.anchorMin = banner.rectTransform.anchorMax = new Vector2(0.5f, 0.66f);
             banner.rectTransform.sizeDelta = new Vector2(1400, 140);
 
-            // Bottom-right: speed, gear, rev bar with tachometer markings.
-            Image speedPanel = UIFactory.Panel("Speedo", root, new Vector2(1, 0), new Vector2(1, 0), new Vector2(-380, 32), new Vector2(-32, 196), new Color(0, 0, 0, 0.55f));
-            speed = UIFactory.Numeral("Speed", speedPanel.transform, SignalTheme.HudNumeral * 1.25f, SignalTheme.Label);
-            speed.rectTransform.anchorMin = new Vector2(0, 0.35f);
-            speed.rectTransform.anchorMax = new Vector2(0.72f, 1);
-            speed.rectTransform.offsetMin = speed.rectTransform.offsetMax = Vector2.zero;
-            unit = UIFactory.Label("Unit", speedPanel.transform, "KM/H", SignalTheme.Small, SignalTheme.LabelDim, TextAlignmentOptions.BottomLeft, true);
-            unit.rectTransform.anchorMin = new Vector2(0.73f, 0.4f);
-            unit.rectTransform.anchorMax = new Vector2(1, 0.75f);
-            unit.rectTransform.offsetMin = unit.rectTransform.offsetMax = Vector2.zero;
-            gear = UIFactory.Numeral("Gear", speedPanel.transform, SignalTheme.HudNumeral, SignalTheme.Caution, TextAlignmentOptions.Center);
-            gear.rectTransform.anchorMin = new Vector2(0.73f, 0.62f);
-            gear.rectTransform.anchorMax = new Vector2(1, 1);
-            gear.rectTransform.offsetMin = gear.rectTransform.offsetMax = Vector2.zero;
-            Image revBg = UIFactory.Panel("RevBg", speedPanel.transform, new Vector2(0, 0), new Vector2(1, 0), new Vector2(14, 14), new Vector2(-14, 34), SignalTheme.Rule);
-            revFill = UIFactory.Panel("RevFill", revBg.transform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero, SignalTheme.Label);
-            revFill.type = Image.Type.Filled;
-            revFill.fillMethod = Image.FillMethod.Horizontal;
-            for (int i = 1; i < 10; i++)
-                UIFactory.Panel("Tick" + i, revBg.transform, new Vector2(i / 10f, 0), new Vector2(i / 10f, 1), new Vector2(-1, 0), new Vector2(1, 0), SignalTheme.Ink);
+            // Lower centre: the recovery offer / countdown / hold progress (clear of the road ahead and of the cluster).
+            Image rp = UIFactory.Panel("Recovery", root, new Vector2(0.5f, 0.2f), new Vector2(0.5f, 0.2f), new Vector2(-380, -54), new Vector2(380, 54), new Color(0, 0, 0, 0.62f));
+            recoveryPanel = rp.gameObject;
+            recovery = UIFactory.Label("RecoveryText", rp.transform, "", SignalTheme.Body, SignalTheme.Label, TextAlignmentOptions.Center, true);
+            UIFactory.Stretch(recovery.rectTransform, 8);
+            recovery.rectTransform.offsetMin = new Vector2(12, 14);
+            Image track = UIFactory.Panel("RecoveryTrack", rp.transform, new Vector2(0, 0), new Vector2(1, 0), new Vector2(12, 6), new Vector2(-12, 12), new Color(1, 1, 1, 0.15f));
+            Image fill = UIFactory.Panel("RecoveryFill", track.transform, new Vector2(0, 0), new Vector2(0, 1), Vector2.zero, Vector2.zero, SignalTheme.Caution);
+            recoveryBar = (RectTransform)fill.transform;
+            recoveryPanel.SetActive(false);
+
+            // Bottom-right: the instrument cluster (Instrument Dial or Digital Strip for road speed; RPM and gear beside it).
+            cluster = new SpeedCluster(root);
 
             // Bottom-left: incidents and connection quality (only when meaningful).
             incidents = UIFactory.Label("Incidents", root, "", SignalTheme.Small, SignalTheme.LabelDim, TextAlignmentOptions.BottomLeft);
@@ -144,12 +149,10 @@ namespace NightSignal.UI
 
         public void Render(HudState s)
         {
-            speed.text = Tabular(Mathf.RoundToInt((s.UseMph || UseMphGlobal) ? s.SpeedKmh * 0.621371f : s.SpeedKmh).ToString());
-            unit.text = (s.UseMph || UseMphGlobal) ? "MPH" : "KM/H";
-            gear.text = s.Gear < 0 ? "R" : s.Gear == 0 ? "N" : s.Gear.ToString();
-            float rev = s.Redline > 0 ? Mathf.Clamp01(s.Rpm / s.Redline) : 0f;
-            revFill.fillAmount = rev;
-            revFill.color = rev > 0.93f ? SignalTheme.Signal : rev > 0.8f ? SignalTheme.Caution : SignalTheme.Label;
+            DrivingPreferences prefs = DrivingPreferences.Current;
+            SpeedUnit u = s.UseMph ? SpeedUnit.Mph : prefs.Unit;
+            cluster.Configure(prefs.Dial, SpeedDisplay.ScaleFor(s.EnvelopeMps, u));
+            cluster.Render(s.RoadSpeedMps, s.Rpm, s.Redline, s.Gear, s.SpeedAvailable, Time.unscaledDeltaTime);
             position.text = s.Entrants > 0 ? $"P{s.Position}<size=45%><color=#9A968D> / {s.Entrants}</color></size>" : "";
             progress.text = (s.TotalCheckpoints > 0 ? $"CHECKPOINT {s.Checkpoints} / {s.TotalCheckpoints}" : "")
                 + (s.FinishWindowSeconds >= 0 ? $"\n<color=#{ColorUtility.ToHtmlStringRGB(SignalTheme.Caution)}>FINISH WINDOW {FormatClock(s.FinishWindowSeconds)}</color>" : "");
@@ -160,6 +163,16 @@ namespace NightSignal.UI
                   + (s.DriftUnbanked > 0 ? $"   <color=#{ColorUtility.ToHtmlStringRGB(SignalTheme.Caution)}>+{Tabular(s.DriftUnbanked.ToString("N0"))}  ×{s.DriftChain:0.00}</color>" : "")
                   + (s.DriftNote.Length > 0 ? "\n<size=80%>" + s.DriftNote + "</size>" : "");
             incidents.text = s.WallIncidents > 0 || s.Resets > 0 ? $"WALL CONTACTS {s.WallIncidents}   RESETS {s.Resets}" : "";
+            bool holding = s.ResetHoldFraction > 0.01f;
+            string offer = holding ? "RESETTING TO THE TRACK" : s.RecoveryPrompt.Length > 0 ? s.RecoveryPrompt : s.RecoveryNotice;
+            recoveryPanel.SetActive(offer.Length > 0);
+            if (offer.Length > 0)
+            {
+                recovery.text = offer;
+                float bar = holding ? s.ResetHoldFraction : s.RecoveryPrompt.Length > 0 ? s.RecoveryAutoFraction : -1f;
+                recoveryBar.parent.gameObject.SetActive(bar >= 0f);
+                recoveryBar.anchorMax = new Vector2(Mathf.Clamp01(bar), 1f);
+            }
             connection.text = s.RttMs > 180 ? $"CONNECTION  {s.RttMs} MS" : "";
 
             while (dots.Count < s.Field.Count)
@@ -185,6 +198,39 @@ namespace NightSignal.UI
                 HudEntrant e = s.Field[i];
                 string tag = e.IsReplay ? " <color=#3EC6D8>REPLAY</color>" : e.Status == "" ? "" : $" <color=#9A968D>{e.Status}</color>";
                 standings[i].text = e.IsReplay ? $"—  {e.Name}{tag}" : $"{i + 1}  {(e.IsYou ? "<color=#D7263D>" : "")}{e.Name}{(e.IsYou ? "</color>" : "")}{tag}";
+            }
+        }
+
+        /// <summary>
+        /// Fills the recovery fields from the simulation's offer for the driven car. <paramref name="resetLabel"/> is the
+        /// current (remappable) reset binding; <paramref name="penalty"/> is shown where a recovery costs time.
+        /// </summary>
+        public static void SetRecovery(HudState h, Race.RecoveryStatus r, string resetLabel, bool penalty)
+        {
+            string cost = penalty ? "  ·  +3.000 s" : "";
+            h.ResetHoldFraction = r.HoldFraction;
+            h.RecoveryAutoFraction = -1f;
+            switch (r.Kind)
+            {
+                case Race.RecoveryKind.OffRoute:
+                case Race.RecoveryKind.Overturned:
+                    string what = r.Kind == Race.RecoveryKind.OffRoute ? "OFF ROUTE" : "OVERTURNED";
+                    if (r.SecondsToAuto < 0f)
+                    {
+                        h.RecoveryPrompt = $"{what}  —  Hold {resetLabel} to reset<size=70%><color=#9A968D>{cost}</color></size>";
+                        break;
+                    }
+                    h.RecoveryPrompt = $"{what} — RECOVERING IN {r.SecondsToAuto:0.0} s\n<size=70%><color=#9A968D>Hold {resetLabel} to reset now{cost}</color></size>";
+                    float window = r.Kind == Race.RecoveryKind.OffRoute ? Race.RaceSimulation.AutoRescueSeconds
+                        : Race.RaceSimulation.OverturnedRescueSeconds - Race.RaceSimulation.OverturnedPromptSeconds;
+                    h.RecoveryAutoFraction = Mathf.Clamp01(1f - r.SecondsToAuto / window);
+                    break;
+                case Race.RecoveryKind.Stopped:
+                    h.RecoveryPrompt = $"STUCK?  Hold {resetLabel} to reset to the track<size=70%><color=#9A968D>{cost}</color></size>";
+                    break;
+                default:
+                    h.RecoveryPrompt = "";
+                    break;
             }
         }
 

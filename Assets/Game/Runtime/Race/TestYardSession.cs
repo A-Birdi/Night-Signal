@@ -80,7 +80,7 @@ namespace NightSignal.Race
         /// <summary>The run being measured now (null right after an exit).</summary>
         public TestYardRun CurrentRun => run;
         /// <summary>Diagnostics for evidence runs: what the chase camera follows and where it is.</summary>
-        public string CameraDebug => chase == null ? "no camera" : $"target {(chase.Target != null ? chase.Target.name + " " + chase.Target.position : "none")} cam {chase.transform.position} enabled {chase.enabled}/{chase.gameObject.activeInHierarchy} mode {chase.Mode} view {(view != null ? view.transform.position.ToString() : "none")} state {current.Position} · views: " +
+        public string CameraDebug => chase == null ? "no camera" : $"target {(chase.Target != null ? chase.Target.name + " " + chase.Target.transform.position : "none")} cam {chase.transform.position} enabled {chase.enabled}/{chase.gameObject.activeInHierarchy} view {chase.View} car {(view != null ? view.transform.position.ToString() : "none")} state {current.Position} · views: " +
             string.Join("; ", FindObjectsByType<VehicleView>(FindObjectsSortMode.None).Select(v => $"{v.name} {v.transform.position} active {v.gameObject.activeInHierarchy} " +
                 string.Join("/", v.GetComponentsInChildren<Renderer>(true).Take(2).Select(r => $"{r.name}:{r.enabled}:{r.bounds.center}"))));
         public readonly List<TestYardRun> RunsA = new List<TestYardRun>(), RunsB = new List<TestYardRun>();
@@ -102,14 +102,18 @@ namespace NightSignal.Race
         VehicleState previous, current;
         VehicleView view;
         DrivingControls controls;
-        ChaseCamera chase;
+        DrivingCamera chase;
+        SpeedLines speedLines;
+        /// <summary>The driving camera (tours switch its view).</summary>
+        public DrivingCamera Camera => chase;
         RaceHud hud;
         readonly HudState hudState = new HudState();
         TextMeshProUGUI panel;
         Canvas overlay;
         double accumulator;
         bool latchUp, latchDown;
-        float resetHeld;
+        float resetHeld, overturnedSeconds;
+        bool resetNeedsRelease;
 
         // The run being measured.
         TestYardRun run;
@@ -134,7 +138,8 @@ namespace NightSignal.Race
             BuildStations(course);
             var camGo = CameraRig.EnsureMain("RaceCamera").gameObject;
             camGo.tag = "MainCamera";
-            chase = camGo.GetComponent<ChaseCamera>() ?? camGo.AddComponent<ChaseCamera>();
+            chase = DrivingCameraFeed.Attach(camGo);
+            speedLines = SpeedLines.Create();
             controls = new DrivingControls();
             controls.Enable();
             if (!Application.isBatchMode)
@@ -193,8 +198,7 @@ namespace NightSignal.Race
             if (view != null) Destroy(view.gameObject);
             view = VehicleView.Create($"TestCar_{CarId}_{(useB ? "B" : "A")}", build.Params, lib.Body(CarId), CarMaterials, PaintColor);
             view.Render(current, current, 1f, default, 0f); // at the start pose this very frame (no frame at the origin)
-            chase.Target = view.transform;
-            chase.transform.position = s.Position - s.Rotation * Vector3.forward * 7f + Vector3.up * 2f;
+            chase.SetTarget(view); // a new run is a discontinuity: the camera cuts, keeping the chosen view
             accumulator = 0;
             run = new TestYardRun { B = useB, Station = s.Id, Surface = Surface };
             runSeconds = 0f;
@@ -258,7 +262,8 @@ namespace NightSignal.Race
             else if ((k != null && k.digit2Key.wasPressedThisFrame) || (g != null && g.dpad.right.wasPressedThisFrame)) ResetAndDrive(true, StationIndex);
             else if ((k != null && k.digit3Key.wasPressedThisFrame) || (g != null && g.dpad.up.wasPressedThisFrame)) ResetAndDrive(DrivingB, (StationIndex + 1) % stations.Count);
             else if ((k != null && k.digit4Key.wasPressedThisFrame) || (g != null && g.dpad.down.wasPressedThisFrame)) SetSurface(Surface == "dry" ? "wet" : "dry");
-            else if ((k != null && k.escapeKey.wasPressedThisFrame) || (g != null && g.selectButton.wasPressedThisFrame)) RequestExit();
+            // Leaving is the remappable Pause/menu action (Esc / Start): View/Select is Change View, as in every race.
+            else if (controls.PausePressed) RequestExit();
         }
 
         void Tick()
@@ -270,10 +275,13 @@ namespace NightSignal.Race
             runSeconds += VehicleSimulation.TickDt;
             Measure(input);
             // Hold reset: back to this station's start with the same build (no penalty — nothing is timed officially).
-            resetHeld = input.ResetHeld ? resetHeld + VehicleSimulation.TickDt : 0f;
-            if (resetHeld >= 0.7f)
+            if (!input.ResetHeld) resetNeedsRelease = false;
+            resetHeld = input.ResetHeld && !resetNeedsRelease ? resetHeld + VehicleSimulation.TickDt : 0f;
+            overturnedSeconds = RaceSimulation.IsOverturned(current) ? overturnedSeconds + VehicleSimulation.TickDt : 0f;
+            if (resetHeld >= RaceSimulation.ResetHoldSeconds)
             {
-                resetHeld = 0f;
+                resetHeld = overturnedSeconds = 0f;
+                resetNeedsRelease = true;
                 ResetAndDrive(DrivingB, StationIndex);
             }
         }
@@ -357,7 +365,8 @@ namespace NightSignal.Race
         {
             if (hud != null)
             {
-                hudState.SpeedKmh = current.SpeedKmh;
+                hudState.RoadSpeedMps = sim != null ? sim.Telemetry.RoadSpeedMps : 0f;
+                hudState.EnvelopeMps = UI.SpeedDisplay.EnvelopeMps((DrivingB ? B : A).Params);
                 hudState.Gear = current.Gear;
                 hudState.Rpm = current.EngineRpm;
                 hudState.Redline = (DrivingB ? B : A).Params.RedlineRpm;
@@ -367,6 +376,11 @@ namespace NightSignal.Race
                 hudState.Banner = "";
                 hudState.Field.Clear();
                 hudState.Field.Add(new HudEntrant { Name = DrivingB ? "B" : "A", Position = current.Position, IsYou = true, Status = "TEST" });
+                if (sim != null) DrivingCameraFeed.Feed(chase, speedLines, sim.Telemetry, current, (DrivingB ? B : A).Params, Time.deltaTime);
+                // The yard's reset restarts the station (no penalty: nothing here is timed officially).
+                var rs = new RecoveryStatus { HoldFraction = resetHeld / RaceSimulation.ResetHoldSeconds, SecondsToAuto = -1f };
+                if (overturnedSeconds >= RaceSimulation.OverturnedPromptSeconds) rs.Kind = RecoveryKind.Overturned;
+                RaceHud.SetRecovery(hudState, rs, controls != null ? controls.BindingLabel("Reset") : "R", false);
                 hud.Render(hudState);
             }
             if (panel == null) return;
@@ -374,8 +388,8 @@ namespace NightSignal.Race
             sb.Append("<b>TEST YARD</b>  <size=80%>private practice — no reward, record or purchase; not an online result</size>\n");
             sb.Append(Side("A", A, !DrivingB)).Append('\n').Append(Side("B", B, DrivingB)).Append('\n');
             sb.Append($"<size=85%>{stations[StationIndex].Label}  ·  {Surface.ToUpperInvariant()} (same grip rules as a {Surface} event)</size>\n");
-            sb.Append("<size=80%><color=#9A968D>[1] reset & drive A   [2] reset & drive B   [3] next station   [4] dry/wet   [Esc] back to Garage\n" +
-                      "Pad: D-pad ← A  → B  ↑ station  ↓ dry/wet  · View = back. Hold reset to restart this run.</color></size>\n");
+            sb.Append("<size=80%><color=#9A968D>[1] reset & drive A   [2] reset & drive B   [3] next station   [4] dry/wet   [C] change view   [Esc] back to Garage\n" +
+                      "Pad: D-pad ← A  → B  ↑ station  ↓ dry/wet  · View = change view · Menu = back. Hold reset to restart this run.</color></size>\n");
             sb.Append($"\n<b>Now</b> ({(DrivingB ? "B" : "A")}): {Esc(run?.Summary() ?? "")}\n");
             AppendRuns(sb, "A", RunsA);
             AppendRuns(sb, "B", RunsB);
@@ -400,6 +414,7 @@ namespace NightSignal.Race
         {
             controls?.Dispose();
             if (hud != null) Destroy(hud.gameObject);
+            if (speedLines != null) Destroy(speedLines.gameObject);
             if (overlay != null) Destroy(overlay.gameObject);
             if (view != null) Destroy(view.gameObject);
         }

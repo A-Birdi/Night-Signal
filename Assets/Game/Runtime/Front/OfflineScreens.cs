@@ -354,26 +354,124 @@ namespace NightSignal.Front
     {
         public override string ScreenName => "Settings";
         Stepper textSize;
+        UI.SpeedCluster preview;
+        float previewTime;
+        readonly List<(Stepper Step, Func<float> Get)> strengthRows = new List<(Stepper, Func<float>)>();
+        Stepper preset;
+
+        static UI.DrivingPreferences Prefs => UI.DrivingPreferences.Current;
+
+        /// <summary>Applies the stored accessibility choices to the running UI (at start-up and after a change).</summary>
+        public static void ApplyAccessibility(UI.DrivingPreferences p)
+        {
+            SignalTheme.TextScale = p.TextScale;
+            SignalTheme.ReducedMotion = p.ReducedMotion;
+            SignalTheme.HighContrast = p.HighContrast;
+        }
 
         protected override void OnBuild(RectTransform root)
         {
             Image panel = UIFactory.Panel("Panel", root, new Vector2(0, 0), new Vector2(0.44f, 1f), Vector2.zero, Vector2.zero, new Color(0.055f, 0.06f, 0.07f, 0.9f));
-            RectTransform col = UIFactory.Column("Options", panel.transform, new Vector2(0, 0.06f), new Vector2(1, 0.9f), new Vector2(64, 0), new Vector2(-32, 0), 10f);
+            RectTransform col = UIFactory.Column("Options", panel.transform, new Vector2(0, 0.04f), new Vector2(1, 0.92f), new Vector2(64, 0), new Vector2(-32, 0), 8f);
             UIFactory.Row("Heading", col, "SETTINGS", SignalTheme.Heading, SignalTheme.Label, 640, 0, true);
             float[] scales = { 0.9f, 1f, 1.15f, 1.3f, 1.5f };
-            textSize = new Stepper(col, "Text size", scales.Length, i => $"{scales[i] * 100:0}%  (applies to newly opened screens)", 1);
-            textSize.Changed += i => SignalTheme.TextScale = scales[i];
-            var motion = new Stepper(col, "Motion", 2, i => i == 0 ? "Full transitions" : "Reduced motion", SignalTheme.ReducedMotion ? 1 : 0);
-            motion.Changed += i => SignalTheme.ReducedMotion = i == 1;
-            var contrast = new Stepper(col, "Contrast", 2, i => i == 0 ? "Standard" : "High contrast", SignalTheme.HighContrast ? 1 : 0);
-            contrast.Changed += i => SignalTheme.HighContrast = i == 1;
-            var units = new Stepper(col, "Speed units", 2, i => i == 0 ? "km/h" : "mph", UI.RaceHud.UseMphGlobal ? 1 : 0);
-            units.Changed += i => UI.RaceHud.UseMphGlobal = i == 1;
+            int textIndex = Mathf.Max(0, Array.FindIndex(scales, v => Mathf.Abs(v - Prefs.TextScale) < 0.01f));
+            textSize = new Stepper(col, "Text size", scales.Length, i => $"{scales[i] * 100:0}%  (new screens)", textIndex);
+            textSize.Changed += i => Save(p => p.TextScale = scales[i]);
+            var motion = new Stepper(col, "Motion", 2, i => i == 0 ? "Full transitions" : "Reduced motion", Prefs.ReducedMotion ? 1 : 0);
+            motion.Changed += i => Save(p => p.ReducedMotion = i == 1);
+            var contrast = new Stepper(col, "Contrast", 2, i => i == 0 ? "Standard" : "High contrast", Prefs.HighContrast ? 1 : 0);
+            contrast.Changed += i => Save(p => p.HighContrast = i == 1);
+            float[] hud = { 0.8f, 0.9f, 1f, 1.15f, 1.3f };
+            var hudSize = new Stepper(col, "HUD size", hud.Length, i => $"{hud[i] * 100:0}%", Mathf.Max(0, Array.FindIndex(hud, v => Mathf.Abs(v - Prefs.HudScale) < 0.01f)));
+            hudSize.Changed += i => Save(p => p.HudScale = hud[i]);
+            var style = new Stepper(col, "Speedometer", 2, i => i == 0 ? "Instrument Dial" : "Digital Strip", Prefs.Dial ? 0 : 1);
+            style.Changed += i => Save(p => p.SpeedStyle = i == 0 ? "dial" : "strip");
+            var units = new Stepper(col, "Speed units", 2, i => i == 0 ? "km/h" : "mph", Prefs.Unit == UI.SpeedUnit.Mph ? 1 : 0);
+            units.Changed += i => Save(p => p.Units = i == 0 ? "kmh" : "mph");
             AddVolume(col, "Music", () => GameAudio.GameAudioSettings.Music, v => GameAudio.GameAudioSettings.Music = v);
             AddVolume(col, "Engine", () => GameAudio.GameAudioSettings.Engine, v => GameAudio.GameAudioSettings.Engine = v);
             AddVolume(col, "Effects", () => GameAudio.GameAudioSettings.Impacts, v => { GameAudio.GameAudioSettings.Impacts = v; GameAudio.GameAudioSettings.Tyres = v; });
             AddVolume(col, "Interface", () => GameAudio.GameAudioSettings.Ui, v => GameAudio.GameAudioSettings.Ui = v);
+            UIFactory.Button("Controls", col, "Controls…", () => App.Router.Show(App.Controls, true), 620, 52);
             UIFactory.Button("Back", col, "Back", () => App.Router.Back(), 620, 52);
+
+            // Right: driving camera and motion (presentation only — never an assist, a reward or a readiness change).
+            Image right = UIFactory.Panel("CameraPanel", root, new Vector2(0.46f, 0.34f), new Vector2(0.99f, 1f), Vector2.zero, Vector2.zero, new Color(0.055f, 0.06f, 0.07f, 0.9f));
+            RectTransform rc = UIFactory.Column("CameraOptions", right.transform, new Vector2(0, 0.01f), new Vector2(1, 0.97f), new Vector2(40, 0), new Vector2(-24, 0), 2f);
+            UIFactory.Row("CameraHeading", rc, "DRIVING VIEW AND MOTION", SignalTheme.Subheading, SignalTheme.Label, 820, 0, true);
+            string[] viewNames = { "Chase Close", "Chase Far", "Hood", "Bumper / Road", "Cockpit" };
+            var view = new Stepper(rc, "Driving view", viewNames.Length, i => viewNames[i], Math.Max(0, Array.IndexOf(UI.DrivingPreferences.Views, Prefs.View)), 820, 0.3f);
+            view.Changed += i => Save(p => p.View = UI.DrivingPreferences.Views[i]);
+            int fovSteps = Mathf.RoundToInt((UI.DrivingPreferences.MaxFov - UI.DrivingPreferences.MinFov) / 2f) + 1;
+            var fov = new Stepper(rc, "Field of view", fovSteps, i => $"{UI.DrivingPreferences.MinFov + i * 2f:0}° vertical",
+                Mathf.RoundToInt((Prefs.VerticalFov - UI.DrivingPreferences.MinFov) / 2f), 820, 0.3f);
+            fov.Changed += i => Save(p => p.VerticalFov = UI.DrivingPreferences.MinFov + i * 2f);
+            string[] presetNames = { "Arcade", "Comfort", "Custom" };
+            preset = new Stepper(rc, "Motion preset", 3, i => presetNames[i], Math.Max(0, Array.IndexOf(UI.DrivingPreferences.Presets, Prefs.MotionPreset)), 820, 0.3f);
+            preset.Changed += i => { Save(p => p.MotionPreset = UI.DrivingPreferences.Presets[i]); RefreshStrengths(); };
+            AddStrength(rc, "Drift framing", () => Prefs.Effective.DriftFraming, (p, v) => p.Custom.DriftFraming = v);
+            AddStrength(rc, "Road / body motion", () => Prefs.Effective.BodyMotion, (p, v) => p.Custom.BodyMotion = v);
+            AddStrength(rc, "Impact shake", () => Prefs.Effective.ImpactShake, (p, v) => p.Custom.ImpactShake = v);
+            AddStrength(rc, "Camera roll", () => Prefs.Effective.Roll, (p, v) => p.Custom.Roll = v);
+            AddStrength(rc, "Speed field of view", () => Prefs.Effective.SpeedFov, (p, v) => p.Custom.SpeedFov = v);
+            string[] lines = { "Off", "Subtle", "Strong" };
+            var speedLines = new Stepper(rc, "Speed lines", 3, i => lines[i], Prefs.Effective.SpeedLines, 820, 0.3f);
+            speedLines.Changed += i => Save(p => { UseCustom(p); p.Custom.SpeedLines = i; });
+            strengthRows.Add((speedLines, () => Prefs.Effective.SpeedLines));
+            var blur = new Stepper(rc, "Motion blur", 2, i => i == 0 ? "Off" : "On", Prefs.MotionBlur ? 1 : 0, 820, 0.3f);
+            blur.Changed += i => Save(p => p.MotionBlur = i == 1);
+            // Live instrument preview — simulated values, clearly labelled (not a dyno or a test result).
+            RectTransform previewArea = UIFactory.Rect("InstrumentPreview", root, new Vector2(0.46f, 0f), new Vector2(0.99f, 0.33f), Vector2.zero, Vector2.zero);
+            RectTransform notes = UIFactory.Column("PreviewNotes", previewArea, new Vector2(0, 0), new Vector2(0.55f, 1), new Vector2(40, 0), new Vector2(0, -24), 6f);
+            UIFactory.Row("PreviewLabel", notes, "PREVIEW — SIMULATED VALUES, NOT A READING", SignalTheme.Small, SignalTheme.LabelDim, 520, 26, true);
+            UIFactory.Row("CameraNote", notes, "Presentation only: no effect is required for any event. Reduced Motion turns every camera effect off.",
+                SignalTheme.Small, SignalTheme.LabelDim, 520, 70);
+            preview = new UI.SpeedCluster(previewArea);
+            preview.Root.localScale = Vector3.one * 0.9f;
+        }
+
+        void AddStrength(Transform col, string label, Func<float> get, Action<UI.DrivingPreferences, float> set)
+        {
+            var step = new Stepper(col, label, 11, i => i == 0 ? "off" : $"{i * 10}%", Mathf.RoundToInt(get() * 10f), 820, 0.3f);
+            step.Changed += i => Save(p => { UseCustom(p); set(p, i / 10f); });
+            strengthRows.Add((step, () => get() * 10f));
+        }
+
+        /// <summary>Editing a strength switches to Custom, starting from the values in effect (so nothing jumps).</summary>
+        void UseCustom(UI.DrivingPreferences p)
+        {
+            if (p.MotionPreset == "custom") return;
+            p.Custom = p.Effective;
+            p.MotionPreset = "custom";
+            preset?.Set(2);
+        }
+
+        void RefreshStrengths()
+        {
+            foreach ((Stepper step, Func<float> get) in strengthRows) step.Set(Mathf.RoundToInt(get()));
+        }
+
+        static void Save(Action<UI.DrivingPreferences> change)
+        {
+            UI.DrivingPreferences p = Prefs;
+            change(p);
+            p.Save();
+            ApplyAccessibility(p);
+        }
+
+        public override void Tick()
+        {
+            if (preview == null) return;
+            // Simulated sweep for the preview only: 0 → 70 m/s and back over eight seconds, with a pretend gear/rev pattern.
+            previewTime += Time.unscaledDeltaTime;
+            float phase = Mathf.PingPong(previewTime / 4f, 1f);
+            float mps = phase * 70f;
+            int gear = 1 + Mathf.Min(5, (int)(phase * 6f));
+            float rpm = 2500f + Mathf.Repeat(phase * 6f, 1f) * 4800f;
+            UI.DrivingPreferences p = Prefs;
+            preview.Configure(p.Dial, UI.SpeedDisplay.ScaleFor(70f, p.Unit));
+            preview.Render(mps, rpm, 7400f, gear, true, Time.unscaledDeltaTime);
         }
 
         static void AddVolume(Transform col, string label, Func<float> get, Action<float> set)

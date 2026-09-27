@@ -25,6 +25,46 @@ namespace NightSignal.Vehicle
 
         /// <summary>The appearance this view was built with.</summary>
         public CarAppearance Appearance { get; private set; }
+        /// <summary>The body (leans with load transfer): hood and cockpit viewpoints ride on it.</summary>
+        public Transform Body => body;
+        /// <summary>Front-wheel steering angle last rendered (radians) — the cockpit wheel turns with it.</summary>
+        public float SteerRad { get; private set; }
+        public CarBodyDef Def { get; private set; }
+        public VehicleParams Params => p;
+        /// <summary>The fitted cockpit, once built (local driver only).</summary>
+        public CockpitRig Cockpit { get; private set; }
+        CarMaterialSet materials;
+
+        /// <summary>Builds this car's fitted cockpit on first use (the local driver's car; opponents never need one).</summary>
+        public CockpitRig EnsureCockpit()
+        {
+            if (Cockpit == null) Cockpit = CockpitBuilder.Build(body, Def, p, materials, owned);
+            return Cockpit;
+        }
+
+        Mesh closedBody, openBody;
+
+        /// <summary>
+        /// Cockpit view on/off for this car: shows the fitted cabin and swaps to the open-cabin body (no lid over the
+        /// interior); off restores the closed body the other views and other players see.
+        /// </summary>
+        public void SetCockpitMode(bool on)
+        {
+            MeshFilter mf = body != null ? body.GetComponent<MeshFilter>() : null;
+            if (mf == null) return;
+            if (closedBody == null) closedBody = mf.sharedMesh;
+            if (on)
+            {
+                EnsureCockpit();
+                if (openBody == null)
+                {
+                    openBody = CarBodyGenerator.BuildBody(Def, p, Appearance, openCabin: true);
+                    owned.Add(openBody);
+                }
+            }
+            mf.sharedMesh = on ? openBody : closedBody;
+            Cockpit?.SetVisible(on);
+        }
 
         public static VehicleView Create(string name, VehicleParams p, CarBodyDef body, CarMaterialSet mats, Color paintColor, CarAppearance appearance = null)
         {
@@ -52,6 +92,8 @@ namespace NightSignal.Vehicle
         {
             p = parameters;
             Appearance = a;
+            Def = def;
+            materials = mats;
             paint = Instance(mats.Paint, $"{def.Id}_Paint", a.Primary, a.Finish);
             CarMaterials cm = mats.ForPaint(paint);
             cm.Paint2 = Instance(mats.Paint, $"{def.Id}_Paint2", a.Secondary, a.Finish);
@@ -66,7 +108,9 @@ namespace NightSignal.Vehicle
             body = new GameObject("Body").transform;
             body.SetParent(transform, false);
             body.localPosition = new Vector3(0f, -groundOffset, 0f);
-            body.gameObject.AddComponent<MeshFilter>().sharedMesh = CarBodyGenerator.BuildBody(def, p, a);
+            Mesh built = CarBodyGenerator.BuildBody(def, p, a);
+            owned.Add(built);
+            body.gameObject.AddComponent<MeshFilter>().sharedMesh = built;
             body.gameObject.AddComponent<MeshRenderer>().sharedMaterials = cm.BodyArray;
             if (!string.IsNullOrEmpty(a.PlateText)) Plate(def, a, mats.Trim);
             CarDecals.Build(body, def, p, a.Decals, mats.Paint, owned, a.Primary);
@@ -118,7 +162,7 @@ namespace NightSignal.Vehicle
             go.transform.localPosition = CarBodyGenerator.RearPlateCentre(def, p);
             var backing = GameObject.CreatePrimitive(PrimitiveType.Quad);
             backing.name = "PlateBacking";
-            Destroy(backing.GetComponent<Collider>());
+            CockpitBuilder.Discard(backing.GetComponent<Collider>());
             backing.transform.SetParent(go.transform, false);
             backing.transform.localPosition = new Vector3(0f, 0f, 0.01f); // between the trim plate face and the lettering, facing −z
             backing.transform.localScale = new Vector3(0.49f, 0.1f, 1f); // inside the 0.52 × 0.12 m trim plate
@@ -170,6 +214,7 @@ namespace NightSignal.Vehicle
                 float travel = grounded ? p.RestLengthM - comp : p.RestLengthM;
                 wheels[i].localPosition = mount + Vector3.down * travel + Offset(i);
                 float steer = i < 2 ? Mathf.Lerp(previous.SteerAngle, current.SteerAngle, alpha) * Mathf.Rad2Deg : 0f;
+                if (i == 0) SteerRad = steer * Mathf.Deg2Rad;
                 wheels[i].localRotation = Quaternion.Euler(0f, steer, 0f);
                 spinAngle[i] = Mathf.Repeat(spinAngle[i] + w.AngularSpeed * Mathf.Rad2Deg * dt, 360f);
                 wheelSpin[i].localRotation = Quaternion.Euler(spinAngle[i], 0f, 0f);

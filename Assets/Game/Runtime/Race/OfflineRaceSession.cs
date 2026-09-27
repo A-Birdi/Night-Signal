@@ -64,7 +64,15 @@ namespace NightSignal.Race
         RouteFollower pilot;
         /// <summary>The autopilot driving the player's car (null without autopilot) — diagnostics and tests.</summary>
         public RouteFollower Pilot => Autopilot ? pilot : null;
-        ChaseCamera chase;
+        DrivingCamera chase;
+        UI.SpeedLines speedLines;
+        /// <summary>The perimeter speed lines (evidence runs read their strength).</summary>
+        public UI.SpeedLines SpeedLines => speedLines;
+        int seenRecoveries;
+        string recoveryNotice = "";
+        float recoveryNoticeUntil;
+        /// <summary>The driving camera (tours and tests switch its view).</summary>
+        public DrivingCamera Camera => chase;
         UI.RaceHud hud;
         readonly UI.HudState hudState = new UI.HudState();
         readonly UI.DriftHudFeed driftFeed = new UI.DriftHudFeed();
@@ -110,8 +118,9 @@ namespace NightSignal.Race
                 }
                 var camGo = CameraRig.EnsureMain("RaceCamera").gameObject;
                 camGo.tag = "MainCamera";
-                chase = camGo.GetComponent<ChaseCamera>() ?? camGo.AddComponent<ChaseCamera>();
-                chase.Target = views[Player].transform;
+                chase = DrivingCameraFeed.Attach(camGo);
+                chase.SetTarget(views[Player]);
+                speedLines = UI.SpeedLines.Create();
                 hud = UI.RaceHud.Create();
                 hud.SetCourse(UI.HudHelpers.Plan(course.Track));
             }
@@ -226,7 +235,8 @@ namespace NightSignal.Race
                 hudState.Field.Add(new UI.HudEntrant { Name = c.Roster.DisplayName, Status = status, Position = c.State.Position, IsYou = me, Distance = c.Progress.RaceDistance });
             }
             VehicleState s = Player.State;
-            hudState.SpeedKmh = s.SpeedKmh;
+            hudState.RoadSpeedMps = Player.Sim.Telemetry.RoadSpeedMps;
+            hudState.EnvelopeMps = UI.SpeedDisplay.EnvelopeMps(Player.Params);
             hudState.Gear = s.Gear;
             hudState.Rpm = s.EngineRpm;
             hudState.Redline = Player.Params.RedlineRpm;
@@ -237,6 +247,13 @@ namespace NightSignal.Race
             hudState.TotalCheckpoints = Sim.Tracker.TotalCheckpoints;
             hudState.WallIncidents = Player.Progress.WallIncidents;
             hudState.Resets = Player.Progress.Resets;
+            if (chase != null)
+            {
+                // A recovery is a discontinuity: cut the camera to the new pose instead of flying through the mountain.
+                if (Player.Progress.Recoveries.Count != seenRecoveries) { seenRecoveries = Player.Progress.Recoveries.Count; chase.NotifyTeleport(); }
+                DrivingCameraFeed.Feed(chase, speedLines, Player.Sim.Telemetry, Player.State, Player.Params, Time.deltaTime);
+            }
+            RecoveryHud();
             if (Sim.Rules.DriftRanking)
                 driftFeed.Update(hudState, (long)Player.Drift.BankedRaw, (long)Player.Drift.UnbankedRaw, (long)Player.Drift.LostRaw,
                     (float)Player.Drift.ChainMultiplier, Time.unscaledTime);
@@ -248,10 +265,29 @@ namespace NightSignal.Race
             hud.Render(hudState);
         }
 
+        /// <summary>Recovery offer/countdown/hold progress from the simulation, and a brief notice after each completed recovery.</summary>
+        void RecoveryHud()
+        {
+            int count = Player.Progress.Recoveries.Count;
+            if (count > noticedRecoveries)
+            {
+                noticedRecoveries = count;
+                RecoveryEvent last = Player.Progress.Recoveries[count - 1];
+                string why = last.Reason == "manual" ? "RESET" : last.Reason == "off-route" ? "RECOVERED — OFF ROUTE" : last.Reason == "overturned" ? "RECOVERED — OVERTURNED" : "RECOVERED";
+                recoveryNotice = $"{why}  <size=80%><color=#9A968D>+{last.PenaltyMs / 1000f:0.000} s · clock running</color></size>";
+                recoveryNoticeUntil = Time.unscaledTime + 2.5f;
+            }
+            hudState.RecoveryNotice = Time.unscaledTime < recoveryNoticeUntil ? recoveryNotice : "";
+            UI.RaceHud.SetRecovery(hudState, Sim.Recovery(Player), controls != null ? controls.BindingLabel("Reset") : "R", true);
+        }
+
+        int noticedRecoveries;
+
         void OnDestroy()
         {
             controls?.Dispose();
             if (hud != null) Destroy(hud.gameObject);
+            if (speedLines != null) Destroy(speedLines.gameObject);
             foreach (VehicleView v in views.Values)
                 if (v != null) Destroy(v.gameObject);
         }

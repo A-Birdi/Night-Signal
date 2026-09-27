@@ -42,6 +42,8 @@ namespace NightSignal.Art
         public float WheelRadius = 0.31f;
         public float RimFraction = 0.62f;
         public float TyreWidth = 0.21f;
+        /// <summary>Seated driver position as authored for the model: "right" (right-hand drive) or "left".</summary>
+        public string DriverSide = "right";
         /// <summary>5 | 6 | mesh | dish | split</summary>
         public string RimStyle = "5";
     }

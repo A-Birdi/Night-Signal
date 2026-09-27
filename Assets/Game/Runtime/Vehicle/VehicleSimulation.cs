@@ -28,6 +28,14 @@ namespace NightSignal.Vehicle
         public Vector3 WallNormal;
         public bool Wheelspin;
         public bool OnLooseSurface;
+        /// <summary>
+        /// Canonical physical road speed (m/s) for every speed display (Addendum 03 §1.3): the car's travel along the
+        /// supporting road surface — longitudinal and lateral, grade included — not wheel speed or throttle. Airborne it is
+        /// measured along the last surface plane, so a short crest keeps reading while a vertical fall reads almost nothing.
+        /// </summary>
+        public float RoadSpeedMps;
+        /// <summary>No wheel on the ground this tick.</summary>
+        public bool Airborne;
 
         public WheelTelemetry Wheel(int i)
         {
@@ -61,6 +69,8 @@ namespace NightSignal.Vehicle
         readonly BarrierContact[] contacts = new BarrierContact[8];
         readonly float[] springForce = new float[4];
         readonly bool[] grounded = new bool[4];
+        /// <summary>Last supporting-surface normal (the road speed's reference while airborne).</summary>
+        Vector3 supportNormal = Vector3.up;
         readonly GroundHit[] hits = new GroundHit[4];
 
         public VehicleParams Params => p;
@@ -91,6 +101,14 @@ namespace NightSignal.Vehicle
             float vf = Vector3.Dot(s.Velocity, fwd);
             float vr = Vector3.Dot(s.Velocity, right);
             Telemetry.BodySlipDeg = s.Velocity.sqrMagnitude > 4f ? Mathf.Atan2(vr, Mathf.Abs(vf)) * Mathf.Rad2Deg : 0f;
+            Vector3 support = Vector3.zero;
+            int onGround = 0;
+            for (int i = 0; i < 4; i++)
+                if (grounded[i]) { support += hits[i].Normal; onGround++; }
+            if (onGround > 0 && support.sqrMagnitude > 1e-6f) supportNormal = support.normalized;
+            Telemetry.Airborne = onGround == 0;
+            float road = Vector3.ProjectOnPlane(s.Velocity, supportNormal).magnitude;
+            Telemetry.RoadSpeedMps = float.IsNaN(road) || float.IsInfinity(road) ? 0f : road;
             s.Tick++;
         }
 

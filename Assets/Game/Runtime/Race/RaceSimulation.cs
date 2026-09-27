@@ -30,8 +30,10 @@ namespace NightSignal.Race
 
         /// <summary>Automatic marshal recoveries (counted as resets, with the reset penalty).</summary>
         public int AutoRecoveries;
-        /// <summary>Continuous seconds an AI has been effectively stationary while racing.</summary>
+        /// <summary>Continuous seconds this car has been effectively stationary while racing (AI: rescued; human: prompted).</summary>
         public float StuckSeconds;
+        /// <summary>Continuous seconds on its side or roof and nearly stopped.</summary>
+        public float OverturnedSeconds;
         /// <summary>Core drift scoring for this car (every event; only drift formats rank by it).</summary>
         public readonly DriftScorer Drift = new DriftScorer();
         public int DriftWallsSeen, DriftSector = -1;
@@ -110,7 +112,8 @@ namespace NightSignal.Race
         /// chassis, contact or barrier response changes; ScoringVersion when classification or timing changes.
         /// </summary>
         public const string PhysicsVersion = "chassis-2026.09-contact1";
-        public const string ScoringVersion = "classify-1";
+        /// <remarks>classify-2 (Addendum 03): finite directional 3D gates, legal-progress ranking, route/layer/overturned recovery.</remarks>
+        public const string ScoringVersion = "classify-2";
 
         public int StartTick = int.MaxValue;
         public long FirstHumanFinishMicros = -1;
@@ -242,6 +245,8 @@ namespace NightSignal.Race
                 VehicleState prev = e.State;
                 e.Sim.Step(ref e.State, input);
                 Tracker.Step(e.Progress, prev, e.State, e.Sim.Telemetry, raceMicros, VehicleSimulation.TickDt);
+                e.OverturnedSeconds = IsOverturned(e.State) ? e.OverturnedSeconds + VehicleSimulation.TickDt : 0f;
+                e.StuckSeconds = e.State.Velocity.sqrMagnitude < 1f ? e.StuckSeconds + VehicleSimulation.TickDt : 0f;
 
                 if (!input.ResetHeld) e.ResetNeedsRelease = false;
                 e.ResetHeld = input.ResetHeld && !e.ResetNeedsRelease ? e.ResetHeld + VehicleSimulation.TickDt : 0f;
@@ -254,18 +259,19 @@ namespace NightSignal.Race
                     e.GhostUntilTick = tick + GhostWindowTicks;
                     reset = true;
                 }
-                else if (!e.Progress.Finished && (e.Progress.OffRouteSeconds >= AutoRescueSeconds || AiStuck(e)))
+                else if (!e.Progress.Finished && (e.Progress.OffRouteSeconds >= AutoRescueSeconds || e.OverturnedSeconds >= OverturnedRescueSeconds || AiStuck(e)))
                 {
                     // Marshal recovery: a car clearly off the legal route (fell from the road, landed on another stretch,
-                    // left the corridor far behind) or an AI wedged in place. Same anchor rules, penalty and protection as a
-                    // player reset; judged by the route and its road layer, never by one world height.
-                    string why = e.Progress.OffRouteSeconds >= AutoRescueSeconds ? "off-route" : "stuck";
+                    // left the corridor far behind), lying on its side or roof, or an AI wedged in place. Same anchor rules,
+                    // penalty and protection as a player reset; judged by the route, its road layer and the car's own
+                    // orientation, never by one world height.
+                    string why = e.Progress.OffRouteSeconds >= AutoRescueSeconds ? "off-route" : e.OverturnedSeconds >= OverturnedRescueSeconds ? "overturned" : "stuck";
                     e.State = Tracker.ResetPose(e.Progress, e.Params, raceMicros, why, p => Occupied(e, p));
                     e.GhostUntilTick = tick + GhostWindowTicks;
-                    e.StuckSeconds = 0f;
                     e.AutoRecoveries++;
                     reset = true;
                 }
+                if (reset) e.StuckSeconds = e.OverturnedSeconds = 0f;
                 Drift.Step(e, reset, e.Progress.Finished);
                 if (e.Progress.Finished)
                 {
@@ -306,6 +312,27 @@ namespace NightSignal.Race
         public const float ResetHoldSeconds = 0.75f;
         /// <summary>Seconds clearly off the legal route before the marshal recovers the car (Addendum 03 §7.1: 2–4 s).</summary>
         public const float AutoRescueSeconds = 2.5f;
+        /// <summary>On its side or roof and nearly stopped: prompt after this long, recover automatically after the next.</summary>
+        public const float OverturnedPromptSeconds = 0.75f, OverturnedRescueSeconds = 3f;
+        /// <summary>A human car stopped this long while racing is offered the reset (never taken from them automatically).</summary>
+        public const float StuckPromptSeconds = 3f;
+
+        /// <summary>Lying on its side or roof (body up axis within ~72° of down or level) and slower than 4 m/s.</summary>
+        public static bool IsOverturned(in VehicleState s) => (s.Rotation * Vector3.up).y < 0.3f && s.Velocity.sqrMagnitude < 16f;
+
+        /// <summary>
+        /// What the HUD should offer this car now (Addendum 03 §7.1): the reset hold in progress, an automatic recovery
+        /// counting down (off the route, overturned), or a plain offer (stopped). Presentation of simulation state only.
+        /// </summary>
+        public RecoveryStatus Recovery(RaceEntrant e)
+        {
+            var r = new RecoveryStatus { HoldFraction = Mathf.Clamp01(e.ResetHeld / ResetHoldSeconds), SecondsToAuto = -1f };
+            if (e.Status != EntrantStatus.Racing || e.Progress.Finished) return r;
+            if (e.Progress.OffRouteSeconds > 0.5f) { r.Kind = RecoveryKind.OffRoute; r.SecondsToAuto = Mathf.Max(0f, AutoRescueSeconds - e.Progress.OffRouteSeconds); }
+            else if (e.OverturnedSeconds >= OverturnedPromptSeconds) { r.Kind = RecoveryKind.Overturned; r.SecondsToAuto = Mathf.Max(0f, OverturnedRescueSeconds - e.OverturnedSeconds); }
+            else if (e.Human && e.StuckSeconds >= StuckPromptSeconds) r.Kind = RecoveryKind.Stopped;
+            return r;
+        }
 
         /// <summary>A recovery anchor is occupied when another car (colliding or not) sits within a car length and a half of it.</summary>
         bool Occupied(RaceEntrant self, Vector3 anchor)
@@ -320,12 +347,7 @@ namespace NightSignal.Race
         /// AI only: stationary (under 1 m/s) for 4 s while racing — wedged against a barrier or another car. Humans keep
         /// hold-to-reset; the server never takes a human's car away from them for being slow.
         /// </summary>
-        bool AiStuck(RaceEntrant e)
-        {
-            if (e.Human) return false;
-            e.StuckSeconds = e.State.Velocity.sqrMagnitude < 1f ? e.StuckSeconds + VehicleSimulation.TickDt : 0f;
-            return e.StuckSeconds > 4f;
-        }
+        static bool AiStuck(RaceEntrant e) => !e.Human && e.StuckSeconds > 4f;
 
         /// <summary>Cars an AI can touch (so it follows and passes them); none in non-contact events.</summary>
         public List<VehicleState> TrafficFor(RaceEntrant self)

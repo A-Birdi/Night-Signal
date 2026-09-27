@@ -1,12 +1,14 @@
 # Handoff
 
-_Last updated: 2026-09-27 — drift scoring + drifting AI (Drift Attack, TT_DRIFT online); Garage Appearance Local and online._
+_Last updated: 2026-09-27 — Addendum 03 slice 2: instruments, five driving views with a fitted cockpit on all 18 cars, arcade camera, remappable controls, recovery prompts (V-050)._
 
 **Rules revision:** `docs/brief/Night_Signal_Addendum_01.txt` supersedes parts of the master (six humans + up to
 twelve vehicles, live finale rivals, light contact, course access, offline domain, rejoin grants, voting, friends,
 OST). `docs/brief/Night_Signal_Addendum_02.txt` adds five diversions, Continue/Service Break, ≥ 8 loadouts per car
-instance with protected references, the Garage Test Yard and meaningful upgrades. Effective rules and impact map:
-`docs/EFFECTIVE_RULES.md`.
+instance with protected references, the Garage Test Yard and meaningful upgrades. `docs/brief/Night_Signal_Addendum_03.txt`
+adds two speedometer styles, five mandatory driving views (genuine cockpit), arcade camera motion with comfort
+controls, measured elevation, finite 3D gates and safe recovery — topology/progress/recovery before benchmark
+certification. Effective rules and impact map: `docs/EFFECTIVE_RULES.md`.
 
 ## Where things are
 
@@ -37,6 +39,11 @@ powershell -ExecutionPolicy Bypass -File Tools/run/start-control-plane.ps1     #
 powershell -ExecutionPolicy Bypass -File Tools/run/net-race.ps1 -Humans 2 -Stage S01
 ```
 
+Evidence tours (built player, run from the repo root; each uses its own profile/preferences folders under `Builds/`):
+`-nsUiTour`, `-nsYardTour`, `-nsAppearanceTour`, `-nsInstrumentTour`, `-nsCameraTour` (all 18 cars × 5 views driven,
+contact sheets + ledger), always with `-nsPrefsFolder Builds/Screenshots/<tour>/prefs`. Editor: *Night Signal → Art →
+Render Cockpit Sheets* renders the mounted views of every car.
+
 ## Blockers needing the owner
 
 1. **Local backend stack** — Supabase CLI + a container runtime (Docker Desktop or compatible) are not
@@ -47,7 +54,7 @@ powershell -ExecutionPolicy Bypass -File Tools/run/net-race.ps1 -Humans 2 -Stage
 3. **Hosted services / internet test** — a Supabase project, a reachable server and a budget are needed for
    WAN acceptance (§3.5, Gate 5). Not approved; stays BLOCKED, not faked.
 
-## Done since the addenda (VALIDATION V-015 … V-047)
+## Done since the addenda (VALIDATION V-015 … V-050)
 
 - Addendum 01 Core rules and data overlays; control plane for Addendum 01 + 02 incl. hosted diversions (307 .NET
   tests); light car contact, shared RaceSimulation (server + offline), protocol 2 per-client snapshots.
@@ -85,15 +92,28 @@ powershell -ExecutionPolicy Bypass -File Tools/run/net-race.ps1 -Humans 2 -Stage
   game server → clients) and show on the race car. `/healthz` publishes `customizationContentHash`.
 - **Drift** (V-047): Core `DriftScorer` fed by `Race/DriftJudge` for every car; Drift Attack ranks by banked raw score;
   AI drift the judged zones in drift formats; HUD drift readout; Freeplay Drift Attack and TT_DRIFT settled online.
+- **Progression measured** (V-048): starter paths, 30 Normal reference runs, wet-grip planning for AI and prediction.
+- **Addendum 03 slice 1** (V-049): measured 3D profiles of all 29 courses, finite directional 3D gates, layer-aware
+  progress, legal-progress ranking, safe non-forward recovery anchors, recovery events, ≤ 2 s ghost.
+- **Addendum 03 slice 2** (V-050): Instrument Dial / Digital Strip in km/h or mph; five driving views on all 18 cars
+  with a fitted cockpit (open-cabin body, live binnacle, turning wheel); arcade camera (drift framing with hysteresis,
+  bounded impacts, speed FOV, perimeter speed lines, Arcade/Comfort/Custom, Reduced Motion); Settings → Controls
+  remapping; typing never drives; recovery offers/countdowns on the HUD, overturned rescue, physical fall/roof tests;
+  Test Yard on the same camera/HUD.
 
 ## Next actions
 
+0. Addendum 03 remaining (before benchmark certification): tunnel/bridge shells for the authored sections (tunnels
+   currently render as open road); camera collision at cliff walls/bridge supports/tunnel mouths in every view (C09);
+   30/60/120 fps runs with corrections (C11); six clients with different views/styles/units (C12); online off-route
+   countdown and R07/R08/R11 recovery cases; G04–G06 instrument checks in built races and at 720p/ultrawide;
+   counter-slopes on the long descents; soak and record migration report (A3.8); then F08 and benchmark certification.
 1. Customization follow-ups: two humans in one race seeing each other's liveries; meet refresh of liveries; pearl flip
    tint; rename/delete presets in the UI (the ops exist).
 2. F08–F10 starter progression runs with upgrades; drift skill per AI profile and campaign drift benchmarks; restrict
    Drift Attack to courses with judged zones; group Time Attack and toy tables with 3–6 humans; block UI,
    reconnect/rejoin and DQ under load; Canvas controller cursor.
-3. Generator: bridge decks/piers, tunnel shells, `crossing`/`water`/`field`/`structure` kits; visual pass per biome.
+3. Generator: bridge decks/piers, `crossing`/`water`/`field`/`structure` kits; visual pass per biome.
 4. Car art; meet + boombox; release builds and evidence.
 
 ## Recovery notes

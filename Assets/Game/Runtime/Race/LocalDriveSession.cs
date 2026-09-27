@@ -38,10 +38,12 @@ namespace NightSignal.Race
         DrivingControls controls;
         RouteFollower autopilot;
         RaceProgressTracker tracker;
-        ChaseCamera chase;
+        DrivingCamera chase;
+        UI.SpeedLines speedLines;
         double accumulator;
         bool latchUp, latchDown;
-        float resetHeld;
+        float resetHeld, overturnedSeconds;
+        bool resetNeedsRelease;
 
         void Start()
         {
@@ -68,8 +70,9 @@ namespace NightSignal.Race
 
             var camGo = CameraRig.EnsureMain("RaceCamera").gameObject;
             camGo.tag = "MainCamera";
-            chase = camGo.GetComponent<ChaseCamera>() ?? camGo.AddComponent<ChaseCamera>();
-            chase.Target = view.transform;
+            chase = DrivingCameraFeed.Attach(camGo);
+            chase.SetTarget(view);
+            speedLines = UI.SpeedLines.Create();
             camGo.transform.position = slot.Position - slot.Rotation * Vector3.forward * 7f + Vector3.up * 2f;
 
             controls = new DrivingControls();
@@ -88,7 +91,8 @@ namespace NightSignal.Race
         void RenderHud()
         {
             if (hud == null) return;
-            hudState.SpeedKmh = current.SpeedKmh;
+            hudState.RoadSpeedMps = sim.Telemetry.RoadSpeedMps;
+            hudState.EnvelopeMps = UI.SpeedDisplay.EnvelopeMps(parameters);
             hudState.Gear = current.Gear;
             hudState.Rpm = current.EngineRpm;
             hudState.Redline = parameters.RedlineRpm;
@@ -102,6 +106,12 @@ namespace NightSignal.Race
             hudState.Banner = Progress.Finished ? "FINISH  " + UI.RaceHud.FormatTime(Progress.FinishTimeMicros / 1e6) + "\n<size=40%>PRACTICE — NOT RECORDED ONLINE</size>" : "";
             hudState.Field.Clear();
             hudState.Field.Add(new UI.HudEntrant { Name = CarId, Position = current.Position, IsYou = true, Status = "PRACTICE" });
+            DrivingCameraFeed.Feed(chase, speedLines, sim.Telemetry, current, parameters, Time.deltaTime);
+            // Practice offers the reset (overturned, well off the route) but never recovers the car by itself.
+            var rs = new RecoveryStatus { HoldFraction = resetHeld / RaceSimulation.ResetHoldSeconds, SecondsToAuto = -1f };
+            if (!Progress.Finished && overturnedSeconds >= RaceSimulation.OverturnedPromptSeconds) rs.Kind = RecoveryKind.Overturned;
+            else if (!Progress.Finished && Progress.OffRouteSeconds > 1f) rs.Kind = RecoveryKind.OffRoute;
+            UI.RaceHud.SetRecovery(hudState, rs, controls != null ? controls.BindingLabel("Reset") : "R", true);
             hud.Render(hudState);
         }
 
@@ -109,6 +119,7 @@ namespace NightSignal.Race
         {
             controls?.Dispose();
             if (hud != null) Destroy(hud.gameObject);
+            if (speedLines != null) Destroy(speedLines.gameObject);
         }
 
         void Update()
@@ -142,13 +153,17 @@ namespace NightSignal.Race
             RaceTimeMicros += 1_000_000 / VehicleSimulation.TickRate;
             tracker.Step(Progress, previous, current, sim.Telemetry, RaceTimeMicros, VehicleSimulation.TickDt);
 
-            // Hold-to-reset (0.7 s) returns to the last safe checkpoint with the 3 s penalty.
-            resetHeld = input.ResetHeld ? resetHeld + VehicleSimulation.TickDt : 0f;
-            if (resetHeld >= 0.7f && !Progress.Finished)
+            // Hold-to-reset (the race's 0.75 s, released before another) returns to the last safe checkpoint with the 3 s penalty.
+            if (!input.ResetHeld) resetNeedsRelease = false;
+            resetHeld = input.ResetHeld && !resetNeedsRelease ? resetHeld + VehicleSimulation.TickDt : 0f;
+            overturnedSeconds = RaceSimulation.IsOverturned(current) ? overturnedSeconds + VehicleSimulation.TickDt : 0f;
+            if (resetHeld >= RaceSimulation.ResetHoldSeconds && !Progress.Finished)
             {
                 current = tracker.ResetPose(Progress, parameters, 0, "manual"); // adds the 3 s penalty to the finish time
+                chase.NotifyTeleport();
                 previous = current;
-                resetHeld = 0f;
+                resetHeld = overturnedSeconds = 0f;
+                resetNeedsRelease = true;
             }
         }
 
