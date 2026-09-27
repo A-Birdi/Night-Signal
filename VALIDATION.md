@@ -365,3 +365,20 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - Found and fixed on the way: JSON `null` sub-objects indexed with `?[...]` throw in Newtonsoft (guarded as `as
   JObject`), and a click during an in-flight request was silently dropped (the tour now waits for the screen's `Busy`;
   toggles still must not double-send). One human only: multi-member tallies are covered by control plane tests.
+
+## V-037 — Friends, convoy invitations and course purchases through the UI, two clients (2026-09-27)
+- New screens: **Friends** (claim an @username; send a request by @username; incoming requests Accept/Decline,
+  outgoing Cancel; friend list with the server's presence and rank; Invite / Join / Rejoin exactly where the server
+  allows it; Remove asks twice; convoy invitations received as `convoy.invited` pushes, Join/Decline) and **Courses**
+  (every course with how the online profile holds it — starter, owned by purchase or clear, buyable, clear-only
+  reward — and a two-press Buy that sends the shown price and a fresh Idempotency-Key per attempt).
+- `Tools/run/ui-tour-social.ps1`: two windowed clients (dev accounts 0 and 1) against the local control plane, each
+  driving its own real screens: usernames @nsdriver0/@nsdriver1 → host sends the request (retrying while the guest's
+  username does not exist yet: "No player has that username") → guest accepts → host creates a convoy → the guest
+  shows as Available and invitable → Invite → guest's invitation → Join → both in one convoy (roster "Driver 1,
+  Driver 2"); host buys **C05 for 45,000 cr (balance 113,105 → 68,105)** → both leave — **PASS / PASS**. Screenshots
+  `Evidence/ui/online/social/`.
+- Found on the way: the convoy screen threw when signed in without a convoy (a new ballot line indexed a null
+  snapshot) — fixed; the Friends screen kept errors only until the next list refresh — action results now persist.
+- Not covered by this run: block/unblock UI (server endpoints exist), invitations to offline friends, rejoin through a
+  friend row.

@@ -21,7 +21,7 @@ namespace NightSignal.Front
     /// Interactive client shell: persistent UI root, top status strip, screen router, the living course backdrop behind
     /// the menus, and launching/returning from races. Server and automated-client roles never create it.
     /// </summary>
-    public sealed class FrontEndApp : MonoBehaviour
+    public sealed partial class FrontEndApp : MonoBehaviour
     {
         public static FrontEndApp Instance { get; private set; }
         public ScreenRouter Router { get; private set; }
@@ -45,6 +45,9 @@ namespace NightSignal.Front
         public readonly PitCrewScreen PitCrew = new PitCrewScreen();
         public readonly CanvasScreen ConvoyCanvas = new CanvasScreen();
         public readonly WhileWeWaitScreen WhileWeWait = new WhileWeWaitScreen();
+        public readonly FriendsScreen Friends = new FriendsScreen();
+        public readonly CourseAccessScreen Courses = new CourseAccessScreen();
+        public readonly GarageScreen Garage = new GarageScreen();
         /// <summary>Rich-text summary of the last online race (placing, time, settled receipt) for the convoy screen.</summary>
         public string LastOnlineResult { get; private set; }
         /// <summary>UI tours drive online races with the validator autopilot (automation, labelled as such).</summary>
@@ -84,6 +87,9 @@ namespace NightSignal.Front
                 StartCoroutine(UiTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsUiTourOnline") >= 0)
                 StartCoroutine(UiTourOnline());
+            int social = Array.IndexOf(Environment.GetCommandLineArgs(), "-nsUiTourSocial");
+            if (social >= 0 && social + 1 < Environment.GetCommandLineArgs().Length)
+                StartCoroutine(UiTourSocial(Environment.GetCommandLineArgs()[social + 1]));
         }
 
         /// <summary>

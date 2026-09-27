@@ -33,7 +33,7 @@ namespace NightSignal.Front
 
         TextMeshProUGUI heading, status, error, rosterText, lastResult, intentLine, proposalLine, postLine, inviteLine;
         Button create, createPrivate, joinCode, refresh, rejoin, notNow, chooseStarter;
-        Button proposeIntent, modeReady, enterMode, proposeEvent, eventReady, start, cont, serviceBreak, advance, invite, leave, signOut, table;
+        Button proposeIntent, modeReady, enterMode, proposeEvent, eventReady, start, cont, serviceBreak, advance, invite, leave, signOut, table, friendsButton, coursesButton;
         Button votingToggle, openVote, castVote, drawVote, cancelVote;
         List<string> ballotIds = new List<string>();
         Stepper ballotCourse;
@@ -134,6 +134,8 @@ namespace NightSignal.Front
             inviteLine.richText = true;
             // While We Wait (Addendum 02 §1): the convoy's shared Pocket Circuit table; readiness is kept while playing.
             table = UIFactory.Button("WhileWeWait", col, "While We Wait", () => App.Router.Show(App.WhileWeWait), 620, 52);
+            friendsButton = UIFactory.Button("OpenFriends", col, "Friends", () => App.Router.Show(App.Friends), 620, 48);
+            coursesButton = UIFactory.Button("OpenCourses", col, "Courses", () => App.Router.Show(App.Courses), 620, 48);
             leave = UIFactory.Button("Leave", col, "Leave Convoy", () => Send("convoy.leave"), 620, 48);
             signOut = UIFactory.Button("SignOut", col, "Sign Out", SignOut, 620, 48);
         }
@@ -151,6 +153,7 @@ namespace NightSignal.Front
             S.Changed -= MarkDirty;
             S.Changed += MarkDirty;
             _ = S.Request("presence.set", new { presence = "InMenus" }, quiet: true);
+            if (S.InConvoy) _ = EnsureLoadout(); // joined from elsewhere (a friend's invitation, a rejoin)
             dirty = true;
             nextListRefresh = 0;
         }
@@ -232,6 +235,10 @@ namespace NightSignal.Front
                 g.SetActive(inConvoy);
             invite.gameObject.SetActive(inConvoy && (leader || (string)c["privacy"] == "discoverable"));
             signOut.gameObject.SetActive(!inConvoy);
+            friendsButton.gameObject.SetActive(!needStarter);
+            coursesButton.gameObject.SetActive(!needStarter && (!inConvoy || (string)c["phase"] != "Allocating" && (string)c["phase"] != "InMatch"));
+            int pendingSocial = S.Invites.Count;
+            friendsButton.GetComponentInChildren<TextMeshProUGUI>().text = pendingSocial > 0 ? $"Friends   ({pendingSocial} invitation{(pendingSocial == 1 ? "" : "s")})" : "Friends";
             string phaseNow = inConvoy ? (string)c["phase"] : "";
             table.gameObject.SetActive(inConvoy && phaseNow != "Allocating" && phaseNow != "InMatch");
 
@@ -269,7 +276,7 @@ namespace NightSignal.Front
             // Event selection (leader).
             string kind = (string)intentObj?["kind"];
             // A live course vote replaces direct selection until it is drawn or cancelled (the server refuses proposals meanwhile).
-            string ballotState = (string)(c["ballot"] as JObject)?["state"];
+            string ballotState = (string)(c?["ballot"] as JObject)?["state"];
             bool selecting = modeEntered && leader && proposal == null && post == null && !matchOn && ballotState != "open" && ballotState != "frozen";
             stage.Root.SetActive(selecting && kind == "campaign");
             course.Root.SetActive(selecting && kind == "freeplay");

@@ -48,6 +48,24 @@ namespace NightSignal.Core.Builds
     /// </summary>
     public static class BuildDocumentCodec
     {
+        /// <summary>
+        /// A stored timestamp as UTC. <c>(DateTime?)token</c> converts an ISO string through the machine's time zone, so a
+        /// saved "…Z" came back shifted on any non-UTC machine; strings are parsed invariantly and kept in UTC instead.
+        /// </summary>
+        internal static DateTime? Utc(JToken t)
+        {
+            if (t == null || t.Type == JTokenType.Null) return null;
+            if (t.Type == JTokenType.Date)
+            {
+                DateTime d = (DateTime)((JValue)t).Value;
+                return d.Kind == DateTimeKind.Local ? d.ToUniversalTime() : DateTime.SpecifyKind(d, DateTimeKind.Utc);
+            }
+            if (t.Type == JTokenType.String &&
+                DateTime.TryParse((string)t, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out DateTime u))
+                return DateTime.SpecifyKind(u, DateTimeKind.Utc);
+            return null;
+        }
+
         public const string LoadoutSchema = "night-signal/mechanical-loadout";
         public const int LoadoutVersion = 2;
         public const string VisualPresetSchema = "night-signal/visual-preset";
@@ -163,7 +181,7 @@ namespace NightSignal.Core.Builds
                 ws.VisualPresetCapacity = (int?)st["visualPresetCapacity"] ?? CarBuildWorkspace.MinVisualPresetSlots;
                 ws.AppliedVisualPresetId = (string)st["appliedVisualPresetId"] ?? "";
                 ws.AppliedLiveryHash = (string)st["appliedLiveryHash"] ?? "";
-                ws.Workshop = new WorkshopSession { Open = (bool?)st["workshopOpen"] ?? false, OpenedUtc = (DateTime?)st["workshopOpenedUtc"] ?? default(DateTime) };
+                ws.Workshop = new WorkshopSession { Open = (bool?)st["workshopOpen"] ?? false, OpenedUtc = Utc(st["workshopOpenedUtc"]) ?? default(DateTime) };
             }
             if (docs.AppliedBuild?.Data != null && docs.AppliedBuild.Schema == AppliedSchema)
                 ws.Applied = docs.AppliedBuild.Data.ToObject<AppliedVehicleBuild>(Serializer);
@@ -246,7 +264,7 @@ namespace NightSignal.Core.Builds
                 CarModelId = modelId,
                 Build = build,
                 Note = (string)p["note"] ?? "",
-                UpdatedUtc = (DateTime?)p["updatedUtc"] ?? nowUtc,
+                UpdatedUtc = Utc(p["updatedUtc"]) ?? nowUtc,
                 Pinned = false,
                 UnresolvedPartIds = unresolved,
                 Notices = notes,

@@ -35,6 +35,8 @@ namespace NightSignal.Editor.ContentTools
             var toys = new List<TextAsset>();
             foreach (string f in Core.Toys.ToyContent.Files) toys.Add(Load($"Assets/Content/Data/authored/toys/{f}"));
             lib.ToyDocuments = toys.ToArray();
+            lib.PartsDocument = Load("Assets/Content/Data/authored/parts.json");
+            lib.RecipesDocument = Load("Assets/Content/Data/authored/build-recipes.json");
             if (create) AssetDatabase.CreateAsset(lib, LibraryPath);
             EditorUtility.SetDirty(lib);
 

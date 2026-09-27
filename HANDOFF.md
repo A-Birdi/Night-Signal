@@ -47,7 +47,7 @@ powershell -ExecutionPolicy Bypass -File Tools/run/net-race.ps1 -Humans 2 -Stage
 3. **Hosted services / internet test** — a Supabase project, a reachable server and a budget are needed for
    WAN acceptance (§3.5, Gate 5). Not approved; stays BLOCKED, not faked.
 
-## Done since the addenda (VALIDATION V-015 … V-036)
+## Done since the addenda (VALIDATION V-015 … V-037)
 
 - Addendum 01 Core rules and data overlays; control plane for Addendum 01 + 02 incl. hosted diversions (307 .NET
   tests); light car contact, shared RaceSimulation (server + offline), protocol 2 per-client snapshots.
@@ -56,6 +56,8 @@ powershell -ExecutionPolicy Bypass -File Tools/run/net-race.ps1 -Humans 2 -Stage
 - **Online play through the menus** (V-027): sign-in → convoy → Intent/Mode Ready/Enter/Propose/Event Ready/Start →
   server race → settled receipt → Continue/Advance; automated windowed tour against a real server. Freeplay course
   vote (open → ballot → server deadline → draw → proposal) through the same screen (V-036).
+- **Friends and course access** (V-037): Friends screen (usernames, requests, presence, invite/join) and Courses
+  screen (two-press purchase, idempotent) verified with two real clients.
 - **Local play** (V-023): profiles, Offline hub, campaign map, Local races judged by Core and saved atomically.
 - **While We Wait** (V-029 … V-034): all five diversions playable through real screens — Pocket Circuit, Greenlight,
   Cap Clash, Pit-Crew Project, Convoy Canvas — on one `ToyConnection` (Local in-process session or the convoy's hosted
@@ -69,7 +71,7 @@ powershell -ExecutionPolicy Bypass -File Tools/run/net-race.ps1 -Humans 2 -Stage
 
 1. Garage (loadouts, protected references, Buy-and-Apply) on Core/Builds + Test Yard A/B; parts/recipes/toys into the
    content hash before builds affect online events.
-2. Online convoy extras: friends panel, course purchase UI, Time Attack/Team Trials,
+2. Online convoy extras: block UI, Local course purchases, Time Attack/Team Trials,
    reconnect/rejoin and DQ under load; the other four diversions against the hosted session with several humans;
    controller cursor for the Canvas.
 3. Generator: bridge decks/piers, tunnel shells, `crossing`/`water`/`field`/`structure` kits; visual pass per biome.

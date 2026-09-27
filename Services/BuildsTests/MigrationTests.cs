@@ -95,6 +95,27 @@ public sealed class MigrationTests
     }
 
     [Fact]
+    public void WorkshopTime_StoredAsAnIsoString_ReadsBackAsTheSameUtcInstant()
+    {
+        // Profiles keep the state document as JSON text; a "…Z" string used to come back shifted by the local offset.
+        var inv = TestData.Owning("ci_tz", "TYR-T2-SPORT");
+        BuildContext ctx = TestData.Ctx("V05", inv);
+        CarBuildWorkspace ws = GarageOperations.NewWorkspace("ci_tz", ctx, T);
+        DateTime opened = new DateTime(2026, 9, 27, 4, 30, 0, DateTimeKind.Utc);
+        Assert.True(GarageOperations.BeginWorkshopSession(ws, ctx, opened).Accepted);
+        StoredBuildDocuments docs = BuildDocumentCodec.ToDocuments(ws);
+        string text = docs.WorkspaceState.Data.ToString(Newtonsoft.Json.Formatting.None);
+        using (var reader = new Newtonsoft.Json.JsonTextReader(new StringReader(text)) { DateParseHandling = Newtonsoft.Json.DateParseHandling.None })
+            docs.WorkspaceState.Data = JToken.ReadFrom(reader);
+        Assert.Equal(JTokenType.String, docs.WorkspaceState.Data["workshopOpenedUtc"]!.Type);
+
+        CarBuildWorkspace back = BuildDocumentCodec.FromDocuments("ci_tz", "V05", docs, TestData.Parts, T).Workspace;
+        Assert.True(back.Workshop.Open);
+        Assert.Equal(opened, back.Workshop.OpenedUtc);
+        Assert.Equal(DateTimeKind.Utc, back.Workshop.OpenedUtc.Kind);
+    }
+
+    [Fact]
     public void StoredDocuments_RoundTrip_AndUnknownDocumentsArePreservedVerbatim()
     {
         var inv = TestData.Owning("ci_rt", "TYR-T2-SPORT", "BRK-T2-KIT");

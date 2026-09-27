@@ -19,6 +19,12 @@ namespace NightSignal.Content
         public TextAsset CarBodies;
         /// <summary>While We Wait toy content (non-progression; not part of the race catalogue hash).</summary>
         public TextAsset[] ToyDocuments;
+        /// <summary>
+        /// Garage data: parts.json and build-recipes.json. Not yet in the race catalogue hash — online events still race
+        /// stock performance; they join the hash together with the server's garage (docs/EFFECTIVE_RULES.md, builds).
+        /// </summary>
+        public TextAsset PartsDocument;
+        public TextAsset RecipesDocument;
 
         ContentCatalogue catalogue;
         Dictionary<string, CarBodyDef> bodies;
@@ -66,6 +72,15 @@ namespace NightSignal.Content
                 return toys;
             }
         }
+
+        Core.Builds.PartsCatalogue parts;
+        Core.Builds.RecipeBook recipes;
+
+        /// <summary>The performance parts catalogue (null when the document is missing from this build).</summary>
+        public Core.Builds.PartsCatalogue Parts => parts ?? (PartsDocument == null ? null : parts = Core.Builds.PartsCatalogue.Load(PartsDocument.text));
+
+        /// <summary>Authored upgrade paths per car (null when missing).</summary>
+        public Core.Builds.RecipeBook Recipes => recipes ?? (RecipesDocument == null ? null : recipes = Core.Builds.RecipeBook.Load(RecipesDocument.text));
 
         public static ContentLibrary Load() => Resources.Load<ContentLibrary>("ContentLibrary");
     }
