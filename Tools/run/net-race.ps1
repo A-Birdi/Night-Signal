@@ -35,7 +35,9 @@ param(
     # Client 0 holds reset this many seconds after the start (a scripted manual recovery; negative = none).
     [int]$ResetAt = -1,
     # Client 0 drops its connection right after that recovery and tries to come back (Addendum 03 R11).
-    [switch]$DropAfterReset
+    [switch]$DropAfterReset,
+    # Client 1 leaves the race this many seconds after the start; client 0 (if spectating) settles on entrant 1.
+    [int]$DropAt = -1
 )
 
 $ErrorActionPreference = 'Stop'
@@ -68,6 +70,8 @@ for ($i = 0; $i -lt $Humans; $i++) {
     if ($Impair) { $clientArgs += @('-nsImpair', $Impair) }
     if ($ResetAt -ge 0 -and $i -eq 0) { $clientArgs += @('-nsAutoResetAt', "$ResetAt") }
     if ($DropAfterReset -and $i -eq 0) { $clientArgs += @('-nsAutoDropAfterReset') }
+    if ($DropAt -ge 0 -and $i -eq 1) { $clientArgs += @('-nsAutoDropAt', "$DropAt") }
+    if ($DropAt -ge 0 -and $i -eq 0) { $clientArgs += @('-nsAutoSpectateWatch', '1') }
     if ($CameraClients) {
         $views = @('chase-close', 'chase-far', 'hood', 'bumper', 'cockpit', 'chase-far')
         $styles = @('dial', 'strip', 'dial', 'strip', 'dial', 'strip')

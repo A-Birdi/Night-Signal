@@ -140,6 +140,8 @@ namespace NightSignal.Net
             ResultEntrant mine = null;
             string reconnect = null;
             int recoveriesBeforeDrop = -1;
+            bool spectated = false;
+            string[] spectateLog = null;
             if (cfg.AutoDropAfterReset)
             {
                 // Addendum 03 R11: a recovery immediately followed by a lost connection, then an attempt to drive on.
@@ -156,8 +158,45 @@ namespace NightSignal.Net
                 await WaitFor(() => race.DisconnectReason != null || race.Info != null, 30, "reconnect outcome");
                 reconnect = race.DisconnectReason ?? "connected (match info received)";
                 Note($"reconnect attempt with the same ticket: {reconnect}");
+
+                // Spec §4.4: a disqualified member may spectate the rest of the event with a spectator ticket.
+                JToken st = await cp.Request("match.ticket", new { role = "spectator" });
+                Destroy(race.gameObject);
+                await Task.Delay(1500);
+                var watchGo = new GameObject("RaceClientSpectator");
+                DontDestroyOnLoad(watchGo);
+                race = watchGo.AddComponent<RaceClient>();
+                race.Autopilot = true;
+                race.Connect((string)st["server"]["host"], (ushort)(int)st["server"]["port"], (string)st["ticket"]);
+                await WaitFor(() => race.Spectating || race.DisconnectReason != null, 60, "spectator match info");
+                spectated = race.Spectating;
+                Note(spectated ? "spectating the rest of the event" : $"spectator connection failed: {race.DisconnectReason}");
+                if (spectated)
+                {
+                    await Task.Delay(1000);
+                    race.ForgeInputsForTest(40); // full throttle + held reset from a spectator: must change nothing
+                    Note("sent 40 forged input packets as a spectator");
+                    int switches = 0;
+                    DateTime next = DateTime.UtcNow.AddSeconds(3);
+                    while (race.Results == null && race.DisconnectReason == null)
+                    {
+                        if (DateTime.UtcNow > next && switches < 3) { race.SpectateNext(+1); switches++; next = DateTime.UtcNow.AddSeconds(3); }
+                        else if (switches == 3 && cfg.AutoSpectateWatch >= 0) { race.SpectateIndex(cfg.AutoSpectateWatch); switches++; }
+                        await Task.Delay(200);
+                    }
+                    spectateLog = race.SpectateLog.ToArray();
+                    Note($"spectated: {race.SpectateSwitches} target changes, {race.SpectateTargetLosses} target losses handled; results {(race.Results != null ? "received" : "not received")}");
+                }
             }
-            else
+            else if (cfg.AutoDropAt >= 0)
+            {
+                // A plain mid-race departure (no reconnect): the entrant is disqualified; a spectator watching it moves on.
+                await WaitFor(() => race.Phase == MatchPhase.Racing, 120, "the start");
+                await Task.Delay(cfg.AutoDropAt * 1000);
+                Note($"dropping the connection {cfg.AutoDropAt} s after the start");
+                Destroy(go);
+            }
+            if (!cfg.AutoDropAfterReset && cfg.AutoDropAt < 0)
             {
                 await WaitFor(() => race.Results != null || race.Phase == MatchPhase.Aborted || race.DisconnectReason != null, cfg.ExitAfterSeconds, "race results");
                 if (race.Results == null) throw new InvalidOperationException($"no results: phase {race.Phase}, disconnect '{race.DisconnectReason}'");
@@ -170,7 +209,7 @@ namespace NightSignal.Net
                 (int status, JObject body) = await cp.GetWithStatus($"/v1/matches/{matchId}/receipt");
                 if (status == 200 && (string)body["status"] != "pending") { receipt = body; return true; }
                 return false;
-            }, cfg.AutoDropAfterReset ? cfg.ExitAfterSeconds : 60, "receipt");
+            }, cfg.AutoDropAfterReset || cfg.AutoDropAt >= 0 ? cfg.ExitAfterSeconds : 60, "receipt");
             me = await cp.Get("/v1/me");
             long walletAfter = (long)me["wallet"]["balance"];
 
@@ -185,12 +224,18 @@ namespace NightSignal.Net
                 snapshots = race.SnapshotsReceived, inputPacketsSent = race.InputsSent,
                 reconciliations = race.Corrections, maxCorrectionMetres = race.MaxCorrectionMetres,
                 serverRecoveries = race.ServerRecoveries, impairedSnapshotDrops = race.ImpairedSnapshotDrops, impairedInputDrops = race.ImpairedInputDrops,
-                result = mine, entrants = race.Results?.Entrants.Count ?? -1, receipt, reconnect, recoveriesBeforeDrop,
+                result = mine, entrants = race != null ? race.Results?.Entrants.Count ?? -1 : -1, receipt, reconnect, recoveriesBeforeDrop,
+                spectated, spectateLog, spectateSwitches = spectated ? race.SpectateSwitches : 0, spectateTargetLosses = spectated ? race.SpectateTargetLosses : 0,
                 walletBefore, walletAfter, rankPointsBefore = rpBefore, rankPointsAfter = (int)me["rank"]["rankPoints"],
                 log, utc = DateTime.UtcNow.ToString("o"),
             });
             bool ok;
-            if (cfg.AutoDropAfterReset)
+            if (cfg.AutoDropAt >= 0 && !cfg.AutoDropAfterReset)
+            {
+                ok = receipt != null && (string)receipt["outcome"] != "Finished";
+                Note(ok ? $"PASS (departed; settled as {(string)receipt["outcome"]})" : "FAIL: departure not settled as a non-finish");
+            }
+            else if (cfg.AutoDropAfterReset)
             {
                 // Refused re-entry, one settled receipt, no finish credited for a disqualified run.
                 ok = reconnect != null && !reconnect.StartsWith("connected") && receipt != null && (string)receipt["outcome"] != "Finished";

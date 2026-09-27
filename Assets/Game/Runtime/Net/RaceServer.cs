@@ -60,6 +60,11 @@ namespace NightSignal.Net
         readonly Dictionary<RaceEntrant, Link> links = new Dictionary<RaceEntrant, Link>();
         readonly Dictionary<ulong, Link> byClient = new Dictionary<ulong, Link>();
         readonly Dictionary<ulong, Link> pendingApproval = new Dictionary<ulong, Link>();
+        readonly Dictionary<ulong, string> pendingSpectators = new Dictionary<ulong, string>(), spectators = new Dictionary<ulong, string>();
+        /// <summary>Spectator connections accepted at once (the control plane only issues spectator tickets to convoy members).</summary>
+        public const int MaxSpectators = 6;
+        /// <summary>Evidence: spectators served, and input packets from connections that are not racing (ignored).</summary>
+        public int SpectatorsServed, IgnoredInputs;
         Action<MatchResults> onFinished;
         MatchPhase phase = MatchPhase.WaitingForEntrants;
         float phaseStartedAt;
@@ -70,16 +75,21 @@ namespace NightSignal.Net
         int StartTick => sim != null ? sim.StartTick : int.MaxValue;
 
         /// <summary>Per-entrant transport and contact health for evidence.</summary>
-        public object Diagnostics() => Entrants.Select(e =>
+        public object Diagnostics() => new
         {
-            links.TryGetValue(e, out Link l);
-            return new
+            entrants = Entrants.Select(e =>
             {
-                entrant = e.Roster.Index, human = e.Human, team = e.Roster.Team, role = e.Roster.Role, status = e.Status.ToString(),
-                starvedTicks = l?.StarvedTicks ?? 0, lateInputs = l?.LateInputs ?? 0,
-                vehicleContacts = e.Progress.VehicleContacts, wallIncidents = e.Progress.WallIncidents, resets = e.Progress.Resets,
-            };
-        }).ToList();
+                links.TryGetValue(e, out Link l);
+                return new
+                {
+                    entrant = e.Roster.Index, human = e.Human, team = e.Roster.Team, role = e.Roster.Role, status = e.Status.ToString(),
+                    starvedTicks = l?.StarvedTicks ?? 0, lateInputs = l?.LateInputs ?? 0,
+                    vehicleContacts = e.Progress.VehicleContacts, wallIncidents = e.Progress.WallIncidents, resets = e.Progress.Resets,
+                };
+            }).ToList(),
+            spectatorsServed = SpectatorsServed,
+            ignoredInputsFromNonEntrants = IgnoredInputs,
+        };
 
         public void Begin(MatchAssignment a, List<TicketKey> jwks, Action<MatchResults> finished)
         {
@@ -122,7 +132,7 @@ namespace NightSignal.Net
             sim.DeadlineSet += () =>
             {
                 Debug.Log($"[NightSignal.Server] first human finish; finish window closes at race time {sim.DeadlineMicros / 1e6:F1} s");
-                foreach (ulong id in byClient.Keys.ToList()) SendPhase(id); // clients show the finish window
+                foreach (ulong id in byClient.Keys.Concat(spectators.Keys).ToList()) SendPhase(id); // clients show the finish window
             };
 
             nm = NetBootstrap.Ensure();
@@ -221,6 +231,21 @@ namespace NightSignal.Net
             res.CreatePlayerObject = false;
             string ticket = req.Payload != null ? Encoding.UTF8.GetString(req.Payload) : null;
             TicketFailure failure = validator.Validate(ticket, out MatchTicketClaims claims);
+            if (failure == TicketFailure.None && claims.Role == "spectator")
+            {
+                // Spectators (spec §4.4): convoy members the control plane issued a spectator ticket to — a disqualified
+                // entrant, a late joiner. They receive the race and send nothing that is used; bounded in number.
+                bool full = spectators.Count + pendingSpectators.Count >= MaxSpectators;
+                res.Approved = !full && phase < MatchPhase.Results;
+                if (!res.Approved)
+                {
+                    res.Reason = full ? "spectators_full" : "match_over";
+                    Debug.Log($"[NightSignal.Server] spectator refused: {res.Reason}");
+                    return;
+                }
+                pendingSpectators[req.ClientNetworkId] = claims.Subject;
+                return;
+            }
             Link link = failure == TicketFailure.None
                 ? links.Values.FirstOrDefault(x => x.Entrant.Roster.EntrantId == claims.Subject)
                 : null;
@@ -237,6 +262,23 @@ namespace NightSignal.Net
 
         void OnClientConnected(ulong clientId)
         {
+            if (pendingSpectators.TryGetValue(clientId, out string subject))
+            {
+                pendingSpectators.Remove(clientId);
+                spectators[clientId] = subject;
+                SpectatorsServed++;
+                var watch = new MatchInfo
+                {
+                    MatchId = assignment.MatchId, CourseId = assignment.CourseId, Kind = assignment.Kind, Mode = assignment.Mode,
+                    StageId = assignment.StageId, Weather = assignment.Weather, Contact = assignment.Collision, FreeplayMode = assignment.FreeplayMode, Surface = sim?.Rules.Surface ?? "dry",
+                    GridNote = assignment.GridNote, YourIndex = -1, Roster = Entrants.Select(x => x.Roster).ToList(),
+                };
+                FastBufferWriter sw = Wire.JsonWriter(JsonConvert.SerializeObject(watch));
+                using (sw) nm.CustomMessagingManager.SendNamedMessage(Wire.MsgMatch, clientId, sw, NetworkDelivery.ReliableFragmentedSequenced);
+                SendPhase(clientId);
+                Debug.Log($"[NightSignal.Server] spectator connected as client {clientId} ({spectators.Count} watching)");
+                return;
+            }
             if (!pendingApproval.TryGetValue(clientId, out Link l)) return;
             pendingApproval.Remove(clientId);
             l.ClientId = clientId;
@@ -258,6 +300,8 @@ namespace NightSignal.Net
         void OnClientDisconnected(ulong clientId)
         {
             pendingApproval.Remove(clientId);
+            pendingSpectators.Remove(clientId);
+            if (spectators.Remove(clientId)) { Debug.Log($"[NightSignal.Server] spectator client {clientId} left"); return; }
             if (!byClient.TryGetValue(clientId, out Link l)) return;
             l.Connected = false;
             RaceEntrant e = l.Entrant;
@@ -277,7 +321,11 @@ namespace NightSignal.Net
 
         void OnInput(ulong clientId, FastBufferReader reader)
         {
-            if (!byClient.TryGetValue(clientId, out Link l)) return;
+            if (!byClient.TryGetValue(clientId, out Link l))
+            {
+                IgnoredInputs++; // a spectator (or anyone not racing) cannot drive a car
+                return;
+            }
             if (l.Entrant.Status != EntrantStatus.Racing && l.Entrant.Status != EntrantStatus.Loaded) return;
             reader.ReadValueSafe(out int latestTick);
             reader.ReadValueSafe(out byte count);
@@ -473,7 +521,7 @@ namespace NightSignal.Net
             int now = nm != null && nm.IsListening ? nm.LocalTime.Tick : -1;
             Debug.Log($"[NightSignal.Server] phase {p} at tick {now}" + (p == MatchPhase.Countdown ? $", start tick {StartTick}" : ""));
             if (nm == null || !nm.IsServer) return;
-            foreach (ulong id in byClient.Keys.ToList()) SendPhase(id);
+            foreach (ulong id in byClient.Keys.Concat(spectators.Keys).ToList()) SendPhase(id);
         }
 
         void SendPhase(ulong clientId)
@@ -520,6 +568,29 @@ namespace NightSignal.Net
                     }
                     nm.CustomMessagingManager.SendNamedMessage(Wire.MsgSnapshot, kv.Key, w, NetworkDelivery.UnreliableSequenced);
                 }
+            }
+            if (spectators.Count == 0) return;
+            // Spectators: every car in compact form, none flagged as their own.
+            using (var w = new FastBufferWriter(1200, Allocator.Temp))
+            {
+                w.WriteValueSafe(tick);
+                w.WriteValueSafe((byte)phase);
+                w.WriteValueSafe((byte)Entrants.Count);
+                foreach (RaceEntrant e in Entrants)
+                {
+                    w.WriteValueSafe((byte)e.Roster.Index);
+                    w.WriteValueSafe((byte)e.Status);
+                    w.WriteValueSafe((ushort)e.Progress.CheckpointsPassed);
+                    w.WriteValueSafe(e.Progress.RaceDistance);
+                    w.WriteValueSafe((int)(e.Progress.FinishTimeMicros / 1000));
+                    w.WriteValueSafe(-1);
+                    w.WriteValueSafe((byte)(e.GhostUntilTick >= 0 || !e.Collides ? 1 : 0));
+                    VehicleState s = e.State;
+                    s.Tick = (uint)tick;
+                    Wire.WriteCompact(w, s);
+                }
+                foreach (ulong id in spectators.Keys)
+                    nm.CustomMessagingManager.SendNamedMessage(Wire.MsgSnapshot, id, w, NetworkDelivery.UnreliableSequenced);
             }
         }
 

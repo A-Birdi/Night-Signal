@@ -35,7 +35,7 @@ namespace NightSignal.Front
 
         TextMeshProUGUI heading, status, error, rosterText, lastResult, intentLine, proposalLine, postLine, inviteLine;
         Button create, createPrivate, joinCode, refresh, rejoin, notNow, chooseStarter;
-        Button proposeIntent, modeReady, enterMode, proposeEvent, eventReady, start, cont, serviceBreak, advance, invite, leave, signOut, table, friendsButton, coursesButton, garageButton;
+        Button proposeIntent, modeReady, enterMode, proposeEvent, eventReady, start, cont, serviceBreak, advance, invite, leave, signOut, table, friendsButton, coursesButton, garageButton, spectate;
         Button votingToggle, openVote, castVote, drawVote, cancelVote;
         List<string> ballotIds = new List<string>();
         Stepper ballotCourse;
@@ -126,6 +126,7 @@ namespace NightSignal.Front
             proposalLine.richText = true;
             eventReady = UIFactory.Button("EventReady", col, "Event Ready", ToggleEventReady, 620, 56);
             start = UIFactory.Button("StartEvent", col, "Start Event", () => Send("event.start", new { proposalRevision = (long)S.Convoy["eventProposal"]["revision"] }), 620, 60);
+            spectate = UIFactory.Button("Spectate", col, "Spectate the Race", Spectate, 620, 56);
             postLine = UIFactory.Row("PostEvent", col, "", SignalTheme.Body, SignalTheme.Label, 1000, 64);
             postLine.richText = true;
             cont = UIFactory.Button("Continue", col, "Continue", () => ChoosePost("continue"), 620, 56);
@@ -331,6 +332,8 @@ namespace NightSignal.Front
             bool allEventReady = inConvoy && c["members"].Where(m => (bool?)m["spectator"] != true).All(m => (bool?)m["eventReady"] == true);
             start.gameObject.SetActive(readyOpen && leader);
             start.interactable = allEventReady;
+            // Spec §4.4: a member who is not racing this event (disqualified, joined late) may watch it; never drive it.
+            spectate.gameObject.SetActive(inConvoy && phase == "InMatch" && (bool?)me?["spectator"] == true && !App.InOnlineRace);
 
             // Post-event decision.
             postLine.gameObject.SetActive(post != null);
@@ -418,6 +421,23 @@ namespace NightSignal.Front
         static string Esc(string s) => (s ?? "").Replace("<", "(").Replace(">", ")");
 
         // ------------------------------------------------------------------ actions
+
+        async void Spectate()
+        {
+            if (busy) return;
+            busy = true;
+            try
+            {
+                // A spectator ticket from the control plane (only convoy members of this match get one), then the same join
+                // path as a racer: the server gives a spectator the race to watch and nothing to drive.
+                if (await S.Request("match.ticket", new { role = "spectator" }) is JObject ticket) App.StartSpectating(ticket);
+            }
+            finally
+            {
+                busy = false;
+                dirty = true;
+            }
+        }
 
         async void Send(string type, object payload = null)
         {

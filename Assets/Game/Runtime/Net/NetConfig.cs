@@ -27,6 +27,10 @@ namespace NightSignal.Net
         public int ExitAfterSeconds = 900;
         /// <summary>Automation (Addendum 03 R11): drop the connection right after the server completes a recovery, then try to come back.</summary>
         public bool AutoDropAfterReset;
+        /// <summary>Automation: drop the connection this many seconds after the start (a mid-race departure; −1 = never).</summary>
+        public int AutoDropAt = -1;
+        /// <summary>Automation: while spectating, settle on this entrant index after a few switches (−1 = keep cycling).</summary>
+        public int AutoSpectateWatch = -1;
 
         public static string Build => Application.version;
 
@@ -60,6 +64,8 @@ namespace NightSignal.Net
                     case "-nsAutoFreeplayMode": c.AutoFreeplayMode = next; i++; break;
                     case "-nsExitAfter": c.ExitAfterSeconds = int.Parse(next); i++; break;
                     case "-nsAutoDropAfterReset": c.AutoDropAfterReset = true; break;
+                    case "-nsAutoDropAt": c.AutoDropAt = int.Parse(next); i++; break;
+                    case "-nsAutoSpectateWatch": c.AutoSpectateWatch = int.Parse(next); i++; break;
                 }
             }
             return c;

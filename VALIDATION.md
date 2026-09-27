@@ -881,3 +881,24 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   `DisqualifiedDisconnect` (checkpoint fraction 0.19, not clean — the reset counts), the event still had 6 entrants (no
   new entrant, no AI replacement), the two other humans finished and were credited normally (6,460 and 7,461), and client
   0's receipt settled once as DisqualifiedDisconnect with a payout of 0 and an unchanged wallet — **PASS**. Localhost only.
+
+## V-058 — Spectating a running race (spec §4.4; Addendum 03 C05 target loss) (2026-09-27)
+- Revision: working tree on `d15b669` (committed in the next checkpoint). Built dedicated server + 3 client processes + local
+  control plane, loopback (`Evidence/net/run-20260927-142546-h3-C01-ai3`; the first attempt,
+  `run-20260927-142202-h3-C01-ai3`, connected the spectator but a headless spectator never chose a target — its target
+  rule wrongly required a rendered car and its upkeep ran after the headless early return; both fixed).
+- Race server: accepts spectator tickets (the control plane issues them only to members of the convoy's match), at most 6,
+  until results; a spectator gets the match with no car of its own, phases, compact snapshots of every car and the
+  results; anything it sends as input is counted and ignored. Client: spectate mode — no prediction, no input; the camera
+  follows one entrant (humans first), next/previous by the shift bindings (E/Q, RB/LB), moves on by itself when the
+  watched car leaves the event, shows "No drivers to watch" when nobody is left; each change is a camera cut and an
+  instrument snap (C05). Convoy screen: "Spectate the Race" while the convoy's race runs for a member flagged as a
+  spectator (presence "Spectating").
+- Run: client 0 reset at 15 s, dropped, was refused re-entry (`ticket_Replayed`), requested a spectator ticket and
+  watched the rest of the race: first Driver 2 (a human), then Driver 3, AI-1, AI-2 (next ×3), then held Driver 2; client
+  1 (Driver 2) left the race 45 s after the start and the spectator moved to Driver 3 by itself ("target left the event"),
+  then received the results as a non-entrant — 6 target changes, 1 target loss handled. The spectator also sent 40 input
+  packets (full throttle + held reset): the server counted **40 ignored**, and every result stands (client 2 finished P4
+  and was credited 6,460; the three AI finished 1–3). Clients 0 and 1 settled once each as DisqualifiedDisconnect with 0
+  payout — **PASS**. Localhost only; the Spectate button itself was not driven by automation (the protocol path it calls
+  was).

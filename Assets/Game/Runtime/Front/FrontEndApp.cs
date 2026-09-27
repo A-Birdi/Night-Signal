@@ -470,11 +470,17 @@ namespace NightSignal.Front
 
         void Update() => OnlineSession.Current?.Tick();
 
+        /// <summary>An online race (racing or spectating) is running.</summary>
+        public bool InOnlineRace => onlineRace != null;
+
+        /// <summary>Watch the convoy's running race with a spectator ticket (spec §4.4).</summary>
+        public void StartSpectating(Newtonsoft.Json.Linq.JObject ticket) => StartCoroutine(RunOnlineRace(ticket, spectating: true));
+
         /// <summary>
         /// Joins the allocated match with the ticket the control plane issued (never a local shortcut), races with the
         /// player's controls, then returns to the convoy with the settled receipt. The race scene replaces the menus.
         /// </summary>
-        IEnumerator RunOnlineRace(Newtonsoft.Json.Linq.JObject allocation)
+        IEnumerator RunOnlineRace(Newtonsoft.Json.Linq.JObject allocation, bool spectating = false)
         {
             if (onlineRace != null) yield break;
             OnlineSession session = OnlineSession.Current;
@@ -496,10 +502,10 @@ namespace NightSignal.Front
             bool racing = false;
             while (onlineRace.Results == null && onlineRace.Phase != MatchPhase.Aborted && onlineRace.DisconnectReason == null)
             {
-                if (!racing && onlineRace.Phase == MatchPhase.Racing)
+                if (!racing && (onlineRace.Phase == MatchPhase.Racing || (spectating && onlineRace.Spectating)))
                 {
                     racing = true;
-                    _ = session?.Request("presence.set", new { presence = "InRace" }, quiet: true);
+                    _ = session?.Request("presence.set", new { presence = spectating ? "Spectating" : "InRace" }, quiet: true);
                 }
                 yield return null;
             }

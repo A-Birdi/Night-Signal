@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using NightSignal.Race;
 using NightSignal.AI;
@@ -47,6 +48,18 @@ namespace NightSignal.Net
         }
 
         public bool Autopilot;
+
+        /// <summary>
+        /// Spectating (spec §4.4): the match was joined with a spectator ticket, so there is no car of our own — the camera
+        /// follows one entrant at a time (next/previous), moves on by itself when that car leaves (DQ, disconnect), and
+        /// shows a safe empty state when nobody is left. Nothing is predicted and no input is sent.
+        /// </summary>
+        public bool Spectating => Info != null && Info.YourIndex < 0;
+        int watching = -1;
+        public int Watching => watching;
+        /// <summary>Evidence: target switches, targets lost (the watched car left), and a short log.</summary>
+        public int SpectateSwitches, SpectateTargetLosses;
+        public readonly List<string> SpectateLog = new List<string>();
         public MatchInfo Info { get; private set; }
         long driftBanked, driftUnbanked, driftLost;
         float driftChain = 1f;
@@ -224,6 +237,22 @@ namespace NightSignal.Net
                 }
                 cars[r.Index] = car;
             }
+            if (Info.YourIndex < 0)
+            {
+                if (!headless)
+                {
+                    var spectateCam = CameraRig.EnsureMain("RaceCamera").gameObject;
+                    spectateCam.tag = "MainCamera";
+                    chase = DrivingCameraFeed.Attach(spectateCam);
+                    speedLines = UI.SpeedLines.Create();
+                    hud = UI.RaceHud.Create();
+                    hud.SetCourse(UI.HudHelpers.Plan(track));
+                }
+                loaded = true;
+                EnsureWatchTarget();
+                Debug.Log($"[NightSignal.Client] spectating match {Info.MatchId} ({Info.Roster.Count} entrants)");
+                yield break;
+            }
             RosterEntry me = Info.Roster[Info.YourIndex];
             ownParams = ParamsFor(lib, me);
             // Predict with the grip the server simulates (a wet event on dry prediction was corrected every snapshot).
@@ -274,12 +303,17 @@ namespace NightSignal.Net
             for (int i = 0; i < order.Count; i++)
             {
                 Car c = order[i];
-                bool me = c.Roster.Index == Info.YourIndex;
+                bool me = c.Roster.Index == (Spectating ? watching : Info.YourIndex);
                 if (me) myPos = i + 1;
                 Vector3 pos = me ? ownState.Position : c.Buffer.Count > 0 ? c.Buffer[c.Buffer.Count - 1].state.Position : Vector3.zero;
                 string status = c.Status == EntrantStatus.Finished ? (c.FinishMillis / 1000f).ToString("F3") + " s"
                     : c.Status == EntrantStatus.DqDisconnected ? "DQ" : c.Status == EntrantStatus.Dnf ? "DNF" : c.Roster.Human ? "" : "AI";
                 hudState.Field.Add(new UI.HudEntrant { Name = c.Roster.DisplayName, Status = status, Position = pos, IsYou = me, Distance = c.RaceDistance });
+            }
+            if (Spectating)
+            {
+                SpectateHud(myPos);
+                return;
             }
             Car mine = cars[Info.YourIndex];
             hudState.RoadSpeedMps = ownSim.Telemetry.RoadSpeedMps;
@@ -350,9 +384,102 @@ namespace NightSignal.Net
                 ? (recoveryNotice.Length > 0 ? recoveryNotice : "RECOVERED  <size=80%><color=#9A968D>+3.000 s · clock running</color></size>") : "";
         }
 
+        // By the entrant's state only (a headless spectator has no car views but follows the same targets).
+        bool Watchable(Car c) => c != null &&
+            (c.Status == EntrantStatus.Racing || c.Status == EntrantStatus.Finished || c.Status == EntrantStatus.Loaded || c.Status == EntrantStatus.Loading);
+
+        /// <summary>Next (+1) or previous (−1) entrant still in the event; nobody → the empty state.</summary>
+        public void SpectateNext(int dir)
+        {
+            var order = cars.Keys.OrderBy(k => k).ToList();
+            if (order.Count == 0) return;
+            int start = watching < 0 ? (dir > 0 ? -1 : order.Count) : order.IndexOf(watching);
+            for (int step = 1; step <= order.Count; step++)
+            {
+                int idx = order[((start + dir * step) % order.Count + order.Count) % order.Count];
+                if (Watchable(cars[idx])) { Watch(idx, dir > 0 ? "next" : "previous"); return; }
+            }
+            Watch(-1, "nobody left");
+        }
+
+        /// <summary>
+        /// Evidence only: send input packets from this connection although it is not racing (a spectator), full throttle and a
+        /// held reset, to show the server ignores them.
+        /// </summary>
+        public void ForgeInputsForTest(int packets)
+        {
+            if (nm == null || !nm.IsConnectedClient) return;
+            for (int k = 0; k < packets; k++)
+                using (var w = new FastBufferWriter(64, Allocator.Temp))
+                {
+                    w.WriteValueSafe(nm.LocalTime.Tick + 2 + k);
+                    w.WriteValueSafe((byte)1);
+                    Wire.Write(w, DriverInput.Quantize(1f, 1f, 0f, InputButtons.ResetHeld));
+                    nm.CustomMessagingManager.SendNamedMessage(Wire.MsgInput, NetworkManager.ServerClientId, w, NetworkDelivery.UnreliableSequenced);
+                }
+        }
+
+        /// <summary>Automation and UI: watch this entrant if it is still in the event.</summary>
+        public void SpectateIndex(int index)
+        {
+            if (cars.TryGetValue(index, out Car c) && Watchable(c)) Watch(index, "chosen");
+        }
+
+        /// <summary>Keeps a valid target: the watched car leaving is a target loss; humans are preferred.</summary>
+        void EnsureWatchTarget()
+        {
+            if (watching >= 0 && cars.TryGetValue(watching, out Car current) && Watchable(current)) return;
+            bool lost = watching >= 0;
+            if (lost) SpectateTargetLosses++;
+            int pick = cars.Values.Where(Watchable).OrderBy(c => c.Roster.Human ? 0 : 1).ThenBy(c => c.Roster.Index).Select(c => c.Roster.Index).DefaultIfEmpty(-1).First();
+            if (pick != watching || lost) Watch(pick, lost ? "target left the event" : "first");
+        }
+
+        void Watch(int index, string why)
+        {
+            if (index == watching && why != "target left the event") return;
+            watching = index;
+            SpectateSwitches++;
+            string name = index >= 0 ? cars[index].Roster.DisplayName : "nobody";
+            SpectateLog.Add($"{Time.unscaledTime:F1}s {why}: {name}");
+            Debug.Log($"[NightSignal.Client] spectating {name} ({why})");
+            // A new target is a discontinuity: the camera cuts and forgets the old car; the instrument snaps.
+            if (chase != null) chase.SetTarget(index >= 0 ? cars[index].View : null);
+            hud?.NotifyDiscontinuity();
+        }
+
+        void SpectateHud(int watchedPos)
+        {
+            Car w = watching >= 0 && cars.TryGetValue(watching, out Car wc) ? wc : null;
+            VehicleState ws = w != null ? w.Latest : default;
+            int serverTick = nm.ServerTime.Tick;
+            hudState.SpeedAvailable = w != null;
+            hudState.RoadSpeedMps = w != null ? ws.Velocity.magnitude : 0f;
+            hudState.EnvelopeMps = w != null ? UI.SpeedDisplay.EnvelopeMps(w.Params) : 70f;
+            hudState.Gear = w != null ? ws.Gear : 0;
+            hudState.Rpm = w != null ? ws.EngineRpm : 0f;
+            hudState.Redline = w != null ? w.Params.RedlineRpm : 7000f;
+            hudState.RaceSeconds = w != null && w.FinishMillis > 0 ? w.FinishMillis / 1000.0 : serverTick >= startTick ? (serverTick - startTick) / 60.0 : 0;
+            hudState.Position = w != null ? watchedPos : 0;
+            hudState.Entrants = cars.Count;
+            hudState.Checkpoints = w != null ? w.CheckpointsPassed : 0;
+            hudState.TotalCheckpoints = track.CheckpointMetres.Length * track.Laps;
+            hudState.RttMs = Rtt();
+            hudState.RecoveryPrompt = "";
+            hudState.RecoveryNotice = "";
+            hudState.ResetHoldFraction = 0f;
+            hudState.Banner = Results != null ? "RESULTS" + ResultLine()
+                : w == null ? "NO DRIVERS TO WATCH\n<size=40%>everyone has left this event — return to the menus</size>"
+                : $"SPECTATING {w.Roster.DisplayName}\n<size=40%>{(controls != null ? controls.BindingLabel("ShiftUp") + " / " + controls.BindingLabel("ShiftDown") : "E / Q")}: next / previous driver</size>";
+            if (w != null && chase != null)
+                DrivingCameraFeed.Feed(chase, speedLines, new StepTelemetry { RoadSpeedMps = ws.Velocity.magnitude }, ws, w.Params, Time.deltaTime);
+            hud.Render(hudState);
+        }
+
         string ResultLine()
         {
-            ResultEntrant me = Results.Entrants.Find(e => Info != null && e.EntrantId == Info.Roster[Info.YourIndex].EntrantId);
+            if (Info == null || Info.YourIndex < 0) return "\n<size=40%>SPECTATED — NOT AN ENTRANT IN THIS EVENT</size>";
+            ResultEntrant me = Results.Entrants.Find(e => e.EntrantId == Info.Roster[Info.YourIndex].EntrantId);
             return me == null ? "" : $"\n<size=40%>PLACE {me.Placement}  ·  {me.Outcome.ToUpperInvariant()}  ·  RECEIPT PENDING FROM SERVER</size>";
         }
 
@@ -520,7 +647,7 @@ namespace NightSignal.Net
 
         void OnTick()
         {
-            if (!loaded || Phase < MatchPhase.Countdown || Phase >= MatchPhase.Results) return;
+            if (!loaded || Spectating || Phase < MatchPhase.Countdown || Phase >= MatchPhase.Results) return;
             // Predict (and send commands for) a small fixed lead past the network clock, so each command reaches the
             // server before its tick is simulated. Measured without a lead: ~1-3% of ticks starved on loopback.
             int tick = nm.LocalTime.Tick + InputLeadTicks;
@@ -607,7 +734,10 @@ namespace NightSignal.Net
                 if (controls.ShiftDownPressedThisFrame) latchDown = true;
                 if (chase != null && controls.CameraPressed) chase.Cycle();
                 if (chase != null) chase.LookBack = controls.LookBackHeld;
+                if (Spectating && controls.ShiftUpPressedThisFrame) SpectateNext(+1);
+                if (Spectating && controls.ShiftDownPressedThisFrame) SpectateNext(-1);
             }
+            if (loaded && Spectating) EnsureWatchTarget(); // headless spectators keep their target too
             if (!loaded || headless) return;
             // Critically damped: the drawn car eases onto the corrected state without a velocity jump, so the chase camera
             // shows no kick when a correction lands (Addendum 03 C11 measured the old exponential decay as hitches).
