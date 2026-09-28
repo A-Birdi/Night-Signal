@@ -1677,3 +1677,23 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   timings are not a comparison); level changes are instant pops (no cross-fade; the sheets show the mid body is hard to
   tell from the full one at its distance); the six-racer / populated-meet / cold-load performance profile of §14 and
   character LOD tiers are not done; not reviewed by a person.
+
+## V-087 — Heavy-contact hitch: the client's contact predictor tested offline (negative result) (2026-09-28)
+- Revision: working tree on `9a88aa1`; test-only (the game's code is unchanged).
+- **Hypothesis:** the client predicts contact one-sidedly — each remote car is its latest snapshot extrapolated and
+  never gives way, while the server moves both cars of a pair — so sustained contact at ~190 ms RTT would be
+  mispredicted and cause the corrections behind the V-061 hitch.
+- **Method:** EditMode `ContactPredictionTests` (explicit, a record like the drift tuning sweep). A scripted server
+  drives two cars (V01, V05) into sustained side contact on flat ground and resolves the pair both ways each tick; an
+  emulated client predicts its car 14 ticks past the newest snapshot (≈ 95 ms each way plus the 2-tick input lead),
+  receives snapshots at 20 Hz, reconciles at 3 cm / 0.2 m/s and replays, as RaceClient does. The same server run (same
+  contact load) is measured with the one-sided predictor and with remote proxies that take their share of each contact.
+- **Result** (three starting gaps; 348–386 contact ticks, 155 snapshots each): one-sided — mean position error 4–6 mm,
+  worst 2.8–4.0 cm, 57–62 corrections; remote proxies — mean 7–8 mm, worst 2.1–3.7 cm, 59–63 corrections. The
+  alternative is no better and was **not shipped**. With no contact the prediction is exact (0 corrections).
+- **Conclusion:** in sustained side contact the one-sided predictor stays within millimetres of the server, so it does
+  not explain the p99 tail of V-061. Remaining suspects: remote manoeuvres the client cannot know inside its ~230 ms
+  horizon (braking or steering into you), chain contacts with a third car and barrier interplay the client does not
+  model, and genuine hits (which should be felt).
+- **Limits:** an emulation — it re-implements RaceClient's reconcile and the one-sided predictor rather than calling
+  RaceClient; one scripted scenario on flat ground; no built-player run.
