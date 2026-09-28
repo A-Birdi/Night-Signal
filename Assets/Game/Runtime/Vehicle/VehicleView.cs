@@ -47,51 +47,31 @@ namespace NightSignal.Vehicle
         Mesh closedBody, openBody;
         LODGroup lodGroup;
         float[] lodHeights; // the group's screen-relative transition heights, finest first
-        int lodLevel = -1;  // the level forced on the group (−1 until first chosen)
-        /// <summary>The car's levels of detail (tests and evidence read the meshes and transition heights).</summary>
+        /// <summary>
+        /// The car's levels of detail. Unity's LODGroup chooses the level (measured in the built player under the GPU
+        /// Resident Drawer: every in-view car drawn at the level of Unity's screen-height rule, V-086).
+        /// </summary>
         public LODGroup Lods => lodGroup;
-        /// <summary>The level this car is drawn at: 0 full, 1 mid, 2 far (−1 before the first frame).</summary>
-        public int LodLevel => lodLevel;
-        /// <summary>A level held regardless of distance (<see cref="HoldLod"/>); −1 chooses by distance.</summary>
+        /// <summary>A level held regardless of distance (<see cref="HoldLod"/>); −1: Unity chooses.</summary>
         public int LodHold { get; private set; } = -1;
-        /// <summary>The camera whose view chooses every car's level (null: <see cref="Camera.main"/>).</summary>
-        public static Camera LodCamera;
-        /// <summary>A finer level needs this much more screen height than its transition, so a car at a boundary does not flicker.</summary>
-        public const float LodHysteresis = 1.1f;
 
-        /// <summary>Holds a level regardless of distance (inspection sheets and evidence); −1 returns to choosing by distance.</summary>
+        /// <summary>Holds a level regardless of distance (inspection sheets and evidence); −1 returns the choice to Unity.</summary>
         public void HoldLod(int level)
         {
+            if (lodGroup == null) return;
             LodHold = level;
-            if (level >= 0) ForceLod(level);
-            else lodLevel = -1;
-        }
-
-        void ForceLod(int level)
-        {
-            if (lodGroup == null || level == lodLevel) return;
             lodGroup.ForceLOD(level);
-            lodLevel = level;
-        }
-
-        void LateUpdate()
-        {
-            if (lodGroup == null || LodHold >= 0) return;
-            Camera cam = LodCamera != null && LodCamera.isActiveAndEnabled ? LodCamera : Camera.main;
-            UpdateLod(cam);
         }
 
         /// <summary>
-        /// Chooses the level from <paramref name="cam"/> and forces it on the group. The GPU Resident Drawer does not
-        /// re-evaluate a moving LODGroup's automatic level — measured in the built player: a car kept the level it had
-        /// when the group last changed — so every car's level is chosen here, each frame, by Unity's own screen-height
-        /// rule (with <see cref="LodHysteresis"/>), and forced only when it changes. No camera: the full body.
+        /// Unity's rule for <paramref name="h"/> (<see cref="RelativeHeight"/>): the finest level whose transition height it
+        /// reaches, −1 culled below the last.
         /// </summary>
-        public void UpdateLod(Camera cam)
+        public int RuleLod(float h)
         {
-            if (lodGroup == null) return;
-            if (LodHold >= 0) { ForceLod(LodHold); return; }
-            ForceLod(cam == null ? 0 : ChooseLod(lodHeights, RelativeHeight(cam), Mathf.Max(lodLevel, 0)));
+            for (int i = 0; i < lodHeights.Length; i++)
+                if (h >= lodHeights[i]) return i;
+            return -1;
         }
 
         /// <summary>The car's height on screen as Unity's LOD rule measures it (group size over the view height at its distance, × the LOD bias).</summary>
@@ -102,22 +82,6 @@ namespace NightSignal.Vehicle
             if (cam.orthographic) return size * 0.5f / cam.orthographicSize * QualitySettings.lodBias;
             float d = Vector3.Distance(cam.transform.position, transform.TransformPoint(lodGroup.localReferencePoint));
             return size * 0.5f / (Mathf.Max(d, 1e-4f) * Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad)) * QualitySettings.lodBias;
-        }
-
-        /// <summary>
-        /// The finest level whose transition height <paramref name="h"/> reaches; a switch to a finer level than
-        /// <paramref name="current"/> needs <see cref="LodHysteresis"/> times its height. Never culls: below the last
-        /// transition the far body stays (a car that far away is a few pixels and some four thousand triangles).
-        /// </summary>
-        public static int ChooseLod(float[] heights, float h, int current)
-        {
-            int plain = heights.Length - 1;
-            for (int i = 0; i < heights.Length; i++)
-                if (h >= heights[i]) { plain = i; break; }
-            if (plain >= current) return plain;
-            for (int i = 0; i < current; i++)
-                if (h >= heights[i] * LodHysteresis) return i;
-            return current;
         }
 
         /// <summary>
@@ -250,8 +214,7 @@ namespace NightSignal.Vehicle
             Renderer[] livery = decals != null ? decals.GetComponentsInChildren<Renderer>(true) : new Renderer[0];
             near.AddRange(wheelRenderers);
             // Screen-relative heights (× the quality level's LOD bias, 2 on PC): with the 58° race camera a car switches to
-            // the mid body at about 45 m and to the far body at about 135 m. The level is chosen by UpdateLod (see there),
-            // which never culls; the last height only matters to renderers outside the game's own choice (editor views).
+            // the mid body at about 45 m, to the far body at about 135 m and is culled beyond about 1 km.
             lodGroup = gameObject.AddComponent<LODGroup>();
             lodGroup.SetLODs(new[]
             {

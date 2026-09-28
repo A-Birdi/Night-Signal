@@ -177,7 +177,7 @@ namespace NightSignal.Tests.Vehicle
         }
 
         [Test]
-        public void Level_FollowsDistance_WithHysteresis_AndNeverCulls()
+        public void Rule_FollowsDistance_AndHoldIsReleasable()
         {
             VehicleView car = Car(lib.Catalogue.Cars[0].Id, livery: false);
             var go = new GameObject("LodTestCamera", typeof(Camera));
@@ -186,38 +186,27 @@ namespace NightSignal.Tests.Vehicle
             c.fieldOfView = 58f;
             float[] heights = car.Lods.GetLODs().Select(l => l.screenRelativeTransitionHeight).ToArray();
             Vector3 centre = car.transform.TransformPoint(car.Lods.localReferencePoint);
-            void Place(float d)
+            int At(float d)
             {
                 go.transform.position = centre + Vector3.forward * d;
                 go.transform.LookAt(centre);
-                car.UpdateLod(c);
+                return car.RuleLod(car.RelativeHeight(c));
             }
-            Place(1f);
+            go.transform.position = centre + Vector3.forward;
             float hAt1 = car.RelativeHeight(c); // the screen height falls as 1/distance
             float D(float h) => hAt1 / h;
-            var seen = new List<string>();
-            void Expect(float d, int level, string why)
-            {
-                Place(d);
-                seen.Add($"{d:F0} m → {car.LodLevel}");
-                Assert.That(car.LodLevel, Is.EqualTo(level), $"{why} at {d:F1} m ({string.Join(", ", seen)})");
-            }
-            Expect(D(heights[0]) * 0.8f, 0, "near: the full body");
-            Expect(D(heights[0]) * 1.2f, 1, "past the first transition: the mid body");
-            Expect(D(heights[0]) * 0.95f, 1, "just back inside it: held by the hysteresis");
-            Expect(D(heights[0]) * 0.85f, 0, "well inside it: the full body again");
-            Expect(D(heights[1]) * 1.3f, 2, "past the second transition: the far body");
-            Expect(D(heights[2]) * 20f, 2, "far beyond the last transition: still the far body, never culled");
-            Expect(D(heights[1]) * 0.95f, 2, "just back inside the second transition: held");
-            Expect(D(heights[1]) * 0.8f, 1, "well inside it: the mid body");
-            // A held level ignores distance until released.
-            car.HoldLod(0);
-            Expect(D(heights[1]) * 3f, 0, "held full");
+            Assert.That(At(D(heights[0]) * 0.9f), Is.EqualTo(0), "near: the full body");
+            Assert.That(At(D(heights[0]) * 1.1f), Is.EqualTo(1), "past the first transition: the mid body");
+            Assert.That(At(D(heights[1]) * 1.1f), Is.EqualTo(2), "past the second: the far body");
+            Assert.That(At(D(heights[2]) * 1.1f), Is.EqualTo(-1), "past the last: culled");
+            // With the PC quality level's bias of 2 and the 58° race camera: mid from about 45 m, far from about 135 m.
+            float bias = QualitySettings.lodBias;
+            Assert.That(D(heights[0]) * 2f / bias, Is.InRange(40f, 50f));
+            Assert.That(D(heights[1]) * 2f / bias, Is.InRange(120f, 150f));
+            car.HoldLod(2);
+            Assert.That(car.LodHold, Is.EqualTo(2));
             car.HoldLod(-1);
-            Expect(D(heights[1]) * 3f, 2, "released");
-            // No camera: the full body.
-            car.UpdateLod(null);
-            Assert.That(car.LodLevel, Is.EqualTo(0));
+            Assert.That(car.LodHold, Is.EqualTo(-1));
         }
 
         [Test]
@@ -236,8 +225,7 @@ namespace NightSignal.Tests.Vehicle
                 for (int i = 0; i < 120; i++) cam.Step(Dt);
                 // The smallest LOD bias of any quality level (1): the full body at that bias is the full body at every level.
                 Assert.That(SelectedLod(car.Lods, cam.Camera, 1f), Is.EqualTo(0), $"{v}: own car on the full body");
-                car.UpdateLod(cam.Camera);
-                Assert.That(car.LodLevel, Is.EqualTo(0), $"{v}: the car's own choice is the full body");
+                Assert.That(car.RuleLod(car.RelativeHeight(cam.Camera)), Is.EqualTo(0), $"{v}: the rule at this quality level gives the full body");
                 Object.DestroyImmediate(go);
             }
             car.SetCockpitMode(true);

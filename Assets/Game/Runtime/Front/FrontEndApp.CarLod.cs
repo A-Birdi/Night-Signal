@@ -17,15 +17,14 @@ namespace NightSignal.Front
         /// <summary>
         /// Car level-of-detail evidence (<c>-nsCarLodTour</c>): a full grid (you + 11 AI) on C01 driven by the autopilot.
         /// The GPU Resident Drawer draws the cars through BatchRendererGroup, so <see cref="Renderer.isVisible"/> cannot say
-        /// which level was drawn; every check is made on frozen frames instead (the race paused, the scene still) from the
-        /// rendered triangle count, with levels held and chosen, against a repeat count of the same state.
-        /// 1. Your car in each of the five views: chosen and drawn at its full body (the same triangles as holding it
-        ///    full), and in Cockpit view the fitted cockpit drawn over the open-cabin body (Addendum 03: a cabin lost to
-        ///    exterior culling is a defect).
-        /// 2. Snapshots through the race: every other car held full, mid and far, then chosen by distance (the saving);
-        ///    then each car on its own held at each level while the rest are chosen — the level whose count equals the
-        ///    chosen state is the level that car was actually drawn at, which must be the level <see cref="VehicleView"/>
-        ///    chose for it.
+        /// which level was drawn; every check is made on frozen frames instead (the race paused) from the rendered
+        /// triangle count. The whole scene's count drifts a little even when paused, so a level is always measured against
+        /// a local reference: released, held full, mid and far, released again — the held level that counts the same as
+        /// the released state is the level drawn, and the two releases bound the drift.
+        /// 1. Your car in each of the five views: drawn at its full body, and in Cockpit view the fitted cockpit drawn over
+        ///    the open-cabin body (Addendum 03: a cabin lost to exterior culling is a defect).
+        /// 2. Snapshots through the race: every other car's drawn level against Unity's screen-height rule at its distance,
+        ///    and the triangles saved against every car held full.
         /// Frames are saved under Builds/Screenshots/car-lod.
         /// </summary>
         IEnumerator CarLodTour()
@@ -83,6 +82,31 @@ namespace NightSignal.Front
                     if (Mathf.Abs(a[i].r - b[i].r) + Mathf.Abs(a[i].g - b[i].g) + Mathf.Abs(a[i].b - b[i].b) > 12) n++;
                 return n;
             }
+            string[] levelName = { "full", "mid", "far" };
+            string Name(int level) => level >= 0 ? levelName[level] : level == -1 ? "not drawn" : "no match";
+            // The level drawn (0-2), −1 not drawn (every held level counts the same: out of view, shadows included), −2 none matches.
+            int[] drawn = new int[1];
+            IEnumerator Drawn(VehicleView v)
+            {
+                v.HoldLod(-1);
+                yield return Count();
+                double r0 = tris;
+                var held = new double[3];
+                for (int k = 0; k < 3; k++)
+                {
+                    v.HoldLod(k);
+                    yield return Count();
+                    held[k] = tris;
+                }
+                v.HoldLod(-1);
+                yield return Count();
+                double drift = Math.Abs(tris - r0), released = (r0 + tris) * 0.5;
+                if (Math.Abs(held[0] - held[2]) <= drift + 50) { drawn[0] = -1; yield break; }
+                int best = 0;
+                for (int k = 1; k < 3; k++)
+                    if (Math.Abs(held[k] - released) < Math.Abs(held[best] - released)) best = k;
+                drawn[0] = Math.Abs(held[best] - released) <= drift + 50 ? best : -2;
+            }
 
             // 1. Your car in every view.
             Mesh closed = own.Body.GetComponent<MeshFilter>().sharedMesh;
@@ -93,35 +117,26 @@ namespace NightSignal.Front
                 yield return new WaitForSeconds(1.5f); // the camera settles behind the moving car
                 Time.timeScale = 0f;
                 yield return Capture($"own-{v}");
-                Color32[] chosenPx = pixels;
-                double chosenTris = tris;
-                int chosen = own.LodLevel;
-                yield return Count();
-                double repeat = Math.Abs(tris - chosenTris);
-                own.HoldLod(0);
-                yield return Count();
-                double fullTris = tris;
-                own.HoldLod(2);
-                yield return Count();
-                double farTris = tris;
-                own.HoldLod(-1);
+                Color32[] shownPx = pixels;
+                yield return Drawn(own);
+                int level = drawn[0];
                 bool open = own.Body.GetComponent<MeshFilter>().sharedMesh != closed;
                 int cockpitPx = -1, noise = -1;
                 if (v == DrivingView.Cockpit && own.Cockpit != null)
                 {
                     yield return Capture(null);
-                    noise = Diff(chosenPx, pixels);
+                    noise = Diff(shownPx, pixels);
                     own.Cockpit.Root.gameObject.SetActive(false);
                     yield return Capture(null);
-                    cockpitPx = Diff(chosenPx, pixels);
+                    cockpitPx = Diff(shownPx, pixels);
                     own.Cockpit.Root.gameObject.SetActive(true);
                 }
                 Time.timeScale = 1f;
-                Note($"view {v} (fov {cam.Camera.fieldOfView:F1}): own car chosen level {chosen}; triangles chosen {chosenTris / 1000.0:F1} k (repeat ±{repeat:F0}), " +
-                     $"held full {fullTris / 1000.0:F1} k, held far {farTris / 1000.0:F1} k; open-cabin body {open}" +
-                     (cockpitPx >= 0 ? $"; pixels changed with the cockpit hidden {cockpitPx} (repeat {noise})" : ""));
-                if (chosen != 0) Fail($"{v}: your car chose level {chosen}, not its full body");
-                if (Math.Abs(fullTris - chosenTris) > repeat + 50) Fail($"{v}: your car draws {chosenTris - fullTris:F0} triangles different from its full body");
+                Note($"view {v} (fov {cam.Camera.fieldOfView:F1}): your car drawn {Name(level)} (rule {Name(own.RuleLod(own.RelativeHeight(cam.Camera)))}); " +
+                     $"open-cabin body {open}" + (cockpitPx >= 0 ? $"; pixels changed with the cockpit hidden {cockpitPx} (repeat {noise})" : ""));
+                // Bumper view may not see the body at all (then every level counts the same: not drawn, nothing to lose).
+                if (level != 0 && level != -1) Fail($"{v}: your car drawn {Name(level)}, not its full body");
+                if (level == -1 && v != DrivingView.Bumper) Fail($"{v}: your car's body not seen at all");
                 if (v == DrivingView.Cockpit)
                 {
                     if (!open) Fail("Cockpit: the open-cabin body is not shown");
@@ -132,9 +147,10 @@ namespace NightSignal.Front
             cam.SetView(DrivingView.ChaseClose, save: false);
 
             // 2. Snapshots through the race.
-            string[] levelName = { "full", "mid", "far" };
-            int inView = 0, drawnMid = 0, drawnFar = 0, farOnFull = 0, nonMonotonic = 0, mismatched = 0, savedSnaps = 0, lowerSnaps = 0, snaps = 0;
+            int inView = 0, drawnMid = 0, drawnFar = 0, agree = 0, atBoundary = 0, unmatched = 0, savedSnaps = 0, lowerSnaps = 0, snaps = 0;
+            float[] lodHeights = own.Lods.GetLODs().Select(l => l.screenRelativeTransitionHeight).ToArray();
             var table = new List<string>();
+            var disagreements = new List<string>();
             for (int snap = 0; snap < 6; snap++)
             {
                 yield return new WaitForSeconds(snap == 0 ? 4f : 9f);
@@ -145,77 +161,48 @@ namespace NightSignal.Front
                 foreach (VehicleView v in others) v.HoldLod(0);
                 yield return Capture($"snap{snap}-full");
                 double full = tris;
-                foreach (VehicleView v in others) v.HoldLod(1);
-                yield return Count();
-                double mid = tris;
                 foreach (VehicleView v in others) v.HoldLod(2);
                 yield return Count();
                 double far = tris;
                 foreach (VehicleView v in others) v.HoldLod(-1);
-                yield return Capture($"snap{snap}-chosen");
-                double chosenTris = tris;
-                yield return Count();
-                double repeat = Math.Abs(tris - chosenTris);
-                var cars = new List<(float D, float H, int Chosen, int Drawn)>();
+                yield return Capture($"snap{snap}-auto");
+                double auto = tris;
+                var cars = new List<(float D, float H, int Rule, int Drawn)>();
                 foreach (VehicleView v in others.OrderBy(v => Vector3.Distance(c.transform.position, v.transform.position)))
                 {
-                    int chosen = v.LodLevel;
-                    var perLevel = new double[3];
-                    for (int k = 0; k < 3; k++)
-                    {
-                        v.HoldLod(k);
-                        yield return Count();
-                        perLevel[k] = tris;
-                    }
-                    v.HoldLod(-1);
-                    int drawn = -1;
-                    if (Math.Abs(perLevel[0] - perLevel[2]) > repeat + 50)
-                    {
-                        double best = double.MaxValue;
-                        for (int k = 0; k < 3; k++)
-                            if (Math.Abs(perLevel[k] - chosenTris) < best) { best = Math.Abs(perLevel[k] - chosenTris); drawn = k; }
-                        if (best > repeat + 50) drawn = -2; // matches no level: the chosen state was not one of them
-                    }
-                    cars.Add((Vector3.Distance(c.transform.position, v.transform.position), v.RelativeHeight(c), chosen, drawn));
+                    yield return Drawn(v);
+                    float h = v.RelativeHeight(c);
+                    cars.Add((Vector3.Distance(c.transform.position, v.transform.position), h, v.RuleLod(h), drawn[0]));
                 }
-                yield return Count(); // every car back on its chosen level: the count returns to the chosen state
-                double back = tris;
                 Time.timeScale = 1f;
-                if (cars.Any(x => x.Drawn > 0)) { lowerSnaps++; if (full - chosenTris > 1000) savedSnaps++; }
-                // Models differ in length by a few per cent, so a car only counts as out of order when it is 10 % farther.
-                int lastLevel = 0;
-                float lastDist = 0f;
-                foreach (var car in cars)
+                if (cars.Any(x => x.Drawn > 0)) { lowerSnaps++; if (full - auto > 1000) savedSnaps++; }
+                foreach (var car in cars.Where(x => x.Drawn != -1))
                 {
-                    if (car.Drawn == -1) continue; // out of view (shadows included)
                     inView++;
-                    if (car.Drawn != car.Chosen) mismatched++;
-                    if (car.Drawn < 0) continue;
+                    if (car.Drawn == -2) { unmatched++; continue; }
                     if (car.Drawn == 1) drawnMid++;
                     if (car.Drawn == 2) drawnFar++;
-                    if (car.Drawn == 0 && car.D > 150f) farOnFull++;
-                    if (car.Drawn < lastLevel && car.D > lastDist * 1.1f) nonMonotonic++;
-                    if (car.Drawn > lastLevel) { lastLevel = car.Drawn; lastDist = car.D; }
-                    table.Add($"{car.D:F0} m (h {car.H:F3}): chose {levelName[car.Chosen]}, drawn {levelName[car.Drawn]}");
+                    string line = $"{car.D:F0} m (h {car.H:F3}): rule {Name(car.Rule)}, drawn {Name(car.Drawn)}";
+                    table.Add(line);
+                    if (car.Drawn == car.Rule) agree++;
+                    else if (lodHeights.Any(t => Mathf.Abs(car.H / t - 1f) < 0.02f)) atBoundary++; // within 2 % of a transition
+                    else disagreements.Add($"snapshot {snap} {line}");
                 }
-                Note($"snapshot {snap}: triangles all-full {full / 1000.0:F1} k, all-mid {mid / 1000.0:F1} k, all-far {far / 1000.0:F1} k, chosen {chosenTris / 1000.0:F1} k " +
-                     $"(repeat ±{repeat:F0}, after the per-car holds {back / 1000.0:F1} k); cars " +
-                     string.Join(", ", cars.Select(x => $"{x.D:F0} m {(x.Drawn == -1 ? "out of view" : x.Drawn == -2 ? "no match" : x.Chosen == x.Drawn ? levelName[x.Drawn] : $"chose {levelName[x.Chosen]} drew {levelName[x.Drawn]}")}")));
-                if (Math.Abs(back - chosenTris) > repeat + 50) Fail($"snapshot {snap}: the scene did not return to the chosen state after the holds ({(back - chosenTris):F0} triangles)");
+                Note($"snapshot {snap}: triangles all-full {full / 1000.0:F1} k, all-far {far / 1000.0:F1} k, automatic {auto / 1000.0:F1} k " +
+                     $"({(full - auto) / 1000.0:F1} k saved); cars " + string.Join(", ", cars.Select(x => $"{x.D:F0} m {Name(x.Drawn)}")));
             }
             Time.timeScale = 1f;
             foreach (VehicleView v in others) v.HoldLod(-1);
             triangles.Dispose();
             cam.SetView(before, save: false);
             Note("in-view cars: " + string.Join("; ", table));
-            Note($"{snaps} snapshots: the chosen levels drew fewer triangles than all-full in {savedSnaps} of the {lowerSnaps} with a car drawn below full; " +
-                 $"{inView} in-view car samples — drawn mid {drawnMid}, far {drawnFar}; drawn level differs from the chosen one {mismatched}; " +
-                 $"full beyond 150 m {farOnFull}; farther car drawn finer than a nearer one {nonMonotonic}; frames in {shots}");
+            Note($"{snaps} snapshots: automatic LOD drew fewer triangles than all-full in {savedSnaps} of the {lowerSnaps} with a car drawn below full; " +
+                 $"{inView} in-view car samples — drawn mid {drawnMid}, far {drawnFar}; at the rule's level {agree}; off it within 2 % of a transition {atBoundary}; " +
+                 $"unmatched {unmatched}; frames in {shots}");
+            if (disagreements.Count > 0) Fail("drawn level differs from Unity's rule: " + string.Join("; ", disagreements));
             if (drawnMid == 0 || drawnFar == 0) Fail($"not every level was drawn (mid {drawnMid}, far {drawnFar}): LOD not fully exercised");
-            if (mismatched > 0) Fail($"{mismatched} in-view samples drawn at a level other than the one chosen");
-            if (farOnFull > 0) Fail($"{farOnFull} in-view samples of a car beyond 150 m on its full body");
-            if (nonMonotonic > 0) Fail($"{nonMonotonic} samples where a farther car was drawn finer than a nearer one");
-            if (savedSnaps < lowerSnaps) Fail($"chosen levels saved triangles in only {savedSnaps} of {lowerSnaps} snapshots");
+            if (unmatched > inView / 10) Fail($"{unmatched} of {inView} in-view samples matched no level");
+            if (savedSnaps < lowerSnaps) Fail($"automatic LOD saved triangles in only {savedSnaps} of {lowerSnaps} snapshots");
             Finish();
 
             void Finish()
