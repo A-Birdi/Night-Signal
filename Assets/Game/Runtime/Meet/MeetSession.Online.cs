@@ -485,8 +485,39 @@ namespace NightSignal.Meet
             ShowPanel($"{r.CarId} {CarDisplay(r.CarId)}", body, new List<(string, System.Action)>
             {
                 (r.LikedByMe ? "Unlike" : "Like", () => { Net.Fire("meet.like", new { accountId = r.AccountId }); ClosePanel(); Hud.Notify(r.LikedByMe ? "Like removed" : $"You liked {r.Name}'s car", null); }),
+                ($"View {r.Name}'s driver card", () => StartCoroutine(ViewCard(r))),
             });
             Note($"inspected {r.Name}'s car");
+        }
+
+        /// <summary>
+        /// The public Player Card (spec §11): name, @username, pronouns, rank, campaign and challenge progress and the car
+        /// they brought. Local UI only — the other driver is not interrupted or told.
+        /// </summary>
+        IEnumerator ViewCard(Remote r)
+        {
+            System.Threading.Tasks.Task<JObject> t = Net.Session.Client.Get($"/v1/players/{r.AccountId}/card");
+            while (!t.IsCompleted) yield return null;
+            JObject c = t.IsFaulted ? null : t.Result;
+            if (c == null || c["accountId"] == null)
+            {
+                Hud.Notify("That driver card is unavailable right now", null);
+                yield break;
+            }
+            string Esc(string s) => (s ?? "").Replace("<", "(").Replace(">", ")");
+            string handle = (string)c["handle"], pronouns = (string)c["pronouns"];
+            JToken rank = c["rank"], camp = c["campaign"], ch = c["challenges"];
+            string body = $"<b>{Esc((string)c["displayName"] ?? r.Name)}</b>" + (handle != null ? $"   @{Esc(handle)}" : "") +
+                          (string.IsNullOrEmpty(pronouns) ? "" : $"   <color=#9A968D>({Esc(pronouns)})</color>") + "\n\n" +
+                          $"Rank: {Esc((string)rank?["name"])} · {(int?)rank?["rankPoints"] ?? 0:N0} RP\n" +
+                          $"Campaign: Normal {(int?)camp?["normalClears"] ?? 0}/{(int?)camp?["stages"] ?? 30} · Hard {(int?)camp?["hardClears"] ?? 0}/{(int?)camp?["stages"] ?? 30}\n" +
+                          $"Challenges: {(int?)ch?["completed"] ?? 0}/{(int?)ch?["total"] ?? 75}\n" +
+                          $"Here with: {r.CarId} {CarDisplay(r.CarId)} · PI {r.Pi} {(string.IsNullOrEmpty(r.PiClass) ? "" : "class " + r.PiClass)}";
+            ShowPanel("Driver card", body, new List<(string, System.Action)>
+            {
+                ($"Back to {r.Name}'s car", () => InspectRemoteCar(r.AccountId)),
+            });
+            Note($"viewed {r.Name}'s driver card");
         }
 
         void GreetRemote(string account)

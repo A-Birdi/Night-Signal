@@ -120,7 +120,7 @@ public sealed class SocialApiTests : IDisposable
         JsonElement claimed = await (await a.PutAsJsonAsync("/v1/me/handle", new { handle = "Robin_Birdi" })).Content.ReadFromJsonAsync<JsonElement>();
         Assert.Equal("Robin_Birdi", claimed.GetProperty("handle").GetString());
         Assert.Equal("handle_taken", await Error(await b.PutAsJsonAsync("/v1/me/handle", new { handle = "ROBIN_birdi" })));
-        await a.PostAsJsonAsync("/v1/me/card", new { displayName = "Robin" });
+        await a.PostAsJsonAsync("/v1/me/card", new { displayName = "Robin", pronouns = "they/them" });
 
         HttpResponseMessage lookup = await b.GetAsync("/v1/players/by-handle/@robin_BIRDI");
         Assert.Equal(HttpStatusCode.OK, lookup.StatusCode);
@@ -128,6 +128,13 @@ public sealed class SocialApiTests : IDisposable
         JsonElement card = JsonDocument.Parse(raw).RootElement;
         Assert.Equal("Robin_Birdi", card.GetProperty("handle").GetString());
         Assert.Equal("Robin", card.GetProperty("displayName").GetString());
+        // The public card (spec §11): pronouns and progress counts, never the wallet or inventories.
+        Assert.Equal("they/them", card.GetProperty("pronouns").GetString());
+        Assert.Equal(0, card.GetProperty("campaign").GetProperty("normalClears").GetInt32());
+        Assert.Equal(30, card.GetProperty("campaign").GetProperty("stages").GetInt32());
+        Assert.Equal(0, card.GetProperty("challenges").GetProperty("completed").GetInt32());
+        JsonElement byId = await b.GetFromJsonAsync<JsonElement>($"/v1/players/{accounts[0].AccountId}/card");
+        Assert.Equal("they/them", byId.GetProperty("pronouns").GetString());
         Assert.DoesNotContain(accounts[0].Email, raw);
         Assert.DoesNotContain("balance", raw, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("token", raw, StringComparison.OrdinalIgnoreCase);

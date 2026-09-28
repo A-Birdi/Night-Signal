@@ -51,12 +51,20 @@ public abstract partial class SqlGameStore
             return cards;
         }, ct);
 
-    /// <summary>Handle, display name and rank only: never e-mail, tokens, wallet or inventories.</summary>
+    /// <summary>
+    /// The public card (spec §11): handle, display name, pronouns, rank and progress counts (campaign clears per mode,
+    /// challenges completed) — never e-mail, tokens, wallet or inventories.
+    /// </summary>
     static async Task<PublicCard> LoadPublicCard(DbConnection c, DbTransaction tx, string accountId)
     {
         string? handle = await c.FirstOrDefaultAsync(tx, "SELECT handle_display FROM player_handles WHERE account_id = @a", r => r.Str(0), ("@a", accountId));
-        string? name = await c.FirstOrDefaultAsync(tx, "SELECT display_name FROM player_cards WHERE account_id = @a", r => r.Str(0), ("@a", accountId));
-        return new PublicCard(accountId, handle, name, await LoadRank(c, tx, accountId));
+        (string? name, string? pronouns) = await c.FirstOrDefaultAsync(tx, "SELECT display_name, pronouns FROM player_cards WHERE account_id = @a",
+            r => (r.Str(0), r.NStr(1)), ("@a", accountId));
+        var clears = await c.QueryAsync(tx, "SELECT mode, COUNT(*) FROM stage_clears WHERE account_id = @a GROUP BY mode",
+            r => (Mode: r.Str(0), Count: r.Long(1)), ("@a", accountId));
+        long challenges = await c.FirstOrDefaultAsync(tx, "SELECT COUNT(*) FROM challenge_unlocks WHERE account_id = @a", r => r.Long(0), ("@a", accountId));
+        return new PublicCard(accountId, handle, name, await LoadRank(c, tx, accountId), pronouns,
+            (int)clears.Where(x => x.Mode == "normal").Sum(x => x.Count), (int)clears.Where(x => x.Mode == "hard").Sum(x => x.Count), (int)challenges);
     }
 
     // ---------------------------------------------------------------- friends

@@ -144,5 +144,8 @@ public static class SocialEndpoints
         handle = c.Handle,
         displayName = c.DisplayName,
         rank = new { rankPoints = c.Rank.RankPoints, index = c.Rank.Index, name = c.Rank.Name },
+        pronouns = c.Pronouns,
+        campaign = new { normalClears = c.NormalClears, hardClears = c.HardClears, stages = Limits.CampaignStages },
+        challenges = new { completed = c.Challenges, total = 75 },
     };
 }

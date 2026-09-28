@@ -97,7 +97,8 @@ public enum HandleClaimStatus { Claimed, Changed, Unchanged, Taken }
 public sealed record HandleClaimResult(HandleClaimStatus Status, PlayerHandle? Handle);
 
 /// <summary>Public Player Card: never e-mail, tokens, wallet or private inventory.</summary>
-public sealed record PublicCard(string AccountId, string? Handle, string? DisplayName, RankSummary Rank);
+public sealed record PublicCard(string AccountId, string? Handle, string? DisplayName, RankSummary Rank,
+    string? Pronouns = null, int NormalClears = 0, int HardClears = 0, int Challenges = 0);
 
 public enum FriendState { None, OutgoingPending, IncomingPending, Friends }
 

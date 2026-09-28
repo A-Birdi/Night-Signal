@@ -233,6 +233,17 @@ namespace NightSignal.Front
                 Characters.CharacterLook hl = m.RemoteLook(hostAccount);
                 Note($"the host's avatar look: {(hl == null ? "default" : hl.Hair + " " + hl.Outfit + " " + hl.Build)}");
                 if (hl?.Hair != "locs" || hl.Outfit != Characters.PlayerLooks.Presets[CardPreset - 1].Outfit) Fail("the host's card look did not reach the meet");
+                // The host's public driver card, from their car at the meet (local UI; the host is not interrupted).
+                m.InspectRemoteCar(hostAccount);
+                yield return new WaitForSeconds(0.6f);
+                m.Hud.PanelButtons.FirstOrDefault(b => b.GetComponentInChildren<TextMeshProUGUI>()?.text.Contains("driver card") == true)?.onClick.Invoke();
+                yield return Until(() => m.Hud.PanelOpen && m.Hud.PanelTitle == "Driver card", 10f, "the host's driver card");
+                yield return new WaitForSeconds(0.8f);
+                Note("host's driver card: " + m.Hud.PanelBody.Replace("\n", " | "));
+                if (!m.Hud.PanelBody.Contains("Rank:") || !m.Hud.PanelBody.Contains("Campaign: Normal")) Fail("the driver card is incomplete");
+                yield return Snap("01a-host-driver-card");
+                m.ClosePanel();
+                yield return new WaitForSeconds(0.4f);
             }
             yield return new WaitForSeconds(host ? 1f : 4f);
             m.OpenMeetMenu();
