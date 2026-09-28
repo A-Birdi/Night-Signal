@@ -171,6 +171,12 @@ namespace NightSignal.Front
                     Background = "tea-rows", Frame = "double", Motif = "lantern", Title = "night-driver", Layout = "standard", Region = "JP",
                     PreferredCar = S().StarterCarId ?? "",
                 });
+                yield return Until(() => PlayerCard.RecordCount > 0, 10f, "own records for the showcase");
+                // Slot 1 takes the first record, slot 2 the second (the same record twice is refused by the server).
+                for (int s = 0; s < Math.Min(2, PlayerCard.RecordCount); s++)
+                    for (int press = 0; press <= s; press++)
+                        GameObject.Find($"Showcase {s + 1}/Next")?.GetComponent<Button>()?.onClick.Invoke();
+                Note($"showcase chosen: {string.Join(", ", PlayerCard.Showcase)} (of {PlayerCard.RecordCount} records)");
                 yield return new WaitForSeconds(1.2f);
                 yield return Snap("00a2-card-style");
                 Click("SaveCard");
@@ -180,7 +186,8 @@ namespace NightSignal.Front
                 if (saved?.Hair != "locs" || saved.Outfit != Characters.PlayerLooks.Presets[CardPreset - 1].Outfit) Fail("the saved card look is not the chosen one");
                 Core.Customization.CardStyle savedStyle = (S().Me?["card"] as JObject)?["style"] is JObject st
                     ? Core.Customization.CardStyle.Parse(st.ToString(Newtonsoft.Json.Formatting.None)) : null;
-                Note($"card style saved: {savedStyle?.Canonical() ?? "none"}");
+                Note($"card style saved: {savedStyle?.Canonical() ?? "none"}; showcase {((S().Me?["card"] as JObject)?["showcase"] as JArray)?.Count ?? 0}");
+                if ((((S().Me?["card"] as JObject)?["showcase"] as JArray)?.Count ?? 0) != PlayerCard.Showcase.Count) Fail("the showcase was not saved");
                 if (savedStyle == null || !savedStyle.ContentEquals(PlayerCard.Style)) Fail("the saved card style is not the chosen one");
                 yield return new WaitForSeconds(1.5f);
                 yield return Snap("00b-player-card-saved");
@@ -272,7 +279,8 @@ namespace NightSignal.Front
                 Note("host's driver card: " + m.Hud.PanelBody.Replace("\n", " | "));
                 if (!m.Hud.PanelBody.Contains("Rank:") || !m.Hud.PanelBody.Contains("Campaign: Normal")) Fail("the driver card is incomplete");
                 Core.Customization.CardStyle seen = Core.Customization.CardStyle.Parse(m.ViewedCardStyle ?? "");
-                Note($"host's card style as drawn here: {m.ViewedCardStyle}; card shown {m.Hud.Card?.Root.gameObject.activeSelf == true}");
+                Note($"host's card style as drawn here: {m.ViewedCardStyle}; card shown {m.Hud.Card?.Root.gameObject.activeSelf == true}; showcase: {string.Join(" | ", m.ViewedShowcase)}");
+                if (m.ViewedShowcase.Count == 0) Fail("the host's showcase records did not reach the guest's view");
                 if (seen == null || seen.Background != "tea-rows" || seen.Frame != "double" || seen.Motif != "lantern" || seen.Title != "night-driver" ||
                     seen.Region != "JP" || seen.PreferredCar.Length == 0 || m.Hud.Card?.Shown?.ContentEquals(seen) != true)
                     Fail("the host's card style did not reach the guest's view");

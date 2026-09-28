@@ -2,7 +2,7 @@
 
 _Last updated: 2026-09-28 — the meet, offline (V-073): Cedar Lantern Terrace, walking, twelve emotes, host, boombox;
 the meet online with three real clients (V-074), the convoy at the meet (V-075), race from the meet and back plus
-walking controls (V-076), the Player Card with a driver appearance (V-077), race audio (V-078), Drift Attack only where zones exist (V-079), AI drift skill (V-080), group Time Attack and tables with 4/6 humans (V-081, V-082), Canvas controller pen (V-083), the meet's touring challenges CH61–CH65 and CH67 (V-084), CH33/CH35/CH44/CH45/CH66/CH71 (V-085), car levels of detail (V-086), the contact-prediction experiment (V-087, negative), preset rename/delete (V-088), the meet showing applied liveries (V-089), challenge gates CH03/CH06/CH09 and CH16 (V-090), the Driver Card offline (V-091), card style (V-092).
+walking controls (V-076), the Player Card with a driver appearance (V-077), race audio (V-078), Drift Attack only where zones exist (V-079), AI drift skill (V-080), group Time Attack and tables with 4/6 humans (V-081, V-082), Canvas controller pen (V-083), the meet's touring challenges CH61–CH65 and CH67 (V-084), CH33/CH35/CH44/CH45/CH66/CH71 (V-085), car levels of detail (V-086), the contact-prediction experiment (V-087, negative), preset rename/delete (V-088), the meet showing applied liveries (V-089), challenge gates CH03/CH06/CH09 and CH16 (V-090), the Driver Card offline (V-091), card style (V-092), showcase records (V-093).
 Now: the gameplay backlog._
 
 **Rules revision:** `docs/brief/Night_Signal_Addendum_01.txt` supersedes parts of the master (six humans + up to
@@ -172,8 +172,8 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
 1. **Course scenery follow-ups** (small): a human look per region (the built-player tour with the regional kits passed,
    run 5 on `7d9119d`); the steep dark terrain "cliffs" of the gorge/highland terrain styles (heightfield resolution)
    are untouched.
-2. **Card and meet follow-ups** (smaller): showcase records on the card (card style is done — V-092); a meet run under
-   impairment (the offline profile's look is done — V-091); the remaining challenge predicates (R11.3:
+2. **Card and meet follow-ups** (smaller): the offline card's showcase (card style — V-092 — and the online showcase — V-093 —
+   are done); a meet run under impairment (the offline profile's look is done — V-091); the remaining challenge predicates (R11.3:
    23 of 75 exist: CH01, CH03, CH05, CH06, CH09, CH16, CH18, CH20, CH21, CH24, CH33, CH35, CH44, CH45, CH61–CH67, CH71 —
    see REQUIREMENTS R11.3; CH04/CH08/CH12 wait for published gate speeds, CH26/CH29 for Gold drift references, CH41 for
    the challenge-race format — V-090).

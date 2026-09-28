@@ -1816,3 +1816,24 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - **Limits:** no account owns a card reward yet (their challenges — lessons, tuning demos — have no predicates), so the
   reward items are shown locked in the built runs and worn only in tests; showcase records are not done; the offline
   meet has no one to show a card to; the art is procedural and has not been reviewed by a person.
+
+## V-093 — Showcase records on the Player Card (2026-09-28)
+- Revision: `ee58844` (control plane) and the client work committed with this entry; player build of it; control plane
+  restarted on `ee58844`.
+- **What changed:** a player's personal records are derived from their settled receipts — the best finish per campaign
+  stage and mode, per freeplay course and format (sprint, circuit, time attack) — and their Team Trial bests
+  (`GET /v1/me/records`). The card keeps up to three chosen record keys (migration 0008 `player_cards.showcase_json`,
+  SQLite executed, PostgreSQL written); each must be one of the player's own when saved; the public card shows them in
+  the owner's order with their CURRENT values (a better time later shows at once). The Player Card's style section has
+  three showcase slots (online); the styled card and the meet's public card list them.
+- **Tests:** .NET `Card_Showcase_OwnRecordsOnly_PublicWithCurrentValues` (records derived from settled receipts, a DNF is
+  no record; saved; unknown, duplicate or four keys refused; the public card in order; a better time shows at once;
+  cleared) — Builds 232, Core 129, Toys 92, Services 347.
+- **Built players** (`meet-online.ps1 -Convoy`): the host's account had 16 records from earlier settled runs; the tour
+  put the first two in the showcase (C01 sprint 1:25.992, C01 time attack 1:25.957) and saved; the guest, at the convoy
+  meet, saw both on the host's styled card and panel — **PASS** on both clients. (The first run picked the same record
+  twice and the control plane refused it, "Choose up to 3 different records." — the tour was fixed.) Screenshot
+  `Evidence/meet/card-showcase-seen-at-meet.jpg`.
+- **Limits:** online only (the Local profile keeps its own records but its card has no showcase yet); Drift Attack scores
+  are not records (receipts do not carry the drift score); the screen lets two slots name the same record and relies on
+  the server to refuse it.

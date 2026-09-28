@@ -45,6 +45,10 @@ namespace NightSignal.Front
         Stepper preset;
         // The card's style (spec §11): background, frame, motif, title, layout, region, preferred car.
         Stepper editing, bgStep, frameStep, motifStep, titleStep, layoutStep, regionStep, carStep;
+        // Showcase (spec §11 chosen records): up to three of the player's own records, online.
+        readonly Stepper[] showcaseSteps = new Stepper[3];
+        List<(string Key, string Label, string Value)> records = new List<(string, string, string)>();
+        readonly string[] showcase = { "", "", "" };
         readonly List<GameObject> lookRows = new List<GameObject>(), styleRows = new List<GameObject>();
         CardView cardView;
         CardStyle style;
@@ -58,6 +62,10 @@ namespace NightSignal.Front
         public CardStyle Style => style;
         /// <summary>The styled card preview.</summary>
         public CardView Card => cardView;
+        /// <summary>The showcase keys chosen (empty slots left out).</summary>
+        public IReadOnlyList<string> Showcase => showcase.Where(k => k.Length > 0).ToList();
+        /// <summary>The player's own records offered for the showcase (online).</summary>
+        public int RecordCount => records.Count;
         public bool Busy => busy;
         public string Status => status.text;
 
@@ -122,6 +130,13 @@ namespace NightSignal.Front
                 layoutStep = StyleStep(b, "Layout", cat.Layouts.Count, i => Lock(cat.Layouts[i].Name, cat.Layouts[i].CosmeticId), i => style.Layout = cat.Layouts[i].Id);
                 regionStep = StyleStep(b, "Region", RegionCodes.All.Count + 1, i => i == 0 ? "None" : RegionCodes.All[i - 1], i => style.Region = i == 0 ? "" : RegionCodes.All[i - 1]);
                 carStep = StyleStep(b, "Preferred car", 1, i => i == 0 || i > ownedCars.Count ? "None" : CarName(ownedCars[i - 1]), i => style.PreferredCar = i == 0 || i > ownedCars.Count ? "" : ownedCars[i - 1]);
+                for (int s = 0; s < showcaseSteps.Length; s++)
+                {
+                    int slot = s;
+                    showcaseSteps[s] = StyleStep(b, $"Showcase {s + 1}", 1, i => i == 0 || i > records.Count ? "None" : $"{records[i - 1].Label} {records[i - 1].Value}",
+                        i => showcase[slot] = i == 0 || i > records.Count ? "" : records[i - 1].Key);
+                }
+
             }
 
             RectTransform bottom = UIFactory.Column("CardBottom", panel.transform, new Vector2(0, 0.02f), new Vector2(1, 0.12f), new Vector2(56, 0), new Vector2(-32, 0), 6f);
@@ -158,6 +173,26 @@ namespace NightSignal.Front
             styleRows.Add(step.Root);
             step.Root.SetActive(false);
             return step;
+        }
+
+        bool recordsLoaded;
+
+        /// <summary>The player's own records for the showcase (online; the steppers offer them once they arrive).</summary>
+        async void LoadRecords()
+        {
+            recordsLoaded = false;
+            try
+            {
+                JObject r = await S.Client.Get("/v1/me/records");
+                records = ((r?["records"] as JArray) ?? new JArray()).OfType<JObject>()
+                    .Select(x => ((string)x["key"] ?? "", (string)x["label"] ?? "", (string)x["value"] ?? "")).ToList();
+                recordsLoaded = r != null;
+            }
+            catch (Exception)
+            {
+                records = new List<(string, string, string)>();
+            }
+            SyncStyle();
         }
 
         static string CarName(string carId) => Content.ContentLibrary.Load()?.Catalogue?.TryCar(carId, out Core.Content.CarDef car) == true ? car.Name : carId;
@@ -199,6 +234,11 @@ namespace NightSignal.Front
             regionStep.Set(r);
             carStep.SetCount(ownedCars.Count + 1);
             carStep.Set(style.PreferredCar.Length == 0 ? 0 : 1 + Math.Max(0, ownedCars.IndexOf(style.PreferredCar)));
+            for (int s = 0; s < showcaseSteps.Length; s++)
+            {
+                showcaseSteps[s].SetCount(records.Count + 1);
+                showcaseSteps[s].Set(showcase[s].Length == 0 ? 0 : 1 + Math.Max(0, records.FindIndex(r => r.Key == showcase[s])));
+            }
             loading = false;
             RefreshCard();
         }
@@ -207,7 +247,13 @@ namespace NightSignal.Front
         {
             CardStyleCatalogue cat = Cat;
             if (cat == null || cardView == null || style == null) return;
-            cardView.Show(cat, style, nameField.text, pronounsField.text.Trim(), stats, style.PreferredCar.Length == 0 ? "" : CarName(style.PreferredCar));
+            var lines = new List<string>(stats);
+            foreach (string key in showcase)
+            {
+                int i = records.FindIndex(r => r.Key == key);
+                if (key.Length > 0 && i >= 0) lines.Add($"Best: {records[i].Label} {records[i].Value}");
+            }
+            cardView.Show(cat, style, nameField.text, pronounsField.text.Trim(), lines, style.PreferredCar.Length == 0 ? "" : CarName(style.PreferredCar));
         }
 
         static void Place(RectTransform rt, float x)
@@ -344,6 +390,15 @@ namespace NightSignal.Front
                     $"Challenges {((S.Me?["challengesCompleted"] as JArray)?.Count ?? 0)}/75",
                 };
             }
+            for (int s = 0; s < showcase.Length; s++) showcase[s] = "";
+            records = new List<(string, string, string)>();
+            if (Local == null)
+            {
+                int n = 0;
+                foreach (JToken k in ((S.Me?["card"] as JObject)?["showcase"] as JArray) ?? new JArray())
+                    if (n < showcase.Length) showcase[n++] = (string)k ?? "";
+                LoadRecords();
+            }
             SyncStyle();
             ShowSection(0);
             if (stage == null)
@@ -440,6 +495,7 @@ namespace NightSignal.Front
                     ["look"] = JObject.Parse(PlayerLooks.Canonical(look)),
                 };
                 if (style != null) payload["style"] = JObject.Parse(style.Canonical());
+                if (recordsLoaded) payload["showcase"] = new JArray(Showcase.Cast<object>().ToArray());
                 (int code, JObject body) = await S.Client.Post("/v1/me/card", payload);
                 if (code == 409)
                 {

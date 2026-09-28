@@ -392,6 +392,9 @@ namespace NightSignal.Meet
             }
         }
 
+        /// <summary>The showcase lines of the driver card last viewed (tours check replication).</summary>
+        public List<string> ViewedShowcase { get; private set; } = new List<string>();
+
         /// <summary>The style of the driver card last viewed (canonical; tours check replication).</summary>
         public string ViewedCardStyle { get; private set; }
 
@@ -539,12 +542,14 @@ namespace NightSignal.Meet
             string Esc(string s) => (s ?? "").Replace("<", "(").Replace(">", ")");
             string handle = (string)c["handle"], pronouns = (string)c["pronouns"];
             JToken rank = c["rank"], camp = c["campaign"], ch = c["challenges"];
+            var shown = ((c["showcase"] as JArray) ?? new JArray()).OfType<JObject>().Select(x => $"Best: {(string)x["label"]} {(string)x["value"]}").ToList();
             string body = $"<b>{Esc((string)c["displayName"] ?? r.Name)}</b>" + (handle != null ? $"   @{Esc(handle)}" : "") +
                           (string.IsNullOrEmpty(pronouns) ? "" : $"   <color=#9A968D>({Esc(pronouns)})</color>") + "\n\n" +
                           $"Rank: {Esc((string)rank?["name"])} · {(int?)rank?["rankPoints"] ?? 0:N0} RP\n" +
                           $"Campaign: Normal {(int?)camp?["normalClears"] ?? 0}/{(int?)camp?["stages"] ?? 30} · Hard {(int?)camp?["hardClears"] ?? 0}/{(int?)camp?["stages"] ?? 30}\n" +
                           $"Challenges: {(int?)ch?["completed"] ?? 0}/{(int?)ch?["total"] ?? 75}\n" +
-                          $"Here with: {r.CarId} {CarDisplay(r.CarId)} · PI {r.Pi} {(string.IsNullOrEmpty(r.PiClass) ? "" : "class " + r.PiClass)}";
+                          $"Here with: {r.CarId} {CarDisplay(r.CarId)} · PI {r.Pi} {(string.IsNullOrEmpty(r.PiClass) ? "" : "class " + r.PiClass)}" +
+                          (shown.Count > 0 ? "\n\n" + string.Join("\n", shown.Select(Esc)) : "");
             ShowPanel("Driver card", body, new List<(string, System.Action)>
             {
                 ($"Back to {r.Name}'s car", () => InspectRemoteCar(r.AccountId)),
@@ -559,7 +564,8 @@ namespace NightSignal.Meet
                     $"Rank {(string)rank?["name"]} · {(int?)rank?["rankPoints"] ?? 0:N0} RP",
                     $"Campaign N {(int?)camp?["normalClears"] ?? 0}/{(int?)camp?["stages"] ?? 30} · H {(int?)camp?["hardClears"] ?? 0}/{(int?)camp?["stages"] ?? 30}",
                     $"Challenges {(int?)ch?["completed"] ?? 0}/{(int?)ch?["total"] ?? 75}",
-                }, preferred);
+                }.Concat(shown).ToList(), preferred);
+            ViewedShowcase = shown;
             ViewedCardStyle = (cardStyle ?? styles?.Default)?.Canonical();
             Note($"viewed {r.Name}'s driver card");
         }
