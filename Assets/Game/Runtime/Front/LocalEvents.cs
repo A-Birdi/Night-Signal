@@ -144,6 +144,10 @@ namespace NightSignal.Front
             // The same race predicates the game server evaluates online, from this run's facts.
             facts.ChallengesCompleted.AddRange(Net.ChallengePredicates.Evaluate(plan.CourseId, me.Entrant.Progress, me.Entrant.Drift,
                 plan.FreeplayFormat, plan.Rules?.Surface, me.Entrant.GateRun, me.Entrant.Racecraft));
+            IReadOnlyList<Core.Story.CrewIntroduction> crews = NightSignal.Content.ContentLibrary.Load()?.Story?.Crews;
+            if (me.Outcome == RunOutcome.Finished && crews != null && Core.Story.DiaryChallenges.AllCrewsRead(s.Profile.DiaryRead, crews) &&
+                Core.Story.DiaryChallenges.RacedCrewMember(plan.OpposingAi, s.Catalogue, crews))
+                facts.ChallengesCompleted.Add(Core.Story.DiaryChallenges.OtherSideOfTheCard);
             if (plan.Kind == EventKind.Tutorial) return facts; // tutorial demonstrations keep no personal record
             RecordRuleset rules = Ruleset(plan.Rules, courseRevision);
             RecordKey key = plan.Kind == EventKind.CampaignStage

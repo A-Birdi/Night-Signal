@@ -1,0 +1,7 @@
+# -nsDiaryTour (offline, buttons only, isolated profile folder) on the player build of the commit that adds this file (V-102). Normal S01-S24 are SEEDED as cleared on the tour's own profile. Tagged lines; absolute paths removed.
+[NightSignal.DiaryTour] seeded: Normal S01–S24 marked cleared on the tour's profile
+[NightSignal.DiaryTour] diary: 35 entries, crew introductions at 24, 25, 26, 27, 28, 29
+[NightSignal.DiaryTour] read: crew:tea-hour, crew:rainline, crew:reservoir, crew:breakwater, crew:datum, crew:zero-frequency — all six True
+[NightSignal.DiaryTour] S01 field: R01
+[NightSignal.DiaryTour] CH70 completed: True
+[NightSignal.DiaryTour] PASS

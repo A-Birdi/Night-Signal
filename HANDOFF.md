@@ -2,7 +2,7 @@
 
 _Last updated: 2026-09-28 — the meet, offline (V-073): Cedar Lantern Terrace, walking, twelve emotes, host, boombox;
 the meet online with three real clients (V-074), the convoy at the meet (V-075), race from the meet and back plus
-walking controls (V-076), the Player Card with a driver appearance (V-077), race audio (V-078), Drift Attack only where zones exist (V-079), AI drift skill (V-080), group Time Attack and tables with 4/6 humans (V-081, V-082), Canvas controller pen (V-083), the meet's touring challenges CH61–CH65 and CH67 (V-084), CH33/CH35/CH44/CH45/CH66/CH71 (V-085), car levels of detail (V-086), the contact-prediction experiment (V-087, negative), preset rename/delete (V-088), the meet showing applied liveries (V-089), challenge gates CH03/CH06/CH09 and CH16 (V-090), the Driver Card offline (V-091), card style (V-092), showcase records (V-093), the meet under latency (V-094), drops/refused re-entry/spectating in a full impaired race and the offline showcase (V-095), racecraft CH31/CH32 and the HUD gap (V-096), CH48 Sign Your Car and the offline meet's livery fix (V-097), CH50 Change Without Losing (V-098), the campaign story on screen offline — intros, reactions, race diary (V-099) — and online (V-100), the endings and Shiori's epilogue / CH75 (V-101).
+walking controls (V-076), the Player Card with a driver appearance (V-077), race audio (V-078), Drift Attack only where zones exist (V-079), AI drift skill (V-080), group Time Attack and tables with 4/6 humans (V-081, V-082), Canvas controller pen (V-083), the meet's touring challenges CH61–CH65 and CH67 (V-084), CH33/CH35/CH44/CH45/CH66/CH71 (V-085), car levels of detail (V-086), the contact-prediction experiment (V-087, negative), preset rename/delete (V-088), the meet showing applied liveries (V-089), challenge gates CH03/CH06/CH09 and CH16 (V-090), the Driver Card offline (V-091), card style (V-092), showcase records (V-093), the meet under latency (V-094), drops/refused re-entry/spectating in a full impaired race and the offline showcase (V-095), racecraft CH31/CH32 and the HUD gap (V-096), CH48 Sign Your Car and the offline meet's livery fix (V-097), CH50 Change Without Losing (V-098), the campaign story on screen offline — intros, reactions, race diary (V-099) — and online (V-100), the endings and Shiori's epilogue / CH75 (V-101), the diary's read marks and CH70 (V-102).
 Now: the gameplay backlog._
 
 **Rules revision:** `docs/brief/Night_Signal_Addendum_01.txt` supersedes parts of the master (six humans + up to
@@ -55,7 +55,7 @@ The control plane is a **long-lived development service**: leave it running whil
 TCP listener only on 127.0.0.1:5080, `GET /healthz` ok, no error/restart loop in its log, `contentHash` equal to the
 content the next run uses). Restart it once, cleanly, only when it is unhealthy or its content hash is stale after a
 content change (content documents feed the hash; a mismatched game server is refused), and after a change to its own
-code. Last restart: 2026-09-28 on the V-101 code (MeetService: the epilogue act, CH75), race content hash `3677a844…`, customization
+code. Last restart: 2026-09-28 on the V-102 code (diary endpoints, settlement CH70; migration 0009), race content hash `3677a844…`, customization
 `306dd38e…`. Network harnesses go through
 `Tools/run/NetGuard.psm1` (loopback unless `-AllowLan`, free-port check, socket evidence in `network.json`).
 
@@ -174,12 +174,11 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
    are untouched.
 2. **Card and meet follow-ups** (smaller): the card is done — look (V-077, offline V-091), style (V-092), showcase online
    and offline (V-093, V-095); the meet under latency is done (V-094); the remaining challenge predicates (R11.3:
-   27 of 75 exist: CH01, CH03, CH05, CH06, CH09, CH16, CH18, CH20, CH21, CH24, CH31, CH32, CH33, CH35, CH44, CH45, CH48, CH50, CH61–CH67, CH71, CH75 —
+   28 of 75 exist: CH01, CH03, CH05, CH06, CH09, CH16, CH18, CH20, CH21, CH24, CH31, CH32, CH33, CH35, CH44, CH45, CH48, CH50, CH61–CH67, CH70, CH71, CH75 —
    see REQUIREMENTS R11.3; CH04/CH08/CH12 wait for published gate speeds, CH26/CH29 for Gold drift references, CH41 for
-   the challenge-race format — V-090; CH10 for a published Silver reference time; CH70 needs "read" tracking on the
-   race diary's crew introductions and encountered crews — V-099).
+   the challenge-race format — V-090; CH10 for a published Silver reference time).
 3. **Gameplay backlog**: the story is on screen offline and online (V-099, V-100); left: portraits or a staged scene
-   instead of text over the backdrop, and crew-introduction read tracking for CH70. Then a drift controller that manages the road edge (every AI attempt still ends at the edge; the
+   instead of text over the backdrop. Then a drift controller that manages the road edge (every AI attempt still ends at the edge; the
    per-driver drift skill of V-080 raises scores on average, not per course) and a re-measure of S29 with it (group
    Time Attack and the hosted tables with 4 and 6 humans passed — V-081, V-082); (reconnect/rejoin/DQ under load — V-095 — is done); customization follow-up: pearl flip tint (meet livery refresh — V-089 — and preset rename/delete — V-088 — are done). (Drift Attack is now limited to courses with judged zones — V-079.)
 4. **Open technical items**: heavy-contact prediction hitch at ~190 ms RTT (V-061 inconclusive; V-087: the one-sided

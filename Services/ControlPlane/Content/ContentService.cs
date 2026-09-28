@@ -21,7 +21,14 @@ public sealed class ContentService
             throw new InvalidOperationException("Content catalogue failed validation: " + string.Join("; ", report.Errors));
         log.LogInformation("Content catalogue loaded: {ContentHash} ({Courses} courses, {Stages} stages, {Warnings} warnings)",
             Catalogue.ContentHash, Catalogue.Courses.Count, Catalogue.Stages.Count, report.Issues.Count);
+        // The race diary's crew introductions (presentation text, outside the hash): which stage opens each one (CH70).
+        string crews = Path.Combine(root, "authored", "story", "crews.diary.json");
+        Crews = File.Exists(crews) ? NightSignal.Core.Story.StoryText.Load(null, File.ReadAllText(crews)).Crews : new List<NightSignal.Core.Story.CrewIntroduction>();
+        log.LogInformation("Race diary: {Crews} crew introductions", Crews.Count);
     }
+
+    /// <summary>The race diary's crew introductions and the stage that opens each (empty when the document is missing).</summary>
+    public IReadOnlyList<NightSignal.Core.Story.CrewIntroduction> Crews { get; }
 
     public ContentCatalogue Catalogue { get; }
     public string ContentHash => Catalogue.ContentHash;

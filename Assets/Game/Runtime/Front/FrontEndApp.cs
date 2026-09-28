@@ -128,6 +128,8 @@ namespace NightSignal.Front
                 StartCoroutine(StoryTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsEndingTour") >= 0)
                 StartCoroutine(EndingTour());
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsDiaryTour") >= 0)
+                StartCoroutine(DiaryTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsDriverCardTour") >= 0)
                 StartCoroutine(DriverCardTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsCanvasPadTour") >= 0)

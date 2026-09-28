@@ -117,9 +117,15 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
 
         // Cumulative challenges read every earlier settled finish of each finishing human.
         var finished = new Dictionary<string, IReadOnlyCollection<string>>(StringComparer.Ordinal);
+        // CH70 reads each finishing human's race-diary marks (all six crew introductions read before this race).
+        var diaryComplete = new HashSet<string>(StringComparer.Ordinal);
         foreach (EntrantFacts e in submission.Entrants.Where(x => x.Human && x.Outcome == RunOutcome.Finished))
+        {
             finished[e.EntrantId] = await ledger.FinishedCoursesAsync(e.EntrantId, ct);
-        (MatchSettlement? settlement, string? invalid) = Compute(config, submission, Hashing.Sha256Hex(body), finished);
+            if (NightSignal.Core.Story.DiaryChallenges.AllCrewsRead(await players.DiaryReadsAsync(e.EntrantId, ct), content.Crews))
+                diaryComplete.Add(e.EntrantId);
+        }
+        (MatchSettlement? settlement, string? invalid) = Compute(config, submission, Hashing.Sha256Hex(body), finished, diaryComplete);
         if (settlement is null) return Error(422, "invalid_results", invalid!);
 
         SettlementOutcome outcome = await ledger.SettleAsync(settlement, ct);
@@ -163,7 +169,7 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
 
     /// <summary>Validates the facts against the frozen allocation and computes every reward input with Core.</summary>
     internal (MatchSettlement? Settlement, string? Error) Compute(MatchAssignment config, ResultSubmission s, string bodySha256,
-        IReadOnlyDictionary<string, IReadOnlyCollection<string>>? finishedBefore = null)
+        IReadOnlyDictionary<string, IReadOnlyCollection<string>>? finishedBefore = null, IReadOnlySet<string>? diaryComplete = null)
     {
         if (ProgressionDomain.ToyViolation(config) is { } toy) return (null, toy);
         var humans = config.Entrants.Select(e => e.AccountId).ToHashSet(StringComparer.Ordinal);
@@ -367,6 +373,11 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
                 // The server's own predicates join the game server's: the finale verdict and the cumulative course set.
                 var ids = new List<string>(e.ChallengesCompleted);
                 if (e.Human && finaleChallenge is not null && !ids.Contains(finaleChallenge)) ids.Add(finaleChallenge);
+                // CH70 The Other Side of the Card: every crew introduction read, then a legal race against a crew member.
+                if (e.Human && diaryComplete is not null && diaryComplete.Contains(e.EntrantId) &&
+                    NightSignal.Core.Story.DiaryChallenges.RacedCrewMember(config.AiEntrants, content.Catalogue, content.Crews) &&
+                    !ids.Contains(NightSignal.Core.Story.DiaryChallenges.OtherSideOfTheCard))
+                    ids.Add(NightSignal.Core.Story.DiaryChallenges.OtherSideOfTheCard);
                 if (e.Human)
                 {
                     var courses = new HashSet<string>(finishedBefore is not null && finishedBefore.TryGetValue(e.EntrantId, out var past) ? past : Array.Empty<string>(),

@@ -119,7 +119,7 @@ namespace NightSignal.Core.Story
         public static StoryText Load(string stagesJson, string crewsJson = null, string recordsJson = null, string rivalsJson = null, string endingsJson = null)
         {
             var s = new StoryText();
-            JObject st = JObject.Parse(stagesJson);
+            JObject st = string.IsNullOrEmpty(stagesJson) ? new JObject() : JObject.Parse(stagesJson);
             foreach (JObject a in (st["acts"] as JArray ?? new JArray()).OfType<JObject>())
                 s.Acts.Add(new ActStory { Act = (int?)a["act"] ?? 0, Title = (string)a["title"] ?? "", Summary = (string)a["summary"] ?? "" });
             foreach (JObject x in (st["stages"] as JArray ?? new JArray()).OfType<JObject>())

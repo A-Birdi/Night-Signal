@@ -134,4 +134,40 @@ public sealed class StoryTextTests
         Assert.All(epilogue, sc => Assert.Contains(sc.Lines, l => l.Speaker == "R48"));
         Assert.Equal("S30", Cat.Stages.Single(s => s.Number == StoryText.FinaleStage).Id);
     }
+
+    [Fact]
+    public void DiaryChallenge_CH70_AllSixRead_ThenACrewMemberRaced()
+    {
+        var crews = S.Crews;
+        Assert.Equal("crew:tea-hour", DiaryChallenges.CrewEntry("tea-hour"));
+        // Opened by the crew's stage on Normal.
+        Assert.True(DiaryChallenges.Unlocked("crew:tea-hour", crews, st => st == "S01"));
+        Assert.False(DiaryChallenges.Unlocked("crew:rainline", crews, st => st == "S01"));
+        Assert.False(DiaryChallenges.Unlocked("crew:nobody", crews, _ => true));
+        // All six read, not five.
+        var read = crews.Select(c => DiaryChallenges.CrewEntry(c.Crew)).ToList();
+        Assert.True(DiaryChallenges.AllCrewsRead(read, crews));
+        Assert.False(DiaryChallenges.AllCrewsRead(read.Skip(1), crews));
+        // A crew member among the opponents: R01 (Tea Hour) yes; generic AI no.
+        Assert.True(DiaryChallenges.RacedCrewMember(new[] { "ai-1", "R01" }, Cat, crews));
+        Assert.False(DiaryChallenges.RacedCrewMember(new[] { "ai-1", "ai-2" }, Cat, crews));
+        // The server loads only the crews.
+        StoryText crewsOnly = StoryText.Load(null, Story("crews.diary.json"));
+        Assert.Equal(6, crewsOnly.Crews.Count);
+    }
+
+    [Fact]
+    public void LocalProfile_MarksACrewIntroductionRead_OnlyOnceOpened()
+    {
+        NightSignal.Core.Profiles.LocalProfile p = LocalProgressionTests.NewProfile("Robin");
+        var closed = NightSignal.Core.Profiles.LocalProgression.MarkDiaryRead(p, Cat, S.Crews, "crew:tea-hour");
+        Assert.Equal(NightSignal.Core.Profiles.LocalOperationStatus.Rejected, closed.Status);
+        p.Campaign.For(CampaignMode.Normal).Add(1);
+        var read = NightSignal.Core.Profiles.LocalProgression.MarkDiaryRead(p, Cat, S.Crews, "crew:tea-hour");
+        Assert.Equal(NightSignal.Core.Profiles.LocalOperationStatus.Applied, read.Status);
+        Assert.Equal(new[] { "crew:tea-hour" }, read.Profile.DiaryRead);
+        Assert.Empty(read.Profile.Validate());
+        Assert.Equal(NightSignal.Core.Profiles.LocalOperationStatus.AlreadyApplied,
+            NightSignal.Core.Profiles.LocalProgression.MarkDiaryRead(read.Profile, Cat, S.Crews, "crew:tea-hour").Status);
+    }
 }

@@ -162,6 +162,8 @@ namespace NightSignal.Core.Profiles
         /// <summary>Garage: Last Race Build recorded when a Local race began.</summary>
         RaceBuildRecorded = 21,
         CardChanged = 22,
+        /// <summary>A race-diary entry read (CH70 counts crew introductions).</summary>
+        DiaryRead = 23,
     }
 
     /// <summary>One itemised line for the results screen: what changed and why.</summary>
@@ -1067,6 +1069,26 @@ namespace NightSignal.Core.Profiles
                 Add(result, ProgressionChangeKind.CosmeticGranted, ch.Reward, 0, $"{cosmeticName} (reward for {ch.Id}).");
             }
             Credit(profile, result, "challenge", ch.Id, cash, utc, $"{ch.Name} ({ch.Tier}).");
+            result.Status = LocalOperationStatus.Applied;
+            return Finish(result, profile);
+        }
+
+        /// <summary>
+        /// Marks a race-diary entry read — only a crew introduction the profile has opened (its crew's stage cleared on Normal),
+        /// as the control plane records it online. A repeat is a no-op.
+        /// </summary>
+        public static LocalProgressionResult MarkDiaryRead(LocalProfile profile, ContentCatalogue catalogue, IReadOnlyList<Story.CrewIntroduction> crews, string entry)
+        {
+            LocalProgressionResult result = Begin(profile);
+            if (catalogue == null) throw new ArgumentNullException(nameof(catalogue));
+            var number = catalogue.Stages.ToDictionary(s => s.Id, s => s.Number);
+            bool Cleared(string stageId) => number.TryGetValue(stageId ?? "", out int n) && profile.Campaign.For(CampaignMode.Normal).Contains(n);
+            if (!Story.DiaryChallenges.Unlocked(entry, crews, Cleared))
+                return Reject(result, "That entry opens when you clear its crew's stage on Normal.");
+            if (profile.DiaryRead == null) profile.DiaryRead = new List<string>();
+            if (profile.DiaryRead.Contains(entry)) return Already(result, "Already read.");
+            profile.DiaryRead.Add(entry);
+            Add(result, ProgressionChangeKind.DiaryRead, entry, 0, "Read in the race diary.");
             result.Status = LocalOperationStatus.Applied;
             return Finish(result, profile);
         }

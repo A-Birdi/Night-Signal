@@ -19,6 +19,9 @@ public static partial class PlayerEndpoints
     public const string IdempotencyKeyHeader = "Idempotency-Key";
 
     /// <summary><c>Look</c> (a driver look object) and <c>Pronouns</c> are optional: absent = unchanged, empty = cleared.</summary>
+    /// <summary>POST /v1/me/diary/read: the entry read ("crew:&lt;crew&gt;").</summary>
+    public sealed record DiaryReadRequest(string? Entry);
+
     public sealed record CardRequest(string? DisplayName, long? Revision, JsonElement Look = default, string? Pronouns = null, JsonElement Style = default,
         List<string>? Showcase = null);
 
@@ -43,6 +46,26 @@ public static partial class PlayerEndpoints
         // The account's own records a card may showcase (spec §11).
         me.MapGet("/records", async (ClaimsPrincipal user, IPlayerStore store, ContentService content, CancellationToken ct) =>
             Results.Ok(new { records = (await store.PersonalRecordsAsync(user.AccountId(), content.Catalogue, ct)).Select(r => new { key = r.Key, label = r.Label, value = r.Value }) }));
+
+        // The race diary's read marks (spec §5.3 race diary; CH70): a crew introduction counts only once the account's Normal
+        // clears have opened it.
+        me.MapGet("/diary", async (ClaimsPrincipal user, IPlayerStore store, CancellationToken ct) =>
+            Results.Ok(new { read = await store.DiaryReadsAsync(user.AccountId(), ct) }));
+        me.MapPost("/diary/read", async (DiaryReadRequest body, ClaimsPrincipal user, IPlayerStore store, ContentService content, CancellationToken ct) =>
+        {
+            string id = user.AccountId();
+            string entry = body.Entry ?? "";
+            if (!content.Crews.Any(c => NightSignal.Core.Story.DiaryChallenges.CrewEntry(c.Crew) == entry))
+                return Problem(400, "unknown_entry", "No such diary entry.");
+            PlayerSnapshot s = await store.GetSnapshotAsync(id, ct);
+            var number = content.Catalogue.Stages.ToDictionary(st => st.Id, st => st.Number);
+            bool Cleared(string stageId) => number.TryGetValue(stageId ?? "", out int n) && n >= 1 && n <= s.NormalCleared.Length && s.NormalCleared[n - 1];
+            if (!NightSignal.Core.Story.DiaryChallenges.Unlocked(entry, content.Crews, Cleared))
+                return Problem(409, "not_open", "That entry opens when you clear its crew's stage on Normal.");
+            bool fresh = await store.RecordDiaryReadAsync(id, entry, ct);
+            IReadOnlyList<string> read = await store.DiaryReadsAsync(id, ct);
+            return Results.Ok(new { entry, recorded = fresh, read, allCrewsRead = NightSignal.Core.Story.DiaryChallenges.AllCrewsRead(read, content.Crews) });
+        });
 
         me.MapPost("/card", async (CardRequest body, ClaimsPrincipal user, IPlayerStore store, CustomizationContent customization, ContentService content, CancellationToken ct) =>
         {

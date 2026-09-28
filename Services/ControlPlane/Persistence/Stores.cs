@@ -142,6 +142,10 @@ public interface IPlayerStore
     /// once, in one transaction with an append-only ledger entry (<c>challenge/&lt;account&gt;/&lt;id&gt;</c>).
     /// </summary>
     Task<ChallengeGrantResult> GrantChallengeAsync(string accountId, ChallengeGrant grant, string source, CancellationToken ct = default);
+    /// <summary>Records a race-diary entry as read (idempotent); true when it was new (CH70 reads them).</summary>
+    Task<bool> RecordDiaryReadAsync(string accountId, string entryId, CancellationToken ct = default);
+    /// <summary>The race-diary entries the account has read.</summary>
+    Task<IReadOnlyList<string>> DiaryReadsAsync(string accountId, CancellationToken ct = default);
     /// <summary>Whether the account has a settled event it finished (touring CH65 reads the result slip after one).</summary>
     Task<bool> HasFinishedEventAsync(string accountId, CancellationToken ct = default);
     /// <summary>Once per account: owns the starter car and credits the starter grant.</summary>

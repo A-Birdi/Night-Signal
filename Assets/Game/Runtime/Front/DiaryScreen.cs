@@ -27,6 +27,10 @@ namespace NightSignal.Front
         Button prev, nextPage, back;
         List<DiaryEntry> entries = new List<DiaryEntry>();
         int page, selected = -1;
+        readonly HashSet<string> read = new HashSet<string>(StringComparer.Ordinal);
+
+        /// <summary>The entries read (crew introductions, "crew:&lt;crew&gt;"), as the profile or the server records them.</summary>
+        public IReadOnlyCollection<string> Read => read;
 
         /// <summary>The entries on offer and the one open (tours read them).</summary>
         public IReadOnlyList<DiaryEntry> Entries => entries;
@@ -71,6 +75,9 @@ namespace NightSignal.Front
                 : BuildOnline(OnlineSession.Current?.Me, ContentLibrary.Load());
             page = 0;
             selected = -1;
+            read.Clear();
+            if (App.Domain == SessionDomain.Local) foreach (string r in LocalSession.Current?.Profile?.DiaryRead ?? new List<string>()) read.Add(r);
+            else LoadReadMarks();
             count.text = entries.Count == 0
                 ? "Nothing yet: each stage you clear adds its entry."
                 : $"{entries.Count(e => e.Kind == "stage")} stage entries · {entries.Count(e => e.Kind == "crew")} crews · {entries.Count(e => e.Kind == "record")} records";
@@ -118,7 +125,8 @@ namespace NightSignal.Front
                 if (!on) continue;
                 DiaryEntry e = entries[k];
                 string kind = e.Kind == "crew" ? "Crew" : e.Kind == "record" ? "Record" : "Stage";
-                rows[i].GetComponentInChildren<TextMeshProUGUI>().text = $"{kind} · {e.Title}";
+                bool isRead = e.Kind == "crew" && read.Contains(DiaryChallenges.CrewEntry(e.Id));
+                rows[i].GetComponentInChildren<TextMeshProUGUI>().text = $"{kind} · {e.Title}" + (isRead ? "  <color=#9A968D>· read</color>" : "");
             }
             prev.interactable = page > 0;
             nextPage.interactable = page < pages - 1;
@@ -130,6 +138,38 @@ namespace NightSignal.Front
             DiaryEntry e = Open;
             title.text = e == null ? "" : e.Title;
             body.text = e == null ? "" : e.Text;
+            if (e != null && e.Kind == "crew") MarkRead(DiaryChallenges.CrewEntry(e.Id));
+        }
+
+        /// <summary>A crew introduction opened is read (CH70 counts all six): on the Local profile, or recorded by the server.</summary>
+        async void MarkRead(string entry)
+        {
+            if (read.Contains(entry)) return;
+            if (App.Domain == SessionDomain.Local)
+            {
+                LocalSession s = LocalSession.Current;
+                if (s?.Profile == null) return;
+                LocalProgressionResult r = LocalProgression.MarkDiaryRead(s.Profile, s.Catalogue, ContentLibrary.Load()?.Story?.Crews, entry);
+                if (r.Status == LocalOperationStatus.Applied && s.Commit(r, out _)) read.Add(entry);
+            }
+            else
+            {
+                OnlineSession o = OnlineSession.Current;
+                if (o == null) return;
+                (int status, Newtonsoft.Json.Linq.JObject reply) = await o.Client.Send(System.Net.Http.HttpMethod.Post, "/v1/me/diary/read",
+                    new Newtonsoft.Json.Linq.JObject { ["entry"] = entry });
+                if (status >= 200 && status < 300) read.Add(entry);
+            }
+            Page(page);
+        }
+
+        async void LoadReadMarks()
+        {
+            OnlineSession o = OnlineSession.Current;
+            if (o == null) return;
+            Newtonsoft.Json.Linq.JObject r = await o.Client.Get("/v1/me/diary");
+            foreach (Newtonsoft.Json.Linq.JToken t in (r?["read"] as Newtonsoft.Json.Linq.JArray) ?? new Newtonsoft.Json.Linq.JArray()) read.Add((string)t);
+            Page(page);
         }
     }
 }

@@ -2044,3 +2044,27 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   is the same call, and the first-clear flag comes from Core's settled verdict); the tour stands the player at the bench
   (a person walks there); the online epilogue is covered by the service test, not a built networked run; text over the
   backdrop, not a staged scene; the words and pacing have not been judged by a person.
+
+## V-102 — CH70 The Other Side of the Card: the race diary's read marks (2026-09-28)
+- Revision: the work committed with this entry; player build of it; control plane restarted on it (diary endpoints,
+  settlement); migration 0009 (`diary_reads`; SQLite executed by the service tests and the running control plane's
+  startup, PostgreSQL and its RLS written, not run); race content hash unchanged (`3677a844…`).
+- **What changed:** opening a crew introduction in the race diary marks it read — offline on the Local profile
+  (`LocalProfile.DiaryRead`, validated), online through `POST /v1/me/diary/read` (`GET /v1/me/diary` lists them). An
+  introduction counts only once it is open: its crew's stage cleared on Normal (the encounter), checked by the server
+  from the account's clears and by the Local rules from the profile. Core `DiaryChallenges`: once all six are read, the
+  next legal finish in a race with a crew member among the opponents completes CH70 — in settlement (the caller passes
+  the finishers whose six marks are recorded; the check reads the allocation's AI list) and in the Local race facts.
+  The control plane now ships crews.diary.json (presentation text, outside the hash). The diary shows "read" beside
+  crew introductions.
+- **Tests:** .NET Core `DiaryChallenge_CH70_AllSixRead_ThenACrewMemberRaced` and
+  `LocalProfile_MarksACrewIntroductionRead_OnlyOnceOpened` — Core 143; Services `DiaryTests` (the endpoint: closed before
+  S01's Normal clear 409, unknown 400, recorded once, listed, a later crew still closed; settlement: CH70 with all six
+  read and R01 in the field, not with generic AI, not without the six) — Services 352, Builds 232, Toys 92; Unity
+  EditMode 481 passed, 2 skipped (explicit), 0 failed.
+- **Built player** (`-nsDiaryTour`, offline, buttons only): Normal S01–S24 SEEDED as cleared on the tour's profile; the
+  diary held 35 entries, the six crew introductions at rows 24–29; each opened with its row button and marked read; S01
+  replayed by the validator autopilot (R01 in the field) and the finish completed CH70 — **PASS**.
+  `Evidence/ui/story/diary-tour.txt`, diary and results screenshots.
+- **Limits:** the online diary marks are covered by the service tests, not a built networked run; the crew clears were
+  seeded, not raced.

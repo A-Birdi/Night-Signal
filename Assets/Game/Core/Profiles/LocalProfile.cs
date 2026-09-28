@@ -49,6 +49,8 @@ namespace NightSignal.Core.Profiles
         /// <summary>Validated by <see cref="LocalDisplayName"/>; rendered as literal text.</summary>
         public string DisplayName { get; set; } = "";
         public CardAppearance Card { get; set; } = new CardAppearance();
+        /// <summary>Race-diary entries read ("crew:&lt;crew&gt;"), each once its crew's stage was cleared on Normal (CH70).</summary>
+        public List<string> DiaryRead { get; set; } = new List<string>();
         public DateTime CreatedUtc { get; set; }
         public DateTime UpdatedUtc { get; set; }
         /// <summary>Incremented by every successful save; used for stale-copy conflict checks.</summary>
@@ -129,6 +131,9 @@ namespace NightSignal.Core.Profiles
                     if (look == null || Characters.PlayerLooks.Problems(look).Count > 0) e.Add("The card's driver look is not a valid look.");
                 }
                 if (!LocalProgression.PronounsOk(Card.Pronouns ?? "")) e.Add("Pronouns: up to 24 plain characters.");
+                List<string> diary = DiaryRead ?? new List<string>();
+                if (diary.Count > 64 || diary.Distinct(StringComparer.Ordinal).Count() != diary.Count || diary.Any(x => string.IsNullOrEmpty(x) || x.Length > 64))
+                    e.Add("The race diary's read marks are malformed.");
                 List<string> showcase = Card.Showcase ?? new List<string>();
                 if (showcase.Count > LocalShowcase.MaxShowcase || showcase.Distinct(StringComparer.Ordinal).Count() != showcase.Count)
                     e.Add($"The card shows up to {LocalShowcase.MaxShowcase} different records.");
