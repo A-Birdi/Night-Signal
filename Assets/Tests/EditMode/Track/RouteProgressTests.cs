@@ -75,6 +75,32 @@ namespace NightSignal.Tests.Track
             Assert.That(run.Progress.CorridorCut, Is.False);
         }
 
+        /// <summary>
+        /// Challenge facts from progress (Appendix E): the first route sector is judged once when driven (CH33), and the
+        /// state at the first reset is kept (CH35); the predicates read those, for online and offline races alike.
+        /// </summary>
+        [Test]
+        public void ChallengeFacts_FirstSectorAndFirstReset()
+        {
+            TrackData t = Build("C01");
+            var clean = new Run(t);
+            clean.Drive(clean.Progress.Location.Distance, t.LengthMetres, 3f);
+            Assert.That(clean.Progress.FirstSectorJudged && clean.Progress.FirstSectorClean, Is.True, "a clean opening sector");
+            Assert.That(Net.ChallengePredicates.Evaluate("C01", clean.Progress), Does.Contain("CH33").And.Contain("CH01").And.Not.Contain("CH35"));
+
+            // A wall incident in the first sector spoils CH33 even if the rest is clean; one reset then no walls gives CH35.
+            var messy = new Run(t);
+            messy.Progress.WallIncidents = 1; // as if a meaningful impact had been registered before the sector end
+            messy.Drive(messy.Progress.Location.Distance, t.LengthMetres * 0.5f, 3f);
+            Assert.That(messy.Progress.FirstSectorJudged && !messy.Progress.FirstSectorClean, Is.True);
+            messy.Tracker.ResetPose(messy.Progress, new VehicleParams());
+            Assert.That(messy.Progress.WallsAtFirstReset, Is.EqualTo(1));
+            messy.Progress.Finished = true;
+            Assert.That(Net.ChallengePredicates.Evaluate("C01", messy.Progress), Does.Contain("CH35").And.Not.Contain("CH33"));
+            messy.Progress.WallIncidents = 2; // an impact after the reset
+            Assert.That(Net.ChallengePredicates.Evaluate("C01", messy.Progress), Does.Not.Contain("CH35"));
+        }
+
         [Test]
         public void R02_ReverseOscillationAndVerticalDrop_NeverAdvance()
         {

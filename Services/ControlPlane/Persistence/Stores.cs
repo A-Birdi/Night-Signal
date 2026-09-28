@@ -241,6 +241,8 @@ public interface IResultLedger
     /// <summary>Money, first clears, challenges, cosmetics and receipts in ONE transaction; idempotent per match.</summary>
     Task<SettlementOutcome> SettleAsync(MatchSettlement settlement, CancellationToken ct = default);
     Task<string?> GetReceiptJsonAsync(string matchId, string accountId, CancellationToken ct = default);
+    /// <summary>Every course the account has a settled finish on (from its receipts; cumulative challenges CH66, CH71).</summary>
+    Task<IReadOnlyCollection<string>> FinishedCoursesAsync(string accountId, CancellationToken ct = default);
 }
 
 /// <summary>Itemized reward receipt returned to the player (and stored verbatim in match_results).</summary>

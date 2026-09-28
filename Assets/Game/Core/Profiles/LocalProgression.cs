@@ -615,6 +615,15 @@ namespace NightSignal.Core.Profiles
                 }
             }
 
+            // ---- cumulative challenges (CH66, CH71) from every course this profile has legally finished, this one included
+            if (facts.Outcome == RunOutcome.Finished)
+            {
+                var finished = new HashSet<string>(p.Records.Entries.Where(r => r?.Key != null).Select(r => r.Key.CourseId), StringComparer.Ordinal) { facts.CourseId };
+                if (p.Tutorial.Completed || facts.Kind == EventKind.Tutorial) finished.Add("T00");
+                foreach (string id in CumulativeChallenges.Satisfied(catalogue, finished))
+                    if (!facts.ChallengesCompleted.Contains(id) && !p.HasCompletedChallenge(id)) facts.ChallengesCompleted.Add(id);
+            }
+
             // ---- challenges: personal predicates only, valid finish only, each reward exactly once
             long challengeCash = 0;
             var challengeLines = new List<KeyValuePair<string, long>>();

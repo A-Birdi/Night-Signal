@@ -43,6 +43,11 @@ namespace NightSignal.Race
 
         /// <summary>No meaningful wall impacts, no resets and all checkpoints legal (economy cleanliness).</summary>
         public bool Clean => WallIncidents == 0 && Resets == 0 && !CorridorCut;
+        /// <summary>Set once the car has driven the race's first route sector: whether it did so with no wall incident, no
+        /// reset, no corridor cut and no time outside the corridor (challenge CH33).</summary>
+        public bool FirstSectorJudged, FirstSectorClean;
+        /// <summary>Wall incidents counted when the first reset happened (−1 = no reset yet; challenge CH35).</summary>
+        public int WallsAtFirstReset = -1;
 
         internal bool RegisterImpact(int surfaceId, double time)
         {
@@ -97,11 +102,20 @@ namespace NightSignal.Race
 
         readonly TrackData track;
         readonly float finishMetres;
+        /// <summary>Race distance at the end of the first route sector ahead of the start (the whole course without sectors).</summary>
+        readonly float firstSectorMetres;
 
         public RaceProgressTracker(TrackData track)
         {
             this.track = track;
             finishMetres = CourseGenerator.FinishMetres(track);
+            float first = float.MaxValue;
+            foreach (RouteSectorDef s in track.Sectors)
+            {
+                float ahead = Forward(track.StartMetres, s.StartMetres);
+                if (ahead > 1f && ahead < first) first = ahead;
+            }
+            firstSectorMetres = first < float.MaxValue ? first : Forward(track.StartMetres, finishMetres);
         }
 
         public int CheckpointsPerLap => track.CheckpointMetres.Length;
@@ -172,6 +186,11 @@ namespace NightSignal.Race
                 e.CorridorCut = true;
             }
             e.RaceDistance = LegalRaceDistance(e, loc);
+            if (!e.FirstSectorJudged && e.RaceDistance >= firstSectorMetres)
+            {
+                e.FirstSectorJudged = true;
+                e.FirstSectorClean = e.WallIncidents == 0 && e.Resets == 0 && !e.CorridorCut && e.OutOfCorridorSeconds <= 0f;
+            }
         }
 
         /// <summary>Clearly off the legal route: lost from its stretch, off the road layer, or far outside the corridor.</summary>
@@ -250,6 +269,7 @@ namespace NightSignal.Race
             float from = e.Location.Distance;
             VehicleState state = AnchorPose(e, p, occupied, out float at);
             e.Resets++;
+            if (e.Resets == 1) e.WallsAtFirstReset = e.WallIncidents;
             e.PenaltyMicros += Limits.ResetPenaltyMs * 1000L;
             e.OffRouteSeconds = 0f;
             e.Recoveries.Add(new RecoveryEvent { RaceMicros = raceMicros, Reason = reason, FromDistance = from, ToDistance = at, PenaltyMs = Limits.ResetPenaltyMs });

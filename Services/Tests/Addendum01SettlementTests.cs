@@ -83,6 +83,44 @@ public sealed class Addendum01SettlementTests
 
     static EntrantSettlement For(MatchSettlement s, string id) => s.Entrants.Single(e => e.AccountId == id);
 
+    (MatchSettlement? S, string? Error) Compute(MatchAssignment m, IEnumerable<EntrantFacts> facts, IReadOnlyDictionary<string, IReadOnlyCollection<string>> before) =>
+        service.Compute(m, new ResultSubmission { MatchId = m.MatchId, ContentHash = "c", Entrants = facts.ToList() }, "h", before);
+
+    [Fact]
+    public void FinaleClearedWithinTheQualifyingBenchmark_GrantsCh44OrCh45_ASlowFinishDoesNot()
+    {
+        foreach ((string mode, string challenge) in new[] { ("normal", "CH44"), ("hard", "CH45") })
+        {
+            MatchAssignment m = Campaign("S30", mode, 1, requiresRival: true);
+            // The human is ahead of every AI in both runs, so placements are 1 (human) then 2… by AI order.
+            IEnumerable<EntrantFacts> Race(long humanMs) => new[] { F(H(1), true, RunOutcome.Finished, humanMs, 1) }
+                .Concat(m.AiEntrants.Select((id, i) => F(id, false, RunOutcome.Finished, 400_000 + i * 1_000, i + 2)));
+            (MatchSettlement? fast, string? e) = Compute(m, Race(290_000)); // inside the 300 s target, ahead of the live rival
+            Assert.Null(e);
+            Assert.NotNull(For(fast!, H(1)).Clear);
+            Assert.Contains(For(fast!, H(1)).Challenges, g => g.ChallengeId == challenge);
+            (MatchSettlement? slow, _) = Compute(m, Race(395_000)); // beats the rival, misses the target: no clear, no finale challenge
+            Assert.DoesNotContain(For(slow!, H(1)).Challenges, g => g.ChallengeId is "CH44" or "CH45");
+        }
+    }
+
+    [Fact]
+    public void SixthRegionFinished_GrantsCh66_FromTheSettledHistory()
+    {
+        var regular = TestData.Content.Catalogue.Courses.Where(c => c.Kind == "regular").GroupBy(c => c.Region).ToDictionary(g => g.Key, g => g.First().Id);
+        string last = CumulativeChallenges.RegularRegions[^1];
+        var before = CumulativeChallenges.RegularRegions.Take(5).Select(r => regular[r]).ToList();
+        MatchAssignment m = Freeplay("sprint", 1, 0);
+        m = m with { CourseId = regular[last] };
+        EntrantFacts[] finish = { F(H(1), true, RunOutcome.Finished, 200_000, 1) };
+        (MatchSettlement? s, string? e) = Compute(m, finish, new Dictionary<string, IReadOnlyCollection<string>> { [H(1)] = before });
+        Assert.Null(e);
+        Assert.Contains(For(s!, H(1)).Challenges, g => g.ChallengeId == "CH66");
+        // Five regions only (the sixth not yet finished): nothing.
+        (MatchSettlement? five, _) = Compute(m with { CourseId = before[0] }, finish, new Dictionary<string, IReadOnlyCollection<string>> { [H(1)] = before });
+        Assert.DoesNotContain(For(five!, H(1)).Challenges, g => g.ChallengeId == "CH66");
+    }
+
     [Fact]
     public void FourthToTwelfthPlaces_PayTheParticipationModifier_AndAiNeverGetReceipts()
     {

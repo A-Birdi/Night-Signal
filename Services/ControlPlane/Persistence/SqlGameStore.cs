@@ -269,6 +269,20 @@ public abstract partial class SqlGameStore : IPlayerStore, IResultLedger, ISocia
             return new ChallengeGrantResult(true, credit.Credited, credit.NewBalance);
         }, ct);
 
+    public Task<IReadOnlyCollection<string>> FinishedCoursesAsync(string accountId, CancellationToken ct = default) =>
+        ReadAsync<IReadOnlyCollection<string>>(async (c, tx) =>
+        {
+            var courses = new HashSet<string>(StringComparer.Ordinal);
+            foreach (string json in await c.QueryAsync(tx, "SELECT receipt_json FROM match_results WHERE account_id = @a", r => r.Str(0), ("@a", accountId)))
+            {
+                using var doc = System.Text.Json.JsonDocument.Parse(json);
+                System.Text.Json.JsonElement root = doc.RootElement;
+                if (root.TryGetProperty("outcome", out var o) && o.GetString() == "Finished" && root.TryGetProperty("courseId", out var course) && course.GetString() is { } id)
+                    courses.Add(id);
+            }
+            return courses;
+        }, ct);
+
     public Task<bool> HasFinishedEventAsync(string accountId, CancellationToken ct = default) =>
         ReadAsync(async (c, tx) => await c.FirstOrDefaultAsync(tx,
             "SELECT 1 FROM match_results WHERE account_id = @a AND receipt_json LIKE @f", r => true,

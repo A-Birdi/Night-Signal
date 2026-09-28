@@ -115,7 +115,11 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
             return new SubmissionResult(200, new { status = "aborted", reason = broken });
         }
 
-        (MatchSettlement? settlement, string? invalid) = Compute(config, submission, Hashing.Sha256Hex(body));
+        // Cumulative challenges read every earlier settled finish of each finishing human.
+        var finished = new Dictionary<string, IReadOnlyCollection<string>>(StringComparer.Ordinal);
+        foreach (EntrantFacts e in submission.Entrants.Where(x => x.Human && x.Outcome == RunOutcome.Finished))
+            finished[e.EntrantId] = await ledger.FinishedCoursesAsync(e.EntrantId, ct);
+        (MatchSettlement? settlement, string? invalid) = Compute(config, submission, Hashing.Sha256Hex(body), finished);
         if (settlement is null) return Error(422, "invalid_results", invalid!);
 
         SettlementOutcome outcome = await ledger.SettleAsync(settlement, ct);
@@ -158,7 +162,8 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
     static SubmissionResult Error(int status, string code, string message) => new(status, new { error = code, message });
 
     /// <summary>Validates the facts against the frozen allocation and computes every reward input with Core.</summary>
-    internal (MatchSettlement? Settlement, string? Error) Compute(MatchAssignment config, ResultSubmission s, string bodySha256)
+    internal (MatchSettlement? Settlement, string? Error) Compute(MatchAssignment config, ResultSubmission s, string bodySha256,
+        IReadOnlyDictionary<string, IReadOnlyCollection<string>>? finishedBefore = null)
     {
         if (ProgressionDomain.ToyViolation(config) is { } toy) return (null, toy);
         var humans = config.Entrants.Select(e => e.AccountId).ToHashSet(StringComparer.Ordinal);
@@ -303,9 +308,12 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
             var musicGrants = new List<MusicGrant>();
             string? withheld = null;
             TeamBestCandidate? teamBest = null;
+            string? finaleChallenge = null;
             if (resolution is not null)
             {
                 PlayerStageVerdict v = resolution.Players.First(p => p.PlayerId == e.EntrantId);
+                // CH44 / CH45: the S30 finale cleared personally within the qualifying benchmark, not only the support envelope.
+                if (stage!.Id == "S30" && v.Qualified && v.EarnedClear) finaleChallenge = mode == CampaignMode.Hard ? "CH45" : "CH44";
                 receipt.Stage = new StageVerdictInfo
                 {
                     Qualified = v.Qualified, WithinSupport = v.WithinSupport, EarnedClear = v.EarnedClear,
@@ -355,12 +363,24 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
 
             var grants = new List<ChallengeGrant>();
             if (e.Outcome == RunOutcome.Finished)
-                foreach (string id in e.ChallengesCompleted)
+            {
+                // The server's own predicates join the game server's: the finale verdict and the cumulative course set.
+                var ids = new List<string>(e.ChallengesCompleted);
+                if (e.Human && finaleChallenge is not null && !ids.Contains(finaleChallenge)) ids.Add(finaleChallenge);
+                if (e.Human)
+                {
+                    var courses = new HashSet<string>(finishedBefore is not null && finishedBefore.TryGetValue(e.EntrantId, out var past) ? past : Array.Empty<string>(),
+                        StringComparer.Ordinal) { config.CourseId };
+                    foreach (string id in CumulativeChallenges.Satisfied(content.Catalogue, courses))
+                        if (!ids.Contains(id)) ids.Add(id);
+                }
+                foreach (string id in ids)
                 {
                     ChallengeDef ch = content.Catalogue.Challenge(id);
                     ChallengeTier tier = ContentService.ParseTier(ch.Tier);
                     grants.Add(new ChallengeGrant(ch.Id, tier, RankPoints.ChallengeCash(tier), RankPoints.ForChallenge(tier), ch.Reward));
                 }
+            }
             else if (e.ChallengesCompleted.Count > 0)
                 receipt.Notes.Add("Challenge claims ignored: challenges require a valid finish.");
 
