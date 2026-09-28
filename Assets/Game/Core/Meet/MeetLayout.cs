@@ -89,6 +89,12 @@ namespace NightSignal.Core.Meet
 
         public static readonly MeetBay[] Bays = MakeBays();
 
+        /// <summary>
+        /// Bays that always hold a rival's display car (scenery ambience, the same offline and online); the other seven take
+        /// the humans (at most six per instance, D02).
+        /// </summary>
+        public static readonly int[] AmbienceBays = { 2, 4, 7, 9, 11 };
+
         static MeetBay[] MakeBays()
         {
             var bays = new List<MeetBay>();

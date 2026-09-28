@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NightSignal.Core.Meet;
@@ -123,6 +124,161 @@ namespace NightSignal.Tests.Core
             Assert.That(MeetLayout.Bays[near].Side, Is.EqualTo("east"));
             Assert.That(System.Math.Abs(near - 8), Is.EqualTo(1));
             Assert.That(MeetLayout.AllocateBay(new HashSet<int>(Enumerable.Range(0, 12))), Is.EqualTo(-1));
+        }
+
+        // ------------------------------------------------------------------ room
+
+        static MeetRoom Room(long now = 0) => new MeetRoom("m1", MeetKind.Public, "", id => id == "MUS_MEET" ? 120 : 100, now);
+
+        static void Arrive(MeetRoom r, string a, long now, string convoy = "")
+        {
+            Assert.That(r.Join(a, a.ToUpperInvariant(), "V01", "", convoy, now, out _), Is.EqualTo(MeetJoinStatus.Ok), a);
+            Assert.That(r.CompleteArrival(a, now + 3500), Is.True);
+        }
+
+        [Test]
+        public void Room_SixHumans_OwnBays_ConvoyTogether()
+        {
+            MeetRoom r = Room();
+            for (int i = 0; i < 6; i++) Arrive(r, "p" + i, 0, i < 3 ? "cv" : "");
+            Assert.That(r.Join("p6", "P6", "V02", "", "", 10, out _), Is.EqualTo(MeetJoinStatus.Full), "D02: at most six humans");
+            var bays = r.Members.Select(m => m.Bay).ToList();
+            Assert.That(bays.Distinct().Count(), Is.EqualTo(6));
+            Assert.That(bays.Intersect(MeetLayout.AmbienceBays), Is.Empty, "never a display car's bay");
+            var convoy = r.Members.Where(m => m.ConvoyId == "cv").Select(m => MeetLayout.Bays[m.Bay]).ToList();
+            Assert.That(convoy.Select(b => b.Side).Distinct().Count(), Is.EqualTo(1), "the convoy parks on one side");
+            Assert.That(r.Join("p0", "P0", "V01", "", "", 20, out _), Is.EqualTo(MeetJoinStatus.AlreadyHere));
+        }
+
+        [Test]
+        public void Room_ArrivalEndsBesideTheCar_KeyedOnce_AutoCompletes()
+        {
+            MeetRoom r = Room();
+            r.Join("a", "Aki", "V01", "", "", 0, out MeetMember m);
+            Assert.That(m.State, Is.EqualTo(MeetMemberState.Arriving));
+            Assert.That(r.Events, Is.Empty, "arrived is announced when the car has parked");
+            r.CompleteArrival("a", 3500);
+            Assert.That(m.State, Is.EqualTo(MeetMemberState.Present));
+            Assert.That(MeetLayout.Walkable(m.X, m.Z, MeetLayout.AvatarRadius, r.Occupied()), Is.True);
+            Assert.That(r.Events.Count(e => e.Kind == NoticeKind.Arrived), Is.EqualTo(1));
+            Assert.That(r.CompleteArrival("a", 3600), Is.False);
+            r.Join("b", "Bo", "V02", "", "", 0, out MeetMember b);
+            r.Tick(MeetRoom.ArrivalGraceMs + 1);
+            Assert.That(b.State, Is.EqualTo(MeetMemberState.Present), "a client that never reports the end of its drive still arrives");
+        }
+
+        [Test]
+        public void Room_PosesInsideTheEnvelopeOnly()
+        {
+            MeetRoom r = Room();
+            Arrive(r, "a", 0);
+            MeetMember m = r.Find("a");
+            float x = m.X, z = m.Z;
+            long t = 5000;
+            // A walking step toward the plaza.
+            float sx = x + Math.Sign(-x) * 0.7f;
+            Assert.That(r.Move("a", sx, z, 90f, 1.5f, 1, t), Is.EqualTo(MeetMoveStatus.Accepted));
+            // A teleport across the plaza in 0.1 s.
+            Assert.That(r.Move("a", 0f, 20f, 0f, 1.5f, 2, t + 100), Is.EqualTo(MeetMoveStatus.Corrected));
+            Assert.That(m.X, Is.EqualTo(sx), "the last good pose stands");
+            // Into the garden, into a parked car, outside the enclosure: refused however slowly.
+            Assert.That(r.Move("a", MeetLayout.GardenIsland.X, MeetLayout.GardenIsland.Z, 0f, 1f, 3, t + 60000), Is.EqualTo(MeetMoveStatus.Corrected));
+            MeetBay other = MeetLayout.Bays[MeetLayout.AmbienceBays[0]];
+            Assert.That(r.Move("a", other.X, other.Z, 0f, 1f, 4, t + 120000), Is.EqualTo(MeetMoveStatus.Corrected));
+            Assert.That(r.Move("a", MeetLayout.WalkMaxX + 3f, 0f, 0f, 1f, 5, t + 180000), Is.EqualTo(MeetMoveStatus.Corrected));
+            Assert.That(r.Move("a", float.NaN, 0f, 0f, 1f, 6, t + 180100), Is.EqualTo(MeetMoveStatus.Corrected));
+            // Stale sequence numbers are ignored.
+            Assert.That(r.Move("a", sx, z, 0f, 1f, 2, t + 180200), Is.EqualTo(MeetMoveStatus.Ignored));
+            // An arriving member does not walk yet.
+            r.Join("b", "Bo", "V02", "", "", t, out _);
+            Assert.That(r.Move("b", 0f, 0f, 0f, 0f, 1, t + 10), Is.EqualTo(MeetMoveStatus.Ignored));
+        }
+
+        [Test]
+        public void Room_EmotesReplicateAsStartAndExpire()
+        {
+            MeetRoom r = Room();
+            Arrive(r, "a", 0);
+            Assert.That(r.PlayEmote("a", Emote.Wave, 10_000), Is.True);
+            Assert.That(r.PlayEmote("a", Emote.Bow, 10_100), Is.False, "too soon");
+            MeetMember m = r.Find("a");
+            Assert.That(m.Emote, Is.EqualTo(Emote.Wave));
+            Assert.That(m.EmoteStartMs, Is.EqualTo(10_000));
+            r.Tick(10_000 + (long)(Emotes.Duration(Emote.Wave) * 1000f) + 1);
+            Assert.That(m.Emote, Is.EqualTo(Emote.None), "bounded duration");
+            Assert.That(r.Chat("a", 3, 14, 20_000), Is.True);
+            Assert.That(r.Chat("a", 4, 14, 20_500), Is.False, "chat is rate-limited");
+            Assert.That(r.Chat("a", 99, 14, 30_000), Is.False, "only the predefined phrases");
+        }
+
+        [Test]
+        public void Room_LeaveFadesThenFreesTheBay_DisconnectKeepsItForTheGrace()
+        {
+            MeetRoom r = Room();
+            Arrive(r, "a", 0);
+            Arrive(r, "b", 0);
+            int bayA = r.Find("a").Bay;
+            r.Leave("a", false, 10_000);
+            Assert.That(r.Find("a").State, Is.EqualTo(MeetMemberState.Leaving));
+            Assert.That(r.Events.Count(e => e.Kind == NoticeKind.Departed), Is.EqualTo(1));
+            r.Tick(10_400);
+            Assert.That(r.Find("a"), Is.Not.Null, "still fading");
+            r.Tick(10_600);
+            Assert.That(r.Find("a"), Is.Null);
+            Assert.That(r.Occupied().Contains(bayA), Is.False, "the bay is released once the departure is confirmed");
+            // A lost connection: announced once as disconnected, avatar and bay held; a return resumes quietly.
+            int bayB = r.Find("b").Bay;
+            r.Leave("b", true, 20_000);
+            r.Leave("b", true, 20_100);
+            Assert.That(r.Events.Count(e => e.Kind == NoticeKind.Disconnected), Is.EqualTo(1));
+            Assert.That(r.Events.Any(e => e.Kind == NoticeKind.Departed && e.AccountId == "b"), Is.False, "a network loss is never announced as leaving");
+            Assert.That(r.Join("b", "Bo", "V01", "", "", 30_000, out MeetMember back), Is.EqualTo(MeetJoinStatus.Rejoined));
+            Assert.That(back.Bay, Is.EqualTo(bayB));
+            Assert.That(back.State, Is.EqualTo(MeetMemberState.Present));
+            Assert.That(r.Events.Count(e => e.Kind == NoticeKind.Arrived && e.AccountId == "b"), Is.EqualTo(1), "no second arrival notice");
+            // Gone past the grace: removed without another notice.
+            r.Leave("b", true, 40_000);
+            int notices = r.Events.Count;
+            r.Tick(40_000 + MeetRoom.DisconnectGraceMs);
+            Assert.That(r.Find("b"), Is.Null);
+            Assert.That(r.Events.Count, Is.EqualTo(notices));
+        }
+
+        [Test]
+        public void Room_FriendReservationHoldsABayForThirtySeconds()
+        {
+            MeetRoom r = Room();
+            for (int i = 0; i < 5; i++) Arrive(r, "p" + i, 0);
+            Assert.That(r.Reserve("p0", "friend", 1000), Is.True);
+            int held = r.Reservations["friend"].Bay;
+            Assert.That(r.Join("stranger", "S", "V01", "", "", 2000, out _), Is.EqualTo(MeetJoinStatus.Full), "the reservation counts toward six");
+            Assert.That(r.Join("friend", "F", "V03", "", "", 20_000, out MeetMember f), Is.EqualTo(MeetJoinStatus.Ok));
+            Assert.That(f.Bay, Is.EqualTo(held));
+            MeetRoom r2 = Room();
+            Arrive(r2, "host", 0);
+            r2.Reserve("host", "late", 1000);
+            r2.Tick(1000 + 30_001);
+            Assert.That(r2.Reservations.ContainsKey("late"), Is.False, "expired after 30 s");
+        }
+
+        [Test]
+        public void Room_LikesAreCosmeticToggles_AndLeaversLoseBoomboxRequests()
+        {
+            MeetRoom r = Room();
+            Arrive(r, "a", 0);
+            Arrive(r, "b", 0);
+            Assert.That(r.ToggleLike("a", "b"), Is.True);
+            Assert.That(r.Find("b").Likes, Is.EqualTo(1));
+            r.ToggleLike("a", "b");
+            Assert.That(r.Find("b").Likes, Is.EqualTo(0));
+            Assert.That(r.ToggleLike("a", "a"), Is.False);
+            r.Boombox.Acquire("a", 5000);
+            r.Boombox.Enqueue("a", "MUS_GARAGE", true, 5000);
+            r.Boombox.Release("a");
+            r.Boombox.Acquire("b", 5001);
+            r.Boombox.Enqueue("b", "MUS_TITLE", true, 5001);
+            r.Leave("b", false, 6000);
+            Assert.That(r.Boombox.Queue, Is.Empty);
         }
 
         // ------------------------------------------------------------------ SIGNAL ribbon

@@ -178,7 +178,7 @@ namespace NightSignal.Meet
             ContentCatalogue cat = lib.Catalogue;
             // Rivals by their own cars (story characters, not connected players): a few from different crews.
             string[] ids = { "R09", "R14", "R25", "R36", "R42" };
-            int[] bays = { 2, 4, 7, 9, 11 };
+            int[] bays = MeetLayout.AmbienceBays;
             CarMaterialSet carMats = Resources.Load<CarMaterialSet>("CarMaterialSet");
             for (int i = 0; i < ids.Length; i++)
             {
