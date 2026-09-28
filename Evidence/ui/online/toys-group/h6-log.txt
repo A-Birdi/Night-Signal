@@ -1,0 +1,36 @@
+[NightSignal.ToyGroup:c0] convoy of 6
+[NightSignal.ToyGroup:c0] greenlight: my clean attempts 2, others on the board 5/5
+[NightSignal.ToyGroup:c0] cap clash: mine 2, others 10/10
+[NightSignal.ToyGroup:c0] pit-crew: mine 1, others 5/5
+[NightSignal.ToyGroup:c0] canvas: mine 3, others 15/10
+[NightSignal.ToyGroup:c0] PASS
+[NightSignal.ToyGroup:c1] convoy of 6
+[NightSignal.ToyGroup:c1] greenlight: my clean attempts 2, others on the board 5/5
+[NightSignal.ToyGroup:c1] cap clash: mine 2, others 10/10
+[NightSignal.ToyGroup:c1] pit-crew: mine 1, others 5/5
+[NightSignal.ToyGroup:c1] canvas: mine 3, others 15/10
+[NightSignal.ToyGroup:c1] PASS
+[NightSignal.ToyGroup:c2] convoy of 6
+[NightSignal.ToyGroup:c2] greenlight: my clean attempts 2, others on the board 5/5
+[NightSignal.ToyGroup:c2] cap clash: mine 2, others 10/10
+[NightSignal.ToyGroup:c2] pit-crew: mine 1, others 5/5
+[NightSignal.ToyGroup:c2] canvas: mine 3, others 15/10
+[NightSignal.ToyGroup:c2] PASS
+[NightSignal.ToyGroup:c3] convoy of 6
+[NightSignal.ToyGroup:c3] greenlight: my clean attempts 2, others on the board 5/5
+[NightSignal.ToyGroup:c3] cap clash: mine 2, others 10/10
+[NightSignal.ToyGroup:c3] pit-crew: mine 1, others 5/5
+[NightSignal.ToyGroup:c3] canvas: mine 3, others 15/10
+[NightSignal.ToyGroup:c3] PASS
+[NightSignal.ToyGroup:c4] convoy of 6
+[NightSignal.ToyGroup:c4] greenlight: my clean attempts 2, others on the board 5/5
+[NightSignal.ToyGroup:c4] cap clash: mine 2, others 10/10
+[NightSignal.ToyGroup:c4] pit-crew: mine 1, others 5/5
+[NightSignal.ToyGroup:c4] canvas: mine 3, others 15/10
+[NightSignal.ToyGroup:c4] PASS
+[NightSignal.ToyGroup:c5] convoy of 6
+[NightSignal.ToyGroup:c5] greenlight: my clean attempts 2, others on the board 5/5
+[NightSignal.ToyGroup:c5] cap clash: mine 2, others 10/10
+[NightSignal.ToyGroup:c5] pit-crew: mine 1, others 5/5
+[NightSignal.ToyGroup:c5] canvas: mine 3, others 15/10
+[NightSignal.ToyGroup:c5] PASS

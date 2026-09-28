@@ -1558,3 +1558,16 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   `Evidence/net/run-20260928-065317-h6-C01-ai0`. The first four times are identical to the four-human run: with six
   cars on the same line at once nobody touched anybody (non-contact holds).
 - **Limits:** one machine, loopback, scripted drivers; no impairment in these runs.
+
+## V-082 — While We Wait with four and six humans at the convoy's hosted tables (2026-09-28)
+- Revision: `40a3fae` (player build of that commit; content `3677a844…`), loopback control plane only (no game server,
+  no other port). `Tools/run/toys-group.ps1 -Humans N`: N windowed clients (development accounts 0…N−1) sign in through
+  the real screens, client 0 creates a private convoy and shares the code through a file under Builds/, the others join
+  with it; everyone opens While We Wait (`FrontEndApp.ToyTourGroup`). Automation over real sockets, not people.
+- **4 humans — PASS (4/4 clients):** Greenlight — two clean Lights Out attempts each, every client sees the other 3 on
+  the shared board; Cap Clash — two shots each through the serialized queue, every client sees all 6 others' shots;
+  Pit-Crew — one operation each on the shared model, every client sees the other 3 done; Canvas — every client's marks
+  on the hosted sheet (9 others' marks seen by each; 12 on the sheet). Evidence: `Evidence/ui/online/toys-group/h4-*`.
+- **6 humans:** **PASS (6/6 clients):** every client saw the other 5 on the Greenlight board, all 10 others' Cap Clash shots through the serialized queue, 5 others' Pit-Crew operations, and 15 others' Canvas marks (18 on the sheet). Evidence: `Evidence/ui/online/toys-group/h6-*`.
+- **Limits:** one machine, loopback, scripted inputs; every client draws the same tour strokes, so the Canvas marks
+  overlap on screen (the counts come from the hosted sheet); Pocket Circuit (V-030) was not part of this group run.
