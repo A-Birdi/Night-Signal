@@ -40,7 +40,7 @@ lists the superseded rules and where each lands. Rows marked _(A01)_ carry the r
 | R1.10 | A01 §3 _(A01)_ | Three Team Trials (6 v 6), no mastery RP | verified online — TT_BEST and TT_MEAN (V-044), TT_DRIFT with race drift scoring and drifting AI, settled 10,900 vs 18,668 pts (V-047); trial targets and the drift course remain the provisional fixture |
 | R1.11 | A01 §8 _(A01)_ | Main menu, full separate Local profile, Go Online boundary | in progress — Local profiles, Offline hub, Local campaign map + races + progression verified in the player (V-023); Go Online boundary not started |
 | R1.12 | A01 §9–10 _(A01)_ | @handles, friends panel, rejoin grants keyed to leadership epoch (no reserved seat) | implemented — control plane handles/friends/invites/rejoin grants (tests); Friends screen + convoy invitation verified with two clients (V-037); block UI pending |
-| R1.13 | A01 §11 _(A01)_ | 24 authored cues, unlock manifest, shared meet boombox | in progress — 24 synthesized cues; music.unlocks.json in the content hash; unlocks granted online (V-022) and locally (V-023); boombox pending |
+| R1.13 | A01 §11 _(A01)_ | 24 authored cues, unlock manifest, shared meet boombox | in progress — 24 synthesized cues; music.unlocks.json in the content hash; unlocks granted online (V-022) and locally (V-023); boombox rules (15 s lease, one request each, six queued, 10 s interval, ownership, leavers, spoiler protection) in Core and the offline meet boombox with distance crossfade (V-073); the shared online boombox pending (meet room) |
 | R1.14 | A01 §13 _(A01)_ | Visible per-car customization families, 8+ rim designs | partial — renderer: body-kit variants per family, two-tone, finishes, 8 rims, conformed decals clipped to each zone's paintable panel (V-070) and plate text (V-042); Core catalogue/livery/validation/editor/wire for all 18 chassis (V-045); Garage Appearance screen (all families, wheels, paint, lamps, plate, decal layers, presets, undo), Local and online apply with ownership, liveries in race rosters — Local and online tours PASS (V-046); a second human draws another human's applied livery in the same online race (V-062) |
 | R2.1 | A02 §1–6 _(A02)_ | Five diversions (Cap Clash, Pit-Crew, Greenlight, Pocket Circuit, Canvas), 1–6 humans + solo, preemption/resume, dormant persistence | verified with 1–2 humans — Core + hosting (V-028), all five screens Local (V-034), online: Pocket Circuit while ready (V-030), Greenlight / Cap Clash / Pit-Crew / Canvas with two humans (V-043); 3–6 humans at one table not yet exercised |
 | R2.2 | A02 §7 _(A02)_ | Continue / Service Break post-event flow | verified — control plane tests + online tour Continue → Advance → next stage (V-027) |
@@ -88,14 +88,14 @@ lists the superseded rules and where each lands. Rows marked _(A01)_ carry the r
 | R11.1 | §11 | Player Card creation and public view | partial (display name API); UI not built |
 | R11.2 | §11 | RP thresholds, finite 15,000 budget | verified (V-009) |
 | R11.3 | §11 | 75 server-validated challenge predicates with equippable rewards | in progress (CH01, CH05 predicates; reward assets not built) |
-| R12.1 | §12 | Cedar Lantern Terrace meet, 12-person instances | not started (meet text authored) |
-| R12.2 | §12 | Avatars, emotes, inspection, photo mode, ribbon | not started |
+| R12.1 | §12 | Cedar Lantern Terrace meet, 12-person instances | in progress — the terrace per Appendix F generated from an engine-free layout the server can share (12 bays, lanes, kiosk, board, radio bench, garden, placards, perimeter collision, horizon), arrival spline (3.5 s, skippable), validated exits and rescue; offline visit from the Offline hub; built-player meet tour PASS (V-073). Networked room (≤ 6 humans per D02, allocation, arrivals/departures) pending |
+| R12.2 | §12 | Avatars, emotes, inspection, photo mode, ribbon | in progress — modelled, skinned avatars for the 48 rivals and the host (V-072); walk/jog/turn/idle, interact, inspect (own car: sit in, headlight preset, wheel turn, rate-limited rev; rivals' cars: PI/class, tune, customization, cosmetic like), 12 emotes by wheel or keys, recenter, photo mode, quick chat, SIGNAL ribbon queue (V-073, offline). Replication (emote ID/start/duration, avatar snapshots) pending |
 | R13.1 | §13 | Shared AI controller with 19 composable tendencies | in progress (RouteFollower + parameter biases) |
 | R13.2 | §13 | ≥4 measured behavioural differences per crew | not started |
 | R14.1 | §14 | Route authoring (centreline, width, elevation, camber, gates, AI lines) | implemented as route.json + generator; visual editor tooling pending |
 | R14.2 | §14 | Course uniqueness validator (≥70% exclusive centreline) | not started |
 | R15.1 | §15 | Signal/Sector UI across all screens; accessibility | not started |
-| R16.1 | §16 | Original soundtrack; engine audio families | not started |
+| R16.1 | §16 | Original soundtrack; engine audio families | in progress — the game now creates its music player and each menu screen plays its context cue; the meet plays its bed and boombox; engine audio is used by the meet car (arrival, rev) — races do not yet play music or engine audio (V-073) |
 | R16.2 | §16 | Tutorial T00 lessons | not started |
 | R17.1 | §17 | Typed schemas, reference validator, coverage report | in progress |
 | R17.2 | §17 | Editor tools: generation/validation, builds, smoke, capture | in progress (course/scene/car/material/content tools, BuildCommands) |
@@ -110,11 +110,11 @@ lists the superseded rules and where each lands. Rows marked _(A01)_ carry the r
 |---|---|---|---|---|
 | C.1 | Courses T00 + C01–C25 (authored, drivable, validated) | 26 | 29 scenes (T00, C01–C25, FP01–FP03) generated and driven by the autopilot; every route landmark built and a regional kit per biome (V-071); human course review pending | implemented (automation) |
 | C.2 | Campaign stages S01–S30 per mode | 60 | 0 (data + scripts authored) | in progress |
-| C.3 | Rival identities (look, personality, livery, behaviour) | 48 | 0 in-game (48 character sheets/lines/livery specs authored) | in progress |
+| C.3 | Rival identities (look, personality, livery, behaviour) | 48 | 48 in-game character models with authored looks, posture and emotes; distinctness measured (no confusable pair) (V-072); behaviour/livery per earlier rows | in progress (human look pending) |
 | C.4 | Distinct car models | 18 | 18 detailed procedural bodies from the art pass (V-070): Appendix C cues authored per car (grille, arches, lamps, pillars, features), distinctness contact sheets `Evidence/art/cars/`; human visual review pending | implemented (automation) |
 | C.5 | Challenges with unique cosmetic rewards | 75 | 2 predicates; 0 reward assets | in progress |
-| C.6 | Cedar Lantern Terrace meet scene | 1 | 0 | not started |
-| C.7 | Music set | ≥17 cues | 0 | not started |
+| C.6 | Cedar Lantern Terrace meet scene | 1 | 1 (generated scene, offline visit; V-073) | implemented (automation; networked room pending) |
+| C.7 | Music set | ≥17 cues | 24 synthesized cues (docs/AUDIO.md), played in menus and the meet (V-073) | in progress (race contexts not wired) |
 
 ## Addendum 03 — instruments, cameras, motion, elevation, gates, recovery (`docs/brief/Night_Signal_Addendum_03.txt`)
 

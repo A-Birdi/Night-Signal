@@ -1280,3 +1280,88 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   cost: these tours bound the frame rate (hundreds of fps at 1080p), they are not a benchmark.
 - **Limits:** automation and editor renders only; a human look at each region is outstanding; the tall dark terrain
   "cliffs" of the gorge/highland styles (steep terrain at the heightfield resolution) are pre-existing and untouched.
+
+## V-072 — Characters: the 48 rivals modelled, skinned and animated; distinctness measured (2026-09-28)
+- Revisions: `fd9cab3` (builder, rig, motion, looks, sheets, tests); the host's look and vertex compaction in `1b34516`.
+- **Before:** the 48 rival sheets existed only as text (appearance strings, posture, signature accessory, livery); no
+  character geometry, rig, animation or emote existed anywhere in the game.
+- **Builder** (`Assets/Game/Runtime/Characters/CharacterBuilder.cs`): an original stylized person from a `CharacterLook`
+  — skeleton sized by height, build (7 builds) and limb length; a lofted torso and limbs dressed in an outer garment over
+  an under layer, cut to the authored hem (cropped/hip/thigh/knee, skirts split per leg) and sleeves
+  (long/rolled/short/none); 21 outfits (jackets, coats, capes, ponchos, aprons, overalls, a jumpsuit tied at the waist…);
+  head with eyes (whites, irises, highlights), brows, nose, mouth by expression, ears; facial hair; 22 hair styles;
+  ~35 accessories (glasses, caps, scarves, headphones, key reel, goggles at the collar, medallion, sash, thermos…).
+  One skinned mesh (18 bones, rigid weights), a submesh per colour slot, 2.2k–3.2k vertices (mean 2.6k), ~3 ms to build.
+- **Looks** (`authored/story/rivals.look.json`): all 48 authored from each sheet's appearance, posture, signature
+  accessory and livery colours; `CharacterVocabulary.Check` refuses unknown words so no look silently falls back.
+- **Motion** (`CharacterMotion.cs`): posture (8 kinds), idle breathing and glances, a walk/jog cycle whose hips height
+  comes from leg kinematics (feet stay on the ground), and the twelve meet emotes (`Core/Meet/Emotes.cs`: IDs and bounded
+  durations for replication) blended in and out.
+- **Tests:** EditMode `CharacterTests` 99/99 — every rival has a valid look; each body is skinned, within budget, finite
+  unit normals everywhere (the car pass's NaN lesson: unreferenced vertices and degenerate pole triangles were found and
+  removed), soles on the ground, height within −3/+8 %; walking, jogging and every emote keep a foot grounded (except the
+  cheer's hop) with finite skinning, the admiration crouch goes down > 0.3 m, stretch/cheer/wave raise the hands above the
+  head, each emote ends after its duration; no two rivals confusable.
+- **Distinctness** (`CharacterSheet.Measure`): pairwise front+side silhouette IoU at a fixed 1.1 cm/px scale and a
+  colour-layout difference over a 6×12 grid of the lit front view. Max IoU 0.930 (R19–R47, colour difference 0.131);
+  confusable pairs (IoU > 0.90 and colour < 0.12): 0. Thresholds are this project's, chosen before looking at pairs;
+  heights span 1.50–1.92 m.
+- **Evidence:** `Evidence/characters/` — front/side/back (common scale), three-quarter, portrait and silhouette sheets
+  (row-major R01…R48), the motion strip (idle, walk, jog, 12 emotes) and `distinctness.txt`.
+- **Limits:** editor renders and automation; a human look at the 48 is outstanding. Stylized, not high-fidelity: rigid
+  skinning (joints covered by spheres), mitt hands (thumbs-up and point read by arm pose), no cloth simulation. Players
+  have a default look varied by name; an appearance picker on the Player Card is a follow-up.
+
+## V-073 — The meet: Cedar Lantern Terrace, walking, emotes, boombox, offline visit (2026-09-28)
+- Revisions: `735e4a0` (layout, boombox rules), `13d8a29` (scene), `1b34516` (session, controls, HUD, tour), `7b4d1d9`
+  (music bootstrap, ribbon overflow fix, panel layout, noren).
+- **Before:** R12.1/R12.2/C.6 not started; the meet existed only as authored text (host, placards, quick chat).
+- **Layout** (`Core/Meet/MeetLayout.cs`, engine-free, shared by scene and room server): 150 × 110 m plateau; twelve bays
+  (six west under cherry trees in planters, six east along the fence), angled 22° and nose to the plaza; service lanes
+  behind the bays and the south entry lane carry the arrival spline, separate from the pedestrian centre; tea kiosk,
+  awning, timing board, radio bench, boombox and host spot north; dry garden island in the middle; photo marker framing
+  the east bays against the ridges; four viewpoint placards; the enclosure. Queries: walkability (fixtures and parked
+  cars), driver's-door and rescue spots validated free of fixtures, cars and other avatars, the arrival path and its
+  34 m presented stretch (3.5 s, ~35 km/h), bay allocation keeping a convoy together.
+- **Scene** (`Facilities/Meet/Meet.unity`, `LandmarkKits.Meet.cs`): generated from the layout on load — paved apron,
+  concrete bay rows with markings and wheel stops, asphalt lanes, flagstone forecourt, the garden (edging, raked
+  ripples, rocks, shrubs, maple), cherry trees and petals, lamps, stone lanterns, the kiosk (plaster and timber, shutter
+  counter, lit interior, tiled gable roof, awning, lantern strings, noren reading 茶), timing board, radio bench and
+  boombox, hedges, the timber fence on the repaired retaining wall (paler rebuilt section, as the placard says), the
+  berm and maintenance gate, a continuous collision ring and fixture colliders from the same layout; outside, the wooded
+  slopes, the overlook falling to a valley and distant ridges, so the horizon is land. Fixed sunset lighting with light
+  haze; practical lights at the awning, lamps and lanterns. Generation 0.15 s (collision-only for a server).
+- **Session** (`Runtime/Meet/`): `WalkingControls` (keyboard/mouse and controller, remappable and stored with the
+  preferences, released while typing or unfocused; direct emote keys 1–0, -, =), `AvatarWalker` (CharacterController:
+  scenery, parked cars and the perimeter stop it; no jump; avatars never collide with each other), `MeetCamera` (orbit,
+  zoom, recenter, drifts back behind while walking, pulls in instead of clipping, photo mode, arrival presentation),
+  `MeetHud` (prompt, hints, SIGNAL ribbon, emote wheel, one modal panel, nameplates, quick-chat bubble), `MeetSession`:
+  the player's car (applied livery) drives the presented arrival (skippable), the avatar gets out at the driver's door
+  (validated free point); the host Genzo Karasawa greets by name, explains greetings and returns a wave and a bow; five
+  rivals stand by their own cars as labelled story characters (idle emotes, a line when spoken to); inspection of their
+  cars (PI and class, stock tune, paint, a cosmetic-only like) and of your own (sit in: fitted cockpit, headlight preset,
+  wheel turn, a rate-limited rev through the engine synth); viewpoint and photo-point placards; the timing board shows
+  "no convoy proposal (offline)" and only the player's own recent slips; the boombox under the Core rules (owned cues
+  queue; locked ones show an unlock hint, encounter themes without names) with the music crossfading from the meet bed
+  near it; quick chat (authored phrases, no typing); photo mode (HUD and nameplates hidden, save a PNG, never pauses
+  anything); rescue-to-car (hold); leave. **Music:** the game never created its `MusicPlayer` — now `MusicPlayer.Ensure()`
+  builds it from `Resources/MusicLibrary` and each menu screen plays its cue (races still play none).
+- **Built player** (`7b4d1d9`, non-development, 1920×1080 windowed, `-nsMeetTour`, `Evidence/meet/tour-*`): PASS —
+  arrival 3.74 s; walked 4.3 m in 3 s at 1.50 m/s, jog 3.80 m/s; the west hedge line held (x −68.15 against a −68.5
+  boundary); the garden edging held; the host addressed "Meet Walker", showed the emote help and returned both the wave
+  and the bow; all twelve emotes played; placard and timing board shown; a queued owned cue (MUS_TITLE) started and was
+  the music heard near the boombox; closing released the lease; sit in, rev once then refused within the 3 s limit,
+  get out at a walkable point; photo mode at the marker; rescue back beside the car; leave returned to the Offline
+  hub. ~280–560 fps in the tour frames at 1080p.
+- **Tests:** EditMode `MeetRulesTests` 10/10 — bays inside the enclosure, clear of fixtures and of each other, noses to
+  the plaza; the 6 m central aisle, the 6 m aisles either side of the garden and the cross aisle clear with every bay
+  occupied; 3 m clear behind every parked car; door/rescue spots free (and not on top of a standing avatar); arrival
+  paths never cross the plaza and the presented stretch starts in a lane; bay allocation; boombox lease, queue,
+  interval, ownership, leavers and spoiler protection; SIGNAL ribbon (one current + three queued, bursts coalesce,
+  keyed notices never repeat, "disconnected" wording, overflow reaches the event list).
+- **Evidence:** `Evidence/meet/` — editor viewpoints with display cars and rivals (overview, photo marker, kiosk, both
+  bay rows, overlook, entry lane, garden, boombox) and the built-player tour frames.
+- **Limits:** offline only — the networked room (Phase C: server-owned membership, bays, arrivals/departures, avatar
+  snapshots, emote replication, shared boombox, ribbon events) is next. Walking bindings are remappable in the data but
+  not yet on the Controls screen; players have a default look (no appearance picker yet); the host's lesson is tracked
+  in the session but not yet wired to challenge CH63; a human play-through is outstanding.

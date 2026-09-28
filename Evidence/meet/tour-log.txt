@@ -1,0 +1,37 @@
+arrival 3.74 s, bay 1
+walked 4.3 m in 3 s at 1.50 m/s
+jog speed 3.80 m/s
+pushed west: x -68.15
+near the boombox music is MUS_TITLE
+fps sample: 278
+log: meet opened; player bay 1; 5 rivals at their cars; host Genzo Karasawa
+log: arrived in bay 1 after 3.50 s (skippable flourish)
+log: interact host NPC-GENZO
+log: emote Wave
+log: host returned the Wave
+log: emote Bow
+log: host lesson: wave, bow and emote help done
+log: host returned the Bow
+log: emote Wave
+log: emote Bow
+log: emote ThumbsUp
+log: emote Clap
+log: emote Point
+log: emote CameraPose
+log: emote Stretch
+log: emote Cheer
+log: emote Shrug
+log: emote Nod
+log: emote Footwork
+log: emote Admire
+log: quick chat: Nice car!
+log: interact placard VIEW-E
+log: interact board board
+log: interact boombox boombox
+log: boombox queue MUS_TITLE: Ok
+log: sat in own car
+log: got out of the car
+log: interact photo-marker photo
+log: photo mode at the marker
+log: rescue to car
+PASS
