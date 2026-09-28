@@ -1634,6 +1634,12 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - **Built players** (`net-race.ps1 -Humans 2 -Stage S03`, loopback game server and control plane, autopilot clients):
   both humans finished (P1, P2) with clean opening sectors; the game server reported `CH33` for each and the settled
   receipts list `challengesUnlocked: ["CH33"]` for both — **PASS**. Evidence: `Evidence/net/run-20260928-080628-h2`.
+- **Drift challenges** (`7b69ac6`): Core `DriftScorer` now keeps every banked chain (raw points and the slowest valid
+  scoring step), and the shared predicates add **CH18** (two banked chains ≥ 6,000 on C04), **CH20** (25,000 raw in
+  C01's Drift Attack), **CH21** (70,000 raw in C08's wet Drift Attack with ≥ 2 chains) and **CH24** (one chain ≥ 60,000
+  on C15 never below 45 km/h while scoring), on the game server and offline. EditMode `DriftChallengeTests` (chains
+  recorded; each predicate on its course, format and surface only; a finish required) — PASS; .NET Core 123/123. The
+  autopilot's scores (a few thousand points) are far below these targets, so no automated run earns them.
 - **Limits:** CH35, CH44/CH45, CH66 and CH71 are covered by tests, not by a built-player run; CH71 needs T00, which only
   the offline tutorial runs today (online it cannot complete yet); challenge rewards are ownership records (the
   cosmetic assets are not built).

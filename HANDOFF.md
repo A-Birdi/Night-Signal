@@ -173,7 +173,7 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
    are untouched.
 2. **Card and meet follow-ups** (smaller): card cosmetics (showcase records, flag, preferred car, background/frame/
    motif/title); the offline profile's look; a meet run under impairment; the remaining challenge predicates (R11.3:
-   14 of 75 exist: CH01, CH05, CH33, CH35, CH44, CH45, CH61–CH67, CH71 — see REQUIREMENTS R11.3).
+   18 of 75 exist: CH01, CH05, CH18, CH20, CH21, CH24, CH33, CH35, CH44, CH45, CH61–CH67, CH71 — see REQUIREMENTS R11.3).
 3. **Gameplay backlog**: a drift controller that manages the road edge (every AI attempt still ends at the edge; the
    per-driver drift skill of V-080 raises scores on average, not per course) and a re-measure of S29 with it (group
    Time Attack and the hosted tables with 4 and 6 humans passed — V-081, V-082); UI/reconnect/rejoin/DQ under load; customization follow-ups (meet livery refresh,
