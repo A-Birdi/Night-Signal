@@ -31,6 +31,8 @@
     <Compile Include="../../../Assets/Game/Core/Characters/**/*.cs" Link="Core/Characters/%(RecursiveDir)%(Filename)%(Extension)" />
     <!-- Story (stage intros and reactions, the race diary): presentation text, never a simulation input. -->
     <Compile Include="../../../Assets/Game/Core/Story/**/*.cs" Link="Core/Story/%(RecursiveDir)%(Filename)%(Extension)" />
+    <!-- Ghosts (sampled replays, compatibility, CH68): presentation and records, never a simulation input. -->
+    <Compile Include="../../../Assets/Game/Core/Ghosts/**/*.cs" Link="Core/Ghosts/%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>

@@ -64,7 +64,7 @@ lists the superseded rules and where each lands. Rows marked _(A01)_ carry the r
 | R3.14 | §3.5 | Cost/operations worksheet after first six-client test | not started |
 | R4.1 | §4 | Separate state machines: screen, presence, convoy, entrant | in progress (presence/convoy/entrant done; screen FSM with UI) |
 | R4.2 | §4.1 | Convoy create/join, invites, privacy, expiry/rate limit | verified — control plane (V-013) and the client convoy screen/Friends invites (V-027, V-037) |
-| R4.3 | §4.1 | Persistent convoy header UI | not started |
+| R4.3 | §4.1 | Persistent convoy header UI | in progress — the compact convoy header at the meet with members, readiness and Event/Mode Ready (V-075); not yet persistent across every menu screen |
 | R4.4 | §4.2 | Two revisioned ready checks, invalidation, 15 s / 120 s rules | verified in control plane (V-013) |
 | R4.5 | §4.3 | Loading barrier (90 s + 30 s), server start tick, 3-2-1-GO | implemented (RaceServer) — run pending |
 | R4.6 | §4.4 | Heartbeats, 250 ms coast, DQ, spectate, slot hold, leader transfer | partial: coast/DQ implemented; spectating (server, client mode, target cycling/loss, empty state, convoy button) and refused mid-race re-entry verified on real processes (V-057/V-058); the UI path — mid-race crash, sign in, Rejoin, Spectate the Race — driven on two built clients with a human still racing (V-060); under load — six impaired clients, a recovery-then-drop refused re-entry and spectated, a second drop, both DQ with no payout while four finished and were credited (V-095) |
@@ -77,9 +77,9 @@ lists the superseded rules and where each lands. Rows marked _(A01)_ carry the r
 | R6.3 | §6 | Cameras chase/hood/bumper, FOV, shake, no blur | implemented |
 | R6.4 | §6.1 | Non-contact default, wall-hit debounce, hold-reset +3 s | implemented — superseded by Addendum 01 light contact (R1.6 verified); Time Attack non-contact; wall-hit debounce and hold-reset penalty in the race tracker |
 | R7.1 | §7 | Raw drift scoring with anti-exploit | verified rules (V-009); not yet wired to races/gates |
-| R8.1 | §8 | Freeplay modes; H+AI ≤ 6 | rules verified; modes not built |
+| R8.1 | §8 | Freeplay modes; H+AI ≤ 6 | in progress — Sprint and Circuit with a course vote (V-036), group Time Attack (V-044, V-081), Drift Attack on courses with judged zones (V-079), offline Freeplay from the hub; Ghost Chase waits for ghosts (R8.2); Custom Cup multi-leg races not executed |
 | R8.2 | §8 | Server-validated ghosts | not started |
-| R9.1 | §9 | 3D garage, presets, purchases exactly-once | purchases verified server-side; garage not built |
+| R9.1 | §9 | 3D garage, presets, purchases exactly-once | in progress — Local and online Garage through the UI with parts that race (V-038, V-040, V-041), the Test Yard (V-039), appearance with presets (V-046, V-088); purchases exactly-once server-side |
 | R9.2 | §9 | Parts with tradeoffs; utility slot | in progress — see R2.5 (67 parts with tradeoffs, utility slot in Core/Builds) |
 | R9.3 | §9 | PI classes; measured stat harness | classes verified; harness implemented (V-011) |
 | R9.4 | §9 | Livery editor (64 layers, undo) | verified — Core LiveryEditor (64 layers, 64-step undo, tests) and the Garage Appearance screen, Local + online (V-045, V-046) |
@@ -102,7 +102,7 @@ lists the superseded rules and where each lands. Rows marked _(A01)_ carry the r
 | R17.2 | §17 | Editor tools: generation/validation, builds, smoke, capture | in progress (course/scene/car/material/content tools, BuildCommands) |
 | R18.1 | §18 | Prediction/reconciliation; interpolated remotes; 60/30/20 Hz | implemented (RaceClient) — run pending |
 | R18.2 | §18 | Server validation of inputs/progress; tick finish; ties | implemented (RaceServer, RaceClassification verified) |
-| R18.3 | §18 | Network impairment test matrix | not started |
+| R18.3 | §18 | Network impairment test matrix | in progress — races under delay/jitter/loss with recoveries (V-054), correction blending under impairment with six rendered clients (V-061), the meet under control-channel latency (V-094), six impaired humans with drops and refused re-entry (V-095); not yet a single matrix across every mode |
 | R20.1 | §20 | Maintained docs | in progress |
 
 ## Content minimums (Appendices A–F)
