@@ -9,12 +9,19 @@
 
 .DESCRIPTION
     Automation, not a human playtest. Loopback only: the meet is hosted by the control plane on 127.0.0.1:5080; no game
-    server and no other port is opened. Screenshots: Builds/Screenshots/meet-online. Raw logs stay under Builds/
+    server and no other port is opened, except with -Convoy -Race: one dedicated game server bound to 127.0.0.1 (UDP
+    7792, the same guarded endpoint as ui-tour-social.ps1 -Race) for the race started from the meet.
+    Screenshots: Builds/Screenshots/meet-online (meet-convoy for -Convoy). Raw logs stay under Builds/
     (git-ignored: they contain local paths).
 #>
 param([int]$HostAccount = 0, [int]$Guest1Account = 1, [int]$Guest2Account = 2, [int]$TimeoutSeconds = 300,
     # Two friends instead: a convoy meet answered Ready from inside the meet, then a friend's meet by invitation.
-    [switch]$Convoy)
+    [switch]$Convoy,
+    # With -Convoy: the leader then starts the event from the meet (starts a dedicated game server), both race, and both
+    # return to the meet afterwards.
+    [switch]$Race, [int]$Port = 7792,
+    # Addendum 04: loopback unless a separately authorized LAN test passes -AllowLan with its addresses.
+    [string]$BindHost = '127.0.0.1', [string]$PublicHost = '127.0.0.1', [switch]$AllowLan)
 
 $ErrorActionPreference = 'Stop'
 $repo = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
@@ -30,13 +37,26 @@ $shots = Join-Path $repo 'Builds\Screenshots\meet-online'
 New-Item -ItemType Directory -Force $shots | Out-Null
 Remove-Item (Join-Path $shots '*.png') -ErrorAction SilentlyContinue
 
+if ($Race -and -not $Convoy) { throw '-Race needs -Convoy.' }
 $tour = if ($Convoy) { '-nsMeetTourConvoy' } else { '-nsMeetTourOnline' }
 function Start-Client([string]$role, [int]$account, [int]$x) {
     $a = @($tour, $role, '-nsDevAccount', "$account",
         '-screen-fullscreen', '0', '-screen-width', '1280', '-screen-height', '720', '-monitor', '1',
         '-nsPrefsFolder', "`"Builds/NetRuns/meet-online/prefs-$role`"",
         '-logFile', "`"$logs\$role.log`"")
+    if ($Race) { $a += '-nsMeetTourConvoyRace' }
     Start-Process -FilePath $exe -PassThru -WorkingDirectory $repo -ArgumentList $a
+}
+$server = $null
+if ($Race) {
+    if ($TimeoutSeconds -lt 900) { $TimeoutSeconds = 900 }
+    Import-Module (Join-Path $PSScriptRoot 'NetGuard.psm1') -Force
+    $endpoint = Resolve-ServerEndpoint -BindHost $BindHost -PublicHost $PublicHost -Port $Port -AllowLan:$AllowLan -Executable $exe
+    Write-Output "server endpoint: bind $($endpoint.bindHost) advertise $($endpoint.publicHost) udp $($endpoint.port) ($($endpoint.classification))"
+    $server = Start-Process -FilePath $exe -PassThru -WorkingDirectory $repo -ArgumentList (@(
+        '-batchmode', '-nographics', '-nsServer', '-nsExitAfterMatch',
+        '-nsEvidence', 'Builds/NetRuns/meet-online/evidence', '-logFile', "`"$logs\server.log`"") + (Get-ServerArgs $endpoint))
+    Start-Sleep -Seconds 4
 }
 $clients = if ($Convoy) {
     @(@{ n = 'host'; p = (Start-Client 'host' $HostAccount 0) }, @{ n = 'guest'; p = (Start-Client 'guest' $Guest1Account 1) })
@@ -49,6 +69,11 @@ $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
 while ((Get-Date) -lt $deadline -and ($clients | Where-Object { -not $_.p.HasExited }).Count -gt 0) { Start-Sleep -Seconds 2 }
 foreach ($c in $clients) {
     if (-not $c.p.HasExited) { Stop-Process -Id $c.p.Id -Force; Write-Output "$($c.n): TIMEOUT (killed)" } else { Write-Output "$($c.n): exit $($c.p.ExitCode)" }
+}
+if ($server) {
+    Start-Sleep -Seconds 3
+    if (-not $server.HasExited) { Stop-Process -Id $server.Id -Force; Write-Output 'server: stopped' } else { Write-Output "server: exit $($server.ExitCode)" }
+    Write-Output ("udp $Port released: " + (Wait-PortReleased -Port $Port))
 }
 $files = if ($Convoy) { @("$logs\host.log", "$logs\guest.log") } else { @("$logs\host.log", "$logs\guest1.log", "$logs\guest2.log") }
 Select-String -Path $files -Pattern 'NightSignal.Meet(Online|Convoy)' | ForEach-Object { $_.Line }

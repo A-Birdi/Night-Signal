@@ -19,6 +19,20 @@ namespace NightSignal.Front
         /// <summary>True from joining an online meet until its menus are back (or the race took over).</summary>
         bool onlineMeetRunning;
 
+        /// <summary>
+        /// The meet a race took the player from (spec §12: after the race, a clear option to return to the prior meet): the
+        /// request kind ("convoy", "friend" or "public") and the friend for a friend's meet; null when there is none.
+        /// </summary>
+        public string ReturnMeetKind { get; private set; }
+        string returnMeetFriend;
+
+        /// <summary>Back to the meet the race took the player from; the server allocates the bay afresh.</summary>
+        public void ReturnToMeet(UIScreen from)
+        {
+            if (ReturnMeetKind == null) return;
+            StartOnlineMeet(ReturnMeetKind, returnMeetFriend, from);
+        }
+
         /// <summary>Visits the meet online (kind: public | convoy | friend) with the room server; back to <paramref name="returnTo"/> on leaving.</summary>
         public void StartOnlineMeet(string kind, string friendAccountId, UIScreen returnTo) => StartCoroutine(RunOnlineMeet(kind, friendAccountId, returnTo));
 
@@ -28,6 +42,8 @@ namespace NightSignal.Front
             if (s == null || ActiveMeet != null) yield break;
             meetLeftForRace = false;
             onlineMeetRunning = true;
+            ReturnMeetKind = null;
+            returnMeetFriend = null;
             var owned = new HashSet<string>(((s.Me?["music"] as JObject)?["owned"] as JArray ?? new JArray()).Select(m => (string)m["cueId"]));
             string instance = s.Convoy?["members"] is JArray members
                 ? (string)members.OfType<JObject>().FirstOrDefault(m => (string)m["accountId"] == s.AccountId)?["loadout"]?["instanceId"]
@@ -63,6 +79,10 @@ namespace NightSignal.Front
         {
             if (ActiveMeet == null) return;
             meetLeftForRace = true;
+            MeetNet net = ActiveMeet.Net;
+            // A convoy room is found again by the convoy; a friend's room by the friend; otherwise any public instance.
+            ReturnMeetKind = (string)net?.State?["kind"] == "convoy" ? "convoy" : net?.FriendAccountId != null ? "friend" : "public";
+            returnMeetFriend = ReturnMeetKind == "friend" ? net.FriendAccountId : null;
             ActiveMeet.LeaveForRace();
             ActiveMeet = null; // the meet scene unloads with the race scene load
         }
@@ -71,7 +91,9 @@ namespace NightSignal.Front
         /// Convoy meet evidence (<c>-nsMeetTourConvoy host|guest</c>, <c>-nsDevAccount N</c>; the two accounts are friends): the
         /// host creates a convoy the guest joins, proposes Campaign S01; both go to the Convoy Meet, see the compact convoy
         /// header and answer Event Ready from the meet menu; the guest leaves, the host invites it back with a held place
-        /// and the guest joins the friend's meet from the Friends screen. Automation over real sockets.
+        /// and the guest joins the friend's meet from the Friends screen. With <c>-nsMeetTourConvoyRace</c> (a game server is
+        /// running) the leader then starts the event from the meet menu, the allocation takes both out of the meet into the
+        /// race (validator autopilot), and after it both use Back to the Meet and meet again. Automation over real sockets.
         /// </summary>
         IEnumerator MeetTourConvoy(string role)
         {
@@ -109,6 +131,8 @@ namespace NightSignal.Front
             NetConfig cfg = NetConfig.FromCommandLine();
             JToken account = JObject.Parse(System.IO.File.ReadAllText(cfg.DevSeedFile))["accounts"][cfg.DevAccount];
             bool host = role == "host";
+            bool race = Array.IndexOf(Environment.GetCommandLineArgs(), "-nsMeetTourConvoyRace") >= 0;
+            if (race) OnlineAutopilot = true;
             if (host && System.IO.File.Exists(codeFile)) System.IO.File.Delete(codeFile);
             string ReadCode()
             {
@@ -204,8 +228,12 @@ namespace NightSignal.Front
                 if (ActiveMeet != null && ActiveMeet.Net.RoomId != room) Fail($"joined {ActiveMeet.Net.RoomId}, not the host's {room}");
                 yield return new WaitForSeconds(1.5f);
                 yield return Snap("03-back-at-friends-meet");
-                ActiveMeet?.Leave();
-                yield return Until(() => ActiveMeet == null && !onlineMeetRunning, 20f, "left again");
+                if (race) yield return RaceFromTheMeet();
+                else
+                {
+                    ActiveMeet?.Leave();
+                    yield return Until(() => ActiveMeet == null && !onlineMeetRunning, 20f, "left again");
+                }
             }
             else
             {
@@ -217,9 +245,13 @@ namespace NightSignal.Front
                 yield return Until(() => (m.Net.State["members"] as JArray).Count(x => (string)x["state"] == "present") >= 2, 90f, "the guest came back through the invitation");
                 yield return new WaitForSeconds(1f);
                 yield return Snap("02-guest-back");
-                yield return Until(() => (m.Net.State["members"] as JArray).Count == 1, 60f, "the guest left again");
-                m.Leave();
-                yield return Until(() => ActiveMeet == null && !onlineMeetRunning, 20f, "host left the meet");
+                if (race) yield return RaceFromTheMeet();
+                else
+                {
+                    yield return Until(() => (m.Net.State["members"] as JArray).Count == 1, 60f, "the guest left again");
+                    m.Leave();
+                    yield return Until(() => ActiveMeet == null && !onlineMeetRunning, 20f, "host left the meet");
+                }
             }
             if (Router.Current != Convoy) Router.Show(Convoy, false);
             yield return new WaitForSeconds(1f);
@@ -230,6 +262,51 @@ namespace NightSignal.Front
             {
                 Note(failures.Count == 0 ? "PASS" : "FAILED: " + string.Join("; ", failures));
                 Application.Quit(failures.Count == 0 ? 0 : 1);
+            }
+
+            // Race from the meet (spec §12, Gate 4 "race launch from meet"): ready at the meet, the leader starts from the
+            // meet menu, the allocation moves both into race loading; after the race, Back to the Meet.
+            IEnumerator RaceFromTheMeet()
+            {
+                MeetSession here = ActiveMeet;
+                if (here == null) { Fail("not at the meet before the race"); yield break; }
+                if ((bool?)S().MyMember?["eventReady"] != true)
+                {
+                    here.OpenMeetMenu();
+                    yield return new WaitForSeconds(0.6f);
+                    here.Hud.PanelButtons.FirstOrDefault(b => b.GetComponentInChildren<TextMeshProUGUI>()?.text.Contains("Event Ready") == true)?.onClick.Invoke();
+                }
+                yield return Until(() => AllMembers("eventReady"), 30f, "everyone event ready at the meet");
+                if (host)
+                {
+                    yield return new WaitForSeconds(1.5f);
+                    here.OpenMeetMenu();
+                    yield return new WaitForSeconds(0.6f);
+                    yield return Snap("03-start-from-meet");
+                    Button go = here.Hud.PanelButtons.FirstOrDefault(b => b.GetComponentInChildren<TextMeshProUGUI>()?.text.Contains("Start the event") == true);
+                    if (go == null) Fail("no Start the event in the leader's meet menu");
+                    else go.onClick.Invoke();
+                }
+                yield return Until(() => InOnlineRace, 60f, "the race took over from the meet");
+                Note($"race from the meet: in race {InOnlineRace}, meet left {ActiveMeet == null}, return to {ReturnMeetKind}");
+                if (ActiveMeet != null) Fail("still at the meet during the race");
+                yield return Until(() => !InOnlineRace && Router.Current == Convoy, 900f, "back from the race");
+                yield return new WaitForSeconds(2.5f);
+                Note("after the race: " + (LastOnlineResult ?? "").Replace("\n", " | "));
+                yield return Until(() => Interactable("ReturnToMeet"), 15f, "Back to the Meet offered");
+                yield return Snap("04-back-to-the-meet-offered");
+                Click("ReturnToMeet");
+                yield return Until(() => ActiveMeet != null && ActiveMeet.Ready, 40f, "back at the meet after the race");
+                MeetSession again = ActiveMeet;
+                if (again == null) yield break;
+                if ((string)again.Net.State?["kind"] != "convoy") Fail("after the race: not the convoy's meet");
+                yield return Until(() => (again.Net.State["members"] as JArray).Count(x => (string)x["state"] == "present") >= 2, 60f, "both back at the meet after the race");
+                yield return new WaitForSeconds(1.5f);
+                yield return Snap("05-back-at-meet-after-race");
+                Note($"back at the meet after the race: room {again.Net.RoomId} bay {again.PlayerBay + 1}");
+                yield return new WaitForSeconds(host ? 4f : 1f);
+                again.Leave();
+                yield return Until(() => ActiveMeet == null && !onlineMeetRunning, 20f, "left the meet after the race");
             }
         }
 

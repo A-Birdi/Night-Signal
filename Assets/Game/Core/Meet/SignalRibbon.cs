@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace NightSignal.Core.Meet
 {
-    public enum NoticeKind { Info = 0, Arrived = 1, Departed = 2, Disconnected = 3 }
+    public enum NoticeKind { Info = 0, Arrived = 1, Departed = 2, Disconnected = 3, LeftToRace = 4 }
 
     public sealed class Notice
     {
@@ -16,7 +16,8 @@ namespace NightSignal.Core.Meet
         public string Display()
         {
             if (Kind == NoticeKind.Info) return Text;
-            string verb = Kind == NoticeKind.Arrived ? "arrived" : Kind == NoticeKind.Departed ? "left" : "disconnected";
+            string verb = Kind == NoticeKind.Arrived ? "arrived" : Kind == NoticeKind.Departed ? "left"
+                : Kind == NoticeKind.LeftToRace ? "left to race" : "disconnected";
             return Names.Count == 1 ? $"{Names[0]} {verb}" : $"{Names.Count} drivers {verb}";
         }
     }

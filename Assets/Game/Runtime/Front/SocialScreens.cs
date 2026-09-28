@@ -213,7 +213,7 @@ namespace NightSignal.Front
                     string from = (string)mi["fromAccountId"];
                     long left = (((long?)mi["untilMs"] ?? nowMs) - nowMs) / 1000;
                     invites[i].Label.text = $"<b>{Esc((string)mi["fromName"])}</b> holds a place for you at the meet  <size=80%>· bay {(int?)mi["bay"]} · {left} s</size>";
-                    Bind(invites[i].A, "Join meet", () => { S.MeetInvites.Remove(mi); App.StartOnlineMeet("friend", from, this); });
+                    Bind(invites[i].A, "Join meet", () => { S.MeetInvites.Remove(mi); S.ClearNotice(); App.StartOnlineMeet("friend", from, this); });
                     Bind(invites[i].B, "Decline", () => { S.MeetInvites.Remove(mi); dirty = true; });
                     continue;
                 }

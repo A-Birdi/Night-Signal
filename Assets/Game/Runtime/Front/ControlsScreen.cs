@@ -14,6 +14,7 @@ namespace NightSignal.Front
     /// pressing the new key/button (Esc cancels), a warning when a binding is shared with another action, and one button
     /// back to the documented defaults. Stored as the Input System's override JSON in the local preferences; every
     /// driving session (race, online, practice, Test Yard) loads it. Change View keeps C / Select unless remapped.
+    /// A second page holds the meet's walking controls (spec §12), stored separately and loaded by every meet visit.
     /// </summary>
     public sealed class ControlsScreen : UIScreen
     {
@@ -22,7 +23,9 @@ namespace NightSignal.Front
         sealed class Row
         {
             public string Label, Action, Part;
+            public bool Walking;
             public Button Keyboard, Pad;
+            public GameObject Root;
         }
 
         static readonly (string Label, string Action, string Part, bool Pad)[] Layout =
@@ -40,7 +43,31 @@ namespace NightSignal.Front
             ("Pause / menu", "Pause", null, true),
         };
 
+        /// <summary>The meet (spec §12): walk, jog, interact, emote wheel, recenter, photo, quick chat, rescue, menu.</summary>
+        static readonly (string Label, string Action, string Part, bool Pad)[] WalkingLayout =
+        {
+            ("Walk forward", "Move", "up", false),
+            ("Walk back", "Move", "down", false),
+            ("Walk left", "Move", "left", false),
+            ("Walk right", "Move", "right", false),
+            ("Jog (hold)", "Jog", null, true),
+            ("Interact", "Interact", null, true),
+            ("Emote wheel (hold)", "EmoteWheel", null, true),
+            ("Quick chat", "QuickChat", null, true),
+            ("Recenter camera", "Recenter", null, true),
+            ("Photo mode", "Photo", null, true),
+            ("Rescue to car (hold)", "Rescue", null, true),
+            ("Meet menu", "Menu", null, true),
+        };
+
+        const string DrivingHint = "Select a binding, then press the new key or button. Esc cancels. Arrow keys and the left stick also steer and drive.";
+        const string WalkingHint = "The meet: select a binding, then press the new key or button. Esc cancels. Arrow keys and the left stick also walk; the mouse and right stick look; 1–9, 0, - and = play emotes directly.";
+
         DrivingControls model;
+        WalkingControls walkModel;
+        bool walking;
+        TextMeshProUGUI heading, hint;
+        Button modeButton;
         readonly List<Row> rows = new List<Row>();
         TextMeshProUGUI status, conflicts;
         InputActionRebindingExtensions.RebindingOperation pending;
@@ -49,9 +76,8 @@ namespace NightSignal.Front
         {
             Image panel = UIFactory.Panel("Panel", root, new Vector2(0, 0), new Vector2(0.62f, 1f), Vector2.zero, Vector2.zero, new Color(0.055f, 0.06f, 0.07f, 0.9f));
             RectTransform col = UIFactory.Column("Bindings", panel.transform, new Vector2(0, 0.03f), new Vector2(1, 0.93f), new Vector2(64, 0), new Vector2(-32, 0), 4f);
-            UIFactory.Row("Heading", col, "CONTROLS", SignalTheme.Heading, SignalTheme.Label, 980, 0, true);
-            UIFactory.Row("Hint", col, "Select a binding, then press the new key or button. Esc cancels. Arrow keys and the left stick also steer and drive.",
-                SignalTheme.Small, SignalTheme.LabelDim, 980, 48);
+            heading = UIFactory.Row("Heading", col, "CONTROLS · DRIVING", SignalTheme.Heading, SignalTheme.Label, 980, 0, true);
+            hint = UIFactory.Row("Hint", col, DrivingHint, SignalTheme.Small, SignalTheme.LabelDim, 980, 48);
             RectTransform heads = UIFactory.Rect("Columns", col, new Vector2(0, 1), new Vector2(0, 1), Vector2.zero, Vector2.zero);
             heads.sizeDelta = new Vector2(980, 30);
             foreach ((string text, float x) in new[] { ("KEYBOARD", 0.36f), ("CONTROLLER", 0.68f) })
@@ -61,25 +87,8 @@ namespace NightSignal.Front
                 h.rectTransform.anchorMax = new Vector2(x + 0.3f, 1);
                 h.rectTransform.offsetMin = h.rectTransform.offsetMax = Vector2.zero;
             }
-            foreach (var l in Layout)
-            {
-                RectTransform r = UIFactory.Rect(l.Label, col, new Vector2(0, 1), new Vector2(0, 1), Vector2.zero, Vector2.zero);
-                r.sizeDelta = new Vector2(980, 50);
-                TextMeshProUGUI name = UIFactory.Label("Label", r, l.Label, SignalTheme.Small, SignalTheme.LabelDim, TextAlignmentOptions.MidlineLeft, true);
-                name.rectTransform.anchorMin = new Vector2(0, 0);
-                name.rectTransform.anchorMax = new Vector2(0.36f, 1);
-                name.rectTransform.offsetMin = Vector2.zero;
-                name.rectTransform.offsetMax = Vector2.zero;
-                var row = new Row { Label = l.Label, Action = l.Action, Part = l.Part };
-                row.Keyboard = UIFactory.Button($"{l.Action}{l.Part}/Keyboard", r, "", () => Rebind(row, "<Keyboard>"), 300, 46);
-                Place(row.Keyboard, 0.36f);
-                if (l.Pad)
-                {
-                    row.Pad = UIFactory.Button($"{l.Action}/Controller", r, "", () => Rebind(row, "<Gamepad>"), 300, 46);
-                    Place(row.Pad, 0.68f);
-                }
-                rows.Add(row);
-            }
+            foreach (var l in Layout) AddRow(col, l, false);
+            foreach (var l in WalkingLayout) AddRow(col, l, true);
             conflicts = UIFactory.Row("Conflicts", col, "", SignalTheme.Small, SignalTheme.Caution, 980, 56);
             status = UIFactory.Row("Status", col, "", SignalTheme.Small, SignalTheme.Label, 980, 30);
             RectTransform buttons = UIFactory.Rect("Buttons", col, new Vector2(0, 1), new Vector2(0, 1), Vector2.zero, Vector2.zero);
@@ -87,8 +96,54 @@ namespace NightSignal.Front
             Button restore = UIFactory.Button("RestoreDefaults", buttons, "Restore defaults", RestoreDefaults, 300, 52);
             Place(restore, 0f);
             Button back = UIFactory.Button("Back", buttons, "Back", () => App.Router.Back(), 300, 52);
-            Place(back, 0.36f);
+            Place(back, 0.33f);
+            modeButton = UIFactory.Button("ControlsMode", buttons, "Walking (meet)", () => ShowPage(!walking), 300, 52);
+            Place(modeButton, 0.66f);
         }
+
+        void AddRow(RectTransform col, (string Label, string Action, string Part, bool Pad) l, bool walk)
+        {
+            string prefix = walk ? "Walk." : "";
+            RectTransform r = UIFactory.Rect(prefix + l.Label, col, new Vector2(0, 1), new Vector2(0, 1), Vector2.zero, Vector2.zero);
+            r.sizeDelta = new Vector2(980, walk ? 46 : 50);
+            TextMeshProUGUI name = UIFactory.Label("Label", r, l.Label, SignalTheme.Small, SignalTheme.LabelDim, TextAlignmentOptions.MidlineLeft, true);
+            name.rectTransform.anchorMin = new Vector2(0, 0);
+            name.rectTransform.anchorMax = new Vector2(0.36f, 1);
+            name.rectTransform.offsetMin = Vector2.zero;
+            name.rectTransform.offsetMax = Vector2.zero;
+            var row = new Row { Label = l.Label, Action = l.Action, Part = l.Part, Walking = walk, Root = r.gameObject };
+            row.Keyboard = UIFactory.Button($"{prefix}{l.Action}{l.Part}/Keyboard", r, "", () => Rebind(row, "<Keyboard>"), 300, walk ? 42 : 46);
+            Place(row.Keyboard, 0.36f);
+            if (l.Pad)
+            {
+                row.Pad = UIFactory.Button($"{prefix}{l.Action}/Controller", r, "", () => Rebind(row, "<Gamepad>"), 300, walk ? 42 : 46);
+                Place(row.Pad, 0.68f);
+            }
+            else if (walk)
+            {
+                TextMeshProUGUI stick = UIFactory.Label("Stick", r, "Left stick", SignalTheme.Small, SignalTheme.LabelDim, TextAlignmentOptions.MidlineLeft);
+                stick.rectTransform.anchorMin = new Vector2(0.68f, 0);
+                stick.rectTransform.anchorMax = new Vector2(1f, 1);
+                stick.rectTransform.offsetMin = new Vector2(16, 0);
+                stick.rectTransform.offsetMax = Vector2.zero;
+            }
+            rows.Add(row);
+        }
+
+        /// <summary>Driving or the meet's walking controls (tours and the page button).</summary>
+        public void ShowPage(bool walkingPage)
+        {
+            Cancel();
+            walking = walkingPage;
+            foreach (Row r in rows) r.Root.SetActive(r.Walking == walking);
+            heading.text = walking ? "CONTROLS · WALKING (MEET)" : "CONTROLS · DRIVING";
+            hint.text = walking ? WalkingHint : DrivingHint;
+            SetText(modeButton, walking ? "Driving" : "Walking (meet)");
+            status.text = "";
+            Refresh();
+        }
+
+        InputActionMap MapFor(Row r) => r.Walking ? walkModel?.Map : model?.Map;
 
         static void Place(Button b, float x)
         {
@@ -102,8 +157,9 @@ namespace NightSignal.Front
         {
             model?.Dispose();
             model = new DrivingControls(); // loads the stored overrides
-            status.text = "";
-            Refresh();
+            walkModel?.Dispose();
+            walkModel = new WalkingControls();
+            ShowPage(false);
         }
 
         public override void OnHide()
@@ -111,6 +167,8 @@ namespace NightSignal.Front
             Cancel();
             model?.Dispose();
             model = null;
+            walkModel?.Dispose();
+            walkModel = null;
         }
 
         public override bool OnBack()
@@ -122,14 +180,15 @@ namespace NightSignal.Front
 
         void Refresh()
         {
-            if (model == null) return;
+            if (model == null || walkModel == null) return;
             foreach (Row r in rows)
             {
-                InputAction a = model.Map.FindAction(r.Action);
+                if (r.Walking != walking) continue;
+                InputAction a = MapFor(r).FindAction(r.Action);
                 SetText(r.Keyboard, Display(a, DrivingControls.BindingIndex(a, "<Keyboard>", r.Part)));
                 if (r.Pad != null) SetText(r.Pad, Display(a, DrivingControls.BindingIndex(a, "<Gamepad>", null)));
             }
-            List<string> shared = DrivingControls.Conflicts(model.Map);
+            List<string> shared = DrivingControls.Conflicts(walking ? walkModel.Map : model.Map);
             conflicts.text = shared.Count == 0 ? "" : "Shared bindings (both actions respond): " + string.Join("; ", shared);
         }
 
@@ -140,8 +199,8 @@ namespace NightSignal.Front
 
         void Rebind(Row row, string device)
         {
-            if (model == null || pending != null) return;
-            InputAction a = model.Map.FindAction(row.Action);
+            if (model == null || walkModel == null || pending != null) return;
+            InputAction a = MapFor(row).FindAction(row.Action);
             int index = DrivingControls.BindingIndex(a, device, device == "<Keyboard>" ? row.Part : null);
             if (index < 0) return;
             status.text = $"{row.Label}: press a {(device == "<Keyboard>" ? "key" : "controller button")}… (Esc cancels)";
@@ -163,7 +222,8 @@ namespace NightSignal.Front
             if (changed)
             {
                 DrivingPreferences p = DrivingPreferences.Current;
-                p.BindingOverrides = model.SaveOverrides();
+                if (row.Walking) p.WalkingBindingOverrides = walkModel.SaveOverrides();
+                else p.BindingOverrides = model.SaveOverrides();
                 p.Save();
                 status.text = $"{row.Label} changed.";
             }
@@ -182,11 +242,19 @@ namespace NightSignal.Front
         void RestoreDefaults()
         {
             Cancel();
-            model.Map.RemoveAllBindingOverrides();
             DrivingPreferences p = DrivingPreferences.Current;
-            p.BindingOverrides = "";
+            if (walking)
+            {
+                walkModel.Map.RemoveAllBindingOverrides();
+                p.WalkingBindingOverrides = "";
+            }
+            else
+            {
+                model.Map.RemoveAllBindingOverrides();
+                p.BindingOverrides = "";
+            }
             p.Save();
-            status.text = "Default bindings restored.";
+            status.text = walking ? "Default walking bindings restored." : "Default driving bindings restored.";
             Refresh();
         }
     }

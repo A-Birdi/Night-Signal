@@ -21,7 +21,19 @@ namespace NightSignal.Front
         public ControlPlaneClient Client { get; }
         public JObject Me { get; private set; }
         public string LastError { get; private set; } = "";
-        public string LastNotice { get; private set; } = "";
+        /// <summary>The latest server notice; a time-limited one (a meet invitation's held place) clears when it lapses.</summary>
+        public string LastNotice => Time.unscaledTime < noticeUntil ? lastNotice : "";
+        string lastNotice = "";
+        float noticeUntil = float.MaxValue;
+
+        void SetNotice(string text, float seconds = 0f)
+        {
+            lastNotice = text ?? "";
+            noticeUntil = seconds > 0f ? Time.unscaledTime + seconds : float.MaxValue;
+        }
+
+        /// <summary>Clears the notice (e.g. the invitation it announced was used).</summary>
+        public void ClearNotice() => SetNotice("");
         public event Action Changed;
         float nextPing;
 
@@ -30,14 +42,14 @@ namespace NightSignal.Front
             Client = client;
             client.ConvoyChanged += _ => Changed?.Invoke();
             client.RejoinChanged += _ => Changed?.Invoke();
-            client.Notice += n => { LastNotice = (string)n?["message"] ?? ""; Changed?.Invoke(); };
-            client.ConvoyClosed += c => { LastNotice = ClosedText((string)c?["reason"]); Changed?.Invoke(); };
+            client.Notice += n => { SetNotice((string)n?["message"]); Changed?.Invoke(); };
+            client.ConvoyClosed += c => { SetNotice(ClosedText((string)c?["reason"])); Changed?.Invoke(); };
             client.MeetInvited += i =>
             {
                 if (i == null) return;
                 MeetInvites.RemoveAll(x => (string)x["fromAccountId"] == (string)i["fromAccountId"]);
                 MeetInvites.Add(i);
-                LastNotice = $"{(string)i["fromName"] ?? "A friend"} is holding a place for you at their meet (30 s) — open Friends to join.";
+                SetNotice($"{(string)i["fromName"] ?? "A friend"} is holding a place for you at their meet (30 s) — open Friends to join.", 30f);
                 Changed?.Invoke();
             };
             client.Invited += i =>
@@ -45,7 +57,7 @@ namespace NightSignal.Front
                 if (i == null) return;
                 Invites.RemoveAll(x => (string)x["inviteId"] == (string)i["inviteId"]);
                 Invites.Add(i);
-                LastNotice = $"{(string)i["fromName"] ?? "A friend"} invited you to their convoy — open Friends to accept.";
+                SetNotice($"{(string)i["fromName"] ?? "A friend"} invited you to their convoy — open Friends to accept.");
                 Changed?.Invoke();
             };
         }

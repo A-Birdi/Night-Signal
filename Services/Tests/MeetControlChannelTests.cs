@@ -140,6 +140,12 @@ public sealed class MeetControlChannelTests : IDisposable
         Assert.Equal(bay, Member(rj.GetProperty("state"), b.AccountId).GetProperty("bay").GetInt32());
         JsonElement back = await WaitForMeet(a.Control, s => Member(s, b.AccountId).GetProperty("state").GetString() == "present");
         Assert.Equal(2, Events(back).Count(e => e.GetProperty("kind").GetString() == "arrived"));
+
+        // Leaving because the convoy's event allocated is worded apart from both "left" and "disconnected".
+        AssertOk(await again.RequestAsync("meet.leave", new { reason = "race" }));
+        JsonElement raced = await WaitForMeet(a.Control, s => Events(s).Any(e => e.GetProperty("kind").GetString() == "lefttorace" && e.GetProperty("accountId").GetString() == b.AccountId));
+        Assert.Equal("leaving", Member(raced, b.AccountId).GetProperty("state").GetString());
+        Assert.DoesNotContain(Events(raced), e => e.GetProperty("kind").GetString() == "departed");
         await again.DisposeAsync();
     }
 

@@ -115,8 +115,8 @@ namespace NightSignal.Meet
             }
             wheel.gameObject.SetActive(false);
 
-            // Modal panel on the right: title, wrapped body, a column of buttons.
-            Image p = UIFactory.Panel("Panel", root, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-700, -400), new Vector2(-40, 400), new Color(0.06f, 0.07f, 0.08f, 0.94f));
+            // Modal panel on the right: title, wrapped body, a column of buttons (its top clears the SIGNAL ribbon).
+            Image p = UIFactory.Panel("Panel", root, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-700, -440), new Vector2(-40, 360), new Color(0.06f, 0.07f, 0.08f, 0.94f));
             p.raycastTarget = true;
             panel = p.rectTransform;
             UIFactory.Panel("Edge", panel, new Vector2(0, 0), new Vector2(0, 1), Vector2.zero, new Vector2(6, 0), SignalTheme.Signal);
@@ -159,7 +159,7 @@ namespace NightSignal.Meet
         public void SetPrompt(string text)
         {
             prompt.text = text ?? "";
-            prompt.transform.parent.gameObject.SetActive(!photo && !string.IsNullOrEmpty(text));
+            prompt.transform.parent.gameObject.SetActive(!photo && !(panel != null && panel.gameObject.activeSelf) && !string.IsNullOrEmpty(text));
         }
 
         public void SetHints(string text) => hints.text = text;
@@ -222,6 +222,7 @@ namespace NightSignal.Meet
         public void ShowPanel(string heading, string body, IList<(string Label, Action Act)> actions)
         {
             panel.gameObject.SetActive(true);
+            prompt.transform.parent.gameObject.SetActive(false); // the panel owns the interaction while open
             panelTitle.text = heading;
             panelBody.text = body;
             foreach (Button b in buttons) UnityEngine.Object.Destroy(b.gameObject);
@@ -245,6 +246,7 @@ namespace NightSignal.Meet
         public void HidePanel()
         {
             panel.gameObject.SetActive(false);
+            SetPrompt(prompt.text);
             if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(null);
         }
 

@@ -117,7 +117,7 @@ namespace NightSignal.Meet
             leavingOnline = true;
             PlayerMotion?.Stop();
             Hud?.HidePanel();
-            Net.Fire("meet.leave");
+            Net.Fire("meet.leave", new { reason = "race" });
             Note("left the meet for a race");
             ExitRequested = true;
         }
@@ -182,7 +182,7 @@ namespace NightSignal.Meet
             JArray members = c["members"] as JArray ?? new JArray();
             string phase = (string)c["phase"] ?? "Idle";
             JToken me = s.MyMember;
-            string line = $"<b>CONVOY</b> · {members.Count} · leader {(string)c["leaderName"]} · {PhaseText(phase)}";
+            string line = $"<b>CONVOY</b> · {members.Count} · leader {(string)c["leaderName"]} · {(c["postEvent"] is JObject ? "race finished: continue or service break" : PhaseText(phase))}";
             if (c["eventProposal"] is JObject)
                 line += $" · event ready {members.Count(m => (bool?)m["eventReady"] == true)}/{members.Count}" + ((bool?)me?["eventReady"] == true ? " (you: ready)" : " (you: not ready)");
             else if (phase == "ModeCheck")
@@ -190,8 +190,14 @@ namespace NightSignal.Meet
             bool pending = readyRequested && ((c["eventProposal"] is JObject && (bool?)me?["eventReady"] != true) || (phase == "ModeCheck" && (bool?)me?["modeReady"] != true));
             if (!pending) readyRequested = false;
             if (pending) line += $"\n<color=#F2A541>The leader asks for Ready — {controls.BindingLabel("Menu")} to answer</color>";
+            else if (s.IsLeader && AllEventReady(c)) line += $"\n<color=#3EC6D8>Everyone is ready — {controls.BindingLabel("Menu")} to start the event</color>";
             Hud.SetConvoy(line);
         }
+
+        /// <summary>Every racing member has answered Event Ready to the current proposal (the leader may start).</summary>
+        static bool AllEventReady(JObject c) =>
+            c?["eventProposal"] is JObject && c["members"] is JArray m && m.Count > 0
+            && m.Where(x => (bool?)x["spectator"] != true).All(x => (bool?)x["eventReady"] == true);
 
         static string PhaseText(string phase)
         {
@@ -234,6 +240,14 @@ namespace NightSignal.Meet
                     Note(ready ? "event unready from the meet" : "event ready from the meet");
                     ClosePanel();
                 }));
+                // The leader commits from the meet once everyone is ready; the allocation then moves everyone into race loading.
+                if (s.IsLeader && AllEventReady(c))
+                    actions.Add(("Convoy: Start the event", () =>
+                    {
+                        Net.Fire("event.start", new { proposalRevision = (long)proposal["revision"] });
+                        Note("event started from the meet");
+                        ClosePanel();
+                    }));
             }
             else if (s.InConvoy && (string)c?["phase"] == "ModeCheck")
             {
@@ -280,7 +294,8 @@ namespace NightSignal.Meet
             {
                 if ((string)e["accountId"] == Net.Me || (long)e["atMs"] < joinedServerMs) continue;
                 string kind = (string)e["kind"];
-                NoticeKind k = kind == "arrived" ? NoticeKind.Arrived : kind == "departed" ? NoticeKind.Departed : NoticeKind.Disconnected;
+                NoticeKind k = kind == "arrived" ? NoticeKind.Arrived : kind == "departed" ? NoticeKind.Departed
+                    : kind == "lefttorace" ? NoticeKind.LeftToRace : NoticeKind.Disconnected;
                 if (Hud.Ribbon.Post(k, (string)e["key"], (string)e["name"])) Seen.Add($"notice {kind} {(string)e["name"]}");
             }
         }

@@ -242,6 +242,16 @@ namespace NightSignal.Tests.Core
             r.Tick(40_000 + MeetRoom.DisconnectGraceMs);
             Assert.That(r.Find("b"), Is.Null);
             Assert.That(r.Events.Count, Is.EqualTo(notices));
+            // The convoy's event allocated: worded "left to race", faded and released like any departure.
+            Arrive(r, "c", 50_000);
+            r.Leave("c", false, 60_000, toRace: true);
+            Assert.That(r.Events.Count(e => e.Kind == NoticeKind.LeftToRace && e.AccountId == "c"), Is.EqualTo(1));
+            Assert.That(r.Events.Any(e => e.Kind == NoticeKind.Departed && e.AccountId == "c"), Is.False);
+            Assert.That(r.Find("c").State, Is.EqualTo(MeetMemberState.Leaving));
+            var ribbon = new SignalRibbonQueue();
+            ribbon.Post(NoticeKind.LeftToRace, "l1", "Cy");
+            ribbon.Tick(0.01f);
+            Assert.That(ribbon.Current.Display(), Is.EqualTo("Cy left to race"));
         }
 
         [Test]

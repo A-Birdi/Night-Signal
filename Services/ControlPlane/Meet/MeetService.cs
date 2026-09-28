@@ -85,6 +85,7 @@ public sealed class MeetService(ConvoyDirectory directory, IPlayerStore store, I
     sealed record EmotePayload(string? Emote);
     sealed record ChatPayload(int Index);
     sealed record AccountPayload(string? AccountId);
+    sealed record LeavePayload(string? Reason);
     sealed record BoomboxPayload(string? Op, string? TrackId);
 
     static T Read<T>(JsonElement payload) where T : class =>
@@ -220,13 +221,17 @@ public sealed class MeetService(ConvoyDirectory directory, IPlayerStore store, I
         return owned;
     }
 
-    /// <summary>An explicit departure (the menu, the Garage, a race starting): the avatar and car fade and the bay is released.</summary>
-    public ConvoyResult Leave(string account)
+    /// <summary>
+    /// An explicit departure (the menu, the Garage, a race starting): the avatar and car fade and the bay is released.
+    /// <c>reason: "race"</c> (the convoy's event allocated) is announced as "left to race".
+    /// </summary>
+    public ConvoyResult Leave(string account, JsonElement payload = default)
     {
+        bool toRace = Read<LeavePayload>(payload)?.Reason == "race";
         lock (gate)
         {
             if (!visitors.TryGetValue(account, out Visitor? v)) return ConvoyResult.Success(new { left = false });
-            if (rooms.TryGetValue(v.RoomId, out Room? room)) room.Core.Leave(account, false, NowMs);
+            if (rooms.TryGetValue(v.RoomId, out Room? room)) room.Core.Leave(account, false, NowMs, toRace);
             visitors.Remove(account);
             return ConvoyResult.Success(new { left = true });
         }

@@ -172,7 +172,7 @@ public sealed class ControlCommandHandler(ConvoyDirectory directory, IPlayerStor
             case "meet.join":
                 return await meets.JoinAsync(a, payload, ct);
             case "meet.leave":
-                return meets.Leave(a);
+                return meets.Leave(a, payload);
             case "meet.arrived":
                 return meets.Arrived(a);
             case "meet.move":

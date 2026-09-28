@@ -9,6 +9,7 @@ using NightSignal.Core.Meet;
 using NightSignal.Core.Profiles;
 using NightSignal.Meet;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -110,6 +111,31 @@ namespace NightSignal.Front
             }
 
             yield return new WaitForSeconds(3f);
+            // Settings → Controls → Walking (meet): Interact remapped to F by pressing F on the screen (run with
+            // -nsPrefsFolder so only the tour's own preferences change); the meet's interaction prompt must follow it.
+            UI.DrivingPreferences prefs = UI.DrivingPreferences.Current;
+            prefs.WalkingBindingOverrides = "";
+            prefs.Save();
+            Keyboard kb = Keyboard.current ?? InputSystem.AddDevice<Keyboard>();
+            Click("Settings");
+            yield return new WaitForSeconds(1.5f);
+            Click("Controls");
+            yield return new WaitForSeconds(1.5f);
+            Click("ControlsMode");
+            yield return new WaitForSeconds(0.8f);
+            yield return Snap("00a-controls-walking");
+            Click("Walk.Interact/Keyboard");
+            yield return new WaitForSeconds(0.4f);
+            yield return TapKey(kb, Key.F);
+            yield return new WaitForSeconds(0.6f);
+            bool remapped = (UI.DrivingPreferences.Current.WalkingBindingOverrides ?? "").Contains("<Keyboard>/f");
+            Note($"Controls: Interact remapped through the walking page to F: {remapped}");
+            if (!remapped) Fail("the Controls screen did not remap Interact");
+            yield return Snap("00b-controls-interact-on-f");
+            Click("Back");
+            yield return new WaitForSeconds(1f);
+            Click("Back");
+            yield return new WaitForSeconds(1.2f);
             Click("OfflinePlay");
             yield return new WaitForSeconds(1.2f);
             Click("NewProfile");
@@ -136,6 +162,8 @@ namespace NightSignal.Front
             if (MeetLayout.Bays[m.PlayerBay].Footprint.Contains(p0.x, p0.z, 0.2f)) Fail("avatar spawned inside its car");
             yield return new WaitForSeconds(0.6f);
             yield return Snap("02-out-of-car");
+            Note($"prompt beside the car: '{m.Hud.Prompt}'");
+            if (remapped && !m.Hud.Prompt.StartsWith("F")) Fail($"the meet prompt does not follow the remapped Interact: '{m.Hud.Prompt}'");
 
             // Walk toward the plaza, then jog.
             m.ScriptMove = _ => new Vector2(0f, 1f);

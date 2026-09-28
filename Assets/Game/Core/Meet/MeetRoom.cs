@@ -267,9 +267,10 @@ namespace NightSignal.Core.Meet
 
         /// <summary>
         /// Leaving: an explicit departure fades out over half a second and then frees the bay ("left"); a lost connection
-        /// keeps the avatar and bay for the grace ("disconnected") so a quick return resumes without new notices.
+        /// keeps the avatar and bay for the grace ("disconnected") so a quick return resumes without new notices. A departure
+        /// because the convoy's event allocated is worded "left to race" (spec §12), never for a lost connection.
         /// </summary>
-        public void Leave(string account, bool disconnected, long now)
+        public void Leave(string account, bool disconnected, long now, bool toRace = false)
         {
             MeetMember m = Find(account);
             if (m == null || m.State == MeetMemberState.Leaving) return;
@@ -286,7 +287,7 @@ namespace NightSignal.Core.Meet
                 m.State = MeetMemberState.Leaving;
                 m.StateSinceMs = now;
                 Boombox.PlayerLeft(account, now);
-                Post(NoticeKind.Departed, $"left:{account}:{m.Generation}", m, now);
+                Post(toRace ? NoticeKind.LeftToRace : NoticeKind.Departed, $"left:{account}:{m.Generation}", m, now);
             }
             Bump();
         }

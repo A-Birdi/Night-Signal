@@ -35,7 +35,7 @@ namespace NightSignal.Front
 
         TextMeshProUGUI heading, status, error, rosterText, lastResult, intentLine, proposalLine, postLine, inviteLine;
         Button create, createPrivate, joinCode, refresh, rejoin, notNow, chooseStarter;
-        Button proposeIntent, modeReady, enterMode, proposeEvent, eventReady, start, cont, serviceBreak, advance, invite, leave, signOut, table, friendsButton, coursesButton, garageButton, spectate,
+        Button proposeIntent, modeReady, enterMode, proposeEvent, eventReady, start, cont, serviceBreak, advance, invite, leave, signOut, table, friendsButton, coursesButton, garageButton, spectate, returnToMeet,
             meetPublic, meetConvoy;
         Button votingToggle, openVote, castVote, drawVote, cancelVote;
         List<string> ballotIds = new List<string>();
@@ -51,6 +51,7 @@ namespace NightSignal.Front
         List<CarDef> starters = new List<CarDef>();
         List<string> courseIds = new List<string>();
         bool dirty = true, busy;
+        string shownNotice = "";
         float nextListRefresh;
         // The leader may ask for readiness at most once per 15 s (server rule); the snapshot says how long is left.
         float cooldownUntil;
@@ -133,6 +134,8 @@ namespace NightSignal.Front
             cont = UIFactory.Button("Continue", col, "Continue", () => ChoosePost("continue"), 620, 56);
             serviceBreak = UIFactory.Button("ServiceBreak", col, "Service Break", () => ChoosePost("service-break"), 620, 52);
             advance = UIFactory.Button("Advance", col, "Advance", () => Send("postevent.advance", new { destinationRevision = (long)S.Convoy["postEvent"]["destinationRevision"] }), 620, 56);
+            // Spec §12: after a race that started at the meet, a clear way back to it (the bay is allocated afresh).
+            returnToMeet = UIFactory.Button("ReturnToMeet", col, "Back to the Meet", () => App.ReturnToMeet(this), 620, 52);
             invite = UIFactory.Button("Invite", col, "Create Invite Code", async () =>
             {
                 JToken r = await S.Request("convoy.invite.create");
@@ -190,6 +193,7 @@ namespace NightSignal.Front
                 nextListRefresh = Time.unscaledTime + 5f;
                 _ = RefreshList();
             }
+            if (S.LastNotice != shownNotice) dirty = true; // a time-limited notice lapsed
             int left = Mathf.CeilToInt(cooldownUntil - Time.unscaledTime);
             if (left != shownCooldown && (left >= 0 || shownCooldown > 0)) dirty = true; // tick the countdown label
             if (dirty)
@@ -256,6 +260,11 @@ namespace NightSignal.Front
             table.gameObject.SetActive(inConvoy && phaseNow != "Allocating" && phaseNow != "InMatch");
             meetPublic.gameObject.SetActive(!needStarter && phaseNow != "Allocating" && phaseNow != "InMatch");
             meetConvoy.gameObject.SetActive(!needStarter && inConvoy && phaseNow != "Allocating" && phaseNow != "InMatch");
+            string back = App.ReturnMeetKind;
+            returnToMeet.gameObject.SetActive(back != null && !needStarter && !App.InOnlineRace && phaseNow != "Allocating" && phaseNow != "InMatch" && (back != "convoy" || inConvoy));
+            if (back != null)
+                returnToMeet.GetComponentInChildren<TextMeshProUGUI>().text = back == "convoy" ? "Back to the Meet (your convoy's meet)"
+                    : back == "friend" ? "Back to the Meet (your friend's meet)" : "Back to the Meet (a public meet)";
 
             string phase = inConvoy ? (string)c["phase"] : "";
             JObject intentObj = inConvoy ? c["intent"] as JObject : null;
@@ -355,7 +364,8 @@ namespace NightSignal.Front
             }
 
             status.text = StatusText(inConvoy, leader, needStarter, phase, intentObj, modeEntered, proposal, post, allModeReady, allEventReady);
-            if (!string.IsNullOrEmpty(S.LastNotice)) status.text += $"\n<size=80%><color=#F2A541>{Esc(S.LastNotice)}</color></size>";
+            shownNotice = S.LastNotice;
+            if (!string.IsNullOrEmpty(shownNotice)) status.text += $"\n<size=80%><color=#F2A541>{Esc(shownNotice)}</color></size>";
             lastResult.text = App.LastOnlineResult ?? "";
         }
 
