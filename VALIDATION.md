@@ -2068,3 +2068,30 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   `Evidence/ui/story/diary-tour.txt`, diary and results screenshots.
 - **Limits:** the online diary marks are covered by the service tests, not a built networked run; the crew clears were
   seeded, not raced.
+
+## V-103 — Ghosts, offline: recorded runs, the personal ghost in Time Attack, checkpoint deltas; CH68 (2026-09-28)
+- Revision: `24c17d4` (Core) and the work committed with this entry; player build of it. No control-plane change.
+- **What changed:** R8.2 was "not started". Core `GhostRecording` (night-signal/ghost@1): sampled transforms (10 Hz:
+  position, rotation, speed) and the race time at each checkpoint — a replay, never an input stream to re-simulate —
+  with the header spec §8 lists (course id and revision, direction, format, surface, physics and scoring versions, game
+  version, car model, build hash, class, PI, assists, raw result, resets, corridor legality, provenance). A ghost is a
+  personal target only for a legal finish with no reset, and compares only under the same course revision, direction,
+  format, surface and physics/scoring rules (otherwise it would be reference-only). Offline every Local run is recorded
+  (`GhostRecorder`); the best valid run per course and format is kept beside the profile (provenance local-simulation:
+  never uploaded as a trusted record); in Time Attack it runs on the road as a translucent, non-colliding car placed by
+  interpolation (`GhostPlayback`, at most three overlays, only compatible ones), listed as REPLAY in the standings; at
+  each checkpoint the HUD shows the time against it, and the results say whether the run became the ghost and the delta
+  at the first checkpoint and the finish. CH68 "Chasing Your Yesterday": a valid C07 ghost beaten by at least a second
+  under the same rules.
+- **Tests:** .NET `GhostTests` (round trip; malformed and foreign documents refused; a reset run is no target; a physics
+  change makes a ghost incompatible; interpolation index and sector deltas; CH68's five cases) — Core 147; Unity EditMode
+  481 passed, 2 skipped (explicit), 0 failed.
+- **Built player** (`-nsGhostTour`, offline, buttons only; C07 ownership SEEDED on the tour's profile; the validator
+  autopilot drives, varied only by the automation-only start hold): run 1 (3 s hold) 124.413 s, no ghost to race — the
+  first ghost (1,246 samples); run 2 (no hold) raced it: 120.012 s, ahead at every checkpoint (−4.68 s at the first,
+  −4.40 s at the finish), the ghost replaced and CH68 granted; run 3 (2 s hold) raced the new ghost, visible ahead on the
+  road, +2.92 s at the first checkpoint and +2.85 s at the finish, the stored ghost still the 120.012 s run — **PASS**.
+  `Evidence/ghosts/` (tour log, the ghost ahead, the results note). A stored C07 ghost is about 80 KB.
+- **Limits:** offline and personal only — server-generated, validated online ghosts, a convoy member's shared ghost, an
+  authored rival reference and the post-race route/elevation chart are not built; the ghost is drawn with one translucent
+  material (no livery); ghosts race in Time Attack only; nobody has judged the look.

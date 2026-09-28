@@ -89,6 +89,23 @@ namespace NightSignal.Race
         public DrivingCamera Camera => chase;
         UI.RaceHud hud;
         readonly UI.HudState hudState = new UI.HudState();
+
+        /// <summary>
+        /// Ghosts (spec §8): the header the player's run is recorded under (null = no recording; course revision and rule
+        /// versions are filled in here), the recorded run when the race ends, and up to three replay overlays to show — only
+        /// those recorded under this event's rules are shown (<see cref="Core.Ghosts.GhostRecording.CompatibleWith"/>).
+        /// </summary>
+        public Core.Ghosts.GhostHeader GhostTemplate;
+        public readonly List<Core.Ghosts.GhostRecording> GhostCandidates = new List<Core.Ghosts.GhostRecording>();
+        public Core.Ghosts.GhostRecording PlayerGhost { get; private set; }
+        public readonly List<GhostPlayback> Ghosts = new List<GhostPlayback>();
+        public const int MaxGhosts = 3;
+        GhostRecorder recorder;
+        int ghostCheckpoints;
+        string ghostDelta = "";
+        float ghostDeltaUntil;
+        /// <summary>The sector deltas against the first ghost, in checkpoint order (evidence and results).</summary>
+        public readonly List<long> GhostDeltasMicros = new List<long>();
         readonly UI.DriftHudFeed driftFeed = new UI.DriftHudFeed();
         double accumulator, tickMsSum;
         int ticksMeasured;
@@ -122,6 +139,17 @@ namespace NightSignal.Race
             };
             foreach (RaceEntrant e in Sim.Entrants) previous[e] = e.State;
 
+            if (GhostTemplate != null)
+            {
+                GhostTemplate.CourseId = course.Track.CourseId;
+                GhostTemplate.CourseRevision = course.SourceHash ?? "";
+                GhostTemplate.Surface = string.IsNullOrEmpty(Rules.Surface) ? "dry" : Rules.Surface;
+                GhostTemplate.PhysicsVersion = RaceSimulation.PhysicsVersion;
+                GhostTemplate.ScoringVersion = RaceSimulation.ScoringVersion;
+                GhostTemplate.GameVersion = Application.version;
+                GhostTemplate.RecordedUtc = System.DateTime.UtcNow;
+                recorder = new GhostRecorder(GhostTemplate);
+            }
             if (!Headless)
             {
                 var mats = Resources.Load<CarMaterialSet>("CarMaterialSet");
@@ -133,6 +161,16 @@ namespace NightSignal.Race
                     v.SetHeadlights(course.Dark);
                     views[e] = v;
                     GameAudio.CarAudio.Attach(v, e.Params, e.Roster.CarId, e == Player);
+                }
+                // Replay overlays: at most three, only under this event's rules (the rest stay reference-only).
+                foreach (Core.Ghosts.GhostRecording g in GhostCandidates)
+                {
+                    if (Ghosts.Count >= MaxGhosts) break;
+                    if (GhostTemplate == null || !g.CompatibleWith(GhostTemplate) || g.Count < 2 || !lib.Catalogue.TryCar(g.Header.CarModelId, out Core.Content.CarDef gc)) continue;
+                    VehicleParams gp = lib.Params(gc.Id, AssistSettings.Default);
+                    VehicleView gv = VehicleView.Create($"Ghost_{Ghosts.Count}_{gc.Id}", gp, lib.Body(gc.Id), mats, new Color(0.35f, 0.85f, 1f));
+                    string label = $"Ghost · {(string.IsNullOrEmpty(g.Header.Driver) ? "best" : g.Header.Driver)} {g.Header.ResultMicros / 1e6:F3} s";
+                    Ghosts.Add(new GhostPlayback(g, gv, label));
                 }
                 var camGo = CameraRig.EnsureMain("RaceCamera").gameObject;
                 camGo.tag = "MainCamera";
@@ -204,6 +242,8 @@ namespace NightSignal.Race
             Phase = MatchPhase.Racing;
             watch.Restart();
             Sim.Tick(CurrentTick);
+            recorder?.Step(Player, Sim.RaceMicros(CurrentTick), CurrentTick);
+            GhostDeltas();
             watch.Stop();
             double ms = watch.Elapsed.TotalMilliseconds;
             tickMsSum += ms;
@@ -229,6 +269,7 @@ namespace NightSignal.Race
             }
             if (Sim.Complete)
             {
+                if (recorder != null) PlayerGhost = recorder.Finish(Player.Progress);
                 Results = Sim.Classify();
                 Phase = MatchPhase.Results;
                 if (!Headless)
@@ -241,11 +282,29 @@ namespace NightSignal.Race
 
         static bool IsFinite(Vector3 v) => !float.IsNaN(v.x + v.y + v.z) && !float.IsInfinity(v.x + v.y + v.z);
 
+        /// <summary>At each checkpoint the player passes: the time against the first ghost's at the same checkpoint.</summary>
+        void GhostDeltas()
+        {
+            if (Ghosts.Count == 0) return;
+            while (ghostCheckpoints < Player.Progress.CheckpointsPassed)
+            {
+                long mine = Player.Progress.Finished && ghostCheckpoints == Player.Progress.CheckpointsPassed - 1 ? Player.Progress.FinishTimeMicros : Sim.RaceMicros(CurrentTick);
+                long? d = Ghosts[0].Recording.SectorDeltaMicros(ghostCheckpoints, mine);
+                ghostCheckpoints++;
+                if (d == null) continue;
+                GhostDeltasMicros.Add(d.Value);
+                ghostDelta = $"CHECKPOINT {ghostCheckpoints}  {(d.Value <= 0 ? "−" : "+")}{System.Math.Abs(d.Value) / 1e6:F2} s  vs {Ghosts[0].Label}";
+                ghostDeltaUntil = Time.unscaledTime + 3f;
+            }
+        }
+
         void Render()
         {
             float alpha = (float)(accumulator / VehicleSimulation.TickDt);
             foreach (KeyValuePair<RaceEntrant, VehicleView> kv in views)
                 kv.Value.Render(previous[kv.Key], kv.Key.State, alpha, kv.Key.Sim.Telemetry, Time.deltaTime);
+            float raceT = CurrentTick >= Sim.StartTick ? (CurrentTick - Sim.StartTick + alpha) / VehicleSimulation.TickRate : -1f;
+            foreach (GhostPlayback g in Ghosts) g.Show(raceT, Time.deltaTime);
             RenderHud();
         }
 
@@ -284,6 +343,10 @@ namespace NightSignal.Race
             hudState.TotalCheckpoints = Sim.Tracker.TotalCheckpoints;
             hudState.WallIncidents = Player.Progress.WallIncidents;
             hudState.Resets = Player.Progress.Resets;
+            hudState.GhostDelta = Time.unscaledTime < ghostDeltaUntil ? ghostDelta : "";
+            float ghostT = CurrentTick >= Sim.StartTick ? (CurrentTick - Sim.StartTick) / (float)VehicleSimulation.TickRate : -1f;
+            foreach (GhostPlayback g in Ghosts)
+                hudState.Field.Add(new UI.HudEntrant { Name = g.Label, Position = g.At(Mathf.Max(0f, ghostT)).Position, IsReplay = true });
             RacecraftRun rc = Player.Racecraft;
             hudState.GapAheadSeconds = rc != null && rc.Ahead >= 0 ? rc.Interval : -1f;
             hudState.GapAheadName = rc != null && rc.Ahead >= 0 ? Sim.Entrants[rc.Ahead].Roster.DisplayName : "";

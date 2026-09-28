@@ -52,6 +52,12 @@ namespace NightSignal.Front
         public readonly AppearanceScreen Appearance = new AppearanceScreen();
         public readonly PlayerCardScreen PlayerCard = new PlayerCardScreen();
         public readonly StoryScreen Story = new StoryScreen();
+        // Ghosts for the next offline race (spec §8): the header the player's run is recorded under and the replays to show.
+        Core.Ghosts.GhostHeader pendingGhostTemplate;
+        readonly List<Core.Ghosts.GhostRecording> pendingGhosts = new List<Core.Ghosts.GhostRecording>();
+        /// <summary>The player's recorded run of the last offline race and its checkpoint deltas against the first ghost.</summary>
+        public Core.Ghosts.GhostRecording LastRunGhost { get; private set; }
+        public List<long> LastGhostDeltas { get; } = new List<long>();
         public readonly DiaryScreen Diary = new DiaryScreen();
         /// <summary>Rich-text summary of the last online race (placing, time, settled receipt) for the convoy screen.</summary>
         public string LastOnlineResult { get; private set; }
@@ -130,6 +136,8 @@ namespace NightSignal.Front
                 StartCoroutine(EndingTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsDiaryTour") >= 0)
                 StartCoroutine(DiaryTour());
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsGhostTour") >= 0)
+                StartCoroutine(GhostTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsDriverCardTour") >= 0)
                 StartCoroutine(DriverCardTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsCanvasPadTour") >= 0)
@@ -1052,6 +1060,18 @@ namespace NightSignal.Front
             string livery = plan.Car.Loaner ? "" : local?.RaceLivery(plan.Car.InstanceId) ?? "";
             Debug.Log($"[NightSignal.Local] {plan.EventId}: {plan.Car.ModelId} races build {(spec != null ? spec.BuildHash.Substring(0, 12) : "stock")} (PI {frozen?.Pi}), " +
                       $"livery {(livery.Length > 0 ? livery.Length + " bytes" : "stock")}");
+            // Ghosts (spec §8): every Local run is recorded; Time Attack races the personal ghost for this course and format.
+            string ghostFormat = plan.Kind == EventKind.CampaignStage ? $"{plan.Stage.Id}-{(plan.Mode == CampaignMode.Hard ? "hard" : "normal")}" : plan.FreeplayFormat ?? "race";
+            Core.Ghosts.GhostRecording yesterday = LocalGhosts.Best(local, plan.CourseId, ghostFormat);
+            pendingGhostTemplate = new Core.Ghosts.GhostHeader
+            {
+                Format = ghostFormat, CarModelId = plan.Car.ModelId, BuildHash = spec?.BuildHash ?? "stock", Pi = frozen?.Pi ?? 0,
+                CarClass = frozen != null ? Core.Rules.PerformanceIndex.ClassOf(frozen.Pi).ToString() : "", Driver = local?.Profile?.DisplayName ?? "",
+                Provenance = "local-simulation",
+            };
+            pendingGhosts.Clear();
+            if (plan.Kind == EventKind.FreeplayTimeTrial && yesterday != null) pendingGhosts.Add(yesterday);
+
             // The stage's introductory scene (spec §5.3), shortened on a rematch; skippable.
             Core.Story.StoryText story = NightSignal.Content.ContentLibrary.Load()?.Story;
             if (plan.Kind == EventKind.CampaignStage && plan.Stage != null && story != null)
@@ -1080,6 +1100,10 @@ namespace NightSignal.Front
             if (session?.Profile != null)
             {
                 Core.Profiles.LocalEventFacts facts = LocalEvents.Facts(session, plan, results, courseRevision);
+                // CH68: yesterday's valid C07 ghost beaten by a second under the same rules.
+                if (facts != null && Core.Ghosts.GhostChallenges.BeatsYesterday(yesterday, LastRunGhost) &&
+                    !facts.ChallengesCompleted.Contains(Core.Ghosts.GhostChallenges.ChasingYourYesterday))
+                    facts.ChallengesCompleted.Add(Core.Ghosts.GhostChallenges.ChasingYourYesterday);
                 if (facts != null)
                 {
                     applied = Core.Profiles.LocalProgression.ApplyEvent(session.Profile, session.Catalogue, session.Music, facts);
@@ -1091,7 +1115,17 @@ namespace NightSignal.Front
                               $"wallet {applied.BalanceBefore} -> {applied.BalanceAfter}; {applied.Changes.Count} change(s) {saveNote}");
                 }
             }
-            Results.Set(plan.CourseId, plan.Rules, results, applied, saveNote, returnTo);
+            string ghostNote = "";
+            if (LastRunGhost != null && session?.Profile != null)
+            {
+                LocalGhosts.Offer(session, LastRunGhost, out ghostNote);
+                string Signed(long d) => (d <= 0 ? "−" : "+") + (Math.Abs(d) / 1e6).ToString("F2") + " s";
+                if (LastGhostDeltas.Count > 0)
+                    ghostNote += $"; against the ghost: {Signed(LastGhostDeltas[0])} at the first checkpoint, {Signed(LastGhostDeltas[LastGhostDeltas.Count - 1])} at the finish";
+                Debug.Log($"[NightSignal.Ghost] {plan.CourseId} {ghostFormat}: {LastRunGhost.Count} samples, result {LastRunGhost.Header.ResultMicros / 1e6:F3} s, " +
+                          $"resets {LastRunGhost.Header.Resets}, valid {LastRunGhost.ValidPersonal}; raced ghost {(yesterday != null && plan.Kind == EventKind.FreeplayTimeTrial ? (yesterday.Header.ResultMicros / 1e6).ToString("F3") + " s" : "none")} — {ghostNote}");
+            }
+            Results.Set(plan.CourseId, plan.Rules, results, applied, string.IsNullOrEmpty(ghostNote) ? saveNote : (saveNote.Length > 0 ? saveNote + " " : "") + "Ghost: " + ghostNote + ".", returnTo);
             if (applied?.Stage != null && story != null)
             {
                 // How the stage went, from the convoy's side (here: the one driver): the stage's reaction lines.
@@ -1210,6 +1244,15 @@ namespace NightSignal.Front
             activeRace.PlayerName = string.IsNullOrEmpty(DisplayName) ? "You" : DisplayName;
             activeRace.Rules = rules;
             activeRace.OpposingAi = opposingAi;
+            LastRunGhost = null;
+            LastGhostDeltas.Clear();
+            if (pendingGhostTemplate != null)
+            {
+                activeRace.GhostTemplate = pendingGhostTemplate;
+                activeRace.GhostCandidates.AddRange(pendingGhosts);
+            }
+            pendingGhostTemplate = null;
+            pendingGhosts.Clear();
             bool began = false;
             while (activeRace != null && activeRace.Phase != MatchPhase.Results)
             {
@@ -1222,6 +1265,11 @@ namespace NightSignal.Front
             }
             yield return new WaitForSeconds(2.5f); // let the finish banner read before the results page
             List<RaceEntrantResult> results = activeRace != null ? activeRace.Results : null;
+            if (activeRace != null)
+            {
+                LastRunGhost = activeRace.PlayerGhost;
+                LastGhostDeltas.AddRange(activeRace.GhostDeltasMicros);
+            }
             string revision = CourseRuntime.Active != null ? CourseRuntime.Active.SourceHash : "";
             if (activeRace != null) Destroy(activeRace.gameObject);
             activeRace = null;

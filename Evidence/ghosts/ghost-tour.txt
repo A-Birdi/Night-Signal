@@ -1,0 +1,14 @@
+# -nsGhostTour (offline, buttons only, isolated profile folder) on the player build of the commit that adds this file (V-103). C07 ownership SEEDED on the tour's profile; the validator autopilot drives (automation). Tagged lines; absolute paths removed.
+[NightSignal.GhostTour] seeded: C07 marked owned on the tour's profile
+[NightSignal.GhostTour] freeplay: C07  Mistglass Hollow · Time Attack — no contact, no AI
+[NightSignal.GhostTour] run (hold 3 s): ghosts on the road 0
+[NightSignal.Ghost] C07 time-attack: 1246 samples, result 124.413 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.GhostTour] run (hold 3 s): 1246 samples, result 124.413 s, resets 0, valid True; deltas vs ghost []; CH68 False
+[NightSignal.GhostTour] run (hold 0 s): ghosts on the road 1 — Ghost · Ghost Driver 124.413 s
+[NightSignal.Ghost] C07 time-attack: 1202 samples, result 120.012 s, resets 0, valid True; raced ghost 124.413 s — new ghost, 4.401 s faster; against the ghost: −4.68 s at the first checkpoint, −4.40 s at the finish
+[NightSignal.GhostTour] run (hold 0 s): 1202 samples, result 120.012 s, resets 0, valid True; deltas vs ghost [-4.68, -4.57, -4.52, -4.50, -4.48, -4.47, -4.48, -4.47, -4.47, -4.47, -4.47, -4.47, -4.45, -4.45, -4.47, -4.47, -4.45, -4.45, -4.47, -4.47, -4.45, -4.45, -4.47, -4.45, -4.45, -4.45, -4.45, -4.47, -4.45, -4.45, -4.45, -4.47, -4.47, -4.47, -4.48, -4.43, -4.40, -4.40, -4.40, -4.40, -4.40, -4.40, -4.42, -4.40, -4.40, -4.40, -4.40]; CH68 True
+[NightSignal.GhostTour] run (hold 2 s): ghosts on the road 1 — Ghost · Ghost Driver 120.012 s
+[NightSignal.Ghost] C07 time-attack: 1230 samples, result 122.863 s, resets 0, valid True; raced ghost 120.012 s — your ghost stays the 120.012 s run; against the ghost: +2.92 s at the first checkpoint, +2.85 s at the finish
+[NightSignal.GhostTour] run (hold 2 s): 1230 samples, result 122.863 s, resets 0, valid True; deltas vs ghost [+2.92, +2.87, +2.83, +2.83, +2.83, +2.82, +2.83, +2.82, +2.82, +2.83, +2.82, +2.82, +2.82, +2.82, +2.82, +2.82, +2.82, +2.82, +2.82, +2.83, +2.82, +2.82, +2.82, +2.82, +2.82, +2.82, +2.82, +2.82, +2.82, +2.82, +2.82, +2.82, +2.82, +2.83, +2.83, +2.80, +2.77, +2.77, +2.85, +2.85, +2.85, +2.85, +2.87, +2.85, +2.85, +2.85, +2.85]; CH68 True
+[NightSignal.GhostTour] stored ghost: 120.012 s, valid True
+[NightSignal.GhostTour] PASS
