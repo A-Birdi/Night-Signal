@@ -35,7 +35,7 @@ namespace NightSignal.Front
 
         TextMeshProUGUI heading, status, error, rosterText, lastResult, intentLine, proposalLine, postLine, inviteLine;
         Button create, createPrivate, joinCode, refresh, rejoin, notNow, chooseStarter;
-        Button proposeIntent, modeReady, enterMode, proposeEvent, eventReady, start, cont, serviceBreak, advance, invite, leave, signOut, table, friendsButton, coursesButton, garageButton, spectate, returnToMeet, cardButton,
+        Button proposeIntent, modeReady, enterMode, proposeEvent, eventReady, start, cont, serviceBreak, advance, invite, leave, signOut, table, friendsButton, coursesButton, garageButton, spectate, returnToMeet, cardButton, diaryButton,
             meetPublic, meetConvoy;
         Button votingToggle, openVote, castVote, drawVote, cancelVote;
         List<string> ballotIds = new List<string>();
@@ -150,6 +150,7 @@ namespace NightSignal.Front
             meetConvoy = UIFactory.Button("MeetConvoy", col, "Car Meet: Convoy Meet", () => App.StartOnlineMeet("convoy", null, this), 620, 48);
             friendsButton = UIFactory.Button("OpenFriends", col, "Friends", () => App.Router.Show(App.Friends), 620, 48);
             cardButton = UIFactory.Button("OpenCard", col, "Player Card", () => App.Router.Show(App.PlayerCard), 620, 48);
+            diaryButton = UIFactory.Button("RaceDiary", col, "Race Diary", () => App.Router.Show(App.Diary), 620, 48);
             coursesButton = UIFactory.Button("OpenCourses", col, "Courses", () => App.Router.Show(App.Courses), 620, 48);
             garageButton = UIFactory.Button("OpenGarage", col, "Garage", () => App.Router.Show(App.Garage), 620, 48);
             leave = UIFactory.Button("Leave", col, "Leave Convoy", () => Send("convoy.leave"), 620, 48);
@@ -254,6 +255,7 @@ namespace NightSignal.Front
             signOut.gameObject.SetActive(!inConvoy);
             friendsButton.gameObject.SetActive(!needStarter);
             cardButton.gameObject.SetActive(!needStarter && (!inConvoy || (string)c["phase"] != "Allocating" && (string)c["phase"] != "InMatch"));
+            diaryButton.gameObject.SetActive(cardButton.gameObject.activeSelf);
             coursesButton.gameObject.SetActive(!needStarter && (!inConvoy || (string)c["phase"] != "Allocating" && (string)c["phase"] != "InMatch"));
             garageButton.gameObject.SetActive(coursesButton.gameObject.activeSelf);
             int pendingSocial = S.Invites.Count;

@@ -1,0 +1,9 @@
+# Tools/run/ui-tour-online.ps1 (campaign event; one windowed client driving the real menus, loopback dedicated server 127.0.0.1:7777) on the player build of the commit that adds this file (V-100), control plane running the V-098 code. Tagged lines from the client log; absolute paths removed.
+[NightSignal.UiTourOnline] shared table: progress 7.14 -> 1005.60, still event ready True
+[NightSignal.Client] phase Loading (start tick 2147483647, local tick 51)
+[NightSignal.Story] online S12 Normal intro: 6 line(s), ended at line 6 after 18.0 s
+[NightSignal.Client] phase Countdown (start tick 1516, local tick 1284)
+[NightSignal.Client] phase Racing (start tick 1516, local tick 1522)
+[NightSignal.Client] phase Results (start tick 1516, local tick 16182)
+[NightSignal.Story] online S12 Normal reaction (Win): R19: You never needed a recovery. That's the one thing I can't archive. Well driven.
+[NightSignal.UiTourOnline] PASS; last result: <color=#9A968D>LAST RACE</color> | P1 of 4   03:38.210 | <color=#3EC6D8>Stage cleared</color> — first clear | <i><color=#D7263D>Michi Kagawa</color>  You never needed a recovery. That's the one thing I can't archive. Well driven.</i> | Credits +20,275   ·   balance 359,913 cr | 

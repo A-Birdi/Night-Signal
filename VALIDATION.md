@@ -1997,3 +1997,22 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   (spec §5.3), the reaction on online results and the diary from the account's clears are not built; no crew
   introduction "read" tracking yet (CH70); no portraits or staged 3D scene (text over the menu backdrop); the pacing and
   the words have not been judged by a person.
+
+## V-100 — The campaign story online: the intro inside the loading barrier, the reaction on the receipt, the diary (2026-09-28)
+- Revision: the work committed with this entry; player build of it; control plane unchanged (running the V-098 code).
+- **What changed:** `RaceClient.Presentation`: after the course has loaded and before the client reports itself loaded,
+  the front end plays the stage intro over the course (reporting 0.9 — real progress — meanwhile). The server's existing
+  loading barrier therefore starts the countdown only when every driver has finished or skipped their intro: a skip is
+  local and leads to the race HUD's "waiting for all drivers" view, and the window is finite (a paced scene is at most
+  ~18.5 s, inside the 90 s loading window). A rematch online — the account has seen that intro on this PC (a presentation
+  preference, never progression) — gets the short version. When the settled receipt arrives, its stage verdict
+  (earned clear, featured rival, beaten or not) picks the reaction, shown with the result on the convoy screen. The
+  convoy screen has a Race Diary built from the clears the server reports (/v1/me).
+- **Built players** (`Tools/run/ui-tour-online.ps1`, campaign event, one windowed client driving the real menus against a
+  loopback dedicated server): the event was S12 Normal; the client log shows phase Loading, then the six-line intro
+  ending by itself after 18.0 s, then phase Countdown about 20 s after loading began — the barrier waited — then the race
+  (P1 of 4, stage cleared, first clear) and the result carrying Michi Kagawa's win line from the receipt's verdict; the
+  tour **PASS**. `Evidence/ui/story/story-online.txt`.
+- **Limits:** one human in that run (the barrier across several readers is the same server code the multi-client runs
+  exercise, not re-run with intros); the online diary was not driven in a built run; Hard intros and the other outcomes
+  online come from the same Core rules the .NET tests cover.

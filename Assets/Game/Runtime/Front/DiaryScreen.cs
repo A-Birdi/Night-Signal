@@ -66,7 +66,9 @@ namespace NightSignal.Front
 
         public override void OnShow()
         {
-            entries = Build(LocalSession.Current?.Profile, ContentLibrary.Load());
+            entries = App.Domain == SessionDomain.Local
+                ? Build(LocalSession.Current?.Profile, ContentLibrary.Load())
+                : BuildOnline(OnlineSession.Current?.Me, ContentLibrary.Load());
             page = 0;
             selected = -1;
             count.text = entries.Count == 0
@@ -85,6 +87,23 @@ namespace NightSignal.Front
             var number = cat.Stages.ToDictionary(s => s.Id, s => s.Number);
             return story.Diary(cat.Stages.OrderBy(s => s.Number).Select(s => s.Id),
                 (id, mode) => number.TryGetValue(id ?? "", out int n) && p.Campaign.For(mode).Contains(n));
+        }
+
+        /// <summary>The diary an online account has opened, from the campaign clears the server reports (/v1/me).</summary>
+        public static List<DiaryEntry> BuildOnline(Newtonsoft.Json.Linq.JObject me, ContentLibrary lib)
+        {
+            StoryText story = lib?.Story;
+            ContentCatalogue cat = lib?.Catalogue;
+            var campaign = me?["campaign"] as Newtonsoft.Json.Linq.JObject;
+            if (story == null || cat == null || campaign == null) return new List<DiaryEntry>();
+            var normal = campaign["normalCleared"] as Newtonsoft.Json.Linq.JArray;
+            var hard = campaign["hardCleared"] as Newtonsoft.Json.Linq.JArray;
+            var number = cat.Stages.ToDictionary(s => s.Id, s => s.Number);
+            return story.Diary(cat.Stages.OrderBy(s => s.Number).Select(s => s.Id), (id, mode) =>
+            {
+                Newtonsoft.Json.Linq.JArray flags = mode == CampaignMode.Hard ? hard : normal;
+                return number.TryGetValue(id ?? "", out int n) && flags != null && n >= 1 && n <= flags.Count && (bool?)flags[n - 1] == true;
+            });
         }
 
         void Page(int to)

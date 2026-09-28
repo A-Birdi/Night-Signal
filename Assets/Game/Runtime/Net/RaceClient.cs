@@ -50,6 +50,12 @@ namespace NightSignal.Net
         }
 
         public bool Autopilot;
+        /// <summary>
+        /// Played after the course has loaded and before this client reports itself loaded (the stage intro, spec §5.3): the
+        /// server's loading barrier then starts the race only when every driver has finished or skipped it — a skip leads to
+        /// the calm "waiting for all drivers" view, never to anyone else's start. Null or headless: nothing is played.
+        /// </summary>
+        public System.Func<MatchInfo, IEnumerator> Presentation;
 
         /// <summary>
         /// Spectating (spec §4.4): the match was joined with a spectator ticket, so there is no car of our own — the camera
@@ -330,6 +336,11 @@ namespace NightSignal.Net
             {
                 hud = UI.RaceHud.Create();
                 hud.SetCourse(UI.HudHelpers.Plan(track));
+            }
+            if (Presentation != null && !headless && Info.YourIndex >= 0)
+            {
+                SendLoaded(0.9f); // loaded, reading: real progress for the server's loading window
+                yield return Presentation(Info);
             }
             loaded = true;
             SendLoaded(1f);

@@ -532,6 +532,7 @@ namespace NightSignal.Front
             DontDestroyOnLoad(go);
             onlineRace = go.AddComponent<Net.RaceClient>();
             onlineRace.Autopilot = OnlineAutopilot;
+            if (!spectating) onlineRace.Presentation = OnlineIntro;
             onlineRace.Connect((string)allocation["server"]["host"], (ushort)(int)allocation["server"]["port"], (string)allocation["ticket"]);
             bool racing = false;
             while (onlineRace.Results == null && onlineRace.Phase != MatchPhase.Aborted && onlineRace.DisconnectReason == null)
@@ -566,6 +567,48 @@ namespace NightSignal.Front
             if (session != null && (results != null || !onlineRaceAborted) && OnlineSession.Current == session) StartCoroutine(FetchReceipt(session, matchId));
         }
 
+        /// <summary>
+        /// The stage intro for an online campaign event, played over the loaded course before this client reports loaded (the
+        /// server's loading barrier is the synchronized start). A rematch — this account has seen the intro on this PC — gets
+        /// the short version.
+        /// </summary>
+        IEnumerator OnlineIntro(Net.MatchInfo info)
+        {
+            var lib = NightSignal.Content.ContentLibrary.Load();
+            Core.Story.StoryText story = lib?.Story;
+            Core.Content.StageDef stage = lib?.Catalogue?.Stages.FirstOrDefault(s => s.Id == info.StageId);
+            if (info.Kind != "campaign" || story == null || stage == null) yield break;
+            CampaignMode mode = info.Mode == "hard" ? CampaignMode.Hard : CampaignMode.Normal;
+            string seenKey = $"ns.story.seen.{OnlineSession.Current?.AccountId}.{stage.Id}.{mode}";
+            bool rematch = PlayerPrefs.GetInt(seenKey, 0) == 1, done = false;
+            Canvas.gameObject.SetActive(true);
+            Router.Show(Story, true);
+            Story.Play(stage, mode, rematch, DisplayName, () => done = true);
+            float started = Time.realtimeSinceStartup;
+            while (!done && onlineRace != null && onlineRace.DisconnectReason == null && onlineRace.Phase != MatchPhase.Aborted) yield return null;
+            Story.Skip();
+            PlayerPrefs.SetInt(seenKey, 1);
+            PlayerPrefs.Save();
+            Debug.Log($"[NightSignal.Story] online {stage.Id} {mode} intro{(rematch ? " (rematch: short)" : "")}: {Story.LineCount} line(s), " +
+                      $"ended at line {Math.Min(Story.LineIndex + 1, Story.LineCount)} after {Time.realtimeSinceStartup - started:F1} s");
+            Router.Back();
+            Canvas.gameObject.SetActive(false);
+        }
+
+        /// <summary>The stage's reaction for a settled online receipt (the convoy's verdict), or "".</summary>
+        static string OnlineReaction(Newtonsoft.Json.Linq.JObject receipt, string player)
+        {
+            var lib = NightSignal.Content.ContentLibrary.Load();
+            if (lib?.Story == null || !(receipt["stage"] is Newtonsoft.Json.Linq.JObject stage)) return "";
+            string stageId = (string)receipt["stageId"] ?? (string)stage["stageId"];
+            CampaignMode mode = string.Equals((string)receipt["mode"] ?? (string)stage["mode"], "hard", StringComparison.OrdinalIgnoreCase) ? CampaignMode.Hard : CampaignMode.Normal;
+            Core.Story.StoryOutcome outcome = Core.Story.StoryText.OutcomeOf((bool?)stage["earnedClear"] == true, (bool?)stage["beatFeaturedRival"] == true);
+            List<Core.Story.StoryLine> lines = lib.Story.Reaction(stageId, mode, outcome, (string)stage["featuredRival"]);
+            Debug.Log($"[NightSignal.Story] online {stageId} {mode} reaction ({outcome}): " + string.Join(" | ", lines.Select(l => l.Speaker + ": " + l.Line)));
+            return string.Concat(lines.Select(l =>
+                $"<i><color=#D7263D>{StoryScreen.SpeakerName(l.Speaker, lib.Catalogue)}</color>  {Core.Story.StoryText.Fill(l.Line, player, "").Replace("<", "(").Replace(">", ")")}</i>\n"));
+        }
+
         /// <summary>The server-settled receipt (money, clears, unlocks) — shown as the server states it.</summary>
         IEnumerator FetchReceipt(OnlineSession session, string matchId)
         {
@@ -581,6 +624,7 @@ namespace NightSignal.Front
                     if (stage != null && stage.Type == Newtonsoft.Json.Linq.JTokenType.Object)
                         sb.Append((bool?)stage["earnedClear"] == true ? "<color=#3EC6D8>Stage cleared</color>" + ((bool?)r["firstClearAwarded"] == true ? " — first clear" : "") + "\n"
                                                                      : $"<color=#F2A541>Stage not cleared</color>  <size=85%>{(string)stage["reason"]}</size>\n");
+                    if (stage != null && stage.Type == Newtonsoft.Json.Linq.JTokenType.Object) sb.Append(OnlineReaction(r, DisplayName));
                     if (r["teamTrial"] is Newtonsoft.Json.Linq.JObject tt)
                     {
                         string verdict = (string)tt["verdict"];
