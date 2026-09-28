@@ -1789,3 +1789,30 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   the meet log that the tour never issues; Interact only comes from real input), with the game window in front of a
   desktop in use. Two reruns could not get keyboard focus at their first keystroke. Not reproduced under control; the
   boombox code is unchanged since the tour's last PASS (V-084). Keyboard tours need an idle machine.
+
+## V-092 — The Player Card's style: background, frame, motif, title, layout, region, preferred car (2026-09-28)
+- Revision: `19ef8a9` (Core), `2548c7d` (control plane), `2b83aee` (client); player build of `2b83aee`; control plane
+  restarted on `2548c7d` (customization hash `306dd38e…`; the race content hash is unchanged, `3677a844…`).
+- **What changed:** customization.json gains a `card` section — free defaults (three backgrounds, two frames, three motifs,
+  three titles, a standard layout) and the fifteen card_customization challenge rewards (COS-CH46…CH60: two more
+  backgrounds and an animated dyno trace, four frames, three emblems, a title, four layouts), each locked until owned.
+  Core `CardStyle` (canonical wire form; strict parse) and `CardStyleCatalogue.Problems`: unknown items, items not owned
+  yet (by name), ISO 3166-1 alpha-2 regions (self-selected, shown as a code badge, not flag art) and a preferred car the
+  player owns. Control plane: migration 0007 (`player_cards.style_json`, SQLite executed; PostgreSQL written, not run),
+  `POST /v1/me/card` validates a style against the account's owned cosmetics and cars and stores it canonically; `/v1/me`
+  and the public card carry it. Local profiles keep it in the card fields and `LocalProgression.SetCard` applies the same
+  rules. Client: `CardView` draws the card (procedural backgrounds and motifs, six frame styles, five layouts); the
+  Player Card screen has a Card style section (locked items marked) online and offline; at the meet a visitor's public
+  card is drawn with its style beside the text panel.
+- **Tests:** .NET `CardStyleTests` (all fifteen rewards map to exactly one item; the default needs nothing owned; problems
+  named; canonical round trip; 249 region codes), `LocalCardStyleTests`, `PlayerApiTests` card-style test (reward refused
+  until owned, then worn; region, car and unknown members refused; public card carries it; null returns to the default) —
+  Builds 232, Core 129, Toys 92, Services 346.
+- **Built players:** `-nsDriverCardTour` (offline): a locked frame refused as "Not owned yet: Balance Point Frame.", a free
+  style saved, the profile re-read from disk with it, the preview drawing it — **PASS**. `meet-online.ps1 -Convoy`: the
+  host saves Tea Rows / Double Rule / Lantern / Night Driver / JP / V01 through the screen; the guest, from the host's
+  car at the convoy meet, sees the public card drawn with exactly that style — **PASS** on both clients. Screenshots
+  `Evidence/meet/card-style-offline.jpg`, `card-style-seen-at-meet.jpg`.
+- **Limits:** no account owns a card reward yet (their challenges — lessons, tuning demos — have no predicates), so the
+  reward items are shown locked in the built runs and worn only in tests; showcase records are not done; the offline
+  meet has no one to show a card to; the art is procedural and has not been reviewed by a person.
