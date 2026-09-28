@@ -157,6 +157,35 @@ namespace NightSignal.Art
                 return false;
             }
 
+            /// <summary>
+            /// Whether a decal point lies on the paintable panel of its zone — not past the body's ends or edges, not in a wheel
+            /// arch, not up on the glass. Only the axes a zone keeps are tested, so it holds before and after <see cref="Conform"/>.
+            /// </summary>
+            public bool OnZone(string zone, Vector3 q)
+            {
+                switch (zone)
+                {
+                    case "left":
+                    case "right":
+                        if (q.z < pr.Zr + 0.06f || q.z > pr.Zf - 0.06f) return false;
+                        return q.y >= Bottom(pr, q.z) + 0.015f && q.y <= TopLine(pr, q.z) - 0.015f;
+                    case "hood":
+                        if (q.z < pr.ZWs + 0.06f || q.z > pr.Zf - 0.1f) return false;
+                        return Mathf.Abs(q.x) <= HalfWidth(pr, q.z) * 0.82f;
+                    case "roof":
+                        if (pr.D.Style == "roadster" || q.z < pr.ZRoofR + 0.02f || q.z > pr.ZRoofF - 0.02f) return false;
+                        return Mathf.Abs(q.x) <= HalfWidth(pr, q.z) * pr.D.RoofTaper * 0.9f;
+                    case "front":
+                    case "rear":
+                    {
+                        float z = zone == "front" ? pr.Zf : pr.Zr;
+                        float yb = Bottom(pr, z), yt = TopLine(pr, z), yc = (yb + yt) * 0.5f;
+                        return Mathf.Abs(q.x) <= HalfWidth(pr, z) * 0.9f && q.y >= yc + (yb - yc) * 0.88f && q.y <= yc + (yt - yc) * 0.88f;
+                    }
+                }
+                return true;
+            }
+
             /// <summary>Moves a point of a decal in <paramref name="zone"/> back onto the body surface, <paramref name="lift"/> above it.</summary>
             public Vector3 Conform(string zone, Vector3 q, float lift)
             {

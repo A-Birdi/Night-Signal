@@ -6,9 +6,11 @@ namespace NightSignal.Art
 {
     /// <summary>
     /// Layered decals (Addendum 01 §13: up to 64 layers) drawn as thin procedural shapes on the body surface. Each layer is
-    /// placed in its zone's surface frame (<see cref="CarBodyGenerator.DecalFrame"/>), lifted a little more than the layer
+    /// placed in its zone's surface frame (<see cref="CarBodyGenerator.BodySurface"/>), lifted a little more than the layer
     /// below it so the order is visible and nothing z-fights; mirror adds the symmetric copy, flip reverses the shape.
-    /// Digits and text are literal TextMeshPro (never markup).
+    /// Shapes are subdivided finely enough to follow the curvature and clipped to the zone's paintable panel, so a scaled-up
+    /// decal ends at the body's edge (ends, arches, glass) instead of piling up or floating past it. Digits and text are
+    /// literal TextMeshPro (never markup); glyphs that would leave the panel are dropped.
     /// </summary>
     public static class CarDecals
     {
@@ -94,13 +96,23 @@ namespace NightSignal.Art
                 Mesh baked = Object.Instantiate(tmp.mesh);
                 baked.name = "DecalLettering";
                 Vector3[] vertices = baked.vertices;
+                var onPanel = new bool[vertices.Length];
                 for (int i = 0; i < vertices.Length; i++)
                 {
                     Vector3 bodyPoint = tr.localPosition + tr.localRotation * vertices[i];
+                    onPanel[i] = surface.OnZone(zone, bodyPoint);
                     Vector3 onSurface = surface.Conform(zone, bodyPoint, lift + 0.001f);
                     vertices[i] = Quaternion.Inverse(tr.localRotation) * (onSurface - tr.localPosition);
                 }
                 baked.vertices = vertices;
+                int[] tris = baked.triangles;
+                var kept = new List<int>(tris.Length);
+                for (int i = 0; i + 2 < tris.Length; i += 3)
+                    if (onPanel[tris[i]] && onPanel[tris[i + 1]] && onPanel[tris[i + 2]])
+                    {
+                        kept.Add(tris[i]); kept.Add(tris[i + 1]); kept.Add(tris[i + 2]);
+                    }
+                baked.triangles = kept.ToArray();
                 baked.RecalculateBounds();
                 owned.Add(baked);
                 var lettering = new GameObject("DecalLettering");
@@ -126,25 +138,44 @@ namespace NightSignal.Art
                 builders[d.Color] = new MeshBuilder(1);
             }
             MeshBuilder mb = builders[d.Color];
-            // Every vertex is conformed back onto the body, so large shapes follow the curvature.
-            Vector3 P(float x, float y) => surface.Conform(zone, origin + (right * x + up * y) * scale, lift);
-            void Tri(Vector3 a, Vector3 c, Vector3 e)
+            // Shape coordinates (x, y in units of the decal's size) → the body point before conforming.
+            Vector3 W(Vector2 q) => origin + (right * q.x + up * q.y) * scale;
+            void Emit(Vector3 a, Vector3 c, Vector3 e)
             {
-                int i0 = mb.AddVertex(a, n, Vector2.zero), i1 = mb.AddVertex(c, n, Vector2.zero), i2 = mb.AddVertex(e, n, Vector2.zero);
+                int i0 = mb.AddVertex(surface.Conform(zone, a, lift), n, Vector2.zero);
+                int i1 = mb.AddVertex(surface.Conform(zone, c, lift), n, Vector2.zero);
+                int i2 = mb.AddVertex(surface.Conform(zone, e, lift), n, Vector2.zero);
                 mb.AddTriangle(0, i0, i1, i2);
                 mb.AddTriangle(0, i0, i2, i1); // both windings: visible whichever way the frame turned
             }
+            // Split until every piece is small enough to follow the curvature (10 cm) and, along the panel's edge, fine enough
+            // (2 cm) that dropping the pieces that leave it gives a clean cut.
+            void Clip(Vector3 a, Vector3 c, Vector3 e, int depth)
+            {
+                bool ia = surface.OnZone(zone, a), ic = surface.OnZone(zone, c), ie = surface.OnZone(zone, e);
+                float longest = Mathf.Max((a - c).magnitude, Mathf.Max((c - e).magnitude, (e - a).magnitude));
+                bool all = ia && ic && ie, none = !ia && !ic && !ie;
+                if (all && longest <= 0.1f) { Emit(a, c, e); return; }
+                if (depth >= 8 || longest <= 0.02f || (none && longest <= 0.1f)) return;
+                Vector3 ac = (a + c) * 0.5f, ce = (c + e) * 0.5f, ea = (e + a) * 0.5f;
+                Clip(a, ac, ea, depth + 1);
+                Clip(ac, c, ce, depth + 1);
+                Clip(ea, ce, e, depth + 1);
+                Clip(ac, ce, ea, depth + 1);
+            }
+            Vector2 V(float x, float y) => new Vector2(x, y);
+            void Tri(Vector2 a, Vector2 c, Vector2 e) => Clip(W(a), W(c), W(e), 0);
             void Rect(float x0, float y0, float x1, float y1)
             {
-                Tri(P(x0, y0), P(x1, y0), P(x1, y1));
-                Tri(P(x0, y0), P(x1, y1), P(x0, y1));
+                Tri(V(x0, y0), V(x1, y0), V(x1, y1));
+                Tri(V(x0, y0), V(x1, y1), V(x0, y1));
             }
             void Fan(IList<Vector2> ring)
             {
                 for (int i = 0; i < ring.Count; i++)
                 {
                     Vector2 a = ring[i], c = ring[(i + 1) % ring.Count];
-                    Tri(P(0f, 0f), P(a.x, a.y), P(c.x, c.y));
+                    Tri(V(0f, 0f), a, c);
                 }
             }
             void Annulus(float r0, float r1, float fromDeg, float toDeg, int segments)
@@ -152,8 +183,8 @@ namespace NightSignal.Art
                 for (int i = 0; i < segments; i++)
                 {
                     float a0 = Mathf.Lerp(fromDeg, toDeg, i / (float)segments) * Mathf.Deg2Rad, a1 = Mathf.Lerp(fromDeg, toDeg, (i + 1) / (float)segments) * Mathf.Deg2Rad;
-                    Vector3 i0 = P(Mathf.Cos(a0) * r0, Mathf.Sin(a0) * r0), o0 = P(Mathf.Cos(a0) * r1, Mathf.Sin(a0) * r1);
-                    Vector3 i1 = P(Mathf.Cos(a1) * r0, Mathf.Sin(a1) * r0), o1 = P(Mathf.Cos(a1) * r1, Mathf.Sin(a1) * r1);
+                    Vector2 i0 = V(Mathf.Cos(a0) * r0, Mathf.Sin(a0) * r0), o0 = V(Mathf.Cos(a0) * r1, Mathf.Sin(a0) * r1);
+                    Vector2 i1 = V(Mathf.Cos(a1) * r0, Mathf.Sin(a1) * r0), o1 = V(Mathf.Cos(a1) * r1, Mathf.Sin(a1) * r1);
                     Tri(i0, o0, o1);
                     Tri(i0, o1, i1);
                 }
@@ -179,13 +210,13 @@ namespace NightSignal.Art
                 case "ring": Annulus(0.36f, 0.5f, 0f, 360f, 32); break;
                 case "arrow":
                     Rect(-0.5f, -0.08f, 0.1f, 0.08f);
-                    Tri(P(0.1f, 0.28f), P(0.5f, 0f), P(0.1f, -0.28f));
+                    Tri(V(0.1f, 0.28f), V(0.5f, 0f), V(0.1f, -0.28f));
                     break;
                 case "chevron":
-                    Tri(P(-0.4f, 0.4f), P(0.05f, 0f), P(-0.15f, 0.4f));
-                    Tri(P(-0.15f, 0.4f), P(0.05f, 0f), P(0.3f, 0f));
-                    Tri(P(-0.4f, -0.4f), P(-0.15f, -0.4f), P(0.05f, 0f));
-                    Tri(P(-0.15f, -0.4f), P(0.3f, 0f), P(0.05f, 0f));
+                    Tri(V(-0.4f, 0.4f), V(0.05f, 0f), V(-0.15f, 0.4f));
+                    Tri(V(-0.15f, 0.4f), V(0.05f, 0f), V(0.3f, 0f));
+                    Tri(V(-0.4f, -0.4f), V(-0.15f, -0.4f), V(0.05f, 0f));
+                    Tri(V(-0.15f, -0.4f), V(0.3f, 0f), V(0.05f, 0f));
                     break;
                 case "star": Fan(Polygon(5, 0.5f, 0.2f)); break;
                 case "bars": for (int i = 0; i < 4; i++) Rect(-0.5f + i * 0.27f, -0.22f, -0.34f + i * 0.27f, 0.22f); break;
@@ -194,7 +225,7 @@ namespace NightSignal.Art
                     for (int i = 0; i < 4; i++)
                     {
                         float y = -0.24f + i * 0.16f, len = 0.55f + 0.35f * Mathf.Sin(i * 1.7f + 0.5f);
-                        Tri(P(-0.5f, y - 0.07f), P(-0.5f + len, y + 0.03f), P(-0.5f, y + 0.08f));
+                        Tri(V(-0.5f, y - 0.07f), V(-0.5f + len, y + 0.03f), V(-0.5f, y + 0.08f));
                     }
                     break;
                 case "hex": Fan(Polygon(6, 0.5f, -1f, 0f)); break;
