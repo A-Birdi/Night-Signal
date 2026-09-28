@@ -132,6 +132,13 @@ namespace NightSignal.Core.Meet
             {
                 if (member.State == MeetMemberState.Disconnected)
                 {
+                    // Back from a lost connection: the same place, in the car they come back with (they may have been in
+                    // the Garage meanwhile — others then see the new car or livery).
+                    if (!string.IsNullOrEmpty(carId))
+                    {
+                        member.CarId = carId;
+                        member.Livery = livery ?? "";
+                    }
                     member.State = member.PoseMs > 0 ? MeetMemberState.Present : MeetMemberState.Arriving;
                     member.StateSinceMs = now;
                     Bump();

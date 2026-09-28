@@ -22,7 +22,9 @@ namespace NightSignal.Meet
 
         sealed class Remote
         {
-            public string AccountId = "", Name = "", CarId = "", Livery = "", State = "";
+            public string AccountId = "", Name = "", CarId = "", Livery = "", State = "", LookJson = "";
+            /// <summary>The room's visit number for this account: a new visit (left and came back) is built afresh.</summary>
+            public long Generation;
             public int Bay = -1;
             public long StateSinceMs, EmoteStartMs = -1;
             public string Emote;
@@ -321,12 +323,28 @@ namespace NightSignal.Meet
                 string id = (string)m["accountId"];
                 if (id == Net.Me) continue;
                 present.Add(id);
-                if (!remotes.TryGetValue(id, out Remote r))
+                string carId = (string)m["carId"] ?? "V01", livery = (string)m["livery"] ?? "";
+                string lookJson = m["look"] is JObject lookObject ? lookObject.ToString(Newtonsoft.Json.Formatting.None) : "";
+                long generation = (long?)m["generation"] ?? 0;
+                if (remotes.TryGetValue(id, out Remote r) && (r.Generation != generation || r.CarId != carId || r.Livery != livery || r.LookJson != lookJson))
                 {
-                    r = new Remote { AccountId = id, Name = (string)m["displayName"] ?? "", CarId = (string)m["carId"] ?? "V01", Livery = (string)m["livery"] ?? "", Bay = (int)m["bay"] - 1 };
-                    if (m["look"] is JObject lj)
+                    // A new visit, or back from a lost connection in another car, livery or look (the Garage, the Player
+                    // Card): built again from what the room now says, never left showing the old car.
+                    Seen.Add($"remote {r.Name} refreshed ({(r.Generation != generation ? "new visit" : r.CarId != carId ? "car" : r.Livery != livery ? "livery" : "look")})");
+                    DestroyRemote(r);
+                    remotes.Remove(id);
+                    r = null;
+                }
+                if (r == null)
+                {
+                    r = new Remote
                     {
-                        CharacterLook l = PlayerLooks.Parse(lj.ToString(Newtonsoft.Json.Formatting.None));
+                        AccountId = id, Name = (string)m["displayName"] ?? "", CarId = carId, Livery = livery, LookJson = lookJson,
+                        Generation = generation, Bay = (int)m["bay"] - 1,
+                    };
+                    if (lookJson.Length > 0)
+                    {
+                        CharacterLook l = PlayerLooks.Parse(lookJson);
                         if (l != null && PlayerLooks.Problems(l).Count == 0) r.Look = l;
                     }
                     remotes[id] = r;
@@ -373,6 +391,9 @@ namespace NightSignal.Meet
                 remotes.Remove(gone.AccountId);
             }
         }
+
+        /// <summary>A remote visitor's car as drawn (null when not here); tours check its livery.</summary>
+        public VehicleView RemoteCar(string accountId) => remotes.TryGetValue(accountId, out Remote r) ? r.Car : null;
 
         /// <summary>The look a remote visitor's avatar was built from (null = the default look); tours check replication.</summary>
         public CharacterLook RemoteLook(string accountId) => remotes.TryGetValue(accountId, out Remote r) ? r.Look : null;

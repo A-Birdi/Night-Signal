@@ -156,7 +156,15 @@ public sealed class MeetService(ConvoyDirectory directory, IPlayerStore store, I
                     };
                     if (wanted)
                     {
-                        MeetJoinStatus again = current.Core.Join(account, name, carId, livery ?? "", convoySession ?? "", now, out _);
+                        MeetJoinStatus again = current.Core.Join(account, name, carId, livery ?? "", convoySession ?? "", now, out MeetMember? back);
+                        if (again == MeetJoinStatus.Rejoined && back is not null)
+                        {
+                            // Reconnected: the car's PI, class and tune and the card look as they are now.
+                            back.Pi = pi;
+                            back.PiClass = piClass ?? "";
+                            back.Tune = tune ?? "";
+                            back.Look = me.Card?.LookJson ?? "";
+                        }
                         existing.OwnedCues = Owned(me);
                         existing.Blocked = blocked;
                         return ConvoyResult.Success(new { roomId = current.Core.Id, status = again.ToString(), state = State(current, account, now) });
@@ -524,6 +532,7 @@ public sealed class MeetService(ConvoyDirectory directory, IPlayerStore store, I
             members = r.Members.Select(m => new
             {
                 accountId = m.AccountId, displayName = m.DisplayName, carId = m.CarId, livery = m.Livery.Length == 0 ? null : m.Livery,
+                generation = m.Generation,
                 bay = m.Bay + 1, state = m.State.ToString().ToLowerInvariant(), stateSinceMs = m.StateSinceMs,
                 x = m.X, z = m.Z, yaw = m.Yaw, speed = m.Speed, poseMs = m.PoseMs,
                 emote = m.EmoteActive(now) ? m.Emote.ToString() : null, emoteStartMs = m.EmoteStartMs,

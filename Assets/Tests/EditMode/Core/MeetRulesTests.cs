@@ -151,6 +151,34 @@ namespace NightSignal.Tests.Core
         }
 
         [Test]
+        public void Room_ReconnectInAnotherCarOrLivery_TakesTheNewOne_ANewVisitIsANewGeneration()
+        {
+            MeetRoom r = Room();
+            r.Join("a", "Aki", "V01", "livery-one", "", 0, out MeetMember m);
+            r.CompleteArrival("a", 3500);
+            long firstVisit = m.Generation;
+            r.Leave("a", true, 5000); // the connection drops
+            Assert.That(m.State, Is.EqualTo(MeetMemberState.Disconnected));
+            long revision = r.Revision;
+            // Meanwhile in the Garage: another livery, then another car.
+            Assert.That(r.Join("a", "Aki", "V01", "livery-two", "", 8000, out MeetMember back), Is.EqualTo(MeetJoinStatus.Rejoined));
+            Assert.That(back, Is.SameAs(m), "the same place");
+            Assert.That(back.Livery, Is.EqualTo("livery-two"));
+            Assert.That(back.Generation, Is.EqualTo(firstVisit), "a reconnect is the same visit");
+            Assert.That(r.Revision, Is.GreaterThan(revision), "others are told");
+            r.Leave("a", true, 9000);
+            r.Join("a", "Aki", "V05", "", "", 9500, out back);
+            Assert.That(back.CarId, Is.EqualTo("V05"));
+            Assert.That(back.Livery, Is.EqualTo(""), "stock on the new car");
+            // Leaving and coming back is a new visit (a new generation), in whatever car they bring.
+            r.Leave("a", false, 10000);
+            r.Join("a", "Aki", "V02", "livery-three", "", 10100, out MeetMember again);
+            Assert.That(again.Generation, Is.GreaterThan(firstVisit));
+            Assert.That(again.CarId, Is.EqualTo("V02"));
+            Assert.That(again.Livery, Is.EqualTo("livery-three"));
+        }
+
+        [Test]
         public void Room_ArrivalEndsBesideTheCar_KeyedOnce_AutoCompletes()
         {
             MeetRoom r = Room();

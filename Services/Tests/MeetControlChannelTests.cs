@@ -150,6 +150,8 @@ public sealed class MeetControlChannelTests : IDisposable
         JsonElement rj = Result(await again.RequestAsync("meet.join", new { kind = "public" }));
         Assert.Equal("Rejoined", rj.GetProperty("status").GetString());
         Assert.Equal(bay, Member(rj.GetProperty("state"), b.AccountId).GetProperty("bay").GetInt32());
+        Assert.Equal(Member(jb.GetProperty("state"), b.AccountId).GetProperty("generation").GetInt64(),
+            Member(rj.GetProperty("state"), b.AccountId).GetProperty("generation").GetInt64()); // a reconnect is the same visit
         JsonElement back = await WaitForMeet(a.Control, s => Member(s, b.AccountId).GetProperty("state").GetString() == "present");
         Assert.Equal(2, Events(back).Count(e => e.GetProperty("kind").GetString() == "arrived"));
 

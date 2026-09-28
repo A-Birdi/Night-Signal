@@ -20,6 +20,8 @@ param([int]$HostAccount = 0, [int]$Guest1Account = 1, [int]$Guest2Account = 2, [
     # With -Convoy: the leader then starts the event from the meet (starts a dedicated game server), both race, and both
     # return to the meet afterwards.
     [switch]$Race, [int]$Port = 7792,
+    # Public meet: guest2 leaves for the Garage, repaints and comes back; the host must draw the new livery.
+    [switch]$Livery,
     # Addendum 04: loopback unless a separately authorized LAN test passes -AllowLan with its addresses.
     [string]$BindHost = '127.0.0.1', [string]$PublicHost = '127.0.0.1', [switch]$AllowLan)
 
@@ -38,6 +40,7 @@ New-Item -ItemType Directory -Force $shots | Out-Null
 Remove-Item (Join-Path $shots '*.png') -ErrorAction SilentlyContinue
 
 if ($Race -and -not $Convoy) { throw '-Race needs -Convoy.' }
+if ($Livery -and $Convoy) { throw '-Livery is a public-meet leg (no -Convoy).' }
 $tour = if ($Convoy) { '-nsMeetTourConvoy' } else { '-nsMeetTourOnline' }
 function Start-Client([string]$role, [int]$account, [int]$x) {
     $a = @($tour, $role, '-nsDevAccount', "$account",
@@ -45,6 +48,7 @@ function Start-Client([string]$role, [int]$account, [int]$x) {
         '-nsPrefsFolder', "`"Builds/NetRuns/meet-online/prefs-$role`"",
         '-logFile', "`"$logs\$role.log`"")
     if ($Race) { $a += '-nsMeetTourConvoyRace' }
+    if ($Livery) { $a += '-nsMeetTourLivery' }
     Start-Process -FilePath $exe -PassThru -WorkingDirectory $repo -ArgumentList $a
 }
 $server = $null

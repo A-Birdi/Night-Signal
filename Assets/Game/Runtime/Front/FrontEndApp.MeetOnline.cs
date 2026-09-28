@@ -377,6 +377,8 @@ namespace NightSignal.Front
         /// quick-chat phrase and likes the host's car; the host jogs to the boombox and queues a cue everyone then plays;
         /// guest2 leaves (everyone sees "left" and the car fade), guest1 drops its connection (everyone sees "disconnected").
         /// Every client checks what it saw and exits 0 on PASS. Automation over real sockets on the loopback control plane.
+        /// With <c>-nsMeetTourLivery</c> guest2 first leaves for the Garage, applies another paint colour and comes back: the
+        /// host must then draw guest2's car in the new livery.
         /// </summary>
         IEnumerator MeetTourOnline(string role)
         {
@@ -408,6 +410,15 @@ namespace NightSignal.Front
             NetConfig cfg = NetConfig.FromCommandLine();
             JToken account = JObject.Parse(System.IO.File.ReadAllText(cfg.DevSeedFile))["accounts"][cfg.DevAccount];
             bool host = role == "host", g1 = role == "guest1", g2 = role == "guest2";
+            bool liveryLeg = Array.IndexOf(Environment.GetCommandLineArgs(), "-nsMeetTourLivery") >= 0;
+            IEnumerator Next(string row, int times)
+            {
+                for (int i = 0; i < times; i++)
+                {
+                    Click(row + "/Next");
+                    yield return new WaitForSeconds(0.3f);
+                }
+            }
 
             yield return new WaitForSeconds(3f);
             Click("OnlineLogin");
@@ -441,6 +452,8 @@ namespace NightSignal.Front
 
             string hostId = (m.Net.State["members"] as JArray).OfType<JObject>()
                 .OrderBy(x => (long)x["stateSinceMs"]).Select(x => (string)x["accountId"]).First();
+            JObject lastIn = (m.Net.State["members"] as JArray).OfType<JObject>().OrderBy(x => (long)x["stateSinceMs"]).Last();
+            string guest2Id = (string)lastIn["accountId"], guest2Livery = (string)lastIn["livery"] ?? "";
             if (g1)
             {
                 // Walk toward the plaza for a few seconds, then greet: a wave, a quick-chat phrase and a like for the host's car.
@@ -493,6 +506,63 @@ namespace NightSignal.Front
             {
                 yield return Until(() => (string)m.Net.State?["boombox"]?["trackId"] == "MUS_GARAGE", 90f, "the host's boombox pick reached this client");
                 Note($"boombox now {(string)m.Net.State?["boombox"]?["trackId"]}, submitted by the host: {(string)m.Net.State?["boombox"]?["submittedBy"] == hostId}");
+            }
+
+            // The livery leg: guest2 goes to the Garage, repaints, applies and comes back; the host draws the new livery.
+            if (liveryLeg && g2)
+            {
+                yield return new WaitForSeconds(3f);
+                m.Leave();
+                yield return Until(() => ActiveMeet == null && Router.Current == Convoy, 20f, "left for the Garage");
+                yield return new WaitForSeconds(1f);
+                Click("OpenGarage");
+                yield return Until(() => Router.Current == Garage && Garage.Workspace != null && !Garage.Busy, 20f, "garage loaded");
+                yield return new WaitForSeconds(0.8f);
+                Click("OpenAppearance");
+                yield return Until(() => Router.Current == Appearance && Appearance.Editor != null, 10f, "appearance open");
+                yield return new WaitForSeconds(0.8f);
+                string before = Appearance.Workspace.AppliedLiveryHash;
+                yield return Next("Section", 2); // paint
+                yield return Next("Colour", 3);
+                Click("Appearance-Apply");
+                yield return Until(() => !Appearance.Busy && !Appearance.Editor.IsDirty, 20f, "new livery applied");
+                yield return new WaitForSeconds(0.6f);
+                Note($"garage: {Appearance.Message} livery {before} -> {Appearance.Workspace.AppliedLiveryHash}");
+                if (Appearance.Workspace.AppliedLiveryHash == before) Fail("the new livery was not applied: " + Appearance.Message);
+                Click("Back");
+                yield return Until(() => Router.Current == Garage, 10f, "back at the garage");
+                yield return new WaitForSeconds(0.6f);
+                Click("Back");
+                yield return Until(() => Router.Current == Convoy, 10f, "back at the convoy screen");
+                yield return Until(() => GameObject.Find("MeetPublic")?.activeInHierarchy == true, 10f, "meet button");
+                Click("MeetPublic");
+                yield return Until(() => ActiveMeet != null && ActiveMeet.Ready, 40f, "back in the meet");
+                m = ActiveMeet;
+                if (m == null || !m.Ready) { Finish(); yield break; }
+                Note($"back in room {m.Net.RoomId} bay {m.PlayerBay + 1} with livery {(m.Appearance != null ? ColorUtility.ToHtmlStringRGB(m.Appearance.Primary) : "stock")}");
+                yield return new WaitForSeconds(8f); // the host looks
+            }
+            if (liveryLeg && host)
+            {
+                // Guest2 comes back in the new livery: the room says so, and the car drawn here matches it.
+                var content = NightSignal.Content.ContentLibrary.Load();
+                string seenPrimary = null, roomPrimary = null;
+                bool Matches()
+                {
+                    JObject g = (m.Net.State?["members"] as JArray)?.OfType<JObject>().FirstOrDefault(x => (string)x["accountId"] == guest2Id);
+                    string liv = (string)g?["livery"] ?? "";
+                    if (g == null || (string)g["state"] != "present" || liv == guest2Livery) return false;
+                    Art.CarAppearance want = liv.Length == 0 ? null : Art.AppearanceMapping.ForWire(content.Customization, (string)g["carId"], liv);
+                    Vehicle.VehicleView car = m.RemoteCar(guest2Id);
+                    if (want == null || car == null || car.Appearance == null) return false;
+                    roomPrimary = ColorUtility.ToHtmlStringRGB(want.Primary);
+                    seenPrimary = ColorUtility.ToHtmlStringRGB(car.Appearance.Primary);
+                    return roomPrimary == seenPrimary;
+                }
+                yield return Until(Matches, 150f, "guest2 back in the new livery");
+                Note($"guest2 back: room livery primary #{roomPrimary}, drawn #{seenPrimary}; seen: {string.Join(", ", m.Seen.Where(x => x.Contains("refreshed") || x.StartsWith("removed") || x.StartsWith("remote ")))}");
+                yield return new WaitForSeconds(1f);
+                yield return Snap("04-livery-back");
             }
 
             // Departures: guest2 leaves properly; guest1 drops its connection; the host sees both, worded apart.
