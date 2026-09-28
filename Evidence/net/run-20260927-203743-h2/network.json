@@ -1,0 +1,51 @@
+﻿{
+    "endpoint":  {
+                     "bindHost":  "127.0.0.1",
+                     "publicHost":  "127.0.0.1",
+                     "port":  7777,
+                     "protocol":  "udp",
+                     "classification":  "local",
+                     "lanOptIn":  false,
+                     "executable":  "NightSignal.exe",
+                     "role":  "dedicated-server"
+                 },
+    "serverPid":  56256,
+    "serverGameListener":  "127.0.0.1:7777",
+    "processes":  [
+                      {
+                          "name":  "client-0 (leader)",
+                          "pid":  57948,
+                          "udp":  [
+                                      "0.0.0.0:60244",
+                                      "0.0.0.0:52622"
+                                  ],
+                          "tcpListen":  [
+                                            "0.0.0.0:55001"
+                                        ]
+                      },
+                      {
+                          "name":  "client-1 (member)",
+                          "pid":  56596,
+                          "udp":  [
+                                      "0.0.0.0:60245",
+                                      "0.0.0.0:52623"
+                                  ],
+                          "tcpListen":  [
+                                            "0.0.0.0:55002"
+                                        ]
+                      },
+                      {
+                          "name":  "server",
+                          "pid":  56256,
+                          "udp":  [
+                                      "0.0.0.0:60243",
+                                      "127.0.0.1:7777"
+                                  ],
+                          "tcpListen":  [
+                                            "0.0.0.0:55000"
+                                        ]
+                      }
+                  ],
+    "portReleasedAfterRun":  true,
+    "firewall":  "not read or changed by this harness (user-controlled)"
+}

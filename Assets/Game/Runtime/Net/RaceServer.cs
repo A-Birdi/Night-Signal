@@ -91,7 +91,21 @@ namespace NightSignal.Net
             }).ToList(),
             spectatorsServed = SpectatorsServed,
             ignoredInputsFromNonEntrants = IgnoredInputs,
+            network = NetworkBoundary(),
         };
+
+        /// <summary>Addendum 04 evidence: what this server really listened on and why.</summary>
+        public static object NetworkBoundary()
+        {
+            NetConfig c = NetConfig.FromCommandLine();
+            return new
+            {
+                executable = System.IO.Path.GetFileName(System.Environment.GetCommandLineArgs()[0]),
+                role = "dedicated-server",
+                bindHost = c.BindHost, publicHost = c.PublicHost, port = c.Port, protocol = "udp",
+                classification = c.BindClass(), lanOptIn = c.AllowLan, pid = System.Diagnostics.Process.GetCurrentProcess().Id,
+            };
+        }
 
         public void Begin(MatchAssignment a, List<TicketKey> jwks, Action<MatchResults> finished)
         {
@@ -142,7 +156,17 @@ namespace NightSignal.Net
             nm.OnClientConnectedCallback += OnClientConnected;
             nm.OnClientDisconnectCallback += OnClientDisconnected;
             NetConfig cfg = NetConfig.FromCommandLine();
-            NetBootstrap.Transport(nm).SetConnectionData("0.0.0.0", cfg.Port, "0.0.0.0");
+            // Addendum 04: listen where asked (loopback by default), never an implicit wildcard; checked before the socket.
+            string bindProblem = cfg.BindProblem();
+            if (bindProblem != null)
+            {
+                Abort("refusing to open the game server socket: " + bindProblem);
+                yield break;
+            }
+            string bind = cfg.BindHost.Trim();
+            NetBootstrap.Transport(nm).SetConnectionData(bind, cfg.Port, bind);
+            Debug.Log($"[NightSignal.Server] listening UDP {bind}:{cfg.Port} ({cfg.BindClass()}), advertised {cfg.PublicHost}:{cfg.Port}, " +
+                      $"LAN opt-in {(cfg.AllowLan ? "yes" : "no")}, pid {System.Diagnostics.Process.GetCurrentProcess().Id}");
             if (!nm.StartServer())
             {
                 Abort("could not start the game server socket");

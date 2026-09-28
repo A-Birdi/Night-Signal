@@ -183,3 +183,27 @@ topics below. Presentation choices (dial, views, motion) are free, local, never 
 | Progress | Ordered checkpoints by route distance inside the corridor; cut detection; locator with a search hint | Finite 3D directional gates with height bounds and layer identity; swept crossings; lap arming; wrong-layer rejection |
 | Recovery | Hold 0.7 s → last safe checkpoint, +3 s, ghost ≤ 2 s; marshal recovery 1.5 s far off corridor or 40 m below | Anchor validation (clearance/occupancy, earlier fallback), no global world-Y threshold, 2–4 s rescue by route layer, idempotent recovery events |
 | Benchmarks | Provisional; reference runs recorded (V-048) | Certification deferred until topology/progress/recovery pass (§9) |
+
+# Addendum 04 (Revision 1) — loopback-first network testing, firewall-safe unattended workflow, explicit LAN/WAN binding
+
+Source: `docs/brief/Night_Signal_Addendum_04.txt` (received 2026-09-27). A narrow workflow/network-boundary correction:
+no gameplay, multiplayer, LAN or eventual WAN requirement is removed; local automated validation stays local.
+
+## Decisions adopted (D401–D406)
+
+| ID | Rule | Supersedes |
+|---|---|---|
+| D401 | The game server's listen address (`BindHost`, `-nsBindHost`) is separate from the address advertised to clients (`PublicHost`, `-nsPublicHost`); both default to `127.0.0.1`; a numeric IP only; an unusable pair (empty, a host name, a loopback bind advertising another address) is refused before any socket starts | `RaceServer` bound `0.0.0.0` for every server |
+| D402 | Ordinary local automation (2/6-client races, 12 vehicles, tours, spectate/rejoin, impairment, certification, soak) binds loopback; the harnesses pass the bind explicitly and refuse a non-loopback/wildcard bind without `-AllowLan` before launching anything; the UDP port must be free (the owner is named, nothing is killed) | implicit all-interface listeners |
+| D403 | LAN listening only with an explicit opt-in and the owner's authorization for that test; WAN exposure (router, UPnP, forwarding, tunnels, public rules) stays a separate gate. A loopback or LAN test never claims WAN play | — |
+| D404 | Windows Firewall policy belongs to the owner: no project code, tool or agent creates, edits, deletes, disables or depends on firewall rules; a prompt during a local run is a defect/blocker to report | earlier practice of approving prompts |
+| D405 | Routine networked automation uses the canonical `Builds/Game/NightSignal.exe`, built **non-development** (a development player listens for the editor/profiler on all interfaces — measured TCP 55000+ in V-067); SetupSmoke opens no socket; no persistent parallel network-capable build (GameSoak retired: command-line switches on the canonical build instead) | development builds for automation; `Builds/GameSoak` copies |
+| D406 | Network evidence records executable role, bind and advertised host, port, local/LAN/WAN class, server PID, LAN opt-in and the sockets each process really owned (read-only `Get-NetUDPEndpoint`/`Get-NetTCPConnection`), and that the port was released after the run | NetConfig defaults as evidence |
+
+## Impact on existing work
+
+- Earlier network evidence (V-016 … V-062) ran with a wildcard (`0.0.0.0`) server bind on loopback clients; the race
+  results stand (every process was on this PC), the listener boundary did not — re-verified in V-067.
+- Netcode's `UnityTransport` binds a *client* socket to `0.0.0.0` on an ephemeral port whatever listen address is given
+  (the listen address applies to servers); loopback-only client sockets would need a transport change — not made (no
+  package modification). Clients open no listener; recorded in the evidence.

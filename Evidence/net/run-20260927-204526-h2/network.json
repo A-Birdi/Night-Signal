@@ -1,0 +1,48 @@
+﻿{
+    "endpoint":  {
+                     "bindHost":  "127.0.0.1",
+                     "publicHost":  "127.0.0.1",
+                     "port":  7777,
+                     "protocol":  "udp",
+                     "classification":  "local",
+                     "lanOptIn":  false,
+                     "executable":  "NightSignal.exe",
+                     "role":  "dedicated-server"
+                 },
+    "serverPid":  3984,
+    "serverGameListener":  "127.0.0.1:7777",
+    "processes":  [
+                      {
+                          "name":  "client-0 (leader)",
+                          "pid":  44340,
+                          "udp":  [
+                                      "0.0.0.0:59550"
+                                  ],
+                          "tcpListen":  [
+
+                                        ]
+                      },
+                      {
+                          "name":  "client-1 (member)",
+                          "pid":  38472,
+                          "udp":  [
+                                      "0.0.0.0:59549"
+                                  ],
+                          "tcpListen":  [
+
+                                        ]
+                      },
+                      {
+                          "name":  "server",
+                          "pid":  3984,
+                          "udp":  [
+                                      "127.0.0.1:7777"
+                                  ],
+                          "tcpListen":  [
+
+                                        ]
+                      }
+                  ],
+    "portReleasedAfterRun":  true,
+    "firewall":  "not read or changed by this harness (user-controlled)"
+}

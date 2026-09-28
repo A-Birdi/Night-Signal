@@ -14,6 +14,9 @@ an ASP.NET Core control plane, and Supabase Auth/PostgreSQL.
    driving views incl. a genuine fitted cockpit on all 18 cars, arcade camera motion with comfort presets and speed
    lines, measured real elevation, finite 3D directional gates, lap rules and safe recovery; decisions D301–D308,
    mapped in `docs/EFFECTIVE_RULES.md`). Topology/progress/recovery correctness comes BEFORE benchmark certification.
+   **Further revised by `docs/brief/Night_Signal_Addendum_04.txt`** (loopback-first network testing: the game server
+   binds 127.0.0.1 by default, bind ≠ advertised host, LAN only with explicit opt-in, never automate the firewall;
+   decisions D401–D406 in `docs/EFFECTIVE_RULES.md`).
 2. `docs/DECISIONS.md` — approved decisions that refine/override the specification
    (notably **D-001: editor baseline is Unity 6000.6.3f1, not 6.3 LTS**).
 3. `HANDOFF.md` — current state, blockers, next action. Update it at every checkpoint.
@@ -31,6 +34,13 @@ an ASP.NET Core control plane, and Supabase Auth/PostgreSQL.
 - Keep personal absolute paths, credentials and account details out of commits, logs and evidence.
   Service-role keys, DB passwords, signing keys never go in the client or the repository.
 - No purchases, paid services, public deployment, system installs, firewall changes without owner approval.
+- Addendum 04 network workflow: local automation runs the canonical non-development `Builds/Game/NightSignal.exe`
+  (`BuildCommands.BuildGame()`), server bound to `127.0.0.1` (`-nsBindHost`) and advertised as `127.0.0.1`
+  (`-nsPublicHost`) through `Tools/run/net-race.ps1` / `ui-tour-*.ps1` (guarded by `Tools/run/NetGuard.psm1`).
+  Never pass a LAN/wildcard bind without `-AllowLan` and the owner's authorization for that LAN test; never create,
+  edit or delete Windows Firewall rules (the owner's "Night Signal Dev LAN" rule is theirs); no extra network-capable
+  build copies (no GameSoak) — use command-line switches on the canonical build. A firewall prompt during a local run
+  is a defect to report, not something to approve.
 - Honest evidence only: say what was executed (and at which revision) versus inspected or simulated.
 
 ## Layout (D-004)

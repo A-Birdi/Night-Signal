@@ -32,6 +32,16 @@ namespace NightSignal.Net
         {
             cfg = NetConfig.FromCommandLine();
             Application.targetFrameRate = 120;
+            // Addendum 04: an unusable listen/advertise pair stops the host before it registers (fail closed).
+            string bindProblem = cfg.BindProblem();
+            if (bindProblem != null)
+            {
+                Debug.LogError($"[NightSignal.Server] refusing to start: {bindProblem}");
+                Quit(4);
+                return;
+            }
+            Debug.Log($"[NightSignal.Server] network boundary: bind {cfg.BindHost} ({cfg.BindClass()}), advertise {cfg.PublicHost}, UDP {cfg.Port}, " +
+                      $"LAN opt-in {(cfg.AllowLan ? "yes" : "no")}");
             try
             {
                 string key = File.ReadAllText(cfg.ServerKeyFile).Trim();

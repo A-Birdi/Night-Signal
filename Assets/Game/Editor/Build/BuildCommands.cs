@@ -16,9 +16,13 @@ namespace NightSignal.Editor.Build
         public const string SetupSmokeScene = "Assets/Tests/Verification/SetupSmoke.unity";
         public const string SetupSmokeOutput = "Builds/SetupSmoke/NightSignalSmoke.exe";
 
+        /// <summary>
+        /// Setup/editor smoke player: a non-development build, so it opens no socket at all (a development player listens
+        /// for the editor/profiler on all interfaces — Addendum 04: the smoke build needs no firewall exception).
+        /// </summary>
         public static BuildReport BuildSetupSmoke() =>
             Build(new[] { SetupSmokeScene }, SetupSmokeOutput, BuildTarget.StandaloneWindows64,
-                StandaloneBuildSubtarget.Player, BuildOptions.Development);
+                StandaloneBuildSubtarget.Player, BuildOptions.None);
 
         public static void BuildSetupSmokeCli() => ExitWith(BuildSetupSmoke());
 
@@ -41,8 +45,13 @@ namespace NightSignal.Editor.Build
             return scenes.ToArray();
         }
 
-        /// <summary>One Windows player serves every role (client, dedicated server via -batchmode -nographics -nsServer).</summary>
-        public static BuildReport BuildGame(bool development = true)
+        /// <summary>
+        /// One Windows player serves every role (client, dedicated server via -batchmode -nographics -nsServer). Routine
+        /// automation uses the default non-development build: a development player also listens for the editor/profiler
+        /// on all interfaces (TCP 55000+, measured in V-067), which the local, loopback-only workflow must not open
+        /// (Addendum 04). <paramref name="development"/> is for an explicit, attended profiling session only.
+        /// </summary>
+        public static BuildReport BuildGame(bool development = false)
         {
             // The build must carry exactly the content documents the control plane reads (same ContentHash).
             ContentTools.ContentLibraryAuthoring.Refresh();

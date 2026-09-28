@@ -10,7 +10,9 @@
     races with the validator autopilot through normal inputs. Screenshots: Builds/Screenshots/tour-online. Raw logs stay
     under Builds/ (git-ignored: they contain local paths).
 #>
-param([int]$DevAccount = 0, [int]$Port = 7777, [int]$TimeoutSeconds = 600, [switch]$Freeplay, [switch]$Garage, [switch]$Appearance, [int]$Intent = -1, [string]$Trial = "", [string]$Course = "")
+param([int]$DevAccount = 0, [int]$Port = 7777, [int]$TimeoutSeconds = 600, [switch]$Freeplay, [switch]$Garage, [switch]$Appearance, [int]$Intent = -1, [string]$Trial = "", [string]$Course = "",
+    # Addendum 04: loopback unless a separately authorized LAN test passes -AllowLan with its addresses.
+    [string]$BindHost = '127.0.0.1', [string]$PublicHost = '127.0.0.1', [switch]$AllowLan)
 
 $ErrorActionPreference = 'Stop'
 $repo = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
@@ -22,9 +24,12 @@ catch { throw 'Control plane is not running on 127.0.0.1:5080 (run Tools/run/sta
 
 $logs = Join-Path $repo 'Builds\NetRuns\tour-online'
 New-Item -ItemType Directory -Force $logs | Out-Null
-$server = Start-Process -FilePath $exe -PassThru -WorkingDirectory $repo -ArgumentList @(
-    '-batchmode', '-nographics', '-nsServer', '-nsPort', "$Port", '-nsExitAfterMatch',
-    '-nsEvidence', 'Builds/NetRuns/tour-online/evidence', '-logFile', "`"$logs\server.log`"")
+Import-Module (Join-Path $PSScriptRoot 'NetGuard.psm1') -Force
+$endpoint = Resolve-ServerEndpoint -BindHost $BindHost -PublicHost $PublicHost -Port $Port -AllowLan:$AllowLan -Executable $exe
+Write-Output "server endpoint: bind $($endpoint.bindHost) advertise $($endpoint.publicHost) udp $($endpoint.port) ($($endpoint.classification))"
+$server = Start-Process -FilePath $exe -PassThru -WorkingDirectory $repo -ArgumentList (@(
+    '-batchmode', '-nographics', '-nsServer', '-nsExitAfterMatch',
+    '-nsEvidence', 'Builds/NetRuns/tour-online/evidence', '-logFile', "`"$logs\server.log`"") + (Get-ServerArgs $endpoint))
 Start-Sleep -Seconds 4
 $clientArgs = @('-nsUiTourOnline', '-nsDevAccount', "$DevAccount", '-screen-fullscreen', '0', '-screen-width', '1920', '-screen-height', '1080',
     '-logFile', "`"$logs\client.log`"")
@@ -37,8 +42,13 @@ if ($Trial) { $clientArgs += @('-nsUiTourTrial', $Trial) }          # Team Trial
 $client = Start-Process -FilePath $exe -PassThru -WorkingDirectory $repo -ArgumentList $clientArgs
 
 $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
-while ((Get-Date) -lt $deadline -and -not $client.HasExited) { Start-Sleep -Seconds 2 }
+$serverUdp = New-Object System.Collections.Generic.HashSet[string]
+while ((Get-Date) -lt $deadline -and -not $client.HasExited) {
+    foreach ($u in @(Get-NetUDPEndpoint -OwningProcess $server.Id -ErrorAction SilentlyContinue)) { [void]$serverUdp.Add("$($u.LocalAddress):$($u.LocalPort)") }
+    Start-Sleep -Seconds 2
+}
 if (-not $client.HasExited) { Stop-Process -Id $client.Id -Force; Write-Output 'client: TIMEOUT (killed)' } else { Write-Output "client: exit $($client.ExitCode)" }
 Start-Sleep -Seconds 3
 if (-not $server.HasExited) { Stop-Process -Id $server.Id -Force; Write-Output 'server: stopped' } else { Write-Output "server: exit $($server.ExitCode)" }
+Write-Output ("server udp sockets: " + (@($serverUdp) -join ', ') + "; udp $Port released: " + (Wait-PortReleased -Port $Port))
 Select-String -Path "$logs\client.log" -Pattern 'NightSignal.UiTourOnline' | ForEach-Object { $_.Line }

@@ -187,7 +187,11 @@ namespace NightSignal.Net
             }
             for (int i = 0; i < ticks.Length; i++) ticks[i] = -1;
             nm = NetBootstrap.Ensure();
-            NetBootstrap.Transport(nm).SetConnectionData(host, port);
+            // Addendum 04: to a loopback server the client's own socket binds loopback too (no all-interface socket for a
+            // local run); otherwise the transport's default local endpoint.
+            bool loopback = System.Net.IPAddress.TryParse(host, out System.Net.IPAddress hostIp) && System.Net.IPAddress.IsLoopback(hostIp);
+            if (loopback) NetBootstrap.Transport(nm).SetConnectionData(host, port, "127.0.0.1");
+            else NetBootstrap.Transport(nm).SetConnectionData(host, port);
             nm.NetworkConfig.ConnectionData = Encoding.UTF8.GetBytes(ticket);
             nm.OnClientDisconnectCallback += id =>
             {

@@ -1,6 +1,6 @@
 # Handoff
 
-_Last updated: 2026-09-27 — Addendum 03: soak memory (V-059), Spectate the Race through the real screens (V-060)._
+_Last updated: 2026-09-27 — Addendum 04 loopback-first network testing (V-067); benchmarks certified for both modes (V-065/V-066)._
 
 **Rules revision:** `docs/brief/Night_Signal_Addendum_01.txt` supersedes parts of the master (six humans + up to
 twelve vehicles, live finale rivals, light contact, course access, offline domain, rejoin grants, voting, friends,
@@ -104,6 +104,9 @@ Render Cockpit Sheets* renders the mounted views of every car.
   bridges (V-053), online recovery/impairment/soak (V-054), relief pass (V-055), instrument extremes (V-056), R11
   (V-057), spectating (V-058), soak memory (V-059: generated course assets released in play), Spectate the Race through
   the real screens with two clients and the NaN-after-disconnect fix (V-060).
+- **Addendum 04** (V-067): game server binds `127.0.0.1` by default (`-nsBindHost`, separate from `-nsPublicHost`),
+  harnesses fail closed on non-loopback binds without `-AllowLan` (`Tools/run/NetGuard.psm1`), automation builds are
+  non-development (no editor/profiler listener), measured sockets in the evidence; never touch Windows Firewall.
 
 ## Next actions
 

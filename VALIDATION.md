@@ -1103,3 +1103,50 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   damp (targets 191.5 s / 187.8 s). The whole file is authored content (hash `2661eaf8…`); Hard no longer provisional.
 - Hard campaign run (`StarterCampaignRunTests.HardCampaign_AfterNormal`: Normal first, then Hard with the Hard recipe
   steps) is in place and not yet run.
+
+
+## V-067 — Addendum 04: loopback-first network testing, measured sockets (2026-09-27)
+- Revision: working tree on `2f77016` (committed in the next checkpoint). All processes on this PC; control plane on
+  `127.0.0.1:5080` (TCP listener verified loopback). No firewall rule was read, created, changed or removed.
+- **Code:** `NetConfig.BindHost` (`-nsBindHost`, default `127.0.0.1`) separate from `PublicHost` (`-nsPublicHost`, default
+  `127.0.0.1`); `BindProblem()` refuses an empty/non-numeric bind or a loopback bind advertising another address before
+  any socket; `RaceServer` binds `BindHost` (was a hard-coded `0.0.0.0`); the host logs and the server evidence carry
+  executable, role, bind, advertised host, port, class (local/lan/wildcard/wan), PID and LAN opt-in; a client connecting
+  to a loopback server asks for a loopback local endpoint. `Tools/run/NetGuard.psm1` (resolve + fail closed, free-port
+  check that names the owner and kills nothing, read-only socket capture, port-release wait) used by `net-race.ps1`,
+  `ui-tour-online.ps1`, `ui-tour-social.ps1` (`-BindHost`, `-PublicHost`, `-AllowLan`).
+- **A04-01** EditMode `NetConfigTests` 9/9 (defaults loopback; bind and advertise parsed independently; `""`, blanks,
+  `localhost`, a host name and `999.1.1.1` refused; loopback-bind/LAN-advertise refused; class of `::1`, private, wildcard,
+  public addresses).
+- **Measured on a development build first** (`run-20260927-203743-h2`, 2 clients, PASS): the server's game listener was
+  `127.0.0.1:7777`, but every development player (server and both clients) also listened on **TCP `0.0.0.0:55000–55002`**
+  and held a UDP `0.0.0.0` socket — Unity's player connection for the editor/profiler, present in any development build
+  (it is why the GameSoak and SetupSmoke copies raised firewall prompts although SetupSmoke has no gameplay networking).
+  **Fix:** `BuildGame()` and `BuildSetupSmoke()` are now non-development builds; a development build is for an attended
+  profiling session only.
+- **A04-02** (non-development `Builds/Game/NightSignal.exe`, `run-20260927-204526-h2`): server PID owned exactly one
+  socket, **UDP `127.0.0.1:7777`**, no TCP listener, nothing on `0.0.0.0:7777` or a LAN address; both built clients
+  finished the authoritative race (RTT 20 ms), receipts settled; UDP 7777 released after the run — **PASS**.
+- **A04-03** (`run-20260927-204832-h6-C01-ai6`): 6 humans + 6 AI = 12 vehicles, all 12 finished, six settled receipts, RTT
+  17–24 ms; server socket only `127.0.0.1:7777`; port released — **PASS**.
+- **A04-04:** `net-race.ps1 -BindHost 0.0.0.0` and `-BindHost <a LAN address>` without `-AllowLan`, and `-BindHost localhost`,
+  refused before launching (0 processes, no run folder) — **PASS**.
+- **A04-05:** with `-AllowLan` the guard produces a distinct bind/advertise pair (`lan` or `wildcard` class) and passes
+  `-nsAllowLan`; a loopback bind advertising a LAN address is refused; an occupied port is refused naming its owner;
+  no cross-device LAN test was run (not authorized) — **PASS** (configuration only).
+- **A04-06:** non-development `NightSignalSmoke.exe -nsSmokeTest` rendered, wrote its report and exited 0 owning no UDP
+  socket and no TCP listener; it never registers as a game server (no server role) — **PASS**. (It made outgoing TCP
+  connections from the LAN interface — Unity's own services — outbound only.)
+- **A04-07:** 3-race soak on the canonical non-development build (no GameSoak copy): no UDP socket, no TCP listener at
+  all; accumulation checks and the static census clear — **PASS**. Unity's per-category memory counters report −1/0 in a
+  non-development player (Unity allocated 433 → 439 MB there, not comparable with the development numbers of V-059);
+  the native-memory bisect switches need an attended development build.
+- **A04-08:** successful runs release UDP 7777; a forced timeout (`-TimeoutSeconds 25`, `run-20260927-205110-h2`) stopped
+  exactly the three processes the harness launched, left no Night Signal process and no UDP 7777 holder, and the next
+  preflight could reuse the port — **PASS**.
+- **A04-09:** no firewall-mutating command anywhere in project scripts/tooling (search for `New/Set/Remove-NetFirewallRule`,
+  `netsh advfirewall/firewall`, `Set-NetFirewallProfile`, edge traversal, elevation — none); CLAUDE.md and the effective
+  rules state firewall changes are the owner's — **PASS**.
+- **Limits:** Netcode's `UnityTransport` binds a client socket to `0.0.0.0` on an ephemeral port whatever listen address
+  is passed (the listen address only applies to servers); a loopback-bound client needs a transport change, not made (no
+  package modification). Clients open no listener. Nothing here proves LAN or WAN play.

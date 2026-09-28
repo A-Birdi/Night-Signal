@@ -11,7 +11,9 @@
 #>
 param([int]$HostAccount = 0, [int]$GuestAccount = 1, [int]$TimeoutSeconds = 420,
     # Race together instead of the tables (starts a dedicated game server); the guest leaves mid-race, rejoins and spectates.
-    [switch]$Race, [int]$Port = 7792)
+    [switch]$Race, [int]$Port = 7792,
+    # Addendum 04: loopback unless a separately authorized LAN test passes -AllowLan with its addresses.
+    [string]$BindHost = '127.0.0.1', [string]$PublicHost = '127.0.0.1', [switch]$AllowLan)
 
 $ErrorActionPreference = 'Stop'
 $repo = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
@@ -35,9 +37,12 @@ function Start-Client([string]$role, [int]$account, [string]$peer) {
 $server = $null
 if ($Race) {
     if ($TimeoutSeconds -lt 900) { $TimeoutSeconds = 900 }
-    $server = Start-Process -FilePath $exe -PassThru -WorkingDirectory $repo -ArgumentList @(
-        '-batchmode', '-nographics', '-nsServer', '-nsPort', "$Port", '-nsExitAfterMatch',
-        '-nsEvidence', 'Builds/NetRuns/tour-social/evidence', '-logFile', "`"$logs\server.log`"")
+    Import-Module (Join-Path $PSScriptRoot 'NetGuard.psm1') -Force
+    $endpoint = Resolve-ServerEndpoint -BindHost $BindHost -PublicHost $PublicHost -Port $Port -AllowLan:$AllowLan -Executable $exe
+    Write-Output "server endpoint: bind $($endpoint.bindHost) advertise $($endpoint.publicHost) udp $($endpoint.port) ($($endpoint.classification))"
+    $server = Start-Process -FilePath $exe -PassThru -WorkingDirectory $repo -ArgumentList (@(
+        '-batchmode', '-nographics', '-nsServer', '-nsExitAfterMatch',
+        '-nsEvidence', 'Builds/NetRuns/tour-social/evidence', '-logFile', "`"$logs\server.log`"") + (Get-ServerArgs $endpoint))
     Start-Sleep -Seconds 4
 }
 $hostProc = Start-Client 'host' $HostAccount "nsdriver$GuestAccount"
@@ -49,5 +54,9 @@ while ((Get-Date) -lt $deadline -and -not ($hostProc.HasExited -and $guestProc.H
 foreach ($p in @(@{ n = 'host'; p = $hostProc }, @{ n = 'guest'; p = $guestProc })) {
     if (-not $p.p.HasExited) { Stop-Process -Id $p.p.Id -Force; Write-Output "$($p.n): TIMEOUT (killed)" } else { Write-Output "$($p.n): exit $($p.p.ExitCode)" }
 }
-if ($server) { Start-Sleep -Seconds 3; if (-not $server.HasExited) { Stop-Process -Id $server.Id -Force; Write-Output 'server: stopped' } else { Write-Output "server: exit $($server.ExitCode)" } }
+if ($server) {
+    Start-Sleep -Seconds 3
+    if (-not $server.HasExited) { Stop-Process -Id $server.Id -Force; Write-Output 'server: stopped' } else { Write-Output "server: exit $($server.ExitCode)" }
+    Write-Output ("udp $Port released: " + (Wait-PortReleased -Port $Port))
+}
 Select-String -Path "$logs\host.log", "$logs\guest.log" -Pattern 'NightSignal.UiTourSocial' | ForEach-Object { $_.Line }
