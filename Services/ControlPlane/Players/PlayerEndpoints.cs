@@ -169,7 +169,7 @@ public static partial class PlayerEndpoints
                     {
                         courseId = course.Id, name = course.Name, kind = course.Kind, format = course.Format,
                         access = new { kind = AccessKindWire(rule.Kind), price = rule.Price, unlockStage = rule.UnlockStage, purchasable = rule.Purchasable },
-                        freeplayModes = FreeplayRules.Submodes.Where(m => FreeplayRules.Supports(course, m)).ToList(),
+                        freeplayModes = FreeplayRules.Submodes.Where(m => FreeplayRules.Supports(course, m, c)).ToList(),
                     };
                 }).ToList(),
             });

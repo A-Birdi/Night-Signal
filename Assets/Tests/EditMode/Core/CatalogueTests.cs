@@ -12,6 +12,29 @@ namespace NightSignal.Tests.Core
 
         static Dictionary<string, string> LoadDocuments() => AddendumRulesTests.LoadDocuments();
 
+        /// <summary>
+        /// Drift Attack needs judged drift zones: authored/course-drift-zones.json lists every course with the count of its
+        /// route's drift-zone gates, so the control plane (which has no route data) can refuse Drift Attack elsewhere.
+        /// </summary>
+        [Test]
+        public void DriftZoneList_MatchesEveryCourseRoute()
+        {
+            ContentCatalogue c = ContentCatalogue.Load(LoadDocuments());
+            Assert.That(c.DriftZones.Count, Is.EqualTo(c.Courses.Count), "every course is listed");
+            foreach (CourseDef course in c.Courses)
+            {
+                string path = Path.Combine("Assets/Content/Courses", course.Id, "route.json");
+                Assert.That(File.Exists(path), Is.True, path);
+                var route = Newtonsoft.Json.Linq.JObject.Parse(File.ReadAllText(path));
+                int zones = (route["gates"] as Newtonsoft.Json.Linq.JArray ?? new Newtonsoft.Json.Linq.JArray())
+                    .Count(g => (string)g["kind"] == "drift-zone" && (float)g["endMetres"] > (float)g["startMetres"]);
+                Assert.That(c.DriftZones[course.Id], Is.EqualTo(zones), course.Id);
+                Assert.That(c.SupportsDriftAttack(course.Id), Is.EqualTo(zones > 0), course.Id);
+            }
+            Assert.That(c.SupportsDriftAttack("C01"), Is.True);
+            Assert.That(c.SupportsDriftAttack("C02"), Is.False);
+        }
+
         [Test]
         public void GeneratedCatalogue_LoadsAndPassesAppendixGValidation()
         {

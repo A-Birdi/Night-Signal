@@ -83,6 +83,12 @@ public sealed class SocialApiTests : IDisposable
         Assert.DoesNotContain("sprint", fp03.GetProperty("freeplayModes").EnumerateArray().Select(m => m.GetString()));
         JsonElement c25 = list.GetProperty("courses").EnumerateArray().Single(c => c.GetProperty("courseId").GetString() == "C25");
         Assert.Equal("reward-only", c25.GetProperty("access").GetProperty("kind").GetString());
+        // Drift Attack only where the course has judged drift zones (authored/course-drift-zones.json).
+        string[] Modes(string id) => list.GetProperty("courses").EnumerateArray().Single(c => c.GetProperty("courseId").GetString() == id)
+            .GetProperty("freeplayModes").EnumerateArray().Select(m => m.GetString()!).ToArray();
+        Assert.Contains("drift-attack", Modes("C01"));
+        Assert.DoesNotContain("drift-attack", Modes("C02"));
+        Assert.Contains("time-attack", Modes("C02"));
     }
 
     [Fact]

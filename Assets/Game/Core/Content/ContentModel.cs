@@ -169,6 +169,19 @@ namespace NightSignal.Core.Content
 
     public sealed class StageOppositionFile { public string Schema; public string Rules; public List<StageOppositionEntry> Stages = new List<StageOppositionEntry>(); }
 
+    /// <summary>Judged drift zones per course (authored/course-drift-zones.json, from each course's route gates).</summary>
+    public sealed class CourseDriftZonesFile
+    {
+        public string Schema;
+        public List<CourseDriftZones> Courses = new List<CourseDriftZones>();
+    }
+
+    public sealed class CourseDriftZones
+    {
+        public string Id;
+        public int Zones;
+    }
+
     /// <summary>Each campaign stage side's race conditions (authored/stage-conditions.json; derivation rules in the file).</summary>
     public sealed class StageConditionsFile
     {

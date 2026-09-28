@@ -33,6 +33,8 @@ public sealed class ContentManifestTests
         Assert.Throws<ContentLoadException>(() => TeamTrialCatalog.Parse(Trial(course: "C25", format: "sprint"), C)); // finale route
         Assert.Throws<ContentLoadException>(() => TeamTrialCatalog.Parse(Trial(format: "sprint"), C));     // C03 is a circuit
         Assert.Throws<ContentLoadException>(() => TeamTrialCatalog.Parse(Trial(kind: "drift"), C));        // drift needs drift-attack
+        Assert.Throws<ContentLoadException>(() => TeamTrialCatalog.Parse(Trial(course: "C02", kind: "drift", format: "drift-attack"), C)); // no judged zones on C02
+        TeamTrialCatalog.Parse(Trial(course: "C01", kind: "drift", format: "drift-attack"), C);                                        // C01 has zones
         Assert.Throws<ContentLoadException>(() => TeamTrialCatalog.Parse(Trial(opp: "R01"), C));           // on both teams
         Assert.Throws<ContentLoadException>(() => TeamTrialCatalog.Parse(Trial().Replace("team-trials@1", "team-trials@0"), C));
     }

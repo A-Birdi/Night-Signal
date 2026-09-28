@@ -146,14 +146,19 @@ public static class FreeplayRules
         _ => submode,
     };
 
-    public static bool Supports(CourseDef course, string submode)
+    /// <summary>
+    /// Whether a course offers a Freeplay submode. Drift Attack needs judged drift zones on the course (the catalogue's
+    /// course-drift-zones list); without a catalogue every course is assumed to have them.
+    /// </summary>
+    public static bool Supports(CourseDef course, string submode, ContentCatalogue? catalogue = null)
     {
         if (course.Kind == "tutorial") return false;
         return submode switch
         {
             "sprint" => course.Format == "sprint",
             "circuit" => course.Format == "circuit",
-            "drift-attack" or "time-attack" => true,
+            "drift-attack" => catalogue?.SupportsDriftAttack(course.Id) ?? true,
+            "time-attack" => true,
             "cup" => course.Format is "sprint" or "circuit",
             _ => false,
         };

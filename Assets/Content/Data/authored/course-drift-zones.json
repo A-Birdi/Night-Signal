@@ -1,0 +1,122 @@
+{
+  "schema": "night-signal/course-drift-zones@1",
+  "note": "Judged drift zones per course: the drift-zone gates of Assets/Content/Courses/<id>/route.json (EditMode CatalogueTests keep this in step). Drift Attack and drift Team Trials are offered only on courses with zones; the control plane refuses them elsewhere.",
+  "courses": [
+    {
+      "id": "C01",
+      "zones": 3
+    },
+    {
+      "id": "C02",
+      "zones": 0
+    },
+    {
+      "id": "C03",
+      "zones": 0
+    },
+    {
+      "id": "C04",
+      "zones": 2
+    },
+    {
+      "id": "C05",
+      "zones": 0
+    },
+    {
+      "id": "C06",
+      "zones": 0
+    },
+    {
+      "id": "C07",
+      "zones": 0
+    },
+    {
+      "id": "C08",
+      "zones": 4
+    },
+    {
+      "id": "C09",
+      "zones": 0
+    },
+    {
+      "id": "C10",
+      "zones": 0
+    },
+    {
+      "id": "C11",
+      "zones": 0
+    },
+    {
+      "id": "C12",
+      "zones": 4
+    },
+    {
+      "id": "C13",
+      "zones": 0
+    },
+    {
+      "id": "C14",
+      "zones": 0
+    },
+    {
+      "id": "C15",
+      "zones": 4
+    },
+    {
+      "id": "C16",
+      "zones": 4
+    },
+    {
+      "id": "C17",
+      "zones": 0
+    },
+    {
+      "id": "C18",
+      "zones": 0
+    },
+    {
+      "id": "C19",
+      "zones": 0
+    },
+    {
+      "id": "C20",
+      "zones": 0
+    },
+    {
+      "id": "C21",
+      "zones": 0
+    },
+    {
+      "id": "C22",
+      "zones": 0
+    },
+    {
+      "id": "C23",
+      "zones": 4
+    },
+    {
+      "id": "C24",
+      "zones": 3
+    },
+    {
+      "id": "C25",
+      "zones": 6
+    },
+    {
+      "id": "FP01",
+      "zones": 1
+    },
+    {
+      "id": "FP02",
+      "zones": 0
+    },
+    {
+      "id": "FP03",
+      "zones": 0
+    },
+    {
+      "id": "T00",
+      "zones": 3
+    }
+  ]
+}

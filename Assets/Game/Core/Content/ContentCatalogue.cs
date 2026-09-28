@@ -23,7 +23,7 @@ namespace NightSignal.Core.Content
         /// </summary>
         public static readonly string[] AuthoredFiles =
             { "cars.tuning.json", "stages.opposition.json", "courses.addendum.json", "music.unlocks.json", "parts.json", "build-recipes.json", "stage-benchmarks.json",
-              "stage-conditions.json" };
+              "stage-conditions.json", "course-drift-zones.json" };
 
         /// <summary>
         /// Authored overlays that must be present: they carry Addendum 01 rules (live opposition, 29 courses, course
@@ -32,6 +32,17 @@ namespace NightSignal.Core.Content
         public static readonly string[] RequiredAuthoredFiles = { "stages.opposition.json", "courses.addendum.json" };
 
         public CourseAccessRules CourseAccess { get; private set; }
+
+        /// <summary>Judged drift zones per course id (authored/course-drift-zones.json); empty when the file is absent.</summary>
+        public IReadOnlyDictionary<string, int> DriftZones => driftZones;
+        readonly Dictionary<string, int> driftZones = new Dictionary<string, int>(StringComparer.Ordinal);
+
+        /// <summary>
+        /// Drift Attack (and a drift Team Trial) needs judged drift zones on the course: scoring nothing but a finish line
+        /// would be a sprint in disguise. Without the zone list loaded every course is allowed (older content).
+        /// </summary>
+        public bool SupportsDriftAttack(string courseId) =>
+            driftZones.Count == 0 || (driftZones.TryGetValue(courseId ?? "", out int n) && n > 0);
 
         public IReadOnlyDictionary<string, CarTuningDef> CarTunings { get; private set; } = new Dictionary<string, CarTuningDef>();
 
@@ -171,6 +182,16 @@ namespace NightSignal.Core.Content
                     cat.certified[key] = b;
                 }
                 cat.BenchmarkMethod = file.Method ?? "";
+            }
+            if (documents.ContainsKey("course-drift-zones.json"))
+            {
+                CourseDriftZonesFile file = Parse<CourseDriftZonesFile>("course-drift-zones.json", "night-signal/course-drift-zones@1");
+                foreach (CourseDriftZones z in file.Courses)
+                {
+                    if (!cat.courseById.ContainsKey(z.Id ?? "")) throw new ContentLoadException($"course-drift-zones.json references unknown course {z.Id}");
+                    if (z.Zones < 0) throw new ContentLoadException($"course-drift-zones.json: {z.Id} has a negative zone count");
+                    cat.driftZones[z.Id] = z.Zones;
+                }
             }
             cat.documentText = documents.ToDictionary(kv => kv.Key, kv => kv.Value, StringComparer.Ordinal);
             cat.ContentHash = Hash(documents);

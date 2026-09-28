@@ -138,7 +138,7 @@ public sealed partial class TeamTrialCatalog
             if (!c.TryCourse(t.Course, out CourseDef course) || course.Kind != "regular")
                 throw new ContentLoadException($"{where}: course must be an existing non-exclusive regular course");
             bool formatOk = t.Kind == "drift" ? t.Format == "drift-attack" : t.Format is "sprint" or "circuit";
-            if (!formatOk || !FreeplayRules.Supports(course, t.Format))
+            if (!formatOk || !FreeplayRules.Supports(course, t.Format, c))
                 throw new ContentLoadException($"{where}: format {t.Format} does not suit a {t.Kind} trial on {t.Course}");
             if (t.HardTimeoutMs <= 0 || t.ParticipationEnvelopeMs <= 0 || t.ParticipationEnvelopeMs > t.HardTimeoutMs)
                 throw new ContentLoadException($"{where}: needs 0 < participationEnvelopeMs ≤ hardTimeoutMs");

@@ -1319,7 +1319,7 @@ public sealed class ConvoyDirectory
             }
             if (!Catalogue.TryCourse(courseId, out CourseDef course))
                 return ConvoyResult.Fail("invalid_request", "Unknown course.");
-            if (!FreeplayRules.Supports(course, b.Mode))
+            if (!FreeplayRules.Supports(course, b.Mode, Catalogue))
                 return ConvoyResult.Fail("mode_unsupported", $"{course.Name} does not support {FreeplayRules.Label(b.Mode)}.");
             if (SponsorsOf(convoy, courseId).Count == 0)
                 return ConvoyResult.Fail("course_locked", $"Nobody in this convoy has access to {course.Name}.");
@@ -1715,7 +1715,7 @@ public sealed class ConvoyDirectory
                 {
                     if (!Catalogue.TryCourse(courseId, out CourseDef course) || course.Kind == "tutorial")
                         return ConvoyResult.Fail("invalid_request", $"Unknown Freeplay course {courseId}.");
-                    if (!FreeplayRules.Supports(course, mode))
+                    if (!FreeplayRules.Supports(course, mode, Catalogue))
                         return ConvoyResult.Fail("mode_unsupported", $"{course.Name} does not support {FreeplayRules.Label(mode)}.");
                     if (SponsorsOf(convoy, courseId).Count == 0)
                         return ConvoyResult.Fail("course_locked", $"Nobody in this convoy has access to {course.Name}. Buy it or clear its Normal stage first.");
@@ -2367,7 +2367,7 @@ public sealed class ConvoyDirectory
         Dictionary<string, ICollection<string>> owned = Ownership(c.Members);
         string mode = intent.Submode ?? "time-attack"; // unknown submode: every non-tutorial course is listed
         var courses = Catalogue.Courses
-            .Where(course => FreeplayRules.Supports(course, mode))
+            .Where(course => FreeplayRules.Supports(course, mode, Catalogue))
             .Select(course => (course.Id, Sponsors: CourseAccess.Sponsors(Catalogue, course.Id, owned)))
             .Where(x => x.Sponsors.Count > 0)
             .Select(x => new

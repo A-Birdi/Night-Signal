@@ -136,7 +136,8 @@ namespace NightSignal.GameAudio
         public static void Results(bool win)
         {
             if (Application.isBatchMode) return;
-            MusicPlayer.Ensure()?.Play(win ? RaceMusic.ResultsWin : RaceMusic.ResultsLoss, 1.5f);
+            string cue = win ? RaceMusic.ResultsWin : RaceMusic.ResultsLoss;
+            if (MusicPlayer.Ensure()?.Play(cue, 1.5f) == true) Debug.Log($"[NightSignal.Music] results cue {cue}");
         }
     }
 }
