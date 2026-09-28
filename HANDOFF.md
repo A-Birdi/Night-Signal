@@ -8,7 +8,9 @@ OST). `docs/brief/Night_Signal_Addendum_02.txt` adds five diversions, Continue/S
 instance with protected references, the Garage Test Yard and meaningful upgrades. `docs/brief/Night_Signal_Addendum_03.txt`
 adds two speedometer styles, five mandatory driving views (genuine cockpit), arcade camera motion with comfort
 controls, measured elevation, finite 3D gates and safe recovery — topology/progress/recovery before benchmark
-certification. Effective rules and impact map: `docs/EFFECTIVE_RULES.md`.
+certification. `docs/brief/Night_Signal_Addendum_04.txt` makes local network testing loopback-first (server bind
+127.0.0.1, LAN only with explicit opt-in, never automate the firewall). Effective rules and impact map:
+`docs/EFFECTIVE_RULES.md`.
 
 ## Where things are
 
@@ -20,13 +22,16 @@ certification. Effective rules and impact map: `docs/EFFECTIVE_RULES.md`.
   - Content: brief catalogue imported to `Assets/Content/Data/generated`; authored overlays: car tuning, car
     bodies, story (48 rival sheets/lines, 30 Normal+Hard stage scripts, endings, radio records, crew diary, meet
     text, conditions).
-  - Vehicle: fixed 60 Hz raycast chassis, handling harness, 18 procedurally modelled car bodies (first pass).
-  - Courses: deterministic generation from `route.json` (D-007); C01 Tea Lantern Road drivable; autopilot finishes.
+  - Vehicle: fixed 60 Hz raycast chassis, handling harness, 18 procedurally modelled car bodies (**first pass** —
+    the full art/detail pass is pending, see Next actions), fitted cockpits and five views on all 18.
+  - Courses: deterministic generation from `route.json` (D-007); all 29 scenes driven by the autopilot, measured 3D
+    profiles, tunnels, bridges, relief; scenery kits still sparse (field/wall/tower/crossing/water/structure missing).
   - Control plane (`Services/`): identity (Supabase JWKS path + DevAuth), convoy/readiness, tickets, ledger,
-    results settlement; 149 tests + ticket parity tests.
+    results settlement, garage, customization, toys; 335 .NET tests. Unity EditMode 255 tests.
   - Netcode (`Assets/Game/Runtime/Net`): dedicated server host (register/poll/ack/results), authoritative
-    RaceServer, predicted RaceClient, AutoClient automation, Boot scene role selection. First real multi-process
-    race (server + 2 clients, localhost) passed end to end under the pre-addendum rules (V-016).
+    RaceServer (bind `-nsBindHost`, loopback by default), predicted RaceClient, AutoClient automation, spectating.
+  - Benchmarks: all 60 stage sides certified from reference runs under their authored conditions
+    (`authored/stage-benchmarks.json`, `authored/stage-conditions.json`), S29 Four Signals judged.
   - Addendum 01 Core (this revision): named capacity limits, RosterPlanner (authored live opposition, 12 vehicles,
     Team Trials, Time Attack non-contact), finale-only rivals, course access + purchases, ballot draw, handles,
     Team Trial scoring, live-rival stage condition, 12-slot grids (C01 approach lengthened, revision 2).
@@ -35,9 +40,15 @@ certification. Effective rules and impact map: `docs/EFFECTIVE_RULES.md`.
 
 ```
 powershell -ExecutionPolicy Bypass -File Tools/run/start-control-plane.ps1     # control plane on 127.0.0.1:5080
-# build Builds/Game/NightSignal.exe (Unity: BuildCommands.BuildGame)
-powershell -ExecutionPolicy Bypass -File Tools/run/net-race.ps1 -Humans 2 -Stage S01
+# build Builds/Game/NightSignal.exe (Unity: BuildCommands.BuildGame() — non-development, the canonical automation build)
+powershell -ExecutionPolicy Bypass -File Tools/run/net-race.ps1 -Humans 2 -Stage S01   # server on UDP 127.0.0.1:7777
 ```
+
+The control plane is a **long-lived development service**: leave it running while it is healthy (process alive,
+TCP listener only on 127.0.0.1:5080, `GET /healthz` ok, no error/restart loop in its log, `contentHash` equal to the
+content the next run uses). Restart it once, cleanly, only when it is unhealthy or its content hash is stale after a
+content change (content documents feed the hash; a mismatched game server is refused). Network harnesses go through
+`Tools/run/NetGuard.psm1` (loopback unless `-AllowLan`, free-port check, socket evidence in `network.json`).
 
 Evidence tours (built player, run from the repo root; each uses its own profile/preferences folders under `Builds/`):
 `-nsUiTour`, `-nsYardTour`, `-nsAppearanceTour`, `-nsInstrumentTour`, `-nsCameraTour` (all 18 cars × 5 views driven,
@@ -54,7 +65,7 @@ Render Cockpit Sheets* renders the mounted views of every car.
 3. **Hosted services / internet test** — a Supabase project, a reachable server and a budget are needed for
    WAN acceptance (§3.5, Gate 5). Not approved; stays BLOCKED, not faked.
 
-## Done since the addenda (VALIDATION V-015 … V-050)
+## Done since the addenda (VALIDATION V-015 … V-068)
 
 - Addendum 01 Core rules and data overlays; control plane for Addendum 01 + 02 incl. hosted diversions (307 .NET
   tests); light car contact, shared RaceSimulation (server + offline), protocol 2 per-client snapshots.
@@ -104,24 +115,44 @@ Render Cockpit Sheets* renders the mounted views of every car.
   bridges (V-053), online recovery/impairment/soak (V-054), relief pass (V-055), instrument extremes (V-056), R11
   (V-057), spectating (V-058), soak memory (V-059: generated course assets released in play), Spectate the Race through
   the real screens with two clients and the NaN-after-disconnect fix (V-060).
+- **After V-060:** correction-blend A/B (V-061, inconclusive); a second human sees another's livery (V-062); pre-A03
+  Local saves migrate intact (V-063); F08 runs (V-064: stalled at lieutenants before certification).
+- **Benchmarks certified** (V-065/V-066): P = slowest intended starter build solo; Normal 1.18→1.05×P, Hard 1.04→1.00×P
+  under each side's own conditions (conditions were never applied before: Hard is now really damp/wet/night); featured
+  rival pace calibrated to the target; S29 Four Signals judged (it could never be cleared before).
+- **F08 with certified targets** (V-065/V-068, automation): V03 clears all 30 Normal and 28/30 Hard; V01/V02 28/30
+  Normal; every stop is at S29 (autopilot racecraft in the pack: Entry apex gates / Descent wall contact).
 - **Addendum 04** (V-067): game server binds `127.0.0.1` by default (`-nsBindHost`, separate from `-nsPublicHost`),
   harnesses fail closed on non-loopback binds without `-AllowLan` (`Tools/run/NetGuard.psm1`), automation builds are
   non-development (no editor/profiler listener), measured sockets in the evidence; never touch Windows Firewall.
 
 ## Next actions
 
-0. Addendum 03 remaining (before benchmark certification; tunnels V-051, camera timing/occlusion and six-client views
-   V-052, readability and bridges V-053, online recovery/impairment/soak V-054 are done): prediction hitches for a
-   heavy-contact client under ~190 ms RTT (a velocity-continuous correction blend is in, A/B inconclusive, V-061);
-   Normal benchmarks certified and S29 Four Signals judged (V-065); F08: V03 30/30, V01/V02 stop at S29's Entry apex
-   gates in traffic (automation racecraft); next: Hard certification with its own conditions, a human S29/rival-pace review.
-1. Customization follow-ups: decals scaled up render as flat quads crossing the glass (seen in V-062); meet refresh of liveries; pearl flip
-   tint; rename/delete presets in the UI (the ops exist).
-2. F08–F10 starter progression runs with upgrades; drift skill per AI profile and campaign drift benchmarks; restrict
-   Drift Attack to courses with judged zones; group Time Attack and toy tables with 3–6 humans; block UI,
-   reconnect/rejoin and DQ under load; Canvas controller cursor.
-3. Generator: bridge decks/piers, `crossing`/`water`/`field`/`structure` kits; visual pass per biome.
-4. Car art; meet + boombox; release builds and evidence.
+Pipeline in dependency order (items at one level do not wait for later ones; human checks are listed where they gate).
+
+1. **F09/F10 progression validation** (Addendum 02; needs the certified benchmarks — done): every car's legal
+   favourite-car upgrade path and its content, driving samples per handling family; unchanged starter vs developed build
+   under the same inputs/conditions. Automation only; human runs stay marked pending.
+2. **Car art/detail pass for all 18 cars** (Gate 3 C.4; spec "Art target", car geometry list): replace the first-pass
+   procedural bodies' shapes with detailed ones — wheel arches, fenders, bumpers, light clusters, glass, interior
+   silhouette, tyres/rims, mirrors, exhaust — and the paint/specular response, keeping the per-car cockpit anchors, the
+   customization zones/body-kit families and wheel positions from the handling parameters (fold in the decal fix:
+   scaled decals leave the body). Depends on nothing open; verified by re-running the camera tour (90 car×view),
+   appearance and instrument tours and a distinctness contact sheet. Starts right after item 1.
+3. **Course scenery**: missing kits (field, wall, tower, crossing, water, structure) and a visual pass per biome, then
+   screenshot comparison of all six regional kits (Gate 3 C.1, spec §"regional kits").
+4. **Characters and the meet**: in-game rival identities for the 48 sheets (silhouette checks), meet + boombox, walking
+   controls (Gate 2/3).
+5. **Gameplay backlog**: AI drift skill per profile and campaign drift benchmarks; restrict Drift Attack to courses with
+   judged zones; group Time Attack and toy tables with 3–6 humans; UI/reconnect/rejoin/DQ under load; Canvas controller
+   cursor; customization follow-ups (meet livery refresh, pearl flip tint, preset rename/delete UI).
+6. **Open technical items**: heavy-contact prediction hitch at ~190 ms RTT (V-061 inconclusive); S29 autopilot racecraft
+   (optional — the rule is implemented and V03 passes).
+7. **Gate 4/5**: integration (party sizes, legality/loaners, database restart, tampering, budgets) and release validation;
+   blocked parts stay blocked (local Supabase/Postgres stack, Linux server module, WAN test with real people).
+
+Human checks outstanding (cannot be automated): S29 run, featured-rival pace feel after calibration, camera/comfort
+feel, cockpit/visual review, a real cross-device LAN test once authorized.
 
 ## Recovery notes
 
