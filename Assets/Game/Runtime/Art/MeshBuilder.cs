@@ -102,6 +102,29 @@ namespace NightSignal.Art
             for (int i = 0; i < segments; i++) AddTriangle(sub, ct, firstTop + i + 1, firstTop + i);
         }
 
+        /// <summary>
+        /// Builds only the submeshes that received triangles, in order; <paramref name="used"/> lists their original indices
+        /// (so a palette of many materials renders with just the ones this mesh needs).
+        /// </summary>
+        public Mesh BuildCompact(string name, out int[] used, bool recalculateNormals = true)
+        {
+            var keep = new List<int>();
+            for (int i = 0; i < submeshes.Count; i++) if (submeshes[i].Count > 0) keep.Add(i);
+            used = keep.ToArray();
+            var mesh = new Mesh { name = name };
+            if (vertices.Count > 65000) mesh.indexFormat = IndexFormat.UInt32;
+            mesh.SetVertices(vertices);
+            mesh.SetNormals(normals);
+            mesh.SetUVs(0, uvs);
+            if (UseColors) mesh.SetColors(colors);
+            mesh.subMeshCount = keep.Count;
+            for (int i = 0; i < keep.Count; i++) mesh.SetTriangles(submeshes[keep[i]], i, false);
+            if (recalculateNormals) mesh.RecalculateNormals();
+            mesh.RecalculateBounds();
+            mesh.RecalculateTangents();
+            return mesh;
+        }
+
         public Mesh Build(string name, bool recalculateNormals = false)
         {
             var mesh = new Mesh { name = name };

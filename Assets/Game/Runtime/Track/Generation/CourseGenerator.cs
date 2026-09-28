@@ -88,7 +88,7 @@ namespace NightSignal.Track.Generation
             var landmarks = new GameObject("Landmarks").transform;
             landmarks.SetParent(root, false);
             foreach (RouteLandmarkDef lm in route.Landmarks)
-                LandmarkKits.Build(track, lm, ground, landmarks, mats, profile);
+                LandmarkKits.Build(track, route, lm, ground, landmarks, mats, profile);
 
             if (profile == GenerationProfile.Full) BuildLines(track, root, mats);
         }

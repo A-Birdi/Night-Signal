@@ -14,12 +14,14 @@ namespace NightSignal.Track.Generation
 
     /// <summary>
     /// Reusable procedural landmark kits (original designs, deterministic). Each kit first plans its terrain/road
-    /// needs, then builds geometry against the generated terrain.
+    /// needs, then builds geometry against the generated terrain. The bespoke C01 kits are here; the parametric kits
+    /// (structure, tower, crossing, wall, water, field, rail, sign, gate) are in the other <c>LandmarkKits.*.cs</c> files.
     /// </summary>
-    public static class LandmarkKits
+    public static partial class LandmarkKits
     {
         public static void Plan(TrackData track, RouteLandmarkDef lm, LandmarkPlan plan)
         {
+            if (lm.Kit == "water") { PlanWater(track, lm, plan); return; }
             if (lm.Kit != "stone-bridge") return;
             TrackSample s = track.SampleAt(lm.AtMetres);
             Vector3 across = new Vector3(s.Right.x, 0f, s.Right.z).normalized;
@@ -27,7 +29,7 @@ namespace NightSignal.Track.Generation
             plan.NoBarrier.Add(new RoadGeometry.Range { From = lm.AtMetres - 15f, To = lm.AtMetres + 15f });
         }
 
-        public static GameObject Build(TrackData track, RouteLandmarkDef lm, TerrainCollider ground, Transform parent,
+        public static GameObject Build(TrackData track, RouteDefinition route, RouteLandmarkDef lm, TerrainCollider ground, Transform parent,
             CourseMaterialSet mats, GenerationProfile profile)
         {
             switch (lm.Kit)
@@ -35,6 +37,15 @@ namespace NightSignal.Track.Generation
                 case "tea-shed": return TeaShed(track, lm, ground, parent, mats, profile);
                 case "stone-bridge": return StoneBridge(track, lm, parent, mats, profile);
                 case "lantern-row": return profile == GenerationProfile.Full ? LanternRow(track, lm, ground, parent, mats) : null;
+                case "structure": return Structure(track, lm, ground, parent, mats, profile);
+                case "tower": return Tower(track, lm, ground, parent, mats, profile);
+                case "crossing": return Crossing(track, route, lm, ground, parent, mats, profile);
+                case "wall": return Wall(track, route, lm, ground, parent, mats, profile);
+                case "water": return Water(track, lm, ground, parent, mats, profile);
+                case "field": return Field(track, lm, ground, parent, mats, profile);
+                case "rail": return Rail(track, lm, ground, parent, mats, profile);
+                case "sign": return Sign(track, lm, ground, parent, mats, profile);
+                case "gate": return Gate(track, lm, ground, parent, mats, profile);
                 default:
                     Debug.LogWarning($"[NightSignal.Course] No kit '{lm.Kit}' for {lm.Id}");
                     return null;

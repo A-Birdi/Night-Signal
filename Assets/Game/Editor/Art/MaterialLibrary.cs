@@ -81,7 +81,7 @@ namespace NightSignal.Editor.Art
         public static Material RoofTiles => Get("RoofTiles", ProceduralTextures.RoofTiles(), Color.white, 0.35f);
         public static Material LanternPaper => Get("LanternPaper", ProceduralTextures.Paper(), new Color(1f, 0.92f, 0.8f), 0.2f, 0f, null, null, new Color(2.2f, 1.25f, 0.55f));
         public static Material Rope => Get("RopeDark", null, new Color(0.12f, 0.1f, 0.08f), 0.1f);
-        public static Material Water => Get("CreekWater", null, new Color(0.10f, 0.16f, 0.18f, 1f), 0.93f, 0.1f);
+        public static Material Water => Get("CreekWater", null, new Color(0.10f, 0.16f, 0.18f, 1f), 0.8f, 0.1f);
         public static Material TeaLeaf => Get("TeaLeaf", ProceduralTextures.Grass(), new Color(0.55f, 0.95f, 0.55f), 0.35f);
         public static Material RedLacquer => Get("RedLacquer", null, new Color(0.62f, 0.11f, 0.08f), 0.55f);
         public static Material SignalRed => Get("SignalRed", null, new Color(0.84f, 0.12f, 0.12f), 0.5f);
@@ -96,7 +96,7 @@ namespace NightSignal.Editor.Art
         public static Material MetalRoof => Get("MetalRoof", null, new Color(0.32f, 0.36f, 0.38f), 0.5f, 0.7f);
         public static Material Foliage => Get("Foliage", ProceduralTextures.Grass(), new Color(0.55f, 0.75f, 0.5f), 0.2f);
         public static Material Bark => Get("Bark", ProceduralTextures.WoodPlanks(), new Color(0.5f, 0.42f, 0.36f), 0.15f);
-        public static Material Sea => Get("SeaWater", null, new Color(0.05f, 0.14f, 0.2f), 0.94f, 0.1f);
+        public static Material Sea => Get("SeaWater", null, new Color(0.05f, 0.14f, 0.2f), 0.78f, 0.1f);
         public static Material TunnelLining => Get("TunnelLining", ProceduralTextures.Rock(), new Color(0.62f, 0.62f, 0.6f), 0.2f);
     }
 }

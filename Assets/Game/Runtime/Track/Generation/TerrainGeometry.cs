@@ -211,6 +211,10 @@ namespace NightSignal.Track.Generation
             {
                 foreach (TerrainCarve c in carves)
                 {
+                    // Cheap reject first: a course can carry dozens of carves (a channel beside the road is one per 20 m).
+                    float reach = c.HalfWidth * 2.2f;
+                    if (x < Mathf.Min(c.A.x, c.B.x) - reach || x > Mathf.Max(c.A.x, c.B.x) + reach ||
+                        z < Mathf.Min(c.A.z, c.B.z) - reach || z > Mathf.Max(c.A.z, c.B.z) + reach) continue;
                     float d = DistanceToSegmentXZ(new Vector2(x, z), new Vector2(c.A.x, c.A.z), new Vector2(c.B.x, c.B.z));
                     if (d < c.HalfWidth * 2.2f)
                     {
