@@ -65,27 +65,30 @@ namespace NightSignal.AI
                 LookaheadSeconds = 0.9f,
                 MinLookahead = 10f,
             };
+            // Each tendency is a combination of speed-plan biases and line/pedal behaviours (DriverProfile), measured per crew on
+            // shared corners by the crew telemetry tour (V-106): who brakes later, who apexes late, who swings wide, who is gentle
+            // on the throttle.
             switch (rival.Tendency)
             {
-                case "late-brake-anchor": p.BrakingDecel += 1.0f; break;
-                case "brake-release-student": p.BrakingDecel -= 0.8f; break;
-                case "margin-keeper": p.CornerSpeedFactor -= 0.02f; p.LineAggression -= 0.15f; break;
-                case "momentum-reader": p.CornerSpeedFactor += 0.02f; p.BrakingDecel -= 0.4f; break;
+                case "late-brake-anchor": p.BrakingDecel += 1.0f; p.BrakeGain = 1.5f; break;
+                case "brake-release-student": p.BrakingDecel -= 0.8f; p.BrakeGain = 0.7f; break;
+                case "margin-keeper": p.CornerSpeedFactor -= 0.02f; p.LineAggression -= 0.15f; p.ThrottleBias = -0.08f; break;
+                case "momentum-reader": p.CornerSpeedFactor += 0.02f; p.BrakingDecel -= 0.4f; p.ApexShift = -4f; break;
                 case "geometric-apexer": p.LineAggression += 0.2f; break;
-                case "wide-entry-specialist": p.LineAggression += 0.3f; break;
-                case "exit-traction-specialist": p.CornerSpeedFactor -= 0.01f; break;
-                case "high-speed-arc-reader": p.CornerSpeedFactor += 0.015f; p.LookaheadSeconds = 1.1f; break;
-                case "rhythm-linker": p.LookaheadSeconds = 1.05f; break;
-                case "power-conserver": p.BrakingDecel -= 0.3f; break;
-                case "rotation-specialist": p.CornerSpeedFactor += 0.01f; p.LineAggression += 0.1f; break;
-                case "recovery-specialist": p.CornerSpeedFactor += 0.01f; break;
+                case "wide-entry-specialist": p.LineAggression += 0.3f; p.EntryWidth = 0.6f; break;
+                case "exit-traction-specialist": p.CornerSpeedFactor -= 0.04f; p.ApexShift = 8f; p.ThrottleBias = 0.15f; break;
+                case "high-speed-arc-reader": p.CornerSpeedFactor += 0.015f; p.LookaheadSeconds = 1.1f; p.EntryWidth = 0.3f; break;
+                case "rhythm-linker": p.LookaheadSeconds = 1.05f; p.ApexShift = -3f; break;
+                case "power-conserver": p.BrakingDecel -= 0.3f; p.ThrottleBias = -0.15f; break;
+                case "rotation-specialist": p.CornerSpeedFactor += 0.01f; p.LineAggression += 0.1f; p.ApexShift = -6f; break;
+                case "recovery-specialist": p.CornerSpeedFactor += 0.01f; p.ThrottleBias = 0.05f; break;
                 case "surface-reader":
-                case "wet-line-reader": p.LineAggression -= 0.1f; break;
-                case "pressure-tester":
-                case "inside-line-defender": p.LineAggression -= 0.05f; break;
-                case "straight-line-planner": p.LookaheadSeconds = 1.2f; break;
-                case "gear-optimizer":
-                case "early-set-cornerer": p.BrakingDecel -= 0.2f; break;
+                case "wet-line-reader": p.LineAggression -= 0.1f; p.ThrottleBias = -0.05f; break;
+                case "pressure-tester": p.LineAggression -= 0.05f; p.BrakeGain = 1.2f; break;
+                case "inside-line-defender": p.LineAggression -= 0.05f; p.EntryWidth = -0.3f; break;
+                case "straight-line-planner": p.LookaheadSeconds = 1.2f; p.ApexShift = 5f; break;
+                case "gear-optimizer": p.BrakingDecel -= 0.2f; p.ThrottleBias = 0.08f; break;
+                case "early-set-cornerer": p.BrakingDecel -= 0.2f; p.ApexShift = -8f; break;
             }
             p.LineAggression = Mathf.Clamp01(p.LineAggression);
             p.PaceScale = paceScale;

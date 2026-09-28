@@ -73,6 +73,11 @@ namespace NightSignal.Race
         /// be measured beside the reference car. No player-facing event sets it.
         /// </summary>
         public bool CalibrationGhosts;
+        /// <summary>
+        /// Benchmark and telemetry runs only: every rival drives this car (not their own), so their behaviour is compared on
+        /// equal machinery (spec §13 "measured on shared benchmark corners"). Null in every player-facing event.
+        /// </summary>
+        public string CalibrationCarId;
         /// <summary>Benchmark certification only: measure the Four Signals on their course outside a campaign event.</summary>
         public bool MeasureContracts;
         /// <summary>dry | damp | wet — one grip rule for races and the Garage Test Yard (CourseRuntime.SurfaceGrip).</summary>
@@ -207,7 +212,7 @@ namespace NightSignal.Race
             if (cat.TryRival(id, out RivalDef rival))
             {
                 FinalRivals.Require(rival.Id, ctx, Rules.StageId, Rules.Mode);
-                e = Add(lib, world, slot, rival.Id, rival.Name, false, LegalCarFor(cat, rival.PrimaryCar, Rules.CarCapPi), team, role, null);
+                e = Add(lib, world, slot, rival.Id, rival.Name, false, Rules.CalibrationCarId ?? LegalCarFor(cat, rival.PrimaryCar, Rules.CarCapPi), team, role, null);
                 e.Ai = new RouteFollower(Track, e.Params, AiProfiles.For(rival, Rules.StageNumber, FeaturedPace(cat, role))) { DriftZones = DriftZonesForAi, SurfaceGrip = CourseRuntime.SurfaceGrip(Rules.Surface), Seed = slot };
             }
             else

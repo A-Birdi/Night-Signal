@@ -31,6 +31,13 @@ namespace NightSignal.AI
         /// C12) moved the banked score in different directions per course, so none of them is a skill.
         /// </summary>
         public float DriftSkill;
+        /// <summary>
+        /// Tendency behaviours (spec §13 "turn-in timing, corner-entry versus exit emphasis, release shape"; all 0 = the
+        /// neutral line): <see cref="ApexShift"/> moves the apex along the road (m; + later, − earlier); <see cref="EntryWidth"/>
+        /// (0–1) swings the car to the outside before turn-in; <see cref="ThrottleBias"/> (−0.3…0.3) gets on the power sooner
+        /// or more gently when the plan allows speed; <see cref="BrakeGain"/> (0 = 1) is how sharply braking comes on.
+        /// </summary>
+        public float ApexShift, EntryWidth, ThrottleBias, BrakeGain;
 
         /// <summary>The skill the drift controller was tuned at (the handling harness' drifter).</summary>
         public const float BaselineDriftSkill = 0.65f;
@@ -209,10 +216,14 @@ namespace NightSignal.AI
             float target = 70f * pace;
             float decel = Profile.BrakingDecel * SurfaceGrip;
             float horizon = Mathf.Max(40f, speed * speed / (2f * decel) + 30f);
+            // A late apex opens the exit: while the corner unwinds, such a driver carries a little more speed (a straighter exit
+            // line than the centreline the plan measures); an early apex the opposite.
+            float kHere = Mathf.Abs(track.SampleAt(here.Distance).Curvature);
             for (float d = 0f; d <= horizon; d += 4f)
             {
                 float k = Mathf.Abs(track.SampleAt(here.Distance + d).Curvature);
-                float vCorner = (k > 1e-4f ? Mathf.Sqrt(p.TyreGrip * SurfaceGrip * 9.81f / k) * Profile.CornerSpeedFactor : 70f) * pace;
+                float exitFactor = Profile.ApexShift != 0f && d <= 40f && k < kHere ? 1f + 0.004f * Profile.ApexShift : 1f;
+                float vCorner = (k > 1e-4f ? Mathf.Sqrt(p.TyreGrip * SurfaceGrip * 9.81f / k) * Profile.CornerSpeedFactor * exitFactor : 70f) * pace;
                 float allowed = Mathf.Sqrt(vCorner * vCorner + 2f * decel * d);
                 target = Mathf.Min(target, allowed);
             }
@@ -234,10 +245,10 @@ namespace NightSignal.AI
             }
             TargetSpeed = target;
             float err = target - speed;
-            float throttle = Mathf.Clamp01(err * 0.35f + 0.1f);
+            float throttle = Mathf.Clamp01(err * 0.35f * (1f + 2f * Profile.ThrottleBias) + 0.1f + 0.5f * Profile.ThrottleBias);
             // Lift progressively as the car slides (driver traction management).
             throttle *= Mathf.Clamp01(1f - (bodySlip * Mathf.Rad2Deg - 5f) / 12f);
-            float brake = err < -1.2f ? Mathf.Clamp01(-err * 0.18f) : 0f;
+            float brake = err < -1.2f ? Mathf.Clamp01(-err * 0.18f * (Profile.BrakeGain > 0f ? Profile.BrakeGain : 1f)) : 0f;
             if (brake > 0f) throttle = 0f;
             Drifting = false;
             if (DriftZones != null && DriftInput(s, here, fwd, speed, signedSlip, aim, target, out DriverInput drift)) return drift;
@@ -363,9 +374,17 @@ namespace NightSignal.AI
         {
             TrackSample s = track.SampleAt(distance);
             // Move toward the inside of upcoming curvature; stay a car-width from the edge.
-            float k = track.SampleAt(distance + 10f).Curvature;
+            float k = track.SampleAt(distance + 10f - Profile.ApexShift).Curvature;
             float half = s.Width * 0.5f - 1.3f;
             float lateral = Mathf.Clamp(k * 900f * Profile.LineAggression, -1f, 1f) * half;
+            if (Profile.EntryWidth != 0f)
+            {
+                // Outside-in: with a corner coming (much more curvature ahead than here), hold the outside before turning in.
+                float kAhead = track.SampleAt(distance + 45f).Curvature;
+                if (Mathf.Abs(kAhead) > Mathf.Abs(k) * 1.5f + 1e-4f)
+                    lateral -= Mathf.Sign(kAhead) * Profile.EntryWidth * Mathf.Clamp01(Mathf.Abs(kAhead) * 900f) * half;
+                lateral = Mathf.Clamp(lateral, -half, half);
+            }
             if (ApexGates != null)
                 foreach (RouteGateDef g in ApexGates)
                 {

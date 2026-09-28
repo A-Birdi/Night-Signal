@@ -96,6 +96,8 @@ namespace NightSignal.Race
         /// those recorded under this event's rules are shown (<see cref="Core.Ghosts.GhostRecording.CompatibleWith"/>).
         /// </summary>
         public Core.Ghosts.GhostHeader GhostTemplate;
+        /// <summary>Automation only: called after every racing tick (telemetry tours read the entrants' states).</summary>
+        public System.Action<RaceSimulation, int> TickObserver;
         public readonly List<Core.Ghosts.GhostRecording> GhostCandidates = new List<Core.Ghosts.GhostRecording>();
         public Core.Ghosts.GhostRecording PlayerGhost { get; private set; }
         public readonly List<GhostPlayback> Ghosts = new List<GhostPlayback>();
@@ -242,6 +244,7 @@ namespace NightSignal.Race
             Phase = MatchPhase.Racing;
             watch.Restart();
             Sim.Tick(CurrentTick);
+            TickObserver?.Invoke(Sim, CurrentTick);
             recorder?.Step(Player, Sim.RaceMicros(CurrentTick), CurrentTick);
             GhostDeltas();
             watch.Stop();

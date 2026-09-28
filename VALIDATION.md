@@ -2136,3 +2136,34 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   approach is allowed, a course sharing half its road fails; which kinds count) — Core 148.
 - **Limits:** a geometric shape check with an 8 m tolerance, not a judgement of how different two courses feel; FP01,
   C14 and FP03 sit closest to the floor and are worth a visual review.
+
+## V-106 — Crew behaviour telemetry: at least four measured differences per crew (spec §13) (2026-09-28)
+- Revision: the work committed with this entry; built player (`BuildGame`, succeeded, errors 0) from this working tree.
+- **What changed:** R13.2 was "not started", and the 19 tendencies were only speed-plan biases (corner speed, braking,
+  line aggression, lookahead), so crew members mostly differed in pace alone. `DriverProfile` gains four behaviours
+  (all 0 = the neutral line, which the validator autopilot keeps): `ApexShift` (the apex moved along the road, m),
+  `EntryWidth` (an outside-in swing before turn-in), `ThrottleBias` (sooner/gentler power when the plan allows speed),
+  `BrakeGain` (how sharply braking comes on), plus a small exit-speed allowance for a late apex. `AiProfiles` maps each
+  tendency to a combination (late-brake-anchor: harder, later braking; exit-traction-specialist: slower entry, later
+  apex, earlier power; wide-entry-specialist: outside-in; power-conserver: gentle throttle; early-set-cornerer: early
+  apex; inside-line-defender: tight entry; …). The same controller runs offline and on the dedicated server.
+- **Measurement** (`-nsCrewTelemetryTour`, built player, automation): each crew's members race C01 together as
+  non-colliding calibration ghosts, every one in V01 (so the car is not the difference); traces per metre; at the
+  three sharpest corners (945, 1,185, 2,135 m) the brake point, minimum speed, exit speed (apex + 60 m), throttle-on
+  point and the line at turn-in and apex; a measure counts when its spread across the crew exceeds a noise threshold
+  (brake 8 m, speeds 2 km/h, throttle 8 m, lines 0.5 m). `Evidence/ai/crew-telemetry.txt`.
+- **Result: PASS** — distinct outcomes per crew: breakwater 5, datum 5, rainline 4, reservoir 6, tea-hour 5,
+  zero-frequency 6 (all 46 crew members measured). The spec's named expectations, reported and not forced: the late
+  braker brakes later than its crew median in all three crews that have one (139 m vs 148–150 m before the apex); the
+  exit specialist is slower at the apex in every crew (95.4–95.5 vs 97.4–97.5 km/h) but gains more speed out of the
+  corner than the crew median only in datum (15.7 vs 15.7) — **not observed** in reservoir (15.7 vs 15.8) or tea-hour
+  (15.8 vs 16.4): V01 at ~100 km/h is power-limited on exit, so earlier power does not show; the exit-speed allowance
+  changed nothing measurable (same verdicts before and after it).
+- **Before:** the first run of the tour on the speed-plan biases alone failed three crews (fewer than four distinct
+  outcomes); that run is what added the four behaviours.
+- **Tests:** Unity EditMode 481 passed, 2 skipped (explicit), 0 failed (the controller has no dedicated unit test — its
+  evidence is the built-player telemetry).
+- **Limits:** one course, one car, solo (ghosted) laps, means over three corners — not racecraft in traffic; the exit
+  trade is visible in the apex speed, not the exit. **The certified featured-rival paces (V-065/V-066) were bisected on
+  the rivals' earlier behaviour** and must be recertified (the reference times P come from the neutral autopilot and
+  are unaffected).
