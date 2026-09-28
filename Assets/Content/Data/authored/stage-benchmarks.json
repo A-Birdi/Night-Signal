@@ -21,8 +21,8 @@
       "referenceBuild": "V01-A",
       "factor": 1.1755,
       "targetMs": 173410,
-      "featuredRivalPace": 0.6172,
-      "featuredRivalMs": 174577
+      "featuredRivalPace": 0.625,
+      "featuredRivalMs": 173728
     },
     {
       "stage": "S03",
@@ -32,8 +32,8 @@
       "referenceBuild": "V03-A",
       "factor": 1.171,
       "targetMs": 212404,
-      "featuredRivalPace": 0.75,
-      "featuredRivalMs": 212434
+      "featuredRivalPace": 0.7656,
+      "featuredRivalMs": 213319
     },
     {
       "stage": "S04",
@@ -43,8 +43,8 @@
       "referenceBuild": "V01-B",
       "factor": 1.1666,
       "targetMs": 156624,
-      "featuredRivalPace": 0.7656,
-      "featuredRivalMs": 157174
+      "featuredRivalPace": 0.75,
+      "featuredRivalMs": 157331
     },
     {
       "stage": "S05",
@@ -55,7 +55,7 @@
       "factor": 1.1621,
       "targetMs": 155452,
       "featuredRivalPace": 0.7031,
-      "featuredRivalMs": 156128
+      "featuredRivalMs": 156496
     },
     {
       "stage": "S06",
@@ -66,7 +66,7 @@
       "factor": 1.1576,
       "targetMs": 185024,
       "featuredRivalPace": 0.6406,
-      "featuredRivalMs": 185404
+      "featuredRivalMs": 185273
     },
     {
       "stage": "S07",
@@ -76,8 +76,8 @@
       "referenceBuild": "V01-B",
       "factor": 1.1531,
       "targetMs": 154812,
-      "featuredRivalPace": 0.7344,
-      "featuredRivalMs": 155529
+      "featuredRivalPace": 0.75,
+      "featuredRivalMs": 155149
     },
     {
       "stage": "S08",
@@ -88,7 +88,7 @@
       "factor": 1.1486,
       "targetMs": 133390,
       "featuredRivalPace": 0.7969,
-      "featuredRivalMs": 133695
+      "featuredRivalMs": 133689
     },
     {
       "stage": "S09",
@@ -98,8 +98,8 @@
       "referenceBuild": "V01-C",
       "factor": 1.1441,
       "targetMs": 191544,
-      "featuredRivalPace": 0.7422,
-      "featuredRivalMs": 192748
+      "featuredRivalPace": 0.75,
+      "featuredRivalMs": 191676
     },
     {
       "stage": "S10",
@@ -109,8 +109,8 @@
       "referenceBuild": "V02-C",
       "factor": 1.1397,
       "targetMs": 167988,
-      "featuredRivalPace": 0.7344,
-      "featuredRivalMs": 168542
+      "featuredRivalPace": 0.7422,
+      "featuredRivalMs": 168764
     },
     {
       "stage": "S11",
@@ -132,7 +132,7 @@
       "factor": 1.1307,
       "targetMs": 241663,
       "featuredRivalPace": 0.6875,
-      "featuredRivalMs": 243314
+      "featuredRivalMs": 242783
     },
     {
       "stage": "S13",
@@ -143,7 +143,7 @@
       "factor": 1.1262,
       "targetMs": 232975,
       "featuredRivalPace": 0.5938,
-      "featuredRivalMs": 233139
+      "featuredRivalMs": 233538
     },
     {
       "stage": "S14",
@@ -154,7 +154,7 @@
       "factor": 1.1217,
       "targetMs": 187774,
       "featuredRivalPace": 0.7031,
-      "featuredRivalMs": 187971
+      "featuredRivalMs": 188502
     },
     {
       "stage": "S15",
@@ -165,7 +165,7 @@
       "factor": 1.1172,
       "targetMs": 157286,
       "featuredRivalPace": 0.6562,
-      "featuredRivalMs": 158550
+      "featuredRivalMs": 158589
     },
     {
       "stage": "S16",
@@ -176,7 +176,7 @@
       "factor": 1.1128,
       "targetMs": 244232,
       "featuredRivalPace": 0.6406,
-      "featuredRivalMs": 245575
+      "featuredRivalMs": 245524
     },
     {
       "stage": "S17",
@@ -187,7 +187,7 @@
       "factor": 1.1083,
       "targetMs": 171545,
       "featuredRivalPace": 0.6797,
-      "featuredRivalMs": 172734
+      "featuredRivalMs": 172284
     },
     {
       "stage": "S18",
@@ -198,7 +198,7 @@
       "factor": 1.1038,
       "targetMs": 227587,
       "featuredRivalPace": 0.6562,
-      "featuredRivalMs": 228272
+      "featuredRivalMs": 228335
     },
     {
       "stage": "S19",
@@ -219,8 +219,8 @@
       "referenceBuild": "V01-F",
       "factor": 1.0948,
       "targetMs": 236517,
-      "featuredRivalPace": 0.6484,
-      "featuredRivalMs": 237570
+      "featuredRivalPace": 0.6641,
+      "featuredRivalMs": 237418
     },
     {
       "stage": "S21",
@@ -241,8 +241,8 @@
       "referenceBuild": "V01-F",
       "factor": 1.0859,
       "targetMs": 228647,
-      "featuredRivalPace": 0.625,
-      "featuredRivalMs": 229494
+      "featuredRivalPace": 0.6328,
+      "featuredRivalMs": 229924
     },
     {
       "stage": "S23",
@@ -253,7 +253,7 @@
       "factor": 1.0814,
       "targetMs": 218101,
       "featuredRivalPace": 0.6719,
-      "featuredRivalMs": 219527
+      "featuredRivalMs": 219230
     },
     {
       "stage": "S24",
@@ -264,7 +264,7 @@
       "factor": 1.0769,
       "targetMs": 158654,
       "featuredRivalPace": 0.7656,
-      "featuredRivalMs": 159321
+      "featuredRivalMs": 159873
     },
     {
       "stage": "S25",
@@ -274,8 +274,8 @@
       "referenceBuild": "V03-G",
       "factor": 1.0724,
       "targetMs": 191630,
-      "featuredRivalPace": 0.7539,
-      "featuredRivalMs": 193284
+      "featuredRivalPace": 0.7344,
+      "featuredRivalMs": 192144
     },
     {
       "stage": "S26",
@@ -285,8 +285,8 @@
       "referenceBuild": "V01-G",
       "factor": 1.0679,
       "targetMs": 259266,
-      "featuredRivalPace": 0.6484,
-      "featuredRivalMs": 261110
+      "featuredRivalPace": 0.6562,
+      "featuredRivalMs": 259302
     },
     {
       "stage": "S27",
@@ -296,8 +296,8 @@
       "referenceBuild": "V01-G",
       "factor": 1.0634,
       "targetMs": 270142,
-      "featuredRivalPace": 0.7266,
-      "featuredRivalMs": 271643
+      "featuredRivalPace": 0.7539,
+      "featuredRivalMs": 271517
     },
     {
       "stage": "S28",
@@ -308,7 +308,7 @@
       "factor": 1.059,
       "targetMs": 213583,
       "featuredRivalPace": 0.6797,
-      "featuredRivalMs": 214583
+      "featuredRivalMs": 214726
     },
     {
       "stage": "S29",
@@ -318,8 +318,8 @@
       "referenceBuild": "V01-H",
       "factor": 1.0545,
       "targetMs": 281233,
-      "featuredRivalPace": 0.6562,
-      "featuredRivalMs": 282543,
+      "featuredRivalPace": 0.6719,
+      "featuredRivalMs": 281840,
       "contracts": {
         "entrySectorMs": 77611,
         "arcDriftRaw": 1271,
@@ -353,7 +353,7 @@
       "factor": 1.04,
       "targetMs": 92279,
       "featuredRivalPace": 0.9688,
-      "featuredRivalMs": 92450
+      "featuredRivalMs": 92461
     },
     {
       "stage": "S02",
@@ -364,7 +364,7 @@
       "factor": 1.0386,
       "targetMs": 148091,
       "featuredRivalPace": 0.8438,
-      "featuredRivalMs": 149177
+      "featuredRivalMs": 149538
     },
     {
       "stage": "S03",
@@ -375,7 +375,7 @@
       "factor": 1.0372,
       "targetMs": 188345,
       "featuredRivalPace": 0.9375,
-      "featuredRivalMs": 189297
+      "featuredRivalMs": 189428
     },
     {
       "stage": "S04",
@@ -397,7 +397,7 @@
       "factor": 1.0345,
       "targetMs": 138786,
       "featuredRivalPace": 0.9375,
-      "featuredRivalMs": 139586
+      "featuredRivalMs": 139854
     },
     {
       "stage": "S06",
@@ -407,8 +407,8 @@
       "referenceBuild": "V01-H1b",
       "factor": 1.0331,
       "targetMs": 159389,
-      "featuredRivalPace": 0.9062,
-      "featuredRivalMs": 159785
+      "featuredRivalPace": 0.8906,
+      "featuredRivalMs": 160297
     },
     {
       "stage": "S07",
@@ -418,8 +418,8 @@
       "referenceBuild": "V01-H1b",
       "factor": 1.0317,
       "targetMs": 139806,
-      "featuredRivalPace": 0.9531,
-      "featuredRivalMs": 140629
+      "featuredRivalPace": 0.9688,
+      "featuredRivalMs": 140589
     },
     {
       "stage": "S08",
@@ -430,7 +430,7 @@
       "factor": 1.0303,
       "targetMs": 130745,
       "featuredRivalPace": 0.8906,
-      "featuredRivalMs": 131531
+      "featuredRivalMs": 131830
     },
     {
       "stage": "S09",
@@ -441,7 +441,7 @@
       "factor": 1.029,
       "targetMs": 173498,
       "featuredRivalPace": 0.9531,
-      "featuredRivalMs": 174130
+      "featuredRivalMs": 174529
     },
     {
       "stage": "S10",
@@ -451,8 +451,8 @@
       "referenceBuild": "V01-H2",
       "factor": 1.0276,
       "targetMs": 152086,
-      "featuredRivalPace": 0.9531,
-      "featuredRivalMs": 152966
+      "featuredRivalPace": 0.9688,
+      "featuredRivalMs": 152121
     },
     {
       "stage": "S11",
@@ -462,8 +462,8 @@
       "referenceBuild": "V01-H2",
       "factor": 1.0262,
       "targetMs": 178798,
-      "featuredRivalPace": 0.8438,
-      "featuredRivalMs": 179976
+      "featuredRivalPace": 0.875,
+      "featuredRivalMs": 178942
     },
     {
       "stage": "S12",
@@ -474,7 +474,7 @@
       "factor": 1.0248,
       "targetMs": 222709,
       "featuredRivalPace": 0.9062,
-      "featuredRivalMs": 223241
+      "featuredRivalMs": 223609
     },
     {
       "stage": "S13",
@@ -484,8 +484,8 @@
       "referenceBuild": "V01-H2",
       "factor": 1.0234,
       "targetMs": 216907,
-      "featuredRivalPace": 1.0,
-      "featuredRivalMs": 235095
+      "featuredRivalPace": 0.8125,
+      "featuredRivalMs": 217868
     },
     {
       "stage": "S14",
@@ -496,7 +496,7 @@
       "factor": 1.0221,
       "targetMs": 172334,
       "featuredRivalPace": 0.8906,
-      "featuredRivalMs": 172513
+      "featuredRivalMs": 173101
     },
     {
       "stage": "S15",
@@ -506,8 +506,8 @@
       "referenceBuild": "V01-H3",
       "factor": 1.0207,
       "targetMs": 137854,
-      "featuredRivalPace": 1.0,
-      "featuredRivalMs": 141205
+      "featuredRivalPace": 0.8594,
+      "featuredRivalMs": 138165
     },
     {
       "stage": "S16",
@@ -517,8 +517,8 @@
       "referenceBuild": "V01-H3",
       "factor": 1.0193,
       "targetMs": 228541,
-      "featuredRivalPace": 0.8281,
-      "featuredRivalMs": 229103
+      "featuredRivalPace": 0.8438,
+      "featuredRivalMs": 228738
     },
     {
       "stage": "S17",
@@ -528,8 +528,8 @@
       "referenceBuild": "V01-H3",
       "factor": 1.0179,
       "targetMs": 162533,
-      "featuredRivalPace": 0.8125,
-      "featuredRivalMs": 162884
+      "featuredRivalPace": 0.875,
+      "featuredRivalMs": 163649
     },
     {
       "stage": "S18",
@@ -540,7 +540,7 @@
       "factor": 1.0166,
       "targetMs": 200434,
       "featuredRivalPace": 0.7969,
-      "featuredRivalMs": 201661
+      "featuredRivalMs": 201877
     },
     {
       "stage": "S19",
@@ -550,8 +550,8 @@
       "referenceBuild": "V01-H3",
       "factor": 1.0152,
       "targetMs": 172712,
-      "featuredRivalPace": 0.8125,
-      "featuredRivalMs": 172842
+      "featuredRivalPace": 0.8047,
+      "featuredRivalMs": 173422
     },
     {
       "stage": "S20",
@@ -562,7 +562,7 @@
       "factor": 1.0138,
       "targetMs": 211234,
       "featuredRivalPace": 0.7656,
-      "featuredRivalMs": 211513
+      "featuredRivalMs": 211570
     },
     {
       "stage": "S21",
@@ -583,8 +583,8 @@
       "referenceBuild": "V01-H4",
       "factor": 1.011,
       "targetMs": 212944,
-      "featuredRivalPace": 0.7734,
-      "featuredRivalMs": 214225
+      "featuredRivalPace": 0.7812,
+      "featuredRivalMs": 213832
     },
     {
       "stage": "S23",
@@ -605,8 +605,8 @@
       "referenceBuild": "V01-H4",
       "factor": 1.0083,
       "targetMs": 142684,
-      "featuredRivalPace": 0.8438,
-      "featuredRivalMs": 143983
+      "featuredRivalPace": 0.8594,
+      "featuredRivalMs": 143222
     },
     {
       "stage": "S25",
@@ -616,8 +616,8 @@
       "referenceBuild": "V01-H4",
       "factor": 1.0069,
       "targetMs": 176902,
-      "featuredRivalPace": 0.9688,
-      "featuredRivalMs": 177150
+      "featuredRivalPace": 0.9531,
+      "featuredRivalMs": 177457
     },
     {
       "stage": "S26",
@@ -627,8 +627,8 @@
       "referenceBuild": "V01-H4",
       "factor": 1.0055,
       "targetMs": 234113,
-      "featuredRivalPace": 0.8359,
-      "featuredRivalMs": 235669
+      "featuredRivalPace": 0.8438,
+      "featuredRivalMs": 234350
     },
     {
       "stage": "S27",
@@ -638,8 +638,8 @@
       "referenceBuild": "V01-H4",
       "factor": 1.0041,
       "targetMs": 244775,
-      "featuredRivalPace": 0.9375,
-      "featuredRivalMs": 246016
+      "featuredRivalPace": 0.9219,
+      "featuredRivalMs": 246175
     },
     {
       "stage": "S28",
@@ -650,7 +650,7 @@
       "factor": 1.0028,
       "targetMs": 209955,
       "featuredRivalPace": 0.7812,
-      "featuredRivalMs": 211369
+      "featuredRivalMs": 211686
     },
     {
       "stage": "S29",
@@ -660,8 +660,8 @@
       "referenceBuild": "V01-H4",
       "factor": 1.0014,
       "targetMs": 246955,
-      "featuredRivalPace": 0.8906,
-      "featuredRivalMs": 248945,
+      "featuredRivalPace": 0.9375,
+      "featuredRivalMs": 248451,
       "contracts": {
         "entrySectorMs": 64473,
         "arcDriftRaw": 1163,

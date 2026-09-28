@@ -89,6 +89,29 @@ namespace NightSignal.Tests
             Assert.That(entries.Count, Is.EqualTo(Limits.CampaignStages));
         }
 
+        /// <summary>
+        /// Re-certifies only the stage sides listed in Temp/ns-certify-stages.txt ("N1 H4 H30": mode letter and stage number)
+        /// and merges them into the file — for a change that moves only some featured rivals (their reference times do not
+        /// change). Ignored when the list is absent.
+        /// </summary>
+        [UnityTest, Timeout(7200000)]
+        public IEnumerator CertifyListed()
+        {
+            const string list = "Temp/ns-certify-stages.txt";
+            if (!File.Exists(list)) Assert.Ignore("No " + list);
+            ContentLibrary lib = ContentLibrary.Load();
+            var entries = new List<CertifiedBenchmark>();
+            var problems = new List<string>();
+            foreach (string item in File.ReadAllText(list).Split(new[] { ' ', ',', '\n', '\r', '\t' }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                CampaignMode mode = char.ToUpperInvariant(item[0]) == 'H' ? CampaignMode.Hard : CampaignMode.Normal;
+                if (!int.TryParse(item.Substring(1), out int n) || n < 1 || n > Limits.CampaignStages) { problems.Add("bad entry " + item); continue; }
+                yield return CertifyStage(lib, n, mode, problems, c => entries.Add(c));
+            }
+            Save(entries);
+            Assert.That(problems, Is.Empty, string.Join("; ", problems));
+        }
+
         /// <summary>Re-certifies S29 alone (its contracts need contract-driving reference runs) and merges it into the file.</summary>
         [UnityTest, Timeout(3600000)]
         public IEnumerator CertifyFourSignals()

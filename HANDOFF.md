@@ -2,7 +2,7 @@
 
 _Last updated: 2026-09-28 — the meet, offline (V-073): Cedar Lantern Terrace, walking, twelve emotes, host, boombox;
 the meet online with three real clients (V-074), the convoy at the meet (V-075), race from the meet and back plus
-walking controls (V-076), the Player Card with a driver appearance (V-077), race audio (V-078), Drift Attack only where zones exist (V-079), AI drift skill (V-080), group Time Attack and tables with 4/6 humans (V-081, V-082), Canvas controller pen (V-083), the meet's touring challenges CH61–CH65 and CH67 (V-084), CH33/CH35/CH44/CH45/CH66/CH71 (V-085), car levels of detail (V-086), the contact-prediction experiment (V-087, negative), preset rename/delete (V-088), the meet showing applied liveries (V-089), challenge gates CH03/CH06/CH09 and CH16 (V-090), the Driver Card offline (V-091), card style (V-092), showcase records (V-093), the meet under latency (V-094), drops/refused re-entry/spectating in a full impaired race and the offline showcase (V-095), racecraft CH31/CH32 and the HUD gap (V-096), CH48 Sign Your Car and the offline meet's livery fix (V-097), CH50 Change Without Losing (V-098), the campaign story on screen offline — intros, reactions, race diary (V-099) — and online (V-100), the endings and Shiori's epilogue / CH75 (V-101), the diary's read marks and CH70 (V-102), offline ghosts and CH68 (V-103), online ghosts and CH68 online (V-104), the course-uniqueness report (V-105), crew behaviour telemetry with tendency behaviours (V-106), a convoy member's shared ghost on the server (V-107).
+walking controls (V-076), the Player Card with a driver appearance (V-077), race audio (V-078), Drift Attack only where zones exist (V-079), AI drift skill (V-080), group Time Attack and tables with 4/6 humans (V-081, V-082), Canvas controller pen (V-083), the meet's touring challenges CH61–CH65 and CH67 (V-084), CH33/CH35/CH44/CH45/CH66/CH71 (V-085), car levels of detail (V-086), the contact-prediction experiment (V-087, negative), preset rename/delete (V-088), the meet showing applied liveries (V-089), challenge gates CH03/CH06/CH09 and CH16 (V-090), the Driver Card offline (V-091), card style (V-092), showcase records (V-093), the meet under latency (V-094), drops/refused re-entry/spectating in a full impaired race and the offline showcase (V-095), racecraft CH31/CH32 and the HUD gap (V-096), CH48 Sign Your Car and the offline meet's livery fix (V-097), CH50 Change Without Losing (V-098), the campaign story on screen offline — intros, reactions, race diary (V-099) — and online (V-100), the endings and Shiori's epilogue / CH75 (V-101), the diary's read marks and CH70 (V-102), offline ghosts and CH68 (V-103), online ghosts and CH68 online (V-104), the course-uniqueness report (V-105), crew behaviour telemetry with tendency behaviours (V-106), a convoy member's shared ghost on the server (V-107), benchmarks recertified after the tendency behaviours (V-108).
 Now: the gameplay backlog._
 
 **Rules revision:** `docs/brief/Night_Signal_Addendum_01.txt` supersedes parts of the master (six humans + up to
@@ -55,8 +55,8 @@ The control plane is a **long-lived development service**: leave it running whil
 TCP listener only on 127.0.0.1:5080, `GET /healthz` ok, no error/restart loop in its log, `contentHash` equal to the
 content the next run uses). Restart it once, cleanly, only when it is unhealthy or its content hash is stale after a
 content change (content documents feed the hash; a mismatched game server is refused), and after a change to its own
-code. Last restart: 2026-09-28 on the V-104 code (ghost endpoints and settlement; migration 0010), race content hash `3677a844…`, customization
-`306dd38e…`. Network harnesses go through
+code. Last restart: 2026-09-28 for the V-108 content (recertified benchmarks; the V-107 convoy-ghost endpoint included), race content hash
+`26709731…`, customization `306dd38e…`. Network harnesses go through
 `Tools/run/NetGuard.psm1` (loopback unless `-AllowLan`, free-port check, socket evidence in `network.json`).
 
 Evidence tours (built player, run from the repo root; each uses its own profile/preferences folders under `Builds/`):
@@ -169,10 +169,9 @@ Render Cockpit Sheets* renders the mounted views of every car.
 
 Pipeline in dependency order (items at one level do not wait for later ones; human checks are listed where they gate).
 
-0. **Recertify the benchmarks after V-106** (`BenchmarkCertificationTests.CertifyHard` + `CertifyNormal`, ~56 min in
-   the editor): the featured rivals now drive with tendency behaviours, so their bisected paces predate them; P is
-   unaffected. Then copy `Evidence/progression/benchmarks/stage-benchmarks.json` into `authored/`, refresh the content
-   library and restart the control plane (content hash changes).
+0. **Rerun the crew telemetry** (`-nsCrewTelemetryTour`) on the next player build: V-108 removed the momentum-reader's
+   apex shift (it cost R48 17.6 s on the Hard finale); the benchmarks are recertified and authored (V-108). A change to
+   a tendency later needs only `CertifyListed` for the stages whose featured rival has it.
 
 1. **Course scenery follow-ups** (small): a human look per region (the built-player tour with the regional kits passed,
    run 5 on `7d9119d`); the steep dark terrain "cliffs" of the gorge/highland terrain styles (heightfield resolution)

@@ -73,7 +73,8 @@ namespace NightSignal.AI
                 case "late-brake-anchor": p.BrakingDecel += 1.0f; p.BrakeGain = 1.5f; break;
                 case "brake-release-student": p.BrakingDecel -= 0.8f; p.BrakeGain = 0.7f; break;
                 case "margin-keeper": p.CornerSpeedFactor -= 0.02f; p.LineAggression -= 0.15f; p.ThrottleBias = -0.08f; break;
-                case "momentum-reader": p.CornerSpeedFactor += 0.02f; p.BrakingDecel -= 0.4f; p.ApexShift = -4f; break;
+                // No apex shift: an early apex costs exit speed, the opposite of carrying momentum (V-108: R48 lost 17.6 s on C25).
+                case "momentum-reader": p.CornerSpeedFactor += 0.02f; p.BrakingDecel -= 0.4f; break;
                 case "geometric-apexer": p.LineAggression += 0.2f; break;
                 case "wide-entry-specialist": p.LineAggression += 0.3f; p.EntryWidth = 0.6f; break;
                 case "exit-traction-specialist": p.CornerSpeedFactor -= 0.04f; p.ApexShift = 8f; p.ThrottleBias = 0.15f; break;

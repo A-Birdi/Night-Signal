@@ -10,8 +10,8 @@
       "referenceBuild": "stock",
       "factor": 1.18,
       "targetMs": 102070,
-      "featuredRivalPace": 0.7188,
-      "featuredRivalMs": 103026
+      "featuredRivalPace": 0.7266,
+      "featuredRivalMs": 102417
     },
     {
       "stage": "S02",
@@ -386,7 +386,7 @@
       "factor": 1.0359,
       "targetMs": 140375,
       "featuredRivalPace": 1.0,
-      "featuredRivalMs": 142880
+      "featuredRivalMs": 142698
     },
     {
       "stage": "S05",
@@ -684,7 +684,7 @@
       "factor": 1.0,
       "targetMs": 284700,
       "featuredRivalPace": 1.0,
-      "featuredRivalMs": 309376
+      "featuredRivalMs": 291741
     }
   ]
 }

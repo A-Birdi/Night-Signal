@@ -2195,3 +2195,18 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - **Finding:** R48 (the Hard finale rival) is a momentum-reader, to which V-106 gave an earlier apex (`ApexShift` −4 m);
   the other momentum-reader, R01, lost only 0.2 s on H S04, so C25 under the Hard finale's conditions punishes the
   earlier line. Being investigated before the file becomes authored content (next checkpoint).
+- **Fix (this checkpoint):** the momentum-reader no longer shifts its apex (an early apex costs exit speed — the opposite
+  of carrying momentum, and R48's authored strength is "extraordinary legal speed preservation"). Only R01 and R48 carry
+  that tendency, so only their stages were recertified with the new `CertifyListed` (the stage sides listed in
+  `Temp/ns-certify-stages.txt`, merged into the file; 1/1 passed in 104 s): **N S01 R01 0.727 → 102.4 s, H S04 R01 at full
+  pace 142.7 s, H S30 R48 at full pace 291.741 s — exactly the V-066 values**, which confirms the cause.
+- **Authored content:** the certified file is now `Assets/Content/Data/authored/stage-benchmarks.json`: race content hash
+  `3677a844…` → **`26709731…`**. Hard: 28 of 30 featured rivals land 0–1 % above their targets, S04 R01 and S30 R48 cannot
+  reach them even at full pace (4 before: S13 and S15 now can).
+- **Tests:** EditMode 481 passed, 2 skipped (the explicit contact experiment); `CertifiedBenchmarkTests` failed once only
+  because the editor's content library kept its catalogue (and hash) cached across the file change — 2/2 after a script
+  reload. .NET (control plane stopped): Services 353, Core 148, Builds 232, Toys 92.
+- **Control plane restarted** for the content change (tracked task; health ok, race content `26709731…`, customization
+  `306dd38e…` unchanged).
+- **Follow-up:** the V-106 crew telemetry was measured with the momentum-reader's apex shift; it is rerun with the next
+  player build (tea-hour's R01 is the only crew member affected).
