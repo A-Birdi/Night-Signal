@@ -1547,7 +1547,8 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   and the S29 featured rival (who drifts the Arc) may re-initiate — the certified S29 benchmark was not re-measured.
 
 ## V-081 — Group Time Attack with four and six humans (2026-09-28)
-- Revision: `7c4ba01` player build (`cce88cd` code + later docs/tests only; content `3677a844…`), loopback control plane
+- Revision: the player build of `cce88cd` (content `3677a844…`; it does not contain V-080's drift-skill code, which only
+  affects drift events), loopback control plane
   and one dedicated game server on 127.0.0.1 (NetGuard, released after each run). `Tools/run/net-race.ps1 -Humans N
   -FreeplayCourse C01 -FreeplayMode time-attack`: separate client processes (AutoClients with the validator autopilot
   through normal inputs — automation, not people).
