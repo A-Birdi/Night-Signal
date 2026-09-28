@@ -1571,3 +1571,16 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - **6 humans:** **PASS (6/6 clients):** every client saw the other 5 on the Greenlight board, all 10 others' Cap Clash shots through the serialized queue, 5 others' Pit-Crew operations, and 15 others' Canvas marks (18 on the sheet). Evidence: `Evidence/ui/online/toys-group/h6-*`.
 - **Limits:** one machine, loopback, scripted inputs; every client draws the same tour strokes, so the Canvas marks
   overlap on screen (the counts come from the hosted sheet); Pocket Circuit (V-030) was not part of this group run.
+
+## V-083 — Canvas controller pen (2026-09-28)
+- Revision: `a2779f3` (player build of that commit), one window, tour-scoped preferences, Local profile (no network).
+- **What changed:** Convoy Canvas reads one pointer from the mouse or a controller, whichever moved last: the right
+  stick moves a crosshair pen over the sheet and the right trigger is the button for every tool (pen strokes, lines,
+  shapes, stamps, lettering, eraser) through the same operations as the mouse; the hint line names the controls. The
+  app's UI input module no longer navigates with the right stick (the left stick and d-pad still do) — the default
+  Input System UI actions bound both sticks, so moving the pen had moved the tool-column focus (seen in the first run).
+- **Built player** (`-nsCanvasPadTour`, a virtual gamepad added by the tour): **PASS** — the right stick took the
+  pointer (pen at 682, 591 px), one RT stroke gave exactly one new mark with 236 points, the menu focus stayed on
+  Tool/Prev throughout, and a mouse move handed the pointer back. Evidence: `Evidence/ui/canvas-pad/`.
+- **Limits:** a simulated controller, not a person with a pad; the online Canvas uses the same screen code but was not
+  driven by a controller in a networked run.
