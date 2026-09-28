@@ -1,0 +1,19 @@
+# Convoy meet run (Tools/run/meet-online.ps1 -Convoy) on 5001c7a, loopback control plane; harness summary:
+[NightSignal.MeetConvoy:host] room convoy-cs_b25576ef8082430aa5a4 bay 1; convoy event ready: True
+[NightSignal.MeetConvoy:host] PASS
+[NightSignal.MeetConvoy:guest] room convoy-cs_b25576ef8082430aa5a4 bay 2; convoy event ready: True
+[NightSignal.MeetConvoy:guest] PASS
+# The guest's meet log for that run:
+[NightSignal.Meet] Cedar Lantern Terrace generated (Full) in 0.09 s
+[NightSignal.Meet] joined meet convoy-cs_b25576ef8082430aa5a4 (convoy) in bay 2; 1 other(s) here
+[NightSignal.Meet] arrived in bay 2 after 3.50 s (skippable flourish)
+[NightSignal.Meet] arrival confirmed by the room
+[NightSignal.Meet] event ready from the meet
+[NightSignal.MeetConvoy:guest] room convoy-cs_b25576ef8082430aa5a4 bay 2; convoy event ready: True
+[NightSignal.Meet] leave requested
+[NightSignal.Meet] Cedar Lantern Terrace generated (Full) in 0.07 s
+[NightSignal.Meet] joined meet convoy-cs_b25576ef8082430aa5a4 (convoy) in bay 2; 1 other(s) here
+[NightSignal.Meet] arrived in bay 2 after 3.50 s (skippable flourish)
+[NightSignal.Meet] arrival confirmed by the room
+[NightSignal.Meet] leave requested
+[NightSignal.MeetConvoy:guest] PASS

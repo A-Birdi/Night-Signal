@@ -1396,3 +1396,26 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   not yet shown inside the meet (an allocation there does leave the room and hands over to the race — code path, not yet
   exercised by a run); late joiners start the boombox cue from its beginning (the synth has no seek); "Join Friend's
   Meet" and invitations exist on the server and in its tests but have no screen yet.
+
+## V-075 — The convoy at the meet: header, Ready from the meet, a friend's meet by invitation (2026-09-28)
+- Revision: `5001c7a`. Control plane unchanged (the `c6d4451`+ process from V-074, still running).
+- **What changed:** at the meet, a convoy member sees a compact convoy header (members, leader, phase, mode/event
+  readiness and their own answer) on a dark plate at the top centre; while the leader's ready request waits for them a
+  pinned line names the Menu control, and the request goes to the SIGNAL ribbon once per proposal. The meet menu offers
+  Event Ready/Unready (or Mode Ready) and "Invite a friend to this meet" (a place held 30 s). The Friends screen lists
+  meet invitations ("Driver 1 holds a place for you at the meet · bay 2 · 28 s" → Join meet / Decline) and offers
+  "Join meet" for a friend whose presence is At the meet. The interaction prompt is cleared while seated in the car.
+- **Built players** (`5001c7a`, non-development, two windowed clients, `Tools/run/meet-online.ps1 -Convoy`, development
+  accounts 0 and 1 who are friends, loopback control plane): **PASS ×3** on `5001c7a` (plus one PASS on the source
+  just before the header plate). Each run: the host creates a private convoy and shares the code; the guest joins; the host
+  proposes Campaign · Normal, both answer Mode Ready, the host enters the mode and proposes the event; both open the
+  Convoy Meet and land in the same convoy room on the same side (bays 1 and 2); both answer **Event Ready from the meet
+  menu** (convoy state: event ready 2/2); the guest leaves the meet; the host invites it from inside the meet; the
+  guest sees the invitation on the Friends screen, joins the friend's meet and gets back into the host's room in its
+  held bay; both leave the meet and the convoy. The three-client public run (V-074 scenario) also PASSes on `5001c7a`
+  (0 corrections, 472 poses). Evidence: `Evidence/meet/convoy-*.jpg`, `convoy-log.txt`.
+- **Fixed on the way (harness only):** the guest could read the shared convoy code while the host was still writing it
+  (now written aside and moved into place, read tolerantly); the tour now waits until the meet flow has returned to its
+  menu screen before navigating (the flow re-showed Friends after the tour had moved to Convoy).
+- **Limits:** loopback, one machine, two clients; the leader did not press Start at the meet, so an allocation handing
+  over from the meet to the race (code path `LeaveMeetForRace`) is still not exercised by a run; no impairment run.
