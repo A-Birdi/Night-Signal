@@ -1520,3 +1520,28 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - **Built players** (`cce88cd`): `meet-online.ps1 -Convoy` PASS on the new content hash (clients and control plane agree).
 - **Limits:** the Convoy screen's Drift Attack course list was not photographed (it shows the server's filtered list);
   zone counts come from the route data — whether each zone is well placed is a separate design review.
+
+## V-080 — AI drift skill per driver (2026-09-28)
+- Revision: `21a9897` (EditMode and PlayMode in the open editor; no player build involved).
+- **What changed:** `DriverProfile.DriftSkill` (0 = unset = the tuned drift controller exactly — the validator
+  autopilot and every earlier result keep it). Rivals get a skill that rises with the campaign stage, follows their
+  tendency (rotation/recovery/momentum specialists higher; margin-keepers and straight-line planners lower) and adds a
+  little when their sheet's strength names slides or rotation; freeplay opponents spread 0.45–0.8. The skill changes
+  **behaviour, not the slide physics**: below the tuned point a driver commits to only a share of the judged zones
+  (40 % at skill 0; which zones is fixed per driver from the grid slot); above it the driver re-initiates the slide up
+  to twice per zone visit after running out of road, when straight again with enough zone left.
+- **How it was chosen (measured, not assumed):** the first mapping (deeper angle for skilled drivers) scored *lower* on
+  C01 — every attempt ends at the road edge and a deeper slide reaches it sooner. A one-knob sweep (explicit PlayMode
+  `DriftTuningSweep`, `Evidence/courses/drift/sweep.txt`) showed angle, entry speed, countersteer gain and edge margin
+  move the banked score in different directions per course (e.g. a 1.5 m edge margin: C01 −14 %, C08 +34 %), and an
+  edge-management variant changed nothing; so none of them became a skill.
+- **Tests:** EditMode `DriftSkillTests` 2/2 (unset = tuned point; the mapping; rivals rise with the campaign and follow
+  their tendency; generic spread); full EditMode suite **442/442**. PlayMode `DriftSkill_RaisesTheBankedScore`
+  **PASS**: V04 alone with the validator autopilot at skills 0.15 / 0.65 / 0.95 on C01, C04, C08, C12 — totals **7,563
+  < 9,679 < 11,704** pts (`Evidence/courses/drift/skill.txt`). `DriftAttack_ScoresAndRanksByDrift` C01/C08/C12 still
+  PASS with the skilled generic opponents (evidence regenerated).
+- **Limits:** per course the effect is **not** monotonic — on C04 the skilled driver's re-initiations cost points
+  (478 vs 1,717: attempts into the walls), on C08 the novice's skipped zone helped (2,483 vs 2,068); the gain is an
+  average over courses, dominated by C01. The drift controller itself (every attempt ends at the road edge) is the real
+  limit; a controller that manages the edge is future work. Rivals in drift events now drift differently from before,
+  and the S29 featured rival (who drifts the Arc) may re-initiate — the certified S29 benchmark was not re-measured.
