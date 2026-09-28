@@ -98,5 +98,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Content/Facilities/TestYard/TestYard.unity
     guid: f2c97866652e62a419ef3f9e3a3715de
+  - enabled: 1
+    path: Assets/Content/Facilities/Meet/Meet.unity
+    guid: fb7ddb349b8688249a55f71c53af725a
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

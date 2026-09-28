@@ -18,7 +18,7 @@ namespace NightSignal.ControlPlane.Control;
 /// </summary>
 public sealed class ControlChannel(ControlConnections connections, ControlCommandHandler handler, ConvoyDirectory directory,
     IPlayerStore store, AccessTokenValidator tokens, TimeProvider clock, IOptions<CompatibilityOptions> compatibility,
-    ILogger<ControlChannel> log)
+    ILogger<ControlChannel> log, Meet.MeetService meets)
 {
     public const string Path = "/v1/control";
     const int MaxMessageBytes = 16 * 1024;
@@ -86,7 +86,10 @@ public sealed class ControlChannel(ControlConnections connections, ControlComman
         finally
         {
             if (connections.Unregister(connection))
+            {
                 directory.Disconnected(accountId);
+                meets.Disconnected(accountId); // the meet shows "disconnected" and holds the bay for the grace
+            }
             // Let the writer flush and send the close frame before cancelling anything (graceful close handshake).
             connection.Close(WebSocketCloseStatus.NormalClosure, "bye");
             try { await writer.WaitAsync(TimeSpan.FromSeconds(5)); }

@@ -21,20 +21,20 @@ public sealed record Reply(string? RequestId, bool Ok, object? Result = null, Co
 /// </summary>
 public sealed class ControlCommandHandler(ConvoyDirectory directory, IPlayerStore store, ISocialStore social, ContentService content,
     MatchAllocator allocator, TicketIssuer tickets, IConvoyNotifier notifier, RateLimiter limiter, TimeProvider clock,
-    IHostApplicationLifetime lifetime, ILogger<ControlCommandHandler> log, ToyService toys, GarageService garage)
+    IHostApplicationLifetime lifetime, ILogger<ControlCommandHandler> log, ToyService toys, GarageService garage, Meet.MeetService meets)
 {
     static readonly TimeSpan ReplyRetention = TimeSpan.FromMinutes(10);
     readonly ConcurrentDictionary<string, (DateTimeOffset At, Lazy<Task<Reply>> Reply)> replies = new();
     int callsSincePrune;
 
     /// <summary>Requests that read state only; they are never cached by requestId and do not count as user interaction.</summary>
-    public static readonly string[] ReadOnlyTypes = { "ping", "convoy.state", "convoy.list", "rejoin.status", "toy.snapshot" };
+    public static readonly string[] ReadOnlyTypes = { "ping", "convoy.state", "convoy.list", "rejoin.status", "toy.snapshot", "meet.state" };
 
     /// <summary>
     /// Requests with their own exactly-once rule and a high rate (toy commands: Core's per-member request id inside the
     /// convoy session). They count as interaction but bypass the reply cache, which would otherwise fill with toy input.
     /// </summary>
-    public static readonly string[] SelfIdempotentTypes = { "toy.command" };
+    public static readonly string[] SelfIdempotentTypes = { "toy.command", "meet.move" };
 
     /// <summary>Replies that can be large and are sent on the connection's low-priority lane (after race/control traffic).</summary>
     public static readonly string[] LowPriorityReplyTypes = { "toy.snapshot" };
@@ -167,6 +167,28 @@ public sealed class ControlCommandHandler(ConvoyDirectory directory, IPlayerStor
                 return await SetLoadoutAsync(a, Read<LoadoutPayload>(payload), ct);
             case "diversion.set":
                 return directory.SetDiversion(a, Read<DiversionPayload>(payload).Toy);
+
+            // ---- the meet (spec §12): rooms hosted here; never touch readiness, proposals or the economy
+            case "meet.join":
+                return await meets.JoinAsync(a, payload, ct);
+            case "meet.leave":
+                return meets.Leave(a);
+            case "meet.arrived":
+                return meets.Arrived(a);
+            case "meet.move":
+                return meets.Move(a, payload);
+            case "meet.emote":
+                return meets.Emote(a, payload);
+            case "meet.chat":
+                return meets.Chat(a, payload);
+            case "meet.like":
+                return meets.Like(a, payload);
+            case "meet.invite":
+                return await meets.InviteAsync(a, payload, ct);
+            case "meet.boombox":
+                return meets.Boombox(a, payload);
+            case "meet.state":
+                return meets.Snapshot(a);
 
             // ---- 'While We Wait' toys (Addendum 02 §1, §11): never touch readiness, proposals or the economy
             case "toy.command":

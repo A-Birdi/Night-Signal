@@ -651,6 +651,14 @@ public sealed class GarageService(IGarageStore store, IPlayerStore players, Cont
         return new EntrantAppearance(customization.StockHash(carId), null);
     }
 
+    /// <summary>The car a player brings to the meet: its model and applied livery (compact wire form, null = stock); null if not theirs.</summary>
+    public async Task<(string CarId, string? Livery)?> MeetAppearanceAsync(string account, string instanceId, CancellationToken ct)
+    {
+        LoadedCar? c = await LoadAsync(account, instanceId, ct);
+        if (c is null) return null;
+        return (c.Workspace.Car.ModelId, AppearanceOf(c.Workspace).Livery);
+    }
+
     /// <summary>Frozen builds of several entrants' selected instances (event.start); entrants without a valid build are omitted.</summary>
     public async Task<IReadOnlyDictionary<string, EntrantBuild>> FreezeSelectionsAsync(IEnumerable<string> accounts, CancellationToken ct)
     {

@@ -88,6 +88,11 @@ public static class ControlPlaneSetup
         services.AddSingleton<SettlementService>();
         services.AddSingleton<MatchWatchdog>();
         services.AddHostedService(sp => sp.GetRequiredService<MatchWatchdog>());
+        // The meet (spec §12): Cedar Lantern Terrace rooms on the control channel, ticked and pushed at ≈10 Hz.
+        services.AddSingleton(sp => Meet.MeetContent.FromContentDirectory(sp.GetRequiredService<IOptions<ContentOptions>>(),
+            sp.GetRequiredService<ILogger<Meet.MeetContent>>()));
+        services.AddSingleton<Meet.MeetService>();
+        services.AddHostedService<Meet.MeetPump>();
         services.AddSingleton<ControlCommandHandler>();
         services.AddSingleton<ControlChannel>();
         services.AddHostedService<DevAuthBindingCheck>();

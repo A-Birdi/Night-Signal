@@ -64,7 +64,8 @@ namespace NightSignal.Core.Meet
         public string Id { get; }
         public MeetKind Kind { get; }
         public string ConvoyId { get; }
-        public long Revision { get; private set; }
+        /// <summary>Changes a client must see: the room's own and the boombox's (its controls change it directly).</summary>
+        public long Revision => ownRevision + Boombox.Revision;
         public BoomboxState Boombox { get; }
         public IReadOnlyList<MeetMember> Members => members;
         public IReadOnlyList<MeetEvent> Events => events;
@@ -74,7 +75,7 @@ namespace NightSignal.Core.Meet
         readonly List<MeetEvent> events = new List<MeetEvent>();
         readonly Dictionary<string, (int Bay, long UntilMs, string Inviter)> reservations = new Dictionary<string, (int, long, string)>();
         readonly Dictionary<string, long> generations = new Dictionary<string, long>();
-        long eventSeq;
+        long eventSeq, ownRevision;
 
         public MeetRoom(string id, MeetKind kind, string convoyId, Func<string, double> cueSeconds, long nowMs)
         {
@@ -90,8 +91,12 @@ namespace NightSignal.Core.Meet
         public int Headcount(long now) =>
             members.Count(m => m.State != MeetMemberState.Leaving) + reservations.Count(r => r.Value.UntilMs > now && Find(r.Key) == null);
 
-        public bool HasRoomFor(string account, long now) =>
-            Find(account) != null || reservations.TryGetValue(account, out var r) && r.UntilMs > now || Headcount(now) < Limits.MaxMeetHumans;
+        public bool HasRoomFor(string account, long now)
+        {
+            MeetMember m = Find(account);
+            if (m != null && m.State != MeetMemberState.Leaving) return true; // already has a place (a leaver does not)
+            return reservations.TryGetValue(account, out var r) && r.UntilMs > now || Headcount(now) < Limits.MaxMeetHumans;
+        }
 
         HashSet<int> Taken(string except)
         {
@@ -101,7 +106,7 @@ namespace NightSignal.Core.Meet
             return taken;
         }
 
-        void Bump() => Revision++;
+        void Bump() => ownRevision++;
 
         void Post(NoticeKind kind, string key, MeetMember m, long now)
         {
@@ -309,9 +314,8 @@ namespace NightSignal.Core.Meet
                 }
                 if (m.Emote != Emote.None && !m.EmoteActive(now)) { m.Emote = Emote.None; changed = true; }
             }
-            int before = Boombox.Revision;
             Boombox.Tick(now);
-            if (changed || Boombox.Revision != before) Bump();
+            if (changed) Bump();
         }
 
         public bool Empty(long now) => members.Count == 0 && reservations.All(r => r.Value.UntilMs <= now);

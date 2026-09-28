@@ -22,6 +22,8 @@
     <None Include="../../Assets/Content/Data/authored/*.json" Link="content/authored/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     <!-- 'While We Wait' toy content (Addendum 02 D210): not part of the race ContentHash; loaded by Core ToyContent. -->
     <None Include="../../Assets/Content/Data/authored/toys/*.json" Link="content/authored/toys/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <!-- The meet (spec §12): quick-chat phrases (the room accepts their indices only). -->
+    <None Include="../../Assets/Content/Data/authored/story/meet.text.json" Link="content/authored/story/meet.text.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <!-- Schema migrations live in Backend/migrations and are embedded so the service can apply them. -->
