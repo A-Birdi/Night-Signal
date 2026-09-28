@@ -1,0 +1,23 @@
+[NightSignal.MeetOnline:host] signed in as Driver 1
+[NightSignal.MeetOnline:host] in room public-0003 bay 1
+[NightSignal.MeetOnline:host] remotes: 2; seen: remote Driver 2 in bay 2, notice arrived Driver 2, remote Driver 3 in bay 4, notice arrived Driver 3
+[NightSignal.MeetOnline:host] at the boombox after walking: (12.72, 0.01, 39.09); corrections 0, poses sent 478
+[NightSignal.MeetOnline:host] seen: remote Driver 2 in bay 2, notice arrived Driver 2, remote Driver 3 in bay 4, notice arrived Driver 3, emote Wave from Driver 2, chat 1 from Driver 2, notice departed Driver 3, removed Driver 3, notice disconnected Driver 2
+[NightSignal.MeetOnline:host] log: joined meet public-0003 (public) in bay 1; 0 other(s) here
+[NightSignal.MeetOnline:host] log: arrived in bay 1 after 3.50 s (skippable flourish)
+[NightSignal.MeetOnline:host] log: arrival confirmed by the room
+[NightSignal.MeetOnline:host] log: interact boombox boombox
+[NightSignal.MeetOnline:host] log: boombox acquire : Ok
+[NightSignal.MeetOnline:host] log: boombox queue MUS_GARAGE: Ok
+[NightSignal.MeetOnline:host] PASS
+[NightSignal.MeetOnline:guest1] signed in as Driver 2
+[NightSignal.MeetOnline:guest1] in room public-0003 bay 2
+[NightSignal.MeetOnline:guest1] remotes: 2; seen: remote Driver 1 in bay 1, remote Driver 3 in bay 4, notice arrived Driver 3
+[NightSignal.MeetOnline:guest1] boombox now MUS_GARAGE, submitted by the host: True
+[NightSignal.MeetOnline:guest1] dropping the connection without leaving
+[NightSignal.MeetOnline:guest1] PASS
+[NightSignal.MeetOnline:guest2] signed in as Driver 3
+[NightSignal.MeetOnline:guest2] in room public-0003 bay 4
+[NightSignal.MeetOnline:guest2] remotes: 2; seen: remote Driver 1 in bay 1, remote Driver 2 in bay 2
+[NightSignal.MeetOnline:guest2] boombox now MUS_GARAGE, submitted by the host: True
+[NightSignal.MeetOnline:guest2] PASS

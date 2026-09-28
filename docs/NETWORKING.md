@@ -308,6 +308,40 @@ readyRequestCooldownMs, notice, noticeCode}` where
 
 No wallet, e-mail or private selections appear in convoy state.
 
+### 3.7 The meet — Cedar Lantern Terrace rooms **NEW** (spec §12, D02)
+
+Meet rooms are hosted by the control plane on this channel (like the toys): a separate room from any race, never
+touching money, RP, unlocks, convoys or readiness. Rules are Core `MeetRoom` (shared with the game), under the
+`MeetService` lock; a pump (~10 Hz) ticks rooms and pushes. At most **six humans** per room (D02); the other bays hold
+display cars (`MeetLayout.AmbienceBays` 3, 5, 8, 10, 12).
+
+| type | payload → result |
+|---|---|
+| `meet.join` | `{kind:"public"\|"friend"\|"convoy", friendAccountId?, instanceId?}` → `{roomId, status:"Ok"\|"Rejoined", state}`. Public: the fullest public room with a place, never one holding someone either side has blocked; else a new room. Friend: friends only (`not_friends`), not blocked (`blocked`), the friend must be at a meet (`friend_not_at_meet`), a place or your reservation (`meet_full`). Convoy: one room per convoy session (`not_in_convoy`, `meet_full`), members parked together on one side. The car is the owned `instanceId` (its APPLIED livery, PI/class and a tune summary) or the first owned car (stock); `needs_card`, `needs_car`, `not_owned`. The server chooses the bay (never the client). Joining again within the disconnect grace resumes the same bay (`Rejoined`) with no new arrival notice. 10 joins/min. |
+| `meet.arrived` | `{}` → `{arrived, x, z, yaw}` — the arrival drive (3.5 s) ended; the avatar stands at the server's validated free point beside the car. The room also completes an arrival itself 6 s after the join. |
+| `meet.move` | `{x, z, yaw, speed, seq}` → `{status:"Accepted"\|"Ignored"}` or `{status:"Corrected", x, z, yaw}` — accepted only when newer (seq), present, inside the enclosure and clear of fixtures and parked cars, and within 4.6 m/s (+0.6 m) of the last accepted pose; otherwise the last good pose stands and the client snaps to it. Not cached by requestId; 30/s. |
+| `meet.emote` | `{emote:"Wave"\|"Bow"\|"ThumbsUp"\|"Clap"\|"Point"\|"CameraPose"\|"Stretch"\|"Cheer"\|"Shrug"\|"Nod"\|"Footwork"\|"Admire"}` → `{emote, startMs, durationMs}`; ≥ 0.4 s apart (`emote_refused`). |
+| `meet.chat` | `{index}` → quick-chat phrase index into `story/meet.text.json` `quickChat` (no free text); one per 1.5 s (`chat_refused`). |
+| `meet.like` | `{accountId}` → `{accountId, likes, cosmeticOnly:true}` — toggles a cosmetic like on someone's car; never your own, never across a block (`not_available`). |
+| `meet.invite` | `{accountId}` (a friend) → `{accountId, bay, untilMs}`; holds a bay for 30 s and pushes `meet.invited` to the friend. |
+| `meet.boombox` | `{op:"acquire"\|"release"\|"queue"\|"withdraw"\|"skip", trackId?}` → `{status, boombox}` or error `boombox_<status>` (`leaseheld`, `nolease`, `notowned`, `queuefull`, `toosoon`, `outofrange`, `unknowntrack`, `nothingqueued`). Core `BoomboxState`: 15 s renewable lease (acquire again to renew; the UI does every 8 s), one request per person, six queued, ≥ 10 s between user-triggered changes, only owned cues (baseline + granted), acquire/queue/skip within 3.2 m of the boombox. Lengths come from `authored/music.cues.json`. |
+| `meet.leave` | `{}` → `{left}` — an explicit departure (menu, Garage, a race allocation): "departed" once, the member fades for 0.5 s, then the bay is released. |
+| `meet.state` | read-only → the state below. |
+
+Pushes: **`meet.state`** (ordered lane, when the room's revision changed) = `{roomId, kind, revision, serverTimeMs,
+capacity, you, members[{accountId, displayName, carId, livery (LiveryWire)|null, bay (1–12), state:"arriving"|"present"|
+"leaving"|"disconnected", stateSinceMs, x, z, yaw, speed, poseMs, emote|null, emoteStartMs, chat{index, atMs}|null (hidden
+across a block), likes, likedByYou, blocked, pi, piClass, tune}], reservations[{bay, untilMs, forYou}], events[{seq, key,
+kind:"arrived"|"departed"|"disconnected", accountId, name, atMs}] (last 32; show each key once), boombox{trackId, startedMs,
+submittedBy, revision, leaseHolder, leaseUntilMs, queue[{accountId, trackId}]}}`; **`meet.poses`** (low-priority lane,
+~10 Hz, latest wins) = `{roomId, serverTimeMs, poses[{accountId, x, z, yaw, speed, poseMs}]}`; **`meet.invited`** =
+`{roomId, fromAccountId, fromName, untilMs, bay}`.
+
+A dropped control connection marks the member `disconnected` (announced once as disconnected, never as left), holds
+the avatar and bay for 30 s, and releases them quietly afterwards. Clients animate emotes from `emoteStartMs` (server
+clock estimated from `serverTimeMs`), interpolate poses ~150 ms behind, play the bundled boombox cue locally (hearing
+grants nothing; unreached boss themes stay protected locally), and never stream audio.
+
 ## 4. Match tickets
 
 Compact JWS, header `{"alg":"ES256","kid":"<RFC 7638 thumbprint>","typ":"JWT"}`, signed by the control plane's

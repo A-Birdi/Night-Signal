@@ -1365,3 +1365,34 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   snapshots, emote replication, shared boombox, ribbon events) is next. Walking bindings are remappable in the data but
   not yet on the Controls screen; players have a default look (no appearance picker yet); the host's lesson is tracked
   in the session but not yet wired to challenge CH63; a human play-through is outstanding.
+
+## V-074 — The meet online: rooms on the control plane, three real clients together (2026-09-28)
+- Revisions: `3a60643` (Core `MeetRoom`), `c6d4451` (control-plane `MeetService`), `32c3502` (online client, harness),
+  `9011821` (poses only after the arrival is confirmed). Control plane restarted once on `c6d4451`+ (content `d91b31e0…`,
+  which also brought it up to date with the V-069 recipe change); it is left running.
+- **Design:** the meet is hosted by the control plane over the existing control WebSocket, like the toys — a separate
+  room from any race, loopback only, no game server or extra port. Rules in Core `MeetRoom` (≤ 6 humans per D02,
+  server-chosen bays and parking transforms, convoy mates together, keyed arrival/departure/disconnect events, pose
+  validation, emote ID + start + bounded duration, quick-chat indices, cosmetic likes, 30 s friend reservations, a 30 s
+  disconnect grace with a quiet resume, the shared boombox). Protocol: docs/NETWORKING.md §3.7.
+- **Tests:** EditMode `MeetRulesTests` 17/17 (room rules). .NET `MeetControlChannelTests` 5/5 over real WebSockets
+  (in-process host, DevAuth, SQLite, the real pump, a manual clock): public allocation, arrival events, accepted and
+  corrected poses, emote/chat/like replication, leave vs disconnect and rejoin in the same bay, six per room with the
+  seventh in a new room, friend's meet refused when full then taken through a 30 s invitation, blocks never sharing a
+  public room and refusing likes, convoy members together on one side, the boombox refusing out-of-range and unowned
+  requests and reaching the other visitor. Services suite 339/340 (LedgerTests' two-store SQLite concurrency test fails
+  under full-suite load and passes 4/4 alone — pre-existing, untouched).
+- **Built players** (`9011821`, non-development, three windowed clients, `Tools/run/meet-online.ps1`, development
+  accounts from the seed, loopback control plane): **PASS ×3** — all three in the same public room (bays 1, 2, 4; bay 3
+  holds a display car); the host saw "Driver 2 arrived" and "Driver 3 arrived"; guest1 walked, waved, said "Nice car!"
+  and liked the host's car — the host saw the Wave (animated from the replicated start), the phrase and the like; the
+  host jogged ~90 m to the boombox with 0 corrections in 478 poses and queued Workbench Hours — both guests' rooms then
+  played it, submitted by the host; guest2 left (host: "Driver 3 left", the car and avatar faded and went); guest1 quit
+  without leaving (host: "Driver 2 disconnected", worded apart). Earlier runs on `32c3502`: PASS ×3 twice, with one
+  correction each — the first pose was sent before the arrival spot was confirmed (fixed in `9011821`). The offline tour
+  also PASSes on `9011821`. Evidence: `Evidence/meet/online-*.jpg`, `online-log.txt`.
+- **Limits:** loopback, one machine, three clients (not remote devices; no impairment matrix yet for the meet); remote
+  avatars use default looks derived from the display name (no appearance picker); the convoy ribbon/Ready controls are
+  not yet shown inside the meet (an allocation there does leave the room and hands over to the race — code path, not yet
+  exercised by a run); late joiners start the boombox cue from its beginning (the synth has no seek); "Join Friend's
+  Meet" and invitations exist on the server and in its tests but have no screen yet.

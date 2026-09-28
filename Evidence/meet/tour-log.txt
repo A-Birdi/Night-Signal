@@ -1,9 +1,9 @@
-arrival 3.74 s, bay 1
+arrival 3.72 s, bay 1
 walked 4.3 m in 3 s at 1.50 m/s
 jog speed 3.80 m/s
 pushed west: x -68.15
 near the boombox music is MUS_TITLE
-fps sample: 278
+fps sample: 417
 log: meet opened; player bay 1; 5 rivals at their cars; host Genzo Karasawa
 log: arrived in bay 1 after 3.50 s (skippable flourish)
 log: interact host NPC-GENZO

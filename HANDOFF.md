@@ -1,7 +1,8 @@
 # Handoff
 
 _Last updated: 2026-09-28 — the meet, offline (V-073): Cedar Lantern Terrace, walking, twelve emotes, host, boombox;
-the 48 rivals modelled and animated (V-072); course scenery (V-071); car art pass (V-070). Now: the networked meet room._
+the meet online with three real clients (V-074); the 48 rivals modelled and animated (V-072); course scenery (V-071).
+Now: meet follow-ups, then the gameplay backlog._
 
 **Rules revision:** `docs/brief/Night_Signal_Addendum_01.txt` supersedes parts of the master (six humans + up to
 twelve vehicles, live finale rivals, light contact, course access, offline domain, rejoin grants, voting, friends,
@@ -148,6 +149,9 @@ Render Cockpit Sheets* renders the mounted views of every car.
   `LandmarkKits.BuildMeet`; `Runtime/Meet` session, camera, walker, HUD; Offline hub → "Car Meet"; `-nsMeetTour` PASS on
   `7b4d1d9`. The game now creates its `MusicPlayer` (`MusicPlayer.Ensure`, `Resources/MusicLibrary`) and menu screens
   play their cues — races still play no music or engine audio.
+- **The meet online** (V-074): rooms hosted by the control plane (`Services/ControlPlane/Meet/MeetService.cs`, Core
+  `MeetRoom`; protocol docs/NETWORKING.md §3.7); the Convoy screen offers Car Meet (public) and Convoy Meet;
+  `Tools/run/meet-online.ps1` runs three clients (PASS ×3 on `9011821`).
 - **Addendum 04** (V-067): game server binds `127.0.0.1` by default (`-nsBindHost`, separate from `-nsPublicHost`),
   harnesses fail closed on non-loopback binds without `-AllowLan` (`Tools/run/NetGuard.psm1`), automation builds are
   non-development (no editor/profiler listener), measured sockets in the evidence; never touch Windows Firewall.
@@ -159,15 +163,11 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
 1. **Course scenery follow-ups** (small): a human look per region (the built-player tour with the regional kits passed,
    run 5 on `7d9119d`); the steep dark terrain "cliffs" of the gorge/highland terrain styles (heightfield resolution)
    are untouched.
-2. **The networked meet room** (Phase C of the meet, Gate 2/3): a `meet` room kind allocated by the control plane
-   (Join Public / Friend's / Convoy meet, ≤ 6 humans per D02, friend bay reservation 30 s, convoys kept together or a
-   clear queue/new instance), ticketed joins, server-owned bays and parking transforms, arrivals/departures as keyed
-   ribbon events (Leaving → 0.5 s fade, disconnected wording), low-rate avatar snapshots with interpolation, emote
-   ID/start/duration replication, the shared boombox (`BoomboxState` on the server, late-join seek), inspection of other
-   players' cars and cards (block lists, distance), and the convoy ribbon/Ready access at the meet.
-   Follow-ups from the offline slice: walking rows on the Controls screen; a player appearance picker on the Player Card;
-   wire the host lesson to challenge CH63; clear the interaction prompt while seated in the car; music and engine audio
-   in races (R16.1).
+2. **Meet follow-ups**: the convoy ribbon and Ready/Unready inside the meet, and a run where an allocation at the meet
+   hands over to the race; a Friend's-meet entry on the Friends screen and the invitation prompt (server side done and
+   tested); walking rows on the Controls screen; a player appearance picker on the Player Card; the host lesson wired to
+   challenge CH63; clear the interaction prompt while seated in the car; a meet run under impairment; music and engine
+   audio in races (R16.1).
 3. **Gameplay backlog**: AI drift skill per profile and campaign drift benchmarks; restrict Drift Attack to courses with
    judged zones; group Time Attack and toy tables with 3–6 humans; UI/reconnect/rejoin/DQ under load; Canvas controller
    cursor; customization follow-ups (meet livery refresh, pearl flip tint, preset rename/delete UI).
