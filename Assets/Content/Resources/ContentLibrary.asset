@@ -38,3 +38,5 @@ MonoBehaviour:
   RecipesDocument: {fileID: 4900000, guid: 76e0f15cc9216164294b608b2e7d2964, type: 3}
   CustomizationDocument: {fileID: 4900000, guid: 196ec0f366653167bf369d72f60aaa2c, type: 3}
   CharacterLooks: {fileID: 4900000, guid: aed8edd65d4921b479cc13da3405781f, type: 3}
+  NpcLooks: {fileID: 4900000, guid: 2603d8b3894808b49985305577f94d10, type: 3}
+  MeetText: {fileID: 4900000, guid: ea8ae2ccf04761d4da929a095cff05cc, type: 3}

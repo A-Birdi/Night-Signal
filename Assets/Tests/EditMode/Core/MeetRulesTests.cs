@@ -125,6 +125,40 @@ namespace NightSignal.Tests.Core
             Assert.That(MeetLayout.AllocateBay(new HashSet<int>(Enumerable.Range(0, 12))), Is.EqualTo(-1));
         }
 
+        // ------------------------------------------------------------------ SIGNAL ribbon
+
+        [Test]
+        public void Ribbon_OneCurrentThreeQueued_BurstsCoalesce_KeysNeverRepeat()
+        {
+            var q = new SignalRibbonQueue();
+            Assert.That(q.Post(NoticeKind.Arrived, "a1", "Aki"), Is.True);
+            q.Tick(0.01f);
+            Assert.That(q.Current.Display(), Is.EqualTo("Aki arrived"));
+            // A burst while Aki's notice shows: coalesced into one waiting notice.
+            q.Post(NoticeKind.Arrived, "a2", "Bo");
+            q.Post(NoticeKind.Arrived, "a3", "Cy");
+            q.Post(NoticeKind.Arrived, "a4", "Di");
+            Assert.That(q.Queued.Count, Is.EqualTo(1));
+            Assert.That(q.Queued[0].Display(), Is.EqualTo("3 drivers arrived"));
+            // Replays and reconnect retries carry the same key: shown once.
+            Assert.That(q.Post(NoticeKind.Arrived, "a2", "Bo"), Is.False);
+            q.Post(NoticeKind.Departed, "d1", "Eli");
+            q.Post(NoticeKind.Disconnected, "x1", "Fen");
+            q.Post(NoticeKind.Info, "i1", "Offline meet");
+            Assert.That(q.Queued.Count, Is.LessThanOrEqualTo(SignalRibbonQueue.MaxQueued));
+            q.Post(NoticeKind.Info, "i2", "Another");
+            Assert.That(q.Queued.Count, Is.LessThanOrEqualTo(SignalRibbonQueue.MaxQueued));
+            // About 2.5 s of hold between entering and leaving, then the next one.
+            float total = SignalRibbonQueue.EnterSeconds + SignalRibbonQueue.HoldSeconds + SignalRibbonQueue.ExitSeconds;
+            Assert.That(SignalRibbonQueue.HoldSeconds, Is.InRange(2.2f, 2.8f));
+            q.Tick(total);
+            q.Tick(0.01f);
+            Assert.That(q.Current.Display(), Is.EqualTo("3 drivers arrived"));
+            Assert.That(q.History, Does.Contain("3 drivers arrived"));
+            Assert.That(q.History, Does.Contain("Offline meet"), "a notice that could not queue still reaches the event list");
+            Assert.That(q.Queued.Any(n => n.Kind == NoticeKind.Disconnected && n.Display() == "Fen disconnected"), Is.True, "a network loss says disconnected");
+        }
+
         // ------------------------------------------------------------------ boombox
 
         static double Len(string id) => id == "MUS_MEET" ? 120 : id.StartsWith("MUS_") ? 100 : 0;

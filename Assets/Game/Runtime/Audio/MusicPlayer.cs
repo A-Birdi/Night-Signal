@@ -32,6 +32,26 @@ namespace NightSignal.GameAudio
         readonly Dictionary<string, CompiledScore> compiled = new Dictionary<string, CompiledScore>(StringComparer.Ordinal);
 
         public string CurrentCue { get; private set; }
+
+        /// <summary>
+        /// The game's music output, created on first use from Resources/MusicLibrary (persists across scenes). None on a
+        /// headless (batch-mode) process: the room and race servers play no audio.
+        /// </summary>
+        public static MusicPlayer Ensure()
+        {
+            if (Instance != null) return Instance;
+            if (Application.isBatchMode) return null;
+            var lib = Resources.Load<MusicLibrary>("MusicLibrary");
+            if (lib == null || lib.Instruments == null || lib.Cues == null || lib.Cues.Length == 0) return null;
+            var go = new GameObject("Music");
+            go.SetActive(false);
+            go.AddComponent<AudioSource>();
+            var mp = go.AddComponent<MusicPlayer>();
+            mp.instrumentLibrary = lib.Instruments;
+            mp.cues = lib.Cues;
+            go.SetActive(true); // Awake runs now, with the library assigned
+            return Instance;
+        }
         public IEnumerable<string> AvailableCues => sources.Keys;
 
         void Awake()

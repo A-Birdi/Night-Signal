@@ -94,7 +94,13 @@ namespace NightSignal.Front
             var failures = new List<string>();
             void Fail(string f) { failures.Add(f); Debug.Log("[NightSignal.MeetTour] FAIL " + f); }
             void Note(string n) => Debug.Log("[NightSignal.MeetTour] " + n);
-            void Shot(string name) => ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(dir, name + ".png"));
+            // A capture lands at the end of the frame: wait for it before the next step changes the scene.
+            IEnumerator Snap(string name)
+            {
+                ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(dir, name + ".png"));
+                yield return new WaitForEndOfFrame();
+                yield return null;
+            }
             bool Click(string name)
             {
                 Button b = GameObject.Find(name)?.GetComponent<Button>();
@@ -119,7 +125,7 @@ namespace NightSignal.Front
             // Arrival: the presented drive takes about 3.5 s, then the avatar gets out beside the car.
             float t0 = Time.realtimeSinceStartup;
             yield return new WaitForSeconds(1.4f);
-            Shot("01-arrival");
+            yield return Snap("01-arrival");
             while (!m.Ready && Time.realtimeSinceStartup - t0 < 15f) yield return null;
             float arrival = Time.realtimeSinceStartup - t0;
             Note($"arrival {arrival:F2} s, bay {m.PlayerBay + 1}");
@@ -129,7 +135,7 @@ namespace NightSignal.Front
             if (!MeetLayout.Walkable(p0.x, p0.z, MeetLayout.AvatarRadius * 0.9f)) Fail($"avatar spawned at a non-walkable point {p0}");
             if (MeetLayout.Bays[m.PlayerBay].Footprint.Contains(p0.x, p0.z, 0.2f)) Fail("avatar spawned inside its car");
             yield return new WaitForSeconds(0.6f);
-            Shot("02-out-of-car");
+            yield return Snap("02-out-of-car");
 
             // Walk toward the plaza, then jog.
             m.ScriptMove = _ => new Vector2(0f, 1f);
@@ -142,7 +148,7 @@ namespace NightSignal.Front
             yield return new WaitForSeconds(2f);
             Note($"jog speed {m.Player.Speed:F2} m/s");
             if (m.Player.Speed < 3f) Fail($"jog speed {m.Player.Speed:F2} m/s");
-            Shot("03-jog");
+            yield return Snap("03-jog");
             m.ScriptJog = false;
             // The perimeter holds: walk west into the hedge line for a while.
             m.Player.Teleport(new Vector3(-62f, 0f, 36f), 270f);
@@ -151,7 +157,7 @@ namespace NightSignal.Front
             float minX = m.Player.transform.position.x;
             Note($"pushed west: x {minX:F2}");
             if (minX < MeetLayout.WalkMinX - 0.05f) Fail($"walked through the west perimeter to x {minX:F2}");
-            Shot("04-west-edge");
+            yield return Snap("04-west-edge");
             // …and the garden island's edging.
             m.Player.Teleport(new Vector3(0f, 0f, -12f), 0f);
             m.Camera.Yaw = 0f;
@@ -167,7 +173,7 @@ namespace NightSignal.Front
             yield return new WaitForSeconds(0.5f);
             m.Open("host");
             yield return new WaitForSeconds(0.8f);
-            Shot("05-host-dialogue");
+            yield return Snap("05-host-dialogue");
             if (!m.Hud.PanelOpen || !m.Hud.PanelBody.Contains("Meet Walker")) Fail("host greeting did not address the player");
             m.Hud.PanelButtons.FirstOrDefault(b => b.name == "MeetAction0")?.onClick.Invoke();
             yield return new WaitForSeconds(0.5f);
@@ -175,7 +181,7 @@ namespace NightSignal.Front
             m.ClosePanel();
             m.PlayEmote(Emote.Wave);
             yield return new WaitForSeconds(1.4f);
-            Shot("06-wave-returned");
+            yield return Snap("06-wave-returned");
             yield return new WaitForSeconds(1.2f);
             m.PlayEmote(Emote.Bow);
             yield return new WaitForSeconds(2.4f);
@@ -193,13 +199,13 @@ namespace NightSignal.Front
                 m.PlayEmote(e);
                 yield return new WaitForSeconds(Emotes.Duration(e) * 0.45f);
                 if (!m.PlayerMotion.EmoteActive || m.PlayerMotion.Emote != e) Fail($"emote {e} not playing");
-                if (e == Emote.Wave || e == Emote.Cheer || e == Emote.Admire || e == Emote.CameraPose) Shot($"07-emote-{++emoteShots}-{e}");
+                if (e == Emote.Wave || e == Emote.Cheer || e == Emote.Admire || e == Emote.CameraPose) yield return Snap($"07-emote-{++emoteShots}-{e}");
                 yield return new WaitForSeconds(Emotes.Duration(e) * 0.6f);
             }
             // Quick chat bubble.
             m.Say("Nice car!");
             yield return new WaitForSeconds(0.4f);
-            Shot("08-quick-chat");
+            yield return Snap("08-quick-chat");
 
             // Placard and timing board.
             m.Open("placard", "VIEW-E");
@@ -211,7 +217,7 @@ namespace NightSignal.Front
             yield return new WaitForSeconds(0.5f);
             m.Open("board");
             yield return new WaitForSeconds(0.5f);
-            Shot("09-timing-board");
+            yield return Snap("09-timing-board");
             if (!m.Hud.PanelBody.Contains("offline")) Fail("timing board missing the convoy line");
             m.ClosePanel();
 
@@ -221,7 +227,7 @@ namespace NightSignal.Front
             yield return new WaitForSeconds(0.4f);
             m.Open("boombox");
             yield return new WaitForSeconds(0.6f);
-            Shot("10-boombox");
+            yield return Snap("10-boombox");
             string owned = NightSignal.AudioSynth.MusicCueIds.All.FirstOrDefault(id => id != BoomboxState.DefaultCue && m.OwnsCue(id));
             if (owned == null) Fail("new profile owns no baseline cue besides the meet bed");
             else
@@ -246,7 +252,7 @@ namespace NightSignal.Front
             bool rev1 = m.RevNow(), rev2 = m.RevNow();
             if (!rev1 || rev2) Fail($"rev rate limit wrong (first {rev1}, immediate second {rev2})");
             yield return new WaitForSeconds(0.8f);
-            Shot("11-in-car");
+            yield return Snap("11-in-car");
             m.GetOutOfCar();
             yield return new WaitForSeconds(0.6f);
             Vector3 outAt = m.Player.transform.position;
@@ -255,7 +261,7 @@ namespace NightSignal.Front
             // Photo mode at the marker (the east bays against the mountains).
             m.Open("photo-marker");
             yield return new WaitForSeconds(1f);
-            Shot("12-photo-marker");
+            yield return Snap("12-photo-marker");
             m.ExitPhoto();
 
             // Rescue from the far corner back to the car.
@@ -271,7 +277,7 @@ namespace NightSignal.Front
             m.Camera.Yaw = 45f;
             m.Camera.Distance = 6f;
             yield return new WaitForSeconds(0.8f);
-            Shot("13-plaza");
+            yield return Snap("13-plaza");
             Note("fps sample: " + (1f / Mathf.Max(1e-4f, Time.smoothDeltaTime)).ToString("F0"));
             foreach (string l in m.Log) Note("log: " + l);
             m.Leave();
@@ -279,7 +285,7 @@ namespace NightSignal.Front
             while ((ActiveMeet != null || Router.Current != OfflineHub) && Time.realtimeSinceStartup < until) yield return null;
             if (Router.Current != OfflineHub) Fail("leaving the meet did not return to the Offline hub");
             yield return new WaitForSeconds(1f);
-            Shot("14-back-in-hub");
+            yield return Snap("14-back-in-hub");
             Finish();
 
             void Finish()

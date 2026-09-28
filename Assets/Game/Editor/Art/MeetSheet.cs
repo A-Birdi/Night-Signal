@@ -46,6 +46,8 @@ namespace NightSignal.Editor.ArtTools
                 new Shot("08-garden", new Vector3(9f, 1.65f, -17f), new Vector3(-1f, 0.2f, -1f), 60f),
                 new Shot("09-boombox", new Vector3(11.5f, 1.55f, 37f), new Vector3(14.5f, 0.9f, 41.6f), 52f),
                 new Shot("10-north-from-south", new Vector3(0f, 1.7f, -34f), new Vector3(0f, 3f, 40f), 62f),
+                new Shot("11-kiosk-noren", new Vector3(9.8f, 1.6f, 45.2f), new Vector3(7.1f, 1.75f, 46.2f), 50f),
+                new Shot("12-viewpoint-placard", new Vector3(65.4f, 1.5f, 7.6f), new Vector3(67.4f, 0.95f, 9f), 50f),
             };
         }
 

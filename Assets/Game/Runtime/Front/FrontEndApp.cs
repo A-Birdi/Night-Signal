@@ -882,6 +882,8 @@ namespace NightSignal.Front
 
         internal void OnScreenChanged(UIScreen screen)
         {
+            // Each screen names its context cue; replaying the cue already playing is a no-op, so submenus never restart it.
+            if (!string.IsNullOrEmpty(screen.MusicCue)) GameAudio.MusicPlayer.Ensure()?.Play(screen.MusicCue);
             if (stripScreen != null) stripScreen.text = screen.ScreenName.ToUpperInvariant();
             RefreshStrip();
             ScreenChanged?.Invoke(screen);

@@ -62,13 +62,18 @@ namespace NightSignal.Core.Meet
             if (kind != NoticeKind.Info) notice.Names.Add(nameOrText);
             if (queued.Count >= MaxQueued)
             {
-                // Full: fold into the last waiting notice of the same kind, else drop the oldest info notice, else merge.
-                Notice info = queued.FirstOrDefault(n => n.Kind == NoticeKind.Info);
-                if (info != null) queued.Remove(info);
-                else
+                // Full: an info notice goes straight to the event list; an arrival/departure displaces the oldest waiting
+                // info notice (there is always one, since each other kind already coalesced above).
+                if (kind == NoticeKind.Info)
                 {
-                    queued[queued.Count - 1].Names.Add(nameOrText);
-                    return true;
+                    History.Add(notice.Display());
+                    return false;
+                }
+                Notice info = queued.FirstOrDefault(n => n.Kind == NoticeKind.Info);
+                if (info != null)
+                {
+                    queued.Remove(info);
+                    History.Add(info.Display());
                 }
             }
             queued.Add(notice);

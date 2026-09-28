@@ -48,8 +48,27 @@ namespace NightSignal.Editor.ContentTools
 
             CarMaterialAuthoring.Ensure();
             CharacterMaterialAuthoring.Ensure();
+            EnsureMusicLibrary();
             AssetDatabase.SaveAssets();
             Debug.Log($"[NightSignal.Content] Library: {lib.Documents.Length} documents, catalogue hash {lib.Catalogue.ContentHash.Substring(0, 12)}");
+            return lib;
+        }
+
+        /// <summary>Resources/MusicLibrary.asset: every score document and the instrument library, for the runtime music player.</summary>
+        public static GameAudio.MusicLibrary EnsureMusicLibrary()
+        {
+            const string path = ResourcesFolder + "/MusicLibrary.asset";
+            var lib = AssetDatabase.LoadAssetAtPath<GameAudio.MusicLibrary>(path);
+            bool create = lib == null;
+            if (create) lib = ScriptableObject.CreateInstance<GameAudio.MusicLibrary>();
+            lib.Instruments = Load("Assets/Content/Audio/Scores/instruments.json");
+            var cues = new List<TextAsset>();
+            foreach (string f in Directory.GetFiles("Assets/Content/Audio/Scores", "mus_*.json"))
+                cues.Add(Load(f.Replace(Path.DirectorySeparatorChar, '/')));
+            cues.Sort((a, b) => string.CompareOrdinal(a.name, b.name));
+            lib.Cues = cues.ToArray();
+            if (create) AssetDatabase.CreateAsset(lib, path);
+            EditorUtility.SetDirty(lib);
             return lib;
         }
 

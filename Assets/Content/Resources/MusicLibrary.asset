@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0640d680d399446801377bff33cfc3, type: 3}
+  m_Name: MusicLibrary
+  m_EditorClassIdentifier: NightSignal.Runtime::NightSignal.GameAudio.MusicLibrary
+  Instruments: {fileID: 4900000, guid: d483e02356918354680f2b289c6270d2, type: 3}
+  Cues:
+  - {fileID: 4900000, guid: 829503b45e7eb354f98ce982a4996ace, type: 3}
+  - {fileID: 4900000, guid: d1f0754a6f622a04982550f1732c4768, type: 3}
+  - {fileID: 4900000, guid: b48bd590ec0ade64fa0b962123711e1b, type: 3}
+  - {fileID: 4900000, guid: de3b5556ff47bde4b97d3c64241e9801, type: 3}
+  - {fileID: 4900000, guid: 0f529b49fc61b684da8246dd0ba97f46, type: 3}
+  - {fileID: 4900000, guid: f3ff6c5f1682b034da7dc6581e2d4384, type: 3}
+  - {fileID: 4900000, guid: 5212eb37ceffbf045b97d1e218e34c79, type: 3}
+  - {fileID: 4900000, guid: 2393d86c4ddc31644a0420db37dcfa14, type: 3}
+  - {fileID: 4900000, guid: 1fd28ca60deb3fb418eca559480529f7, type: 3}
+  - {fileID: 4900000, guid: 7c0570aaa6dfb514e86e3739a4f1aa3f, type: 3}
+  - {fileID: 4900000, guid: b38d9611694dab94ab533dc6ef1f7b62, type: 3}
+  - {fileID: 4900000, guid: bdcec350bff74174fb375f7072f197c8, type: 3}
+  - {fileID: 4900000, guid: 15a3a15eda1d0994a81812d5e66b59b1, type: 3}
+  - {fileID: 4900000, guid: 74b62405bfce76b45afce74cd85bb496, type: 3}
+  - {fileID: 4900000, guid: b9543cc9de75a7e4b8afcec3bb2e4a0f, type: 3}
+  - {fileID: 4900000, guid: 0cfa9097c19044440ab04327b08da562, type: 3}
+  - {fileID: 4900000, guid: 5676b295ac7152b4e898fa21f34a086b, type: 3}
+  - {fileID: 4900000, guid: dd07b15afc52a1f44a931f0a84453662, type: 3}
+  - {fileID: 4900000, guid: 71ca8b73cc9278d4c967224a7f6b111d, type: 3}
+  - {fileID: 4900000, guid: c0b28e5efd19e854795e04c9768a19ab, type: 3}
+  - {fileID: 4900000, guid: 593bcd88cf6044743934af8f0827a847, type: 3}
+  - {fileID: 4900000, guid: c63f6d80eaae0344f941bc26c75f70d3, type: 3}
+  - {fileID: 4900000, guid: c44e7969aadab9b4bac0f6db6f207cfa, type: 3}
+  - {fileID: 4900000, guid: 195c1b3e5b1f35247ac2e700c9f7d36f, type: 3}

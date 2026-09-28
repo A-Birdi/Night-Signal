@@ -199,13 +199,17 @@ namespace NightSignal.Meet
             panelBody.text = body;
             foreach (Button b in buttons) UnityEngine.Object.Destroy(b.gameObject);
             buttons.Clear();
-            if (actions != null)
-                for (int i = 0; i < actions.Count; i++)
-                {
-                    (string label, Action act) = actions[i];
-                    Button b = UIFactory.Button($"MeetAction{i}", buttonColumn, label, act, 560, 44);
-                    buttons.Add(b);
-                }
+            int n = actions?.Count ?? 0;
+            // The buttons take what they need from the bottom (up to most of the panel); the text gets the rest.
+            float rowH = n > 9 ? 36f : 44f, colH = Mathf.Min(560f, n * (rowH + 8f) + 8f);
+            buttonColumn.offsetMax = new Vector2(buttonColumn.offsetMax.x, 24f + colH);
+            panelBody.rectTransform.offsetMin = new Vector2(panelBody.rectTransform.offsetMin.x, 36f + colH);
+            for (int i = 0; i < n; i++)
+            {
+                (string label, Action act) = actions[i];
+                Button b = UIFactory.Button($"MeetAction{i}", buttonColumn, label, act, 560, rowH);
+                buttons.Add(b);
+            }
             if (buttons.Count > 0 && EventSystem.current != null) EventSystem.current.SetSelectedGameObject(buttons[0].gameObject);
         }
 

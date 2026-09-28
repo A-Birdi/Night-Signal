@@ -370,8 +370,9 @@ namespace NightSignal.Track.Generation
             Bx(mb, M.WoodDark, c + new Vector3(0f, eave - 0.1f, hd - 0.02f), new Vector3(hw + 0.1f, 0.12f, 0.12f));
             Roof(mb, M.RoofTiles, c, Quaternion.identity, hw * 2f, hd * 2f, eave, "gable", 0.7f);
             Bx(mb, M.WoodDark, c + new Vector3(0f, eave + 0.02f, 0f), new Vector3(hw + 0.05f, 0.04f, hd + 0.05f)); // ceiling under the roof
-            // Door on the east end.
+            // Door on the east end, with a short indigo-dark noren reading 茶 (cha, tea) as the photo-point card says.
             Bx(mb, M.WoodDark, c + new Vector3(hw + 0.02f, 1.05f, 1.2f), new Vector3(0.04f, 1.05f, 0.5f));
+            Noren(mb, c + new Vector3(hw + 0.09f, 2.02f, 1.2f));
             // The awning: a solid shed roof on posts (seen from under as well as above), a fascia beam.
             MeetBox aw = MeetLayout.Awning;
             float az0 = aw.Z - aw.HalfL, az1 = front;
@@ -425,6 +426,32 @@ namespace NightSignal.Track.Generation
             l.intensity = 2.2f;
             l.color = new Color(1f, 0.78f, 0.52f);
             l.shadows = LightShadows.None;
+        }
+
+        /// <summary>
+        /// A two-panel noren on a rod, facing +x, with 茶 in off-white strokes across the split: the grass radical (a bar
+        /// crossed by two short strokes), the 人 roof, and below it a bar, the hooked vertical and the two falling strokes.
+        /// </summary>
+        static void Noren(MeshBuilder mb, Vector3 top)
+        {
+            const float hw = 0.5f, h = 0.72f;
+            Beam(mb, M.WoodDark, top + new Vector3(0f, 0.05f, -hw - 0.08f), top + new Vector3(0f, 0.05f, hw + 0.08f), 0.02f);
+            foreach (float s in new[] { -1f, 1f })
+                Bx(mb, M.Graphite, top + new Vector3(0f, -h * 0.5f, s * (hw * 0.5f + 0.01f)), new Vector3(0.008f, h * 0.5f, hw * 0.5f - 0.01f));
+            // Glyph space: gx right (= +z seen from the east), gy up, both −1…1 over a 0.36 m square centred on the cloth.
+            Vector3 centre = top + new Vector3(0.012f, -h * 0.47f, 0f);
+            Vector3 G(float gx, float gy) => centre + new Vector3(0f, gy * 0.2f, gx * 0.2f);
+            void Stroke(float x0, float y0, float x1, float y1, float w = 0.018f) => Beam(mb, M.OffWhite, G(x0, y0), G(x1, y1), 0.003f, w);
+            Stroke(-0.8f, 0.72f, 0.8f, 0.72f);        // 艹: the bar
+            Stroke(-0.4f, 0.95f, -0.4f, 0.52f);       //      left short stroke
+            Stroke(0.4f, 0.95f, 0.4f, 0.52f);         //      right short stroke
+            Stroke(0f, 0.5f, -0.88f, -0.02f);         // 人: left fall
+            Stroke(0f, 0.5f, 0.88f, -0.02f);          //     right fall
+            Stroke(-0.46f, 0.12f, 0.46f, 0.12f);      // bar under the roof
+            Stroke(0f, 0.12f, 0f, -0.92f);            // vertical
+            Stroke(0f, -0.92f, -0.14f, -0.8f, 0.014f); //  its hook
+            Stroke(-0.18f, -0.3f, -0.56f, -0.72f);    // left falling stroke
+            Stroke(0.18f, -0.3f, 0.56f, -0.72f);      // right falling stroke
         }
 
         static void Bench(MeshBuilder mb, MeetBox b)

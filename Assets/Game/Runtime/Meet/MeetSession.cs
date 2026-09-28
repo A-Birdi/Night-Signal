@@ -134,7 +134,7 @@ namespace NightSignal.Meet
             BuildSpots();
             BuildBoard();
             BeginArrival();
-            MusicPlayer.Instance?.Play(BoomboxState.DefaultCue, 2f);
+            MusicPlayer.Ensure()?.Play(BoomboxState.DefaultCue, 2f);
             Hud.Notify("Offline meet: no other drivers are connected", "offline");
             Note($"meet opened; player bay {PlayerBay + 1}; {npcs.Count - 1} rivals at their cars; host {Text.HostName}");
         }
