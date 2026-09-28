@@ -1471,7 +1471,13 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   (locs, hoodie, athletic). Also PASS on the two builds before (the preview framing and swatch tiles were adjusted
   between them). Race from the meet (`-Convoy -Race`): **PASS (the host saved the card first; both raced S04 to the finish and came back to the convoy's meet)**. Three-client public run: PASS. Evidence:
   `Evidence/meet/card-*.jpg`, `card-log.txt`.
-- **Limits:** online only (the offline profile's meet visit still uses the default look); the public card view (rank,
-  milestones, showcase records), flag, preferred car and card background/frame/motif/title are not built; the look is
+- **Public driver card** (`fd92116`; control plane restarted on it): `GET /v1/players/{id}/card` adds pronouns, campaign
+  clears per mode and challenges completed (`SocialApiTests`; Services suites 232 + 92 + 123 + 341 pass). At the meet,
+  inspecting another driver's car offers their driver card (local UI; they are not told). Built players (`fd92116`),
+  `meet-online.ps1 -Convoy`: **PASS** — the guest opened the host's card: "Driver 1 @nsdriver0 · Night Runner 1,080 RP ·
+  Normal 10/30 · Hard 0/30 · Challenges 2/75 · V01 Kogane Hachi RS PI 220 class D". Evidence:
+  `Evidence/meet/card-guest-views-host-driver-card.jpg`.
+- **Limits:** online only (the offline profile's meet visit still uses the default look); showcase records, flag,
+  preferred car and card background/frame/motif/title are not built; the look is
   read when a visitor joins a room (a change is seen after they next join); remote looks were checked in data and in the
   host's own view, not photographed from the guest's camera.

@@ -170,9 +170,9 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
 1. **Course scenery follow-ups** (small): a human look per region (the built-player tour with the regional kits passed,
    run 5 on `7d9119d`); the steep dark terrain "cliffs" of the gorge/highland terrain styles (heightfield resolution)
    are untouched.
-2. **Card and meet follow-ups** (smaller): the public card view (rank/RP, milestones, showcase records) when inspecting
-   a driver at the meet; the offline profile's look; the host lesson wired to challenge CH63; a meet run under
-   impairment; music and engine audio in races (R16.1).
+2. **Card and meet follow-ups** (smaller): card cosmetics (showcase records, flag, preferred car, background/frame/
+   motif/title); the offline profile's look; the host lesson wired to challenge CH63; a meet run under impairment; music
+   and engine audio in races (R16.1).
 3. **Gameplay backlog**: AI drift skill per profile and campaign drift benchmarks; restrict Drift Attack to courses with
    judged zones; group Time Attack and toy tables with 3–6 humans; UI/reconnect/rejoin/DQ under load; Canvas controller
    cursor; customization follow-ups (meet livery refresh, pearl flip tint, preset rename/delete UI).
