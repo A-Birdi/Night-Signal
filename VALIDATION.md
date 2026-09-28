@@ -1615,3 +1615,25 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   exercised by the server test's refusal only (no run finished an event and then read the slip); progress towards a
   challenge (e.g. two of four placards) is kept only while the service or the session runs; the cosmetic rewards are
   granted as ownership records — the reward assets themselves are not built.
+
+## V-085 — More challenge predicates: CH33, CH35, CH44/CH45, CH66, CH71 (2026-09-28)
+- Revision: `982a22b` (player build of that commit; control plane restarted on it).
+- **What changed:** race progress judges the first route sector once it has been driven (no wall incident, reset,
+  corridor cut or time outside the corridor) and keeps the wall count at the first reset; the shared predicates add
+  **CH33** Clean Opening and **CH35** One Reset, Then Clean, evaluated by the game server online and — new — for
+  offline races too (Local facts; offline races previously evaluated no challenges). Settlement adds **CH44/CH45**
+  (the Normal/Hard S30 finale cleared personally within the qualifying benchmark, not only the support envelope) and
+  the cumulative **CH66** (a legal finish in each of the six regular regions) and **CH71** (T00 and every course
+  C01–C25) from the account's settled receipts; the Local profile judges CH66/CH71 from its records (Core
+  `CumulativeChallenges`).
+- **Tests:** EditMode `RouteProgressTests.ChallengeFacts_FirstSectorAndFirstReset` on the real C01 route (a clean
+  opening gives CH33 and CH01; a wall incident before the sector end spoils CH33; one reset then no impact gives CH35,
+  an impact after it does not) — 26/26 with `MeetRulesTests`. .NET `Addendum01SettlementTests`: S30 Normal/Hard inside
+  the target and ahead of the live rival → CH44/CH45, a slow finish → neither; a finish that completes the sixth region
+  → CH66, five regions → nothing. Services 344/344; Builds 232, Toys 92, Core 123.
+- **Built players** (`net-race.ps1 -Humans 2 -Stage S03`, loopback game server and control plane, autopilot clients):
+  both humans finished (P1, P2) with clean opening sectors; the game server reported `CH33` for each and the settled
+  receipts list `challengesUnlocked: ["CH33"]` for both — **PASS**. Evidence: `Evidence/net/run-20260928-080628-h2`.
+- **Limits:** CH35, CH44/CH45, CH66 and CH71 are covered by tests, not by a built-player run; CH71 needs T00, which only
+  the offline tutorial runs today (online it cannot complete yet); challenge rewards are ownership records (the
+  cosmetic assets are not built).

@@ -1,0 +1,127 @@
+{
+  "driver": "AutoClient scripted autopilot (not a human)",
+  "process": "independent client player process",
+  "account": "…000001",
+  "role": "leader",
+  "matchId": "m_b737f15ee91be9a1e3fdb35c",
+  "stage": "S03",
+  "course": "C03",
+  "car": "V01",
+  "rttMs": 17,
+  "inputAckMsAverage": 17.7927513,
+  "inputAckMsMax": 33.5409,
+  "minInputLeadTicks": 3,
+  "ticksFilled": 0,
+  "snapshots": 4369,
+  "inputPacketsSent": 12951,
+  "reconciliations": 699,
+  "maxCorrectionMetres": 1.50157678,
+  "serverRecoveries": 0,
+  "impairedSnapshotDrops": 0,
+  "impairedInputDrops": 0,
+  "result": {
+    "EntrantId": "00000000-0000-4000-8000-000000000001",
+    "Human": true,
+    "Outcome": "Finished",
+    "FinishTimeMicros": 181716395,
+    "Placement": 1,
+    "Clean": true,
+    "CheckpointFraction": 1.0,
+    "ActiveProgressVerified": true,
+    "ActivelyDroveLegalCourse": true,
+    "LegalProgressMetres": 4998.0,
+    "RawDriftScore": 0,
+    "ContractsPassed": 0,
+    "ChallengesCompleted": [
+      "CH33"
+    ]
+  },
+  "entrants": 3,
+  "receipt": {
+    "matchId": "m_b737f15ee91be9a1e3fdb35c",
+    "accountId": "00000000-0000-4000-8000-000000000001",
+    "status": "settled",
+    "eventKind": "CampaignStage",
+    "mode": "normal",
+    "stageId": "S03",
+    "courseId": "C03",
+    "outcome": "Finished",
+    "placement": 1,
+    "tied": false,
+    "finishTimeMs": 181716,
+    "stage": {
+      "qualified": true,
+      "withinSupport": true,
+      "earnedClear": true,
+      "teamSuccess": true,
+      "qualifiers": 2,
+      "requiredQualifiers": 1,
+      "frozenHumanCount": 2,
+      "reason": "Qualified.",
+      "benchmarkTargetMs": 212404,
+      "benchmarkProvisional": false,
+      "benchmarkSource": "certified: 1.171 × reference 181387 ms (V03 V03-A); Certification 2026-09-28: per stage side under its authored conditions (stage-conditions.json), reference = slowest of the three starters' intended builds, solo, validator autopilot (automation, legal inputs, not a human; S29 drives its contracts, drifting the Arc); factor Normal 1.18 → 1.05, Hard 1.04 → 1.00 over S01–S30; featured rival pace calibrated solo to finish 0–1 % above the target; physics chassis-2026.09-contact1, scoring classify-2",
+      "requiresBeatingFeaturedRival": false,
+      "featuredRival": "R03",
+      "beatFeaturedRival": true
+    },
+    "payout": {
+      "base": 7560,
+      "difficultyX100": 100,
+      "placementX100": 135,
+      "cleanlinessX100": 105,
+      "utilityX100": 100,
+      "pvPX100": 100,
+      "eventCredits": 10716,
+      "firstClearBonus": 0,
+      "challengeCash": 3000,
+      "total": 13716,
+      "note": ""
+    },
+    "credits": [
+      {
+        "type": "event",
+        "requested": 10716,
+        "credited": 10716,
+        "clampedAway": 0
+      },
+      {
+        "type": "challenge:CH33",
+        "requested": 3000,
+        "credited": 3000,
+        "clampedAway": 0
+      }
+    ],
+    "balanceAfter": 319895,
+    "clampedAwayTotal": 0,
+    "firstClearAwarded": false,
+    "challengesUnlocked": [
+      "CH33"
+    ],
+    "cosmeticsGranted": [
+      "COS-CH33"
+    ],
+    "coursesUnlocked": [],
+    "musicUnlocked": [],
+    "guestPass": null,
+    "teamTrial": null,
+    "rankPointsBefore": 1120,
+    "rankPointsAfter": 1160,
+    "rank": "Night Runner",
+    "notes": [
+      "Stage already cleared: ordinary race money only, no first-clear bonus or RP."
+    ]
+  },
+  "reconnect": null,
+  "recoveriesBeforeDrop": -1,
+  "spectated": false,
+  "spectateLog": null,
+  "spectateSwitches": 0,
+  "spectateTargetLosses": 0,
+  "walletBefore": 306179,
+  "walletAfter": 319895,
+  "rankPointsBefore": 1120,
+  "rankPointsAfter": 1160,
+  "log": "[12:06:34] signed in as account …000001\n[12:06:35] created convoy cv_20ce658023302dc5; waiting for 1 member(s)\n[12:06:35] all 2 members joined\n[12:06:35] entered Normal campaign\n[12:06:52] event started (3 vehicles)\n[12:06:52] connecting to match m_b737f15ee91be9a1e3fdb35c\n[12:10:34] ready request 'post-event' ignored by the scripted client\n",
+  "utc": "2026-09-28T12:10:35.1186415Z"
+}

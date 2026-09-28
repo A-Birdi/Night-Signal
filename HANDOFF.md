@@ -2,7 +2,7 @@
 
 _Last updated: 2026-09-28 — the meet, offline (V-073): Cedar Lantern Terrace, walking, twelve emotes, host, boombox;
 the meet online with three real clients (V-074), the convoy at the meet (V-075), race from the meet and back plus
-walking controls (V-076), the Player Card with a driver appearance (V-077), race audio (V-078), Drift Attack only where zones exist (V-079), AI drift skill (V-080), group Time Attack and tables with 4/6 humans (V-081, V-082), Canvas controller pen (V-083), the meet's touring challenges CH61–CH65 and CH67 (V-084).
+walking controls (V-076), the Player Card with a driver appearance (V-077), race audio (V-078), Drift Attack only where zones exist (V-079), AI drift skill (V-080), group Time Attack and tables with 4/6 humans (V-081, V-082), Canvas controller pen (V-083), the meet's touring challenges CH61–CH65 and CH67 (V-084), CH33/CH35/CH44/CH45/CH66/CH71 (V-085).
 Now: the gameplay backlog._
 
 **Rules revision:** `docs/brief/Night_Signal_Addendum_01.txt` supersedes parts of the master (six humans + up to
@@ -173,7 +173,7 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
    are untouched.
 2. **Card and meet follow-ups** (smaller): card cosmetics (showcase records, flag, preferred car, background/frame/
    motif/title); the offline profile's look; a meet run under impairment; the remaining challenge predicates (R11.3:
-   CH01/CH05 and the touring CH61–CH65, CH67 exist).
+   14 of 75 exist: CH01, CH05, CH33, CH35, CH44, CH45, CH61–CH67, CH71 — see REQUIREMENTS R11.3).
 3. **Gameplay backlog**: a drift controller that manages the road edge (every AI attempt still ends at the edge; the
    per-driver drift skill of V-080 raises scores on average, not per course) and a re-measure of S29 with it (group
    Time Attack and the hosted tables with 4 and 6 humans passed — V-081, V-082); UI/reconnect/rejoin/DQ under load; customization follow-ups (meet livery refresh,

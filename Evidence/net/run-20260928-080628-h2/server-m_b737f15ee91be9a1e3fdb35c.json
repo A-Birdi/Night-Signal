@@ -1,0 +1,123 @@
+{
+  "role": "dedicated game server (separate process)",
+  "matchId": "m_b737f15ee91be9a1e3fdb35c",
+  "kind": "campaign",
+  "stageId": "S03",
+  "courseId": "C03",
+  "humans": 2,
+  "ai": 1,
+  "build": "0.1.0",
+  "contentHash": "3677a84491db406a7e1461da07242414336b9dedc307b22d08834cfc9607d93a",
+  "results": {
+    "MatchId": "m_b737f15ee91be9a1e3fdb35c",
+    "ContentHash": "3677a84491db406a7e1461da07242414336b9dedc307b22d08834cfc9607d93a",
+    "AbortReason": null,
+    "Aborted": false,
+    "Entrants": [
+      {
+        "EntrantId": "00000000-0000-4000-8000-000000000001",
+        "Human": true,
+        "Outcome": "Finished",
+        "FinishTimeMicros": 181716395,
+        "Placement": 1,
+        "Clean": true,
+        "CheckpointFraction": 1.0,
+        "ActiveProgressVerified": true,
+        "ActivelyDroveLegalCourse": true,
+        "LegalProgressMetres": 4998.0,
+        "RawDriftScore": 0,
+        "ContractsPassed": 0,
+        "ChallengesCompleted": [
+          "CH33"
+        ]
+      },
+      {
+        "EntrantId": "00000000-0000-4000-8000-000000000002",
+        "Human": true,
+        "Outcome": "Finished",
+        "FinishTimeMicros": 182849621,
+        "Placement": 2,
+        "Clean": true,
+        "CheckpointFraction": 1.0,
+        "ActiveProgressVerified": true,
+        "ActivelyDroveLegalCourse": true,
+        "LegalProgressMetres": 4998.0,
+        "RawDriftScore": 0,
+        "ContractsPassed": 0,
+        "ChallengesCompleted": [
+          "CH33"
+        ]
+      },
+      {
+        "EntrantId": "R03",
+        "Human": false,
+        "Outcome": "Finished",
+        "FinishTimeMicros": 213777345,
+        "Placement": 3,
+        "Clean": true,
+        "CheckpointFraction": 1.0,
+        "ActiveProgressVerified": true,
+        "ActivelyDroveLegalCourse": true,
+        "LegalProgressMetres": 4998.0,
+        "RawDriftScore": 0,
+        "ContractsPassed": 0,
+        "ChallengesCompleted": []
+      }
+    ]
+  },
+  "transport": {
+    "entrants": [
+      {
+        "entrant": 0,
+        "human": true,
+        "team": "player",
+        "role": "driver",
+        "status": "Finished",
+        "starvedTicks": 0,
+        "lateInputs": 0,
+        "vehicleContacts": 0,
+        "wallIncidents": 0,
+        "resets": 0
+      },
+      {
+        "entrant": 1,
+        "human": true,
+        "team": "player",
+        "role": "driver",
+        "status": "Finished",
+        "starvedTicks": 0,
+        "lateInputs": 0,
+        "vehicleContacts": 0,
+        "wallIncidents": 0,
+        "resets": 0
+      },
+      {
+        "entrant": 2,
+        "human": false,
+        "team": "opposing",
+        "role": "featured",
+        "status": "Finished",
+        "starvedTicks": 0,
+        "lateInputs": 0,
+        "vehicleContacts": 0,
+        "wallIncidents": 0,
+        "resets": 0
+      }
+    ],
+    "spectatorsServed": 0,
+    "ignoredInputsFromNonEntrants": 0,
+    "network": {
+      "executable": "NightSignal.exe",
+      "role": "dedicated-server",
+      "bindHost": "127.0.0.1",
+      "publicHost": "127.0.0.1",
+      "port": 7777,
+      "protocol": "udp",
+      "classification": "local",
+      "lanOptIn": false,
+      "pid": 53416
+    }
+  },
+  "controlPlaneResponse": "200 {\"status\":\"settled\",\"receipts\":[{\"matchId\":\"m_b737f15ee91be9a1e3fdb35c\",\"accountId\":\"00000000-0000-4000-8000-000000000001\",\"status\":\"settled\",\"eventKind\":\"CampaignStage\",\"mode\":\"normal\",\"stageId\":\"S03\",\"courseId\":\"C03\",\"outcome\":\"Finished\",\"placement\":1,\"tied\":false,\"finishTimeMs\":181716,\"stage\":{\"qualified\":true,\"withinSupport\":true,\"earnedClear\":true,\"teamSuccess\":true,\"qualifiers\":2,\"requiredQualifiers\":1,\"frozenHumanCount\":2,\"reason\":\"Qualified.\",\"benchmarkTargetMs\":212404,\"benchmarkProvisional\":false,\"benchmarkSource\":\"certified: 1.171 × reference 181387 ms (V03 V03-A); Certification 2026-09-28: per stage side under its authored conditions (stage-conditions.json), reference = slowest of the three starters' intended builds, solo, validator autopilot (automation, legal inputs, not a human; S29 drives its contracts, drifting the Arc); factor Normal 1.18 → 1.05, Hard 1.04 → 1.00 over S01–S30; featured rival pace calibrated solo to finish 0–1 % above the target; physics chassis-2026.09-contact1, scoring classify-2\",\"requiresBeatingFeaturedRival\":false,\"featuredRival\":\"R03\",\"beatFeaturedRival\":true},\"payout\":{\"base\":7560,\"difficultyX100\":100,\"placementX100\":135,\"cleanlinessX100\":105,\"utilityX100\":100,\"pvPX100\":100,\"eventCredits\":10716,\"firstClearBonus\":0,\"challengeCash\":3000,\"total\":13716,\"note\":\"\"},\"credits\":[{\"type\":\"event\",\"requested\":10716,\"credited\":10716,\"clampedAway\":0},{\"type\":\"challenge:CH33\",\"requested\":3000,\"credited\":3000,\"clampedAway\":0}],\"balanceAfter\":319895,\"clampedAwayTotal\":0,\"firstClearAwarded\":false,\"challengesUnlocked\":[\"CH33\"],\"cosmeticsGranted\":[\"COS-CH33\"],\"coursesUnlocked\":[],\"musicUnlocked\":[],\"guestPass\":null,\"teamTrial\":null,\"rankPointsBefore\":1120,\"rankPointsAfter\":1160,\"rank\":\"Night Runner\",\"notes\":[\"Stage already cleared: ordinary race money only, no first-clear bonus or RP.\"]},{\"matchId\":\"m_b737f15ee91be9a1e3fdb35c\",\"accountId\":\"00000000-0000-4000-8000-000000000002\",\"status\":\"settled\",\"eventKind\":\"CampaignStage\",\"mode\":\"normal\",\"stageId\":\"S03\",\"courseId\":\"C03\",\"outcome\":\"Finished\",\"placement\":2,\"tied\":false,\"finishTimeMs\":182849,\"stage\":{\"qualified\":true,\"withinSupport\":true,\"earnedClear\":true,\"teamSuccess\":true,\"qualifiers\":2,\"requiredQualifiers\":1,\"frozenHumanCount\":2,\"reason\":\"Qualified.\",\"benchmarkTargetMs\":212404,\"benchmarkProvisional\":false,\"benchmarkSource\":\"certified: 1.171 × reference 181387 ms (V03 V03-A); Certification 2026-09-28: per stage side under its authored conditions (stage-conditions.json), reference = slowest of the three starters' intended builds, solo, validator autopilot (automation, legal inputs, not a human; S29 drives its contracts, drifting the Arc); factor Normal 1.18 → 1.05, Hard 1.04 → 1.00 over S01–S30; featured rival pace calibrated solo to finish 0–1 % above the target; physics chassis-2026.09-contact1, scoring classify-2\",\"requiresBeatingFeaturedRival\":false,\"featuredRival\":\"R03\",\"beatFeaturedRival\":true},\"payout\":{\"base\":7560,\"difficultyX100\":100,\"placementX100\":120,\"cleanlinessX100\":105,\"utilityX100\":100,\"pvPX100\":100,\"eventCredits\":9525,\"firstClearBonus\":0,\"challengeCash\":3000,\"total\":12525,\"note\":\"\"},\"credits\":[{\"type\":\"event\",\"requested\":9525,\"credited\":9525,\"clampedAway\":0},{\"type\":\"challenge:CH33\",\"requested\":3000,\"credited\":3000,\"clampedAway\":0}],\"balanceAfter\":218163,\"clampedAwayTotal\":0,\"firstClearAwarded\":false,\"challengesUnlocked\":[\"CH33\"],\"cosmeticsGranted\":[\"COS-CH33\"],\"coursesUnlocked\":[],\"musicUnlocked\":[],\"guestPass\":null,\"teamTrial\":null,\"rankPointsBefore\":580,\"rankPointsAfter\":620,\"rank\":\"Night Runner\",\"notes\":[\"Stage already cleared: ordinary race money only, no first-clear bonus or RP.\"]}]}",
+  "utc": "2026-09-28T12:10:34.5939219Z"
+}
