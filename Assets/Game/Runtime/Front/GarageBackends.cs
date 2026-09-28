@@ -49,6 +49,8 @@ namespace NightSignal.Front
     public sealed class GarageAnswer
     {
         public bool Accepted;
+        /// <summary>A workshop challenge this operation completed (CH50), as a notice; "" = none.</summary>
+        public string Challenge = "";
         public bool ConfirmationRequired;
         public string ConfirmationToken;
         public string Message = "";
@@ -130,6 +132,8 @@ namespace NightSignal.Front
         {
             BuildContext ctx = LocalGarage.Context(L.Profile, cat, parts, instanceId);
             DateTime now = DateTime.UtcNow;
+            string presetBefore = ws.AppliedVisualPresetId ?? "", hashBefore = ws.AppliedLiveryHash ?? "";
+            long revisionBefore = ws.Revision;
             OperationResult r;
             switch (op.Kind)
             {
@@ -172,6 +176,14 @@ namespace NightSignal.Front
                     a.Accepted = false;
                     a.Message = "Not saved: " + save.Reason;
                 }
+            }
+            // CH50 Change Without Losing: switched back from a later preset to the first, exactly, and saved.
+            if (a.Accepted && op.Kind == "livery-apply" && ws.Revision != revisionBefore &&
+                LiveryChallenges.RestoresFirstPreset(ws.VisualPresets, presetBefore, hashBefore, ws.AppliedVisualPresetId ?? "", ws.AppliedLivery ?? "", ws.AppliedLiveryHash ?? ""))
+            {
+                LocalProgressionResult ch = LocalProgression.CompleteGarageChallenge(L.Profile, cat, LiveryChallenges.ChangeWithoutLosing, now);
+                if (ch.Status == LocalOperationStatus.Applied && L.Commit(ch, out _))
+                    a.Challenge = $"Challenge complete · {cat.Challenge(LiveryChallenges.ChangeWithoutLosing).Name} · +{ch.BalanceAfter - ch.BalanceBefore:N0} cr.";
             }
             if (a.Accepted) a.State = new GarageState { Workspace = ws, Context = LocalGarage.Context(L.Profile, cat, parts, instanceId) };
             done(a);
@@ -333,6 +345,9 @@ namespace NightSignal.Front
             {
                 a.Accepted = true;
                 a.Message = (string)reply["message"] ?? "";
+                // A workshop challenge the Garage completed with this operation (CH50), granted once by the server.
+                if (reply["challenge"] is JObject ch)
+                    a.Challenge = $"Challenge complete · {(string)ch["name"]} · +{(long?)ch["cash"] ?? 0:N0} cr.";
                 a.Repairs = Repairs(reply);
             }
             else

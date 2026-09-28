@@ -10,20 +10,22 @@ namespace NightSignal.Front
     public sealed partial class FrontEndApp
     {
         /// <summary>
-        /// CH48 Sign Your Car evidence (<c>-nsSignYourCarTour</c>), buttons only: a fresh Local profile in an isolated folder →
-        /// Garage → Appearance: a two-tone with a second colour and one decal layer, applied → the offline meet: the parked car
-        /// must wear that livery (before V-097 the offline meet always drew it in stock paint) → inspect the own car → CH61
-        /// and CH48 granted once and saved on the profile. Automation, not a person.
+        /// Workshop challenge evidence (<c>-nsWorkshopTour</c>), buttons only: a fresh Local profile in an isolated folder →
+        /// Garage → Appearance: a two-tone with a second colour and one decal layer, applied (look A). CH50: A saved as the
+        /// first preset, the colour changed and saved as the second, the second applied, the first loaded and applied → CH50
+        /// granted (shown on the screen). CH48: the offline meet: the parked car must wear look A (before V-097 the offline meet
+        /// always drew it in stock paint) → inspect the own car → CH61 and CH48 granted once. Both saved on the profile.
+        /// Automation, not a person.
         /// </summary>
-        IEnumerator SignYourCarTour()
+        IEnumerator WorkshopTour()
         {
-            string dir = System.IO.Path.GetFullPath(System.IO.Path.Combine("Builds", "Screenshots", "sign-your-car"));
+            string dir = System.IO.Path.GetFullPath(System.IO.Path.Combine("Builds", "Screenshots", "workshop"));
             System.IO.Directory.CreateDirectory(dir);
             string profiles = System.IO.Path.Combine(dir, "profiles");
             if (System.IO.Directory.Exists(profiles)) System.IO.Directory.Delete(profiles, true);
             LocalSession.UseFolder(profiles);
             var failures = new List<string>();
-            void Note(string n) => Debug.Log("[NightSignal.SignYourCarTour] " + n);
+            void Note(string n) => Debug.Log("[NightSignal.WorkshopTour] " + n);
             void Fail(string f) { failures.Add(f); Note("FAIL " + f); }
             bool Click(string name)
             {
@@ -90,6 +92,32 @@ namespace NightSignal.Front
                  $"({(applied.Decals.Count > 0 ? applied.Decals[0].Shape : "none")}); signed {LiveryChallenges.Signed(applied)}");
             if (!LiveryChallenges.Signed(applied)) Fail("the applied livery is not signed");
 
+            // CH50: two presets, switched between, the first restored exactly.
+            yield return Section(5);
+            Click("Appearance-PresetSave0");
+            yield return new WaitForSeconds(1f);
+            yield return Section(2);
+            yield return Step("Colour", 2);
+            yield return Section(5);
+            Click("Appearance-PresetSave1");
+            yield return new WaitForSeconds(1f);
+            Click("Appearance-Apply");
+            yield return new WaitForSeconds(1f);
+            string secondApplied = Appearance.Message;
+            Note($"second preset applied: {Appearance.Editor.Applied.Paint.Primary} — \"{secondApplied}\"; CH50 {LocalSession.Current.Profile.HasCompletedChallenge("CH50")}");
+            if (LocalSession.Current.Profile.HasCompletedChallenge("CH50")) Fail("CH50 granted on the switch forward");
+            Click("Appearance-PresetLoad0");
+            yield return new WaitForSeconds(0.6f);
+            Click("Appearance-Apply");
+            yield return new WaitForSeconds(1.2f);
+            string restored = Appearance.Message;
+            bool exact = Appearance.Editor.Applied.ContentEquals(applied);
+            Note($"first preset restored: exact {exact} — \"{restored}\"; CH50 {LocalSession.Current.Profile.HasCompletedChallenge("CH50")}");
+            yield return Snap("01-first-preset-restored");
+            if (!exact) Fail("the first look was not restored exactly");
+            if (!LocalSession.Current.Profile.HasCompletedChallenge("CH50")) Fail("CH50 was not granted");
+            if (!restored.Contains("Challenge complete")) Fail("the screen did not say the challenge was completed");
+
             Click("Back");
             yield return new WaitForSeconds(1f);
             Click("Back");
@@ -105,15 +133,16 @@ namespace NightSignal.Front
                 Fail("the offline meet does not draw the applied livery");
             ActiveMeet.Open("own-car");
             yield return new WaitForSeconds(1.5f);
-            yield return Snap("01-signed-car-at-the-meet");
+            yield return Snap("02-signed-car-at-the-meet");
             var p = LocalSession.Current.Profile;
             Note($"challenges: CH61 {p.HasCompletedChallenge("CH61")}, CH48 {p.HasCompletedChallenge("CH48")}; reward COS-CH48 owned {p.OwnsCosmetic("COS-CH48")}");
             if (!p.HasCompletedChallenge("CH61")) Fail("CH61 was not granted");
             if (!p.HasCompletedChallenge("CH48")) Fail("CH48 was not granted");
             string id = p.ProfileId;
-            bool reread = LocalSession.Current.Open(id, out string why) && LocalSession.Current.Profile.HasCompletedChallenge("CH48");
+            bool reread = LocalSession.Current.Open(id, out string why) && LocalSession.Current.Profile.HasCompletedChallenge("CH48") &&
+                          LocalSession.Current.Profile.HasCompletedChallenge("CH50");
             Note($"re-read from disk: {reread} {why}");
-            if (!reread) Fail("CH48 did not persist");
+            if (!reread) Fail("CH48 / CH50 did not persist");
             Finish();
 
             void Finish()

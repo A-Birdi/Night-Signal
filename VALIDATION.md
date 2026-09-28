@@ -1945,3 +1945,25 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   `sign-your-car-offline.jpg`.
 - **Limits:** the tour checks the appearance handed to the parked car's view, not its pixels (the screenshot's angle does
   not show the decal); the online path is covered by the service test, not a built networked run.
+
+## V-098 — CH50 Change Without Losing: two presets, switched, the first restored exactly (2026-09-28)
+- Revision: the work committed with this entry; player build of it; control plane restarted on it (GarageService changed;
+  race content hash `3677a844…`, customization `306dd38e…` unchanged).
+- **What changed:** Core `LiveryChallenges.RestoresFirstPreset`: an apply that takes the car from one saved visual preset
+  to a different-looking preset saved before it, where the applied livery is exactly that earlier preset's saved look.
+  That is the challenge's "create two visual presets, switch between them and restore the first exactly"; a switch
+  forward, an apply from an edited livery, a different look or a deleted preset do not count. The server judges it in
+  `livery-apply` after the new revision is saved and grants CH50 once (cash, RP, cosmetic, ledgered), returning it with
+  that revision; the Local Garage makes the same check and grants it on the profile (`LocalProgression.CompleteGarageChallenge`,
+  CH50 only). "Meet preview": the meet shows the applied livery (V-089 online, V-097 offline), so no further step is
+  asked. The Appearance screen now shows a completed challenge after its own confirmation, online and offline.
+- **Tests:** .NET `LiveryChallengesTests` (the rule's six cases; the Local profile takes CH50 in the Garage only) — Core
+  135; Services `ChangeWithoutLosing_CH50_TwoPresetsSwitched_TheFirstRestoredExactly_Once` (an edited livery then the
+  first preset: nothing; first → second: nothing; second → first exactly: CH50 with revision 7 and cash; once only) —
+  Services 349, Builds 232, Toys 92; Unity EditMode 481 passed, 2 skipped (explicit), 0 failed.
+- **Built player** (`-nsWorkshopTour` — the V-097 tour extended and renamed; offline, buttons only): look A applied, saved
+  as preset 1; the colour changed and saved as preset 2 and applied (no CH50); preset 1 loaded and applied → the applied
+  livery equals A exactly, the screen says "Challenge complete · Change Without Losing · +3,000 cr."; then CH48 and CH61
+  at the offline meet as in V-097; both still there after the profile is re-read from disk — **PASS**.
+  `Evidence/ui/appearance/workshop-tour.txt`, `workshop-ch50-first-preset-restored.jpg`.
+- **Limits:** the online path is covered by the service test, not a built networked run.

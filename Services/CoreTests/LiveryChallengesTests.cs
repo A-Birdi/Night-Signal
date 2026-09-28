@@ -1,3 +1,4 @@
+using NightSignal.Core.Builds;
 using NightSignal.Core.Content;
 using NightSignal.Core.Customization;
 using NightSignal.Core.Profiles;
@@ -61,5 +62,31 @@ public sealed class LiveryChallengesTests
         Assert.True(r.Profile.HasCompletedChallenge("CH48"));
         Assert.Equal(LocalOperationStatus.AlreadyApplied, LocalProgression.CompleteMeetChallenge(r.Profile, cat, "CH48", DateTime.UtcNow).Status);
         Assert.Equal(LocalOperationStatus.Rejected, LocalProgression.CompleteMeetChallenge(p, cat, "CH46", DateTime.UtcNow).Status);
+    }
+
+    [Fact]
+    public void RestoresFirstPreset_OnlyBackFromALaterPresetToTheFirst_Exactly()
+    {
+        var presets = new List<VisualPreset>
+        {
+            new() { PresetId = "vp-1", PayloadJson = "{\"a\":1}" },
+            new() { PresetId = "vp-2", PayloadJson = "{\"b\":2}" },
+        };
+        Assert.True(LiveryChallenges.RestoresFirstPreset(presets, "vp-2", "hb", "vp-1", "{\"a\":1}", "ha"));
+        Assert.False(LiveryChallenges.RestoresFirstPreset(presets, "vp-1", "ha", "vp-2", "{\"b\":2}", "hb"), "forward to the later preset");
+        Assert.False(LiveryChallenges.RestoresFirstPreset(presets, "", "hx", "vp-1", "{\"a\":1}", "ha"), "from an edited livery");
+        Assert.False(LiveryChallenges.RestoresFirstPreset(presets, "vp-2", "hb", "vp-1", "{\"a\":2}", "ha"), "not exactly the saved look");
+        Assert.False(LiveryChallenges.RestoresFirstPreset(presets, "vp-2", "ha", "vp-1", "{\"a\":1}", "ha"), "the same look");
+        Assert.False(LiveryChallenges.RestoresFirstPreset(presets, "vp-9", "hb", "vp-1", "{\"a\":1}", "ha"), "a deleted preset");
+    }
+
+    [Fact]
+    public void LocalProfile_AcceptsCH50InTheGarage_Only()
+    {
+        LocalProfile p = LocalProgressionTests.NewProfile("Robin");
+        ContentCatalogue cat = TestContent.Catalogue;
+        Assert.Equal(LocalOperationStatus.Applied, LocalProgression.CompleteGarageChallenge(p, cat, "CH50", DateTime.UtcNow).Status);
+        Assert.Equal(LocalOperationStatus.Rejected, LocalProgression.CompleteGarageChallenge(p, cat, "CH48", DateTime.UtcNow).Status);
+        Assert.Equal(LocalOperationStatus.Rejected, LocalProgression.CompleteMeetChallenge(p, cat, "CH50", DateTime.UtcNow).Status);
     }
 }

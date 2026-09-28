@@ -1,0 +1,9 @@
+# -nsWorkshopTour (offline, buttons only, isolated profile folder) on the player build of the commit that adds this file (V-098). Tagged lines from the player log; absolute paths removed.
+# A first run, on the build before this one, failed at its preset steps: the tour clicked the preset buttons without opening the Presets section (a tour error, fixed here; its CH48 steps passed).
+[NightSignal.WorkshopTour] applied: two-tone lower #E8E4D8/#111111, decals 1 (stripe); signed True
+[NightSignal.WorkshopTour] second preset applied: #C8102E — "Appearance applied — it shows in your next race."; CH50 False
+[NightSignal.WorkshopTour] first preset restored: exact True — "Appearance applied — it shows in your next race.  Challenge complete · Change Without Losing · +3,000 cr."; CH50 True
+[NightSignal.WorkshopTour] the parked car as drawn: two-tone lower, decals 1
+[NightSignal.WorkshopTour] challenges: CH61 True, CH48 True; reward COS-CH48 owned True
+[NightSignal.WorkshopTour] re-read from disk: True 
+[NightSignal.WorkshopTour] PASS

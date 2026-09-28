@@ -336,6 +336,34 @@ public sealed class GarageServiceTests : IAsyncLifetime
         Assert.Equal(6, kit.WorkspaceRevision(i));
     }
 
+    [Fact]
+    public async Task ChangeWithoutLosing_CH50_TwoPresetsSwitched_TheFirstRestoredExactly_Once()
+    {
+        string a = await kit.PlayerAsync(1);
+        string i = await kit.InstanceAsync(a);
+        LiveryDocument blue = GarageTestKit.Livery(primary: "#1F4E8C"), red = GarageTestKit.Livery(primary: "#C8102E");
+        static string? Challenge(JsonElement r) =>
+            r.TryGetProperty("challenge", out JsonElement c) && c.ValueKind == JsonValueKind.Object ? c.GetProperty("challengeId").GetString() : null;
+
+        string first = Ok(await Op(a, i, new GarageOpRequest("visual-preset-save", 1, Name: "Night Blue", PayloadSchema: LiveryDocument.SchemaId,
+            PayloadJson: Canonical(blue)))).GetProperty("loadoutId").GetString()!;
+        string second = Ok(await Op(a, i, new GarageOpRequest("visual-preset-save", 2, Name: "Signal Red", PayloadSchema: LiveryDocument.SchemaId,
+            PayloadJson: Canonical(red)))).GetProperty("loadoutId").GetString()!;
+        // An edited livery (no preset) then the first preset: not a switch between presets.
+        Assert.Null(Challenge(Ok(await Op(a, i, new GarageOpRequest("livery-apply", 3, LiveryJson: Canonical(red))))));
+        Assert.Null(Challenge(Ok(await Op(a, i, new GarageOpRequest("livery-apply", 4, LiveryJson: Canonical(blue), PresetId: first)))));
+        // First to second: a switch forward, nothing restored yet.
+        Assert.Null(Challenge(Ok(await Op(a, i, new GarageOpRequest("livery-apply", 5, LiveryJson: Canonical(red), PresetId: second)))));
+        // Second back to the first, exactly: CH50, with the new saved revision.
+        JsonElement back = Ok(await Op(a, i, new GarageOpRequest("livery-apply", 6, LiveryJson: Canonical(blue), PresetId: first)));
+        Assert.Equal("CH50", Challenge(back));
+        Assert.Equal(7, back.GetProperty("revision").GetInt64());
+        Assert.True(back.GetProperty("challenge").GetProperty("cash").GetInt64() > 0);
+        // Once only.
+        Ok(await Op(a, i, new GarageOpRequest("livery-apply", 7, LiveryJson: Canonical(red), PresetId: second)));
+        Assert.Null(Challenge(Ok(await Op(a, i, new GarageOpRequest("livery-apply", 8, LiveryJson: Canonical(blue), PresetId: first)))));
+    }
+
     // ------------------------------------------------------------------ operations, revisions, confirmation tokens
 
     [Fact]

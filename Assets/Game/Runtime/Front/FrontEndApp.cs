@@ -120,8 +120,8 @@ namespace NightSignal.Front
                 StartCoroutine(GateTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsRacecraftTour") >= 0)
                 StartCoroutine(RacecraftTour());
-            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsSignYourCarTour") >= 0)
-                StartCoroutine(SignYourCarTour());
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsWorkshopTour") >= 0)
+                StartCoroutine(WorkshopTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsDriverCardTour") >= 0)
                 StartCoroutine(DriverCardTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsCanvasPadTour") >= 0)

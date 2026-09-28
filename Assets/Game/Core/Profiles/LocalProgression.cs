@@ -1034,18 +1034,30 @@ namespace NightSignal.Core.Profiles
         /// A meet touring challenge (CH61–CH65) completed at the offline meet: unlock, RP, cosmetic and cash exactly once, as
         /// the online meet room grants them. Only the touring family completes here — race challenges come from race facts.
         /// </summary>
-        public static LocalProgressionResult CompleteMeetChallenge(LocalProfile profile, ContentCatalogue catalogue, string challengeId, DateTime utc)
+        public static LocalProgressionResult CompleteMeetChallenge(LocalProfile profile, ContentCatalogue catalogue, string challengeId, DateTime utc) =>
+            // The meet's touring challenges, and CH48 (a workshop challenge whose last step — the signed car seen parked — is at the meet).
+            CompleteOutsideRace(profile, catalogue, challengeId, utc, "meet", ch => ch.Family == "touring" || ch.Id == Customization.LiveryChallenges.SignYourCar,
+                "Only the meet's touring challenges complete at the meet.");
+
+        /// <summary>
+        /// A workshop challenge completed in the Local Garage (CH50: presets switched and the first restored exactly), granted
+        /// exactly once like the online Garage grants it. Only those complete here.
+        /// </summary>
+        public static LocalProgressionResult CompleteGarageChallenge(LocalProfile profile, ContentCatalogue catalogue, string challengeId, DateTime utc) =>
+            CompleteOutsideRace(profile, catalogue, challengeId, utc, "garage", ch => ch.Id == Customization.LiveryChallenges.ChangeWithoutLosing,
+                "Only the Garage's workshop challenges complete in the Garage.");
+
+        static LocalProgressionResult CompleteOutsideRace(LocalProfile profile, ContentCatalogue catalogue, string challengeId, DateTime utc, string where,
+            Func<ChallengeDef, bool> allowed, string refusal)
         {
             LocalProgressionResult result = Begin(profile);
             if (catalogue == null) throw new ArgumentNullException(nameof(catalogue));
-            // The meet's touring challenges, and CH48 (a workshop challenge whose last step — the signed car seen parked — is at the meet).
-            if (!catalogue.TryChallenge(challengeId ?? "", out ChallengeDef ch) || (ch.Family != "touring" && ch.Id != Customization.LiveryChallenges.SignYourCar))
-                return Reject(result, "Only the meet's touring challenges complete at the meet.");
+            if (!catalogue.TryChallenge(challengeId ?? "", out ChallengeDef ch) || !allowed(ch)) return Reject(result, refusal);
             if (profile.HasCompletedChallenge(challengeId)) return Already(result, $"{challengeId} was already completed; no repeat reward.");
             ChallengeTier tier = ParseTier(ch.Tier);
             long cash = RankPoints.ChallengeCash(tier);
             int rp = RankPoints.ForChallenge(tier);
-            profile.Challenges.Add(new CompletedChallenge { ChallengeId = ch.Id, Tier = tier, EventId = "meet", CompletedUtc = utc });
+            profile.Challenges.Add(new CompletedChallenge { ChallengeId = ch.Id, Tier = tier, EventId = where, CompletedUtc = utc });
             Add(result, ProgressionChangeKind.ChallengeCompleted, ch.Id, cash, $"{ch.Name} ({ch.Tier}).");
             Add(result, ProgressionChangeKind.RankPoints, ch.Id, rp, $"{ch.Tier} challenge.");
             if (!string.IsNullOrEmpty(ch.Reward) && !profile.OwnsCosmetic(ch.Reward))

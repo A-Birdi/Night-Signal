@@ -203,7 +203,7 @@ public sealed class GarageService(IGarageStore store, IPlayerStore players, Cont
         CarBuildWorkspace ws = c.Workspace;
         long revisionBefore = ws.Revision;
         long appliedBefore = ws.Applied.Revision;
-        string liveryHashBefore = ws.AppliedLiveryHash ?? "";
+        string liveryHashBefore = ws.AppliedLiveryHash ?? "", presetBefore = ws.AppliedVisualPresetId ?? "";
         long expected = req.ExpectedRevision ?? ws.Revision;
         EventConstraints? constraints = Constraints(account, instanceId);
         DateTime now = Now;
@@ -329,6 +329,11 @@ public sealed class GarageService(IGarageStore store, IPlayerStore players, Cont
         bool performance = changed && ws.Applied.Revision != appliedBefore;
         bool appearance = changed && (ws.AppliedLiveryHash ?? "") != liveryHashBefore;
         object? convoy = performance || appearance ? RefreshConvoy(account, c.Instance, ws, performance) : null;
+        // CH50 Change Without Losing: switched back from a later preset to the first, exactly, and saved.
+        object? challenge = null;
+        if (op == "livery-apply" && changed && LiveryChallenges.RestoresFirstPreset(ws.VisualPresets, presetBefore, liveryHashBefore,
+                ws.AppliedVisualPresetId ?? "", ws.AppliedLivery ?? "", ws.AppliedLiveryHash ?? ""))
+            challenge = await GrantAsync(account, instanceId, LiveryChallenges.ChangeWithoutLosing, ct);
         return new GarageReply(200, new
         {
             status = changed ? "ok" : "unchanged",
@@ -342,8 +347,21 @@ public sealed class GarageService(IGarageStore store, IPlayerStore players, Cont
             repairs = r.Repairs.Select(GarageWire.Repair).ToList(),
             changes = r.Changes,
             convoy,
+            challenge,
             workspace = GarageWire.Workspace(ws),
         });
+    }
+
+    /// <summary>A workshop challenge completed in the Garage: granted once (ledgered) with its cash, RP and cosmetic.</summary>
+    async Task<object?> GrantAsync(string account, string instanceId, string challengeId, CancellationToken ct)
+    {
+        ChallengeDef ch = Catalogue.Challenge(challengeId);
+        ChallengeTier tier = Content.ContentService.ParseTier(ch.Tier);
+        var grant = new ChallengeGrant(ch.Id, tier, RankPoints.ChallengeCash(tier), RankPoints.ForChallenge(tier), ch.Reward);
+        ChallengeGrantResult r = await players.GrantChallengeAsync(account, grant, "garage:" + instanceId, ct);
+        if (!r.Granted) return null; // completed before: no repeat reward
+        log.LogInformation("{Account} completed {Challenge} in the Garage (+{Cash} cr)", account, ch.Id, r.Credited);
+        return new { challengeId = ch.Id, name = ch.Name, tier = ch.Tier, cash = r.Credited, rankPoints = grant.RankPoints, cosmeticId = ch.Reward, balance = r.Balance };
     }
 
     static bool RequireLoadout(GarageOpRequest req, out string? error)

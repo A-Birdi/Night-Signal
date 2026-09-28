@@ -454,7 +454,7 @@ namespace NightSignal.Front
                     Reset(ws);
                     Changed();
                 }
-                message.text = a.Accepted ? ok : a.Message;
+                message.text = a.Accepted ? ok + (a.Challenge.Length > 0 ? "  " + a.Challenge : "") : a.Message;
                 after?.Invoke(a);
                 dirty = true;
             });
