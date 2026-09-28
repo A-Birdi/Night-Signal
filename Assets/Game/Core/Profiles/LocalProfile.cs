@@ -176,6 +176,12 @@ namespace NightSignal.Core.Profiles
         public string FrameId { get; set; } = "";
         public string MotifId { get; set; } = "";
         public string TitleId { get; set; } = "";
+        /// <summary>Card layout id (customization.json "card"); "" = the default. Background/Frame/Motif/Title above likewise.</summary>
+        public string LayoutId { get; set; } = "";
+        /// <summary>Self-selected ISO 3166-1 alpha-2 region shown on the card ("" = none).</summary>
+        public string Region { get; set; } = "";
+        /// <summary>A car model the profile owns, shown on the card ("" = none).</summary>
+        public string PreferredCar { get; set; } = "";
         /// <summary>The driver's look (canonical <c>CharacterLook</c> JSON, the online card's form); "" = the default look from the name.</summary>
         public string Look { get; set; } = "";
         /// <summary>Optional pronouns shown with the name (up to 24 plain characters).</summary>

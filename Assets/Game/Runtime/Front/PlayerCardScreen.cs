@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NightSignal.Characters;
+using NightSignal.Core.Customization;
 using NightSignal.Core.Meet;
 using NightSignal.Meet;
 using NightSignal.UI;
@@ -42,8 +43,21 @@ namespace NightSignal.Front
         readonly List<(Stepper Step, Func<string> Read)> colourRows = new List<(Stepper, Func<string>)>();
         readonly Dictionary<Stepper, Image> swatches = new Dictionary<Stepper, Image>();
         Stepper preset;
+        // The card's style (spec §11): background, frame, motif, title, layout, region, preferred car.
+        Stepper editing, bgStep, frameStep, motifStep, titleStep, layoutStep, regionStep, carStep;
+        readonly List<GameObject> lookRows = new List<GameObject>(), styleRows = new List<GameObject>();
+        CardView cardView;
+        CardStyle style;
+        List<string> ownedCars = new List<string>();
+        HashSet<string> ownedCosmetics = new HashSet<string>(StringComparer.Ordinal);
+        List<string> stats = new List<string>();
+        static CardStyleCatalogue Cat => Content.ContentLibrary.Load()?.Customization?.Card;
 
         public CharacterLook Look => look;
+        /// <summary>The card style being edited.</summary>
+        public CardStyle Style => style;
+        /// <summary>The styled card preview.</summary>
+        public CardView Card => cardView;
         public bool Busy => busy;
         public string Status => status.text;
 
@@ -64,6 +78,8 @@ namespace NightSignal.Front
             RectTransform a = UIFactory.Column("Who", panel.transform, new Vector2(0, 0.13f), new Vector2(0.5f, 0.79f), new Vector2(56, 0), new Vector2(-12, 0), 4f);
             RectTransform b = UIFactory.Column("Wear", panel.transform, new Vector2(0.5f, 0.13f), new Vector2(1f, 0.79f), new Vector2(12, 0), new Vector2(-32, 0), 4f);
 
+            editing = new Stepper(b, "Editing", 2, i => i == 0 ? "Driver look" : "Card style", 0, 570, 0.34f);
+            editing.Changed += ShowSection;
             preset = new Stepper(a, "Start from", PlayerLooks.Presets.Length + 1, i => i == 0 ? "Your look" : $"Look {i}", 0, 570, 0.34f);
             preset.Changed += i =>
             {
@@ -91,6 +107,22 @@ namespace NightSignal.Front
             Field(b, "Shoes", CharacterVocabulary.Shoes.Length, i => Words(CharacterVocabulary.Shoes[i]), i => look.Shoes = CharacterVocabulary.Shoes[i], () => Idx(CharacterVocabulary.Shoes, look.Shoes));
             Colours(b, "Shoe colour", PlayerLooks.Colours, v => look.ShoeColour = v, () => look.ShoeColour);
             Field(b, "Extra", Extras.Length, i => i == 0 ? "None" : i == Extras.Length - 1 ? "Open coat" : Words(Extras[i]), i => SetAccessory(Extras, i), () => AccessoryIndex(Extras));
+            lookRows.Add(preset.Root);
+            foreach (var f in fields) lookRows.Add(f.Step.Root);
+
+            // Card style rows (hidden until "Card style" is chosen above): reward items say when they are not owned yet.
+            CardStyleCatalogue cat = Cat;
+            if (cat != null)
+            {
+                string Lock(string name, string cosmetic) => cosmetic == null || ownedCosmetics.Contains(cosmetic) ? name : name + "  (locked)";
+                bgStep = StyleStep(a, "Background", cat.Backgrounds.Count, i => Lock(cat.Backgrounds[i].Name, cat.Backgrounds[i].CosmeticId), i => style.Background = cat.Backgrounds[i].Id);
+                frameStep = StyleStep(a, "Frame", cat.Frames.Count, i => Lock(cat.Frames[i].Name, cat.Frames[i].CosmeticId), i => style.Frame = cat.Frames[i].Id);
+                motifStep = StyleStep(a, "Motif", cat.Motifs.Count, i => Lock(cat.Motifs[i].Name, cat.Motifs[i].CosmeticId), i => style.Motif = cat.Motifs[i].Id);
+                titleStep = StyleStep(a, "Title", cat.Titles.Count, i => Lock(cat.Titles[i].Name, cat.Titles[i].CosmeticId), i => style.Title = cat.Titles[i].Id);
+                layoutStep = StyleStep(b, "Layout", cat.Layouts.Count, i => Lock(cat.Layouts[i].Name, cat.Layouts[i].CosmeticId), i => style.Layout = cat.Layouts[i].Id);
+                regionStep = StyleStep(b, "Region", RegionCodes.All.Count + 1, i => i == 0 ? "None" : RegionCodes.All[i - 1], i => style.Region = i == 0 ? "" : RegionCodes.All[i - 1]);
+                carStep = StyleStep(b, "Preferred car", 1, i => i == 0 || i > ownedCars.Count ? "None" : CarName(ownedCars[i - 1]), i => style.PreferredCar = i == 0 || i > ownedCars.Count ? "" : ownedCars[i - 1]);
+            }
 
             RectTransform bottom = UIFactory.Column("CardBottom", panel.transform, new Vector2(0, 0.02f), new Vector2(1, 0.12f), new Vector2(56, 0), new Vector2(-32, 0), 6f);
             status = UIFactory.Row("CardStatus", bottom, "", SignalTheme.Small, SignalTheme.Label, 1180, 30);
@@ -110,6 +142,72 @@ namespace NightSignal.Front
             prt.offsetMin = prt.offsetMax = Vector2.zero;
             preview = previewGo.GetComponent<RawImage>();
             preview.color = Color.white;
+            cardView = new CardView(root, new Vector2(0.675f, 0.3f), new Vector2(0.985f, 0.7f));
+            cardView.Root.gameObject.SetActive(false);
+        }
+
+        Stepper StyleStep(Transform col, string label, int count, Func<int, string> format, Action<int> apply)
+        {
+            var step = new Stepper(col, label, count, format, 0, 570, 0.34f);
+            step.Changed += i =>
+            {
+                if (loading || style == null) return;
+                apply(i);
+                RefreshCard();
+            };
+            styleRows.Add(step.Root);
+            step.Root.SetActive(false);
+            return step;
+        }
+
+        static string CarName(string carId) => Content.ContentLibrary.Load()?.Catalogue?.TryCar(carId, out Core.Content.CarDef car) == true ? car.Name : carId;
+
+        /// <summary>"Driver look" (0) or "Card style" (1): which rows and which preview show.</summary>
+        public void ShowSection(int index)
+        {
+            if (editing.Index != index) editing.Set(index);
+            foreach (GameObject g in lookRows) g.SetActive(index == 0);
+            foreach (GameObject g in styleRows) g.SetActive(index == 1);
+            preview.gameObject.SetActive(index == 0);
+            cardView.Root.gameObject.SetActive(index == 1);
+            if (index == 1) RefreshCard();
+        }
+
+        /// <summary>Automation: choose a whole style as the steppers would.</summary>
+        public void SetStyle(CardStyle s)
+        {
+            style = s.Copy();
+            SyncStyle();
+        }
+
+        void SyncStyle()
+        {
+            CardStyleCatalogue cat = Cat;
+            if (cat == null || style == null || bgStep == null) return;
+            loading = true;
+            int Of<T>(IReadOnlyList<T> list, Func<T, string> id, string value)
+            {
+                for (int i = 0; i < list.Count; i++) if (id(list[i]) == value) return i;
+                return 0;
+            }
+            bgStep.Set(Of(cat.Backgrounds, x => x.Id, style.Background));
+            frameStep.Set(Of(cat.Frames, x => x.Id, style.Frame));
+            motifStep.Set(Of(cat.Motifs, x => x.Id, style.Motif));
+            titleStep.Set(Of(cat.Titles, x => x.Id, style.Title));
+            layoutStep.Set(Of(cat.Layouts, x => x.Id, style.Layout));
+            int r = style.Region.Length == 0 ? 0 : 1 + Math.Max(0, RegionCodes.All.ToList().IndexOf(style.Region));
+            regionStep.Set(r);
+            carStep.SetCount(ownedCars.Count + 1);
+            carStep.Set(style.PreferredCar.Length == 0 ? 0 : 1 + Math.Max(0, ownedCars.IndexOf(style.PreferredCar)));
+            loading = false;
+            RefreshCard();
+        }
+
+        void RefreshCard()
+        {
+            CardStyleCatalogue cat = Cat;
+            if (cat == null || cardView == null || style == null) return;
+            cardView.Show(cat, style, nameField.text, pronounsField.text.Trim(), stats, style.PreferredCar.Length == 0 ? "" : CarName(style.PreferredCar));
         }
 
         static void Place(RectTransform rt, float x)
@@ -223,6 +321,31 @@ namespace NightSignal.Front
             loading = false;
             Sync();
             status.text = !hasLook ? "You have the default look — choose a starting look or change anything, then Save Card." : "";
+            // The card's style and what this player owns for it.
+            CardStyleCatalogue styles = Cat;
+            if (Local != null)
+            {
+                Core.Profiles.LocalProfile profile = Local.Profile;
+                style = Core.Profiles.LocalProgression.StyleOf(profile.Card, styles?.Default);
+                ownedCosmetics = new HashSet<string>((profile.Cosmetics ?? new List<Core.Profiles.OwnedCosmetic>()).Select(x => x.CosmeticId), StringComparer.Ordinal);
+                ownedCars = (profile.Cars ?? new List<Core.Profiles.OwnedCar>()).Select(x => x.ModelId).Distinct().ToList();
+                stats = new List<string> { "Local profile", $"Challenges {profile.Challenges?.Count ?? 0}/75" };
+            }
+            else
+            {
+                JToken stored = (S.Me?["card"] as JObject)?["style"];
+                style = (stored is JObject so ? CardStyle.Parse(so.ToString(Newtonsoft.Json.Formatting.None)) : null) ?? styles?.Default.Copy();
+                ownedCosmetics = new HashSet<string>(((S.Me?["cosmeticsOwned"] as JArray) ?? new JArray()).Select(x => (string)x), StringComparer.Ordinal);
+                ownedCars = ((S.Me?["ownedCars"] as JArray) ?? new JArray()).Select(x => (string)x["carId"]).Where(x => x != null).Distinct().ToList();
+                JToken rank = S.Me?["rank"];
+                stats = new List<string>
+                {
+                    $"Rank {(string)rank?["name"]} · {(int?)rank?["rankPoints"] ?? 0:N0} RP",
+                    $"Challenges {((S.Me?["challengesCompleted"] as JArray)?.Count ?? 0)}/75",
+                };
+            }
+            SyncStyle();
+            ShowSection(0);
             if (stage == null)
             {
                 Rect r = preview.rectTransform.rect;
@@ -240,6 +363,7 @@ namespace NightSignal.Front
 
         public override void Tick()
         {
+            cardView?.Tick(Time.unscaledDeltaTime);
             if (stage == null || look == null) return;
             if (dirtyPreview)
             {
@@ -279,7 +403,7 @@ namespace NightSignal.Front
             {
                 // Offline: the Local profile's card, validated like the online one and saved atomically.
                 Core.Profiles.LocalProgressionResult r = Core.Profiles.LocalProgression.SetCard(Local.Profile, nameField.text,
-                    PlayerLooks.Canonical(look), pronounsField.text);
+                    PlayerLooks.Canonical(look), pronounsField.text, style, Cat);
                 if (r.Status == Core.Profiles.LocalOperationStatus.AlreadyApplied)
                 {
                     status.text = "Nothing changed.";
@@ -315,6 +439,7 @@ namespace NightSignal.Front
                     ["pronouns"] = pronounsField.text.Trim(),
                     ["look"] = JObject.Parse(PlayerLooks.Canonical(look)),
                 };
+                if (style != null) payload["style"] = JObject.Parse(style.Canonical());
                 (int code, JObject body) = await S.Client.Post("/v1/me/card", payload);
                 if (code == 409)
                 {

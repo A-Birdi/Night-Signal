@@ -188,6 +188,7 @@ namespace NightSignal.Meet
 
         public void Tick(float dt)
         {
+            if (card != null && card.Root.gameObject.activeSelf) card.Tick(dt);
             Ribbon.Tick(dt);
             Notice n = Ribbon.Current;
             ribbonRect.gameObject.SetActive(n != null && !photo);
@@ -243,9 +244,25 @@ namespace NightSignal.Meet
 
         public void SetPanelBody(string body) => panelBody.text = body;
 
+        Front.CardView card;
+        /// <summary>The styled driver card shown beside the panel (null until first shown; hidden with the panel).</summary>
+        public Front.CardView Card => card;
+
+        /// <summary>Shows a driver's card with its style beside the panel (spec §11 public card cosmetics).</summary>
+        public Front.CardView ShowCard(Core.Customization.CardStyleCatalogue cat, Core.Customization.CardStyle style, string name, string pronouns,
+            IReadOnlyList<string> stats, string carName)
+        {
+            if (cat == null) return null;
+            if (card == null) card = new Front.CardView(root, new Vector2(0.05f, 0.3f), new Vector2(0.45f, 0.72f));
+            card.Root.gameObject.SetActive(true);
+            card.Show(cat, style, name, pronouns, stats, carName);
+            return card;
+        }
+
         public void HidePanel()
         {
             panel.gameObject.SetActive(false);
+            card?.Root.gameObject.SetActive(false);
             SetPrompt(prompt.text);
             if (EventSystem.current != null) EventSystem.current.SetSelectedGameObject(null);
         }

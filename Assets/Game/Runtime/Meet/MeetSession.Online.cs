@@ -392,6 +392,9 @@ namespace NightSignal.Meet
             }
         }
 
+        /// <summary>The style of the driver card last viewed (canonical; tours check replication).</summary>
+        public string ViewedCardStyle { get; private set; }
+
         /// <summary>A remote visitor's car as drawn (null when not here); tours check its livery.</summary>
         public VehicleView RemoteCar(string accountId) => remotes.TryGetValue(accountId, out Remote r) ? r.Car : null;
 
@@ -546,6 +549,18 @@ namespace NightSignal.Meet
             {
                 ($"Back to {r.Name}'s car", () => InspectRemoteCar(r.AccountId)),
             });
+            // The card as its owner styled it (the catalogue's default when they have not).
+            Core.Customization.CardStyle cardStyle = c["style"] is JObject so ? Core.Customization.CardStyle.Parse(so.ToString(Newtonsoft.Json.Formatting.None)) : null;
+            Core.Customization.CardStyleCatalogue styles = lib.Customization?.Card;
+            string preferred = cardStyle != null && cardStyle.PreferredCar.Length > 0 ? CarDisplay(cardStyle.PreferredCar) : "";
+            Hud.ShowCard(styles, cardStyle ?? styles?.Default, (string)c["displayName"] ?? r.Name, pronouns,
+                new List<string>
+                {
+                    $"Rank {(string)rank?["name"]} · {(int?)rank?["rankPoints"] ?? 0:N0} RP",
+                    $"Campaign N {(int?)camp?["normalClears"] ?? 0}/{(int?)camp?["stages"] ?? 30} · H {(int?)camp?["hardClears"] ?? 0}/{(int?)camp?["stages"] ?? 30}",
+                    $"Challenges {(int?)ch?["completed"] ?? 0}/{(int?)ch?["total"] ?? 75}",
+                }, preferred);
+            ViewedCardStyle = (cardStyle ?? styles?.Default)?.Canonical();
             Note($"viewed {r.Name}'s driver card");
         }
 

@@ -75,9 +75,33 @@ namespace NightSignal.Front
             Note($"saved: \"{PlayerCard.Status}\" look {saved.Length} chars (starting look 5: {saved == expected}), pronouns \"{LocalSession.Current.Profile.Card.Pronouns}\"");
             if (saved != expected) Fail("the saved look is not starting look 5");
 
+            // The card's style: a reward item not owned yet is refused by name; free items are saved.
+            PlayerCard.ShowSection(1);
+            yield return new WaitForSeconds(0.6f);
+            var styleWanted = new Core.Customization.CardStyle
+            {
+                Background = "dusk", Frame = "balance-point", Motif = "signal-bars", Title = "touring-driver", Layout = "standard", Region = "PT",
+                PreferredCar = LocalSession.Current.Profile.Cars[0].ModelId,
+            };
+            PlayerCard.SetStyle(styleWanted);
+            Click("SaveCard");
+            yield return new WaitForSeconds(0.5f);
+            string lockedWhy = PlayerCard.Status;
+            Note($"locked frame: \"{lockedWhy}\"");
+            if (!lockedWhy.StartsWith("Not owned yet: Balance Point Frame")) Fail("a locked card frame was not refused");
+            styleWanted.Frame = "double";
+            PlayerCard.SetStyle(styleWanted);
+            Click("SaveCard");
+            yield return new WaitForSeconds(0.8f);
+            yield return Snap("01b-card-style");
+            Core.Customization.CardStyle styleSaved = Core.Profiles.LocalProgression.StyleOf(LocalSession.Current.Profile.Card, null);
+            Note($"style saved: {styleSaved.Canonical()} (preview {PlayerCard.Card?.Shown?.Canonical()})");
+            if (!styleSaved.ContentEquals(styleWanted)) Fail("the card style was not saved");
+
             string id = LocalSession.Current.Profile.ProfileId;
             bool reread = LocalSession.Current.Open(id, out string reopen);
-            bool same = reread && LocalSession.Current.Profile.Card.Look == saved && LocalSession.Current.Profile.Card.Pronouns == "she/they";
+            bool same = reread && LocalSession.Current.Profile.Card.Look == saved && LocalSession.Current.Profile.Card.Pronouns == "she/they" &&
+                        Core.Profiles.LocalProgression.StyleOf(LocalSession.Current.Profile.Card, null).ContentEquals(styleWanted);
             Note($"re-read from disk: {same} {reopen}");
             if (!same) Fail("the card did not persist");
 

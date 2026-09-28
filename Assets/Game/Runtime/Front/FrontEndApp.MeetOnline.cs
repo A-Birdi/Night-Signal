@@ -164,11 +164,24 @@ namespace NightSignal.Front
                 PlayerCard.SetField("Hair", Array.IndexOf(Characters.CharacterVocabulary.Hair, "locs"));
                 yield return new WaitForSeconds(1.5f);
                 yield return Snap("00a-player-card");
+                // The card's style (free items), then back to the look.
+                PlayerCard.ShowSection(1);
+                PlayerCard.SetStyle(new Core.Customization.CardStyle
+                {
+                    Background = "tea-rows", Frame = "double", Motif = "lantern", Title = "night-driver", Layout = "standard", Region = "JP",
+                    PreferredCar = S().StarterCarId ?? "",
+                });
+                yield return new WaitForSeconds(1.2f);
+                yield return Snap("00a2-card-style");
                 Click("SaveCard");
                 yield return Until(() => !PlayerCard.Busy && PlayerCard.Status.StartsWith("Saved"), 15f, "card saved (" + PlayerCard.Status + ")");
                 Characters.CharacterLook saved = S().CardLook;
                 Note($"card look saved: {saved?.Hair} {saved?.Outfit} {saved?.Build}; status '{PlayerCard.Status}'");
                 if (saved?.Hair != "locs" || saved.Outfit != Characters.PlayerLooks.Presets[CardPreset - 1].Outfit) Fail("the saved card look is not the chosen one");
+                Core.Customization.CardStyle savedStyle = (S().Me?["card"] as JObject)?["style"] is JObject st
+                    ? Core.Customization.CardStyle.Parse(st.ToString(Newtonsoft.Json.Formatting.None)) : null;
+                Note($"card style saved: {savedStyle?.Canonical() ?? "none"}");
+                if (savedStyle == null || !savedStyle.ContentEquals(PlayerCard.Style)) Fail("the saved card style is not the chosen one");
                 yield return new WaitForSeconds(1.5f);
                 yield return Snap("00b-player-card-saved");
                 PlayerCard.SavePreview(System.IO.Path.Combine(dir, "host-00c-card-preview.png"));
@@ -258,6 +271,11 @@ namespace NightSignal.Front
                 yield return new WaitForSeconds(0.8f);
                 Note("host's driver card: " + m.Hud.PanelBody.Replace("\n", " | "));
                 if (!m.Hud.PanelBody.Contains("Rank:") || !m.Hud.PanelBody.Contains("Campaign: Normal")) Fail("the driver card is incomplete");
+                Core.Customization.CardStyle seen = Core.Customization.CardStyle.Parse(m.ViewedCardStyle ?? "");
+                Note($"host's card style as drawn here: {m.ViewedCardStyle}; card shown {m.Hud.Card?.Root.gameObject.activeSelf == true}");
+                if (seen == null || seen.Background != "tea-rows" || seen.Frame != "double" || seen.Motif != "lantern" || seen.Title != "night-driver" ||
+                    seen.Region != "JP" || seen.PreferredCar.Length == 0 || m.Hud.Card?.Shown?.ContentEquals(seen) != true)
+                    Fail("the host's card style did not reach the guest's view");
                 yield return Snap("01a-host-driver-card");
                 m.ClosePanel();
                 yield return new WaitForSeconds(0.4f);

@@ -306,7 +306,8 @@ namespace NightSignal.Core.Profiles
         /// The Local driver card: display name, driver look and pronouns — the look validated and stored canonically exactly as
         /// the online card's (<see cref="Characters.PlayerLooks"/>); "" = the default look from the name. Unchanged is a no-op.
         /// </summary>
-        public static LocalProgressionResult SetCard(LocalProfile profile, string displayName, string lookJson, string pronouns)
+        public static LocalProgressionResult SetCard(LocalProfile profile, string displayName, string lookJson, string pronouns,
+            Customization.CardStyle style = null, Customization.CardStyleCatalogue card = null)
         {
             LocalProgressionResult result = Begin(profile);
             if (!LocalDisplayName.TryNormalize(displayName, out string name, out string error)) return Reject(result, error);
@@ -321,16 +322,55 @@ namespace NightSignal.Core.Profiles
             }
             string words = (pronouns ?? "").Trim();
             if (!PronounsOk(words)) return Reject(result, "Pronouns: up to 24 plain characters.");
-            if (name == profile.DisplayName && look == (profile.Card?.Look ?? "") && words == (profile.Card?.Pronouns ?? ""))
+            // The card's style (spec §11): reward items only once this profile owns them, the car one it owns.
+            Customization.CardStyle styled = style != null && card != null ? style : StyleOf(profile.Card, null);
+            if (style != null)
+            {
+                if (card == null) return Reject(result, "No card style catalogue.");
+                var owned = new HashSet<string>((profile.Cosmetics ?? new List<OwnedCosmetic>()).Select(c => c.CosmeticId), StringComparer.Ordinal);
+                List<string> bad = card.Problems(style, owned.Contains, car => (profile.Cars ?? new List<OwnedCar>()).Any(c => c.ModelId == car));
+                if (bad.Count > 0) return Reject(result, bad[0]);
+            }
+            bool sameStyle = style == null || StyleOf(profile.Card, null).ContentEquals(styled);
+            if (name == profile.DisplayName && look == (profile.Card?.Look ?? "") && words == (profile.Card?.Pronouns ?? "") && sameStyle)
                 return Already(result, "The card is unchanged.");
             LocalProfile p = ProfileJson.Clone(profile);
             p.DisplayName = name;
             p.Card = p.Card ?? new CardAppearance();
             p.Card.Look = look;
             p.Card.Pronouns = words;
+            if (style != null)
+            {
+                p.Card.BackgroundId = styled.Background;
+                p.Card.FrameId = styled.Frame;
+                p.Card.MotifId = styled.Motif;
+                p.Card.TitleId = styled.Title;
+                p.Card.LayoutId = styled.Layout;
+                p.Card.Region = styled.Region;
+                p.Card.PreferredCar = styled.PreferredCar;
+            }
             Add(result, ProgressionChangeKind.CardChanged, name, 0, "Driver card changed.");
             result.Status = LocalOperationStatus.Applied;
             return Finish(result, p);
+        }
+
+        /// <summary>
+        /// The Local card's style as a <see cref="Customization.CardStyle"/>; an empty field takes <paramref name="defaults"/>'s
+        /// value ("" when no defaults are given).
+        /// </summary>
+        public static Customization.CardStyle StyleOf(CardAppearance card, Customization.CardStyle defaults)
+        {
+            string Or(string v, string d) => string.IsNullOrEmpty(v) ? d ?? "" : v;
+            return new Customization.CardStyle
+            {
+                Background = Or(card?.BackgroundId, defaults?.Background),
+                Frame = Or(card?.FrameId, defaults?.Frame),
+                Motif = Or(card?.MotifId, defaults?.Motif),
+                Title = Or(card?.TitleId, defaults?.Title),
+                Layout = Or(card?.LayoutId, defaults?.Layout),
+                Region = card?.Region ?? "",
+                PreferredCar = card?.PreferredCar ?? "",
+            };
         }
 
         /// <summary>The online card's pronoun rule: up to 24 characters, no control characters, markup or surrogates.</summary>

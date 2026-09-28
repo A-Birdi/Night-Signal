@@ -664,3 +664,39 @@ public sealed class LocalCardTests
         Assert.Empty(old.Validate());
     }
 }
+
+public sealed class LocalCardStyleTests
+{
+    static readonly Lazy<NightSignal.Core.Customization.CustomizationCatalogue> customization = new(() => NightSignal.Core.Customization.CustomizationCatalogue.Load(
+        File.ReadAllText(Path.Combine(TestContent.RepoRoot, "Assets", "Content", "Data", "authored", NightSignal.Core.Customization.CustomizationCatalogue.FileName))));
+
+    [Fact]
+    public void SetCard_Style_StoredWhenAllowed_RewardsNeedOwnership()
+    {
+        var card = customization.Value.Card;
+        LocalProfile p = LocalProgressionTests.NewProfile("Robin", "V02");
+        var style = card.Default.Copy();
+        style.Background = "tea-rows";
+        style.Motif = "lantern";
+        style.Region = "PT";
+        style.PreferredCar = "V02";
+        LocalProgressionResult set = LocalProgression.SetCard(p, "Robin", "", "", style, card);
+        Assert.Equal(LocalOperationStatus.Applied, set.Status);
+        Assert.True(LocalProgression.StyleOf(set.Profile.Card, card.Default).ContentEquals(style));
+        Assert.Empty(set.Profile.Validate());
+        Assert.Equal(LocalOperationStatus.AlreadyApplied, LocalProgression.SetCard(set.Profile, "Robin", "", "", style, card).Status);
+
+        var locked = style.Copy();
+        locked.Frame = "balance-point"; // COS-CH57, not owned
+        LocalProgressionResult refused = LocalProgression.SetCard(set.Profile, "Robin", "", "", locked, card);
+        Assert.Equal(LocalOperationStatus.Rejected, refused.Status);
+        Assert.Equal("Not owned yet: Balance Point Frame.", refused.Reason);
+        var otherCar = style.Copy();
+        otherCar.PreferredCar = "V17";
+        Assert.Equal(LocalOperationStatus.Rejected, LocalProgression.SetCard(set.Profile, "Robin", "", "", otherCar, card).Status);
+
+        LocalProfile owner = ProfileJson.Clone(set.Profile);
+        owner.Cosmetics.Add(new OwnedCosmetic { CosmeticId = "COS-CH57", Source = "CH57" });
+        Assert.Equal(LocalOperationStatus.Applied, LocalProgression.SetCard(owner, "Robin", "", "", locked, card).Status);
+    }
+}
