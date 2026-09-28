@@ -119,7 +119,7 @@ namespace NightSignal.Editor.ArtTools
                     VehicleView car = VehicleView.Create("SheetCar", p, lib.Body(cars[i]), mats, paint ?? new Color(0.46f, 0.56f, 0.66f));
                     SceneManager.MoveGameObjectToScene(car.gameObject, scene);
                     car.ShowParked(Vector3.zero, Quaternion.identity, view == View.FrontQuarter ? 12f : 0f);
-                    if (forceLod >= 0) car.Lods.ForceLOD(forceLod);
+                    if (forceLod >= 0) car.HoldLod(forceLod);
                     float mid = (p.FrontAxleZ + p.RearAxleZ) * 0.5f;
                     Vector3 target = new Vector3(0f, 0.62f, mid);
                     Vector3 eye;
