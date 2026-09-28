@@ -1419,3 +1419,32 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   menu screen before navigating (the flow re-showed Friends after the tour had moved to Convoy).
 - **Limits:** loopback, one machine, two clients; the leader did not press Start at the meet, so an allocation handing
   over from the meet to the race (code path `LeaveMeetForRace`) is still not exercised by a run; no impairment run.
+
+## V-076 — Race from the meet and back; walking controls on the Controls screen (2026-09-28)
+- Revision: `c60d2db`. Control plane restarted once on `c60d2db` (the `meet.leave` reason; content `d91b31e0…`
+  unchanged); it is left running.
+- **What changed:** the leader's meet menu offers "Convoy: Start the event" once every racing member is Event Ready
+  (the header says so); the allocation leaves the meet with `meet.leave {reason: "race"}`, which the room announces as
+  "left to race" — never "left" or "disconnected" (Core `NoticeKind.LeftToRace`). After a race that began at the meet
+  the Convoy screen offers **Back to the Meet** (your convoy's / your friend's / a public meet; the bay is allocated
+  afresh). Settings → Controls gains a **Walking (meet)** page (walk ×4, jog, interact, emote wheel, quick chat,
+  recenter, photo, rescue, meet menu; keyboard and controller; stored apart from the driving bindings). Polish: a meet
+  invitation's notice lapses with its 30 s place; the meet menu panel sits below the SIGNAL ribbon and hides the
+  interaction prompt while open; the convoy header names the post-race decision.
+- **Tests:** EditMode `MeetRulesTests` 17/17 (a race departure is worded apart and still fades and frees the bay).
+  .NET `MeetControlChannelTests` 5/5 (`meet.leave {reason: "race"}` → `lefttorace`, no `departed`).
+- **Built players** (`c60d2db`, non-development):
+  - `meet-online.ps1 -Convoy -Race` (two clients, loopback control plane, one game server bound to 127.0.0.1 UDP 7792
+    through NetGuard, released afterwards): **PASS ×2** (the first on the same meet code before the Controls page and
+    polish, the second on `c60d2db`). Both answer Event Ready at the convoy meet, the leader starts from the meet menu,
+    both clients leave the meet into race loading (validator autopilot), race the next campaign stage (S02, then S03) to the finish (P1/P2, stage
+    cleared, receipts settled), return to the Convoy screen, use Back to the Meet and meet again in the same convoy room
+    (bays 1 and 2), then leave. Evidence: `Evidence/meet/race-*.jpg`, `race-log.txt`.
+  - `meet-online.ps1 -Convoy` (V-075 scenario) PASS and the three-client public run PASS (0 corrections, 476 poses).
+  - Offline meet tour (`-nsMeetTour`, `-nsPrefsFolder` under `Builds/`): PASS — Interact remapped to F on the walking
+    page by pressing F (the stored override holds `<Keyboard>/f`), and the meet's prompt beside the car then read
+    "F / A  Your Kogane Hachi RS". Evidence: `Evidence/meet/controls-walking-interact-on-f.jpg`,
+    `tour-02-out-of-car-f-prompt.jpg`.
+- **Limits:** loopback, one machine, two clients; the "left to race" notice is covered by tests (both members leave at
+  once in the run, so neither sees the other's); the walking page was exercised with a simulated keyboard in one window
+  (focus-dependent input is not driven in the multi-window runs); no meet run under impairment.

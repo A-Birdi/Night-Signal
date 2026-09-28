@@ -1,0 +1,17 @@
+# Race from the meet (Tools/run/meet-online.ps1 -Convoy -Race) on c60d2db; loopback control plane and one loopback
+# game server (UDP 7792). Harness output:
+server endpoint: bind 127.0.0.1 advertise 127.0.0.1 udp 7792 (local)
+host: exit 0
+guest: exit 0
+server: exit 0
+udp 7792 released: True
+[NightSignal.MeetConvoy:host] room convoy-cs_78041c938fa27438a3aa bay 1; convoy event ready: True
+[NightSignal.MeetConvoy:host] race from the meet: in race True, meet left True, return to convoy
+[NightSignal.MeetConvoy:host] after the race: <color=#9A968D>LAST RACE</color> | P1 of 3   03:01.943 | <color=#3EC6D8>Stage cleared</color> | Credits +10,716   ·   balance 264,534 cr |
+[NightSignal.MeetConvoy:host] back at the meet after the race: room convoy-cs_78041c938fa27438a3aa bay 1
+[NightSignal.MeetConvoy:host] PASS
+[NightSignal.MeetConvoy:guest] room convoy-cs_78041c938fa27438a3aa bay 2; convoy event ready: True
+[NightSignal.MeetConvoy:guest] race from the meet: in race True, meet left True, return to convoy
+[NightSignal.MeetConvoy:guest] after the race: <color=#9A968D>LAST RACE</color> | P2 of 3   03:02.890 | <color=#3EC6D8>Stage cleared</color> — first clear | Credits +17,525   ·   balance 150,931 cr |
+[NightSignal.MeetConvoy:guest] back at the meet after the race: room convoy-cs_78041c938fa27438a3aa bay 2
+[NightSignal.MeetConvoy:guest] PASS
