@@ -22,7 +22,36 @@ namespace NightSignal.AI
                 LineAggression = Mathf.Lerp(0.35f, 0.55f, t),
                 LookaheadSeconds = 0.9f,
                 MinLookahead = 10f,
+                // Freeplay opponents without an identity: a spread around the tuned point (some tidy, some ragged).
+                DriftSkill = Mathf.Lerp(0.45f, 0.8f, ((index * 7) % 6) / 5f),
             };
+        }
+
+        /// <summary>
+        /// A rival's drift skill (spec §13: rivals differ in how they read a corner): rises with the campaign, and the
+        /// tendencies built on rotation, recovery and momentum drift better than the tidy line-keepers; a sheet whose
+        /// strength names slides or rotation adds a little.
+        /// </summary>
+        public static float DriftSkillFor(RivalDef rival, int stageNumber)
+        {
+            float progress = Mathf.Clamp01((stageNumber - 1) / 29f);
+            float skill = Mathf.Lerp(0.5f, 0.78f, progress);
+            switch (rival.Tendency)
+            {
+                case "rotation-specialist": skill += 0.18f; break;
+                case "recovery-specialist": skill += 0.1f; break;
+                case "momentum-reader": skill += 0.06f; break;
+                case "wide-entry-specialist": skill += 0.04f; break;
+                case "surface-reader":
+                case "wet-line-reader": skill += 0.03f; break;
+                case "margin-keeper": skill -= 0.15f; break;
+                case "straight-line-planner": skill -= 0.1f; break;
+                case "geometric-apexer":
+                case "early-set-cornerer": skill -= 0.05f; break;
+            }
+            string strength = (rival.Strength ?? "").ToLowerInvariant();
+            if (strength.Contains("drift") || strength.Contains("slide") || strength.Contains("rotation")) skill += 0.06f;
+            return Mathf.Clamp(skill, 0.2f, 0.98f);
         }
 
         public static DriverProfile For(RivalDef rival, int stageNumber, float paceScale = 1f)
@@ -60,6 +89,7 @@ namespace NightSignal.AI
             }
             p.LineAggression = Mathf.Clamp01(p.LineAggression);
             p.PaceScale = paceScale;
+            p.DriftSkill = DriftSkillFor(rival, stageNumber);
             return p;
         }
     }

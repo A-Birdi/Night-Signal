@@ -113,6 +113,63 @@ namespace NightSignal.Tests
                 Assert.That(finishers[i].rawDriftScore, Is.LessThanOrEqualTo(finishers[i - 1].rawDriftScore), "finishers ranked by raw drift score");
         }
 
+        /// <summary>
+        /// Drift skill matters (spec §13): the same car, course and autopilot, alone, at a low, the tuned and a high drift
+        /// skill — the banked score rises with skill. Solo runs are deterministic (no traffic).
+        /// </summary>
+        [UnityTest, Timeout(900000)]
+        public IEnumerator DriftSkill_RaisesTheBankedScore()
+        {
+#if UNITY_EDITOR
+            var total = new Dictionary<float, long> { [0.15f] = 0, [0.65f] = 0, [0.95f] = 0 };
+            var lines = new List<string>();
+            foreach (string course in new[] { "C01", "C04", "C08", "C12" })
+            {
+            var scores = new Dictionary<float, long>();
+            var attempts = new Dictionary<float, string>();
+            foreach (float skill in new[] { 0.15f, 0.65f, 0.95f })
+            {
+                AsyncOperation load = UnityEditor.SceneManagement.EditorSceneManager.LoadSceneAsyncInPlayMode(
+                    $"Assets/Content/Courses/{course}/{course}.unity", new LoadSceneParameters(LoadSceneMode.Single));
+                yield return load;
+                yield return null;
+                var go = new GameObject("DriftSkillSession");
+                var session = go.AddComponent<OfflineRaceSession>();
+                session.CarId = "V04";
+                session.Autopilot = true;
+                session.AutopilotDriftSkill = skill;
+                session.SimulationSpeed = 30;
+                session.Rules = new RaceEventRules { Kind = "freeplay", DriftRanking = true, Surface = CourseRuntime.Active.Route?.Surface ?? "dry" };
+                session.OpposingAi = new List<string>();
+                yield return null;
+                float t0 = Time.realtimeSinceStartup;
+                while (session.Results == null && Time.realtimeSinceStartup - t0 < 400f) yield return null;
+                Assert.That(session.Results, Is.Not.Null, $"skill {skill}: the run completed");
+                RaceEntrantResult r = session.Results[0];
+                scores[skill] = r.RawDriftScore;
+                RouteFollower f = session.Pilot;
+                attempts[skill] = $"entry {f.DriftEntrySpeed:F1} m/s, gain {f.CountersteerGain:F2}, slip {f.DriftSlipDeg:F1}°, flicks {f.DriftFlicks}, holds {f.DriftHolds}, ended edge {f.DriftEndEdge} spin {f.DriftEndSpin} slow {f.DriftEndSlow} wrong-way {f.DriftEndWrongWay}";
+                Object.Destroy(go);
+                yield return null;
+            }
+            string line = string.Join("; ", scores.Select(kv => $"skill {kv.Key:0.00}: {kv.Value:N0} pts ({attempts[kv.Key]})"));
+            Debug.Log($"[NightSignal.DriftTest] {course} solo V04 " + line);
+            lines.Add($"{course}: {line}");
+            foreach (var kv in scores) total[kv.Key] += kv.Value;
+            }
+            string sum = string.Join(", ", total.Select(kv => $"skill {kv.Key:0.00} {kv.Value:N0}"));
+            Directory.CreateDirectory("Evidence/courses/drift");
+            File.WriteAllText("Evidence/courses/drift/skill.txt",
+                "Validator autopilot alone in V04 at three drift skills on four drift courses (automation, not a human).\n" + string.Join("\n", lines) + "\nTotal: " + sum + "\n");
+            Debug.Log("[NightSignal.DriftTest] total " + sum);
+            Assert.That(total[0.65f], Is.GreaterThan(total[0.15f]), "the tuned drifter banks more than the novice over the four courses");
+            Assert.That(total[0.95f], Is.GreaterThan(total[0.65f]), "the skilled drifter banks more than the tuned one over the four courses");
+#else
+            Assert.Ignore("Editor-only scene loading");
+            yield break;
+#endif
+        }
+
         [System.Serializable]
         sealed class DriftEvidence
         {

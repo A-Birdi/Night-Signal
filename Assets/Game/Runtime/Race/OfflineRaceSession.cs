@@ -34,6 +34,8 @@ namespace NightSignal.Race
         public RaceEventRules Rules = new RaceEventRules();
         public List<string> OpposingAi = new List<string>();
         public List<string> FriendlyAi = new List<string>();
+        /// <summary>Tests: the autopilot's drift skill (0 = the validator's tuned point).</summary>
+        public float AutopilotDriftSkill;
         public int CountdownTicks = 60 * 3;
 
         public RaceSimulation Sim { get; private set; }
@@ -103,7 +105,9 @@ namespace NightSignal.Race
             Player.Status = EntrantStatus.Loaded;
             Sim.HumanInput = LocalInput;
             Sim.StartTick = CountdownTicks;
-            pilot = new RouteFollower(course.Track, Player.Params, DriverProfile.Validator)
+            DriverProfile pilotProfile = DriverProfile.Validator;
+            pilotProfile.DriftSkill = AutopilotDriftSkill;
+            pilot = new RouteFollower(course.Track, Player.Params, pilotProfile)
             {
                 DriftZones = Sim.DriftZonesForAi, ApexGates = Sim.Contracts?.ApexGates, ResetWhenStuck = true, SurfaceGrip = CourseRuntime.SurfaceGrip(Rules.Surface),
             };

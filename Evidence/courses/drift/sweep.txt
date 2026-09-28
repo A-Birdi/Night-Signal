@@ -1,0 +1,27 @@
+# Diagnostic sweep (DriftTuningSweep, explicit PlayMode test; validator autopilot alone in V04; one controller knob changed at a time). Automation, not a human.
+C01 baseline: 4392 pts, 94.0s, flicks 3 holds 3 end edge 3 spin 0 slow 0 wrong 0
+C01 slip 22: 3842 pts, 93.9s, flicks 3 holds 3 end edge 3 spin 0 slow 0 wrong 0
+C01 slip 34: 4287 pts, 95.8s, flicks 3 holds 3 end edge 3 spin 0 slow 0 wrong 0
+C01 margin 0.3: 2774 pts, 96.9s, flicks 3 holds 3 end edge 3 spin 0 slow 0 wrong 0
+C01 margin 1.5: 3770 pts, 94.0s, flicks 3 holds 3 end edge 3 spin 0 slow 0 wrong 0
+C01 gain 0.25: 4196 pts, 93.9s, flicks 3 holds 3 end edge 3 spin 0 slow 0 wrong 0
+C01 gain 0.55: 4688 pts, 94.1s, flicks 3 holds 3 end edge 3 spin 0 slow 0 wrong 0
+C01 path 0.3: 4519 pts, 94.0s, flicks 3 holds 3 end edge 3 spin 0 slow 0 wrong 0
+C01 path 1.0: 4255 pts, 93.9s, flicks 3 holds 3 end edge 3 spin 0 slow 0 wrong 0
+C01 window 0.3: 4392 pts, 94.0s, flicks 3 holds 3 end edge 3 spin 0 slow 0 wrong 0
+C01 window 0.7: 4392 pts, 94.0s, flicks 3 holds 3 end edge 3 spin 0 slow 0 wrong 0
+C01 entry 16: 2879 pts, 95.8s, flicks 3 holds 3 end edge 3 spin 0 slow 0 wrong 0
+C01 entry 22: 5160 pts, 92.2s, flicks 3 holds 3 end edge 3 spin 0 slow 0 wrong 0
+C08 baseline: 2068 pts, 194.5s, flicks 4 holds 4 end edge 4 spin 0 slow 0 wrong 0
+C08 slip 22: 2068 pts, 194.5s, flicks 4 holds 4 end edge 4 spin 0 slow 0 wrong 0
+C08 slip 34: 2068 pts, 194.5s, flicks 4 holds 4 end edge 4 spin 0 slow 0 wrong 0
+C08 margin 0.3: 2068 pts, 194.5s, flicks 4 holds 4 end edge 4 spin 0 slow 0 wrong 0
+C08 margin 1.5: 2774 pts, 187.5s, flicks 4 holds 4 end edge 4 spin 0 slow 0 wrong 0
+C08 gain 0.25: 2068 pts, 194.5s, flicks 4 holds 4 end edge 4 spin 0 slow 0 wrong 0
+C08 gain 0.55: 2068 pts, 194.5s, flicks 4 holds 4 end edge 4 spin 0 slow 0 wrong 0
+C08 path 0.3: 2068 pts, 194.5s, flicks 4 holds 4 end edge 4 spin 0 slow 0 wrong 0
+C08 path 1.0: 2068 pts, 194.5s, flicks 4 holds 4 end edge 4 spin 0 slow 0 wrong 0
+C08 window 0.3: 2068 pts, 194.5s, flicks 4 holds 4 end edge 4 spin 0 slow 0 wrong 0
+C08 window 0.7: 2068 pts, 194.5s, flicks 4 holds 4 end edge 4 spin 0 slow 0 wrong 0
+C08 entry 16: 1639 pts, 200.3s, flicks 4 holds 4 end edge 4 spin 0 slow 0 wrong 0
+C08 entry 22: 3503 pts, 190.9s, flicks 4 holds 4 end edge 4 spin 0 slow 0 wrong 0

@@ -23,6 +23,17 @@ namespace NightSignal.AI
         /// certification calibrates a featured rival with it so the encounter lands near the stage target.
         /// </summary>
         public float PaceScale;
+        /// <summary>
+        /// How well this driver drifts a judged zone (0–1; 0 = unset, which drives exactly as <see cref="BaselineDriftSkill"/>).
+        /// Below it a driver commits to only some of the judged zones (a novice picks the ones they trust); above it a
+        /// driver re-initiates the slide after running out of road if enough of the zone is left. The slide itself is the
+        /// tuned controller for everyone: a sweep of its angle, entry speed, countersteer and edge margin (C01, C04, C08,
+        /// C12) moved the banked score in different directions per course, so none of them is a skill.
+        /// </summary>
+        public float DriftSkill;
+
+        /// <summary>The skill the drift controller was tuned at (the handling harness' drifter).</summary>
+        public const float BaselineDriftSkill = 0.65f;
 
         public static DriverProfile Validator => new DriverProfile
         {
@@ -48,7 +59,40 @@ namespace NightSignal.AI
             this.p = p;
             Profile = profile;
             locator = new TrackLocator(track);
+            ApplyDriftSkill(profile.DriftSkill);
         }
+
+        /// <summary>
+        /// Skill → behaviour around the tuned point (0.65: every zone attempted once per visit). Below: the share of zones a
+        /// driver commits to falls to 40% at skill 0 (which ones is fixed per driver by <see cref="Seed"/>). Above: up to two
+        /// re-initiated slides per zone visit at skill 1. Unset (0) keeps the tuned point exactly.
+        /// </summary>
+        public void ApplyDriftSkill(float skill)
+        {
+            float s = skill <= 0f ? DriverProfile.BaselineDriftSkill : Mathf.Clamp01(skill);
+            float b = DriverProfile.BaselineDriftSkill;
+            AttemptShare = s < b ? Mathf.Lerp(0.4f, 1f, s / b) : 1f;
+            ReFlicks = s > b ? Mathf.RoundToInt((s - b) / (1f - b) * 2f) : 0;
+        }
+
+        /// <summary>Share of judged zones this driver commits to (1 = all).</summary>
+        public float AttemptShare = 1f;
+        /// <summary>Slides re-initiated per zone visit after running out of road (0 = one attempt per visit).</summary>
+        public int ReFlicks;
+        /// <summary>Which zones a less confident driver picks (per driver; the race sets it from the grid).</summary>
+        public int Seed;
+        int reflicksLeft;
+
+        bool Commits(int zone)
+        {
+            if (AttemptShare >= 1f) return true;
+            uint h = (uint)(zone * 73856093) ^ (uint)(Seed * 19349663) ^ 0x9E3779B9u;
+            h ^= h >> 16; h *= 0x7FEB352Du; h ^= h >> 15;
+            return (h % 1000u) / 1000f < AttemptShare;
+        }
+
+        /// <summary>Drift controller knobs (set from the skill; diagnostics may set them directly).</summary>
+        public float CountersteerGain = 0.4f, EdgeMargin = 0.5f, FlickWindow = 0.5f, PathFollow = 0.6f;
 
         public float TargetSpeed { get; private set; }
 
@@ -223,7 +267,7 @@ namespace NightSignal.AI
                 if (driftZone >= 0 && here.Distance > DriftZones[driftZone].EndMetres) { driftZone = -1; phase = DriftPhase.Idle; }
                 return false;
             }
-            if (zone != driftZone) { driftZone = zone; phase = DriftPhase.Idle; }
+            if (zone != driftZone) { driftZone = zone; phase = DriftPhase.Idle; reflicksLeft = ReFlicks; }
             RouteGateDef z = DriftZones[zone];
 
             // Which way the road bends just ahead decides the slide's direction (S-bends flip it).
@@ -234,14 +278,15 @@ namespace NightSignal.AI
             float half = at.Width * 0.5f;
             float lateralSpeed = Vector3.Dot(s.Velocity, at.Right);
             float predicted = here.Lateral + lateralSpeed * 0.4f;
-            bool edgeAhead = Mathf.Abs(predicted) > half - 0.5f && Mathf.Sign(predicted) == Mathf.Sign(lateralSpeed);
+            bool edgeAhead = Mathf.Abs(predicted) > half - EdgeMargin && Mathf.Sign(predicted) == Mathf.Sign(lateralSpeed);
 
             switch (phase)
             {
                 case DriftPhase.Idle:
                 {
                     float fraction = (here.Distance - z.StartMetres) / Mathf.Max(1f, z.EndMetres - z.StartMetres);
-                    if (turn == 0 || speed < 10.5f || Mathf.Abs(slipDeg) > 8f || here.HeadingDot < 0.9f || fraction > 0.5f || edgeAhead || failedZones.Contains(zone))
+                    if (turn == 0 || speed < 10.5f || Mathf.Abs(slipDeg) > 8f || here.HeadingDot < 0.9f || fraction > FlickWindow || edgeAhead || failedZones.Contains(zone)
+                        || !Commits(zone))
                         return false;
                     phase = DriftPhase.Flick;
                     wantSign = turn;
@@ -265,7 +310,17 @@ namespace NightSignal.AI
                     return true;
                 }
                 case DriftPhase.Done:
-                    return false;
+                {
+                    float fraction = (here.Distance - z.StartMetres) / Mathf.Max(1f, z.EndMetres - z.StartMetres);
+                    if (reflicksLeft <= 0 || turn == 0 || speed < 10.5f || Mathf.Abs(slipDeg) > 8f || here.HeadingDot < 0.9f || fraction > 0.7f || edgeAhead)
+                        return false;
+                    reflicksLeft--;
+                    phase = DriftPhase.Flick;
+                    wantSign = turn;
+                    flickTicks = 0;
+                    DriftFlicks++;
+                    goto case DriftPhase.Flick;
+                }
             }
 
             // Hold.
@@ -291,9 +346,9 @@ namespace NightSignal.AI
             float frontAngle = Vector3.SignedAngle(flatFwd, Vector3.ProjectOnPlane(frontVel, up), up);
             // Where the road goes relative to where the car is going: aim further into the corner → more slip, less → less.
             float pathErr = Vector3.SignedAngle(Vector3.ProjectOnPlane(s.Velocity, up), Vector3.ProjectOnPlane(aim - s.Position, up), up);
-            float target = Mathf.Clamp(DriftSlipDeg + pathErr * wantSign * 0.6f, 14f, 38f);
+            float target = Mathf.Clamp(DriftSlipDeg + pathErr * wantSign * PathFollow, 14f, 38f);
             float excess = Mathf.Abs(slipDeg) - target;
-            float wheelDeg = frontAngle + Mathf.Sign(frontAngle) * excess * 0.4f;
+            float wheelDeg = frontAngle + Mathf.Sign(frontAngle) * excess * CountersteerGain;
             float limitDeg = VehicleSimulation.SteeringLimit(p, speed, Mathf.Abs(signedSlip)) * Mathf.Rad2Deg;
             float steerCmd = Mathf.Clamp(wheelDeg / Mathf.Max(1f, limitDeg), -1f, 1f);
             float keepSpeed = Mathf.Clamp(plannedSpeed, 12.5f, 22f);
