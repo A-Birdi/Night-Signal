@@ -114,6 +114,9 @@ namespace NightSignal.Front
                 StartCoroutine(CameraTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsRaceAudioTour") >= 0)
                 StartCoroutine(RaceAudioTour());
+            int toyGroup = Array.IndexOf(Environment.GetCommandLineArgs(), "-nsToyTourGroup");
+            if (toyGroup >= 0 && toyGroup + 2 < Environment.GetCommandLineArgs().Length)
+                StartCoroutine(ToyTourGroup(int.Parse(Environment.GetCommandLineArgs()[toyGroup + 1]), int.Parse(Environment.GetCommandLineArgs()[toyGroup + 2])));
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsInstrumentExtremes") >= 0)
                 StartCoroutine(InstrumentExtremes());
             int soakArg = Array.IndexOf(Environment.GetCommandLineArgs(), "-nsSoakTour");
