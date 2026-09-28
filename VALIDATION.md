@@ -1585,7 +1585,6 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - **Limits:** a simulated controller, not a person with a pad; the online Canvas uses the same screen code but was not
   driven by a controller in a networked run.
 
-
 ## V-084 — The meet's touring challenges CH61–CH65 (2026-09-28)
 - Revision: `5934d04` (player build of that commit; control plane restarted on it).
 - **What changed:** Core `MeetTouring` defines the five touring challenges and where each act counts: CH61 First
