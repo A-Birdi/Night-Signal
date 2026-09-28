@@ -168,6 +168,12 @@ namespace NightSignal.GameAudio
             m.SetRoad(speed, slip, (TyreSurface)(byte)surface, grounded / 4f, Mathf.Clamp01(kerb / 2f), scrape);
         }
 
+        /// <summary>Silences (and stops synthesizing) the three buses, or brings them back; the model keeps its state.</summary>
+        public void SetAudible(bool on)
+        {
+            for (int i = 0; i < 3; i++) if (filters[i] != null) filters[i].gameObject.SetActive(on);
+        }
+
         public void Impact(float severity) => model?.Impact(severity);
 
         public void Thump(float amount) => model?.Thump(amount);

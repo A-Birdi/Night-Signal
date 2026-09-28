@@ -63,6 +63,7 @@ namespace NightSignal.Race
             current = VehicleState.AtRest(slot.Position, slot.Rotation);
             previous = current;
             view = VehicleView.Create($"Car_{CarId}", parameters, lib.Body(CarId), CarMaterials, PaintColor);
+            GameAudio.CarAudio.Attach(view, parameters, CarId, true);
             tracker = new RaceProgressTracker(course.Track);
             Progress = new EntrantProgress(course.Track);
             tracker.Start(Progress, current.Position);

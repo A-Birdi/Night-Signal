@@ -223,7 +223,16 @@ namespace NightSignal.Net
                 }
                 serverRecoveries = count;
             });
-            nm.CustomMessagingManager.RegisterNamedMessageHandler(Wire.MsgResults, (id, r) => Results = JsonConvert.DeserializeObject<MatchResults>(Wire.ReadJson(r)));
+            nm.CustomMessagingManager.RegisterNamedMessageHandler(Wire.MsgResults, (id, r) =>
+            {
+                Results = JsonConvert.DeserializeObject<MatchResults>(Wire.ReadJson(r));
+                if (!headless && Results != null && Info != null && Info.YourIndex >= 0)
+                {
+                    string me = Info.Roster.Find(x => x.Index == Info.YourIndex)?.EntrantId;
+                    ResultEntrant mine = Results.Entrants.Find(x => x.EntrantId == me);
+                    GameAudio.RaceMusicPlayer.Results(mine != null && mine.Outcome == "Finished" && mine.Placement == 1);
+                }
+            });
             nm.CustomMessagingManager.RegisterNamedMessageHandler(Wire.MsgDrift, (id, r) =>
             {
                 r.ReadValueSafe(out driftBanked);
@@ -270,6 +279,7 @@ namespace NightSignal.Net
                     GridSlot g = track.Grid[r.GridSlot];
                     car.View.ShowParked(g.Position - g.Rotation * Vector3.up * 0.6f, g.Rotation);
                     car.View.SetHeadlights(CourseRuntime.Active.Dark);
+                    GameAudio.CarAudio.Attach(car.View, p, r.CarId, r.Index == Info.YourIndex);
                 }
                 cars[r.Index] = car;
             }
@@ -539,6 +549,9 @@ namespace NightSignal.Net
             r.ReadValueSafe(out int start);
             r.ReadValueSafe(out long deadline);
             if ((MatchPhase)p != Phase) Debug.Log($"[NightSignal.Client] phase {(MatchPhase)p} (start tick {start}, local tick {(nm != null ? nm.LocalTime.Tick : -1)})");
+            if ((MatchPhase)p == MatchPhase.Countdown && Phase != MatchPhase.Countdown && !headless && Info != null)
+                GameAudio.RaceMusicPlayer.Start(ContentLibrary.Load()?.Catalogue, Info.CourseId, Info.Kind, Info.StageId, Info.Mode == "hard",
+                    null, Info.FreeplayMode == "drift-attack");
             Phase = (MatchPhase)p;
             startTick = start;
             deadlineMicros = deadline;

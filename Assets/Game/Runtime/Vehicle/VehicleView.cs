@@ -216,6 +216,9 @@ namespace NightSignal.Vehicle
             foreach (Light l in headlights) l.enabled = on;
         }
 
+        /// <summary>Race sound, when the session attached it (<see cref="GameAudio.CarAudio.Attach"/>); fed from <see cref="Render"/>.</summary>
+        public GameAudio.CarAudio Audio;
+
         /// <summary>Places the car between two ticks and animates wheels/lean for this render frame.</summary>
         public void Render(in VehicleState previous, in VehicleState current, float alpha, in StepTelemetry telemetry, float dt)
         {
@@ -243,6 +246,7 @@ namespace NightSignal.Vehicle
             lean.x = Mathf.SmoothDamp(lean.x, target.x, ref leanVelocity.x, 0.12f, Mathf.Infinity, dt);
             lean.y = Mathf.SmoothDamp(lean.y, target.y, ref leanVelocity.y, 0.12f, Mathf.Infinity, dt);
             body.localRotation = Quaternion.Euler(lean.y, 0f, lean.x);
+            Audio?.OnRender(previous, current, telemetry, dt);
         }
 
         /// <summary>Static display pose (garage, meet bays, previews): wheels at static ride height, body level.</summary>

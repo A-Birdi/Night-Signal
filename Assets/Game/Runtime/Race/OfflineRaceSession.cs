@@ -119,6 +119,7 @@ namespace NightSignal.Race
                         AppearanceMapping.ForWire(lib.Customization, e.Roster.CarId, e.Roster.Livery));
                     v.SetHeadlights(course.Dark);
                     views[e] = v;
+                    GameAudio.CarAudio.Attach(v, e.Params, e.Roster.CarId, e == Player);
                 }
                 var camGo = CameraRig.EnsureMain("RaceCamera").gameObject;
                 camGo.tag = "MainCamera";
@@ -135,6 +136,8 @@ namespace NightSignal.Race
             }
             Phase = MatchPhase.Countdown;
             Ready = true;
+            if (!Headless)
+                GameAudio.RaceMusicPlayer.Start(lib.Catalogue, course.Track.CourseId, Rules.Kind, Rules.StageId, Rules.Mode.ToString() == "Hard", null, Rules.DriftRanking);
         }
 
         DriverInput LocalInput(RaceEntrant e, int tick)
@@ -203,6 +206,11 @@ namespace NightSignal.Race
             {
                 Results = Sim.Classify();
                 Phase = MatchPhase.Results;
+                if (!Headless)
+                {
+                    RaceEntrantResult mine = Results.Find(x => x.Entrant == Player);
+                    GameAudio.RaceMusicPlayer.Results(mine != null && mine.Outcome == RunOutcome.Finished && mine.Placement == 1);
+                }
             }
         }
 

@@ -200,6 +200,7 @@ namespace NightSignal.Race
             previous = current;
             if (view != null) Destroy(view.gameObject);
             view = VehicleView.Create($"TestCar_{CarId}_{(useB ? "B" : "A")}", build.Params, lib.Body(CarId), CarMaterials, PaintColor);
+            GameAudio.CarAudio.Attach(view, build.Params, CarId, true);
             view.Render(current, current, 1f, default, 0f); // at the start pose this very frame (no frame at the origin)
             chase.SetTarget(view); // a new run is a discontinuity: the camera cuts, keeping the chosen view
             hud?.NotifyDiscontinuity();
