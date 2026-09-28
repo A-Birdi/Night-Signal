@@ -85,7 +85,7 @@ lists the superseded rules and where each lands. Rows marked _(A01)_ carry the r
 | R9.4 | §9 | Livery editor (64 layers, undo) | verified — Core LiveryEditor (64 layers, 64-step undo, tests) and the Garage Appearance screen, Local + online (V-045, V-046) |
 | R10.1 | §10 | Economy formula and caps | verified (V-009, V-013) |
 | R10.2 | §10 | Idempotent append-only ledger; wallet clamp | verified (V-013) |
-| R11.1 | §11 | Player Card creation and public view | partial (display name API); UI not built |
+| R11.1 | §11 | Player Card creation and public view | in progress — Player Card screen: display name, optional pronouns and a driver appearance (eight accessible starting looks + simple steps, live preview), validated and stored by the server and shown on the driver's avatar at the meet (V-077). Public card view (rank/RP, milestones, showcase), flag, preferred car, background/frame/motif/title pending |
 | R11.2 | §11 | RP thresholds, finite 15,000 budget | verified (V-009) |
 | R11.3 | §11 | 75 server-validated challenge predicates with equippable rewards | in progress (CH01, CH05 predicates; reward assets not built) |
 | R12.1 | §12 | Cedar Lantern Terrace meet, 12-person instances | in progress — the terrace per Appendix F generated from an engine-free layout the server can share (12 bays, lanes, kiosk, board, radio bench, garden, placards, perimeter collision, horizon), arrival spline (3.5 s, skippable), validated exits and rescue; offline visit from the Offline hub; built-player meet tour PASS (V-073). Networked rooms on the control plane (≤ 6 humans per D02, public/friend's/convoy allocation, server-chosen bays, keyed arrivals/departures/disconnects, pose validation, reservations, blocks) with three real clients PASS (V-074) |

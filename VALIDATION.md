@@ -1448,3 +1448,30 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - **Limits:** loopback, one machine, two clients; the "left to race" notice is covered by tests (both members leave at
   once in the run, so neither sees the other's); the walking page was exercised with a simulated keyboard in one window
   (focus-dependent input is not driven in the multi-window runs); no meet run under impairment.
+
+## V-077 — The Player Card: name, pronouns and a driver appearance, seen by others at the meet (2026-09-28)
+- Revisions: `f8ccfd1` (server: Core `PlayerLooks`, migration 0006, card look/pronouns, looks in the meet state),
+  `bba67d9` (Player Card screen, preview stage, meet avatars from card looks). Control plane restarted once on
+  `f8ccfd1` (migration 0006 applied to the local development SQLite database); it is left running.
+- **What changed:** Convoy screen → **Player Card**: display name, optional pronouns (≤ 24 plain characters) and the
+  driver's appearance — eight accessible starting looks plus steps for build, height, skin, expression, posture, hair,
+  hair colour, facial hair, headwear, outfit and its three colours, sleeves, lower and its colour, shoes and their colour
+  and an extra — with a live turntable preview built by the same rig the meet uses. Visual only. Saved with the card
+  revision (a conflict reloads); the server validates the look against the builder's vocabulary (≤ 4 distinct
+  accessories, colours `#RRGGBB`, height 1.45–1.98), stores it as canonical JSON and hands it to the meet room, where
+  your own and other visitors' avatars are built from it (the default look from the name otherwise). The file move of
+  `CharacterLook` into Core landed in `8023a0d` (staged by `git mv` before that docs commit; that state compiles).
+- **Tests:** .NET `PlayerApiTests` (look validated, stored canonical, kept across name-only edits, cleared by null;
+  pronouns; refusals change nothing) and `MeetControlChannelTests` (a card look reaches the other visitor); all
+  Services suites 232 + 92 + 123 + 341 pass on `f8ccfd1`. EditMode `CharacterTests` + `MeetRulesTests` 117/117 (starting
+  looks valid, canonical round trip unchanged, sound meshes within budget; unknown words and five accessories refused).
+- **Built players** (`bba67d9`, non-development, loopback control plane): `meet-online.ps1 -Convoy` **PASS** — the
+  host opens the Player Card, starts from Look 3, changes the hair to locs and saves through the screen (server reply
+  and `/v1/me` hold the look); at the convoy meet the guest's client built the host's avatar from exactly that look
+  (locs, hoodie, athletic). Also PASS on the two builds before (the preview framing and swatch tiles were adjusted
+  between them). Race from the meet (`-Convoy -Race`): **PASS (the host saved the card first; both raced S04 to the finish and came back to the convoy's meet)**. Three-client public run: PASS. Evidence:
+  `Evidence/meet/card-*.jpg`, `card-log.txt`.
+- **Limits:** online only (the offline profile's meet visit still uses the default look); the public card view (rank,
+  milestones, showcase records), flag, preferred car and card background/frame/motif/title are not built; the look is
+  read when a visitor joins a room (a change is seen after they next join); remote looks were checked in data and in the
+  host's own view, not photographed from the guest's camera.

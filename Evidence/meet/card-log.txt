@@ -1,0 +1,10 @@
+# Player Card leg of Tools/run/meet-online.ps1 -Convoy on bba67d9 (loopback control plane on f8ccfd1+ with migration 0006).
+# Harness output:
+host: exit 0
+guest: exit 0
+[NightSignal.MeetConvoy:host] card look saved: locs hoodie athletic; status 'Saved. Other drivers see this look at the meet.'
+[NightSignal.MeetConvoy:host] room convoy-cs_81e71a1c50a79b058199 bay 1; convoy event ready: True
+[NightSignal.MeetConvoy:host] PASS
+[NightSignal.MeetConvoy:guest] the host's avatar look: locs hoodie athletic
+[NightSignal.MeetConvoy:guest] room convoy-cs_81e71a1c50a79b058199 bay 2; convoy event ready: True
+[NightSignal.MeetConvoy:guest] PASS

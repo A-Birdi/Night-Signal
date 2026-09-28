@@ -2,8 +2,7 @@
 
 _Last updated: 2026-09-28 — the meet, offline (V-073): Cedar Lantern Terrace, walking, twelve emotes, host, boombox;
 the meet online with three real clients (V-074), the convoy at the meet (V-075), race from the meet and back plus
-walking controls (V-076); the 48 rivals modelled and animated (V-072). Now: the Player Card with a driver appearance
-picker (R11.1), then the gameplay backlog._
+walking controls (V-076), the Player Card with a driver appearance (V-077). Now: the gameplay backlog._
 
 **Rules revision:** `docs/brief/Night_Signal_Addendum_01.txt` supersedes parts of the master (six humans + up to
 twelve vehicles, live finale rivals, light contact, course access, offline domain, rejoin grants, voting, friends,
@@ -157,6 +156,9 @@ Render Cockpit Sheets* renders the mounted views of every car.
   `meet-online.ps1 -Convoy` runs two friends through it (PASS ×3 on `5001c7a`). Race from the meet (V-076): the
   leader's Start in the meet menu, "left to race", Back to the Meet after the race; `-Convoy -Race` starts one loopback
   game server (PASS ×2). Settings → Controls has a Walking (meet) page.
+- **Player Card** (V-077): Convoy screen → Player Card (`PlayerCardScreen`, `CharacterStage` preview); Core
+  `PlayerLooks` validates looks on both sides; migration 0006 adds `player_cards.look_json`/`pronouns`; the meet builds
+  avatars from card looks.
 - **Addendum 04** (V-067): game server binds `127.0.0.1` by default (`-nsBindHost`, separate from `-nsPublicHost`),
   harnesses fail closed on non-loopback binds without `-AllowLan` (`Tools/run/NetGuard.psm1`), automation builds are
   non-development (no editor/profiler listener), measured sockets in the evidence; never touch Windows Firewall.
@@ -168,10 +170,9 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
 1. **Course scenery follow-ups** (small): a human look per region (the built-player tour with the regional kits passed,
    run 5 on `7d9119d`); the steep dark terrain "cliffs" of the gorge/highland terrain styles (heightfield resolution)
    are untouched.
-2. **Player Card + meet follow-ups**: the Player Card screen (R11.1: display name, optional pronouns, a driver
-   appearance picker from accessible presets; the look validated by the server in Core `PlayerLooks`, stored with the
-   card — migration 0006 — and replicated to meet visitors) — in progress; then the host lesson wired to challenge
-   CH63; a meet run under impairment; music and engine audio in races (R16.1).
+2. **Card and meet follow-ups** (smaller): the public card view (rank/RP, milestones, showcase records) when inspecting
+   a driver at the meet; the offline profile's look; the host lesson wired to challenge CH63; a meet run under
+   impairment; music and engine audio in races (R16.1).
 3. **Gameplay backlog**: AI drift skill per profile and campaign drift benchmarks; restrict Drift Attack to courses with
    judged zones; group Time Attack and toy tables with 3–6 humans; UI/reconnect/rejoin/DQ under load; Canvas controller
    cursor; customization follow-ups (meet livery refresh, pearl flip tint, preset rename/delete UI).
