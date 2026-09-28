@@ -1504,3 +1504,19 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   by a person (human check); the in-race CPU cost was not profiled in the player (the six-car stack was measured
   offline in docs/AUDIO.md); remote cars' throttle is an estimate; spoiler protection of encounter titles is not
   involved (themes play in their own races).
+
+## V-079 — Drift Attack only on courses with judged drift zones (2026-09-28)
+- Revision: `cce88cd`. Content hash `3677a844…` (a new authored document); the control plane was restarted on it and
+  the Unity content library refreshed; both agree (the convoy run below connected and played through).
+- **What changed:** `authored/course-drift-zones.json` lists every course with the number of drift-zone gates on its
+  route (11 of 29 courses have some: C01, C04, C08, C12, C15, C16, C23, C24, C25, FP01, T00). The Core catalogue loads it
+  (`DriftZones`, `SupportsDriftAttack`); `FreeplayRules.Supports` takes the catalogue, so Drift Attack proposals, course
+  votes, the convoy's freeplay course list (`freeplayAccess`) and `GET /v1/courses` offer Drift Attack only where there
+  is something to judge, and a drift Team Trial must be on such a course. Offline menus never offered Drift Attack.
+- **Tests:** EditMode `CatalogueTests.DriftZoneList_MatchesEveryCourseRoute` (every course listed, counts equal to each
+  `route.json`) with `RaceMusicTests` + `AddendumRulesTests` 30/30; .NET `SocialApiTests` (C01 offers Drift Attack, C02
+  does not, Time Attack stays), `ContentManifestTests` (a drift trial on C02 refused, on C01 accepted); all Services
+  suites 232 + 92 + 123 + 341 pass.
+- **Built players** (`cce88cd`): `meet-online.ps1 -Convoy` PASS on the new content hash (clients and control plane agree).
+- **Limits:** the Convoy screen's Drift Attack course list was not photographed (it shows the server's filtered list);
+  zone counts come from the route data — whether each zone is well placed is a separate design review.
