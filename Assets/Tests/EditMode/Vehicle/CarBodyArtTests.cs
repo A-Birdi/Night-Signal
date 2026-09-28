@@ -39,6 +39,26 @@ namespace NightSignal.Tests.Vehicle
                 Assert.That(open.GetSubMesh(8).indexCount, Is.LessThan(closed.GetSubMesh(8).indexCount),
                     $"{carId}: the cockpit view's body leaves out the seats the fitted cockpit replaces");
                 Assert.That(wheel.vertexCount, Is.InRange(500, 6000), $"{carId}: wheel vertex budget");
+                // Every drawn triangle shades with a real normal: a zero normal (a face wound both ways on shared vertices)
+                // or a non-finite value renders NaN, which bloom spreads into a white disc.
+                foreach (Mesh m in new[] { closed, open, wheel })
+                {
+                    Vector3[] v = m.vertices, nm = m.normals;
+                    for (int sub = 0; sub < m.subMeshCount; sub++)
+                    {
+                        int[] t = m.GetTriangles(sub);
+                        for (int k = 0; k < t.Length; k += 3)
+                        {
+                            if (Vector3.Cross(v[t[k + 1]] - v[t[k]], v[t[k + 2]] - v[t[k]]).sqrMagnitude < 1e-14f) continue;
+                            for (int j = 0; j < 3; j++)
+                            {
+                                Vector3 q = v[t[k + j]], nn = nm[t[k + j]];
+                                Assert.That(float.IsNaN(q.x + q.y + q.z) || float.IsInfinity(q.x + q.y + q.z), Is.False, $"{carId} {m.name}: non-finite vertex");
+                                Assert.That(nn.sqrMagnitude, Is.GreaterThan(0.5f), $"{carId} {m.name} submesh {sub}: zero or NaN normal at {q}");
+                            }
+                        }
+                    }
+                }
                 // Nothing of the body reaches below the ground or ahead of the bumper camera.
                 CarBodyGenerator.CabinFrame f = CarBodyGenerator.Cabin(def, p);
                 Assert.That(closed.bounds.min.y, Is.GreaterThanOrEqualTo(-0.001f), $"{carId}: below the ground");

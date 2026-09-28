@@ -92,6 +92,7 @@ namespace NightSignal.Cameras
             if (target != null && target != view) target.SetCockpitMode(false); // the previous car closes up again
             target = view;
             frame = view != null && view.Def != null ? CarBodyGenerator.Cabin(view.Def, view.Params) : null;
+            if (view != null && view.Def != null) view.PrepareCockpit(); // at the cut, not on the first press of the view key
             applied = (DrivingView)(-1);
             NotifyTeleport();
         }

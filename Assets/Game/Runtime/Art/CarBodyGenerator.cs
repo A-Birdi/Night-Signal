@@ -42,6 +42,8 @@ namespace NightSignal.Art
             public VehicleParams P;
             public CarAppearance A;
             public float Zf, Zr, ZWs, ZRoofF, ZRoofR, ZRw, H, HalfW;
+            // Authored shape switches read once (the loft queries run thousands of times per body).
+            public bool BoxedHaunches, SquareArches, FlaredArches;
         }
 
         const int PaintSub = 0, GlassSub = 1, TrimSub = 2, HeadSub = 3, TailSub = 4, ChromeSub = 5, Paint2 = 6, Accent = 7, InteriorSub = 8;
@@ -449,7 +451,11 @@ namespace NightSignal.Art
 
         static Profile Layout(CarBodyDef d, VehicleParams p)
         {
-            var pr = new Profile { D = d, P = p, H = p.HeightM, HalfW = p.WidthM * 0.5f };
+            var pr = new Profile
+            {
+                D = d, P = p, H = p.HeightM, HalfW = p.WidthM * 0.5f,
+                BoxedHaunches = d.Features.Contains("boxed-haunches"), SquareArches = d.Arches == "square", FlaredArches = d.Arches == "flared",
+            };
             float overhang = Mathf.Max(0.6f, p.LengthM - p.WheelbaseM);
             float fShare = d.FrontOverhang / Mathf.Max(0.01f, d.FrontOverhang + d.RearOverhang);
             pr.Zf = p.FrontAxleZ + overhang * fShare;
@@ -473,7 +479,7 @@ namespace NightSignal.Art
             float flareF = Mathf.Exp(-Sq((z - pr.P.FrontAxleZ) / 0.55f));
             float flareR = Mathf.Exp(-Sq((z - pr.P.RearAxleZ) / 0.55f));
             float body = w - d.FenderFlare;
-            return body + d.FenderFlare * Mathf.Max(flareF, flareR * (d.Features.Contains("boxed-haunches") ? 1.8f : 1f));
+            return body + d.FenderFlare * Mathf.Max(flareF, flareR * (pr.BoxedHaunches ? 1.8f : 1f));
         }
 
         /// <summary>Top line of the lower body (hood, sill under the windows, deck, tail).</summary>
@@ -500,14 +506,14 @@ namespace NightSignal.Art
         }
 
         /// <summary>Radius of the wheel-arch opening: a hand's width above the tyre (more for flared arches).</summary>
-        static float ArchRadius(Profile pr) => pr.D.WheelRadius + (pr.D.Arches == "flared" ? 0.07f : 0.06f);
+        static float ArchRadius(Profile pr) => pr.D.WheelRadius + (pr.FlaredArches ? 0.07f : 0.06f);
 
         /// <summary>Height of the arch opening's edge <paramref name="dz"/> from the axle (−∞ clear of the arch).</summary>
         static float ArchTop(Profile pr, float dz)
         {
             float r = ArchRadius(pr), t = Mathf.Abs(dz) / r;
             if (t >= 1f) return float.NegativeInfinity;
-            float shape = pr.D.Arches == "square" ? Mathf.Pow(1f - t * t * t * t, 0.25f) : Mathf.Sqrt(1f - t * t);
+            float shape = pr.SquareArches ? Mathf.Pow(1f - t * t * t * t, 0.25f) : Mathf.Sqrt(1f - t * t);
             return pr.D.WheelRadius + r * shape;
         }
 
@@ -515,7 +521,7 @@ namespace NightSignal.Art
         static Vector2 ArchEdge(Profile pr, float theta, float radius)
         {
             float c = Mathf.Cos(theta), s = Mathf.Sin(theta);
-            if (pr.D.Arches == "square")
+            if (pr.SquareArches)
             {
                 c = Mathf.Sign(c) * Mathf.Sqrt(Mathf.Abs(c));
                 s = Mathf.Sign(s) * Mathf.Sqrt(Mathf.Abs(s));

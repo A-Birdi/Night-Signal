@@ -21,38 +21,68 @@ namespace NightSignal.Art
         static bool InsideSection(Profile pr, float z, float x, float y)
         {
             HalfRing(pr, z, queryRing);
+            return InsideRing(queryRing, x, y);
+        }
+
+        static bool InsideRing(Vector2[] ring, float x, float y)
+        {
             x = Mathf.Abs(x) + 1e-4f;
             bool inside = false;
             for (int i = 0, j = HalfRingPoints - 1; i < HalfRingPoints; j = i++)
             {
-                Vector2 a = queryRing[i], b = queryRing[j];
+                Vector2 a = ring[i], b = ring[j];
                 if ((a.y > y) != (b.y > y) && x < (b.x - a.x) * (y - a.y) / (b.y - a.y) + a.x) inside = !inside;
             }
             return inside;
         }
 
+        const float EndStep = 0.008f, EndDepth = 1.2f;
+
+        /// <summary>The sections from one end of the body inward at <see cref="EndStep"/>, lofted once per body for the projections.</summary>
+        sealed class EndSections
+        {
+            public Profile Pr;
+            public bool Front;
+            public Vector2[][] Rings;
+        }
+
+        static EndSections frontSections, rearSections;
+
+        static EndSections Sections(Profile pr, bool front)
+        {
+            EndSections c = front ? frontSections : rearSections;
+            if (c != null && c.Pr == pr) return c;
+            int count = Mathf.CeilToInt(EndDepth / EndStep) + 1;
+            c = new EndSections { Pr = pr, Front = front, Rings = new Vector2[count][] };
+            float z0 = front ? pr.Zf + 0.002f : pr.Zr - 0.002f, dir = front ? -1f : 1f;
+            for (int k = 0; k < count; k++)
+            {
+                c.Rings[k] = new Vector2[HalfRingPoints];
+                HalfRing(pr, z0 + dir * k * EndStep, c.Rings[k]);
+            }
+            if (front) frontSections = c;
+            else rearSections = c;
+            return c;
+        }
+
         /// <summary>First lower-body surface met travelling from the nose (or tail) plane toward the car at (x, y).</summary>
         static bool EndHit(Profile pr, bool front, float x, float y, out float z)
         {
+            EndSections c = Sections(pr, front);
             float z0 = front ? pr.Zf + 0.002f : pr.Zr - 0.002f, dir = front ? -1f : 1f;
-            const float step = 0.008f, depth = 1.2f;
-            float prev = z0;
-            for (float t = 0f; t <= depth; t += step)
+            for (int k = 0; k < c.Rings.Length; k++)
             {
-                float zz = z0 + dir * t;
-                if (InsideSection(pr, zz, x, y))
+                if (!InsideRing(c.Rings[k], x, y)) continue;
+                if (k == 0) { z = z0; return true; }
+                float outside = z0 + dir * (k - 1) * EndStep, inside = z0 + dir * k * EndStep;
+                for (int b = 0; b < 5; b++)
                 {
-                    float outside = prev, inside = zz;
-                    for (int k = 0; k < 7; k++)
-                    {
-                        float m = (outside + inside) * 0.5f;
-                        if (InsideSection(pr, m, x, y)) inside = m;
-                        else outside = m;
-                    }
-                    z = (outside + inside) * 0.5f;
-                    return true;
+                    float m = (outside + inside) * 0.5f;
+                    if (InsideSection(pr, m, x, y)) inside = m;
+                    else outside = m;
                 }
-                prev = zz;
+                z = (outside + inside) * 0.5f;
+                return true;
             }
             z = front ? pr.Zf : pr.Zr;
             return false;
@@ -538,7 +568,7 @@ namespace NightSignal.Art
                     FaceOut(mb, lipSub, a + 1, b + 1, b + 2, a + 2, new Vector3(s, 0f, 0f) + inward * 0.5f);
                     FaceOut(mb, lipSub, a + 2, b + 2, b + 3, a + 3, inward);
                 }
-                // Liner, just outside the opening, from under the lip to well inboard of the tyre (both faces, matte).
+                // Liner, just outside the opening, from under the lip to well inboard of the tyre (matte).
                 List<(Vector2 P, Vector2 O)> lpath = Opening(axle, r + 0.012f, 0.004f);
                 int m = lpath.Count - 1;
                 var liner = new int[m + 1];
@@ -551,22 +581,20 @@ namespace NightSignal.Art
                     liner[i] = mb.AddVertex(new Vector3(s * xo, L.y, L.x), Vector3.up, Vector2.zero);
                     mb.AddVertex(new Vector3(s * (xo - d.TyreWidth - 0.17f), L.y, L.x), Vector3.up, Vector2.zero);
                 }
+                // One-sided, facing the wheel: a face wound both ways on shared vertices would sum to a zero normal after
+                // RecalculateNormals, shade as NaN and bloom into a white disc at night.
                 for (int i = 0; i < m; i++)
                 {
                     int la = liner[i], lb = liner[i + 1];
-                    mb.AddQuad(InteriorSub, la, lb, lb + 1, la + 1);
-                    mb.AddQuad(InteriorSub, la, la + 1, lb + 1, lb);
+                    Vector2 o = (lpath[i].O + lpath[i + 1].O).normalized;
+                    FaceOut(mb, InteriorSub, la, lb, lb + 1, la + 1, new Vector3(0f, -o.y, -o.x));
                 }
-                // Inner wall closing the liner (both faces): a fan from the wheel centre to the liner's inboard edge.
+                // Inner wall closing the liner, facing out toward the wheel: a fan from the wheel centre to the liner's inboard edge.
                 float xi = xLinerOut - d.TyreWidth - 0.17f;
                 int centre = mb.AddVertex(new Vector3(s * xi, (wr + SillY(pr, axle)) * 0.5f, axle), Vector3.up, Vector2.zero);
-                for (int i = 0; i < m; i++)
-                {
-                    mb.AddTriangle(InteriorSub, centre, liner[i] + 1, liner[i + 1] + 1);
-                    mb.AddTriangle(InteriorSub, centre, liner[i + 1] + 1, liner[i] + 1);
-                }
-                mb.AddTriangle(InteriorSub, centre, liner[m] + 1, liner[0] + 1);
-                mb.AddTriangle(InteriorSub, centre, liner[0] + 1, liner[m] + 1);
+                var outward = new Vector3(s, 0f, 0f);
+                for (int i = 0; i < m; i++) TriOut(mb, InteriorSub, centre, liner[i] + 1, liner[i + 1] + 1, outward);
+                TriOut(mb, InteriorSub, centre, liner[m] + 1, liner[0] + 1, outward);
             }
         }
 

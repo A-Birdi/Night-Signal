@@ -56,14 +56,32 @@ namespace NightSignal.Vehicle
             if (on)
             {
                 EnsureCockpit();
-                if (openBody == null)
-                {
-                    openBody = CarBodyGenerator.BuildBody(Def, p, Appearance, openCabin: true);
-                    owned.Add(openBody);
-                }
+                EnsureOpenBody();
             }
             mf.sharedMesh = on ? openBody : closedBody;
             Cockpit?.SetVisible(on);
+        }
+
+        /// <summary>
+        /// Builds the fitted cockpit and the open-cabin body ahead of time, hidden, so the first switch to Cockpit view does not
+        /// stall a frame mid-race (the detailed body takes some milliseconds to generate). Called when a camera takes this car.
+        /// </summary>
+        public void PrepareCockpit()
+        {
+            MeshFilter mf = body != null ? body.GetComponent<MeshFilter>() : null;
+            if (mf == null) return;
+            if (closedBody == null) closedBody = mf.sharedMesh;
+            bool showing = openBody != null && mf.sharedMesh == openBody;
+            EnsureCockpit();
+            EnsureOpenBody();
+            Cockpit?.SetVisible(showing);
+        }
+
+        void EnsureOpenBody()
+        {
+            if (openBody != null) return;
+            openBody = CarBodyGenerator.BuildBody(Def, p, Appearance, openCabin: true);
+            owned.Add(openBody);
         }
 
         public static VehicleView Create(string name, VehicleParams p, CarBodyDef body, CarMaterialSet mats, Color paintColor, CarAppearance appearance = null)
