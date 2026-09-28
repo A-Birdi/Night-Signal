@@ -6,7 +6,7 @@ using UnityEngine.Rendering;
 
 namespace NightSignal.Editor.Art
 {
-    /// <summary>Creates the shared car material set (Complex Lit clear-coat paint, glass, trim, lamps, chrome, tyres).</summary>
+    /// <summary>Creates the shared car material set (Complex Lit clear-coat paint, glass, trim, lamps, chrome, tyres, seat cloth).</summary>
     public static class CarMaterialAuthoring
     {
         /// <summary>In a Resources folder so runtime code can load it without scene wiring.</summary>
@@ -30,6 +30,7 @@ namespace NightSignal.Editor.Art
             set.Chrome = Lit("Chrome", new Color(0.85f, 0.86f, 0.88f), 0.9f, 1f);
             set.Rubber = Lit("TyreRubber", new Color(0.035f, 0.035f, 0.04f), 0.22f, 0f);
             set.Rim = Lit("RimAlloy", new Color(0.72f, 0.73f, 0.75f), 0.7f, 0.9f);
+            set.Cloth = Lit("CarCloth", new Color(0.13f, 0.13f, 0.14f), 0.06f, 0f);
             if (create) AssetDatabase.CreateAsset(set, SetPath);
             EditorUtility.SetDirty(set);
             AssetDatabase.SaveAssets();

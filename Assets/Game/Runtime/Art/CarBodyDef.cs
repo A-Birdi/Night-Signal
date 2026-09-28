@@ -38,6 +38,14 @@ namespace NightSignal.Art
         public string TailLamps = "block";
         /// <summary>none | lip | ducktail | blade | wing</summary>
         public string Spoiler = "none";
+        /// <summary>Front face openings: slot | wide | split | offset | twin-intake | mouth | none (no upper grille).</summary>
+        public string Grille = "slot";
+        /// <summary>Wheel-arch shape: round | square (superelliptic opening) | flared (wider lip).</summary>
+        public string Arches = "round";
+        /// <summary>
+        /// Shape details: offset-grille, split-grille, twin-intake, hood-scoop, roof-rails, side-cooling, side-intakes, diffuser,
+        /// boxed-haunches, twin-exhaust, four-door, buttress, door-scallop, drl-strips, split-bar, wrap-glass, chrome-trim.
+        /// </summary>
         public List<string> Features = new List<string>();
         public float WheelRadius = 0.31f;
         public float RimFraction = 0.62f;

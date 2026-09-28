@@ -21,6 +21,9 @@ namespace NightSignal.Art
 
         public int VertexCount => vertices.Count;
 
+        /// <summary>Position of an added vertex (for winding decisions while building).</summary>
+        public Vector3 Position(int index) => vertices[index];
+
         public int AddVertex(Vector3 p, Vector3 n, Vector2 uv) => AddVertex(p, n, uv, new Color32(255, 255, 255, 255));
 
         public int AddVertex(Vector3 p, Vector3 n, Vector2 uv, Color32 c)

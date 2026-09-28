@@ -20,4 +20,5 @@ MonoBehaviour:
   Chrome: {fileID: 2100000, guid: 5fc718a91af0b8a468022dc42324f02f, type: 2}
   Rubber: {fileID: 2100000, guid: c2bd7b335947ab647aabf9d90f31c34a, type: 2}
   Rim: {fileID: 2100000, guid: 16b0350460c4caf4e8e815d87b612509, type: 2}
+  Cloth: {fileID: 2100000, guid: 6d785d7355bb1c141a14a6d5f8a7ea96, type: 2}
   GhostPaint: {fileID: 2100000, guid: 2a6d31174fe2d8449b93f3db6bccbc82, type: 2}
