@@ -147,5 +147,7 @@ public static class SocialEndpoints
         pronouns = c.Pronouns,
         campaign = new { normalClears = c.NormalClears, hardClears = c.HardClears, stages = Limits.CampaignStages },
         challenges = new { completed = c.Challenges, total = 75 },
+        // Spec §11 public cosmetics: the card's style (null = the catalogue's default style).
+        style = PlayerEndpoints.LookElement(c.StyleJson),
     };
 }

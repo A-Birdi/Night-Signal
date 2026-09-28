@@ -105,6 +105,52 @@ public sealed class PlayerApiTests : IDisposable
         Assert.Equal(JsonValueKind.Null, card.GetProperty("look").ValueKind);
     }
 
+    void Own(string cosmeticId)
+    {
+        using var c = new SqliteConnection($"Data Source={dir.File("controlplane.db")}");
+        c.Open();
+        using SqliteCommand cmd = c.CreateCommand();
+        cmd.CommandText = "INSERT INTO cosmetics_owned (account_id, cosmetic_id, source) SELECT account_id, $c, 'test' FROM accounts";
+        cmd.Parameters.AddWithValue("$c", cosmeticId);
+        cmd.ExecuteNonQuery();
+    }
+
+    [Fact]
+    public async Task Card_Style_RewardsOnlyWhenOwned_PublicOnTheCard_AndKeptAcrossEdits()
+    {
+        HttpClient c = await Me();
+        (await c.PostAsJsonAsync("/v1/me/starter", new { carId = "V02" })).EnsureSuccessStatusCode();
+        var style = new { background = "tea-rows", frame = "double", motif = "lantern", title = "night-driver", layout = "standard", region = "JP", preferredCar = "V02" };
+        JsonElement saved = await (await c.PostAsJsonAsync("/v1/me/card", new { displayName = "Aki Night", style })).Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("tea-rows", saved.GetProperty("style").GetProperty("background").GetString());
+        Assert.Equal("JP", saved.GetProperty("style").GetProperty("region").GetString());
+
+        // Refused: a reward not owned yet (named), an unknown region, a car not owned, an unknown member — nothing changes.
+        HttpResponseMessage locked = await c.PostAsJsonAsync("/v1/me/card", new { displayName = "Aki Night", style = new { background = "workshop-grid", frame = "thin", motif = "none", title = "none", layout = "standard" } });
+        JsonElement why = await locked.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("invalid_card_style", why.GetProperty("error").GetString());
+        Assert.Contains("Not owned yet: Workshop Grid Background.", why.GetProperty("message").GetString());
+        Assert.Equal("invalid_card_style", await Error(await c.PostAsJsonAsync("/v1/me/card", new { displayName = "Aki Night", style = new { background = "night", frame = "thin", motif = "none", title = "none", layout = "standard", region = "ZZ" } })));
+        Assert.Equal("invalid_card_style", await Error(await c.PostAsJsonAsync("/v1/me/card", new { displayName = "Aki Night", style = new { background = "night", frame = "thin", motif = "none", title = "none", layout = "standard", preferredCar = "V09" } })));
+        Assert.Equal("invalid_card_style", await Error(await c.PostAsJsonAsync("/v1/me/card", new { displayName = "Aki Night", style = new { background = "night", glitter = true } })));
+
+        // Once owned (a challenge reward), the item can be worn; the public card shows it; a name edit keeps it.
+        Own("COS-CH46");
+        JsonElement worn = await (await c.PostAsJsonAsync("/v1/me/card", new { displayName = "Aki Night", style = new { background = "workshop-grid", frame = "double", motif = "lantern", title = "night-driver", layout = "standard", region = "JP", preferredCar = "V02" } }))
+            .Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("workshop-grid", worn.GetProperty("style").GetProperty("background").GetString());
+        await c.PostAsJsonAsync("/v1/me/card", new { displayName = "Aki Nightfall" });
+        JsonElement me = await c.GetFromJsonAsync<JsonElement>("/v1/me");
+        Assert.Equal("workshop-grid", me.GetProperty("card").GetProperty("style").GetProperty("background").GetString());
+        string id = me.GetProperty("accountId").GetString()!;
+        JsonElement pub = await c.GetFromJsonAsync<JsonElement>($"/v1/players/{id}/card");
+        Assert.Equal("workshop-grid", pub.GetProperty("style").GetProperty("background").GetString());
+        Assert.Equal("V02", pub.GetProperty("style").GetProperty("preferredCar").GetString());
+        // null: back to the catalogue's default style.
+        await c.PostAsJsonAsync("/v1/me/card", new { displayName = "Aki Nightfall", style = (object?)null });
+        Assert.Equal(JsonValueKind.Null, (await c.GetFromJsonAsync<JsonElement>("/v1/me")).GetProperty("card").GetProperty("style").ValueKind);
+    }
+
     [Fact]
     public async Task Starter_OnlyStarterCars_OnlyOnce()
     {

@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using NightSignal.ControlPlane.Content;
 using NightSignal.ControlPlane.Convoys;
+using NightSignal.ControlPlane.Garage;
 using NightSignal.ControlPlane.Identity;
 using NightSignal.ControlPlane.Persistence;
 using NightSignal.ControlPlane.Security;
@@ -18,7 +19,7 @@ public static partial class PlayerEndpoints
     public const string IdempotencyKeyHeader = "Idempotency-Key";
 
     /// <summary><c>Look</c> (a driver look object) and <c>Pronouns</c> are optional: absent = unchanged, empty = cleared.</summary>
-    public sealed record CardRequest(string? DisplayName, long? Revision, JsonElement Look = default, string? Pronouns = null);
+    public sealed record CardRequest(string? DisplayName, long? Revision, JsonElement Look = default, string? Pronouns = null, JsonElement Style = default);
     public sealed record StarterRequest(string? CarId);
     public sealed record HandleRequest(string? Handle);
     /// <summary><c>ExpectedPrice</c> is the price the client showed the player; the server's catalogue price decides.</summary>
@@ -35,7 +36,7 @@ public static partial class PlayerEndpoints
             return Results.Ok(Describe(await store.GetSnapshotAsync(id, ct), content.Catalogue, music));
         });
 
-        me.MapPost("/card", async (CardRequest body, ClaimsPrincipal user, IPlayerStore store, CancellationToken ct) =>
+        me.MapPost("/card", async (CardRequest body, ClaimsPrincipal user, IPlayerStore store, CustomizationContent customization, CancellationToken ct) =>
         {
             if (!DisplayNameRules.TryNormalize(body.DisplayName, out string name, out string error))
                 return Problem(400, "invalid_display_name", error);
@@ -60,11 +61,30 @@ public static partial class PlayerEndpoints
                 if (pronouns.Length > 24 || pronouns.Any(ch => char.IsControl(ch) || ch is '<' or '>' or '{' or '}' || char.IsSurrogate(ch)))
                     return Problem(400, "invalid_pronouns", "Pronouns: up to 24 plain characters.");
             }
+            // Spec §11 background, frame, motif, title, layout, region and preferred car: reward items only when owned,
+            // the preferred car only one the account owns (Core CardStyleCatalogue, customization.json "card").
+            string? style = null;
+            JsonElement sj = body.Style; // Undefined = absent, Null = back to the default style
+            if (sj.ValueKind != JsonValueKind.Undefined)
+            {
+                if (sj.ValueKind == JsonValueKind.Null) style = "";
+                else
+                {
+                    NightSignal.Core.Customization.CardStyle? parsed = sj.ValueKind == JsonValueKind.Object ? NightSignal.Core.Customization.CardStyle.Parse(sj.GetRawText()) : null;
+                    if (parsed is null) return Problem(400, "invalid_card_style", "That card style could not be read.");
+                    PlayerSnapshot owner = await store.GetSnapshotAsync(user.AccountId(), ct);
+                    var cosmetics = new HashSet<string>(owner.Cosmetics, StringComparer.Ordinal);
+                    List<string> problems = customization.Catalogue.Card.Problems(parsed, cosmetics.Contains, car => owner.Cars.Any(c => c.CarId == car));
+                    if (problems.Count > 0) return Problem(400, "invalid_card_style", string.Join(" ", problems.Take(3)));
+                    style = parsed.Canonical();
+                }
+            }
             CardWriteResult result = await store.UpsertCardAsync(user.AccountId(), name, body.Revision,
-                look is null && pronouns is null ? null : new CardExtras(look, pronouns), ct);
+                look is null && pronouns is null && style is null ? null : new CardExtras(look, pronouns, style), ct);
             return result.Status == WriteStatus.Conflict
                 ? Problem(409, "revision_conflict", "Your card changed elsewhere; reload it and apply your edit again.")
-                : Results.Ok(new { displayName = result.Card!.DisplayName, revision = result.Card.Revision, look = LookElement(result.Card.LookJson), pronouns = result.Card.Pronouns });
+                : Results.Ok(new { displayName = result.Card!.DisplayName, revision = result.Card.Revision, look = LookElement(result.Card.LookJson), pronouns = result.Card.Pronouns,
+                    style = LookElement(result.Card.StyleJson) });
         });
 
         // Public @handle claim/change (Addendum 01 §9.2). Existing accounts claim one here; nothing else is reset.
@@ -222,7 +242,8 @@ public static partial class PlayerEndpoints
         return new
         {
             accountId = s.AccountId,
-            card = s.Card is null ? null : new { displayName = s.Card.DisplayName, revision = s.Card.Revision, look = LookElement(s.Card.LookJson), pronouns = s.Card.Pronouns },
+            card = s.Card is null ? null : new { displayName = s.Card.DisplayName, revision = s.Card.Revision, look = LookElement(s.Card.LookJson), pronouns = s.Card.Pronouns,
+                style = LookElement(s.Card.StyleJson) },
             handle = s.Handle is null ? null : new { handle = s.Handle.Display, revision = s.Handle.Revision },
             needsHandle = s.Handle is null,
             wallet = new { balance = s.Balance, cap = Limits.WalletCap },

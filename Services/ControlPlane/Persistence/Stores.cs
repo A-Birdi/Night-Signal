@@ -8,10 +8,10 @@ namespace NightSignal.ControlPlane.Persistence;
 // (local development/tests, executed) and PostgresGameStore (Supabase, compiles but not executed here).
 
 /// <summary>The Player Card: display name, optional driver look (canonical JSON, Core PlayerLooks) and pronouns.</summary>
-public sealed record PlayerCard(string DisplayName, long Revision, string? LookJson = null, string? Pronouns = null);
+public sealed record PlayerCard(string DisplayName, long Revision, string? LookJson = null, string? Pronouns = null, string? StyleJson = null);
 
 /// <summary>Optional card fields for a write; null leaves the stored value unchanged, "" clears it.</summary>
-public sealed record CardExtras(string? LookJson, string? Pronouns);
+public sealed record CardExtras(string? LookJson, string? Pronouns, string? StyleJson = null);
 
 public sealed record OwnedCar(string CarId, string Source);
 
@@ -98,7 +98,7 @@ public sealed record HandleClaimResult(HandleClaimStatus Status, PlayerHandle? H
 
 /// <summary>Public Player Card: never e-mail, tokens, wallet or private inventory.</summary>
 public sealed record PublicCard(string AccountId, string? Handle, string? DisplayName, RankSummary Rank,
-    string? Pronouns = null, int NormalClears = 0, int HardClears = 0, int Challenges = 0);
+    string? Pronouns = null, int NormalClears = 0, int HardClears = 0, int Challenges = 0, string? StyleJson = null);
 
 public enum FriendState { None, OutgoingPending, IncomingPending, Friends }
 
