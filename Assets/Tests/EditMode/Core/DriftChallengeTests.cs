@@ -57,6 +57,17 @@ namespace NightSignal.Tests.Core
             Assert.That(ChallengePredicates.Evaluate("C05", Finished(), two), Does.Not.Contain("CH18"), "C04 only");
 
             progress = 0f;
+            var arc = new DriftScorer();
+            Chain(arc, 65, 70f); // 65 m × 100 × 1.25 = 8,125 in one chain
+            Assert.That(ChallengePredicates.Evaluate("T00", Finished(), arc), Does.Contain("CH16"));
+            progress = 0f;
+            var split = new DriftScorer();
+            Chain(split, 40, 70f);
+            Chain(split, 40, 70f); // 10,000 over two chains of 5,000: no single 8,000 arc
+            Assert.That(ChallengePredicates.Evaluate("T00", Finished(), split), Does.Not.Contain("CH16"));
+            Assert.That(ChallengePredicates.Evaluate("C01", Finished(), arc), Does.Not.Contain("CH16"), "T00 only");
+
+            progress = 0f;
             var long1 = new DriftScorer();
             Chain(long1, 480, 60f); // 60,000 raw in one chain, never below 60 km/h
             Assert.That(ChallengePredicates.Evaluate("C15", Finished(), long1), Does.Contain("CH24"));

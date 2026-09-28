@@ -37,6 +37,10 @@ namespace NightSignal.Net
             if (p.Resets == 1 && p.WallsAtFirstReset >= 0 && p.WallIncidents == p.WallsAtFirstReset && !p.CorridorCut)
                 yield return "CH35";
             if (drift == null) yield break;
+            // CH16 First Arc: one banked chain of at least 8,000 raw on T00's drift route, and the run finished (T00 is the
+            // tutorial course; its finish stands for completing the lesson until a lesson system exists).
+            if (courseId == "T00" && drift.BankedChains.Any(c => c.Raw >= 8_000))
+                yield return "CH16";
             // CH18 Two Clean Chains: on C04, two separately banked chains of at least 6,000 raw (a chain only banks after the
             // car straightens, so two banked chains are separated by a return to grip).
             if (courseId == "C04" && drift.BankedChains.Count(c => c.Raw >= 6_000) >= 2)
