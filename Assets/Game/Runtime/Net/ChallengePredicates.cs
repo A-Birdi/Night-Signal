@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Linq;
+using NightSignal.Core.Rules;
 using NightSignal.Race;
 
 namespace NightSignal.Net
@@ -10,10 +12,15 @@ namespace NightSignal.Net
     /// </summary>
     public static class ChallengePredicates
     {
-        public static IEnumerable<string> Evaluate(MatchAssignment a, EntrantProgress p) => Evaluate(a.CourseId, p);
+        public static IEnumerable<string> Evaluate(MatchAssignment a, EntrantProgress p, DriftScorer drift = null, string surface = null) =>
+            Evaluate(a.CourseId, p, drift, a.FreeplayMode, surface);
 
-        /// <summary>The same predicates for any race (online on the game server, offline in the Local race).</summary>
-        public static IEnumerable<string> Evaluate(string courseId, EntrantProgress p)
+        /// <summary>
+        /// The same predicates for any race (online on the game server, offline in the Local race). <paramref name="drift"/>
+        /// is the entrant's drift scorer (every race scores drift in its judged zones); <paramref name="freeplayMode"/> and
+        /// <paramref name="surface"/> describe the event.
+        /// </summary>
+        public static IEnumerable<string> Evaluate(string courseId, EntrantProgress p, DriftScorer drift = null, string freeplayMode = null, string surface = null)
         {
             if (!p.Finished) yield break;
             // CH01 First Clean Signal: finish C01 with no meaningful wall impacts and no reset.
@@ -29,6 +36,20 @@ namespace NightSignal.Net
             // CH35 One Reset, Then Clean: exactly one permitted reset, no meaningful wall impact after it, every checkpoint legal.
             if (p.Resets == 1 && p.WallsAtFirstReset >= 0 && p.WallIncidents == p.WallsAtFirstReset && !p.CorridorCut)
                 yield return "CH35";
+            if (drift == null) yield break;
+            // CH18 Two Clean Chains: on C04, two separately banked chains of at least 6,000 raw (a chain only banks after the
+            // car straightens, so two banked chains are separated by a return to grip).
+            if (courseId == "C04" && drift.BankedChains.Count(c => c.Raw >= 6_000) >= 2)
+                yield return "CH18";
+            // CH20 Forward Flow: 25,000 raw in C01's Drift Attack (the scorer counts forward progress only).
+            if (courseId == "C01" && freeplayMode == "drift-attack" && drift.BankedRaw >= 25_000)
+                yield return "CH20";
+            // CH21 Wet Signal: 70,000 raw in C08's wet Drift Attack with at least two banked chains.
+            if (courseId == "C08" && freeplayMode == "drift-attack" && surface == "wet" && drift.BankedRaw >= 70_000 && drift.ChainsBanked >= 2)
+                yield return "CH21";
+            // CH24 Sustained Arc: on C15, one banked chain of at least 60,000 raw that never slowed below 45 km/h while scoring.
+            if (courseId == "C15" && drift.BankedChains.Any(c => c.Raw >= 60_000 && c.MinSpeedKmh >= 45f))
+                yield return "CH24";
         }
     }
 }

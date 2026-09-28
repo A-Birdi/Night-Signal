@@ -47,6 +47,13 @@ namespace NightSignal.Core.Rules
     /// A chain banks after 1.0 s without a valid step (straightening interval) or at a judged-sector end;
     /// wall impacts, leaving the course, resets and spins lose only the unbanked chain.
     /// </summary>
+    /// <summary>One banked drift chain: its raw points and the slowest valid scoring step in it.</summary>
+    public struct BankedChain
+    {
+        public double Raw;
+        public float MinSpeedKmh;
+    }
+
     public sealed class DriftScorer
     {
         public const float MinimumSpeedKmh = 35f;
@@ -68,6 +75,10 @@ namespace NightSignal.Core.Rules
         public double ChainMultiplier => zonesInChain.Count <= 1 ? 1.0 : Math.Min(MaxChain, 1.0 + ChainStep * (zonesInChain.Count - 1));
         public int ChainLength => zonesInChain.Count;
         public int ChainsBanked { get; private set; }
+        /// <summary>Every banked chain in order: its raw points and the slowest valid scoring step in it (km/h) — the
+        /// facts drift challenges read (CH18 two chains, CH24 one chain above a speed floor).</summary>
+        public readonly List<BankedChain> BankedChains = new List<BankedChain>();
+        float chainMinSpeed = float.MaxValue;
 
         public static double AngleFactor(double slipDegrees)
         {
@@ -116,6 +127,7 @@ namespace NightSignal.Core.Rules
             if (valid)
             {
                 zonesInChain.Add(s.JudgedZone);
+                if (s.SpeedKmh < chainMinSpeed) chainMinSpeed = s.SpeedKmh;
                 double delta = forward * 100.0 * AngleFactor(absSlip) *
                                LineFactor(s.LineOffsetMetres, s.LineToleranceMetres) * ChainMultiplier;
                 UnbankedRaw += delta;
@@ -152,6 +164,7 @@ namespace NightSignal.Core.Rules
             result.ChainEnd = ChainEnd.Banked;
             result.AmountBankedOrLost = UnbankedRaw;
             BankedRaw += UnbankedRaw;
+            BankedChains.Add(new BankedChain { Raw = UnbankedRaw, MinSpeedKmh = chainMinSpeed });
             UnbankedRaw = 0;
             ChainsBanked++;
             ClearChain();
@@ -174,6 +187,7 @@ namespace NightSignal.Core.Rules
 
         void ClearChain()
         {
+            chainMinSpeed = float.MaxValue;
             zonesInChain.Clear();
             secondsSinceValid = 0f;
             secondsSpinning = 0f;

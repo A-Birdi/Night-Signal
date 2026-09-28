@@ -523,7 +523,7 @@ namespace NightSignal.Net
                 };
                 if (c.ContractsPassed >= 0) Debug.Log($"[NightSignal.Server] {r.EntrantId} Four Signals {c.ContractsPassed}/4: {c.ContractDetail}");
                 if (c.Entrant.Human && c.Outcome == RunOutcome.Finished)
-                    r.ChallengesCompleted.AddRange(ChallengePredicates.Evaluate(assignment, c.Entrant.Progress));
+                    r.ChallengesCompleted.AddRange(ChallengePredicates.Evaluate(assignment, c.Entrant.Progress, c.Entrant.Drift, sim.Rules.Surface));
                 results.Entrants.Add(r);
             }
             return results;
