@@ -128,6 +128,35 @@ public sealed class MeetControlChannelTests : IDisposable
     }
 
     [Fact]
+    public async Task AVisitorOutsideAConvoy_ArrivesInTheLiveryAppliedInTheGarage()
+    {
+        var clock = new ManualClock();
+        using var host = new ControlPlaneHost(dir.Path, dir.File("seed.json"), clock);
+        Visitor a = await Arrive(host, 0, "Aki Night");
+        JsonElement stock = Result(await a.Control.RequestAsync("meet.join", new { kind = "public" }));
+        Assert.Equal(JsonValueKind.Null, Member(stock.GetProperty("state"), a.AccountId).GetProperty("livery").ValueKind);
+        AssertOk(await a.Control.RequestAsync("meet.leave"));
+
+        // In the Garage: a livery on the first car.
+        JsonElement cars = await (await a.Http.GetAsync("/v1/me/garage/cars")).Content.ReadFromJsonAsync<JsonElement>();
+        JsonElement car = cars.GetProperty("cars")[0];
+        string instance = car.GetProperty("instanceId").GetString()!;
+        HttpResponseMessage applied = await a.Http.PostAsJsonAsync($"/v1/me/garage/cars/{instance}/operations", new
+        {
+            op = "livery-apply", expectedRevision = car.GetProperty("revision").GetInt64(),
+            liveryJson = NightSignal.Core.Customization.LiveryJson.ToCanonicalJson(GarageTestKit.Livery()),
+        });
+        applied.EnsureSuccessStatusCode();
+
+        // Back at the meet, still outside any convoy: the room admits the car with that livery.
+        clock.Advance(TimeSpan.FromSeconds(2));
+        JsonElement dressed = Result(await a.Control.RequestAsync("meet.join", new { kind = "public" }));
+        JsonElement me = Member(dressed.GetProperty("state"), a.AccountId);
+        Assert.Equal(JsonValueKind.String, me.GetProperty("livery").ValueKind);
+        Assert.Equal(car.GetProperty("carId").GetString(), me.GetProperty("carId").GetString());
+    }
+
+    [Fact]
     public async Task ADroppedConnection_IsDisconnected_ThenRejoinsQuietlyInTheSameBay()
     {
         var clock = new ManualClock();

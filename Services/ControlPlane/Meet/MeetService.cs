@@ -119,6 +119,12 @@ public sealed class MeetService(ConvoyDirectory directory, IPlayerStore store, I
             if (car is null) return ConvoyResult.Fail("not_owned", "That car instance is not yours.");
             (carId, livery, pi, piClass, tune) = car.Value;
         }
+        else if (await garage.DefaultMeetAppearanceAsync(account, ct) is { } first)
+        {
+            // Not in a convoy with a selected car: their first car as the Garage has it (livery included) — before V-089 the
+            // meet showed this car in stock paint whatever livery was applied.
+            (carId, livery, pi, piClass, tune) = first;
+        }
         else if (me.Cars.Count > 0)
         {
             carId = me.Cars[0].CarId;

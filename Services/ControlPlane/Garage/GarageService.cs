@@ -665,6 +665,17 @@ public sealed class GarageService(IGarageStore store, IPlayerStore players, Cont
         return (c.Workspace.Car.ModelId, AppearanceOf(c.Workspace).Livery, build?.Pi ?? 0, build?.PiClass ?? "", tune);
     }
 
+    /// <summary>
+    /// The car a visitor outside a convoy brings to the meet: their first car instance as it stands in the Garage (applied
+    /// livery, PI, tune) — the same car the Garage opens on. Null when the account has no car in the catalogue.
+    /// </summary>
+    public async Task<(string CarId, string? Livery, int Pi, string PiClass, string Tune)?> DefaultMeetAppearanceAsync(string account, CancellationToken ct)
+    {
+        IReadOnlyList<CarInstance> instances = await store.EnsureCarInstancesAsync(account, ct);
+        CarInstance? first = instances.Where(i => Catalogue.TryCar(i.CarId, out _)).OrderBy(i => i.Ordinal).FirstOrDefault();
+        return first is null ? null : await MeetAppearanceAsync(account, first.InstanceId, ct);
+    }
+
     /// <summary>Frozen builds of several entrants' selected instances (event.start); entrants without a valid build are omitted.</summary>
     public async Task<IReadOnlyDictionary<string, EntrantBuild>> FreezeSelectionsAsync(IEnumerable<string> accounts, CancellationToken ct)
     {

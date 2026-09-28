@@ -1715,3 +1715,29 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   per-run name, Delete asked (kept), then deleted — all through the control plane; the race then carried the livery
   (roster 277 bytes, plate "NS ONL", 2 decals), P2 of 3, settled — **PASS**.
 - **Limits:** the online tour only touches the preset it created; the pearl flip tint is still not rendered.
+
+## V-089 — The meet shows the livery applied in the Garage (2026-09-28)
+- Revision: `c1d9d93` (client and Core) plus the control-plane fix committed with this entry; player build of
+  `c1d9d93`; control plane restarted twice on the new server code (after `c1d9d93`, then after the fix).
+- **Found by the new tour:** a visitor outside a convoy joins the public meet without naming a car instance, and the
+  control plane then admitted their first car's model **with no livery** — everyone (themselves included) saw it in stock
+  paint whatever livery was applied. The first run of the new leg failed on exactly that ("back … with livery stock").
+- **What changed:** such a visitor now arrives in their first car instance as the Garage has it (applied livery, PI,
+  tune — `GarageService.DefaultMeetAppearanceAsync`). A member reconnecting after a lost connection takes the car and
+  livery they rejoin with, and the control plane refreshes PI, class, tune and card look on that path (`MeetRoom.Join`).
+  The member wire carries the visit `generation`; the client rebuilds a visitor's car and avatar when the generation,
+  car, livery or look changes instead of keeping the first one.
+- **Tests:** EditMode `MeetRulesTests` 19/19 (reconnect in another livery or car takes it; a new visit is a new
+  generation). .NET: `AVisitorOutsideAConvoy_ArrivesInTheLiveryAppliedInTheGarage` (stock visit, livery applied over
+  HTTP, second visit carries it) and the reconnect test now checks the generation is kept — Builds 232, Toys 92, Core
+  123, Services 345, all pass. (Before the fix, one Services run had a single failure that did not reproduce in three
+  reruns; its name was not captured.)
+- **Built players** (`meet-online.ps1 -Livery`: three clients on the loopback control plane): the usual public-meet
+  regression (arrivals announced, wave, quick chat, like, boombox cue for everyone, a departure, a dropped connection) plus
+  the new leg — guest2 leaves for the Garage, repaints and applies (`e649b12a…` → `8a6c7116…`), returns; the host's
+  drawn car for guest2 has the paint the room's livery decodes to (#5C6670) — **PASS** on all three. Repeated on a
+  second run (#4B2E6B, `8a6c7116…` → `b4e11c16…`) — **PASS**.
+- **Limits:** the host's screenshot is taken at the boombox, where guest2's car is out of frame — the evidence is the
+  colour check, not a picture (the second run's build also turned the host's camera toward the car for the photo; it
+  framed the host instead, did not affect the checks and was removed); the reconnect-in-another-livery path is covered
+  by tests, not by a built-player run.
