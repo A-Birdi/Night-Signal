@@ -1643,3 +1643,37 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - **Limits:** CH35, CH44/CH45, CH66 and CH71 are covered by tests, not by a built-player run; CH71 needs T00, which only
   the offline tutorial runs today (online it cannot complete yet); challenge rewards are ownership records (the
   cosmetic assets are not built).
+
+## V-086 — Car levels of detail (2026-09-28)
+- Revision: `201598b` (the LOD code) plus the tour's bracketed measurement, committed with this entry; player build of
+  that working tree (non-development, PC quality level, LOD bias 2).
+- **What changed:** every car has three bodies. `CarBodyGenerator.BuildBody(..., lod)`: level 1 (mid) lofts 28 stations
+  instead of 80, draws the conformed lamp/opening/trim patches and the arch lips about half as finely and leaves out
+  the feature lines and the steering-wheel rim (mirrors, seats and dash stay); level 2 (far) lofts 14 stations, samples
+  the glasshouse half as finely, draws patches a third as finely and leaves out mirrors and interior. Fascia and lamps
+  stay at every level. Mean body triangles over the 18 cars: 8,893 full / 4,503 mid (45–53 %) / 2,577 far (26–30 %);
+  length, height and placement identical. `VehicleView` adds a `LODGroup`: full body + plate + livery + wheels; mid
+  body + livery + wheels; far body + wheels; culled below 0.8 % of screen height — with the 58° race camera and the PC
+  bias of 2, mid from about 45 m, far from about 135 m, culled beyond about 1 km. The fitted cockpit is outside the
+  group (never culled by it). Editor *Night Signal → Art → Render Car LOD Sheets* renders the forced levels.
+- **Tests:** EditMode `CarLodTests` (18 cars: mid ≤ 60 %, far ≤ 35 % of the full body's triangles, same length/height,
+  paint/glass/trim/lamp submeshes at every level, valid normals; the view's LOD membership; Unity's rule by distance;
+  the own car on the full body in all five views and the cockpit outside the group) — full EditMode suite 467/467.
+- **Built player** (`-nsCarLodTour`: offline freeplay C01, you + 11 AI, autopilot; frozen frames, rendered-triangle
+  counter): your car drawn at its full body in all five views; in Cockpit view the open-cabin body is shown and hiding
+  the fitted cockpit changes 1.79 M pixels (repeat 1.4 k). Six snapshots through the race: 45 of 45 matched in-view
+  car samples drawn at the level of Unity's rule for their distance (21 mid, 12 far; 1 sample of 46 unmatched by
+  drift); automatic LOD drew 42–98 k fewer triangles than every car held full (of 450–958 k) in the 5 snapshots with
+  a distant car — **PASS**. Evidence: `Evidence/art/lod/` (tour lines, a race frame, the cockpit frame, LOD sheets).
+- **How it was measured, and a correction:** the GPU Resident Drawer draws these renderers through BatchRendererGroup,
+  so `Renderer.isVisible` reported every level visible at once — the first tour's level table was meaningless and is
+  not used. Levels are measured on frozen frames instead: each hold (full, mid, far) bracketed by releases; the hold
+  that counts the same as the releases on either side is the level drawn. An intermediate version compared all cars
+  against one global baseline; the paused scene's count drifts by a few thousand triangles, which made levels look
+  history-dependent, and commit `78606b2` wrongly concluded that the GPU Resident Drawer keeps stale levels and made
+  each car choose its own level. Re-measured locally, Unity's automatic selection matched the rule (46 of 46 that run);
+  `201598b` returned the choice to the `LODGroup`.
+- **Limits:** no frame-time A/B (the tour's first attempt compared blocks at different places on the course, so its
+  timings are not a comparison); level changes are instant pops (no cross-fade; the sheets show the mid body is hard to
+  tell from the full one at its distance); the six-racer / populated-meet / cold-load performance profile of §14 and
+  character LOD tiers are not done; not reviewed by a person.

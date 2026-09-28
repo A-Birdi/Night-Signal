@@ -2,7 +2,7 @@
 
 _Last updated: 2026-09-28 — the meet, offline (V-073): Cedar Lantern Terrace, walking, twelve emotes, host, boombox;
 the meet online with three real clients (V-074), the convoy at the meet (V-075), race from the meet and back plus
-walking controls (V-076), the Player Card with a driver appearance (V-077), race audio (V-078), Drift Attack only where zones exist (V-079), AI drift skill (V-080), group Time Attack and tables with 4/6 humans (V-081, V-082), Canvas controller pen (V-083), the meet's touring challenges CH61–CH65 and CH67 (V-084), CH33/CH35/CH44/CH45/CH66/CH71 (V-085).
+walking controls (V-076), the Player Card with a driver appearance (V-077), race audio (V-078), Drift Attack only where zones exist (V-079), AI drift skill (V-080), group Time Attack and tables with 4/6 humans (V-081, V-082), Canvas controller pen (V-083), the meet's touring challenges CH61–CH65 and CH67 (V-084), CH33/CH35/CH44/CH45/CH66/CH71 (V-085), car levels of detail (V-086).
 Now: the gameplay backlog._
 
 **Rules revision:** `docs/brief/Night_Signal_Addendum_01.txt` supersedes parts of the master (six humans + up to
@@ -28,7 +28,8 @@ certification. `docs/brief/Night_Signal_Addendum_04.txt` makes local network tes
   - Vehicle: fixed 60 Hz raycast chassis, handling harness, 18 detailed procedural car bodies (art pass V-070: glass
     and pillars, projected lamp clusters/grilles/intakes, arch lips and liners, mirrors, shut lines, interior
     silhouette, tyres/rims/brakes; per-car Appendix C cues in `authored/cars.body.json`), fitted cockpits and five
-    views on all 18. Distinctness sheets: editor *Night Signal → Art → Render Car Sheets* (`CarSheet`).
+    views on all 18, three levels of detail per car (V-086). Distinctness sheets: editor *Night Signal → Art → Render
+    Car Sheets* (`CarSheet`); forced LOD sheets: *Render Car LOD Sheets*.
   - Courses: deterministic generation from `route.json` (D-007); all 29 scenes driven by the autopilot, measured 3D
     profiles, tunnels, bridges, relief; every route landmark built by the parametric kits and a regional kit per biome
     (V-071, `docs/COURSES.md`); editor *Render Landmark Sheets* / `LandmarkSheet.RenderRegions` for review.
@@ -179,7 +180,9 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
    Time Attack and the hosted tables with 4 and 6 humans passed — V-081, V-082); UI/reconnect/rejoin/DQ under load; customization follow-ups (meet livery refresh,
    pearl flip tint, preset rename/delete UI). (Drift Attack is now limited to courses with judged zones — V-079.)
 4. **Open technical items**: heavy-contact prediction hitch at ~190 ms RTT (V-061 inconclusive); S29 autopilot racecraft
-   (optional — the rule is implemented and V03 passes); car LOD levels (bodies ≤ 6.5 k vertices, none yet).
+   (optional — the rule is implemented and V03 passes). Car LOD levels are done (V-086: full/mid/far bodies, Unity's
+   LODGroup chooses; measure a level under the GPU Resident Drawer with the frozen-frame bracketed holds of
+   `-nsCarLodTour`, never `Renderer.isVisible`); character LOD tiers and the §14 performance profile remain.
 5. **Gate 4/5**: integration (party sizes, legality/loaners, database restart, tampering, budgets) and release validation;
    blocked parts stay blocked (local Supabase/Postgres stack, Linux server module, WAN test with real people).
 

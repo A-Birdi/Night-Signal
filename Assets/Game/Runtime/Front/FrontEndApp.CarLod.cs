@@ -18,9 +18,9 @@ namespace NightSignal.Front
         /// Car level-of-detail evidence (<c>-nsCarLodTour</c>): a full grid (you + 11 AI) on C01 driven by the autopilot.
         /// The GPU Resident Drawer draws the cars through BatchRendererGroup, so <see cref="Renderer.isVisible"/> cannot say
         /// which level was drawn; every check is made on frozen frames instead (the race paused) from the rendered
-        /// triangle count. The whole scene's count drifts a little even when paused, so a level is always measured against
-        /// a local reference: released, held full, mid and far, released again — the held level that counts the same as
-        /// the released state is the level drawn, and the two releases bound the drift.
+        /// triangle count. The whole scene's count drifts by a few thousand triangles even when paused, so a car's level is
+        /// measured locally: each hold (full, mid, far) is bracketed by releases, and the hold that counts the same as the
+        /// releases on either side is the level Unity drew.
         /// 1. Your car in each of the five views: drawn at its full body, and in Cockpit view the fitted cockpit drawn over
         ///    the open-cabin body (Addendum 03: a cabin lost to exterior culling is a defect).
         /// 2. Snapshots through the race: every other car's drawn level against Unity's screen-height rule at its distance,
@@ -86,26 +86,34 @@ namespace NightSignal.Front
             string Name(int level) => level >= 0 ? levelName[level] : level == -1 ? "not drawn" : "no match";
             // The level drawn (0-2), −1 not drawn (every held level counts the same: out of view, shadows included), −2 none matches.
             int[] drawn = new int[1];
+            string raw = "";
+            // Each hold is bracketed by releases (R H0 R H1 R H2 R): holding the level that is already drawn changes nothing,
+            // so the drawn level is the hold that counts the same as the releases on either side of it, within their drift.
             IEnumerator Drawn(VehicleView v)
             {
+                var released = new double[4];
+                var held = new double[3];
                 v.HoldLod(-1);
                 yield return Count();
-                double r0 = tris;
-                var held = new double[3];
+                released[0] = tris;
                 for (int k = 0; k < 3; k++)
                 {
                     v.HoldLod(k);
                     yield return Count();
                     held[k] = tris;
+                    v.HoldLod(-1);
+                    yield return Count();
+                    released[k + 1] = tris;
                 }
-                v.HoldLod(-1);
-                yield return Count();
-                double drift = Math.Abs(tris - r0), released = (r0 + tris) * 0.5;
-                if (Math.Abs(held[0] - held[2]) <= drift + 50) { drawn[0] = -1; yield break; }
-                int best = 0;
-                for (int k = 1; k < 3; k++)
-                    if (Math.Abs(held[k] - released) < Math.Abs(held[best] - released)) best = k;
-                drawn[0] = Math.Abs(held[best] - released) <= drift + 50 ? best : -2;
+                var same = new bool[3];
+                for (int k = 0; k < 3; k++)
+                {
+                    double drift = Math.Abs(released[k + 1] - released[k]);
+                    same[k] = Math.Abs(held[k] - (released[k] + released[k + 1]) * 0.5) <= drift * 0.5 + 50;
+                }
+                raw = $"released {string.Join(" / ", released.Select(x => x.ToString("F0")))}, held full {held[0]:F0}, mid {held[1]:F0}, far {held[2]:F0}";
+                int count = same.Count(x => x);
+                drawn[0] = count == 3 ? -1 : count == 1 ? Array.IndexOf(same, true) : -2;
             }
 
             // 1. Your car in every view.
@@ -168,16 +176,20 @@ namespace NightSignal.Front
                 yield return Capture($"snap{snap}-auto");
                 double auto = tris;
                 var cars = new List<(float D, float H, int Rule, int Drawn)>();
+                var raws = new List<string>();
                 foreach (VehicleView v in others.OrderBy(v => Vector3.Distance(c.transform.position, v.transform.position)))
                 {
                     yield return Drawn(v);
                     float h = v.RelativeHeight(c);
                     cars.Add((Vector3.Distance(c.transform.position, v.transform.position), h, v.RuleLod(h), drawn[0]));
+                    raws.Add(raw);
                 }
                 Time.timeScale = 1f;
                 if (cars.Any(x => x.Drawn > 0)) { lowerSnaps++; if (full - auto > 1000) savedSnaps++; }
-                foreach (var car in cars.Where(x => x.Drawn != -1))
+                for (int i = 0; i < cars.Count; i++)
                 {
+                    var car = cars[i];
+                    if (car.Drawn == -1) continue;
                     inView++;
                     if (car.Drawn == -2) { unmatched++; continue; }
                     if (car.Drawn == 1) drawnMid++;
@@ -186,7 +198,7 @@ namespace NightSignal.Front
                     table.Add(line);
                     if (car.Drawn == car.Rule) agree++;
                     else if (lodHeights.Any(t => Mathf.Abs(car.H / t - 1f) < 0.02f)) atBoundary++; // within 2 % of a transition
-                    else disagreements.Add($"snapshot {snap} {line}");
+                    else disagreements.Add($"snapshot {snap} {line} ({raws[i]})");
                 }
                 Note($"snapshot {snap}: triangles all-full {full / 1000.0:F1} k, all-far {far / 1000.0:F1} k, automatic {auto / 1000.0:F1} k " +
                      $"({(full - auto) / 1000.0:F1} k saved); cars " + string.Join(", ", cars.Select(x => $"{x.D:F0} m {Name(x.Drawn)}")));
