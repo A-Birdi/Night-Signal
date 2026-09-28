@@ -1886,3 +1886,36 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   `Evidence/meet/card-showcase-offline.jpg`, `Evidence/meet/driver-card-offline-log.txt`.
 - **Limits:** the drops are scripted (a real crash and the Rejoin UI path were driven in V-060, with two clients); the
   six clients are scripted autopilots on one machine, not people; the offline meet has no one to show the card to.
+
+## V-096 — Racecraft judged: CH31 Clean Pass and CH32 Patient Mirror; the gap to the car ahead on the HUD (2026-09-28)
+- Revisions: `aec1794` (judge, predicates, HUD), `6afb1fe` (tour, pass log) and the tour's final setup committed with
+  this entry; player builds of each; no control-plane change (it accepts any catalogue challenge a signed result carries).
+- **What changed:** `RacecraftJudge` runs inside the race simulation (so on the game server and in the offline race alike)
+  for events with live opponents — not Time Attack (non-contact) nor Drift Attack. It reads only the simulation's own
+  facts: each car's legal race distance, every car-to-car touch (any contact, stricter than a meaningful incident) and
+  every recovery. **A pass** is this car's distance going from behind a live, solid (not a reset ghost), moving (≥ 5 m/s)
+  car to ahead of it in one fixed step with neither car recovering; it is **clean** when this car touched no car in the
+  2 s before and the 2 s after and kept the place for 3 s (or finished ahead first). A recovery never makes a pass, and
+  passing a stopped car is not racing it. **The interval** to the car directly ahead is the time since that car was
+  where this one is now (from each car's recent distance history, cleared by a recovery); **a follow** is the same live,
+  moving car ahead inside 1–2 s, broken by any touch or recovery; the longest follow is kept. CH31 = a clean pass then a
+  finish (any race with live opponents; the master's "eligible six-slot race" read as such under Addendum 01's larger
+  grid); CH32 = a follow of ≥ 8 s on C05 then a finish. The HUD shows "GAP AHEAD x.x s <driver>" under the position
+  (highlighted inside 1–2 s): offline from the judge, online from the snapshot distances with the same interval rule.
+- **Tests:** EditMode `RacecraftJudgeTests` (10: the interval rule; judged only with live opponents; a clean pass kept 3 s
+  grants CH31; a touch 1 s before or 1.5 s after spoils it, one 2.5 s after does not; the place lost within 3 s; a
+  recovery never makes a pass; a stopped car is not raced; 8 s inside the window grants CH32 on C05 only; a touch, 2.5 s
+  or 0.75 s intervals break it; no facts, no racecraft challenges). Full EditMode suite 481 passed, 2 skipped (the explicit
+  V-087 experiment), 0 failed.
+- **Built player** (`-nsRacecraftTour`, the validator autopilot driving V07 on C05 against AI held to PI 300; automation,
+  not a person): the follow race (five AI, 2.5 s hold, the autopilot told to keep ~1.5 s behind) followed Driver AI-3 for
+  15.5 s inside the window and **CH32 was granted**; the HUD's gap line equalled the judge's interval in 259 of 259 samples.
+  The pass race (seven AI, 8 s hold) made one pass, logged by the judge as "passed Driver AI-2 0.0 s after a touch — not
+  clean" (7 car contacts), so CH31 was withheld; it also followed Driver AI-4 for 39.3 s, so CH32 was granted there too;
+  the HUD equalled the judge in 276 of 276 samples. Every grant matched the facts — **PASS**.
+  `Evidence/courses/racecraft/racecraft-tour.txt` (with the earlier runs), `follow-gap-ahead.jpg`.
+- **Limits:** no built run shows a clean pass: the validator autopilot is a poor overtaker (it queues on C05's narrow
+  road and its passes there are bumps; on C01, with quicker cars too, it crashed, reset and never got within reach of a
+  car), so CH31's positive case rests on the EditMode tests; the online HUD line and the server's grants were not driven
+  in a networked run this time (the judge is the same simulation code the server runs); no person has judged whether 1–2 s
+  "feels" like following.
