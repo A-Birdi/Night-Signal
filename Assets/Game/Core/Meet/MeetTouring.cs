@@ -29,6 +29,8 @@ namespace NightSignal.Core.Meet
     public sealed class MeetTouringProgress
     {
         public bool Arrived, OwnCar, Wave, Bow, EmoteHelp, Photo, Slip;
+        /// <summary>The own car was inspected wearing a signed livery (CH48, a workshop challenge seen at the meet).</summary>
+        public bool SignedCar;
         public readonly HashSet<string> Placards = new HashSet<string>(StringComparer.Ordinal);
         public readonly HashSet<string> PhotoPoints = new HashSet<string>(StringComparer.Ordinal);
         /// <summary>Challenges this progress has already reported complete (never reported twice).</summary>
@@ -87,14 +89,18 @@ namespace NightSignal.Core.Meet
 
         /// <summary>
         /// Records an act that was already checked for place (and, for the result slip, for an eligible completed event)
-        /// and returns the challenges it newly completes — each at most once per progress.
+        /// and returns the challenges it newly completes — each at most once per progress. <paramref name="ownCarSigned"/>:
+        /// the car inspected wears a signed livery (<see cref="Customization.LiveryChallenges.Signed"/>), as the room holds it.
         /// </summary>
-        public static List<string> Record(MeetTouringProgress p, TouringAct act, string id = null)
+        public static List<string> Record(MeetTouringProgress p, TouringAct act, string id = null, bool ownCarSigned = false)
         {
             switch (act)
             {
                 case TouringAct.Arrived: p.Arrived = true; break;
-                case TouringAct.InspectOwnCar: p.OwnCar = true; break;
+                case TouringAct.InspectOwnCar:
+                    p.OwnCar = true;
+                    if (ownCarSigned) p.SignedCar = true;
+                    break;
                 case TouringAct.ReadPlacard:
                     if (MeetLayout.Placards.Any(x => x.Id == id)) p.Placards.Add(id);
                     else if (MeetLayout.PhotoPoints.Any(x => x.Id == id)) p.PhotoPoints.Add(id);
@@ -116,6 +122,8 @@ namespace NightSignal.Core.Meet
             Check(Horizon, p.Photo);
             Check(BringItHome, p.Slip);
             Check(PhotoPoints, MeetLayout.PhotoPoints.All(x => p.PhotoPoints.Contains(x.Id)));
+            // CH48 Sign Your Car (workshop): the signed livery seen on the parked car.
+            Check(Customization.LiveryChallenges.SignYourCar, p.SignedCar);
             return done;
         }
 

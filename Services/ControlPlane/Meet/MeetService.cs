@@ -384,7 +384,9 @@ public sealed class MeetService(ConvoyDirectory directory, IPlayerStore store, I
     {
         if (!MeetTouring.InPlace(act, id, m.Bay, m.X, m.Z)) return new List<string>();
         if (!touring.TryGetValue(account, out MeetTouringProgress? progress)) touring[account] = progress = new MeetTouringProgress();
-        return MeetTouring.Record(progress, act, id);
+        // The livery is the one the room holds for this car (the Garage's applied livery, validated when it was applied).
+        bool signed = act == TouringAct.InspectOwnCar && Core.Customization.LiveryChallenges.SignedWire(m.Livery);
+        return MeetTouring.Record(progress, act, id, signed);
     }
 
     void GrantLater(string account, string roomId, List<string> ids)

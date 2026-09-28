@@ -1919,3 +1919,29 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   car), so CH31's positive case rests on the EditMode tests; the online HUD line and the server's grants were not driven
   in a networked run this time (the judge is the same simulation code the server runs); no person has judged whether 1–2 s
   "feels" like following.
+
+## V-097 — CH48 Sign Your Car at the meet; the offline meet draws the applied livery (2026-09-28)
+- Revision: the work committed with this entry; player build of it; control plane restarted on it (MeetService changed;
+  race content hash `3677a844…` and customization hash `306dd38e…` unchanged).
+- **What changed:** Core `LiveryChallenges`: a livery is "signed" when it has at least one decal and two paint regions — a
+  two-tone (lower, roof, hood or side stripe) whose second colour differs from the body colour (decals are owned or free
+  by construction: the Garage refuses any other when it applies a livery). CH48 completes when the player inspects their
+  own parked car at the meet and the livery the room holds for that car is signed — online the meet room judges the
+  server's copy (the Garage's applied livery), offline the front end judges the Local profile's applied livery; granted
+  once, with its cash, RP and COS-CH48, like the touring challenges (the Local profile now accepts CH48 at the meet and
+  still refuses any other workshop challenge there).
+- **Bug fixed:** the offline meet read the car's applied livery (wire form) as canonical JSON, which never parsed, so the
+  player's car at the offline meet always showed its stock paint whatever livery was applied (V-089 fixed only the
+  online meet). It now decodes the wire form (stock when none is applied).
+- **Tests:** .NET `LiveryChallengesTests` (signed needs a decal and a real two-tone — stock, no decal, one region or a
+  two-tone in the body colour are not; the wire form judges the same; the Local profile accepts CH48 but not CH46) —
+  Core 133/133; Services `SignYourCar_CH48_WhenTheParkedCarWearsASignedLivery` (a livery applied in the Garage, the own
+  car inspected at the meet over the control channel: CH61 and CH48 for the signed car, CH61 only for a stock one, once) —
+  Services 348, Builds 232, Toys 92; Unity EditMode 481 passed, 2 skipped (explicit), 0 failed.
+- **Built player** (`-nsSignYourCarTour`, offline, buttons only, isolated profile folder): in Appearance a lower two-tone
+  (#E8E4D8 / #111111) and a stripe decal applied → the offline meet hands the parked car exactly that livery (two-tone
+  lower, 1 decal; before the fix it would have been stock) → own car inspected → CH61 and CH48 granted, COS-CH48 owned,
+  still there after the profile is re-read from disk — **PASS**. `Evidence/meet/sign-your-car-offline-log.txt`,
+  `sign-your-car-offline.jpg`.
+- **Limits:** the tour checks the appearance handed to the parked car's view, not its pixels (the screenshot's angle does
+  not show the decal); the online path is covered by the service test, not a built networked run.

@@ -130,4 +130,46 @@ public sealed class MeetTouringTests : IDisposable
         Assert.Equal(balance0 + cash, me.GetProperty("wallet").GetProperty("balance").GetInt64());
         await control.DisposeAsync();
     }
+
+    [Fact]
+    public async Task SignYourCar_CH48_WhenTheParkedCarWearsASignedLivery()
+    {
+        var clock = new ManualClock();
+        using var host = new ControlPlaneHost(dir.Path, dir.File("seed.json"), clock);
+        async Task<(HttpClient Http, ControlClient Control)> Visitor(int i, bool signed)
+        {
+            string token = await host.SignInAsync(accounts[i]);
+            HttpClient http = host.Authed(token);
+            (await http.PostAsJsonAsync("/v1/me/card", new { displayName = i == 0 ? "Aki Night" : "Ben Rainfox" })).EnsureSuccessStatusCode();
+            (await http.PostAsJsonAsync("/v1/me/starter", new { carId = "V01" })).EnsureSuccessStatusCode();
+            if (signed)
+            {
+                // In the Garage: a livery with a decal and a roof two-tone, applied (the Garage validates it).
+                JsonElement car = (await http.GetFromJsonAsync<JsonElement>("/v1/me/garage/cars")).GetProperty("cars")[0];
+                (await http.PostAsJsonAsync($"/v1/me/garage/cars/{car.GetProperty("instanceId").GetString()}/operations", new
+                {
+                    op = "livery-apply", expectedRevision = car.GetProperty("revision").GetInt64(),
+                    liveryJson = NightSignal.Core.Customization.LiveryJson.ToCanonicalJson(GarageTestKit.Livery()),
+                })).EnsureSuccessStatusCode();
+            }
+            return (http, await host.ConnectAsync(token, Query));
+        }
+        static string[] Completed(JsonElement r) => r.GetProperty("completed").EnumerateArray().Select(c => c.GetProperty("challengeId").GetString()!).ToArray();
+
+        (HttpClient http, ControlClient signedCar) = await Visitor(0, true);
+        (_, ControlClient stockCar) = await Visitor(1, false);
+        AssertOk(await signedCar.RequestAsync("meet.join", new { kind = "public" }));
+        AssertOk(await stockCar.RequestAsync("meet.join", new { kind = "public" }));
+        clock.Advance(TimeSpan.FromSeconds(4));
+        AssertOk(await signedCar.RequestAsync("meet.arrived"));
+        AssertOk(await stockCar.RequestAsync("meet.arrived"));
+
+        // Seen on the parked car: the signed livery completes CH48 with CH61; the stock car only CH61.
+        Assert.Equal(new[] { "CH61", "CH48" }, Completed(Result(await signedCar.RequestAsync("meet.touring", new { step = "own-car" }))));
+        Assert.Equal(new[] { "CH61" }, Completed(Result(await stockCar.RequestAsync("meet.touring", new { step = "own-car" }))));
+        clock.Advance(TimeSpan.FromSeconds(2));
+        Assert.Empty(Completed(Result(await signedCar.RequestAsync("meet.touring", new { step = "own-car" }))));
+        string[] done = (await http.GetFromJsonAsync<JsonElement>("/v1/me")).GetProperty("challengesCompleted").EnumerateArray().Select(c => c.GetString()!).ToArray();
+        Assert.Contains("CH48", done);
+    }
 }

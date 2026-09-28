@@ -34,7 +34,12 @@ namespace NightSignal.Front
             LocalProfile profile = s.Profile;
             OwnedCar owned = chosen.Loaner ? null : profile.FindCar(chosen.InstanceId);
             CarDef def = s.Catalogue.Car(chosen.ModelId);
-            CarAppearance appearance = AppearanceMapping.ForLivery(lib.Customization, chosen.ModelId, owned != null ? s.RaceLivery(owned.InstanceId) : "");
+            // The applied livery in its wire form (RaceLivery) — before V-097 this was read as canonical JSON, failed to parse
+            // and the car at the offline meet always showed its stock paint. Stock when none is applied.
+            string ownLivery = owned != null ? s.RaceLivery(owned.InstanceId) : "";
+            CarAppearance appearance = AppearanceMapping.ForWire(lib.Customization, chosen.ModelId, ownLivery)
+                                       ?? AppearanceMapping.ForLivery(lib.Customization, chosen.ModelId, "");
+            bool ownSigned = Core.Customization.LiveryChallenges.SignedWire(ownLivery);
             Canvas.gameObject.SetActive(false);
             if (backdropCamera != null) backdropCamera.SetActive(false);
             AsyncOperation load = SceneManager.LoadSceneAsync("Meet", LoadSceneMode.Single);
@@ -61,7 +66,7 @@ namespace NightSignal.Front
             meet.TouringActed = (act, id) =>
             {
                 if (act == TouringAct.ReadResultSlip && !LocalProgression.HasCompletedEvent(s.Profile)) return;
-                foreach (string challenge in MeetTouring.Record(touring, act, id))
+                foreach (string challenge in MeetTouring.Record(touring, act, id, act == TouringAct.InspectOwnCar && ownSigned))
                 {
                     LocalProgressionResult r = LocalProgression.CompleteMeetChallenge(s.Profile, s.Catalogue, challenge, DateTime.UtcNow);
                     if (r.Status != LocalOperationStatus.Applied || !s.Commit(r, out _)) continue;

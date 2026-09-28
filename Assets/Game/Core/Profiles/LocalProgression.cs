@@ -1038,7 +1038,8 @@ namespace NightSignal.Core.Profiles
         {
             LocalProgressionResult result = Begin(profile);
             if (catalogue == null) throw new ArgumentNullException(nameof(catalogue));
-            if (!catalogue.TryChallenge(challengeId ?? "", out ChallengeDef ch) || ch.Family != "touring")
+            // The meet's touring challenges, and CH48 (a workshop challenge whose last step — the signed car seen parked — is at the meet).
+            if (!catalogue.TryChallenge(challengeId ?? "", out ChallengeDef ch) || (ch.Family != "touring" && ch.Id != Customization.LiveryChallenges.SignYourCar))
                 return Reject(result, "Only the meet's touring challenges complete at the meet.");
             if (profile.HasCompletedChallenge(challengeId)) return Already(result, $"{challengeId} was already completed; no repeat reward.");
             ChallengeTier tier = ParseTier(ch.Tier);

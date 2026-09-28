@@ -1,0 +1,6 @@
+# -nsSignYourCarTour (offline, buttons only, isolated profile folder) on the player build of the commit that adds this file (V-097). Tagged lines from the player log; absolute paths removed.
+[NightSignal.SignYourCarTour] applied: two-tone lower #E8E4D8/#111111, decals 1 (stripe); signed True
+[NightSignal.SignYourCarTour] the parked car as drawn: two-tone lower, decals 1
+[NightSignal.SignYourCarTour] challenges: CH61 True, CH48 True; reward COS-CH48 owned True
+[NightSignal.SignYourCarTour] re-read from disk: True 
+[NightSignal.SignYourCarTour] PASS
