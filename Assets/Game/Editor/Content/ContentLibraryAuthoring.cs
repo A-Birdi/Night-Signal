@@ -38,10 +38,13 @@ namespace NightSignal.Editor.ContentTools
             lib.PartsDocument = Load("Assets/Content/Data/authored/parts.json");
             lib.RecipesDocument = Load("Assets/Content/Data/authored/build-recipes.json");
             lib.CustomizationDocument = Load("Assets/Content/Data/authored/customization.json");
+            if (File.Exists("Assets/Content/Data/authored/story/rivals.look.json"))
+                lib.CharacterLooks = Load("Assets/Content/Data/authored/story/rivals.look.json");
             if (create) AssetDatabase.CreateAsset(lib, LibraryPath);
             EditorUtility.SetDirty(lib);
 
             CarMaterialAuthoring.Ensure();
+            CharacterMaterialAuthoring.Ensure();
             AssetDatabase.SaveAssets();
             Debug.Log($"[NightSignal.Content] Library: {lib.Documents.Length} documents, catalogue hash {lib.Catalogue.ContentHash.Substring(0, 12)}");
             return lib;

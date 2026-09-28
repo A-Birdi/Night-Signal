@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e77993863f9871498c9c91d83da1a73, type: 3}
+  m_Name: CharacterMaterialSet
+  m_EditorClassIdentifier: NightSignal.Runtime::NightSignal.Characters.CharacterMaterialSet
+  Skin: {fileID: 2100000, guid: 1bcfeba9b48991347a201435b4166bbf, type: 2}
+  Hair: {fileID: 2100000, guid: ad9ba1ee3d6bc1040ad2ae99f7033a92, type: 2}
+  Cloth: {fileID: 2100000, guid: 309d9329d84b5b24c83862fcf1cfa10b, type: 2}
+  Dark: {fileID: 2100000, guid: 741d826924aa19846967ee27585e5527, type: 2}
+  Light: {fileID: 2100000, guid: 934486a27b91aa24882f3c2d18f4b55a, type: 2}
+  Metal: {fileID: 2100000, guid: dff93150084903246b237ba2b0930b6d, type: 2}

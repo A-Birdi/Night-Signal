@@ -1,0 +1,8 @@
+Rival character sheets (editor renders, CharacterSheet tool; rest pose unless noted).
+Order in every sheet: row-major, 12 per row: R01..R12 / R13..R24 / R25..R36 / R37..R48.
+rivals-front / -side / -back: orthographic at a common scale (heights compare directly).
+rivals-quarter: three-quarter perspective; rivals-portrait: head and shoulders.
+rivals-silhouette: the unlit masks measured for distinctness (front, side per rival).
+motion-strip (R01): idle, walk, jog; wave, bow, thumbs-up, clap, point, camera pose, stretch, cheer, shrug, nod,
+footwork, admire (each emote near mid-way).
+distinctness.txt: pairwise silhouette IoU and colour-layout difference; nearest neighbours per rival.

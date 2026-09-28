@@ -37,3 +37,4 @@ MonoBehaviour:
   PartsDocument: {fileID: 4900000, guid: 016e95757dc8cd54c958ea252196fb7f, type: 3}
   RecipesDocument: {fileID: 4900000, guid: 76e0f15cc9216164294b608b2e7d2964, type: 3}
   CustomizationDocument: {fileID: 4900000, guid: 196ec0f366653167bf369d72f60aaa2c, type: 3}
+  CharacterLooks: {fileID: 4900000, guid: aed8edd65d4921b479cc13da3405781f, type: 3}

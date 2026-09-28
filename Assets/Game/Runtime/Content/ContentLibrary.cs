@@ -24,6 +24,8 @@ namespace NightSignal.Content
         public TextAsset RecipesDocument;
         /// <summary>Appearance catalogue (customization.json): visual only, published with its own hash, not in the race hash.</summary>
         public TextAsset CustomizationDocument;
+        /// <summary>Rival appearances (story/rivals.look.json): visual only, not in the race hash.</summary>
+        public TextAsset CharacterLooks;
 
         ContentCatalogue catalogue;
         Dictionary<string, CarBodyDef> bodies;
@@ -38,6 +40,20 @@ namespace NightSignal.Content
                 catalogue = ContentCatalogue.Load(docs);
                 return catalogue;
             }
+        }
+
+        Dictionary<string, Characters.CharacterLook> looks;
+
+        /// <summary>A rival's authored look by rival ID (null when unknown or the document is missing).</summary>
+        public Characters.CharacterLook Look(string id)
+        {
+            if (looks == null)
+            {
+                looks = new Dictionary<string, Characters.CharacterLook>();
+                if (CharacterLooks != null)
+                    foreach (Characters.CharacterLook l in JsonConvert.DeserializeObject<Characters.CharacterLookFile>(CharacterLooks.text).Looks) looks[l.Id] = l;
+            }
+            return looks.TryGetValue(id, out Characters.CharacterLook look) ? look : null;
         }
 
         public CarBodyDef Body(string carId)

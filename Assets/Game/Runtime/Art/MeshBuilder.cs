@@ -12,7 +12,11 @@ namespace NightSignal.Art
         readonly List<Vector2> uvs = new List<Vector2>();
         readonly List<Color32> colors = new List<Color32>();
         readonly List<List<int>> submeshes = new List<List<int>>();
+        readonly List<int> bones = new List<int>();
         public bool UseColors;
+
+        /// <summary>Bone index stamped on every vertex added while it is set (rigid skinning for characters); -1 = none.</summary>
+        public int Bone = -1;
 
         public MeshBuilder(int submeshCount = 1)
         {
@@ -32,6 +36,7 @@ namespace NightSignal.Art
             normals.Add(n);
             uvs.Add(uv);
             colors.Add(c);
+            bones.Add(Bone);
             return vertices.Count - 1;
         }
 
@@ -123,6 +128,42 @@ namespace NightSignal.Art
             mesh.RecalculateBounds();
             mesh.RecalculateTangents();
             return mesh;
+        }
+
+        /// <summary>Drops vertices no triangle uses (e.g. the skipped faces of a partial shell), renumbering the triangles.</summary>
+        public void RemoveUnused()
+        {
+            var used = new bool[vertices.Count];
+            foreach (List<int> t in submeshes) foreach (int i in t) used[i] = true;
+            var map = new int[vertices.Count];
+            int n = 0;
+            for (int i = 0; i < used.Length; i++)
+            {
+                map[i] = used[i] ? n : -1;
+                if (!used[i]) continue;
+                vertices[n] = vertices[i];
+                normals[n] = normals[i];
+                uvs[n] = uvs[i];
+                colors[n] = colors[i];
+                bones[n] = bones[i];
+                n++;
+            }
+            int drop = vertices.Count - n;
+            vertices.RemoveRange(n, drop);
+            normals.RemoveRange(n, drop);
+            uvs.RemoveRange(n, drop);
+            colors.RemoveRange(n, drop);
+            bones.RemoveRange(n, drop);
+            foreach (List<int> t in submeshes)
+                for (int k = 0; k < t.Count; k++) t[k] = map[t[k]];
+        }
+
+        /// <summary>One bone per vertex (weight 1): the stamped <see cref="Bone"/>, or bone 0 where none was set.</summary>
+        public BoneWeight[] BoneWeights()
+        {
+            var w = new BoneWeight[bones.Count];
+            for (int i = 0; i < w.Length; i++) w[i] = new BoneWeight { boneIndex0 = Mathf.Max(0, bones[i]), weight0 = 1f };
+            return w;
         }
 
         public Mesh Build(string name, bool recalculateNormals = false)

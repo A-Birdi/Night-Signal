@@ -1,0 +1,84 @@
+using System.Collections.Generic;
+using NightSignal.Art;
+using UnityEngine;
+using UnityEngine.Rendering;
+
+namespace NightSignal.Characters
+{
+    /// <summary>
+    /// A built character in the scene: the bone hierarchy (rest pose = identity rotations, model axes), the skinned body
+    /// and its tinted materials. <see cref="CharacterMotion"/> poses the bones. Meshes are cached per look.
+    /// </summary>
+    public sealed class CharacterRig : MonoBehaviour
+    {
+        public CharacterLook Look;
+        [System.NonSerialized] public CharacterBuilder.Skeleton Skeleton;
+        public Transform[] Bones;
+        public SkinnedMeshRenderer Body;
+
+        static readonly Dictionary<string, Mesh> MeshCache = new Dictionary<string, Mesh>();
+
+        public Transform this[Bone b] => Bones[(int)b];
+
+        /// <summary>The look's mesh, built once per distinct look.</summary>
+        public static Mesh MeshFor(CharacterLook look, CharacterBuilder.Skeleton sk)
+        {
+            string key = JsonUtility.ToJson(look);
+            if (MeshCache.TryGetValue(key, out Mesh m) && m != null) return m;
+            m = CharacterBuilder.Build(look, sk);
+            m.hideFlags = HideFlags.DontSave;
+            MeshCache[key] = m;
+            return m;
+        }
+
+        public static CharacterRig Create(CharacterLook look, CharacterMaterialSet mats = null, Transform parent = null, string name = null, int layer = GameLayers.Avatar)
+        {
+            var go = new GameObject(name ?? $"Character_{look.Id}") { layer = layer };
+            if (parent != null) go.transform.SetParent(parent, false);
+            var rig = go.AddComponent<CharacterRig>();
+            rig.Look = look;
+            rig.Skeleton = CharacterBuilder.SkeletonFor(look);
+            int n = (int)Bone.Count;
+            rig.Bones = new Transform[n];
+            for (int i = 0; i < n; i++)
+            {
+                var b = new GameObject(((Bone)i).ToString()) { layer = layer }.transform;
+                Transform p = i == 0 ? go.transform : rig.Bones[(int)CharacterBuilder.Parent[i]];
+                b.SetParent(p, false);
+                Vector3 parentRest = i == 0 ? Vector3.zero : rig.Skeleton.Rest[(int)CharacterBuilder.Parent[i]];
+                b.localPosition = rig.Skeleton.Rest[i] - parentRest;
+                b.localRotation = Quaternion.identity;
+                rig.Bones[i] = b;
+            }
+            Mesh mesh = MeshFor(look, rig.Skeleton);
+            var bodyGo = new GameObject("Body") { layer = layer };
+            bodyGo.transform.SetParent(go.transform, false);
+            var smr = bodyGo.AddComponent<SkinnedMeshRenderer>();
+            smr.sharedMesh = mesh;
+            smr.bones = rig.Bones;
+            smr.rootBone = rig.Bones[(int)Bone.Hips];
+            smr.quality = SkinQuality.Bone1;
+            smr.shadowCastingMode = ShadowCastingMode.On;
+            smr.updateWhenOffscreen = false;
+            Bounds bb = mesh.bounds;
+            bb.center -= rig.Skeleton.Rest[(int)Bone.Hips];
+            bb.Expand(new Vector3(1.2f, 0.8f, 1.2f)); // room for raised arms, crouches and dance steps
+            smr.localBounds = bb;
+            if (mats == null) mats = CharacterMaterialSet.Load();
+            if (mats != null) smr.sharedMaterials = mats.For(look);
+            rig.Body = smr;
+            return rig;
+        }
+
+        /// <summary>Back to the rest pose.</summary>
+        public void ResetPose()
+        {
+            for (int i = 0; i < Bones.Length; i++)
+            {
+                Vector3 parentRest = i == 0 ? Vector3.zero : Skeleton.Rest[(int)CharacterBuilder.Parent[i]];
+                Bones[i].localPosition = Skeleton.Rest[i] - parentRest;
+                Bones[i].localRotation = Quaternion.identity;
+            }
+        }
+    }
+}
