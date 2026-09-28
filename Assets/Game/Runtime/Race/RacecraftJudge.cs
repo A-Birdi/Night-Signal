@@ -78,6 +78,14 @@ namespace NightSignal.Race
         public readonly List<(int Passed, double Time)> CleanPasses = new List<(int, double)>();
         /// <summary>Passes waiting for their clean window and the hold to run out.</summary>
         public readonly List<(int Passed, double Time)> Pending = new List<(int, double)>();
+        /// <summary>Every pass seen and what became of it (evidence; the first <see cref="MaxLog"/>).</summary>
+        public readonly List<string> PassLog = new List<string>();
+        public const int MaxLog = 24;
+
+        public void Log(string line)
+        {
+            if (PassLog.Count < MaxLog) PassLog.Add(line);
+        }
 
         /// <summary>The car directly ahead (index; −1 none) and the interval to it (s; negative when not measurable).</summary>
         public int Ahead = -1;
@@ -156,7 +164,10 @@ namespace NightSignal.Race
                         RacecraftRun rb = Run(b);
                         if (j == i || !Live(b) || float.IsNaN(rb.PreviousDistance) || now - rb.LastReset <= CleanWindowSeconds) continue;
                         bool passed = ra.PreviousDistance < rb.PreviousDistance && da >= b.Progress.RaceDistance;
-                        if (passed && b.State.Velocity.magnitude >= MovingMps && now - ra.LastTouch > CleanWindowSeconds) ra.Pending.Add((j, now));
+                        if (!passed) continue;
+                        if (b.State.Velocity.magnitude < MovingMps) ra.Log($"{now:F1} s: passed #{j} standing — not raced");
+                        else if (now - ra.LastTouch <= CleanWindowSeconds) ra.Log($"{now:F1} s: passed #{j} {now - ra.LastTouch:F1} s after a touch — not clean");
+                        else ra.Pending.Add((j, now));
                     }
                 Confirm(a, ra, now);
                 Follow(i, a, ra, now);
@@ -175,12 +186,19 @@ namespace NightSignal.Race
                 bool broken = touched || ra.LastReset >= at || Run(b).LastReset >= at || b.Status == EntrantStatus.DqDisconnected ||
                               (!a.Progress.Finished && b.Progress.RaceDistance > a.Progress.RaceDistance) ||
                               (b.Progress.Finished && (!a.Progress.Finished || b.Progress.FinishTimeMicros < a.Progress.FinishTimeMicros));
-                if (broken) { ra.Pending.RemoveAt(k); continue; }
+                if (broken)
+                {
+                    ra.Log($"{at:F1} s: passed #{j} — " + (touched ? $"touch {ra.LastTouch - at:F1} s after" : ra.LastReset >= at || Run(b).LastReset >= at ? "a recovery" :
+                        b.Status == EntrantStatus.DqDisconnected ? "it left the race" : "the place was lost within 3 s"));
+                    ra.Pending.RemoveAt(k);
+                    continue;
+                }
                 // The clean window after the pass (2 s) lies inside the hold (3 s); finishing ahead ends the hold early.
                 double held = now - at;
                 if (held >= HoldSeconds || (a.Progress.Finished && held >= CleanWindowSeconds))
                 {
                     ra.CleanPasses.Add((j, at));
+                    ra.Log($"{at:F1} s: passed #{j} — clean, the place kept");
                     ra.Pending.RemoveAt(k);
                 }
             }

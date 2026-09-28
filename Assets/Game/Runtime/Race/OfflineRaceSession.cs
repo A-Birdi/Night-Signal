@@ -38,6 +38,10 @@ namespace NightSignal.Race
         public float AutopilotDriftSkill;
         /// <summary>Automation only: the validator autopilot steers through the course's challenge touch gates (CH03, CH06).</summary>
         public static bool AutopilotAimsChallengeGates;
+        /// <summary>Automation only: the autopilot holds the brakes this long after GO, so the field goes ahead (racecraft tour).</summary>
+        public static float AutopilotHoldSeconds;
+        /// <summary>Automation only: the autopilot keeps about this interval (s) behind the car ahead; 0 = it races normally.</summary>
+        public static float AutopilotFollowSeconds;
         public int CountdownTicks = 60 * 3;
 
         public RaceSimulation Sim { get; private set; }
@@ -151,7 +155,19 @@ namespace NightSignal.Race
 
         DriverInput LocalInput(RaceEntrant e, int tick)
         {
-            if (Autopilot) return pilot.Drive(e.State, Sim.TrafficFor(e));
+            if (Autopilot)
+            {
+                if (tick < Sim.StartTick + (int)(AutopilotHoldSeconds * VehicleSimulation.TickRate)) return DriverInput.Quantize(0f, 0f, 1f, InputButtons.None);
+                DriverInput d = pilot.Drive(e.State, Sim.TrafficFor(e));
+                RacecraftRun rc = e.Racecraft;
+                if (AutopilotFollowSeconds > 0f && rc != null && rc.Ahead >= 0 && rc.Interval >= 0f && rc.Interval < AutopilotFollowSeconds)
+                {
+                    // Closer than wanted: ease off, lift, then brake gently (the route follower still steers).
+                    float close = AutopilotFollowSeconds - rc.Interval;
+                    d = DriverInput.Quantize(d.Steer, close > 0.15f ? 0f : d.Throttle * 0.5f, close > 0.4f ? Mathf.Clamp01(close) * 0.6f : d.Brake, d.Buttons);
+                }
+                return d;
+            }
             DriverInput i = controls.Sample(latchUp, latchDown);
             latchUp = latchDown = false;
             return i;
