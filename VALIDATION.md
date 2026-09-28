@@ -1184,3 +1184,52 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   72 runs had a single wall contact and still beat the target.
 - F10 (unchanged starter against its developed build under the same inputs and conditions) was measured for the three
   starters in V-048. F09/F10 are complete **for automation**; the human favourite-car runs remain pending.
+
+## V-070 — Car art pass: detailed bodies for all 18 cars, decals clipped to the body (2026-09-28)
+- Revisions: `0fcabb1` (bodies), `afc7eb6` (decals + tests), `7a67d97` (NaN liners, cockpit prewarm, speed),
+  `12b489f` (tour blown-frame check); built-player tours on `12b489f` (non-development `Builds/Game/NightSignal.exe`, clean tree).
+- **What changed (the spec's car list, master "Art target"):** the procedural generator keeps its loft, per-car cabin
+  anchors, decal frames and wheel positions (the handling parameters), and adds: a greenhouse with A-pillars, drip rails,
+  belt mouldings (chrome on the GT/sedan cars), blacked-out B/C pillars (the wagon's six-window side), side glass,
+  windscreen frit and wipers; lamp clusters, grilles and bumper intakes drawn in elevation and projected onto the rounded
+  nose and tail (bezel, lens, internals per authored style: sealed-beam ribs, projectors, triangular internals, recessed
+  ovals, split bar), bumper split lines, rear valance, plate recess and reversing lamps; wheel arches cut to the authored
+  shape (round / squared / flared) with lips and matte wheel-well liners; shoulder and sill creases; rounded ends;
+  mirrors on stalks with glass; door, hood and boot shut lines, handles, the V18 door scallop, V11 buttresses, side
+  intakes/cooling channels, hollow exhaust tips; an interior silhouette behind the glass (seat backs, headrests, rear
+  headrests where the roof continues, dash, steering wheel where the fitted cockpit puts it) on a dark cabin floor with a
+  matte seat-cloth material (new `CarCloth`); tyres with bulged sidewalls, shoulders and tread grooves; rim lip, brake
+  disc, hub face, lug nuts and centre cap. Authored per car from Appendix C: grille style and arch shape plus shape
+  features (`authored/cars.body.json`; not part of the race ContentHash). Materials now separate rubber, clear-coat
+  paint, metal (chrome/rim), seat cloth and glass.
+- **Distinctness sheets** (editor `CarSheet`, all 18 in one neutral paint, row-major V01…V18): front ¾, rear ¾, side,
+  front and rear elevations and a wheel-arch close-up, before and after, in `Evidence/art/cars/`. Every front face and
+  tail is individually recognisable in the elevation sheets (lamp style + grille/intake layout; tail lamp family).
+- **Found and fixed on the way:** (1) editor sheets: arch lips first followed the circle below the axle where the loft
+  cuts the opening vertically (flaps hanging below the sill) — lip and liner now follow the opening as cut, with loft
+  stations either side of the cut; liners used the glossy trim and mirrored the sky (now matte). (2) **Built-player camera
+  tour run 1 reported PASS (90/90) while 8 of the 18 cockpit frames (day and night; also some chase/hood frames)
+  carried a white disc over the instruments** — the wheel-well liners were wound both ways on shared vertices, `RecalculateNormals` summed them to zero,
+  the lit shader produced NaN and bloom spread it (the editor sheets have no bloom). Liners are now one-sided;
+  `CarBodyArtTests` asserts a real, finite normal on every drawn triangle; the camera tour now fails any frame with more
+  than 6 % at full white (run-1 defect frames measured 11–33 %, good frames 0–2.5 %).
+- **Decals (the open "scaled decals leave the body" item):** a max-scale decal used to pile up at the ends or float off
+  the body (EditMode against the previous builder: text 3.7 m off a hood, circles above the roof — every zone failed).
+  `BodySurface.OnZone` defines each zone's paintable panel (ends, arches and glass excluded); shapes are subdivided
+  (10 cm) and clipped along the panel edge (2 cm); glyphs leaving the panel are dropped.
+- **Tests:** EditMode `CarBodyArtTests` 36/36 (18 × budget/submeshes/normals/ground/bumper-camera clearance/open-cabin
+  seat removal, 18 × decals at scale 1.6 at the corners of all six zones stay on the panel); full EditMode 291/291 (cabin
+  anchor test unchanged); .NET `CoreTests` 123/123 (reads `cars.body.json`), `BuildsTests` 232/232.
+- **Cost:** ≤ 6.5 k vertices per body; ~21 ms to generate one in the editor (fascia projection with cached end sections).
+  The open-cabin body and fitted cockpit are now prepared when a camera takes the car (a cut), not on the first press
+  of the view key mid-race.
+- **Driving views:** editor cockpit/hood/bumper sheets re-rendered — mirrors visible outside the glass, wipers at the
+  screen base, nothing new in the bumper or hood view.
+- **Built-player tours** (automation, not a human judgement; `Evidence/art/cars/ingame/`): run 1 (`0fcabb1`+`afc7eb6`
+  build) — camera tour PASS 90/90 but visibly wrong (see above; `run1-*-NaN-defect.jpg`); run 2 (`7a67d97` build) — PASS
+  90/90, every frame and tile measured ≤ 0.9 % blown out; **run 3 (`12b489f` build, the tour's own blown-frame check
+  active) — camera tour PASS 90/90 (18 cars × 5 views driven on C01/C05/C08/C12/C03/C14 plus the C08 tunnel; ledger
+  `blown_fraction` max 1 %), `-nsAppearanceTour` PASS (every family on the new body: aero front, diffuser, skirts, wing,
+  dual exhaust, paint, lamps and plate, decals, presets, S01 started with the livery), `-nsInstrumentTour` PASS.**
+- **Limits:** automation and editor renders only — a human visual review of the 18 cars (and the paint response in the
+  courses' own lighting) is outstanding; no LOD levels for the cars yet (≤ 6.5 k vertices, 9 body + 8 wheel draws per car).

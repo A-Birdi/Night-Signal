@@ -1,7 +1,7 @@
 # Handoff
 
-_Last updated: 2026-09-27 — F09 driving complete for automation (V-069); Addendum 04 loopback-first network testing (V-067);
-benchmarks certified for both modes (V-065/V-066). Now: car art/detail pass (Next actions 1)._
+_Last updated: 2026-09-28 — car art/detail pass for all 18 cars (V-070); F09 driving complete for automation (V-069);
+Addendum 04 loopback-first network testing (V-067); benchmarks certified (V-065/V-066). Now: course scenery (Next actions 1)._
 
 **Rules revision:** `docs/brief/Night_Signal_Addendum_01.txt` supersedes parts of the master (six humans + up to
 twelve vehicles, live finale rivals, light contact, course access, offline domain, rejoin grants, voting, friends,
@@ -23,8 +23,10 @@ certification. `docs/brief/Night_Signal_Addendum_04.txt` makes local network tes
   - Content: brief catalogue imported to `Assets/Content/Data/generated`; authored overlays: car tuning, car
     bodies, story (48 rival sheets/lines, 30 Normal+Hard stage scripts, endings, radio records, crew diary, meet
     text, conditions).
-  - Vehicle: fixed 60 Hz raycast chassis, handling harness, 18 procedurally modelled car bodies (**first pass** —
-    the full art/detail pass is pending, see Next actions), fitted cockpits and five views on all 18.
+  - Vehicle: fixed 60 Hz raycast chassis, handling harness, 18 detailed procedural car bodies (art pass V-070: glass
+    and pillars, projected lamp clusters/grilles/intakes, arch lips and liners, mirrors, shut lines, interior
+    silhouette, tyres/rims/brakes; per-car Appendix C cues in `authored/cars.body.json`), fitted cockpits and five
+    views on all 18. Distinctness sheets: editor *Night Signal → Art → Render Car Sheets* (`CarSheet`).
   - Courses: deterministic generation from `route.json` (D-007); all 29 scenes driven by the autopilot, measured 3D
     profiles, tunnels, bridges, relief; scenery kits still sparse (field/wall/tower/crossing/water/structure missing).
   - Control plane (`Services/`): identity (Supabase JWKS path + DevAuth), convoy/readiness, tickets, ledger,
@@ -49,7 +51,8 @@ The control plane is a **long-lived development service**: leave it running whil
 TCP listener only on 127.0.0.1:5080, `GET /healthz` ok, no error/restart loop in its log, `contentHash` equal to the
 content the next run uses). Restart it once, cleanly, only when it is unhealthy or its content hash is stale after a
 content change (content documents feed the hash; a mismatched game server is refused). The running instance
-predates V-069's `build-recipes.json` change (V06-H3 tyres): restart it once before the next networked run. Network harnesses go through
+predates V-069's `build-recipes.json` change (V06-H3 tyres): restart it once before the next networked run
+(`cars.body.json` is not a hashed document; the art pass does not affect it). Network harnesses go through
 `Tools/run/NetGuard.psm1` (loopback unless `-AllowLan`, free-port check, socket evidence in `network.json`).
 
 Evidence tours (built player, run from the repo root; each uses its own profile/preferences folders under `Builds/`):
@@ -67,7 +70,7 @@ Render Cockpit Sheets* renders the mounted views of every car.
 3. **Hosted services / internet test** — a Supabase project, a reachable server and a budget are needed for
    WAN acceptance (§3.5, Gate 5). Not approved; stays BLOCKED, not faked.
 
-## Done since the addenda (VALIDATION V-015 … V-069)
+## Done since the addenda (VALIDATION V-015 … V-070)
 
 - Addendum 01 Core rules and data overlays; control plane for Addendum 01 + 02 incl. hosted diversions (307 .NET
   tests); light car contact, shared RaceSimulation (server + offline), protocol 2 per-client snapshots.
@@ -128,6 +131,10 @@ Render Cockpit Sheets* renders the mounted views of every car.
   sides each (bought-for stage, mid-campaign, N:S28, H:S15), 72/72, after `V06-H3` moved from rain-sport tyres to
   semi-slicks (its supercharged FWD front end hit a wall on the dry H:S15 side; semi-slicks are faster on all seven
   Hard Act III sides). The data half is the .NET `UpgradePathTests`; F10 starters V-048.
+- **Car art pass** (V-070): all 18 bodies detailed from the same loft (anchors, decal frames, wheel positions kept);
+  decals clipped to each zone's paintable panel; `CarBodyArtTests` (budget, normals, ground/bumper clearance, decals on
+  the panel). Built-player camera tour caught NaN-shaded liners blooming into white discs at night that its checks
+  passed — fixed, and the tour now fails blown-out frames. Built-player camera (90/90), appearance and instrument tours PASS on `12b489f`.
 - **Addendum 04** (V-067): game server binds `127.0.0.1` by default (`-nsBindHost`, separate from `-nsPublicHost`),
   harnesses fail closed on non-loopback binds without `-AllowLan` (`Tools/run/NetGuard.psm1`), automation builds are
   non-development (no editor/profiler listener), measured sockets in the evidence; never touch Windows Firewall.
@@ -136,26 +143,20 @@ Render Cockpit Sheets* renders the mounted views of every car.
 
 Pipeline in dependency order (items at one level do not wait for later ones; human checks are listed where they gate).
 
-1. **Car art/detail pass for all 18 cars** (Gate 3 C.4; spec "Art target", car geometry list): replace the first-pass
-   procedural bodies' shapes with detailed ones — wheel arches, fenders, bumpers, light clusters, glass, interior
-   silhouette, tyres/rims, mirrors, exhaust — and the paint/specular response, keeping the per-car cockpit anchors, the
-   customization zones/body-kit families and wheel positions from the handling parameters (fold in the decal fix:
-   scaled decals leave the body). Depends on nothing open (F09/F10 automation done, V-069); verified by re-running the
-   camera tour (90 car×view), appearance and instrument tours and a distinctness contact sheet. **In progress.**
-2. **Course scenery**: missing kits (field, wall, tower, crossing, water, structure) and a visual pass per biome, then
-   screenshot comparison of all six regional kits (Gate 3 C.1, spec §"regional kits").
-3. **Characters and the meet**: in-game rival identities for the 48 sheets (silhouette checks), meet + boombox, walking
+1. **Course scenery**: missing kits (field, wall, tower, crossing, water, structure) and a visual pass per biome, then
+   screenshot comparison of all six regional kits (Gate 3 C.1, spec §"regional kits"). **Next.**
+2. **Characters and the meet**: in-game rival identities for the 48 sheets (silhouette checks), meet + boombox, walking
    controls (Gate 2/3).
-4. **Gameplay backlog**: AI drift skill per profile and campaign drift benchmarks; restrict Drift Attack to courses with
+3. **Gameplay backlog**: AI drift skill per profile and campaign drift benchmarks; restrict Drift Attack to courses with
    judged zones; group Time Attack and toy tables with 3–6 humans; UI/reconnect/rejoin/DQ under load; Canvas controller
    cursor; customization follow-ups (meet livery refresh, pearl flip tint, preset rename/delete UI).
-5. **Open technical items**: heavy-contact prediction hitch at ~190 ms RTT (V-061 inconclusive); S29 autopilot racecraft
-   (optional — the rule is implemented and V03 passes).
-6. **Gate 4/5**: integration (party sizes, legality/loaners, database restart, tampering, budgets) and release validation;
+4. **Open technical items**: heavy-contact prediction hitch at ~190 ms RTT (V-061 inconclusive); S29 autopilot racecraft
+   (optional — the rule is implemented and V03 passes); car LOD levels (bodies ≤ 6.5 k vertices, none yet).
+5. **Gate 4/5**: integration (party sizes, legality/loaners, database restart, tampering, budgets) and release validation;
    blocked parts stay blocked (local Supabase/Postgres stack, Linux server module, WAN test with real people).
 
 Human checks outstanding (cannot be automated): S29 run, featured-rival pace feel after calibration, camera/comfort
-feel, cockpit/visual review, a real cross-device LAN test once authorized.
+feel, cockpit/visual review including the 18 detailed car bodies (V-070), a real cross-device LAN test once authorized.
 
 ## Recovery notes
 
