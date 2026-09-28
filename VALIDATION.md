@@ -1150,3 +1150,16 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - **Limits:** Netcode's `UnityTransport` binds a client socket to `0.0.0.0` on an ephemeral port whatever listen address
   is passed (the listen address only applies to servers); a loopback-bound client needs a transport change, not made (no
   package modification). Clients open no listener. Nothing here proves LAN or WAN play.
+
+## V-068 — F08 Hard gates: V03 through Normal and 28/30 Hard on certified targets (2026-09-27)
+- Revision: `e6ecc3f`. PlayMode `StarterCampaignRunTests.HardCampaign_AfterNormal("V03")` in the editor: one fresh Local
+  profile plays the whole Normal campaign (Hard opens only after a real Normal S30 clear), then the Hard campaign under
+  each Hard side's own conditions (damp/wet/dry) and certified targets, buying the recipe's Hard steps; validator
+  autopilot (automation, legal inputs, not a human). Evidence `Evidence/progression/campaign/V03-hard.json`.
+- Normal: 30/30 again. **Hard: 28/30** — S01–S21 and S23–S28 on the first attempt (lieutenants S07 damp, S14 wet, S21
+  damp, S28 wet included), Hard steps H1a/H1b applied, H2 (268,000) and H3 (190,000) bought on schedule; **S22** (factor
+  1.011) missed by 1.4 s three times until the wallet reached H4 (350,000), bought and cleared on the fourth attempt;
+  **S29 Hard** stops with 3/4 contracts — a wall impact in the Descent in traffic (Entry, Arc, Horizon passed).
+- F08's Hard gate is therefore reached and mostly cleared by one starter; V01/V02 cannot reach Hard until their Normal
+  S29 Entry apex issue (V-065) is resolved; both S29 failures are the automation's racecraft in a pack, not a missing
+  rule — a human S29 run is the outstanding check.
