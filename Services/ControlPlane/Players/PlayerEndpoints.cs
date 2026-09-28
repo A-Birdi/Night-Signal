@@ -19,7 +19,11 @@ public static partial class PlayerEndpoints
     public const string IdempotencyKeyHeader = "Idempotency-Key";
 
     /// <summary><c>Look</c> (a driver look object) and <c>Pronouns</c> are optional: absent = unchanged, empty = cleared.</summary>
-    public sealed record CardRequest(string? DisplayName, long? Revision, JsonElement Look = default, string? Pronouns = null, JsonElement Style = default);
+    public sealed record CardRequest(string? DisplayName, long? Revision, JsonElement Look = default, string? Pronouns = null, JsonElement Style = default,
+        List<string>? Showcase = null);
+
+    /// <summary>At most this many records on a card's showcase.</summary>
+    public const int MaxShowcase = 3;
     public sealed record StarterRequest(string? CarId);
     public sealed record HandleRequest(string? Handle);
     /// <summary><c>ExpectedPrice</c> is the price the client showed the player; the server's catalogue price decides.</summary>
@@ -36,7 +40,11 @@ public static partial class PlayerEndpoints
             return Results.Ok(Describe(await store.GetSnapshotAsync(id, ct), content.Catalogue, music));
         });
 
-        me.MapPost("/card", async (CardRequest body, ClaimsPrincipal user, IPlayerStore store, CustomizationContent customization, CancellationToken ct) =>
+        // The account's own records a card may showcase (spec §11).
+        me.MapGet("/records", async (ClaimsPrincipal user, IPlayerStore store, ContentService content, CancellationToken ct) =>
+            Results.Ok(new { records = (await store.PersonalRecordsAsync(user.AccountId(), content.Catalogue, ct)).Select(r => new { key = r.Key, label = r.Label, value = r.Value }) }));
+
+        me.MapPost("/card", async (CardRequest body, ClaimsPrincipal user, IPlayerStore store, CustomizationContent customization, ContentService content, CancellationToken ct) =>
         {
             if (!DisplayNameRules.TryNormalize(body.DisplayName, out string name, out string error))
                 return Problem(400, "invalid_display_name", error);
@@ -79,12 +87,23 @@ public static partial class PlayerEndpoints
                     style = parsed.Canonical();
                 }
             }
+            // Showcase: up to three of the player's OWN records, by key (null = keep, [] = none).
+            string? showcase = null;
+            if (body.Showcase is { } keys)
+            {
+                if (keys.Count > MaxShowcase || keys.Distinct(StringComparer.Ordinal).Count() != keys.Count)
+                    return Problem(400, "invalid_showcase", $"Choose up to {MaxShowcase} different records.");
+                var mine = (await store.PersonalRecordsAsync(user.AccountId(), content.Catalogue, ct)).Select(r => r.Key).ToHashSet(StringComparer.Ordinal);
+                if (keys.FirstOrDefault(k => !mine.Contains(k ?? "")) is { } unknown)
+                    return Problem(400, "invalid_showcase", $"That record is not one of yours: {unknown}.");
+                showcase = keys.Count == 0 ? "" : JsonSerializer.Serialize(keys);
+            }
             CardWriteResult result = await store.UpsertCardAsync(user.AccountId(), name, body.Revision,
-                look is null && pronouns is null && style is null ? null : new CardExtras(look, pronouns, style), ct);
+                look is null && pronouns is null && style is null && showcase is null ? null : new CardExtras(look, pronouns, style, showcase), ct);
             return result.Status == WriteStatus.Conflict
                 ? Problem(409, "revision_conflict", "Your card changed elsewhere; reload it and apply your edit again.")
                 : Results.Ok(new { displayName = result.Card!.DisplayName, revision = result.Card.Revision, look = LookElement(result.Card.LookJson), pronouns = result.Card.Pronouns,
-                    style = LookElement(result.Card.StyleJson) });
+                    style = LookElement(result.Card.StyleJson), showcase = LookElement(result.Card.ShowcaseJson) });
         });
 
         // Public @handle claim/change (Addendum 01 §9.2). Existing accounts claim one here; nothing else is reset.
@@ -243,7 +262,7 @@ public static partial class PlayerEndpoints
         {
             accountId = s.AccountId,
             card = s.Card is null ? null : new { displayName = s.Card.DisplayName, revision = s.Card.Revision, look = LookElement(s.Card.LookJson), pronouns = s.Card.Pronouns,
-                style = LookElement(s.Card.StyleJson) },
+                style = LookElement(s.Card.StyleJson), showcase = LookElement(s.Card.ShowcaseJson) },
             handle = s.Handle is null ? null : new { handle = s.Handle.Display, revision = s.Handle.Revision },
             needsHandle = s.Handle is null,
             wallet = new { balance = s.Balance, cap = Limits.WalletCap },

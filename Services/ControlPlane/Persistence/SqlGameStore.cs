@@ -101,8 +101,8 @@ public abstract partial class SqlGameStore : IPlayerStore, IResultLedger, ISocia
     public Task<PlayerSnapshot> GetSnapshotAsync(string accountId, CancellationToken ct = default) =>
         ReadAsync(async (c, tx) =>
         {
-            PlayerCard? card = await c.FirstOrDefaultAsync(tx, "SELECT display_name, revision, look_json, pronouns, style_json FROM player_cards WHERE account_id = @a",
-                r => new PlayerCard(r.Str(0), r.Long(1), r.NStr(2), r.NStr(3), r.NStr(4)), ("@a", accountId));
+            PlayerCard? card = await c.FirstOrDefaultAsync(tx, "SELECT display_name, revision, look_json, pronouns, style_json, showcase_json FROM player_cards WHERE account_id = @a",
+                r => new PlayerCard(r.Str(0), r.Long(1), r.NStr(2), r.NStr(3), r.NStr(4), r.NStr(5)), ("@a", accountId));
             long balance = await c.FirstOrDefaultAsync(tx, "SELECT balance FROM wallets WHERE account_id = @a", r => r.Long(0), ("@a", accountId));
             var cars = await c.QueryAsync(tx, "SELECT car_id, source FROM owned_cars WHERE account_id = @a ORDER BY car_id",
                 r => new OwnedCar(r.Str(0), r.Str(1)), ("@a", accountId));
@@ -233,22 +233,23 @@ public abstract partial class SqlGameStore : IPlayerStore, IResultLedger, ISocia
         WriteAsync(async (c, tx) =>
         {
             await EnsureAccount(c, tx, accountId);
-            (long current, string? look, string? pronouns, string? style) = await c.FirstOrDefaultAsync(tx,
-                "SELECT revision, look_json, pronouns, style_json FROM player_cards WHERE account_id = @a" + ForUpdate,
-                r => (r.Long(0), r.NStr(1), r.NStr(2), r.NStr(3)), ("@a", accountId));
+            (long current, string? look, string? pronouns, string? style, string? showcase) = await c.FirstOrDefaultAsync(tx,
+                "SELECT revision, look_json, pronouns, style_json, showcase_json FROM player_cards WHERE account_id = @a" + ForUpdate,
+                r => (r.Long(0), r.NStr(1), r.NStr(2), r.NStr(3), r.NStr(4)), ("@a", accountId));
             if (expectedRevision is { } expected && expected != current)
                 return new CardWriteResult(WriteStatus.Conflict, null);
             // null = keep what is stored; "" = clear (back to the default look / no pronouns).
             if (extras?.LookJson is { } l) look = l.Length == 0 ? null : l;
             if (extras?.Pronouns is { } p) pronouns = p.Length == 0 ? null : p;
             if (extras?.StyleJson is { } st) style = st.Length == 0 ? null : st;
+            if (extras?.ShowcaseJson is { } sc) showcase = sc.Length == 0 ? null : sc;
             if (current == 0)
-                await c.ExecAsync(tx, "INSERT INTO player_cards (account_id, display_name, revision, look_json, pronouns, style_json) VALUES (@a, @n, 1, @l, @p, @s)",
-                    ("@a", accountId), ("@n", displayName), ("@l", look), ("@p", pronouns), ("@s", style));
+                await c.ExecAsync(tx, "INSERT INTO player_cards (account_id, display_name, revision, look_json, pronouns, style_json, showcase_json) VALUES (@a, @n, 1, @l, @p, @s, @sc)",
+                    ("@a", accountId), ("@n", displayName), ("@l", look), ("@p", pronouns), ("@s", style), ("@sc", showcase));
             else
-                await c.ExecAsync(tx, "UPDATE player_cards SET display_name = @n, look_json = @l, pronouns = @p, style_json = @s, revision = revision + 1, updated_at = CURRENT_TIMESTAMP WHERE account_id = @a",
-                    ("@a", accountId), ("@n", displayName), ("@l", look), ("@p", pronouns), ("@s", style));
-            return new CardWriteResult(WriteStatus.Ok, new PlayerCard(displayName, current + 1, look, pronouns, style));
+                await c.ExecAsync(tx, "UPDATE player_cards SET display_name = @n, look_json = @l, pronouns = @p, style_json = @s, showcase_json = @sc, revision = revision + 1, updated_at = CURRENT_TIMESTAMP WHERE account_id = @a",
+                    ("@a", accountId), ("@n", displayName), ("@l", look), ("@p", pronouns), ("@s", style), ("@sc", showcase));
+            return new CardWriteResult(WriteStatus.Ok, new PlayerCard(displayName, current + 1, look, pronouns, style, showcase));
         }, ct);
 
     public Task<ChallengeGrantResult> GrantChallengeAsync(string accountId, ChallengeGrant grant, string source, CancellationToken ct = default) =>
@@ -268,6 +269,39 @@ public abstract partial class SqlGameStore : IPlayerStore, IResultLedger, ISocia
                 grant.Cash, credit.Credited, credit.ClampedAway, credit.NewBalance);
             await SetBalance(c, tx, accountId, credit.NewBalance);
             return new ChallengeGrantResult(true, credit.Credited, credit.NewBalance);
+        }, ct);
+
+    public Task<IReadOnlyList<PersonalRecord>> PersonalRecordsAsync(string accountId, ContentCatalogue catalogue, CancellationToken ct = default) =>
+        ReadAsync<IReadOnlyList<PersonalRecord>>(async (c, tx) =>
+        {
+            static string Time(long ms) => $"{ms / 60000}:{ms / 1000 % 60:00}.{ms % 1000:000}";
+            var best = new Dictionary<string, (long Ms, string Label)>(StringComparer.Ordinal);
+            foreach (string json in await c.QueryAsync(tx, "SELECT receipt_json FROM match_results WHERE account_id = @a", r => r.Str(0), ("@a", accountId)))
+            {
+                using var doc = System.Text.Json.JsonDocument.Parse(json);
+                System.Text.Json.JsonElement root = doc.RootElement;
+                string Get(string name) => root.TryGetProperty(name, out var v) && v.ValueKind == System.Text.Json.JsonValueKind.String ? v.GetString() ?? "" : "";
+                if (Get("outcome") != "Finished" || !root.TryGetProperty("finishTimeMs", out var t) || t.ValueKind != System.Text.Json.JsonValueKind.Number) continue;
+                long ms = t.GetInt64();
+                string kind = Get("eventKind"), course = Get("courseId"), stage = Get("stageId"), mode = Get("mode").ToLowerInvariant();
+                string courseName = catalogue.TryCourse(course, out CourseDef cd) ? cd.Name : course;
+                (string Key, string Label)? rec = kind switch
+                {
+                    "CampaignStage" when stage.Length > 0 && mode is "normal" or "hard" => ($"stage:{stage}:{mode}", $"{stage} {(mode == "hard" ? "Hard" : "Normal")} · {courseName}"),
+                    "FreeplaySprint" => ($"course:{course}:sprint", $"{course} {courseName} · sprint"),
+                    "FreeplayCircuit" => ($"course:{course}:circuit", $"{course} {courseName} · circuit"),
+                    "FreeplayTimeTrial" => ($"course:{course}:time-trial", $"{course} {courseName} · time attack"),
+                    _ => null,
+                };
+                if (rec is not { } r) continue;
+                if (!best.TryGetValue(r.Key, out var b) || ms < b.Ms) best[r.Key] = (ms, r.Label);
+            }
+            var list = best.OrderBy(x => x.Key, StringComparer.Ordinal).Select(x => new PersonalRecord(x.Key, x.Value.Label, Time(x.Value.Ms))).ToList();
+            foreach (var tb in await c.QueryAsync(tx, "SELECT trial_id, difficulty, humans, kind, team_value FROM team_trial_bests WHERE account_id = @a ORDER BY trial_id, difficulty, humans",
+                         r => (Trial: r.Str(0), Difficulty: r.Str(1), Humans: r.Long(2), Kind: r.Str(3), Value: r.Long(4)), ("@a", accountId)))
+                list.Add(new PersonalRecord($"team:{tb.Trial}:{tb.Difficulty}:{tb.Humans}", $"{tb.Trial} {tb.Difficulty} · team of {tb.Humans}",
+                    tb.Kind == "drift" ? $"{tb.Value:N0} raw" : Time(tb.Value)));
+            return list;
         }, ct);
 
     public Task<IReadOnlyCollection<string>> FinishedCoursesAsync(string accountId, CancellationToken ct = default) =>

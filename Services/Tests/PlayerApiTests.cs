@@ -151,6 +151,52 @@ public sealed class PlayerApiTests : IDisposable
         Assert.Equal(JsonValueKind.Null, (await c.GetFromJsonAsync<JsonElement>("/v1/me")).GetProperty("card").GetProperty("style").ValueKind);
     }
 
+    void Settled(string matchId, string receiptJson)
+    {
+        using var c = new SqliteConnection($"Data Source={dir.File("controlplane.db")}");
+        c.Open();
+        using SqliteCommand m = c.CreateCommand();
+        m.CommandText = "INSERT OR IGNORE INTO matches (match_id, convoy_id, server_id, config_json, results_secret, state) VALUES ($m, 'cv', 'srv', '{}', 's', 'settled')";
+        m.Parameters.AddWithValue("$m", matchId);
+        m.ExecuteNonQuery();
+        using SqliteCommand r = c.CreateCommand();
+        r.CommandText = "INSERT INTO match_results (match_id, account_id, receipt_json) SELECT $m, account_id, $r FROM accounts";
+        r.Parameters.AddWithValue("$m", matchId);
+        r.Parameters.AddWithValue("$r", receiptJson);
+        r.ExecuteNonQuery();
+    }
+
+    [Fact]
+    public async Task Card_Showcase_OwnRecordsOnly_PublicWithCurrentValues()
+    {
+        HttpClient c = await Me();
+        Settled("m_sprint1", "{\"eventKind\":\"FreeplaySprint\",\"courseId\":\"C01\",\"outcome\":\"Finished\",\"finishTimeMs\":151408}");
+        Settled("m_stage", "{\"eventKind\":\"CampaignStage\",\"stageId\":\"S07\",\"mode\":\"normal\",\"courseId\":\"C04\",\"outcome\":\"Finished\",\"finishTimeMs\":190329}");
+        Settled("m_dnf", "{\"eventKind\":\"FreeplaySprint\",\"courseId\":\"C02\",\"outcome\":\"DnfTimeout\",\"finishTimeMs\":null}");
+        JsonElement records = (await c.GetFromJsonAsync<JsonElement>("/v1/me/records")).GetProperty("records");
+        var byKey = records.EnumerateArray().ToDictionary(r => r.GetProperty("key").GetString()!, r => r.GetProperty("value").GetString());
+        Assert.Equal("2:31.408", byKey["course:C01:sprint"]);
+        Assert.Equal("3:10.329", byKey["stage:S07:normal"]);
+        Assert.False(byKey.ContainsKey("course:C02:sprint"), "an unfinished run is no record");
+
+        JsonElement saved = await (await c.PostAsJsonAsync("/v1/me/card", new { displayName = "Aki Night", showcase = new[] { "stage:S07:normal", "course:C01:sprint" } }))
+            .Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(2, saved.GetProperty("showcase").GetArrayLength());
+        Assert.Equal("invalid_showcase", await Error(await c.PostAsJsonAsync("/v1/me/card", new { displayName = "Aki Night", showcase = new[] { "course:C09:sprint" } })));
+        Assert.Equal("invalid_showcase", await Error(await c.PostAsJsonAsync("/v1/me/card", new { displayName = "Aki Night", showcase = new[] { "stage:S07:normal", "stage:S07:normal" } })));
+        Assert.Equal("invalid_showcase", await Error(await c.PostAsJsonAsync("/v1/me/card", new { displayName = "Aki Night", showcase = new[] { "a", "b", "c", "d" } })));
+
+        // The public card: the chosen records in the owner's order with their current values; a better time shows at once.
+        string id = (await c.GetFromJsonAsync<JsonElement>("/v1/me")).GetProperty("accountId").GetString()!;
+        JsonElement pub = await c.GetFromJsonAsync<JsonElement>($"/v1/players/{id}/card");
+        Assert.Equal(new[] { "stage:S07:normal", "course:C01:sprint" }, pub.GetProperty("showcase").EnumerateArray().Select(r => r.GetProperty("key").GetString()).ToArray());
+        Settled("m_sprint2", "{\"eventKind\":\"FreeplaySprint\",\"courseId\":\"C01\",\"outcome\":\"Finished\",\"finishTimeMs\":149000}");
+        pub = await c.GetFromJsonAsync<JsonElement>($"/v1/players/{id}/card");
+        Assert.Equal("2:29.000", pub.GetProperty("showcase")[1].GetProperty("value").GetString());
+        await c.PostAsJsonAsync("/v1/me/card", new { displayName = "Aki Night", showcase = Array.Empty<string>() });
+        Assert.Equal(0, (await c.GetFromJsonAsync<JsonElement>($"/v1/players/{id}/card")).GetProperty("showcase").GetArrayLength());
+    }
+
     [Fact]
     public async Task Starter_OnlyStarterCars_OnlyOnce()
     {

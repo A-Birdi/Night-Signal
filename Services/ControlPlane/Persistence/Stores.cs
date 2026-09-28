@@ -8,10 +8,18 @@ namespace NightSignal.ControlPlane.Persistence;
 // (local development/tests, executed) and PostgresGameStore (Supabase, compiles but not executed here).
 
 /// <summary>The Player Card: display name, optional driver look (canonical JSON, Core PlayerLooks) and pronouns.</summary>
-public sealed record PlayerCard(string DisplayName, long Revision, string? LookJson = null, string? Pronouns = null, string? StyleJson = null);
+public sealed record PlayerCard(string DisplayName, long Revision, string? LookJson = null, string? Pronouns = null, string? StyleJson = null,
+    string? ShowcaseJson = null);
+
+/// <summary>
+/// One of a player's own records, derived from their settled results (spec §11 "chosen showcase records"): a campaign
+/// stage's best finish per mode, a freeplay course's best finish per format, a Team Trial's team best. <see cref="Key"/>
+/// is stable ("stage:S07:normal", "course:C01:sprint", "team:TT_BEST:normal:2"); label and value are display text.
+/// </summary>
+public sealed record PersonalRecord(string Key, string Label, string Value);
 
 /// <summary>Optional card fields for a write; null leaves the stored value unchanged, "" clears it.</summary>
-public sealed record CardExtras(string? LookJson, string? Pronouns, string? StyleJson = null);
+public sealed record CardExtras(string? LookJson, string? Pronouns, string? StyleJson = null, string? ShowcaseJson = null);
 
 public sealed record OwnedCar(string CarId, string Source);
 
@@ -98,7 +106,7 @@ public sealed record HandleClaimResult(HandleClaimStatus Status, PlayerHandle? H
 
 /// <summary>Public Player Card: never e-mail, tokens, wallet or private inventory.</summary>
 public sealed record PublicCard(string AccountId, string? Handle, string? DisplayName, RankSummary Rank,
-    string? Pronouns = null, int NormalClears = 0, int HardClears = 0, int Challenges = 0, string? StyleJson = null);
+    string? Pronouns = null, int NormalClears = 0, int HardClears = 0, int Challenges = 0, string? StyleJson = null, string? ShowcaseJson = null);
 
 public enum FriendState { None, OutgoingPending, IncomingPending, Friends }
 
@@ -122,6 +130,8 @@ public interface IPlayerStore
     /// <summary>Creates the account row (id = JWT sub) and an empty wallet if absent.</summary>
     Task EnsureAccountAsync(string accountId, CancellationToken ct = default);
     Task<PlayerSnapshot> GetSnapshotAsync(string accountId, CancellationToken ct = default);
+    /// <summary>The account's personal records (best finishes per stage/mode and course/format, team bests), for the card's showcase.</summary>
+    Task<IReadOnlyList<PersonalRecord>> PersonalRecordsAsync(string accountId, ContentCatalogue catalogue, CancellationToken ct = default);
     Task<IReadOnlyDictionary<string, MemberProgress>> GetProgressAsync(IReadOnlyCollection<string> accountIds, CancellationToken ct = default);
     /// <summary>Versioned write: when <paramref name="expectedRevision"/> is given it must match (0 = no card yet).</summary>
     Task<CardWriteResult> UpsertCardAsync(string accountId, string displayName, long? expectedRevision, CancellationToken ct = default);

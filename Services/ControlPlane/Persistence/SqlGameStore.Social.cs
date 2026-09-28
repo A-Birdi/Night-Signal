@@ -58,13 +58,13 @@ public abstract partial class SqlGameStore
     static async Task<PublicCard> LoadPublicCard(DbConnection c, DbTransaction tx, string accountId)
     {
         string? handle = await c.FirstOrDefaultAsync(tx, "SELECT handle_display FROM player_handles WHERE account_id = @a", r => r.Str(0), ("@a", accountId));
-        (string? name, string? pronouns, string? style) = await c.FirstOrDefaultAsync(tx, "SELECT display_name, pronouns, style_json FROM player_cards WHERE account_id = @a",
-            r => (r.Str(0), r.NStr(1), r.NStr(2)), ("@a", accountId));
+        (string? name, string? pronouns, string? style, string? showcase) = await c.FirstOrDefaultAsync(tx, "SELECT display_name, pronouns, style_json, showcase_json FROM player_cards WHERE account_id = @a",
+            r => (r.Str(0), r.NStr(1), r.NStr(2), r.NStr(3)), ("@a", accountId));
         var clears = await c.QueryAsync(tx, "SELECT mode, COUNT(*) FROM stage_clears WHERE account_id = @a GROUP BY mode",
             r => (Mode: r.Str(0), Count: r.Long(1)), ("@a", accountId));
         long challenges = await c.FirstOrDefaultAsync(tx, "SELECT COUNT(*) FROM challenge_unlocks WHERE account_id = @a", r => r.Long(0), ("@a", accountId));
         return new PublicCard(accountId, handle, name, await LoadRank(c, tx, accountId), pronouns,
-            (int)clears.Where(x => x.Mode == "normal").Sum(x => x.Count), (int)clears.Where(x => x.Mode == "hard").Sum(x => x.Count), (int)challenges, style);
+            (int)clears.Where(x => x.Mode == "normal").Sum(x => x.Count), (int)clears.Where(x => x.Mode == "hard").Sum(x => x.Count), (int)challenges, style, showcase);
     }
 
     // ---------------------------------------------------------------- friends

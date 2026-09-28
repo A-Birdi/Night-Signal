@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using NightSignal.ControlPlane.Content;
 using NightSignal.ControlPlane.Convoys;
 using NightSignal.ControlPlane.Identity;
 using NightSignal.ControlPlane.Persistence;
@@ -22,21 +23,21 @@ public static class SocialEndpoints
         RouteGroupBuilder players = app.MapGroup("/v1/players").RequireAuthorization();
 
         // Exact @handle lookup (a leading '@' is stripped). Case-insensitive via the canonical key.
-        players.MapGet("/by-handle/{handle}", async (string handle, ClaimsPrincipal user, ISocialStore social, RateLimiter limiter, CancellationToken ct) =>
+        players.MapGet("/by-handle/{handle}", async (string handle, ClaimsPrincipal user, ISocialStore social, IPlayerStore store, ContentService content, RateLimiter limiter, CancellationToken ct) =>
         {
             if (!limiter.TryAcquire($"lookup/{user.AccountId()}", SocialLimits.HandleLookup, out long retry)) return PlayerEndpoints.RateLimited(retry);
             string? canonical = Handles.Canonical(Handles.StripAt(handle));
             if (canonical is null) return PlayerEndpoints.Problem(400, "invalid_handle", "Usernames are 3–20 letters, digits or underscores, starting with a letter.");
             PublicCard? card = await social.FindByHandleAsync(canonical, ct);
-            return card is null ? PlayerEndpoints.Problem(404, "not_found", "No player has that username.") : Results.Ok(CardWire(card));
+            return card is null ? PlayerEndpoints.Problem(404, "not_found", "No player has that username.") : Results.Ok(CardWire(card, await Showcase(card, store, content, ct)));
         });
 
-        players.MapGet("/{accountId}/card", async (string accountId, ClaimsPrincipal user, ISocialStore social, RateLimiter limiter, CancellationToken ct) =>
+        players.MapGet("/{accountId}/card", async (string accountId, ClaimsPrincipal user, ISocialStore social, IPlayerStore store, ContentService content, RateLimiter limiter, CancellationToken ct) =>
         {
             if (!limiter.TryAcquire($"lookup/{user.AccountId()}", SocialLimits.HandleLookup, out long retry)) return PlayerEndpoints.RateLimited(retry);
             if (!AccountIdPattern.IsMatch(accountId)) return PlayerEndpoints.Problem(400, "invalid_account", "Malformed account ID.");
             IReadOnlyDictionary<string, PublicCard> cards = await social.GetPublicCardsAsync(new[] { accountId }, ct);
-            return cards.TryGetValue(accountId, out PublicCard? card) ? Results.Ok(CardWire(card)) : PlayerEndpoints.Problem(404, "not_found", "No such player.");
+            return cards.TryGetValue(accountId, out PublicCard? card) ? Results.Ok(CardWire(card, await Showcase(card, store, content, ct))) : PlayerEndpoints.Problem(404, "not_found", "No such player.");
         });
 
         RouteGroupBuilder friends = app.MapGroup("/v1/friends").RequireAuthorization();
@@ -138,7 +139,16 @@ public static class SocialEndpoints
         _ => "none",
     };
 
-    static object CardWire(PublicCard c) => new
+    /// <summary>The card's chosen showcase records with their CURRENT values (a record no longer derivable is left out).</summary>
+    static async Task<IReadOnlyList<PersonalRecord>> Showcase(PublicCard c, IPlayerStore store, ContentService content, CancellationToken ct)
+    {
+        if (string.IsNullOrEmpty(c.ShowcaseJson)) return Array.Empty<PersonalRecord>();
+        List<string> keys = System.Text.Json.JsonSerializer.Deserialize<List<string>>(c.ShowcaseJson) ?? new List<string>();
+        var records = (await store.PersonalRecordsAsync(c.AccountId, content.Catalogue, ct)).ToDictionary(r => r.Key, StringComparer.Ordinal);
+        return keys.Where(records.ContainsKey).Select(k => records[k]).ToList();
+    }
+
+    static object CardWire(PublicCard c, IReadOnlyList<PersonalRecord> showcase) => new
     {
         accountId = c.AccountId,
         handle = c.Handle,
@@ -149,5 +159,7 @@ public static class SocialEndpoints
         challenges = new { completed = c.Challenges, total = 75 },
         // Spec §11 public cosmetics: the card's style (null = the catalogue's default style).
         style = PlayerEndpoints.LookElement(c.StyleJson),
+        // Spec §11 chosen showcase records, in the owner's order.
+        showcase = showcase.Select(r => new { key = r.Key, label = r.Label, value = r.Value }),
     };
 }
