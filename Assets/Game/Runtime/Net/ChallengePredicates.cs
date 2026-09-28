@@ -12,16 +12,17 @@ namespace NightSignal.Net
     /// </summary>
     public static class ChallengePredicates
     {
-        public static IEnumerable<string> Evaluate(MatchAssignment a, EntrantProgress p, DriftScorer drift = null, string surface = null, GateRun gates = null) =>
-            Evaluate(a.CourseId, p, drift, a.FreeplayMode, surface, gates);
+        public static IEnumerable<string> Evaluate(MatchAssignment a, EntrantProgress p, DriftScorer drift = null, string surface = null, GateRun gates = null,
+            RacecraftRun racecraft = null) =>
+            Evaluate(a.CourseId, p, drift, a.FreeplayMode, surface, gates, racecraft);
 
         /// <summary>
         /// The same predicates for any race (online on the game server, offline in the Local race). <paramref name="drift"/>
         /// is the entrant's drift scorer (every race scores drift in its judged zones); <paramref name="freeplayMode"/> and
-        /// <paramref name="surface"/> describe the event.
+        /// <paramref name="surface"/> describe the event; <paramref name="racecraft"/> is null outside races with live opponents.
         /// </summary>
         public static IEnumerable<string> Evaluate(string courseId, EntrantProgress p, DriftScorer drift = null, string freeplayMode = null, string surface = null,
-            GateRun gates = null)
+            GateRun gates = null, RacecraftRun racecraft = null)
         {
             if (!p.Finished) yield break;
             // CH01 First Clean Signal: finish C01 with no meaningful wall impacts and no reset.
@@ -37,6 +38,13 @@ namespace NightSignal.Net
             // CH35 One Reset, Then Clean: exactly one permitted reset, no meaningful wall impact after it, every checkpoint legal.
             if (p.Resets == 1 && p.WallsAtFirstReset >= 0 && p.WallIncidents == p.WallsAtFirstReset && !p.CorridorCut)
                 yield return "CH35";
+            if (racecraft != null)
+            {
+                // CH31 Clean Pass: a live, moving car passed with no touch in the 2 s either side, the place kept 3 s.
+                if (racecraft.CleanPasses.Count > 0) yield return "CH31";
+                // CH32 Patient Mirror: on C05, 8 s behind the same moving car inside the 1–2 s interval, no touch.
+                if (courseId == "C05" && racecraft.FollowLongest >= 8f) yield return "CH32";
+            }
             if (gates != null)
             {
                 // CH03 Apex Appointment: C03's three designated apex gates, no wall incident.

@@ -172,8 +172,8 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
 1. **Course scenery follow-ups** (small): a human look per region (the built-player tour with the regional kits passed,
    run 5 on `7d9119d`); the steep dark terrain "cliffs" of the gorge/highland terrain styles (heightfield resolution)
    are untouched.
-2. **Card and meet follow-ups** (smaller): the offline card's showcase (card style — V-092 — and the online showcase — V-093 —
-   are done); the meet under latency is done (V-094; the offline profile's look — V-091); the remaining challenge predicates (R11.3:
+2. **Card and meet follow-ups** (smaller): the card is done — look (V-077, offline V-091), style (V-092), showcase online
+   and offline (V-093, V-095); the meet under latency is done (V-094); the remaining challenge predicates (R11.3:
    23 of 75 exist: CH01, CH03, CH05, CH06, CH09, CH16, CH18, CH20, CH21, CH24, CH33, CH35, CH44, CH45, CH61–CH67, CH71 —
    see REQUIREMENTS R11.3; CH04/CH08/CH12 wait for published gate speeds, CH26/CH29 for Gold drift references, CH41 for
    the challenge-race format — V-090).

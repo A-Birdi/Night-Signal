@@ -268,6 +268,9 @@ namespace NightSignal.Race
             hudState.TotalCheckpoints = Sim.Tracker.TotalCheckpoints;
             hudState.WallIncidents = Player.Progress.WallIncidents;
             hudState.Resets = Player.Progress.Resets;
+            RacecraftRun rc = Player.Racecraft;
+            hudState.GapAheadSeconds = rc != null && rc.Ahead >= 0 ? rc.Interval : -1f;
+            hudState.GapAheadName = rc != null && rc.Ahead >= 0 ? Sim.Entrants[rc.Ahead].Roster.DisplayName : "";
             if (chase != null)
             {
                 // A recovery is a discontinuity: cut the camera to the new pose instead of flying through the mountain.

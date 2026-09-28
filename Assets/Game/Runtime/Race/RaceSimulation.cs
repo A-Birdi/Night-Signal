@@ -43,6 +43,8 @@ namespace NightSignal.Race
         public ContractRun ContractRun;
         /// <summary>Challenge-gate facts (courses with tagged apex, precision or lane gates; null elsewhere).</summary>
         public GateRun GateRun;
+        /// <summary>Racecraft facts: clean passes and follows (races with live opponents; null elsewhere).</summary>
+        public RacecraftRun Racecraft;
         public bool Collides => Status == EntrantStatus.Racing || Status == EntrantStatus.Finished;
     }
 
@@ -175,6 +177,7 @@ namespace NightSignal.Race
             sim.Contracts = ContractJudge.ForEvent(track, cat, rules.Kind, rules.StageId, rules.Mode, rules.MeasureContracts);
             sim.Gates = GateJudge.ForTrack(track);
             sim.gateWorld = world;
+            sim.Racecraft = RacecraftJudge.ForEvent(rules, sim.Entrants);
             int slot = 0, generic = 0;
             foreach (HumanSlot h in humans)
                 sim.Add(lib, world, slot++, h.EntrantId, h.DisplayName, true, h.CarId, "player", "driver", null, h.Spec, h.Build, h.Livery);
@@ -306,6 +309,7 @@ namespace NightSignal.Race
                 Drift.Step(e, reset, e.Progress.Finished);
                 Contracts?.Step(e, input, raceMicros, reset);
                 Gates?.Step(e, reset, gateWorld);
+                Racecraft?.Step(e, reset, raceMicros);
                 if (e.Progress.Finished)
                 {
                     e.Status = EntrantStatus.Finished;
@@ -318,6 +322,7 @@ namespace NightSignal.Race
                 }
             }
             ResolveContacts(tick, raceMicros);
+            Racecraft?.Judge(raceMicros);
 
             // Finish early only when every remaining entrant (AI included) is done; otherwise run to the deadline. If no
             // human is left racing and none finished, nobody can be rewarded, so settle now.
@@ -345,6 +350,8 @@ namespace NightSignal.Race
         /// <summary>Challenge-gate judging (CH03, CH06, CH09…) where the course tags such gates.</summary>
         public GateJudge Gates { get; private set; }
         IVehicleWorld gateWorld;
+        /// <summary>Racecraft judging (CH31, CH32) in races with live opponents; null in Time Attack and Drift Attack.</summary>
+        public RacecraftJudge Racecraft { get; private set; }
 
         static int GhostWindowTicks => Limits.ResetGhostMaxMs * VehicleSimulation.TickRate / 1000;
         /// <summary>Hold-to-reset duration (Addendum 03 §7.1: about 0.75 s, cancelled on release).</summary>
@@ -425,6 +432,7 @@ namespace NightSignal.Race
                     Vector3 fromA = a.State.Position, fromB = b.State.Position;
                     ContactResult c = VehicleContact.Resolve(ref a.State, a.Params, ref b.State, b.Params);
                     if (!c.Touching) continue;
+                    Racecraft?.Touch(a, b, raceMicros);
                     // A nudge must never carry a car through a guardrail: re-run the barrier pass for both cars.
                     a.Sim.ConstrainToBarriers(ref a.State, fromA);
                     b.Sim.ConstrainToBarriers(ref b.State, fromB);

@@ -48,6 +48,9 @@ namespace NightSignal.UI
         public float ResetHoldFraction;
         public float RecoveryAutoFraction = -1f;
         public string RecoveryNotice = "";
+        /// <summary>The interval to the car directly ahead (s; negative = none or out of reach) and its driver.</summary>
+        public float GapAheadSeconds = -1f;
+        public string GapAheadName = "";
         public readonly List<HudEntrant> Field = new List<HudEntrant>();
     }
 
@@ -57,7 +60,7 @@ namespace NightSignal.UI
     /// </summary>
     public sealed class RaceHud : MonoBehaviour
     {
-        TextMeshProUGUI position, time, banner, progress, incidents, connection, drift, recovery;
+        TextMeshProUGUI position, time, banner, progress, incidents, connection, drift, recovery, gap;
         GameObject recoveryPanel;
         RectTransform recoveryBar;
         SpeedCluster cluster;
@@ -98,6 +101,12 @@ namespace NightSignal.UI
             UIFactory.Stretch(progress.rectTransform, 12);
             progress.rectTransform.anchorMax = new Vector2(1f, 0.36f);
             progress.textWrappingMode = TextWrappingModes.Normal; // the finish-window line goes under the checkpoint count
+            // Under it: the interval to the car ahead (racecraft: CH32 follows inside the 1–2 s window shown here).
+            gap = UIFactory.Label("GapAhead", root, "", SignalTheme.Small, SignalTheme.Label, TextAlignmentOptions.TopLeft);
+            gap.rectTransform.anchorMin = gap.rectTransform.anchorMax = new Vector2(0, 1);
+            gap.rectTransform.pivot = new Vector2(0, 1);
+            gap.rectTransform.sizeDelta = new Vector2(420, 30);
+            gap.rectTransform.anchoredPosition = new Vector2(34, -158);
 
             // Top-centre: race clock and banner.
             time = UIFactory.Numeral("Time", root, SignalTheme.Numeral, SignalTheme.Timing, TextAlignmentOptions.Top);
@@ -175,6 +184,10 @@ namespace NightSignal.UI
             progress.text = (s.TotalCheckpoints > 0 ? $"CHECKPOINT {s.Checkpoints} / {s.TotalCheckpoints}" : "")
                 + (s.FinishWindowSeconds >= 0 ? $"\n<color=#{ColorUtility.ToHtmlStringRGB(SignalTheme.Caution)}>FINISH WINDOW {FormatClock(s.FinishWindowSeconds)}</color>" : "");
             time.text = Tabular(FormatTime(s.RaceSeconds));
+            bool window = s.GapAheadSeconds >= 1f && s.GapAheadSeconds <= 2f;
+            gap.text = s.GapAheadSeconds < 0f ? ""
+                : $"GAP AHEAD  <color=#{ColorUtility.ToHtmlStringRGB(window ? SignalTheme.Timing : SignalTheme.Label)}>{Tabular(s.GapAheadSeconds.ToString("0.0"))} s</color>" +
+                  $"  <color=#9A968D>{s.GapAheadName}</color>";
             banner.text = s.Banner;
             drift.text = !s.DriftEvent ? ""
                 : $"DRIFT {Tabular(s.DriftBanked.ToString("N0"))}"

@@ -45,6 +45,8 @@ namespace NightSignal.Net
             public int LatestTick = -1;
             public VehicleState Latest;
             public readonly List<(int tick, VehicleState state)> Buffer = new List<(int, VehicleState)>();
+            /// <summary>Server race distance by snapshot time, for the interval to the car ahead (cleared when it goes back: a recovery).</summary>
+            public readonly Race.DistanceHistory History = new Race.DistanceHistory();
         }
 
         public bool Autopilot;
@@ -375,6 +377,13 @@ namespace NightSignal.Net
             hudState.RaceSeconds = mine.FinishMillis > 0 ? mine.FinishMillis / 1000.0 : serverTick >= startTick ? (serverTick - startTick) / 60.0 : 0;
             hudState.Position = myPos;
             hudState.Entrants = cars.Count;
+            // The interval to the car directly ahead, as of the newest snapshot (the server judges the same interval).
+            Car ahead = null;
+            foreach (Car c in cars.Values)
+                if (c != mine && c.Status == EntrantStatus.Racing && c.RaceDistance > mine.RaceDistance && (ahead == null || c.RaceDistance < ahead.RaceDistance)) ahead = c;
+            hudState.GapAheadSeconds = ahead != null && mine.Status == EntrantStatus.Racing &&
+                                       ahead.History.IntervalBehind(mine.RaceDistance, (mine.LatestTick - startTick) / 60.0, out float gapAhead) ? gapAhead : -1f;
+            hudState.GapAheadName = ahead?.Roster.DisplayName ?? "";
             hudState.Checkpoints = mine.CheckpointsPassed;
             hudState.TotalCheckpoints = track.CheckpointMetres.Length * track.Laps;
             long raceMicros = NetBootstrap.RaceMicros(serverTick, startTick);
@@ -617,6 +626,11 @@ namespace NightSignal.Net
                 if (!cars.TryGetValue(index, out Car car)) continue;
                 car.Status = (EntrantStatus)status;
                 car.CheckpointsPassed = cps;
+                if (tick > car.LatestTick && startTick > 0 && tick >= startTick)
+                {
+                    if (dist < car.RaceDistance - 1f) car.History.Clear();
+                    car.History.Add((tick - startTick) / 60.0, dist);
+                }
                 car.RaceDistance = dist;
                 car.FinishMillis = finishMs;
                 car.Ghost = (flags & 1) != 0;

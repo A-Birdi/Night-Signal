@@ -141,9 +141,9 @@ namespace NightSignal.Front
                 // The featured rival is built into the grid before the start; if it could not be, the race never runs.
                 FeaturedRivalStarted = plan.Kind != EventKind.CampaignStage || results.Any(r => r.Entrant.Roster.Role == "featured"),
             };
-            // The same race predicates the game server evaluates online (CH01, CH05, CH33, CH35), from this run's facts.
+            // The same race predicates the game server evaluates online, from this run's facts.
             facts.ChallengesCompleted.AddRange(Net.ChallengePredicates.Evaluate(plan.CourseId, me.Entrant.Progress, me.Entrant.Drift,
-                plan.FreeplayFormat, plan.Rules?.Surface, me.Entrant.GateRun));
+                plan.FreeplayFormat, plan.Rules?.Surface, me.Entrant.GateRun, me.Entrant.Racecraft));
             if (plan.Kind == EventKind.Tutorial) return facts; // tutorial demonstrations keep no personal record
             RecordRuleset rules = Ruleset(plan.Rules, courseRevision);
             RecordKey key = plan.Kind == EventKind.CampaignStage
