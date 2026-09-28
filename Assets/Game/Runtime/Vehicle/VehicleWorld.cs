@@ -29,6 +29,8 @@ namespace NightSignal.Vehicle
         int ResolveBody(Vector3 center, Quaternion rotation, Vector3 halfExtents, BarrierContact[] buffer);
         /// <summary>Sweeps the body box against barriers (anti-tunnelling). Fraction is 0..1 of the path.</summary>
         bool SweepBody(Vector3 from, Vector3 to, Quaternion rotation, Vector3 halfExtents, out float fraction, out Vector3 normal);
+        /// <summary>Whether the box overlaps any barrier (the road surface is not counted) — a safety-margin test.</summary>
+        bool NearBarrier(Vector3 center, Quaternion rotation, Vector3 halfExtents);
     }
 
     public static class SurfaceGrip
@@ -101,6 +103,9 @@ namespace NightSignal.Vehicle
             }
             return written;
         }
+
+        public bool NearBarrier(Vector3 center, Quaternion rotation, Vector3 halfExtents) =>
+            scene.OverlapBox(center, halfExtents, overlap, rotation, barrierMask, QueryTriggerInteraction.Ignore) > 0;
 
         public bool SweepBody(Vector3 from, Vector3 to, Quaternion rotation, Vector3 halfExtents, out float fraction, out Vector3 normal)
         {
@@ -194,6 +199,7 @@ namespace NightSignal.Vehicle
         }
 
         public int ResolveBody(Vector3 center, Quaternion rotation, Vector3 halfExtents, BarrierContact[] buffer) => 0;
+        public bool NearBarrier(Vector3 center, Quaternion rotation, Vector3 halfExtents) => false;
 
         public bool SweepBody(Vector3 from, Vector3 to, Quaternion rotation, Vector3 halfExtents, out float fraction, out Vector3 n)
         {

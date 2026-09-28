@@ -1741,3 +1741,29 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   colour check, not a picture (the second run's build also turned the host's camera toward the car for the photo; it
   framed the host instead, did not affect the checks and was removed); the reconnect-in-another-livery path is covered
   by tests, not by a built-player run.
+
+## V-090 — Challenge gates judged: CH03, CH06, CH09; CH16 from the drift chains (2026-09-28)
+- Revision: `66cfc18` (CH16) and the gate work committed with this entry; player build of it.
+- **What changed:** the course routes already tag gates with the challenge they serve; `RouteGateDef.Challenge` now keeps
+  that tag and `GateJudge` measures, per entrant and per pass, every challenge apex / precision gate (the body across the
+  gate's band, as the Four Signals apexes are judged — on a circuit every lap's pass must touch), every challenge lane
+  zone (crossed start to end with a body widened by 0.5 m never overlapping a barrier — a new barrier-only world query,
+  `IVehicleWorld.NearBarrier`) and every step with any barrier contact (a guardrail touch, stricter than a meaningful wall
+  incident). The race predicates add **CH03** Apex Appointment (C03's three designated apexes, no wall incident),
+  **CH06** Cedar Accuracy (C05's six precision gates, not one guardrail touch), **CH09** Bridge Margin (both C13 viaduct
+  lanes with the margin kept) and **CH16** First Arc (one banked 8,000-raw chain on T00 and a finish — T00's finish
+  stands for "complete the lesson" until a lesson system exists), online (game server) and offline alike.
+- **Tests:** EditMode `GateJudgeTests` on the real C03 / C05 / C13 routes (all gates touched on both laps → CH03, one
+  apex missed → none, a wall incident → none; six precision gates → CH06, one guardrail touch → none; lanes with the
+  margin kept → CH09, a barrier inside the margin in the second zone → none, the same barrier outside the zones → kept),
+  `DriftChallengeTests` (CH16) — full EditMode suite 471 passed, 2 skipped (the explicit V-087 record), 0 failed.
+- **Built player** (`-nsGateTour`: offline freeplay, the validator autopilot steering through each course's challenge
+  gates, no AI): C03 finished, the three CH03 apexes touched on both laps (2/2 each), no wall → CH03 granted; C13
+  finished, both viaduct lanes passed with the margin kept against the real barrier colliders → CH09 granted; C05
+  finished with all six precision gates touched but one wall incident and 9 guardrail-contact steps → CH06 withheld, as
+  the facts say. The tour checks each grant against the raw counts — **PASS**. (A first run of the same races judged
+  identically; its tour then demanded CH06 be earned, which the autopilot's line does not do, and was changed to the
+  consistency check.) Evidence: `Evidence/courses/gates/gate-tour.txt`.
+- **Not implementable yet, and why:** CH04, CH08, CH12 need published gate speeds / windows (the routes author the
+  gates with `targetSpeedKmh` 0); CH26, CH29 need fixed Gold drift references; CH41 needs the class-equalized challenge
+  race format. 23 of 75 challenges now have predicates.

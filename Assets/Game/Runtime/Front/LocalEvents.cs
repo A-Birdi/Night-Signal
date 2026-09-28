@@ -143,7 +143,7 @@ namespace NightSignal.Front
             };
             // The same race predicates the game server evaluates online (CH01, CH05, CH33, CH35), from this run's facts.
             facts.ChallengesCompleted.AddRange(Net.ChallengePredicates.Evaluate(plan.CourseId, me.Entrant.Progress, me.Entrant.Drift,
-                plan.FreeplayFormat, plan.Rules?.Surface));
+                plan.FreeplayFormat, plan.Rules?.Surface, me.Entrant.GateRun));
             if (plan.Kind == EventKind.Tutorial) return facts; // tutorial demonstrations keep no personal record
             RecordRuleset rules = Ruleset(plan.Rules, courseRevision);
             RecordKey key = plan.Kind == EventKind.CampaignStage

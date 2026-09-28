@@ -41,6 +41,8 @@ namespace NightSignal.Race
         public ChainEnd LastChainEnd;
         /// <summary>Four Signals measurements (S29's course; null elsewhere).</summary>
         public ContractRun ContractRun;
+        /// <summary>Challenge-gate facts (courses with tagged apex, precision or lane gates; null elsewhere).</summary>
+        public GateRun GateRun;
         public bool Collides => Status == EntrantStatus.Racing || Status == EntrantStatus.Finished;
     }
 
@@ -171,6 +173,8 @@ namespace NightSignal.Race
             ContentCatalogue cat = lib.Catalogue;
             // Before the AI are placed: an S29 field drifts the Arc like the humans must.
             sim.Contracts = ContractJudge.ForEvent(track, cat, rules.Kind, rules.StageId, rules.Mode, rules.MeasureContracts);
+            sim.Gates = GateJudge.ForTrack(track);
+            sim.gateWorld = world;
             int slot = 0, generic = 0;
             foreach (HumanSlot h in humans)
                 sim.Add(lib, world, slot++, h.EntrantId, h.DisplayName, true, h.CarId, "player", "driver", null, h.Spec, h.Build, h.Livery);
@@ -301,6 +305,7 @@ namespace NightSignal.Race
                 if (reset) e.StuckSeconds = e.OverturnedSeconds = 0f;
                 Drift.Step(e, reset, e.Progress.Finished);
                 Contracts?.Step(e, input, raceMicros, reset);
+                Gates?.Step(e, reset, gateWorld);
                 if (e.Progress.Finished)
                 {
                     e.Status = EntrantStatus.Finished;
@@ -337,6 +342,9 @@ namespace NightSignal.Race
 
         /// <summary>S29 Four Signals judging on a course with the four contract sectors (null for other events).</summary>
         public ContractJudge Contracts { get; private set; }
+        /// <summary>Challenge-gate judging (CH03, CH06, CH09…) where the course tags such gates.</summary>
+        public GateJudge Gates { get; private set; }
+        IVehicleWorld gateWorld;
 
         static int GhostWindowTicks => Limits.ResetGhostMaxMs * VehicleSimulation.TickRate / 1000;
         /// <summary>Hold-to-reset duration (Addendum 03 §7.1: about 0.75 s, cancelled on release).</summary>

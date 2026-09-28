@@ -36,6 +36,8 @@ namespace NightSignal.Race
         public List<string> FriendlyAi = new List<string>();
         /// <summary>Tests: the autopilot's drift skill (0 = the validator's tuned point).</summary>
         public float AutopilotDriftSkill;
+        /// <summary>Automation only: the validator autopilot steers through the course's challenge touch gates (CH03, CH06).</summary>
+        public static bool AutopilotAimsChallengeGates;
         public int CountdownTicks = 60 * 3;
 
         public RaceSimulation Sim { get; private set; }
@@ -111,7 +113,8 @@ namespace NightSignal.Race
             pilotProfile.DriftSkill = AutopilotDriftSkill;
             pilot = new RouteFollower(course.Track, Player.Params, pilotProfile)
             {
-                DriftZones = Sim.DriftZonesForAi, ApexGates = Sim.Contracts?.ApexGates, ResetWhenStuck = true, SurfaceGrip = CourseRuntime.SurfaceGrip(Rules.Surface),
+                DriftZones = Sim.DriftZonesForAi, ApexGates = Sim.Contracts?.ApexGates ?? (AutopilotAimsChallengeGates ? Sim.Gates?.TouchGates : null),
+                ResetWhenStuck = true, SurfaceGrip = CourseRuntime.SurfaceGrip(Rules.Surface),
             };
             foreach (RaceEntrant e in Sim.Entrants) previous[e] = e.State;
 

@@ -116,6 +116,8 @@ namespace NightSignal.Front
                 StartCoroutine(RaceAudioTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsCarLodTour") >= 0)
                 StartCoroutine(CarLodTour());
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsGateTour") >= 0)
+                StartCoroutine(GateTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsCanvasPadTour") >= 0)
                 StartCoroutine(CanvasPadTour());
             int toyGroup = Array.IndexOf(Environment.GetCommandLineArgs(), "-nsToyTourGroup");

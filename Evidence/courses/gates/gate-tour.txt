@@ -1,0 +1,8 @@
+# -nsGateTour on the working tree after 66cfc18 (built player, non-development), offline freeplay, the validator autopilot steering through each course's challenge gates, no AI.
+[NightSignal.GateTour] C03: Finished in 182.5 s; walls 0, resets 0, guardrail-touch steps 0; touch gates [C03-APEX-1 2/2, C03-APEX-2 2/2, C03-DIFF-APEX-1 2/2, C03-APEX-3 2/2, C03-DIFF-APEX-2 0/2]; lanes []; challenges granted: CH33, CH03
+[NightSignal.GateTour] C03: the facts earn CH03; the game granted it
+[NightSignal.GateTour] C05: Finished in 138.2 s; walls 1, resets 0, guardrail-touch steps 9; touch gates [C05-PREC-1 1/1, C05-PREC-2 1/1, C05-PREC-3 1/1, C05-PREC-4 1/1, C05-PREC-5 1/1, C05-PREC-6 1/1]; lanes []; challenges granted: CH33
+[NightSignal.GateTour] C05: the facts do not earn CH06; the game withheld it
+[NightSignal.GateTour] C13: Finished in 147.3 s; walls 0, resets 0, guardrail-touch steps 0; touch gates []; lanes [C13-VIADUCT-LANE-1 passes 1 margin kept True, C13-VIADUCT-LANE-2 passes 1 margin kept True]; challenges granted: CH33, CH09
+[NightSignal.GateTour] C13: the facts earn CH09; the game granted it
+[NightSignal.GateTour] PASS

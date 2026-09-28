@@ -41,6 +41,8 @@ namespace NightSignal.Track
         public float LineOffset;
         public float LineTolerance = 2f;
         public float TargetSpeedKmh;
+        /// <summary>The Appendix E challenge this gate serves ("" = none), e.g. CH03's apex gates.</summary>
+        public string Challenge = "";
     }
 
     [Serializable]

@@ -12,15 +12,16 @@ namespace NightSignal.Net
     /// </summary>
     public static class ChallengePredicates
     {
-        public static IEnumerable<string> Evaluate(MatchAssignment a, EntrantProgress p, DriftScorer drift = null, string surface = null) =>
-            Evaluate(a.CourseId, p, drift, a.FreeplayMode, surface);
+        public static IEnumerable<string> Evaluate(MatchAssignment a, EntrantProgress p, DriftScorer drift = null, string surface = null, GateRun gates = null) =>
+            Evaluate(a.CourseId, p, drift, a.FreeplayMode, surface, gates);
 
         /// <summary>
         /// The same predicates for any race (online on the game server, offline in the Local race). <paramref name="drift"/>
         /// is the entrant's drift scorer (every race scores drift in its judged zones); <paramref name="freeplayMode"/> and
         /// <paramref name="surface"/> describe the event.
         /// </summary>
-        public static IEnumerable<string> Evaluate(string courseId, EntrantProgress p, DriftScorer drift = null, string freeplayMode = null, string surface = null)
+        public static IEnumerable<string> Evaluate(string courseId, EntrantProgress p, DriftScorer drift = null, string freeplayMode = null, string surface = null,
+            GateRun gates = null)
         {
             if (!p.Finished) yield break;
             // CH01 First Clean Signal: finish C01 with no meaningful wall impacts and no reset.
@@ -36,6 +37,15 @@ namespace NightSignal.Net
             // CH35 One Reset, Then Clean: exactly one permitted reset, no meaningful wall impact after it, every checkpoint legal.
             if (p.Resets == 1 && p.WallsAtFirstReset >= 0 && p.WallIncidents == p.WallsAtFirstReset && !p.CorridorCut)
                 yield return "CH35";
+            if (gates != null)
+            {
+                // CH03 Apex Appointment: C03's three designated apex gates, no wall incident.
+                if (courseId == "C03" && gates.AllTouched("CH03") && p.WallIncidents == 0) yield return "CH03";
+                // CH06 Cedar Accuracy: C05's six alternating precision gates, and not a single guardrail touch.
+                if (courseId == "C05" && gates.AllTouched("CH06") && gates.BarrierTouchSteps == 0) yield return "CH06";
+                // CH09 Bridge Margin: both C13 viaduct lane zones crossed at least 0.5 m from the barriers throughout.
+                if (courseId == "C13" && gates.LanesKept("CH09")) yield return "CH09";
+            }
             if (drift == null) yield break;
             // CH16 First Arc: one banked chain of at least 8,000 raw on T00's drift route, and the run finished (T00 is the
             // tutorial course; its finish stands for completing the lesson until a lesson system exists).
