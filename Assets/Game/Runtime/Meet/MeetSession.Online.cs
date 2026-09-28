@@ -41,7 +41,7 @@ namespace NightSignal.Meet
 
         readonly Dictionary<string, Remote> remotes = new Dictionary<string, Remote>();
         long joinedServerMs;
-        bool boomboxOpen, leavingOnline;
+        bool boomboxOpen, leavingOnline, arrivalConfirmed;
         JObject lastState;
 
         // ------------------------------------------------------------------ join, arrive, leave
@@ -88,6 +88,7 @@ namespace NightSignal.Meet
             // The server's validated spot is authoritative; it is the same rule, so it is normally where we already stand.
             var at = new Vector3((float)r["x"], 0f, (float)r["z"]);
             if (Vector3.Distance(Player.transform.position, at) > 0.6f) Player.Teleport(at, (float)r["yaw"]);
+            arrivalConfirmed = true; // poses start from the room's spot, so the first one is never a "jump"
             Note("arrival confirmed by the room");
         }
 
@@ -148,7 +149,7 @@ namespace NightSignal.Meet
                 Player.Teleport(new Vector3(c.x, 0f, c.z), c.y);
                 Note("pose corrected by the room");
             }
-            if (Player != null && Player.gameObject.activeSelf && (State == Phase.Walking || State == Phase.Wheel || State == Phase.Panel || State == Phase.Photo))
+            if (arrivalConfirmed && Player != null && Player.gameObject.activeSelf && (State == Phase.Walking || State == Phase.Wheel || State == Phase.Panel || State == Phase.Photo))
                 Net.SendPose(Player.transform.position, Player.transform.eulerAngles.y, Player.Speed);
             UpdateRemotes(dt);
         }
