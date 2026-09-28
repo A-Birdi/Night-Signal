@@ -2167,3 +2167,17 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   trade is visible in the apex speed, not the exit. **The certified featured-rival paces (V-065/V-066) were bisected on
   the rivals' earlier behaviour** and must be recertified (the reference times P come from the neutral autopilot and
   are unaffected).
+
+## V-107 — A convoy member's shared ghost (spec §8) (2026-09-28)
+- Revision: the work committed with this entry (server side; the client chooser and a two-client built-player run
+  follow in the next checkpoint, after the benchmark recertification frees the editor).
+- **Server:** `GET /v1/convoy/ghosts/{member}/{course}/{format}` returns that member's kept (server-settled) ghosts with
+  their owner — only while both accounts are active members of the same convoy (`ConvoyDirectory.SameConvoy`) and
+  neither has blocked the other; otherwise 403 `not_in_convoy` (your own id always works). Nothing new is stored: the
+  shared ghost is the member's kept best, already validated at settlement (V-104).
+- **Tests:** Services end-to-end — B (in A's convoy) reads A's kept 96 s ghost with its owner; the outsider gets 403; A
+  blocks B → 403; A unblocks → 200. Full suite from the normal output: Services 353, Core 148, Builds 232, Toys 92.
+- **Control plane restarted** for this server change (stopped with its task, tests run, started again as a tracked
+  task; health ok, content hashes unchanged `3677a844…`/`306dd38e…`; the new route answers 401 without a token).
+- **Note:** `MeetControlChannelTests.PublicMeet_ArriveWalkEmoteChatLike_ThenLeaveFadesOut` failed once in a run built to
+  a scratch folder and passed in the two other runs — timing-sensitive; watched.

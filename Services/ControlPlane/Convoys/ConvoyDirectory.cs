@@ -626,6 +626,13 @@ public sealed class ConvoyDirectory
             return ConvoyOf(accountId) is { } c ? (c.SessionId, c.Find(accountId)!.Generation) : (null, 0);
     }
 
+    /// <summary>True when both accounts are active members of the same convoy right now (convoy-scoped sharing such as ghosts).</summary>
+    public bool SameConvoy(string accountId, string otherId)
+    {
+        lock (gate)
+            return ConvoyOf(accountId) is { } c && ReferenceEquals(ConvoyOf(otherId), c);
+    }
+
     /// <summary>True only for the account's CURRENT active membership generation in that session (stale commands are rejected).</summary>
     public bool IsCurrentMembership(string sessionId, string accountId, long generation)
     {

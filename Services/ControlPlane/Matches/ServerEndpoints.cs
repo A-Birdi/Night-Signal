@@ -3,6 +3,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Options;
 using NightSignal.ControlPlane.Configuration;
 using NightSignal.ControlPlane.Content;
+using NightSignal.ControlPlane.Convoys;
 using NightSignal.ControlPlane.Identity;
 using NightSignal.ControlPlane.Persistence;
 using NightSignal.ControlPlane.Players;
@@ -111,6 +112,19 @@ public static class ServerEndpoints
         app.MapGet("/v1/me/ghosts/{courseId}/{format}", async (string courseId, string format, ClaimsPrincipal user, IResultLedger ledger, CancellationToken ct) =>
             Results.Content("{\"ghosts\":[" + string.Join(",", (await ledger.GhostsAsync(user.AccountId(), courseId, format, ct)).Select(g => g.Json)) + "]}",
                 "application/json")).RequireAuthorization();
+
+        // A chosen convoy member's shared ghost (spec §8): members of the same convoy read each other's kept ghosts while they
+        // ride together; outside the convoy, or with a block either way, nothing is shared.
+        app.MapGet("/v1/convoy/ghosts/{memberId}/{courseId}/{format}", async (string memberId, string courseId, string format, ClaimsPrincipal user,
+            ConvoyDirectory convoys, ISocialStore social, IResultLedger ledger, CancellationToken ct) =>
+        {
+            string me = user.AccountId();
+            if (memberId != me && (!convoys.SameConvoy(me, memberId) || (await social.GetRelationshipAsync(me, memberId, ct)).BlockedEitherWay))
+                return PlayerEndpoints.Problem(403, "not_in_convoy", "Ghosts are shared only between members of the same convoy.");
+            IReadOnlyList<StoredGhost> kept = await ledger.GhostsAsync(memberId, courseId, format, ct);
+            return Results.Content("{\"owner\":" + JsonSerializer.Serialize(memberId) + ",\"ghosts\":[" + string.Join(",", kept.Select(g => g.Json)) + "]}",
+                "application/json");
+        }).RequireAuthorization();
 
         // Players read their own itemized receipt (never submit money, RP or times).
         app.MapGet("/v1/matches/{matchId}/receipt", async (string matchId, ClaimsPrincipal user, IResultLedger ledger, CancellationToken ct) =>

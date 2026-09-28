@@ -292,6 +292,17 @@ public sealed class EndToEndTests : IDisposable
             string tOut = await host.SignInAsync(outsider);
             Assert.Equal(HttpStatusCode.NotFound, (await host.Authed(tOut).GetAsync($"/v1/matches/{matchId}/receipt")).StatusCode);
 
+            // A convoy member's shared ghost (spec §8): B, riding with A, reads A's kept ghost; the outsider cannot.
+            JsonElement shared = await hb.GetFromJsonAsync<JsonElement>($"/v1/convoy/ghosts/{a.AccountId}/{course}/S01-normal");
+            Assert.Equal(a.AccountId, shared.GetProperty("owner").GetString());
+            Assert.Equal(96_000_000, Assert.Single(shared.GetProperty("ghosts").EnumerateArray()).GetProperty("header").GetProperty("resultMicros").GetInt64());
+            Assert.Equal(HttpStatusCode.Forbidden, (await host.Authed(tOut).GetAsync($"/v1/convoy/ghosts/{a.AccountId}/{course}/S01-normal")).StatusCode);
+            // A block either way hides it, and lifting the block restores it.
+            Assert.Equal(HttpStatusCode.OK, (await ha.PutAsync($"/v1/blocks/{b.AccountId}", null)).StatusCode);
+            Assert.Equal(HttpStatusCode.Forbidden, (await hb.GetAsync($"/v1/convoy/ghosts/{a.AccountId}/{course}/S01-normal")).StatusCode);
+            Assert.Equal(HttpStatusCode.OK, (await ha.DeleteAsync($"/v1/blocks/{b.AccountId}")).StatusCode);
+            Assert.Equal(HttpStatusCode.OK, (await hb.GetAsync($"/v1/convoy/ghosts/{a.AccountId}/{course}/S01-normal")).StatusCode);
+
             // The convoy returns to event selection with refreshed progress.
             await ca.WaitForStateAsync(s => s.GetProperty("phase").GetString() == "EventSelection");
             stopPolling.Cancel();
