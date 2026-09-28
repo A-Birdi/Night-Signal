@@ -140,6 +140,8 @@ namespace NightSignal.Front
                 StartCoroutine(GhostTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsCrewTelemetryTour") >= 0)
                 StartCoroutine(CrewTelemetryTour());
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsFreeplayRivalTour") >= 0)
+                StartCoroutine(FreeplayRivalTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsDriverCardTour") >= 0)
                 StartCoroutine(DriverCardTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsCanvasPadTour") >= 0)
@@ -547,7 +549,7 @@ namespace NightSignal.Front
             onlineRace = go.AddComponent<Net.RaceClient>();
             onlineRace.Autopilot = OnlineAutopilot;
             if (!spectating) onlineRace.Presentation = OnlineIntro;
-            if (!spectating) onlineRace.GhostSource = FetchOwnGhosts;
+            if (!spectating) onlineRace.GhostSource = FetchGhosts;
             onlineRace.Connect((string)allocation["server"]["host"], (ushort)(int)allocation["server"]["port"], (string)allocation["ticket"]);
             bool racing = false;
             while (onlineRace.Results == null && onlineRace.Phase != MatchPhase.Aborted && onlineRace.DisconnectReason == null)
@@ -610,19 +612,36 @@ namespace NightSignal.Front
             Canvas.gameObject.SetActive(false);
         }
 
-        /// <summary>The player's kept (server-settled) ghosts for the event's course and format.</summary>
-        static async System.Threading.Tasks.Task<List<Core.Ghosts.GhostRecording>> FetchOwnGhosts(Net.MatchInfo info)
+        /// <summary>
+        /// The ghosts offered for an online Time Attack, each with its label: the player's kept (server-settled) ghosts for
+        /// the event's course and format, then the chosen convoy member's shared ones (spec §8; the server shares them only
+        /// while both ride in the same convoy), then the course's authored rival reference.
+        /// </summary>
+        static async System.Threading.Tasks.Task<List<KeyValuePair<string, Core.Ghosts.GhostRecording>>> FetchGhosts(Net.MatchInfo info)
         {
-            var list = new List<Core.Ghosts.GhostRecording>();
+            var list = new List<KeyValuePair<string, Core.Ghosts.GhostRecording>>();
             OnlineSession s = OnlineSession.Current;
             if (s == null) return list;
-            string format = Net.RaceServer.GhostFormat(info.Kind, info.StageId, info.Mode, info.FreeplayMode);
-            Newtonsoft.Json.Linq.JObject r = await s.Client.Get($"/v1/me/ghosts/{Uri.EscapeDataString(info.CourseId)}/{Uri.EscapeDataString(format)}");
-            foreach (Newtonsoft.Json.Linq.JToken g in (r?["ghosts"] as Newtonsoft.Json.Linq.JArray) ?? new Newtonsoft.Json.Linq.JArray())
+            Core.Ghosts.GhostRecording reference = RivalReferenceGhosts.For(info.CourseId);
+            string course = Uri.EscapeDataString(info.CourseId);
+            string format = Uri.EscapeDataString(Net.RaceServer.GhostFormat(info.Kind, info.StageId, info.Mode, info.FreeplayMode));
+            void Add(Newtonsoft.Json.Linq.JObject r, string label)
             {
-                Core.Ghosts.GhostRecording rec = Core.Ghosts.GhostRecording.Parse(g.ToString(Newtonsoft.Json.Formatting.None), out _);
-                if (rec != null) list.Add(rec);
+                foreach (Newtonsoft.Json.Linq.JToken g in (r?["ghosts"] as Newtonsoft.Json.Linq.JArray) ?? new Newtonsoft.Json.Linq.JArray())
+                {
+                    Core.Ghosts.GhostRecording rec = Core.Ghosts.GhostRecording.Parse(g.ToString(Newtonsoft.Json.Formatting.None), out _);
+                    if (rec != null) list.Add(new KeyValuePair<string, Core.Ghosts.GhostRecording>(label, rec));
+                }
             }
+            Add(await s.Client.Get($"/v1/me/ghosts/{course}/{format}"), "your best");
+            string member = ConvoyScreen.GhostMemberId, name = ConvoyScreen.GhostMemberName;
+            if (member != null)
+            {
+                var shared = await s.Client.GetWithStatus($"/v1/convoy/ghosts/{Uri.EscapeDataString(member)}/{course}/{format}");
+                if (shared.status == 200) Add(shared.body, name + "'s best");
+                Debug.Log($"[NightSignal.Ghost] online shared ghosts of {name}: HTTP {shared.status}, {(shared.body?["ghosts"] as Newtonsoft.Json.Linq.JArray)?.Count ?? 0} kept");
+            }
+            if (reference != null) list.Add(new KeyValuePair<string, Core.Ghosts.GhostRecording>(RivalReferenceGhosts.Owner(reference), reference));
             return list;
         }
 
@@ -1090,6 +1109,8 @@ namespace NightSignal.Front
             };
             pendingGhosts.Clear();
             if (plan.Kind == EventKind.FreeplayTimeTrial && yesterday != null) pendingGhosts.Add(yesterday);
+            if (plan.Kind == EventKind.FreeplayTimeTrial && RivalReferenceGhosts.For(plan.CourseId) is Core.Ghosts.GhostRecording reference)
+                pendingGhosts.Add(reference);
 
             // The stage's introductory scene (spec §5.3), shortened on a rematch; skippable.
             Core.Story.StoryText story = NightSignal.Content.ContentLibrary.Load()?.Story;

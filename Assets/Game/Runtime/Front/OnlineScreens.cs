@@ -44,7 +44,16 @@ namespace NightSignal.Front
         float ballotDeadlineAt;
         long ballotSeenRevision = -1;
         TMP_InputField codeField;
-        Stepper starter, intent, stage, course, aiCount, trial, difficulty;
+        Stepper starter, intent, stage, course, aiCount, trial, difficulty, leadRival;
+        readonly List<RivalDef> rivalChoices = new List<RivalDef>();
+        TextMeshProUGUI archetypeLine;
+        float nextArchetypeFetch;
+        // Time Attack: a chosen convoy member's shared ghost besides your own best (spec §8); each member picks for themself.
+        Stepper ghostChoice;
+        readonly List<string> ghostIds = new List<string>(), ghostNames = new List<string>();
+        /// <summary>The convoy member whose kept ghost this player chases in Time Attack (null = only their own best).</summary>
+        public static string GhostMemberId { get; private set; }
+        public static string GhostMemberName { get; private set; }
         List<JObject> trialDefs = new List<JObject>();
         readonly List<Button> listButtons = new List<Button>();
         readonly List<string> listIds = new List<string>();
@@ -111,6 +120,12 @@ namespace NightSignal.Front
             stage = new Stepper(col, "Stage", 1, i => Limits.CampaignStages >= i + 1 ? CampaignProgress.StageLabel(i + 1) + "  " + StageName(i + 1) : "", 0, 1000);
             course = new Stepper(col, "Course", 1, i => i < courseIds.Count ? CourseName(courseIds[i]) : "—", 0, 1000);
             aiCount = new Stepper(col, "Opponents", Limits.MaxRaceVehicles, i => i == 0 ? "none" : $"{i} AI", 3, 1000);
+            if (cat != null) rivalChoices.AddRange(cat.Rivals.Where(r => FinalRivals.Allowed(r.Id, AiPlacementContext.FreeplayOpponent)).OrderBy(r => r.Id, System.StringComparer.Ordinal));
+            leadRival = new Stepper(col, "Lead rival", rivalChoices.Count + 1,
+                i => i == 0 || i > rivalChoices.Count ? "random authored rivals" : $"{rivalChoices[i - 1].Name} · {rivalChoices[i - 1].Tendency.Replace('-', ' ')}", 0, 1000);
+            archetypeLine = UIFactory.Row("Archetypes", col, "", SignalTheme.Small, SignalTheme.LabelDim, 1000, 28);
+            ghostChoice = new Stepper(col, "Chase ghost", 1, i => i == 0 || i > ghostNames.Count ? "your best only" : "your best + " + ghostNames[i - 1] + "'s", 0, 1000);
+            ghostChoice.Changed += _ => { PickGhost(); dirty = true; };
             trial = new Stepper(col, "Team Trial", 1, i => i < trialDefs.Count ? TrialLabel(trialDefs[i]) : "—", 0, 1000);
             trial.Changed += _ => dirty = true;
             difficulty = new Stepper(col, "Difficulty", 1, i => DifficultyLabel(i), 0, 1000);
@@ -309,6 +324,16 @@ namespace NightSignal.Front
             stage.Root.SetActive(selecting && kind == "campaign");
             course.Root.SetActive(selecting && kind == "freeplay");
             aiCount.Root.SetActive(selecting && kind == "freeplay" && (string)intentObj?["submode"] != "time-attack");
+            bool namedRace = selecting && kind == "freeplay" && (string)intentObj?["submode"] != "time-attack" && aiCount.Index > 0;
+            leadRival.Root.SetActive(namedRace);
+            // Every member sees their own progress on the rival-archetype challenges while a Freeplay race is being set up.
+            bool showArchetypes = inConvoy && modeEntered && !matchOn && post == null && kind == "freeplay" && (string)intentObj?["submode"] != "time-attack";
+            archetypeLine.gameObject.SetActive(showArchetypes);
+            if (showArchetypes && Time.unscaledTime >= nextArchetypeFetch)
+            {
+                nextArchetypeFetch = Time.unscaledTime + 20f;
+                FetchArchetypes();
+            }
             trial.Root.SetActive(selecting && kind == "challenges");
             difficulty.Root.SetActive(selecting && kind == "challenges");
             if (selecting && kind == "challenges")
@@ -340,6 +365,22 @@ namespace NightSignal.Front
                 int humans = c["members"].Count();
                 aiCount.SetCount(Mathf.Max(1, Limits.MaxRaceVehicles - humans + 1));
             }
+
+            // Time Attack: whose shared ghost to chase as well as your own (the convoy's other members).
+            List<JToken> others = inConvoy ? c["members"].Where(m => (string)m["accountId"] != S.AccountId).ToList() : new List<JToken>();
+            if (!others.Select(m => (string)m["accountId"]).SequenceEqual(ghostIds))
+            {
+                string keep = GhostMemberId;
+                ghostIds.Clear();
+                ghostIds.AddRange(others.Select(m => (string)m["accountId"]));
+                ghostNames.Clear();
+                ghostNames.AddRange(others.Select(m => (string)m["displayName"]));
+                ghostChoice.SetCount(ghostIds.Count + 1);
+                ghostChoice.Set(keep != null && ghostIds.Contains(keep) ? ghostIds.IndexOf(keep) + 1 : 0);
+                PickGhost();
+            }
+            ghostChoice.Root.SetActive(inConvoy && modeEntered && !matchOn && post == null && kind == "freeplay"
+                                       && (string)intentObj?["submode"] == "time-attack" && ghostIds.Count > 0);
 
             // Proposal and Event Ready.
             proposalLine.gameObject.SetActive(proposal != null);
@@ -497,6 +538,48 @@ namespace NightSignal.Front
         /// <summary>Automation hook (UI tours): choose an intent row as a player would with the stepper.</summary>
         public void SelectIntent(int index) => intent.Set(index);
 
+        void PickGhost()
+        {
+            int i = ghostChoice.Index;
+            GhostMemberId = i > 0 && i <= ghostIds.Count ? ghostIds[i - 1] : null;
+            GhostMemberName = GhostMemberId != null ? ghostNames[i - 1] : null;
+        }
+
+        /// <summary>Automation hook (UI tours): chase this convoy member's shared ghost, as the stepper would.</summary>
+        public bool SelectGhostMember(string accountId)
+        {
+            int i = ghostIds.IndexOf(accountId);
+            if (i < 0) return false;
+            ghostChoice.Set(i + 1);
+            PickGhost();
+            return true;
+        }
+
+        async void FetchArchetypes()
+        {
+            try
+            {
+                JObject r = await S.Client.Get("/v1/me/archetypes");
+                var s = new ArchetypeState();
+                foreach (JToken t in (r?["raced"] as JArray) ?? new JArray()) s.Raced.Add((string)t);
+                foreach (JToken t in (r?["wonSinceQuit"] as JArray) ?? new JArray()) s.WonStreak.Add((string)t);
+                if (archetypeLine != null) archetypeLine.text = ArchetypeChallenges.ProgressLine(s);
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning("[NightSignal.Online] archetype progress unavailable: " + e.Message);
+            }
+        }
+
+        /// <summary>Automation hook (tours): name the lead rival for a Freeplay race, as the stepper would.</summary>
+        public bool SelectLeadRival(string rivalId)
+        {
+            int i = rivalChoices.FindIndex(r => r.Id == rivalId);
+            if (i < 0) return false;
+            leadRival.Set(i + 1);
+            return true;
+        }
+
         /// <summary>Selects a freeplay course in the event setup once the snapshot offers it (tours).</summary>
         public bool SelectCourse(string courseId)
         {
@@ -612,7 +695,9 @@ namespace NightSignal.Front
             else if (courseIds.Count > 0)
             {
                 string sub = (string)S.Convoy["intent"]?["submode"];
-                Send("event.propose", new { courseId = courseIds[course.Index], freeplayMode = sub, aiCount = sub == "time-attack" ? 0 : aiCount.Index });
+                string[] named = sub != "time-attack" && aiCount.Index > 0 && leadRival.Index > 0 && leadRival.Index <= rivalChoices.Count
+                    ? new[] { rivalChoices[leadRival.Index - 1].Id } : null;
+                Send("event.propose", new { courseId = courseIds[course.Index], freeplayMode = sub, aiCount = sub == "time-attack" ? 0 : aiCount.Index, aiRivals = named });
             }
         }
 

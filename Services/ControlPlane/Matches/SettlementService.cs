@@ -158,6 +158,11 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
                 if (NightSignal.Core.Ghosts.GhostChallenges.BeatsYesterday(NightSignal.Core.Ghosts.GhostRecording.Parse(kept.Json, out _), g))
                     ghostBeats.Add(e.EntrantId);
         }
+        // CH38 / CH73 read each finishing human's settled Freeplay races (the archetypes raced, the wins since a quit).
+        var freeplayBefore = new Dictionary<string, IReadOnlyList<ArchetypeRace>>(StringComparer.Ordinal);
+        if (config.Kind == "freeplay")
+            foreach (EntrantFacts e in submission.Entrants.Where(x => x.Human && x.Outcome == RunOutcome.Finished))
+                freeplayBefore[e.EntrantId] = await ledger.FreeplayRacesAsync(e.EntrantId, ct);
         // CH70 reads each finishing human's race-diary marks (all six crew introductions read before this race).
         var diaryComplete = new HashSet<string>(StringComparer.Ordinal);
         foreach (EntrantFacts e in submission.Entrants.Where(x => x.Human && x.Outcome == RunOutcome.Finished))
@@ -166,7 +171,7 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
             if (NightSignal.Core.Story.DiaryChallenges.AllCrewsRead(await players.DiaryReadsAsync(e.EntrantId, ct), content.Crews))
                 diaryComplete.Add(e.EntrantId);
         }
-        (MatchSettlement? settlement, string? invalid) = Compute(config, submission, Hashing.Sha256Hex(body), finished, diaryComplete, ghostBeats);
+        (MatchSettlement? settlement, string? invalid) = Compute(config, submission, Hashing.Sha256Hex(body), finished, diaryComplete, ghostBeats, freeplayBefore);
         if (settlement is null) return Error(422, "invalid_results", invalid!);
 
         SettlementOutcome outcome = await ledger.SettleAsync(settlement, ct);
@@ -218,7 +223,7 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
     /// <summary>Validates the facts against the frozen allocation and computes every reward input with Core.</summary>
     internal (MatchSettlement? Settlement, string? Error) Compute(MatchAssignment config, ResultSubmission s, string bodySha256,
         IReadOnlyDictionary<string, IReadOnlyCollection<string>>? finishedBefore = null, IReadOnlySet<string>? diaryComplete = null,
-        IReadOnlySet<string>? ghostBeats = null)
+        IReadOnlySet<string>? ghostBeats = null, IReadOnlyDictionary<string, IReadOnlyList<ArchetypeRace>>? freeplayBefore = null)
     {
         if (ProgressionDomain.ToyViolation(config) is { } toy) return (null, toy);
         var humans = config.Entrants.Select(e => e.AccountId).ToHashSet(StringComparer.Ordinal);
@@ -430,6 +435,16 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
                 // CH68 Chasing Your Yesterday: the kept C07 ghost beaten by a second (the caller checked ghost and rules).
                 if (e.Human && ghostBeats is not null && ghostBeats.Contains(e.EntrantId) && !ids.Contains(NightSignal.Core.Ghosts.GhostChallenges.ChasingYourYesterday))
                     ids.Add(NightSignal.Core.Ghosts.GhostChallenges.ChasingYourYesterday);
+                // CH38 / CH73: Freeplay rival archetypes — the settled history, then this race (the field's AI in roster order).
+                if (e.Human && config.Kind == "freeplay" && freeplayBefore is not null)
+                {
+                    var races = new List<ArchetypeRace>(freeplayBefore.TryGetValue(e.EntrantId, out var earlier) ? earlier : Array.Empty<ArchetypeRace>())
+                    {
+                        new() { AiRivals = config.AiEntrants, Outcome = e.Outcome, Placement = placing.Place, Tied = placing.Tied },
+                    };
+                    foreach (string id in ArchetypeChallenges.Satisfied(ArchetypeChallenges.Replay(content.Catalogue, races)))
+                        if (!ids.Contains(id)) ids.Add(id);
+                }
                 if (e.Human)
                 {
                     var courses = new HashSet<string>(finishedBefore is not null && finishedBefore.TryGetValue(e.EntrantId, out var past) ? past : Array.Empty<string>(),

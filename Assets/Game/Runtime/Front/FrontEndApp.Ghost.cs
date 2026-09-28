@@ -83,8 +83,8 @@ namespace NightSignal.Front
                 if (activeRace == null) { Fail("the race did not start"); break; }
                 activeRace.Autopilot = true;
                 OfflineRaceSession race = activeRace;
-                int ghosts = race.Ghosts.Count;
-                Note($"run (hold {hold:F0} s): ghosts on the road {ghosts}{(ghosts > 0 ? " — " + race.Ghosts[0].Label : "")}");
+                int ghosts = race.Ghosts.Count(g => !RivalReferenceGhosts.IsReference(g.Recording));
+                Note($"run (hold {hold:F0} s): personal ghosts on the road {ghosts}; all overlays: {string.Join(" | ", race.Ghosts.Select(g => g.Label))}");
                 if (hold == 2f)
                 {
                     yield return Until(() => race.Phase == MatchPhase.Racing, 20f);

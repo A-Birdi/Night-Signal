@@ -67,7 +67,12 @@ namespace NightSignal.Front
             };
         }
 
-        public static LocalEventPlan Freeplay(CourseDef course, bool timeAttack, int opponents, int carCapPi, LocalCarChoice car)
+        /// <summary>
+        /// A Freeplay event. Opponents are authored rivals, as online (spec §13): <paramref name="namedRival"/> first when the
+        /// player picked one (the lead — CH38/CH73 read its archetype), then a shuffled pool without the finale-only rivals.
+        /// </summary>
+        public static LocalEventPlan Freeplay(ContentCatalogue catalogue, CourseDef course, bool timeAttack, int opponents, int carCapPi, LocalCarChoice car,
+            string namedRival = null, Random random = null)
         {
             var plan = new LocalEventPlan
             {
@@ -84,7 +89,21 @@ namespace NightSignal.Front
                     CarCapPi = carCapPi,
                 },
             };
-            for (int i = 1; i <= (timeAttack ? 0 : opponents); i++) plan.OpposingAi.Add($"ai-{i}");
+            int count = timeAttack ? 0 : Math.Max(0, Math.Min(opponents, Limits.MaxRaceVehicles - 1));
+            if (count > 0 && !string.IsNullOrEmpty(namedRival) && FinalRivals.Allowed(namedRival, AiPlacementContext.FreeplayOpponent) &&
+                catalogue.TryRival(namedRival, out _))
+                plan.OpposingAi.Add(namedRival);
+            List<string> pool = catalogue.Rivals.Select(r => r.Id)
+                .Where(id => !plan.OpposingAi.Contains(id) && FinalRivals.Allowed(id, AiPlacementContext.RandomPool)).ToList();
+            random = random ?? new Random();
+            for (int i = pool.Count - 1; i > 0; i--)
+            {
+                int j = random.Next(i + 1);
+                string t = pool[i];
+                pool[i] = pool[j];
+                pool[j] = t;
+            }
+            plan.OpposingAi.AddRange(pool.Take(count - plan.OpposingAi.Count));
             return plan;
         }
 
@@ -140,6 +159,8 @@ namespace NightSignal.Front
                 BeatFeaturedRival = me.BeatFeaturedRival,
                 // The featured rival is built into the grid before the start; if it could not be, the race never runs.
                 FeaturedRivalStarted = plan.Kind != EventKind.CampaignStage || results.Any(r => r.Entrant.Roster.Role == "featured"),
+                OpposingAi = plan.OpposingAi.ToList(),
+                Tied = me.Tied,
             };
             // The same race predicates the game server evaluates online, from this run's facts.
             facts.ChallengesCompleted.AddRange(Net.ChallengePredicates.Evaluate(plan.CourseId, me.Entrant.Progress, me.Entrant.Drift,

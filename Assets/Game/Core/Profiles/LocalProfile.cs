@@ -51,6 +51,10 @@ namespace NightSignal.Core.Profiles
         public CardAppearance Card { get; set; } = new CardAppearance();
         /// <summary>Race-diary entries read ("crew:&lt;crew&gt;"), each once its crew's stage was cleared on Normal (CH70).</summary>
         public List<string> DiaryRead { get; set; } = new List<string>();
+        /// <summary>Freeplay rival archetypes (tendencies) met in legally finished races (CH73), sorted.</summary>
+        public List<string> ArchetypesRaced { get; set; } = new List<string>();
+        /// <summary>Lead archetypes beaten in Freeplay since the last quit (CH38), sorted.</summary>
+        public List<string> ArchetypeWinStreak { get; set; } = new List<string>();
         public DateTime CreatedUtc { get; set; }
         public DateTime UpdatedUtc { get; set; }
         /// <summary>Incremented by every successful save; used for stale-copy conflict checks.</summary>
@@ -138,6 +142,12 @@ namespace NightSignal.Core.Profiles
                 if (showcase.Count > LocalShowcase.MaxShowcase || showcase.Distinct(StringComparer.Ordinal).Count() != showcase.Count)
                     e.Add($"The card shows up to {LocalShowcase.MaxShowcase} different records.");
             }
+            foreach (List<string> set in new[] { ArchetypesRaced ?? new List<string>(), ArchetypeWinStreak ?? new List<string>() })
+                if (set.Count > 32 || set.Distinct(StringComparer.Ordinal).Count() != set.Count || set.Any(x => string.IsNullOrEmpty(x) || x.Length > 64))
+                {
+                    e.Add("The Freeplay rival archetype history is malformed.");
+                    break;
+                }
             if (Cars == null || UnassignedParts == null || Courses == null || Campaign == null || Challenges == null || Cosmetics == null ||
                 Music == null || Records == null || Tutorial == null || AppliedOperations == null || Toys == null || WalletHistory == null)
             {

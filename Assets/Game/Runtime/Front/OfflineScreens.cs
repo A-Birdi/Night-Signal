@@ -92,9 +92,11 @@ namespace NightSignal.Front
     {
         public override string ScreenName => "Offline";
         public override string MusicCue => "MUS_MENU_A";
-        Stepper course, car, format, ai;
+        Stepper course, car, format, ai, rival;
         Button start, campaign;
-        TextMeshProUGUI profileLine, note;
+        TextMeshProUGUI profileLine, note, archetypeLine;
+        // The named rival (the lead, spec §13 / CH38, CH73): 0 = a random authored field.
+        readonly List<RivalDef> rivals = new List<RivalDef>();
         List<CourseDef> playable = new List<CourseDef>();
         readonly List<LocalCarChoice> cars = new List<LocalCarChoice>();
 
@@ -102,6 +104,7 @@ namespace NightSignal.Front
         {
             ContentCatalogue cat = ContentLibrary.Load()?.Catalogue;
             if (cat != null) playable = cat.Courses.Where(c => Application.CanStreamedLevelBeLoaded(c.Id)).ToList();
+            if (cat != null) rivals.AddRange(cat.Rivals.Where(r => FinalRivals.Allowed(r.Id, AiPlacementContext.FreeplayOpponent)).OrderBy(r => r.Id, StringComparer.Ordinal));
             Image panel = UIFactory.Panel("Panel", root, new Vector2(0, 0), new Vector2(0.44f, 1f), Vector2.zero, Vector2.zero, new Color(0.055f, 0.06f, 0.07f, 0.9f));
             RectTransform col = UIFactory.Column("Setup", panel.transform, new Vector2(0, 0.04f), new Vector2(1, 0.92f), new Vector2(64, 0), new Vector2(-32, 0), 12f);
             UIFactory.Row("Heading", col, "OFFLINE PLAY", SignalTheme.Heading, SignalTheme.Label, 640, 0, true);
@@ -124,7 +127,10 @@ namespace NightSignal.Front
             car = new Stepper(col, "Car", 1, i => cars.Count == 0 ? "—" : CarLabel(cars[i]));
             format = new Stepper(col, "Format", 2, i => i == 0 ? "Race — light contact" : "Time Attack — no contact, no AI");
             ai = new Stepper(col, "Opponents", Limits.MaxRaceVehicles, i => i == 0 ? "none" : $"{i} AI", 5);
-            format.Changed += i => ai.SetCount(i == 1 ? 1 : Limits.MaxRaceVehicles);
+            rival = new Stepper(col, "Lead rival", rivals.Count + 1, i => i == 0 || i > rivals.Count ? "random authored rivals" : RivalLabel(rivals[i - 1]));
+            archetypeLine = UIFactory.Row("Archetypes", col, "", SignalTheme.Small, SignalTheme.LabelDim, 640, 28);
+            format.Changed += i => { ai.SetCount(i == 1 ? 1 : Limits.MaxRaceVehicles); RefreshRival(); };
+            ai.Changed += _ => RefreshRival();
             course.Changed += _ => RefreshStart();
             start = UIFactory.Button("Start", col, "Start Freeplay Race", StartRace, 620, 60);
             UIFactory.Button("Switch", col, "Switch Profile", () => { LocalSession.Current?.Close(); App.Router.Show(App.ProfileSelect, false); }, 620, 52);
@@ -133,6 +139,32 @@ namespace NightSignal.Front
         }
 
         public override Selectable DefaultFocus => campaign;
+
+        static string RivalLabel(RivalDef r) => $"{r.Name} · {r.Tendency.Replace('-', ' ')}";
+
+        void RefreshRival()
+        {
+            bool race = format.Index == 0 && ai.Index > 0;
+            rival.Root.SetActive(race);
+            LocalProfile p = LocalSession.Current?.Profile;
+            var s = new ArchetypeState();
+            if (p != null)
+            {
+                s.Raced.UnionWith(p.ArchetypesRaced ?? new List<string>());
+                s.WonStreak.UnionWith(p.ArchetypeWinStreak ?? new List<string>());
+            }
+            archetypeLine.gameObject.SetActive(race);
+            archetypeLine.text = ArchetypeChallenges.ProgressLine(s);
+        }
+
+        /// <summary>Automation hook (tours): pick the lead rival as the stepper would.</summary>
+        public bool SelectRival(string rivalId)
+        {
+            int i = rivals.FindIndex(r => r.Id == rivalId);
+            if (i < 0) return false;
+            rival.Set(i + 1);
+            return true;
+        }
 
         string CourseLabel(int i)
         {
@@ -169,6 +201,7 @@ namespace NightSignal.Front
                 cars.Add(new LocalCarChoice { ModelId = c.ModelId, InstanceId = c.InstanceId });
             car.SetCount(Math.Max(1, cars.Count));
             course.Set(course.Index); // re-label locks for this profile
+            RefreshRival();
             RefreshStart();
         }
 
@@ -194,7 +227,8 @@ namespace NightSignal.Front
             OwnedCar owned = chosen.Loaner ? null : s.Profile.FindCar(chosen.InstanceId);
             int pi = owned != null ? s.AppliedPi(owned) : s.Catalogue.Car(chosen.ModelId).BasePI;
             // Opponents in the class of the player's APPLIED build, not the fastest cars in the game.
-            LocalEventPlan plan = LocalEvents.Freeplay(playable[course.Index], timeAttack, ai.Index, ClassCeiling(pi), chosen);
+            string named = rival.Index > 0 && rival.Index <= rivals.Count ? rivals[rival.Index - 1].Id : null;
+            LocalEventPlan plan = LocalEvents.Freeplay(s.Catalogue, playable[course.Index], timeAttack, ai.Index, ClassCeiling(pi), chosen, named);
             App.StartLocalEvent(plan, this);
         }
 

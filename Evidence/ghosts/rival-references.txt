@@ -1,0 +1,32 @@
+# Authored rival reference ghosts (spec §8): each course's reference rival alone under Time Attack rules (dry, non-contact),
+# full profile for the stage it leads, recorded at 10 Hz. Written by RivalReferenceGhostTests (PlayMode, explicit). AI driving.
+course  rival  name                      car   result s   samples  resets  clean  bytes
+C01     R01    Sora Matsuda              V01     87.025      872       0    yes   56389
+C02     R02    Hanae Okuno               V02    142.245     1424       0    yes   91988
+C03     R03    Kei Naruse                V03    184.813     1850       0    yes  117054
+C04     R04    Toma Fujii                V04    134.342     1345       0    yes   90588
+C05     R09    Rika Aonuma               V06    128.460     1286       0    yes   84178
+C06     R10    Masato Kido               V05    152.911     1531       0    yes  100104
+C07     R11    Airi Shiba                V04    116.497     1166       0    yes   78282
+C08     R12    Rui Takeda                V07    156.467     1566       0    yes  103233
+C09     R17    Shun Minato               V09    142.722     1429       0    yes   94917
+C10     R18    Kaede Ueno                V08    166.367     1665       0    yes  109418
+C11     R19    Michi Kagawa              V10    187.938     1881       0    yes  123039
+C12     R20    Ryo Senba                 V11    190.653     1908       0    yes  129412
+C13     R25    Hiroto Namioka            V13    142.048     1422       0    yes   92328
+C14     R26    Maya Kuroda               V14    196.783     1969       0    yes  124670
+C15     R27    Renji Sudo                V15    130.144     1303       0    yes   87796
+C16     R28    Koharu Akiyama            V13    182.647     1828       0    yes  119964
+C17     R33    Tetsu Arimura             V17    145.461     1456       0    yes   96132
+C18     R34    Chika Sakurai             V18    191.006     1912       0    yes  122929
+C19     R35    Naozumi Fuda              V16    178.640     1788       0    yes  119135
+C20     R36    Lina Hayase               V17    169.193     1693       0    yes  113690
+C21     R41    Fuyu Tachibana            V11    142.446     1426       0    yes   96166
+C22     R42    Kazuma Yorita             V12    160.163     1603       0    yes  107831
+C23     R43    Neri Takase               V13    239.375     2365       1     NO  156543
+C24     R44    Satoshi Mibe              V14    240.847     2410       0    yes  158638
+C25     R33    Tetsu Arimura             V17    270.403     2706       0    yes  179894
+FP01    R08    Daigo Ibuki               V05    233.805     2340       0    yes  147949
+FP02    R16    Emi Takanashi             V08    151.746     1519       0    yes  100863
+FP03    R24    Jun Saegusa               V12    265.789     2659       0    yes  171468
+# every reference finished and is a well-formed ghost; "clean" = no reset and no corridor cut

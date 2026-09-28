@@ -257,6 +257,8 @@ public interface IResultLedger
     Task<string?> GetReceiptJsonAsync(string matchId, string accountId, CancellationToken ct = default);
     /// <summary>Every course the account has a settled finish on (from its receipts; cumulative challenges CH66, CH71).</summary>
     Task<IReadOnlyCollection<string>> FinishedCoursesAsync(string accountId, CancellationToken ct = default);
+    /// <summary>The account's settled Freeplay races, oldest first, as the archetype challenges read them (CH38, CH73).</summary>
+    Task<IReadOnlyList<ArchetypeRace>> FreeplayRacesAsync(string accountId, CancellationToken ct = default);
     /// <summary>Ghosts (spec §8): the game server's recording for an entrant, held until settlement.</summary>
     Task StoreMatchGhostAsync(string matchId, string accountId, string json, CancellationToken ct = default);
     Task<string?> MatchGhostAsync(string matchId, string accountId, CancellationToken ct = default);

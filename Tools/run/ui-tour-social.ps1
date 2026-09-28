@@ -12,6 +12,8 @@
 param([int]$HostAccount = 0, [int]$GuestAccount = 1, [int]$TimeoutSeconds = 420,
     # Race together instead of the tables (starts a dedicated game server); the guest leaves mid-race, rejoins and spectates.
     [switch]$Race, [int]$Port = 7792,
+    # Race Freeplay Time Attack on -Course instead; the guest chases the host's shared convoy ghost (spec §8).
+    [switch]$GhostChase, [string]$Course = 'C07',
     # Addendum 04: loopback unless a separately authorized LAN test passes -AllowLan with its addresses.
     [string]$BindHost = '127.0.0.1', [string]$PublicHost = '127.0.0.1', [switch]$AllowLan)
 
@@ -32,9 +34,11 @@ function Start-Client([string]$role, [int]$account, [string]$peer) {
         '-screen-fullscreen', '0', '-screen-width', '1600', '-screen-height', '900', '-monitor', '1',
         '-logFile', "`"$logs\$role.log`"")
     if ($Race) { $a += '-nsUiTourSocialRace' }
+    if ($GhostChase) { $a += @('-nsUiTourSocialGhost', '-nsUiTourCourse', $Course) }
     Start-Process -FilePath $exe -PassThru -WorkingDirectory $repo -ArgumentList $a
 }
 $server = $null
+if ($GhostChase) { $Race = $true }
 if ($Race) {
     if ($TimeoutSeconds -lt 900) { $TimeoutSeconds = 900 }
     Import-Module (Join-Path $PSScriptRoot 'NetGuard.psm1') -Force

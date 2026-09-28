@@ -59,7 +59,9 @@ namespace NightSignal.Front
                     if (string.Equals((string)list[i]["handle"], handle, StringComparison.OrdinalIgnoreCase)) return i;
                 return -1;
             }
-            bool raceTour = Array.IndexOf(Environment.GetCommandLineArgs(), "-nsUiTourSocialRace") >= 0;
+            bool ghostTour = Array.IndexOf(Environment.GetCommandLineArgs(), "-nsUiTourSocialGhost") >= 0;
+            bool raceTour = ghostTour || Array.IndexOf(Environment.GetCommandLineArgs(), "-nsUiTourSocialRace") >= 0;
+            string ghostCourse = Arg("-nsUiTourCourse") ?? "C07";
             JObject State() => S()?.Convoy;
             bool Interactable(string name) => GameObject.Find(name)?.GetComponent<Button>()?.interactable == true;
             bool AllMembers(string flag) => (State()?["members"] as JArray)?.All(m => (bool?)m[flag] == true) == true;
@@ -225,8 +227,8 @@ namespace NightSignal.Front
                 yield return new WaitForSeconds(1f);
                 if (isHost)
                 {
-                    yield return ApplyHostLivery();
-                    Convoy.SelectIntent(0); // Campaign · Normal
+                    if (!ghostTour) yield return ApplyHostLivery();
+                    Convoy.SelectIntent(ghostTour ? 4 : 0); // Freeplay · Time Attack (the ghost tour) or Campaign · Normal
                     Click("ProposeIntent");
                     yield return Until(() => State()?["intent"]?.Type == JTokenType.Object, 20f, "intent set");
                     yield return Until(() => AllMembers("modeReady"), 90f, "both mode ready");
@@ -234,6 +236,7 @@ namespace NightSignal.Front
                     Click("EnterMode");
                     yield return Until(() => (bool?)State()?["modeEntered"] == true, 10f, "mode entered");
                     yield return Until(() => Interactable("ProposeEvent"), 30f, "propose available");
+                    if (ghostTour) yield return Until(() => Convoy.SelectCourse(ghostCourse), 10f, "course " + ghostCourse + " offered");
                     Click("ProposeEvent");
                     yield return Until(() => State()?["eventProposal"]?.Type == JTokenType.Object, 25f, "event proposed");
                     yield return new WaitForSeconds(0.8f);
@@ -250,11 +253,29 @@ namespace NightSignal.Front
                     Click("ModeReady");
                     yield return Until(() => State()?["eventProposal"]?.Type == JTokenType.Object && Interactable("EventReady"), 150f, "the host proposed an event");
                     yield return new WaitForSeconds(0.8f);
+                    if (ghostTour)
+                    {
+                        // Spec §8: chase the host's shared ghost as well as this player's own best, chosen on the convoy screen.
+                        string hostId = (string)State()?["leaderId"];
+                        yield return Until(() => Convoy.SelectGhostMember(hostId), 10f, "the host offered as a ghost");
+                        yield return new WaitForSeconds(0.8f);
+                        Shot("07-chase-host-ghost");
+                        Note($"chasing {ConvoyScreen.GhostMemberName}'s ghost on {ghostCourse}");
+                    }
                     Click("EventReady");
                 }
                 yield return Until(() => onlineRace != null, 60f, "match allocated");
                 yield return Until(() => onlineRace == null || onlineRace.Phase == NightSignal.Race.MatchPhase.Racing, 90f, "race started");
-                if (!isHost && onlineRace != null)
+                if (ghostTour && onlineRace != null)
+                {
+                    yield return new WaitForSeconds(3f);
+                    Shot("08-racing-ghosts");
+                    Note($"racing {onlineRace.Ghosts.Count} ghost(s): {string.Join(", ", onlineRace.Ghosts.Select(g => g.Label))}");
+                    string hostName = ((JArray)State()?["members"])?.FirstOrDefault(m => (bool?)m["isLeader"] == true)?["displayName"]?.ToString();
+                    if (!isHost && !onlineRace.Ghosts.Any(g => g.Label.Contains(hostName + "'s best")))
+                        failures.Add("the guest is not racing the host's shared ghost");
+                }
+                if (!isHost && onlineRace != null && !ghostTour)
                 {
                     // The other human's car as THIS client draws it: the roster livery the game server relayed, applied to the view.
                     yield return new WaitForSeconds(1f);
@@ -271,7 +292,7 @@ namespace NightSignal.Front
                 }
                 yield return new WaitForSeconds(isHost ? 12f : 11f);
                 Shot("09-racing");
-                if (!isHost)
+                if (!isHost && !ghostTour)
                 {
                     // The crash itself is simulated (both connections closed, back at the title as a relaunch would be);
                     // everything after it goes through the real buttons.
@@ -311,7 +332,7 @@ namespace NightSignal.Front
                 yield return new WaitForSeconds(1.5f);
                 Shot(isHost ? "10-after-race" : "14-after-race");
                 Note("last result: " + (LastOnlineResult ?? "").Replace("\n", " | "));
-                if (!isHost && !(LastOnlineResult ?? "").Contains("Disqualified")) failures.Add("the guest's left race was not settled as a disqualification");
+                if (!isHost && !ghostTour && !(LastOnlineResult ?? "").Contains("Disqualified")) failures.Add("the guest's left race was not settled as a disqualification");
                 if (isHost && !(LastOnlineResult ?? "").Contains(" of ")) failures.Add("the host's race was not settled with a placing");
                 // The post-event decision needs every member's choice: both continue.
                 yield return Until(() => State()?["postEvent"]?.Type == JTokenType.Object && Interactable("Continue"), 20f, "post-event decision");

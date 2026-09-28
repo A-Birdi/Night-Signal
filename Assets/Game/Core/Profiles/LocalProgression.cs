@@ -116,6 +116,10 @@ namespace NightSignal.Core.Profiles
         public bool BeatFeaturedRival;
         /// <summary>False when the featured rival never spawned: the event is broken and aborted, never a free win.</summary>
         public bool FeaturedRivalStarted = true;
+        /// <summary>The field's AI in roster order, the lead first (Freeplay: CH38/CH73 read the authored rivals' archetypes).</summary>
+        public List<string> OpposingAi = new List<string>();
+        /// <summary>The local human shares its placing with another entrant (a tie is not a win).</summary>
+        public bool Tied;
 
         /// <summary>Challenge predicates the local simulation judged met by THIS driver's personal performance.</summary>
         public List<string> ChallengesCompleted = new List<string>();
@@ -698,6 +702,23 @@ namespace NightSignal.Core.Profiles
                 }
             }
 
+            // ---- Freeplay rival archetypes (CH38, CH73): the authored rivals raced, a quit clearing the lead archetypes beaten
+            if (facts.Kind != EventKind.CampaignStage && facts.Kind != EventKind.Tutorial && facts.TeamTrial == null && facts.OpposingAi?.Count > 0)
+            {
+                var archetypes = new ArchetypeState();
+                archetypes.Raced.UnionWith(p.ArchetypesRaced ?? new List<string>());
+                archetypes.WonStreak.UnionWith(p.ArchetypeWinStreak ?? new List<string>());
+                ArchetypeChallenges.Apply(archetypes, catalogue, new ArchetypeRace
+                {
+                    AiRivals = facts.OpposingAi, Outcome = facts.Outcome, Placement = facts.Placement, Tied = facts.Tied,
+                });
+                p.ArchetypesRaced = archetypes.Raced.OrderBy(x => x, StringComparer.Ordinal).ToList();
+                p.ArchetypeWinStreak = archetypes.WonStreak.OrderBy(x => x, StringComparer.Ordinal).ToList();
+                if (facts.Outcome == RunOutcome.Finished)
+                    foreach (string id in ArchetypeChallenges.Satisfied(archetypes))
+                        if (!facts.ChallengesCompleted.Contains(id) && !p.HasCompletedChallenge(id)) facts.ChallengesCompleted.Add(id);
+            }
+
             // ---- cumulative challenges (CH66, CH71) from every course this profile has legally finished, this one included
             if (facts.Outcome == RunOutcome.Finished)
             {
@@ -808,6 +829,9 @@ namespace NightSignal.Core.Profiles
             if (f.RawDriftScore < 0 || f.ContractsPassed < 0 || f.ContractsPassed > 4) return "Invalid drift score or contract count.";
             if (f.UtilityIncomePercent != 0 && f.UtilityIncomePercent != 4 && f.UtilityIncomePercent != 8) return "Only +4% or +8% income utilities exist.";
             if (f.ChallengesCompleted == null) return "Challenge list missing.";
+            if (f.OpposingAi != null && (f.OpposingAi.Count >= Limits.MaxRaceVehicles || f.OpposingAi.Any(string.IsNullOrEmpty) ||
+                                         f.OpposingAi.Distinct(StringComparer.Ordinal).Count() != f.OpposingAi.Count))
+                return "Invalid opponent list.";
             if (f.ChallengesCompleted.Distinct(StringComparer.Ordinal).Count() != f.ChallengesCompleted.Count) return "Duplicate challenge claim.";
             foreach (string id in f.ChallengesCompleted)
                 if (!catalogue.Challenges.Any(c => c.Id == id)) return $"Unknown challenge '{id}'.";

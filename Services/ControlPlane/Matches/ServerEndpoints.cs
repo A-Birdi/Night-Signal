@@ -113,6 +113,18 @@ public static class ServerEndpoints
             Results.Content("{\"ghosts\":[" + string.Join(",", (await ledger.GhostsAsync(user.AccountId(), courseId, format, ct)).Select(g => g.Json)) + "]}",
                 "application/json")).RequireAuthorization();
 
+        // Freeplay rival archetypes (CH38, CH73): the player's progress, replayed from their settled Freeplay races.
+        app.MapGet("/v1/me/archetypes", async (ClaimsPrincipal user, IResultLedger ledger, ContentService content, CancellationToken ct) =>
+        {
+            NightSignal.Core.Rules.ArchetypeState s = NightSignal.Core.Rules.ArchetypeChallenges.Replay(content.Catalogue,
+                await ledger.FreeplayRacesAsync(user.AccountId(), ct));
+            return Results.Json(new
+            {
+                raced = s.Raced.OrderBy(x => x, StringComparer.Ordinal), wonSinceQuit = s.WonStreak.OrderBy(x => x, StringComparer.Ordinal),
+                racedNeeded = NightSignal.Core.Rules.ArchetypeChallenges.VoicesNeeded, wonNeeded = NightSignal.Core.Rules.ArchetypeChallenges.RivalsNeeded,
+            });
+        }).RequireAuthorization();
+
         // A chosen convoy member's shared ghost (spec §8): members of the same convoy read each other's kept ghosts while they
         // ride together; outside the convoy, or with a block either way, nothing is shared.
         app.MapGet("/v1/convoy/ghosts/{memberId}/{courseId}/{format}", async (string memberId, string courseId, string format, ClaimsPrincipal user,

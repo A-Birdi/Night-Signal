@@ -318,6 +318,32 @@ public abstract partial class SqlGameStore : IPlayerStore, IResultLedger, ISocia
             return courses;
         }, ct);
 
+    public Task<IReadOnlyList<ArchetypeRace>> FreeplayRacesAsync(string accountId, CancellationToken ct = default) =>
+        ReadAsync<IReadOnlyList<ArchetypeRace>>(async (c, tx) =>
+        {
+            var races = new List<ArchetypeRace>();
+            var rows = await c.QueryAsync(tx,
+                "SELECT r.receipt_json, m.config_json FROM match_results r JOIN matches m ON m.match_id = r.match_id " +
+                "WHERE r.account_id = @a AND m.state = 'settled' ORDER BY m.settled_at, m.created_at, m.match_id",
+                r => (Receipt: r.Str(0), Config: r.Str(1)), ("@a", accountId));
+            foreach (var row in rows)
+            {
+                using JsonDocument config = JsonDocument.Parse(row.Config);
+                using JsonDocument receipt = JsonDocument.Parse(row.Receipt);
+                JsonElement cfg = config.RootElement, rc = receipt.RootElement;
+                if (!cfg.TryGetProperty("kind", out JsonElement kind) || kind.GetString() != "freeplay") continue;
+                if (!cfg.TryGetProperty("aiEntrants", out JsonElement ai) || ai.ValueKind != JsonValueKind.Array || ai.GetArrayLength() == 0) continue;
+                if (!rc.TryGetProperty("outcome", out JsonElement o) || !Enum.TryParse(o.GetString(), out RunOutcome outcome)) continue;
+                races.Add(new ArchetypeRace
+                {
+                    AiRivals = ai.EnumerateArray().Select(x => x.GetString() ?? "").ToList(), Outcome = outcome,
+                    Placement = rc.TryGetProperty("placement", out JsonElement p) && p.ValueKind == JsonValueKind.Number ? p.GetInt32() : 0,
+                    Tied = rc.TryGetProperty("tied", out JsonElement t) && t.ValueKind == JsonValueKind.True,
+                });
+            }
+            return races;
+        }, ct);
+
     public Task<bool> HasFinishedEventAsync(string accountId, CancellationToken ct = default) =>
         ReadAsync(async (c, tx) => await c.FirstOrDefaultAsync(tx,
             "SELECT 1 FROM match_results WHERE account_id = @a AND receipt_json LIKE @f", r => true,

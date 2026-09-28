@@ -170,8 +170,11 @@ namespace NightSignal.Race
                     if (Ghosts.Count >= MaxGhosts) break;
                     if (GhostTemplate == null || !g.CompatibleWith(GhostTemplate) || g.Count < 2 || !lib.Catalogue.TryCar(g.Header.CarModelId, out Core.Content.CarDef gc)) continue;
                     VehicleParams gp = lib.Params(gc.Id, AssistSettings.Default);
-                    VehicleView gv = VehicleView.Create($"Ghost_{Ghosts.Count}_{gc.Id}", gp, lib.Body(gc.Id), mats, new Color(0.35f, 0.85f, 1f));
-                    string label = $"Ghost · {(string.IsNullOrEmpty(g.Header.Driver) ? "best" : g.Header.Driver)} {g.Header.ResultMicros / 1e6:F3} s";
+                    bool reference = RivalReferenceGhosts.IsReference(g);
+                    VehicleView gv = VehicleView.Create($"Ghost_{Ghosts.Count}_{gc.Id}", gp, lib.Body(gc.Id), mats,
+                        reference ? new Color(1f, 0.45f, 0.35f) : new Color(0.35f, 0.85f, 1f));
+                    string who = reference ? RivalReferenceGhosts.Owner(g) : string.IsNullOrEmpty(g.Header.Driver) ? "best" : g.Header.Driver;
+                    string label = $"Ghost · {who} {g.Header.ResultMicros / 1e6:F3} s";
                     Ghosts.Add(new GhostPlayback(g, gv, label));
                 }
                 var camGo = CameraRig.EnsureMain("RaceCamera").gameObject;

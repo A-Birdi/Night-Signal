@@ -60,8 +60,11 @@ namespace NightSignal.Net
         /// Ghosts (spec §8) for online Time Attack: the source fetches the player's kept (server-settled) ghosts; only those
         /// recorded under this event's rules race, at most three, placed by interpolation at this client's race time.
         /// </summary>
-        public System.Func<MatchInfo, System.Threading.Tasks.Task<List<Core.Ghosts.GhostRecording>>> GhostSource;
+        /// <summary>Time Attack ghost offers, each with its label ("your best", "Mika's best"); up to three compatible ones race.</summary>
+        public System.Func<MatchInfo, System.Threading.Tasks.Task<List<KeyValuePair<string, Core.Ghosts.GhostRecording>>>> GhostSource;
         public readonly List<GhostPlayback> Ghosts = new List<GhostPlayback>();
+        /// <summary>Overlay tints in offer order: your best cyan, a convoy member's amber, a third violet.</summary>
+        static readonly Color[] GhostTints = { new Color(0.35f, 0.85f, 1f), new Color(1f, 0.72f, 0.3f), new Color(0.75f, 0.55f, 1f) };
         /// <summary>The time against the first ghost at each checkpoint the server reported (evidence).</summary>
         public readonly List<long> GhostDeltasMicros = new List<long>();
         int ghostCheckpoints;
@@ -350,7 +353,7 @@ namespace NightSignal.Net
             }
             if (GhostSource != null && !headless && Info.YourIndex >= 0 && Info.FreeplayMode == "time-attack")
             {
-                System.Threading.Tasks.Task<List<Core.Ghosts.GhostRecording>> fetch = GhostSource(Info);
+                System.Threading.Tasks.Task<List<KeyValuePair<string, Core.Ghosts.GhostRecording>>> fetch = GhostSource(Info);
                 float until = Time.realtimeSinceStartup + 8f;
                 while (!fetch.IsCompleted && Time.realtimeSinceStartup < until) yield return null;
                 var rules = new Core.Ghosts.GhostHeader
@@ -361,15 +364,17 @@ namespace NightSignal.Net
                     PhysicsVersion = RaceSimulation.PhysicsVersion, ScoringVersion = RaceSimulation.ScoringVersion,
                 };
                 if (fetch.Status == System.Threading.Tasks.TaskStatus.RanToCompletion)
-                    foreach (Core.Ghosts.GhostRecording g in fetch.Result)
+                    foreach (KeyValuePair<string, Core.Ghosts.GhostRecording> offer in fetch.Result)
                     {
+                        Core.Ghosts.GhostRecording g = offer.Value;
                         if (Ghosts.Count >= 3) break;
                         if (!g.CompatibleWith(rules) || g.Count < 2 || !lib.Catalogue.TryCar(g.Header.CarModelId, out Core.Content.CarDef gc)) continue;
                         VehicleView gv = VehicleView.Create($"Ghost_{Ghosts.Count}_{gc.Id}", lib.Params(gc.Id, AssistSettings.Default), lib.Body(gc.Id),
-                            Resources.Load<CarMaterialSet>("CarMaterialSet"), new Color(0.35f, 0.85f, 1f));
-                        Ghosts.Add(new GhostPlayback(g, gv, $"Ghost · your best {g.Header.ResultMicros / 1e6:F3} s"));
+                            Resources.Load<CarMaterialSet>("CarMaterialSet"), GhostTints[Ghosts.Count]);
+                        Ghosts.Add(new GhostPlayback(g, gv, $"Ghost · {offer.Key} {g.Header.ResultMicros / 1e6:F3} s"));
                     }
-                Debug.Log($"[NightSignal.Ghost] online {Info.CourseId} {rules.Format}: {(fetch.Status == System.Threading.Tasks.TaskStatus.RanToCompletion ? fetch.Result.Count : 0)} kept, {Ghosts.Count} racing");
+                Debug.Log($"[NightSignal.Ghost] online {Info.CourseId} {rules.Format}: {(fetch.Status == System.Threading.Tasks.TaskStatus.RanToCompletion ? fetch.Result.Count : 0)} offered, " +
+                          $"{Ghosts.Count} racing{(Ghosts.Count > 0 ? ": " + string.Join(", ", Ghosts.Select(x => x.Label)) : "")}");
             }
             if (Presentation != null && !headless && Info.YourIndex >= 0)
             {

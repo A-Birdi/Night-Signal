@@ -2210,3 +2210,34 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   `306dd38e…` unchanged).
 - **Follow-up:** the V-106 crew telemetry was measured with the momentum-reader's apex shift; it is rerun with the next
   player build (tea-hour's R01 is the only crew member affected).
+
+## V-109 — Three ghost sources and Freeplay rival archetypes (CH38, CH73): code and tests (2026-09-28)
+- Revision: the work committed with this entry; editor tests on that tree; built-player tours in the next checkpoint.
+- **Convoy member's ghost (client of V-107):** the convoy screen's "Chase ghost" row (Freeplay Time Attack, each member
+  for themself: your best only, or your best + a member's); the race client labels every overlay by whose it is and
+  tints them (your best cyan, a member's amber, a third violet); `ui-tour-social.ps1 -GhostChase`.
+- **Authored rival reference (spec §8):** Core `RivalReference` — the Normal lead of the first stage on the course (a
+  finale-only rival is never a replay target, so C25 takes S30's first support R33), the three Freeplay venues the four
+  lieutenants in order, T00 none. The explicit PlayMode recorder `RivalReferenceGhostTests` drove each rival alone under
+  Time Attack rules and wrote `Assets/Content/Resources/RivalGhosts/<course>.json` (28 courses, 3.1 MB):
+  `Evidence/ghosts/rival-references.txt` — all finished and well formed; **C23's reference (R43) contains one reset**
+  (239.4 s, marked not clean, kept and stated). Offline and online Time Attack race it beside the personal (and member's)
+  ghost, labelled "<rival>'s reference" in a red tint; an incompatible reference stays off the road like any ghost.
+- **CH38 Three Different Rivals / CH73 Twelve Different Voices:** Core `ArchetypeChallenges` (archetype = a rival's
+  tendency, 19 exist): CH73 = legal Freeplay finishes against 12 distinct archetypes (every authored rival in the field
+  counts); CH38 = three Freeplay wins against three different lead archetypes (the lead = the field's first AI, the
+  named pick when made) with no race quit between — a loss keeps them, an explicit quit clears them, a disconnect does
+  not. Online: settlement replays the account's settled Freeplay races (`FreeplayRacesAsync`, from receipts and the
+  frozen match configs — nothing new stored) plus this race; `GET /v1/me/archetypes`; the host names the lead rival
+  (`aiRivals`, which the server already validated). Offline: Freeplay now fields authored rivals as online (the named
+  pick first, then a shuffled pool without the finale-only rivals; it was anonymous `ai-N`); the profile keeps the two
+  sets; a "Lead rival" row and a progress line on both Freeplay screens.
+- **Tests:** Core `ArchetypeChallengesTests` (7), `RivalReferenceTests`; Services `ArchetypeSettlementTests` (grant,
+  quit, loss, CH73; the store reads settled Freeplay races in order, skipping campaign, aborted and AI-free matches);
+  EditMode `LocalFreeplayFieldTests`. Services 356, Core 156, Builds 232, Toys 92; EditMode 483 passed, 2 skipped.
+- **Control plane restarted** for the CH38/CH73 server code (tracked task; health ok, race content `26709731…`; the new
+  route answers 401 without a token).
+- **Process note:** while the certification ran, a patch script meant for a scratch copy ran against the checkout (a
+  path substitution failed); it was reverted within a minute with `git checkout` of those files (all clean at HEAD) and
+  removal of the new ones — no import or compile happened (assemblies and console unchanged), and the certification
+  continued. The copy scripts now refuse to run unless they point away from the checkout.
