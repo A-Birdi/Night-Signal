@@ -1,0 +1,30 @@
+# V06 Hard Act III build variants, validator autopilot solo, each side's authored surface (V-069, pre-fix recipe at 42bafbf + working tree)
+# H3 = recipe V06-H3 before the fix (rain-sport tyres); semislick/noFI = that build with the named swap. Deterministic: V06-H3 at H:S15 gave 146.8 s in three separate runs.
+V06 H:S15 V06-H3 PI 622/849 dry 146.8s vs 137.9s finished 1 walls 1
+V06 H:S15 H3-semislick PI 663/849 dry 128.1s vs 137.9s finished 1 walls 0
+V06 H:S15 H3-noFI PI 577/849 dry 132.3s vs 137.9s finished 1 walls 0
+V06 H:S15 H3-semislick-noFI PI 617/849 dry 129.9s vs 137.9s finished 1 walls 0
+V06 H:S16 V06-H3 PI 622/849 damp 213.9s vs 228.5s finished 1 walls 0
+V06 H:S16 H3-semislick PI 663/849 damp 209.5s vs 228.5s finished 1 walls 0
+V06 H:S16 H3-noFI PI 577/849 damp 215.5s vs 228.5s finished 1 walls 0
+V06 H:S16 H3-semislick-noFI PI 617/849 damp 211.3s vs 228.5s finished 1 walls 0
+V06 H:S17 V06-H3 PI 622/849 wet 149.0s vs 162.5s finished 1 walls 0
+V06 H:S17 H3-semislick PI 663/849 wet 146.5s vs 162.5s finished 1 walls 1
+V06 H:S17 H3-noFI PI 577/849 wet 150.2s vs 162.5s finished 1 walls 0
+V06 H:S17 H3-semislick-noFI PI 617/849 wet 147.0s vs 162.5s finished 1 walls 0
+V06 H:S18 V06-H3 PI 622/849 dry 188.9s vs 200.4s finished 1 walls 0
+V06 H:S18 H3-semislick PI 663/849 dry 185.7s vs 200.4s finished 1 walls 0
+V06 H:S18 H3-noFI PI 577/849 dry 191.9s vs 200.4s finished 1 walls 0
+V06 H:S18 H3-semislick-noFI PI 617/849 dry 188.3s vs 200.4s finished 1 walls 0
+V06 H:S19 V06-H3 PI 622/849 damp 164.5s vs 172.7s finished 1 walls 0
+V06 H:S19 H3-semislick PI 663/849 damp 160.9s vs 172.7s finished 1 walls 0
+V06 H:S19 H3-noFI PI 577/849 damp 166.3s vs 172.7s finished 1 walls 0
+V06 H:S19 H3-semislick-noFI PI 617/849 damp 163.1s vs 172.7s finished 1 walls 0
+V06 H:S20 V06-H3 PI 622/849 dry 200.4s vs 211.2s finished 1 walls 0
+V06 H:S20 H3-semislick PI 663/849 dry 196.8s vs 211.2s finished 1 walls 0
+V06 H:S20 H3-noFI PI 577/849 dry 202.6s vs 211.2s finished 1 walls 0
+V06 H:S20 H3-semislick-noFI PI 617/849 dry 199.2s vs 211.2s finished 1 walls 0
+V06 H:S21 V06-H3 PI 622/849 damp 192.9s vs 213.7s finished 1 walls 0
+V06 H:S21 H3-semislick PI 663/849 damp 190.6s vs 213.7s finished 1 walls 0
+V06 H:S21 H3-noFI PI 577/849 damp 194.1s vs 213.7s finished 1 walls 0
+V06 H:S21 H3-semislick-noFI PI 617/849 damp 192.0s vs 213.7s finished 1 walls 0

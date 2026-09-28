@@ -1907,7 +1907,7 @@
           ],
           "by": "H:S15",
           "parts": [
-            "TYR-T3-RAINSPORT",
+            "TYR-T3-SEMISLICK",
             "SUS-T3-COILOVER",
             "DIF-T2-FWD-ADJ",
             "GBX-T3-SEQ",
@@ -1920,7 +1920,8 @@
           "tuning": {
             "DiffLock": 60,
             "FinalDrive": 1060
-          }
+          },
+          "note": "Semi-slicks, not rain-sports: with the supercharger the FWD front end needs peak grip (F09, V-069)."
         },
         {
           "id": "V06-H4",

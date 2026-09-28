@@ -1163,3 +1163,24 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - F08's Hard gate is therefore reached and mostly cleared by one starter; V01/V02 cannot reach Hard until their Normal
   S29 Entry apex issue (V-065) is resolved; both S29 failures are the automation's racecraft in a pack, not a missing
   rule — a human S29 run is the outstanding check.
+
+## V-069 — F09 driving: all 18 models on their favourite-car paths meet the certified targets (2026-09-27)
+- Revision: working tree on `42bafbf` (committed in the next checkpoint). PlayMode
+  `FavouriteCarDrivingTests.EveryModel_OnItsPath_MeetsTheCertifiedTargets` in the editor: each of the 18 models — every
+  handling family (FR: V01/V04/V05/V09/V10/V13/V15, FF: V02/V06/V14, AWD: V03/V07/V08/V12/V17, MR: V11/V16, front-mid:
+  V18) — driven solo by the validator autopilot (automation, legal inputs, not a human) with the build its recipe
+  intends at four sides: the stage it is bought for, a mid-campaign stage, the N:S28 lieutenant and H:S15, each under the
+  side's authored surface. Each run must finish, be cap-legal and beat the side's certified target (Normal 1.05×P, Hard
+  1.00×P). Evidence `Evidence/progression/favourite-cars.json`. The data half (every path resolvable, shop/cap legal,
+  band demands on the PI estimate, affordable on the campaign income) is the .NET `UpgradePathTests` (232/232 pass).
+- **First run: 71/72.** V06 (FWD) at H:S15 on `V06-H3` took 146.8 s against 137.9 s, with a wall hit — deterministic
+  (the same 146.8 s in three runs), and slower than its own weaker H2 build (132.4 s). Variants on all seven Hard Act III
+  sides (`Evidence/progression/v06-hard-act3-variants.txt`): the recipe's rain-sport tyres plus the Act III supercharger
+  overpower the FWD front end on C13's dry blue-hour side; with semi-slicks (what the other FWD, V02, runs at H3) V06 is
+  the fastest variant on every side, wet S17 included (146.5 s against 162.5 s). The authored H3 step now uses semi-slicks
+  (PI 663/849; one extra 95,000 tyre purchase, still affordable per `UpgradePathTests`).
+- **After the fix: 72/72** finished, cap-legal and under target. Time/target ratio 0.770–0.987; closest: V07-H3 0.987,
+  V01-H3 0.980, V02-H3 0.972 at H:S15 (the Hard Act III entry, where the Hard factor 1.00 leaves the least margin); 8 of
+  72 runs had a single wall contact and still beat the target.
+- F10 (unchanged starter against its developed build under the same inputs and conditions) was measured for the three
+  starters in V-048. F09/F10 are complete **for automation**; the human favourite-car runs remain pending.
