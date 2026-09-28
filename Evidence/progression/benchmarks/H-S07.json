@@ -11,9 +11,9 @@
   "provisionalTargetMs": 247000,
   "referenceMs": 135510,
   "targetMs": 139806,
-  "featuredMs": 140629,
+  "featuredMs": 140589,
   "factor": 1.0317,
-  "featuredPace": 0.9531,
+  "featuredPace": 0.9688,
   "starters": [
     {
       "car": "V01",
@@ -67,27 +67,23 @@
   "tries": [
     {
       "pace": 1.0,
-      "ms": 136994
+      "ms": 138065
     },
     {
       "pace": 0.75,
-      "ms": 161744
+      "ms": 163660
     },
     {
       "pace": 0.875,
-      "ms": 147599
+      "ms": 149003
     },
     {
       "pace": 0.9375,
-      "ms": 142002
+      "ms": 143310
     },
     {
       "pace": 0.9688,
-      "ms": 139307
-    },
-    {
-      "pace": 0.9531,
-      "ms": 140629
+      "ms": 140589
     }
   ]
 }

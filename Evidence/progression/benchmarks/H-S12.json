@@ -11,7 +11,7 @@
   "provisionalTargetMs": 266000,
   "referenceMs": 217319,
   "targetMs": 222709,
-  "featuredMs": 223241,
+  "featuredMs": 223609,
   "factor": 1.0248,
   "featuredPace": 0.9062,
   "starters": [
@@ -67,23 +67,23 @@
   "tries": [
     {
       "pace": 1.0,
-      "ms": 212595
+      "ms": 213774
     },
     {
       "pace": 0.75,
-      "ms": 249692
+      "ms": 250597
     },
     {
       "pace": 0.875,
-      "ms": 227799
+      "ms": 228181
     },
     {
       "pace": 0.9375,
-      "ms": 218887
+      "ms": 219418
     },
     {
       "pace": 0.9062,
-      "ms": 223241
+      "ms": 223609
     }
   ]
 }

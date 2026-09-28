@@ -2181,3 +2181,17 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   task; health ok, content hashes unchanged `3677a844…`/`306dd38e…`; the new route answers 401 without a token).
 - **Note:** `MeetControlChannelTests.PublicMeet_ArriveWalkEmoteChatLike_ThenLeaveFadesOut` failed once in a run built to
   a scratch folder and passed in the two other runs — timing-sensitive; watched.
+
+## V-108 — Benchmarks recertified after the V-106 tendency behaviours (2026-09-28)
+- Revision: `2274410` (the editor on that tree; one Unity writer). `BenchmarkCertificationTests.CertifyHard` +
+  `CertifyNormal` in PlayMode, **2/2 passed in 55.8 min**; per-stage evidence `Evidence/progression/benchmarks/{N,H}-S*.json`
+  and `stage-benchmarks.json`. Automation with legal inputs, not human runs.
+- **Reference times unchanged:** every P and every target is identical to V-066 (the reference runs use the neutral
+  autopilot profile, which the tendency behaviours leave untouched) — 0 of 60 targets moved.
+- **Featured-rival paces:** Normal 13 of 30 moved (0.59–0.80 of the stage profile as before; e.g. S01 R01 0.727 → 0.719,
+  S27 R44 0.727 → 0.754), every rival 0–1 % above its target. Hard 15 of 30 moved; S13 R17 and S15 R29, which could not
+  reach their targets even at full pace before, now calibrate at 0.81 and 0.86; two still cannot at full pace: S04 R01
+  (142.9 s vs 140.4 s; 142.7 s before) and **S30 R48 (309.4 s vs 284.7 s — 291.7 s before: 17.6 s slower)**.
+- **Finding:** R48 (the Hard finale rival) is a momentum-reader, to which V-106 gave an earlier apex (`ApexShift` −4 m);
+  the other momentum-reader, R01, lost only 0.2 s on H S04, so C25 under the Hard finale's conditions punishes the
+  earlier line. Being investigated before the file becomes authored content (next checkpoint).
