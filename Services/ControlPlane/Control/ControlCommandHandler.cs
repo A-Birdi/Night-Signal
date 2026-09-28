@@ -185,6 +185,8 @@ public sealed class ControlCommandHandler(ConvoyDirectory directory, IPlayerStor
                 return meets.Like(a, payload);
             case "meet.invite":
                 return await meets.InviteAsync(a, payload, ct);
+            case "meet.touring":
+                return await meets.TouringAsync(a, payload, ct);
             case "meet.boombox":
                 return meets.Boombox(a, payload);
             case "meet.state":

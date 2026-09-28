@@ -7,6 +7,7 @@ using NightSignal.ControlPlane.Garage;
 using NightSignal.ControlPlane.Persistence;
 using NightSignal.ControlPlane.Security;
 using NightSignal.ControlPlane.Toys;
+using NightSignal.Core.Content;
 using NightSignal.Core.Meet;
 using NightSignal.Core.Rules;
 using NJ = Newtonsoft.Json.Linq;
@@ -76,6 +77,8 @@ public sealed class MeetService(ConvoyDirectory directory, IPlayerStore store, I
     readonly object gate = new();
     readonly Dictionary<string, Room> rooms = new(StringComparer.Ordinal);
     readonly Dictionary<string, Visitor> visitors = new(StringComparer.Ordinal);
+    /// <summary>Touring progress per account while the service runs (the grant itself is stored once, forever).</summary>
+    readonly Dictionary<string, MeetTouringProgress> touring = new(StringComparer.Ordinal);
     long roomCounter;
 
     long NowMs => clock.GetUtcNow().ToUnixTimeMilliseconds();
@@ -85,6 +88,7 @@ public sealed class MeetService(ConvoyDirectory directory, IPlayerStore store, I
     sealed record EmotePayload(string? Emote);
     sealed record ChatPayload(int Index);
     sealed record AccountPayload(string? AccountId);
+    sealed record TouringPayload(string? Step, string? Id);
     sealed record LeavePayload(string? Reason);
     sealed record BoomboxPayload(string? Op, string? TrackId);
 
@@ -261,6 +265,7 @@ public sealed class MeetService(ConvoyDirectory directory, IPlayerStore store, I
             if (room is null) return NotHere();
             bool done = room.Core.CompleteArrival(account, NowMs);
             MeetMember m = room.Core.Find(account)!;
+            if (done) GrantLater(account, room.Core.Id, TouringLocked(account, m, TouringAct.Arrived, null));
             return ConvoyResult.Success(new { arrived = done, x = m.X, z = m.Z, yaw = m.Yaw });
         }
     }
@@ -292,9 +297,11 @@ public sealed class MeetService(ConvoyDirectory directory, IPlayerStore store, I
             (Room? room, _) = Where(account);
             if (room is null) return NotHere();
             long now = NowMs;
-            return room.Core.PlayEmote(account, e, now)
-                ? ConvoyResult.Success(new { emote = e.ToString(), startMs = now, durationMs = (long)(Emotes.Duration(e) * 1000f) })
-                : ConvoyResult.Fail("emote_refused", "Not right now.");
+            if (!room.Core.PlayEmote(account, e, now)) return ConvoyResult.Fail("emote_refused", "Not right now.");
+            // A wave or a bow at the tutorial host counts toward CH63 (checked against the server-held position).
+            if (e is Core.Meet.Emote.Wave or Core.Meet.Emote.Bow)
+                GrantLater(account, room.Core.Id, TouringLocked(account, room.Core.Find(account)!, e == Core.Meet.Emote.Wave ? TouringAct.WaveAtHost : TouringAct.BowToHost, null));
+            return ConvoyResult.Success(new { emote = e.ToString(), startMs = now, durationMs = (long)(Emotes.Duration(e) * 1000f) });
         }
     }
 
@@ -324,6 +331,75 @@ public sealed class MeetService(ConvoyDirectory directory, IPlayerStore store, I
             return room.Core.ToggleLike(account, to)
                 ? ConvoyResult.Success(new { accountId = to, likes = room.Core.Find(to)!.Likes, cosmeticOnly = true })
                 : ConvoyResult.Fail("not_available", "Not available.");
+        }
+    }
+
+    // ------------------------------------------------------------------ touring challenges (CH61–CH65)
+
+    /// <summary>
+    /// A touring act the client reports (own car inspected, placard read, emote help read, a composed photo, the result
+    /// slip read): accepted only where the server-held position says the visitor is, and the result slip only after a
+    /// finished event. Completed challenges are granted (once, ledgered) and pushed as <c>meet.challenge</c>.
+    /// </summary>
+    public async Task<ConvoyResult> TouringAsync(string account, JsonElement payload, CancellationToken ct)
+    {
+        if (!limiter.TryAcquire("meet-act/" + account, ActionFlood, out long retry)) return ConvoyResult.Fail("rate_limited", "Slow down a little.", retry);
+        TouringPayload p = Read<TouringPayload>(payload);
+        if (!MeetTouring.TryParse(p.Step, out TouringAct act)) return ConvoyResult.Fail("invalid_request", "Unknown touring step.");
+        bool eligible = act != TouringAct.ReadResultSlip || await store.HasFinishedEventAsync(account, ct);
+        List<string> done;
+        string roomId;
+        lock (gate)
+        {
+            (Room? room, _) = Where(account);
+            if (room is null) return NotHere();
+            MeetMember m = room.Core.Find(account)!;
+            if (m.State != MeetMemberState.Present) return ConvoyResult.Fail("not_yet", "Finish arriving first.");
+            if (!MeetTouring.InPlace(act, p.Id, m.Bay, m.X, m.Z)) return ConvoyResult.Fail("not_here", "That has to happen where it is — walk over first.");
+            if (!eligible) return ConvoyResult.Fail("no_event", "Finish an event first, then come back and read your slip.");
+            done = TouringLocked(account, m, act, p.Id);
+            roomId = room.Core.Id;
+        }
+        var granted = new List<object>();
+        foreach (string id in done)
+            if (await GrantAsync(account, roomId, id, ct) is { } g) granted.Add(g);
+        return ConvoyResult.Success(new { recorded = act.ToString(), completed = granted });
+    }
+
+    List<string> TouringLocked(string account, MeetMember m, TouringAct act, string? id)
+    {
+        if (!MeetTouring.InPlace(act, id, m.Bay, m.X, m.Z)) return new List<string>();
+        if (!touring.TryGetValue(account, out MeetTouringProgress? progress)) touring[account] = progress = new MeetTouringProgress();
+        return MeetTouring.Record(progress, act, id);
+    }
+
+    void GrantLater(string account, string roomId, List<string> ids)
+    {
+        if (ids.Count == 0) return;
+        _ = Task.Run(async () =>
+        {
+            foreach (string id in ids) await GrantAsync(account, roomId, id, CancellationToken.None);
+        });
+    }
+
+    async Task<object?> GrantAsync(string account, string roomId, string challengeId, CancellationToken ct)
+    {
+        try
+        {
+            ChallengeDef ch = cars.Catalogue.Challenge(challengeId);
+            ChallengeTier tier = Content.ContentService.ParseTier(ch.Tier);
+            var grant = new ChallengeGrant(ch.Id, tier, RankPoints.ChallengeCash(tier), RankPoints.ForChallenge(tier), ch.Reward);
+            ChallengeGrantResult r = await store.GrantChallengeAsync(account, grant, "meet:" + roomId, ct);
+            if (!r.Granted) return null; // completed before: no repeat reward
+            var wire = new { challengeId = ch.Id, name = ch.Name, tier = ch.Tier, cash = r.Credited, rankPoints = grant.RankPoints, cosmeticId = ch.Reward, balance = r.Balance };
+            control.Send(account, "meet.challenge", 0, wire);
+            log.LogInformation("{Account} completed {Challenge} at meet {Room} (+{Cash} cr)", account, ch.Id, roomId, r.Credited);
+            return wire;
+        }
+        catch (Exception e) when (e is not OperationCanceledException)
+        {
+            log.LogError(e, "Touring grant {Challenge} for {Account} failed", challengeId, account);
+            return null;
         }
     }
 

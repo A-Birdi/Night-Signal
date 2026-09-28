@@ -174,6 +174,7 @@ namespace NightSignal.Meet
             {
                 convoyHooked = true;
                 s.Client.ReadyRequested += OnReadyRequested;
+                s.Client.MeetChallenge += OnMeetChallenge;
             }
             JObject c = s.Convoy;
             if (!s.InConvoy || c == null)
@@ -212,6 +213,13 @@ namespace NightSignal.Meet
                 case "InMatch": return "racing";
                 default: return "at ease";
             }
+        }
+
+        void OnMeetChallenge(JObject p)
+        {
+            if (this == null || Net == null || p == null) return;
+            ChallengeCompleted((string)p["challengeId"], (string)p["name"] ?? (string)p["challengeId"], (long?)p["cash"] ?? 0);
+            _ = Net.Session.RefreshMe();
         }
 
         void OnReadyRequested(JObject p)
@@ -263,7 +271,7 @@ namespace NightSignal.Meet
             actions.Add(("Invite a friend to this meet", OpenInvite));
             actions.Add(("Leave the meet", Leave));
             string kind = (string)Net.State?["kind"] == "convoy" ? "your convoy's meet" : "a public meet";
-            ShowPanel("Meet", $"Cedar Lantern Terrace · {kind}.\n\nLeaving (or opening the Garage) leaves the meet; an event your convoy agrees on takes you straight to the race. Nothing here costs or earns anything.", actions);
+            ShowPanel("Meet", $"Cedar Lantern Terrace · {kind}.\n\nLeaving (or opening the Garage) leaves the meet; an event your convoy agrees on takes you straight to the race. Only the terrace's touring challenges (CH61–CH65) pay out here; nothing else costs or earns anything.", actions);
         }
 
         void OpenInvite() => StartCoroutine(InviteRoutine());

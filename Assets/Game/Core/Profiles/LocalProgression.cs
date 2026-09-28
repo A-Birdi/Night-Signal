@@ -940,6 +940,38 @@ namespace NightSignal.Core.Profiles
             if (excess > 0) p.AppliedOperations.RemoveRange(0, excess);
         }
 
+        /// <summary>
+        /// A meet touring challenge (CH61–CH65) completed at the offline meet: unlock, RP, cosmetic and cash exactly once, as
+        /// the online meet room grants them. Only the touring family completes here — race challenges come from race facts.
+        /// </summary>
+        public static LocalProgressionResult CompleteMeetChallenge(LocalProfile profile, ContentCatalogue catalogue, string challengeId, DateTime utc)
+        {
+            LocalProgressionResult result = Begin(profile);
+            if (catalogue == null) throw new ArgumentNullException(nameof(catalogue));
+            if (!catalogue.TryChallenge(challengeId ?? "", out ChallengeDef ch) || ch.Family != "touring")
+                return Reject(result, "Only the meet's touring challenges complete at the meet.");
+            if (profile.HasCompletedChallenge(challengeId)) return Already(result, $"{challengeId} was already completed; no repeat reward.");
+            ChallengeTier tier = ParseTier(ch.Tier);
+            long cash = RankPoints.ChallengeCash(tier);
+            int rp = RankPoints.ForChallenge(tier);
+            profile.Challenges.Add(new CompletedChallenge { ChallengeId = ch.Id, Tier = tier, EventId = "meet", CompletedUtc = utc });
+            Add(result, ProgressionChangeKind.ChallengeCompleted, ch.Id, cash, $"{ch.Name} ({ch.Tier}).");
+            Add(result, ProgressionChangeKind.RankPoints, ch.Id, rp, $"{ch.Tier} challenge.");
+            if (!string.IsNullOrEmpty(ch.Reward) && !profile.OwnsCosmetic(ch.Reward))
+            {
+                profile.Cosmetics.Add(new OwnedCosmetic { CosmeticId = ch.Reward, Source = ch.Id, AcquiredUtc = utc });
+                string cosmeticName = catalogue.TryCosmetic(ch.Reward, out CosmeticDef cos) ? cos.Name : ch.Reward;
+                Add(result, ProgressionChangeKind.CosmeticGranted, ch.Reward, 0, $"{cosmeticName} (reward for {ch.Id}).");
+            }
+            Credit(profile, result, "challenge", ch.Id, cash, utc, $"{ch.Name} ({ch.Tier}).");
+            result.Status = LocalOperationStatus.Applied;
+            return Finish(result, profile);
+        }
+
+        /// <summary>Whether the profile has completed an eligible event (the touring challenge CH65 reads its result slip).</summary>
+        public static bool HasCompletedEvent(LocalProfile p) =>
+            p.Campaign.Count(CampaignMode.Normal) + p.Campaign.Count(CampaignMode.Hard) > 0 || p.WalletHistory.Any(w => w.Kind == "event" || w.Kind == "tutorial");
+
         internal static void Add(LocalProgressionResult result, ProgressionChangeKind kind, string subject, long amount, string detail) =>
             result.Changes.Add(new ProgressionChange { Kind = kind, Subject = subject ?? "", Amount = amount, Detail = detail ?? "" });
 

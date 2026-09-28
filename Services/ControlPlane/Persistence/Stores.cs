@@ -127,6 +127,13 @@ public interface IPlayerStore
     Task<CardWriteResult> UpsertCardAsync(string accountId, string displayName, long? expectedRevision, CancellationToken ct = default);
     /// <summary>As above, also setting the appearance and/or pronouns (null fields are left as stored).</summary>
     Task<CardWriteResult> UpsertCardAsync(string accountId, string displayName, long? expectedRevision, CardExtras? extras, CancellationToken ct = default);
+    /// <summary>
+    /// A challenge completed outside a race (the meet's touring challenges): the unlock, its cosmetic and its cash exactly
+    /// once, in one transaction with an append-only ledger entry (<c>challenge/&lt;account&gt;/&lt;id&gt;</c>).
+    /// </summary>
+    Task<ChallengeGrantResult> GrantChallengeAsync(string accountId, ChallengeGrant grant, string source, CancellationToken ct = default);
+    /// <summary>Whether the account has a settled event it finished (touring CH65 reads the result slip after one).</summary>
+    Task<bool> HasFinishedEventAsync(string accountId, CancellationToken ct = default);
     /// <summary>Once per account: owns the starter car and credits the starter grant.</summary>
     Task<StarterResult> ClaimStarterAsync(string accountId, string carId, long credits, CancellationToken ct = default);
     /// <summary>Exactly-once under the idempotency key; rejects insufficient funds and invalid prices.</summary>
@@ -181,6 +188,9 @@ public sealed class MatchRecord
 public sealed record StageClearCandidate(CampaignMode Mode, int StageNumber, StageType Type);
 
 public sealed record ChallengeGrant(string ChallengeId, ChallengeTier Tier, long Cash, int RankPoints, string CosmeticId);
+
+/// <summary>A challenge granted outside a race: whether it was new, the cash credited and the balance after.</summary>
+public sealed record ChallengeGrantResult(bool Granted, long Credited, long Balance);
 
 /// <summary>A soundtrack cue to grant (idempotently) with this settlement.</summary>
 public sealed record MusicGrant(string CueId, string SourceKind, string SourceRef);

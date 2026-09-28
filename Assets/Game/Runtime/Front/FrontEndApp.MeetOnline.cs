@@ -226,6 +226,23 @@ namespace NightSignal.Front
             string room = m.Net.RoomId;
             yield return Until(() => m.RemoteCount >= 1 && (m.Net.State["members"] as JArray).Count(x => (string)x["state"] == "present") >= 2, 60f, "both at the convoy meet");
             int bayA = m.PlayerBay;
+            if (host)
+            {
+                // CH61 online: arrived, then the own car inspected beside it — the room checks the server-held position.
+                m.Open("own-car");
+                yield return new WaitForSeconds(0.5f);
+                m.ClosePanel();
+                bool HasCh61() => (S().Me?["challengesCompleted"] as JArray)?.Any(c => (string)c == Core.Meet.MeetTouring.FirstParking) == true;
+                float ch61Until = Time.realtimeSinceStartup + 10f;
+                while (!HasCh61() && Time.realtimeSinceStartup < ch61Until)
+                {
+                    System.Threading.Tasks.Task refresh = S().RefreshMe();
+                    while (!refresh.IsCompleted) yield return null;
+                    if (!HasCh61()) yield return new WaitForSeconds(1f);
+                }
+                Note($"CH61 on the account: {HasCh61()} (ribbon notice this visit: {m.Log.Any(l => l.StartsWith("challenge CH61"))})");
+                if (!HasCh61()) Fail("CH61 was not granted by the meet room");
+            }
             if (!host)
             {
                 // The host's avatar is built from their Player Card look, replicated by the room.

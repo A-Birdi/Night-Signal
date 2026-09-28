@@ -250,6 +250,30 @@ public abstract partial class SqlGameStore : IPlayerStore, IResultLedger, ISocia
             return new CardWriteResult(WriteStatus.Ok, new PlayerCard(displayName, current + 1, look, pronouns));
         }, ct);
 
+    public Task<ChallengeGrantResult> GrantChallengeAsync(string accountId, ChallengeGrant grant, string source, CancellationToken ct = default) =>
+        WriteAsync(async (c, tx) =>
+        {
+            await EnsureAccount(c, tx, accountId);
+            long balance = await LockWallet(c, tx, accountId);
+            int inserted = await c.ExecAsync(tx,
+                "INSERT INTO challenge_unlocks (account_id, challenge_id, tier, match_id) VALUES (@a, @ch, @t, @m) ON CONFLICT DO NOTHING",
+                ("@a", accountId), ("@ch", grant.ChallengeId), ("@t", grant.Tier.ToString().ToLowerInvariant()), ("@m", source));
+            if (inserted == 0) return new ChallengeGrantResult(false, 0, balance);
+            if (!string.IsNullOrEmpty(grant.CosmeticId))
+                await c.ExecAsync(tx, "INSERT INTO cosmetics_owned (account_id, cosmetic_id, source) VALUES (@a, @cos, @src) ON CONFLICT DO NOTHING",
+                    ("@a", accountId), ("@cos", grant.CosmeticId), ("@src", grant.ChallengeId));
+            WalletCredit credit = Wallet.Credit(balance, grant.Cash);
+            await InsertLedger(c, tx, accountId, $"challenge/{accountId}/{grant.ChallengeId}", "challenge", null, grant.ChallengeId,
+                grant.Cash, credit.Credited, credit.ClampedAway, credit.NewBalance);
+            await SetBalance(c, tx, accountId, credit.NewBalance);
+            return new ChallengeGrantResult(true, credit.Credited, credit.NewBalance);
+        }, ct);
+
+    public Task<bool> HasFinishedEventAsync(string accountId, CancellationToken ct = default) =>
+        ReadAsync(async (c, tx) => await c.FirstOrDefaultAsync(tx,
+            "SELECT 1 FROM match_results WHERE account_id = @a AND receipt_json LIKE @f", r => true,
+            ("@a", accountId), ("@f", "%\"outcome\":\"Finished\"%")), ct);
+
     static string StarterKey(string accountId) => $"starter/{accountId}";
 
     public Task<StarterResult> ClaimStarterAsync(string accountId, string carId, long credits, CancellationToken ct = default) =>

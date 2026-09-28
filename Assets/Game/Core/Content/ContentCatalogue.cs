@@ -71,6 +71,7 @@ namespace NightSignal.Core.Content
         public ChallengeDef Challenge(string id) => Lookup(challengeById, id, "challenge");
         public CosmeticDef Cosmetic(string id) => Lookup(cosmeticById, id, "cosmetic");
         public bool TryCourse(string id, out CourseDef c) => courseById.TryGetValue(id ?? "", out c);
+        public bool TryChallenge(string id, out ChallengeDef c) => challengeById.TryGetValue(id ?? "", out c);
         public bool TryCar(string id, out CarDef c) => carById.TryGetValue(id ?? "", out c);
         public bool TryRival(string id, out RivalDef r) => rivalById.TryGetValue(id ?? "", out r);
         public bool TryCosmetic(string id, out CosmeticDef c) => cosmeticById.TryGetValue(id ?? "", out c);

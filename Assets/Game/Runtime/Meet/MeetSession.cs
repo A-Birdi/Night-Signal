@@ -150,7 +150,11 @@ namespace NightSignal.Meet
             controls?.Disable();
             controls?.Dispose();
             Hud?.Dispose();
-            if (Net != null && convoyHooked) Net.Session.Client.ReadyRequested -= OnReadyRequested;
+            if (Net != null && convoyHooked)
+            {
+                Net.Session.Client.ReadyRequested -= OnReadyRequested;
+                Net.Session.Client.MeetChallenge -= OnMeetChallenge;
+            }
             Net?.Dispose();
             foreach (GameObject go in spawned) if (go != null) Destroy(go);
             Cursor.lockState = CursorLockMode.None;
@@ -400,6 +404,7 @@ namespace NightSignal.Meet
             Hud.Notify($"Parked in bay {PlayerBay + 1}: {CarName}", "parked");
             if (Net != null) StartCoroutine(ArrivedOnline());
             Note($"arrived in bay {PlayerBay + 1} after {arrivalT:F2} s (skippable flourish)");
+            Touring(TouringAct.Arrived);
         }
 
         /// <summary>Out of the car at a validated free point beside it (the driver's door when clear).</summary>
@@ -555,6 +560,7 @@ namespace NightSignal.Meet
                 hostReplyAt = Time.time + 0.6f;
                 if (e == Emote.Wave) HostWaved = true; else HostBowed = true;
                 CheckLesson();
+                if (Net == null) Touring(e == Emote.Wave ? TouringAct.WaveAtHost : TouringAct.BowToHost);
             }
         }
 
@@ -664,9 +670,13 @@ namespace NightSignal.Meet
                 {
                     MeetText.Placard t = Text.Find(s.Id);
                     ShowPanel(t != null ? t.Title : s.Label, t != null ? t.Text : "", null);
+                    Touring(TouringAct.ReadPlacard, s.Id);
                     break;
                 }
-                case "board": ShowPanel("Timing board", BoardText(true), null); break;
+                case "board":
+                    ShowPanel("Timing board", BoardText(true), null);
+                    Touring(TouringAct.ReadResultSlip);
+                    break;
                 case "boombox": OpenBoombox(); break;
                 case "photo-marker": EnterPhoto(true); break;
             }
@@ -683,7 +693,7 @@ namespace NightSignal.Meet
             host.Rig.transform.rotation = Quaternion.LookRotation(Flat(Player.transform.position - host.Rig.transform.position));
             if (page == 0) host.Motion.Play(Emote.Wave);
             var actions = new List<(string, Action)>();
-            if (page == 0) actions.Add(("How do greetings work?", () => { HostHelpRead = true; OpenHostHelp(); CheckLesson(); }));
+            if (page == 0) actions.Add(("How do greetings work?", () => { HostHelpRead = true; OpenHostHelp(); CheckLesson(); Touring(TouringAct.ReadEmoteHelp); }));
             ShowPanel(Text.HostName, $"<color=#9A968D>{Text.HostRole}</color>\n\n" + string.Join("\n\n", lines), actions);
         }
 
@@ -713,6 +723,7 @@ namespace NightSignal.Meet
 
         void OwnCar()
         {
+            Touring(TouringAct.InspectOwnCar);
             ShowPanel($"Your {CarName}", $"{CarId} · PI {CarPi} · class {Core.Rules.PerformanceIndex.ClassOf(CarPi)}\nTune: {TuneSummary}\n\nParked in bay {PlayerBay + 1}.",
                 new List<(string, Action)>
                 {
@@ -948,8 +959,23 @@ namespace NightSignal.Meet
             State = Phase.Photo;
             Camera.Photo = true;
             Player.Frozen = true;
-            Hud.SetPhotoMode(true, $"PHOTO MODE · move {controls.BindingLabel("Move")} · look · zoom · {controls.BindingLabel("Interact")} save a photo · {controls.BindingLabel("Photo")} leave · nameplates hidden");
+            photoHint = $"PHOTO MODE · move {controls.BindingLabel("Move")} · look · zoom · {controls.BindingLabel("Interact")} save a photo · {controls.BindingLabel("Photo")} leave · nameplates hidden";
+            Hud.SetPhotoMode(true, photoHint);
             Note(atMarker ? "photo mode at the marker" : "photo mode");
+        }
+
+        string photoHint = "";
+
+        bool SavePhoto()
+        {
+            string dir = System.IO.Path.Combine(Application.persistentDataPath, "Photos");
+            System.IO.Directory.CreateDirectory(dir);
+            string file = System.IO.Path.Combine(dir, $"meet-{DateTime.Now:yyyyMMdd-HHmmss}.png");
+            ScreenCapture.CaptureScreenshot(file);
+            bool composed = PhotoComposition(out bool marker, out bool car, out bool horizon);
+            Note($"photo saved (composition: marker {marker}, car {car}, horizon {horizon})");
+            if (composed) Touring(TouringAct.PhotoComposed);
+            return composed;
         }
 
         public void ExitPhoto()
@@ -964,14 +990,8 @@ namespace NightSignal.Meet
         {
             Camera.Look(LookDegrees(dt), controls.Zoom, false, dt);
             Camera.PhotoMove(controls.Move, dt);
-            if (controls.InteractPressed)
-            {
-                string dir = System.IO.Path.Combine(Application.persistentDataPath, "Photos");
-                System.IO.Directory.CreateDirectory(dir);
-                string file = System.IO.Path.Combine(dir, $"meet-{DateTime.Now:yyyyMMdd-HHmmss}.png");
-                ScreenCapture.CaptureScreenshot(file);
-                Note("photo saved");
-            }
+            Hud.SetPhotoMode(true, photoHint + "\n" + CompositionLine());
+            if (controls.InteractPressed) SavePhoto();
             if (controls.PhotoPressed || controls.MenuPressed) ExitPhoto();
         }
 
@@ -985,7 +1005,7 @@ namespace NightSignal.Meet
                 OpenMenuOnline();
                 return;
             }
-            ShowPanel("Meet", "Cedar Lantern Terrace · offline meet.\n\nLeaving returns you to the menus; nothing here costs or earns anything.",
+            ShowPanel("Meet", "Cedar Lantern Terrace · offline meet.\n\nLeaving returns you to the menus. Only the terrace's touring challenges (CH61–CH65) pay out here; nothing else costs or earns anything.",
                 new List<(string, Action)> { ("Leave the meet", Leave) });
         }
 

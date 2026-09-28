@@ -17,6 +17,8 @@ namespace NightSignal.Front
 {
     public sealed partial class FrontEndApp
     {
+        readonly Dictionary<string, MeetTouringProgress> localTouring = new Dictionary<string, MeetTouringProgress>();
+
         /// <summary>The meet session while one is open (tours drive it).</summary>
         public MeetSession ActiveMeet { get; private set; }
 
@@ -48,6 +50,21 @@ namespace NightSignal.Front
             ActiveMeet.PlayerName = string.IsNullOrEmpty(profile.DisplayName) ? "You" : profile.DisplayName;
             ActiveMeet.OwnsCue = profile.HasCue;
             ActiveMeet.RecentSlips = Slips(profile);
+            // Touring challenges (CH61–CH65) on the Local profile: acts counted where they happen, each reward once.
+            if (!localTouring.TryGetValue(profile.ProfileId ?? "", out MeetTouringProgress touring))
+                localTouring[profile.ProfileId ?? ""] = touring = new MeetTouringProgress();
+            MeetSession meet = ActiveMeet;
+            meet.TouringActed = (act, id) =>
+            {
+                if (act == TouringAct.ReadResultSlip && !LocalProgression.HasCompletedEvent(s.Profile)) return;
+                foreach (string challenge in MeetTouring.Record(touring, act, id))
+                {
+                    LocalProgressionResult r = LocalProgression.CompleteMeetChallenge(s.Profile, s.Catalogue, challenge, DateTime.UtcNow);
+                    if (r.Status != LocalOperationStatus.Applied || !s.Commit(r, out _)) continue;
+                    long cash = r.BalanceAfter - r.BalanceBefore;
+                    meet.ChallengeCompleted(challenge, s.Catalogue.Challenge(challenge).Name, cash);
+                }
+            };
             while (ActiveMeet != null && !ActiveMeet.ExitRequested) yield return null;
             if (ActiveMeet != null) Destroy(ActiveMeet.gameObject);
             ActiveMeet = null;
@@ -240,6 +257,19 @@ namespace NightSignal.Front
             yield return new WaitForSeconds(0.5f);
             if (!m.Hud.PanelOpen || !m.Hud.PanelTitle.Contains("East")) Fail("east viewpoint placard not shown");
             m.ClosePanel();
+            // CH62: each viewpoint placard read AT the placard (the East one above was read from the plaza: no credit).
+            long walletBefore = LocalSession.Current.Profile.WalletBalance;
+            foreach (MeetBox placard in MeetLayout.Placards)
+            {
+                Vector3 at = Vector3.zero;
+                foreach (Vector2 o in new[] { new Vector2(0f, -2f), new Vector2(0f, 2f), new Vector2(2f, 0f), new Vector2(-2f, 0f), new Vector2(1.5f, -1.5f), new Vector2(-1.5f, 1.5f) })
+                    if (MeetLayout.Walkable(placard.X + o.x, placard.Z + o.y)) { at = new Vector3(placard.X + o.x, 0f, placard.Z + o.y); break; }
+                m.Player.Teleport(at, 0f);
+                yield return new WaitForSeconds(0.3f);
+                m.Open("placard", placard.Id);
+                yield return new WaitForSeconds(0.3f);
+                m.ClosePanel();
+            }
             m.Player.Teleport(new Vector3(MeetLayout.TimingBoard.X, 0f, MeetLayout.TimingBoard.Z - 2.2f), 0f);
             m.Camera.Recenter();
             yield return new WaitForSeconds(0.5f);
@@ -275,6 +305,9 @@ namespace NightSignal.Front
             MeetBay bay = MeetLayout.Bays[m.PlayerBay];
             m.Player.Teleport(new Vector3(bay.X, 0f, bay.Z) + Quaternion.Euler(0f, bay.Yaw, 0f) * new Vector3(-2.3f, 0f, 0f), bay.Yaw);
             yield return new WaitForSeconds(0.3f);
+            m.Open("own-car"); // CH61: arrived, then inspected the own car beside it
+            yield return new WaitForSeconds(0.4f);
+            m.ClosePanel();
             m.SitIn();
             yield return new WaitForSeconds(1f);
             bool rev1 = m.RevNow(), rev2 = m.RevNow();
@@ -290,7 +323,27 @@ namespace NightSignal.Front
             m.Open("photo-marker");
             yield return new WaitForSeconds(1f);
             yield return Snap("12-photo-marker");
+            // CH64: frame your own car against the horizon from the overlook marker and save the photo.
+            Vector3 toCar = m.PlayerCar.transform.position - m.Player.transform.position;
+            m.Camera.Yaw = Mathf.Atan2(toCar.x, toCar.z) * Mathf.Rad2Deg;
+            m.Camera.Pitch = 3f;
+            yield return new WaitForSeconds(0.6f);
+            yield return Snap("12b-photo-composed");
+            bool composed = m.TakePhoto();
+            Note($"photo composition at the marker: {composed}");
+            if (!composed) Fail("the composition check failed with the car framed from the marker");
+            yield return new WaitForSeconds(0.5f);
             m.ExitPhoto();
+
+            // Touring challenges on the Local profile: CH61–CH64 granted once each; CH65 needs a finished event first.
+            LocalProfile tp = LocalSession.Current.Profile;
+            string[] earned = MeetTouring.Challenges.Where(tp.HasCompletedChallenge).ToArray();
+            long touringCash = tp.WalletBalance - walletBefore;
+            Note($"touring challenges on the profile: {string.Join(", ", earned)}; wallet +{touringCash} since the placards");
+            foreach (string ch in new[] { MeetTouring.FirstParking, MeetTouring.FourCorners, MeetTouring.Greeting, MeetTouring.Horizon })
+                if (!tp.HasCompletedChallenge(ch)) Fail($"{ch} not completed");
+            if (tp.HasCompletedChallenge(MeetTouring.BringItHome)) Fail("CH65 granted without a finished event");
+            if (m.Log.Count(l => l.StartsWith("challenge ")) < 4) Fail("the completions were not announced on the ribbon");
 
             // Rescue from the far corner back to the car.
             m.Player.Teleport(new Vector3(40f, 0f, 44f), 0f);
