@@ -1,0 +1,5 @@
+[NightSignal.CanvasPad] pen active True at (682.31, 590.65)
+[NightSignal.CanvasPad] menu focus before the pen Tool/Prev, after Tool/Prev
+[NightSignal.CanvasPad] controller stroke: 1 new mark(s), 236 stroke points
+[NightSignal.CanvasPad] after a mouse move the controller pen is handed back
+[NightSignal.CanvasPad] PASS

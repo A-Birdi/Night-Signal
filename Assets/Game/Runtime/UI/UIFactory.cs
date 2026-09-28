@@ -37,6 +37,13 @@ namespace NightSignal.UI
             {
                 var es = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
                 Object.DontDestroyOnLoad(es);
+                // Menus navigate with the left stick and the d-pad; the right stick is left to in-screen pointers (the
+                // Canvas's controller pen), so moving the pen never moves the menu focus.
+                UnityEngine.InputSystem.InputAction move = es.GetComponent<InputSystemUIInputModule>().move?.action;
+                if (move != null)
+                    for (int i = 0; i < move.bindings.Count; i++)
+                        if (move.bindings[i].path != null && move.bindings[i].path.StartsWith("<Gamepad>/rightStick"))
+                            UnityEngine.InputSystem.InputActionRebindingExtensions.ApplyBindingOverride(move, i, "");
             }
             return canvas;
         }

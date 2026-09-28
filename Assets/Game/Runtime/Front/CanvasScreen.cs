@@ -34,6 +34,15 @@ namespace NightSignal.Front
         CanvasStampLibrary stamps;
         RawImage sheetImage;
         RectTransform textLayer;
+        RectTransform screenRoot, padCursorMark;
+        // Controller pen (the right stick moves it over the sheet, the right trigger draws; the left stick and d-pad keep
+        // navigating the tool column). Whichever device moved last drives the pointer.
+        Vector2 padCursor;
+        bool padActive, padPlaced, padWasDown;
+        /// <summary>True while the controller pen (not the mouse) drives the pointer (tours, HUD hint).</summary>
+        public bool ControllerPen => padActive;
+        /// <summary>The controller pen's screen position (tours).</summary>
+        public Vector2 ControllerPenPosition => padCursor;
         Texture2D tex;
         Color32[] px;
         TextMeshProUGUI info, status;
@@ -106,6 +115,16 @@ namespace NightSignal.Front
             info.rectTransform.anchorMax = new Vector2(0.99f, 0.1f);
             info.rectTransform.offsetMin = info.rectTransform.offsetMax = Vector2.zero;
             info.richText = true;
+            screenRoot = root;
+            // The controller pen's crosshair (hidden until a controller moves it).
+            padCursorMark = UIFactory.Rect("ControllerPen", root, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+            padCursorMark.sizeDelta = new Vector2(30, 30);
+            foreach ((Vector2 min, Vector2 max) in new[] { (new Vector2(-15, -2), new Vector2(15, 2)), (new Vector2(-2, -15), new Vector2(2, 15)) })
+            {
+                Image bar = UIFactory.Panel("Bar", padCursorMark, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), min, max, SignalTheme.Signal);
+                bar.raycastTarget = false;
+            }
+            padCursorMark.gameObject.SetActive(false);
             tex = new Texture2D(TexW, TexH, TextureFormat.RGBA32, false) { filterMode = FilterMode.Bilinear, wrapMode = TextureWrapMode.Clamp };
             px = new Color32[TexW * TexH];
             sheetImage.texture = tex;
@@ -153,7 +172,8 @@ namespace NightSignal.Front
             if (d == null || s == null) { info.text = "Opening the canvas…"; return; }
             HandleInput(s);
             if (d.Revision != drawnRevision || s.SheetId != drawnSheet || dragging) Redraw(d, s);
-            info.text = $"{s.Name}  ·  {s.Objects.Count(o => !o.Deleted)} marks  ·  {d.Sheets.Count} sheet(s)  ·  click and drag on the sheet with the {tool} tool";
+            info.text = $"{s.Name}  ·  {s.Objects.Count(o => !o.Deleted)} marks  ·  {d.Sheets.Count} sheet(s)  ·  " +
+                        (padActive ? $"right stick moves the pen, hold RT to use the {tool} tool" : $"click and drag on the sheet with the {tool} tool  ·  controller: right stick + RT");
             if (!string.IsNullOrEmpty(toys.Status)) status.text = toys.Status;
         }
 
@@ -185,10 +205,9 @@ namespace NightSignal.Front
                 }
                 return;
             }
-            Mouse m = Mouse.current;
-            if (m == null) return;
-            bool inSheet = SheetPoint(m.position.ReadValue(), out Vector2Int p);
-            if (m.leftButton.wasPressedThisFrame && inSheet && !(EventSystem.current?.currentSelectedGameObject?.GetComponent<TMP_InputField>() != null && tool != Tool.Text))
+            if (!ReadPointer(out Vector2 screen, out bool pressedNow, out bool down, out bool up)) return;
+            bool inSheet = SheetPoint(screen, out Vector2Int p);
+            if (pressedNow && inSheet && !(EventSystem.current?.currentSelectedGameObject?.GetComponent<TMP_InputField>() != null && tool != Tool.Text))
             {
                 dragging = true;
                 dragStart = p;
@@ -211,14 +230,14 @@ namespace NightSignal.Front
                         break;
                 }
             }
-            if (dragging && tool == Tool.Pen && m.leftButton.isPressed && inSheet && stroke != null)
+            if (dragging && tool == Tool.Pen && down && inSheet && stroke != null)
             {
                 List<int> pending = stroke.Pending;
                 int n = pending.Count;
                 if (n < 2 || Mathf.Abs(pending[n - 2] - p.x) + Mathf.Abs(pending[n - 1] - p.y) > 10) pending.AddRange(new[] { p.x, p.y });
                 if (pending.Count >= 64) FlushStroke(false);
             }
-            if (dragging && m.leftButton.wasReleasedThisFrame)
+            if (dragging && up)
             {
                 dragging = false;
                 if (tool == Tool.Pen) { FlushStroke(true); EndStroke(); }
@@ -228,6 +247,53 @@ namespace NightSignal.Front
                     SendOnSheet("shape.add", new JObject { ["shape"] = tool.ToString(), ["color"] = Palette[colourStep.Index], ["width"] = Width(), ["points"] = new JArray(dragStart.x, dragStart.y, end.x, end.y) });
                 }
             }
+        }
+
+        /// <summary>
+        /// The pointer this frame from the mouse or the controller pen, whichever moved last: screen position and the
+        /// press edge / held / release edge of its button (left mouse button, or the right trigger past half travel).
+        /// </summary>
+        bool ReadPointer(out Vector2 screen, out bool pressed, out bool down, out bool up)
+        {
+            Mouse m = Mouse.current;
+            Gamepad g = Gamepad.current;
+            if (m != null && (m.delta.ReadValue().sqrMagnitude > 1f || m.leftButton.wasPressedThisFrame)) padActive = false;
+            Vector2 stick = g != null ? g.rightStick.ReadValue() : Vector2.zero;
+            float trigger = g != null ? g.rightTrigger.ReadValue() : 0f;
+            if (g != null && (stick.magnitude > 0.2f || trigger > 0.5f)) padActive = true;
+            if (padActive && g != null)
+            {
+                Rect r = ScreenRect(sheetImage.rectTransform);
+                if (!padPlaced) { padCursor = r.center; padPlaced = true; }
+                float dt = Mathf.Min(Time.unscaledDeltaTime, 0.05f);
+                if (stick.magnitude > 0.15f) padCursor += stick * stick.magnitude * 900f * dt * (Screen.height / 1080f);
+                padCursor = new Vector2(Mathf.Clamp(padCursor.x, r.xMin, r.xMax), Mathf.Clamp(padCursor.y, r.yMin, r.yMax));
+                bool isDown = trigger > 0.5f;
+                pressed = isDown && !padWasDown;
+                up = !isDown && padWasDown;
+                down = isDown;
+                padWasDown = isDown;
+                screen = padCursor;
+                if (RectTransformUtility.ScreenPointToLocalPointInRectangle(screenRoot, screen, null, out Vector2 local))
+                    padCursorMark.anchoredPosition = local;
+                padCursorMark.gameObject.SetActive(true);
+                return true;
+            }
+            padCursorMark.gameObject.SetActive(false);
+            padWasDown = false;
+            if (m == null) { screen = default; pressed = down = up = false; return false; }
+            screen = m.position.ReadValue();
+            pressed = m.leftButton.wasPressedThisFrame;
+            down = m.leftButton.isPressed;
+            up = m.leftButton.wasReleasedThisFrame;
+            return true;
+        }
+
+        static Rect ScreenRect(RectTransform rt)
+        {
+            var corners = new Vector3[4];
+            rt.GetWorldCorners(corners); // screen-space overlay: world corners are screen pixels
+            return Rect.MinMaxRect(corners[0].x, corners[0].y, corners[2].x, corners[2].y);
         }
 
         int Width() => new[] { 2, 4, 8, 14, 24, 40 }[widthStep.Index];
