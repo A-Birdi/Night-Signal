@@ -36,7 +36,7 @@ namespace NightSignal.Meet
         double offsetMs = double.NaN;
         int seq;
         float nextPose;
-        bool moveInFlight;
+        int movesInFlight;
 
         public MeetNet(OnlineSession session, string kind, string friendAccountId = null, string instanceId = null)
         {
@@ -127,17 +127,23 @@ namespace NightSignal.Meet
             return true;
         }
 
-        /// <summary>This player's pose, at most 10 per second; the reply may correct it.</summary>
+        /// <summary>Poses sent but not yet answered, at most: pipelined so a slow round trip does not halve the pose rate.</summary>
+        public const int MaxMovesInFlight = 3;
+
+        /// <summary>
+        /// This player's pose, at most 10 per second; the reply may correct it. Up to <see cref="MaxMovesInFlight"/> are in
+        /// flight (the control channel keeps their order); only the reply to the newest one applies a correction.
+        /// </summary>
         public void SendPose(Vector3 position, float yaw, float speed)
         {
-            if (RoomId == null || moveInFlight || Time.unscaledTime < nextPose) return;
+            if (RoomId == null || movesInFlight >= MaxMovesInFlight || Time.unscaledTime < nextPose) return;
             nextPose = Time.unscaledTime + 0.1f;
             _ = Move(position, yaw, speed, ++seq);
         }
 
         async Task Move(Vector3 p, float yaw, float speed, int s)
         {
-            moveInFlight = true;
+            movesInFlight++;
             try
             {
                 PosesSent++;
@@ -149,7 +155,7 @@ namespace NightSignal.Meet
                 }
             }
             catch (Exception) { }
-            finally { moveInFlight = false; }
+            finally { movesInFlight--; }
         }
 
         /// <summary>A request whose failure is recorded (LastError) rather than thrown.</summary>

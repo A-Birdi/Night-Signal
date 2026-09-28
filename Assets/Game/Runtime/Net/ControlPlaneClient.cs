@@ -22,7 +22,39 @@ namespace NightSignal.Net
         ClientWebSocket socket;
         readonly CancellationTokenSource cts = new CancellationTokenSource();
         readonly ConcurrentDictionary<string, TaskCompletionSource<JObject>> pending = new ConcurrentDictionary<string, TaskCompletionSource<JObject>>();
-        readonly ConcurrentQueue<JObject> inbox = new ConcurrentQueue<JObject>();
+        readonly ConcurrentQueue<(long Due, JObject Msg)> inbox = new ConcurrentQueue<(long, JObject)>();
+
+        // Automation (-nsImpairControl delayMs,jitterMs): latency on the control channel in both directions, message order
+        // kept (a reliable stream: loss shows as delay, so there is no drop). Seeded, so a run can be repeated.
+        static readonly int ImpairDelayMs, ImpairJitterMs;
+        readonly System.Random impairRandom = new System.Random(7);
+        readonly object impairGate = new object();
+        long lastSendDue, lastReceiveDue;
+        static readonly System.Diagnostics.Stopwatch clock = System.Diagnostics.Stopwatch.StartNew();
+
+        static ControlPlaneClient()
+        {
+            string[] args = Environment.GetCommandLineArgs();
+            int i = Array.IndexOf(args, "-nsImpairControl");
+            if (i < 0 || i + 1 >= args.Length) return;
+            string[] parts = args[i + 1].Split(',');
+            if (parts.Length > 0 && int.TryParse(parts[0], out int d)) ImpairDelayMs = Math.Max(0, d);
+            if (parts.Length > 1 && int.TryParse(parts[1], out int j)) ImpairJitterMs = Math.Max(0, j);
+            Debug.Log($"[NightSignal.Control] impaired control channel: {ImpairDelayMs} ± {ImpairJitterMs} ms each way");
+        }
+
+        /// <summary>The one-way delay a control message is held for (ms, 0 unimpaired), never earlier than the last one.</summary>
+        long Due(ref long last)
+        {
+            long now = clock.ElapsedMilliseconds;
+            if (ImpairDelayMs == 0 && ImpairJitterMs == 0) return now;
+            lock (impairGate)
+            {
+                long due = now + ImpairDelayMs + (ImpairJitterMs > 0 ? impairRandom.Next(-ImpairJitterMs, ImpairJitterMs + 1) : 0);
+                last = Math.Max(last, due);
+                return last;
+            }
+        }
         // ClientWebSocket allows ONE outstanding send: overlapping SendAsync calls (a stroke's append, then its end) could be
         // refused or reach the server out of order. Every request goes through this FIFO and a single send loop.
         readonly ConcurrentQueue<byte[]> outbox = new ConcurrentQueue<byte[]>();
@@ -139,6 +171,8 @@ namespace NightSignal.Net
                 {
                     await outboxSignal.WaitAsync(cts.Token);
                     if (!outbox.TryDequeue(out byte[] bytes)) continue;
+                    long wait = Due(ref lastSendDue) - clock.ElapsedMilliseconds;
+                    if (wait > 0) await Task.Delay((int)wait, cts.Token);
                     if (socket.State != WebSocketState.Open) continue; // the request times out and reports the problem
                     await socket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, cts.Token);
                 }
@@ -163,14 +197,21 @@ namespace NightSignal.Net
                     if (!r.EndOfMessage) continue;
                     JObject msg = JObject.Parse(sb.ToString());
                     sb.Clear();
+                    long due = Due(ref lastReceiveDue);
                     if ((string)msg["type"] == "reply")
                     {
                         string id = (string)msg["payload"]?["requestId"];
-                        if (id != null && pending.TryGetValue(id, out TaskCompletionSource<JObject> tcs)) tcs.TrySetResult((JObject)msg["payload"]);
+                        if (id != null && pending.TryGetValue(id, out TaskCompletionSource<JObject> tcs))
+                        {
+                            var reply = (JObject)msg["payload"];
+                            long wait = due - clock.ElapsedMilliseconds;
+                            if (wait <= 0) tcs.TrySetResult(reply);
+                            else _ = Task.Delay((int)wait).ContinueWith(_ => tcs.TrySetResult(reply));
+                        }
                     }
                     else
                     {
-                        inbox.Enqueue(msg);
+                        inbox.Enqueue((due, msg));
                     }
                 }
             }
@@ -183,8 +224,10 @@ namespace NightSignal.Net
         /// <summary>Dispatches server pushes on the calling (main) thread. Call once per frame.</summary>
         public void Pump()
         {
-            while (inbox.TryDequeue(out JObject msg))
+            long now = clock.ElapsedMilliseconds;
+            while (inbox.TryPeek(out var next) && next.Due <= now && inbox.TryDequeue(out var item))
             {
+                JObject msg = item.Msg;
                 string type = (string)msg["type"];
                 var payload = msg["payload"] as JObject;
                 switch (type)

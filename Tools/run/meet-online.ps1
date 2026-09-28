@@ -22,6 +22,8 @@ param([int]$HostAccount = 0, [int]$Guest1Account = 1, [int]$Guest2Account = 2, [
     [switch]$Race, [int]$Port = 7792,
     # Public meet: guest2 leaves for the Garage, repaints and comes back; the host must draw the new livery.
     [switch]$Livery,
+    # Latency on every client's control channel, 'delayMs,jitterMs' each way (e.g. '80,20'): the meet under impairment.
+    [string]$ImpairControl = '',
     # Addendum 04: loopback unless a separately authorized LAN test passes -AllowLan with its addresses.
     [string]$BindHost = '127.0.0.1', [string]$PublicHost = '127.0.0.1', [switch]$AllowLan)
 
@@ -49,6 +51,7 @@ function Start-Client([string]$role, [int]$account, [int]$x) {
         '-logFile', "`"$logs\$role.log`"")
     if ($Race) { $a += '-nsMeetTourConvoyRace' }
     if ($Livery) { $a += '-nsMeetTourLivery' }
+    if ($ImpairControl) { $a += @('-nsImpairControl', $ImpairControl) }
     Start-Process -FilePath $exe -PassThru -WorkingDirectory $repo -ArgumentList $a
 }
 $server = $null

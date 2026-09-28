@@ -1837,3 +1837,20 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - **Limits:** online only (the Local profile keeps its own records but its card has no showcase yet); Drift Attack scores
   are not records (receipts do not carry the drift score); the screen lets two slots name the same record and relies on
   the server to refuse it.
+
+## V-094 — The meet under latency; pipelined poses (2026-09-28)
+- Revision: `4340191` plus the work committed with this entry; player builds of it (loopback control plane, no game
+  server).
+- **What changed:** `-nsImpairControl delayMs,jitterMs` holds every control-channel message (both directions) for the
+  delay ± jitter, keeping their order (a reliable stream: loss shows as delay, so nothing is dropped; seeded);
+  `meet-online.ps1 -ImpairControl`. HTTP calls (card lookups) are not impaired. The meet's pose sender allowed ONE
+  `meet.move` in flight, so a slow round trip halved the pose rate; it now pipelines up to three (the channel keeps
+  their order; only the reply to the newest pose applies a correction).
+- **Built players** (three clients, the public-meet tour: arrivals, walking, wave, quick chat, like, a boombox cue for
+  everyone, a departure, a dropped connection):
+  - 80 ± 20 ms each way (≈ 160–200 ms round trip), one-in-flight sender: **PASS** on all three; the host's walk to the
+    boombox sent 283 poses, 0 corrections.
+  - Same latency, pipelined sender: **PASS** on all three; 478 poses, 0 corrections.
+  - No latency, pipelined sender (regression): **PASS** on all three; 472 poses, 0 corrections.
+- **Limits:** latency only (no loss or reordering, which the reliable channel does not show); the look of remote
+  motion under latency was not judged by a person; the race netcode's impairment (`-nsImpair`) is separate (V-054/V-061).
