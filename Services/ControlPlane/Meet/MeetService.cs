@@ -360,7 +360,9 @@ public sealed class MeetService(ConvoyDirectory directory, IPlayerStore store, I
         if (!limiter.TryAcquire("meet-act/" + account, ActionFlood, out long retry)) return ConvoyResult.Fail("rate_limited", "Slow down a little.", retry);
         TouringPayload p = Read<TouringPayload>(payload);
         if (!MeetTouring.TryParse(p.Step, out TouringAct act)) return ConvoyResult.Fail("invalid_request", "Unknown touring step.");
-        bool eligible = act != TouringAct.ReadResultSlip || await store.HasFinishedEventAsync(account, ct);
+        bool eligible = act == TouringAct.ReadResultSlip ? await store.HasFinishedEventAsync(account, ct)
+            : act == TouringAct.Epilogue ? HardFinaleCleared(await store.GetSnapshotAsync(account, ct))
+            : true;
         List<string> done;
         string roomId;
         lock (gate)
@@ -370,7 +372,10 @@ public sealed class MeetService(ConvoyDirectory directory, IPlayerStore store, I
             MeetMember m = room.Core.Find(account)!;
             if (m.State != MeetMemberState.Present) return ConvoyResult.Fail("not_yet", "Finish arriving first.");
             if (!MeetTouring.InPlace(act, p.Id, m.Bay, m.X, m.Z)) return ConvoyResult.Fail("not_here", "That has to happen where it is — walk over first.");
-            if (!eligible) return ConvoyResult.Fail("no_event", "Finish an event first, then come back and read your slip.");
+            if (!eligible)
+                return act == TouringAct.Epilogue
+                    ? ConvoyResult.Fail("no_finale", "The epilogue opens after you clear the Hard finale.")
+                    : ConvoyResult.Fail("no_event", "Finish an event first, then come back and read your slip.");
             done = TouringLocked(account, m, act, p.Id);
             roomId = room.Core.Id;
         }
@@ -379,6 +384,9 @@ public sealed class MeetService(ConvoyDirectory directory, IPlayerStore store, I
             if (await GrantAsync(account, roomId, id, ct) is { } g) granted.Add(g);
         return ConvoyResult.Success(new { recorded = act.ToString(), completed = granted });
     }
+
+    /// <summary>The Hard campaign's finale (S30) cleared: the epilogue at the radio bench is open (CH75).</summary>
+    static bool HardFinaleCleared(PlayerSnapshot? s) => s?.HardCleared is { Length: >= Limits.CampaignStages } h && h[Limits.CampaignStages - 1];
 
     List<string> TouringLocked(string account, MeetMember m, TouringAct act, string? id)
     {

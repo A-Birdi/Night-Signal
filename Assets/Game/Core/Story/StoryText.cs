@@ -50,6 +50,13 @@ namespace NightSignal.Core.Story
         public string Id = "", Title = "", AwardedAfterStage = "", Kind = "", Text = "";
     }
 
+    /// <summary>One scene of an ending: where it happens, and its lines.</summary>
+    public sealed class StoryScene
+    {
+        public string Setting = "";
+        public List<StoryLine> Lines = new List<StoryLine>();
+    }
+
     /// <summary>How a stage ended, read from the convoy's side (stages.story.json conventions).</summary>
     public enum StoryOutcome
     {
@@ -103,10 +110,13 @@ namespace NightSignal.Core.Story
         public readonly List<ActStory> Acts = new List<ActStory>();
         public readonly List<CrewIntroduction> Crews = new List<CrewIntroduction>();
         public readonly List<StoryRecord> Records = new List<StoryRecord>();
+        /// <summary>The endings (endings.json): Normal "The Terrace After Amanagi", Hard "Before the First Train".</summary>
+        public string NormalEndingTitle = "", HardEndingTitle = "", PostGameNote = "";
+        public readonly List<StoryScene> NormalEnding = new List<StoryScene>(), HardEnding = new List<StoryScene>();
 
         public IEnumerable<StageStory> Stages => stages.Values;
 
-        public static StoryText Load(string stagesJson, string crewsJson = null, string recordsJson = null, string rivalsJson = null)
+        public static StoryText Load(string stagesJson, string crewsJson = null, string recordsJson = null, string rivalsJson = null, string endingsJson = null)
         {
             var s = new StoryText();
             JObject st = JObject.Parse(stagesJson);
@@ -139,8 +149,34 @@ namespace NightSignal.Core.Story
                             lines[p.Name] = (p.Value as JArray ?? new JArray()).Select(v => (string)v ?? "").Where(v => v.Length > 0).ToList();
                     s.rivalLines[(string)r["id"] ?? ""] = lines;
                 }
+            if (!string.IsNullOrEmpty(endingsJson))
+            {
+                JObject e = JObject.Parse(endingsJson);
+                s.NormalEndingTitle = (string)e["normal"]?["title"] ?? "";
+                s.HardEndingTitle = (string)e["hard"]?["title"] ?? "";
+                s.PostGameNote = (string)e["postGameNote"] ?? "";
+                s.NormalEnding.AddRange(Scenes(e["normal"]?["scenes"]));
+                s.HardEnding.AddRange(Scenes(e["hard"]?["scenes"]));
+            }
             return s;
         }
+
+        static IEnumerable<StoryScene> Scenes(JToken t) =>
+            (t as JArray ?? new JArray()).OfType<JObject>().Select(x => new StoryScene { Setting = (string)x["setting"] ?? "", Lines = Lines(x["lines"]) });
+
+        /// <summary>The last campaign stage: its first clear in a mode ends that campaign.</summary>
+        public const int FinaleStage = 30;
+
+        /// <summary>
+        /// What plays after the first clear of the finale (spec §5.3/§5.4: a real ending): the whole Normal ending — the terrace
+        /// reunion the morning after — or the Hard ending's dawn-run scene at the finish; the Hard ending's terrace scenes are
+        /// the epilogue at the radio bench (<see cref="Epilogue"/>).
+        /// </summary>
+        public List<StoryScene> EndingAfterFinale(CampaignMode mode) =>
+            mode == CampaignMode.Hard ? HardEnding.Take(1).ToList() : new List<StoryScene>(NormalEnding);
+
+        /// <summary>The Hard epilogue with Shiori at the radio bench (Appendix E CH75): the Hard ending after its finish scene.</summary>
+        public List<StoryScene> Epilogue() => HardEnding.Skip(1).ToList();
 
         static StageStorySide Side(JObject o)
         {

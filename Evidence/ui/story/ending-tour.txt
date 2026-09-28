@@ -1,0 +1,12 @@
+# -nsEndingTour (offline, buttons only, isolated profile folder) on the player build of the commit that adds this file (V-101). The Hard S30 clear is SEEDED on the tour's own profile (see the tour's summary). Tagged lines; absolute paths removed.
+[NightSignal.Story] ending (Normal): 21 line(s), read to the end after 7.5 s
+[NightSignal.EndingTour] Normal ending "The Terrace After Amanagi": 21 pages (3 scenes with their settings + the post-game note = 21), read to the end True
+[NightSignal.Story] ending (Hard): 8 line(s), read to the end after 33.6 s
+[NightSignal.EndingTour] Hard ending "Before the First Train" (the finish scene): 8 lines, by itself in 33.6 s, completed True
+[NightSignal.EndingTour] seeded: Hard S30 marked cleared on the tour's profile
+[NightSignal.Meet] the Hard epilogue is open: Shiori is at the radio bench
+[NightSignal.EndingTour] epilogue pages at the bench: 14
+[NightSignal.Meet] interact epilogue R48
+[NightSignal.Meet] epilogue read to its end
+[NightSignal.EndingTour] epilogue read to its end True; CH75 True
+[NightSignal.EndingTour] PASS

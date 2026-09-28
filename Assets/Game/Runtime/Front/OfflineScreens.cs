@@ -265,12 +265,22 @@ namespace NightSignal.Front
             progress.overflowMode = TextOverflowModes.Overflow;
             progress.richText = true;
             RectTransform actions = UIFactory.Column("Actions", panel.transform, new Vector2(0, 0), new Vector2(1, 0.12f), new Vector2(48, 8), new Vector2(-48, -8));
-            cont = UIFactory.Button("Continue", actions, "Continue", () => App.Router.Show(returnTo ?? App.OfflineHub, false), 360, 60);
+            cont = UIFactory.Button("Continue", actions, "Continue", () =>
+            {
+                Action ending = pendingEnding;
+                pendingEnding = null;
+                if (ending != null) ending();
+                else App.Router.Show(returnTo ?? App.OfflineHub, false);
+            }, 360, 60);
         }
 
         public override Selectable DefaultFocus => cont;
 
         string pendingCourse;
+        Action pendingEnding;
+
+        /// <summary>Continue plays this first (the campaign's ending after its first finale clear), which then returns as usual.</summary>
+        public void SetEnding(Action play) => pendingEnding = play;
         List<RaceEntrantResult> pendingResults;
 
         /// <summary>Stores the classification; the page renders it when shown (it may not be built yet).</summary>
@@ -283,6 +293,7 @@ namespace NightSignal.Front
             saveNote = note ?? "";
             returnTo = back;
             story = new List<Core.Story.StoryLine>();
+            pendingEnding = null;
             if (heading != null) Render();
         }
 

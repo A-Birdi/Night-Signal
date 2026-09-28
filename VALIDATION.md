@@ -2016,3 +2016,31 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - **Limits:** one human in that run (the barrier across several readers is the same server code the multi-client runs
   exercise, not re-run with intros); the online diary was not driven in a built run; Hard intros and the other outcomes
   online come from the same Core rules the .NET tests cover.
+
+## V-101 — The endings; Shiori's epilogue at the radio bench (CH75) (2026-09-28)
+- Revision: the work committed with this entry; player build of it; control plane restarted on it (MeetService: the
+  epilogue act); race content hash unchanged (`3677a844…`).
+- **What changed:** the two authored endings (endings.json) are presented. After the FIRST clear of S30 in a mode, the
+  results' Continue plays the ending before returning — Normal: "The Terrace After Amanagi", its three terrace scenes
+  (arrival, the timing board with Reina, the radio bench), then the post-game note; Hard: "Before the First Train", its
+  dawn-run scene at the finish, then the note. Online the same plays on each client when its settled receipt shows the
+  first finale clear. Each scene opens with its setting and is paced like an intro; Next and Skip as always. Hard's other
+  two scenes are the epilogue at the terrace (spec: "Hard ends with the dawn-run story resolved and Shiori at the radio
+  bench"): once the Hard finale is cleared, Shiori Kuze waits beside the radio bench at the meet (offline from the Local
+  profile, online from /v1/me), and reading her epilogue to its end — not closing it early — is a new touring act. The
+  room grants CH75 only near the bench and only when the account's Hard S30 clear is on record ("no_finale" otherwise);
+  offline the Local profile applies the same two rules.
+- **Tests:** .NET `StoryTextTests.Endings_AfterTheFinale_AndTheRadioBenchEpilogue` (3 + 3 scenes with settings and known
+  speakers; the note; what plays after each finale; the epilogue is the two radio-bench scenes, Shiori in both) — Core 141;
+  Services `Epilogue_CH75_AtTheRadioBench_OnlyAfterTheHardFinale` (from the bay: not_here; at the bench before the
+  finale: no_finale; with a Hard S30 clear recorded: CH75, once) — Services 350, Builds 232, Toys 92; Unity EditMode 481 passed, 2
+  skipped (explicit), 0 failed.
+- **Built player** (`-nsEndingTour`, offline, buttons only): the Normal ending paged with Next — 21 pages (three scenes
+  with their settings and the note), read to the end; the Hard finish scene played by itself (8 pages, 33.6 s including
+  the note); then, with the Hard finale SEEDED as cleared on the tour's own profile, the offline meet put Shiori at the
+  bench, her epilogue (14 pages) read to its end granted CH75 — **PASS**. `Evidence/ui/story/ending-tour.txt`, ending and
+  epilogue screenshots.
+- **Limits:** no built run clears S30 for real (the validator autopilot is not relied on to beat the finale; the trigger
+  is the same call, and the first-clear flag comes from Core's settled verdict); the tour stands the player at the bench
+  (a person walks there); the online epilogue is covered by the service test, not a built networked run; text over the
+  backdrop, not a staged scene; the words and pacing have not been judged by a person.

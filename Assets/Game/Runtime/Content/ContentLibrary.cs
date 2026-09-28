@@ -31,13 +31,13 @@ namespace NightSignal.Content
         /// <summary>Meet text (story/meet.text.json): host dialogue, placards, timing board, quick chat.</summary>
         public TextAsset MeetText;
         /// <summary>The campaign story (story/stages.story, crews.diary, radio-records, rivals.story): presentation text, not in the race hash.</summary>
-        public TextAsset StageStory, CrewDiary, StoryRecords, RivalStory;
+        public TextAsset StageStory, CrewDiary, StoryRecords, RivalStory, Endings;
 
         Core.Story.StoryText story;
 
         /// <summary>Stage intros, reactions and the race diary (null when the documents are missing from this build).</summary>
         public Core.Story.StoryText Story =>
-            story ?? (StageStory != null ? story = Core.Story.StoryText.Load(StageStory.text, CrewDiary?.text, StoryRecords?.text, RivalStory?.text) : null);
+            story ?? (StageStory != null ? story = Core.Story.StoryText.Load(StageStory.text, CrewDiary?.text, StoryRecords?.text, RivalStory?.text, Endings?.text) : null);
 
         ContentCatalogue catalogue;
         Dictionary<string, CarBodyDef> bodies;

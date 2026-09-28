@@ -172,4 +172,40 @@ public sealed class MeetTouringTests : IDisposable
         string[] done = (await http.GetFromJsonAsync<JsonElement>("/v1/me")).GetProperty("challengesCompleted").EnumerateArray().Select(c => c.GetString()!).ToArray();
         Assert.Contains("CH48", done);
     }
+
+    [Fact]
+    public async Task Epilogue_CH75_AtTheRadioBench_OnlyAfterTheHardFinale()
+    {
+        var clock = new ManualClock();
+        using var host = new ControlPlaneHost(dir.Path, dir.File("seed.json"), clock);
+        string token = await host.SignInAsync(accounts[0]);
+        HttpClient http = host.Authed(token);
+        (await http.PostAsJsonAsync("/v1/me/card", new { displayName = "Aki Night" })).EnsureSuccessStatusCode();
+        (await http.PostAsJsonAsync("/v1/me/starter", new { carId = "V01" })).EnsureSuccessStatusCode();
+        ControlClient control = await host.ConnectAsync(token, Query);
+        AssertOk(await control.RequestAsync("meet.join", new { kind = "public" }));
+        clock.Advance(TimeSpan.FromSeconds(4));
+        JsonElement arrived = Result(await control.RequestAsync("meet.arrived"));
+        (float x, float z) = (arrived.GetProperty("x").GetSingle(), arrived.GetProperty("z").GetSingle());
+
+        // From the bay it is not here; at the bench, not before the Hard finale.
+        Assert.Equal("not_here", Error(await control.RequestAsync("meet.touring", new { step = "epilogue" })));
+        // Beside the bench, where the host stands (3.3 m from it: inside the bench range).
+        await Walk(control, clock, 0, Route((x, z), (MeetLayout.HostSpot.X - 1.5f, MeetLayout.HostSpot.Z - 1.5f)));
+        Assert.Equal("no_finale", Error(await control.RequestAsync("meet.touring", new { step = "epilogue" })));
+
+        // The Hard finale cleared (as a settled stage clear records it): the epilogue completes CH75, once.
+        using (var c = new Microsoft.Data.Sqlite.SqliteConnection($"Data Source={dir.File("controlplane.db")}"))
+        {
+            c.Open();
+            using var cmd = c.CreateCommand();
+            cmd.CommandText = "INSERT INTO stage_clears (account_id, mode, stage, match_id) VALUES ($a, 'hard', 30, 'test-finale')";
+            cmd.Parameters.AddWithValue("$a", accounts[0].AccountId);
+            cmd.ExecuteNonQuery();
+        }
+        JsonElement done = Result(await control.RequestAsync("meet.touring", new { step = "epilogue" }));
+        Assert.Equal("CH75", done.GetProperty("completed")[0].GetProperty("challengeId").GetString());
+        clock.Advance(TimeSpan.FromSeconds(2));
+        Assert.Equal(0, Result(await control.RequestAsync("meet.touring", new { step = "epilogue" })).GetProperty("completed").GetArrayLength());
+    }
 }

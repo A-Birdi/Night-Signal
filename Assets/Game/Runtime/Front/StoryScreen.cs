@@ -33,6 +33,8 @@ namespace NightSignal.Front
         public int LineIndex => index;
         public int LineCount => lines.Count;
         public bool Finished { get; private set; } = true;
+        /// <summary>The last scene was read to its end (not skipped).</summary>
+        public bool Completed { get; private set; }
 
         protected override void OnBuild(RectTransform root)
         {
@@ -67,6 +69,43 @@ namespace NightSignal.Front
 
         public override Selectable DefaultFocus => next;
 
+        /// <summary>
+        /// Plays scenes (an ending): each scene opens with its setting in italics, then its lines; each scene is paced like an
+        /// intro. <paramref name="closing"/> (the post-game note) is shown last. <paramref name="onDone"/> runs when it ends or
+        /// is skipped; <see cref="Completed"/> says which.
+        /// </summary>
+        public void PlayScenes(string heading, string sceneTitle, List<StoryScene> scenes, string closing, string playerName, Action onDone)
+        {
+            lines = new List<StoryLine>();
+            var h = new List<float>();
+            foreach (StoryScene sc in scenes ?? new List<StoryScene>())
+            {
+                var part = new List<StoryLine> { new StoryLine { Speaker = "setting", Line = sc.Setting } };
+                part.AddRange(sc.Lines);
+                lines.AddRange(part);
+                h.AddRange(StoryText.Holds(part, false));
+            }
+            if (!string.IsNullOrEmpty(closing))
+            {
+                lines.Add(new StoryLine { Speaker = "setting", Line = closing });
+                h.Add(Mathf.Max(StoryText.LineMinSeconds, closing.Length / StoryText.CharactersPerSecond));
+            }
+            holds = h.ToArray();
+            player = playerName ?? "";
+            done = onDone;
+            index = 0;
+            Completed = false;
+            Finished = lines.Count == 0;
+            if (act != null)
+            {
+                act.text = heading ?? "";
+                title.text = sceneTitle ?? "";
+                note.text = "";
+            }
+            if (Finished) End();
+            else ShowLine();
+        }
+
         /// <summary>Plays the intro of <paramref name="stage"/> in <paramref name="mode"/>; <paramref name="onDone"/> runs when it ends or is skipped.</summary>
         public void Play(StageDef stage, CampaignMode mode, bool rematch, string playerName, Action onDone)
         {
@@ -76,6 +115,7 @@ namespace NightSignal.Front
             player = playerName ?? "";
             done = onDone;
             index = 0;
+            Completed = false;
             Finished = lines.Count == 0;
             ActStory a = story?.Act(stage.Act);
             string stageTitle = story != null && story.TryStage(stage.Id, out StageStory st) ? st.Side(mode).Title : "";
@@ -99,7 +139,7 @@ namespace NightSignal.Front
             if (line == null || index >= lines.Count) return;
             StoryLine l = lines[index];
             ContentCatalogue cat = ContentLibrary.Load()?.Catalogue;
-            bool narration = l.Speaker == "narration";
+            bool narration = l.Speaker == "narration" || l.Speaker == "setting";
             speaker.text = narration ? "" : SpeakerName(l.Speaker, cat);
             line.text = narration ? $"<i>{Escape(StoryText.Fill(l.Line, player, ""))}</i>" : Escape(StoryText.Fill(l.Line, player, ""));
             progress.text = $"{index + 1} / {lines.Count}";
@@ -116,7 +156,11 @@ namespace NightSignal.Front
         {
             if (Finished) return;
             index++;
-            if (index >= lines.Count) End();
+            if (index >= lines.Count)
+            {
+                Completed = true;
+                End();
+            }
             else ShowLine();
         }
 
@@ -138,6 +182,7 @@ namespace NightSignal.Front
         {
             switch (speaker)
             {
+                case "setting": return "";
                 case "radio": return "Night Signal radio";
                 case "timing-crew": return "Timing crew";
                 case "narration": return "";

@@ -45,3 +45,4 @@ MonoBehaviour:
   CrewDiary: {fileID: 4900000, guid: 0e274fe30b3514946a59d1e98c127686, type: 3}
   StoryRecords: {fileID: 4900000, guid: 810dbe7af5665a24e9069f6a121c542c, type: 3}
   RivalStory: {fileID: 4900000, guid: 183a335e5187b2644a01c69afc5ef1fd, type: 3}
+  Endings: {fileID: 4900000, guid: 7902dff561712554fb53c737965859b8, type: 3}

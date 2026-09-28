@@ -59,6 +59,10 @@ namespace NightSignal.Front
             ActiveMeet.PlayerName = s.DisplayName;
             ActiveMeet.PlayerLook = s.CardLook; // the Player Card's look (null: the default look from the name)
             ActiveMeet.OwnsCue = id => owned.Contains(id);
+            // The Hard epilogue with Shiori at the radio bench once the account has cleared the Hard finale (the room checks too).
+            var hardCleared = (s.Me?["campaign"] as Newtonsoft.Json.Linq.JObject)?["hardCleared"] as Newtonsoft.Json.Linq.JArray;
+            if (hardCleared != null && hardCleared.Count >= Core.Story.StoryText.FinaleStage && (bool?)hardCleared[Core.Story.StoryText.FinaleStage - 1] == true)
+                ActiveMeet.Epilogue = NightSignal.Content.ContentLibrary.Load()?.Story?.Epilogue();
             _ = s.Request("presence.set", new { presence = "AtMeet" }, quiet: true);
             while (ActiveMeet != null && !ActiveMeet.ExitRequested && !meetLeftForRace) yield return null;
             if (meetLeftForRace)

@@ -130,6 +130,7 @@ namespace NightSignal.Meet
             unlockHints = UnlockHints();
             PlaceNpcs();
             BuildSpots();
+            SpawnEpilogue(lib, lib.Catalogue);
             BuildBoard();
             MusicPlayer.Ensure()?.Play(BoomboxState.DefaultCue, 2f);
             if (Net != null)
@@ -668,6 +669,7 @@ namespace NightSignal.Meet
                     break;
                 case "car": InspectNpcCar(s.Npc); break;
                 case "own-car": OwnCar(); break;
+                case "epilogue": ShowEpilogue(0); break;
                 case "remote-car": InspectRemoteCar(s.Id); break;
                 case "remote-person": GreetRemote(s.Id); break;
                 case "placard":

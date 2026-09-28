@@ -126,6 +126,8 @@ namespace NightSignal.Front
                 StartCoroutine(WorkshopTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsStoryTour") >= 0)
                 StartCoroutine(StoryTour());
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsEndingTour") >= 0)
+                StartCoroutine(EndingTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsDriverCardTour") >= 0)
                 StartCoroutine(DriverCardTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsCanvasPadTour") >= 0)
@@ -625,6 +627,14 @@ namespace NightSignal.Front
                         sb.Append((bool?)stage["earnedClear"] == true ? "<color=#3EC6D8>Stage cleared</color>" + ((bool?)r["firstClearAwarded"] == true ? " — first clear" : "") + "\n"
                                                                      : $"<color=#F2A541>Stage not cleared</color>  <size=85%>{(string)stage["reason"]}</size>\n");
                     if (stage != null && stage.Type == Newtonsoft.Json.Linq.JTokenType.Object) sb.Append(OnlineReaction(r, DisplayName));
+                    // The first clear of the finale online: the ending plays on this client (it waits for nobody).
+                    if (stage is Newtonsoft.Json.Linq.JObject fin && (bool?)fin["earnedClear"] == true && (bool?)r["firstClearAwarded"] == true &&
+                        ((string)r["stageId"] ?? (string)fin["stageId"]) == $"S{Core.Story.StoryText.FinaleStage:00}")
+                    {
+                        CampaignMode endMode = string.Equals((string)r["mode"] ?? (string)fin["mode"], "hard", StringComparison.OrdinalIgnoreCase) ? CampaignMode.Hard : CampaignMode.Normal;
+                        UIScreen current = Router.Current;
+                        PlayEnding(endMode, DisplayName, () => Router.Show(current ?? Convoy, false));
+                    }
                     if (r["teamTrial"] is Newtonsoft.Json.Linq.JObject tt)
                     {
                         string verdict = (string)tt["verdict"];
@@ -1087,12 +1097,35 @@ namespace NightSignal.Front
                 string lead = (plan.Mode == CampaignMode.Hard ? plan.Stage.Hard : plan.Stage.Normal)?.Lead;
                 List<Core.Story.StoryLine> reaction = story.Reaction(plan.Stage.Id, plan.Mode, outcome, lead);
                 Results.SetStory(reaction, session?.Profile?.DisplayName);
+                // The first clear of the finale: Continue plays the ending before returning (spec 5.3 / 5.4).
+                if (plan.Stage.Number == Core.Story.StoryText.FinaleStage && applied.Stage.EarnedClear && applied.Stage.FirstClear)
+                {
+                    CampaignMode endMode = plan.Mode;
+                    string who = session?.Profile?.DisplayName;
+                    UIScreen back = returnTo;
+                    Results.SetEnding(() => PlayEnding(endMode, who, () => Router.Show(back ?? OfflineHub, false)));
+                }
                 Debug.Log($"[NightSignal.Story] {plan.Stage.Id} {plan.Mode} reaction ({outcome}): " +
                           string.Join(" | ", reaction.Select(l => l.Speaker + ": " + l.Line)));
             }
             Canvas.gameObject.SetActive(true);
             yield return LoadBackdrop();
             Router.Show(Results, true);
+        }
+
+        /// <summary>The campaign's ending after the first finale clear in <paramref name="mode"/>, then the post-game note.</summary>
+        public void PlayEnding(CampaignMode mode, string player, Action then)
+        {
+            Core.Story.StoryText story = NightSignal.Content.ContentLibrary.Load()?.Story;
+            if (story == null) { then?.Invoke(); return; }
+            string title = mode == CampaignMode.Hard ? story.HardEndingTitle : story.NormalEndingTitle;
+            Router.Show(Story, true);
+            float started = Time.realtimeSinceStartup;
+            Story.PlayScenes(mode == CampaignMode.Hard ? "HARD CAMPAIGN  ·  THE ENDING" : "THE ENDING", title, story.EndingAfterFinale(mode), story.PostGameNote, player, () =>
+            {
+                Debug.Log($"[NightSignal.Story] ending ({mode}): {Story.LineCount} line(s), {(Story.Completed ? "read to the end" : "skipped")} after {Time.realtimeSinceStartup - started:F1} s");
+                then?.Invoke();
+            });
         }
 
         /// <summary>A rematch: this profile has raced this stage in this mode before (a shorter intro, spec §5.3).</summary>

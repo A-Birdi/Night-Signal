@@ -14,7 +14,7 @@ public sealed class StoryTextTests
 {
     static string Story(string file) => File.ReadAllText(Path.Combine(TestContent.RepoRoot, "Assets", "Content", "Data", "authored", "story", file));
     static readonly Lazy<StoryText> story = new(() =>
-        StoryText.Load(Story("stages.story.json"), Story("crews.diary.json"), Story("radio-records.json"), Story("rivals.story.json")));
+        StoryText.Load(Story("stages.story.json"), Story("crews.diary.json"), Story("radio-records.json"), Story("rivals.story.json"), Story("endings.json")));
     static StoryText S => story.Value;
     static ContentCatalogue Cat => TestContent.Catalogue;
 
@@ -110,5 +110,28 @@ public sealed class StoryTextTests
                 Assert.True(rematch < scene && rematch <= 10f, $"{def.Id} {mode} rematch: {rematch:F1} s");
             }
         Assert.Empty(StoryText.Holds(new List<StoryLine>(), false));
+    }
+
+    [Fact]
+    public void Endings_AfterTheFinale_AndTheRadioBenchEpilogue()
+    {
+        var narrators = new HashSet<string> { "radio", "timing-crew", "narration" };
+        Assert.Equal(3, S.NormalEnding.Count);
+        Assert.Equal(3, S.HardEnding.Count);
+        Assert.False(string.IsNullOrEmpty(S.PostGameNote));
+        foreach (StoryScene sc in S.NormalEnding.Concat(S.HardEnding))
+        {
+            Assert.False(string.IsNullOrEmpty(sc.Setting));
+            Assert.NotEmpty(sc.Lines);
+            Assert.All(sc.Lines, l => Assert.True(narrators.Contains(l.Speaker) || Cat.TryRival(l.Speaker, out _), l.Speaker));
+        }
+        // Normal: the whole terrace ending after the S30 clear; Hard: the dawn-run finish, then the epilogue at the bench with Shiori.
+        Assert.Equal(3, S.EndingAfterFinale(CampaignMode.Normal).Count);
+        Assert.Single(S.EndingAfterFinale(CampaignMode.Hard));
+        List<StoryScene> epilogue = S.Epilogue();
+        Assert.Equal(2, epilogue.Count);
+        Assert.All(epilogue, sc => Assert.Contains("radio bench", sc.Setting, StringComparison.OrdinalIgnoreCase));
+        Assert.All(epilogue, sc => Assert.Contains(sc.Lines, l => l.Speaker == "R48"));
+        Assert.Equal("S30", Cat.Stages.Single(s => s.Number == StoryText.FinaleStage).Id);
     }
 }

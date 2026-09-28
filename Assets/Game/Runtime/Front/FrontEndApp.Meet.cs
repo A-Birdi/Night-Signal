@@ -58,6 +58,9 @@ namespace NightSignal.Front
             CharacterLook cardLook = string.IsNullOrEmpty(profile.Card?.Look) ? null : PlayerLooks.Parse(profile.Card.Look);
             ActiveMeet.PlayerLook = cardLook != null && PlayerLooks.Problems(cardLook).Count == 0 ? cardLook : null;
             ActiveMeet.OwnsCue = profile.HasCue;
+            // The Hard epilogue with Shiori at the radio bench, once this profile has cleared the Hard finale (CH75).
+            if (profile.Campaign.For(Core.Rules.CampaignMode.Hard).Contains(Core.Story.StoryText.FinaleStage))
+                ActiveMeet.Epilogue = lib.Story?.Epilogue();
             ActiveMeet.RecentSlips = Slips(profile);
             // Touring challenges (CH61–CH65) on the Local profile: acts counted where they happen, each reward once.
             if (!localTouring.TryGetValue(profile.ProfileId ?? "", out MeetTouringProgress touring))
@@ -66,6 +69,7 @@ namespace NightSignal.Front
             meet.TouringActed = (act, id) =>
             {
                 if (act == TouringAct.ReadResultSlip && !LocalProgression.HasCompletedEvent(s.Profile)) return;
+                if (act == TouringAct.Epilogue && !s.Profile.Campaign.For(Core.Rules.CampaignMode.Hard).Contains(Core.Story.StoryText.FinaleStage)) return;
                 foreach (string challenge in MeetTouring.Record(touring, act, id, act == TouringAct.InspectOwnCar && ownSigned))
                 {
                     LocalProgressionResult r = LocalProgression.CompleteMeetChallenge(s.Profile, s.Catalogue, challenge, DateTime.UtcNow);

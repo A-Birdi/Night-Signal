@@ -22,7 +22,7 @@ namespace NightSignal.Meet
             {
                 string step = act == TouringAct.InspectOwnCar ? "own-car" : act == TouringAct.ReadPlacard ? "placard"
                     : act == TouringAct.ReadEmoteHelp ? "emote-help" : act == TouringAct.PhotoComposed ? "photo"
-                    : act == TouringAct.ReadResultSlip ? "result-slip" : null;
+                    : act == TouringAct.ReadResultSlip ? "result-slip" : act == TouringAct.Epilogue ? "epilogue" : null;
                 if (step != null) Net.Fire("meet.touring", new { step, id });
                 return;
             }

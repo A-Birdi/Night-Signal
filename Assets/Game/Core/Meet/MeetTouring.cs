@@ -23,6 +23,8 @@ namespace NightSignal.Core.Meet
         PhotoComposed,
         /// <summary>Read the result slip at the timing board after completing an eligible event.</summary>
         ReadResultSlip,
+        /// <summary>Read the Hard epilogue to its end with Shiori at the radio bench, after clearing the Hard finale (CH75).</summary>
+        Epilogue,
     }
 
     /// <summary>One visitor's touring progress (kept for the account while the service runs; the grant is once ever).</summary>
@@ -31,6 +33,8 @@ namespace NightSignal.Core.Meet
         public bool Arrived, OwnCar, Wave, Bow, EmoteHelp, Photo, Slip;
         /// <summary>The own car was inspected wearing a signed livery (CH48, a workshop challenge seen at the meet).</summary>
         public bool SignedCar;
+        /// <summary>The Hard epilogue read to its end at the radio bench (CH75).</summary>
+        public bool Epilogue;
         public readonly HashSet<string> Placards = new HashSet<string>(StringComparer.Ordinal);
         public readonly HashSet<string> PhotoPoints = new HashSet<string>(StringComparer.Ordinal);
         /// <summary>Challenges this progress has already reported complete (never reported twice).</summary>
@@ -50,11 +54,11 @@ namespace NightSignal.Core.Meet
     public static class MeetTouring
     {
         public const string FirstParking = "CH61", FourCorners = "CH62", Greeting = "CH63", Horizon = "CH64", BringItHome = "CH65",
-            PhotoPoints = "CH67";
+            PhotoPoints = "CH67", AfterTheLastSignal = "CH75";
         public static readonly string[] Challenges = { FirstParking, FourCorners, Greeting, Horizon, BringItHome, PhotoPoints };
 
         /// <summary>How close (m, on the ground) the visitor must stand for each place.</summary>
-        public const float OwnCarRange = 4.5f, PlacardRange = 4f, HostRange = 5f, PhotoRange = 3f, BoardRange = 5f;
+        public const float OwnCarRange = 4.5f, PlacardRange = 4f, HostRange = 5f, PhotoRange = 3f, BoardRange = 5f, BenchRange = 4f;
 
         /// <summary>Whether an act happened where it must (x, z = the visitor's position; ownBay = their bay, 0-based).</summary>
         public static bool InPlace(TouringAct act, string id, int ownBay, float x, float z)
@@ -80,6 +84,8 @@ namespace NightSignal.Core.Meet
                     return Near(MeetLayout.PhotoMarker.X, MeetLayout.PhotoMarker.Z, x, z, PhotoRange);
                 case TouringAct.ReadResultSlip:
                     return Near(MeetLayout.TimingBoard.X, MeetLayout.TimingBoard.Z, x, z, BoardRange);
+                case TouringAct.Epilogue:
+                    return Near(MeetLayout.RadioBench.X, MeetLayout.RadioBench.Z, x, z, BenchRange);
             }
             return false;
         }
@@ -110,6 +116,7 @@ namespace NightSignal.Core.Meet
                 case TouringAct.ReadEmoteHelp: p.EmoteHelp = true; break;
                 case TouringAct.PhotoComposed: p.Photo = true; break;
                 case TouringAct.ReadResultSlip: p.Slip = true; break;
+                case TouringAct.Epilogue: p.Epilogue = true; break;
             }
             var done = new List<string>();
             void Check(string challenge, bool met)
@@ -124,6 +131,8 @@ namespace NightSignal.Core.Meet
             Check(PhotoPoints, MeetLayout.PhotoPoints.All(x => p.PhotoPoints.Contains(x.Id)));
             // CH48 Sign Your Car (workshop): the signed livery seen on the parked car.
             Check(Customization.LiveryChallenges.SignYourCar, p.SignedCar);
+            // CH75 After the Last Signal: the Hard epilogue finished with Shiori at the radio bench (the Hard finale cleared first).
+            Check(AfterTheLastSignal, p.Epilogue);
             return done;
         }
 
@@ -133,6 +142,7 @@ namespace NightSignal.Core.Meet
             switch (step)
             {
                 case "own-car": act = TouringAct.InspectOwnCar; return true;
+                case "epilogue": act = TouringAct.Epilogue; return true;
                 case "placard": act = TouringAct.ReadPlacard; return true;
                 case "emote-help": act = TouringAct.ReadEmoteHelp; return true;
                 case "photo": act = TouringAct.PhotoComposed; return true;
