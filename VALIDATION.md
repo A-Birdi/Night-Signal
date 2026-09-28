@@ -1274,7 +1274,9 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   course's lighting, index with vertices/colliders) and `region-<biome>.jpg` (three road views per course, per region).
 - **Built player** (`7e33d06`, landmarks without the regional kits): camera tour run 4 PASS 90/90, max 1 % of a frame
   blown out; mean frame rate over the six tour courses ~420–450 fps against ~450–520 before the scenery (C05 with the
-  cedar grove 486 → 382).
-- **Limits:** automation and editor renders only; a human look at each region is outstanding; the regional scatter has
-  not yet been through a built-player tour; the tall dark terrain "cliffs" of the gorge/highland styles (steep terrain
-  at the heightfield resolution) are pre-existing and untouched.
+  cedar grove 486 → 382). Run 5 on `7d9119d` (landmarks + regional kits, non-development build, 1920×1080 windowed):
+  PASS 90/90, max 1 % blown; per-course mean 446–495 fps (C01 479, C03 491, C05 457, C08 473, C12 446, C14 495). That is
+  above run 4 on fewer objects, so run-to-run variation on this machine (other load, clocks) is larger than the scatter's
+  cost: these tours bound the frame rate (hundreds of fps at 1080p), they are not a benchmark.
+- **Limits:** automation and editor renders only; a human look at each region is outstanding; the tall dark terrain
+  "cliffs" of the gorge/highland styles (steep terrain at the heightfield resolution) are pre-existing and untouched.

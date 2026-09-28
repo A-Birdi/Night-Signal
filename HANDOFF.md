@@ -147,8 +147,9 @@ Render Cockpit Sheets* renders the mounted views of every car.
 
 Pipeline in dependency order (items at one level do not wait for later ones; human checks are listed where they gate).
 
-1. **Course scenery follow-ups** (small): a built-player tour with the regional kits (frame rate), a human look per
-   region; the steep dark terrain "cliffs" of the gorge/highland terrain styles (heightfield resolution) are untouched.
+1. **Course scenery follow-ups** (small): a human look per region (the built-player tour with the regional kits passed,
+   run 5 on `7d9119d`); the steep dark terrain "cliffs" of the gorge/highland terrain styles (heightfield resolution)
+   are untouched.
 2. **Characters and the meet**: in-game rival identities for the 48 sheets (silhouette checks), meet + boombox, walking
    controls (Gate 2/3).
 3. **Gameplay backlog**: AI drift skill per profile and campaign drift benchmarks; restrict Drift Attack to courses with
