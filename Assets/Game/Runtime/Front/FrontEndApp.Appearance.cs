@@ -35,7 +35,12 @@ namespace NightSignal.Front
             bool Click(string name)
             {
                 Button b = GameObject.Find(name)?.GetComponent<Button>();
-                if (b == null || !b.interactable) { failures.Add("button not available: " + name); Note("button not available: " + name); return false; }
+                if (b == null || !b.interactable)
+                {
+                    failures.Add("button not available: " + name);
+                    Note($"button not available: {name} ({(b == null ? "not found" : "not interactable")}; screen {Router.Current?.ScreenName ?? "none"})");
+                    return false;
+                }
                 b.onClick.Invoke();
                 return true;
             }
@@ -218,6 +223,29 @@ namespace NightSignal.Front
             if (presets != 2) failures.Add($"presets: {presets} saved, expected 2");
             if (Appearance.Editor.IsDirty) failures.Add("loading the first preset did not give back the applied livery");
 
+            // Rename the second preset (the name typed in the field), then delete the first: asked, then confirmed.
+            const string renamed = "Night Run";
+            Appearance.TypePresetName(renamed);
+            Click("Appearance-PresetRename1");
+            yield return new WaitForSeconds(0.8f);
+            string afterRename = string.Join(", ", Appearance.Workspace.VisualPresets.Select(p => p.Name));
+            Note($"rename: {Appearance.Message} → presets {afterRename}");
+            if (!Appearance.Workspace.VisualPresets.Any(p => p.Name == renamed)) failures.Add("rename: " + Appearance.Message);
+            Click("Appearance-PresetDelete0");
+            yield return new WaitForSeconds(0.8f);
+            string asked = Appearance.Message;
+            int beforeConfirm = Appearance.Workspace.VisualPresets.Count(p => p.PayloadSchema == LiveryDocument.SchemaId);
+            Shot("10b-delete-asked");
+            yield return new WaitForSeconds(0.3f);
+            Click("Appearance-PresetDelete0");
+            yield return new WaitForSeconds(0.8f);
+            List<string> left = Appearance.Workspace.VisualPresets.Where(p => p.PayloadSchema == LiveryDocument.SchemaId).Select(p => p.Name).ToList();
+            Note($"delete: asked \"{asked}\" ({beforeConfirm} presets kept until confirmed), then {Appearance.Message} → presets {string.Join(", ", left)}");
+            if (beforeConfirm != 2) failures.Add("delete did not ask first");
+            if (left.Count != 1 || left[0] != renamed) failures.Add($"delete: presets left {string.Join(", ", left)}");
+            Shot("10c-presets-after");
+            yield return new WaitForSeconds(0.3f);
+
             Click("Back");
             yield return new WaitForSeconds(1.2f);
             if (Router.Current != Garage) failures.Add("Back from Appearance did not return to the Garage");
@@ -234,7 +262,7 @@ namespace NightSignal.Front
                 var reload = Core.Profiles.LocalGarage.LoadWorkspace(LocalSession.Current.Profile, LocalSession.Current.Catalogue,
                     NightSignal.Content.ContentLibrary.Load().Parts, instance, DateTime.UtcNow);
                 bool persisted = reload.Ok && reload.Workspace.AppliedLivery == appliedJson && reload.Workspace.AppliedLiveryHash == appliedHash &&
-                                 reload.Workspace.VisualPresets.Count(p => p.PayloadSchema == LiveryDocument.SchemaId) == 2;
+                                 reload.Workspace.VisualPresets.Where(p => p.PayloadSchema == LiveryDocument.SchemaId).Select(p => p.Name).SequenceEqual(new[] { "Night Run" });
                 Note($"persisted: {persisted}");
                 if (!persisted) failures.Add("the applied livery or the presets were not persisted");
             }

@@ -50,7 +50,7 @@ namespace NightSignal.Front
         Stepper shape, zone, decalColor, opacity;
         TMP_InputField plateText, presetName;
         Button undo, redo, stock, cancel, apply;
-        readonly List<(Button Load, Button Save)> presetButtons = new List<(Button, Button)>();
+        readonly List<(Button Load, Button Save, Button Rename, Button Delete)> presetButtons = new List<(Button, Button, Button, Button)>();
 
         // Option lists for the current car (ids; labels come from the catalogue).
         List<string> rims = new List<string>(), rimFinishes = new List<string>(), swatches = new List<string>(), finishes = new List<string>(),
@@ -65,6 +65,8 @@ namespace NightSignal.Front
         public string Message => message != null ? message.text : "";
         public bool Busy => busy;
         public CarBuildWorkspace Workspace => ws;
+        /// <summary>Types into the preset name field (automation, as a player typing would).</summary>
+        public void TypePresetName(string name) => presetName.text = name;
         public string PreviewDebug => stage?.Describe() ?? "no stage";
         public void SavePreview(string path) => stage?.SaveTexture(path);
 
@@ -159,14 +161,18 @@ namespace NightSignal.Front
                 int index = i;
                 RectTransform row = UIFactory.Rect("PresetRow" + i, col, new Vector2(0, 1), new Vector2(0, 1), Vector2.zero, Vector2.zero);
                 row.sizeDelta = new Vector2(Width, 42);
-                Button load = UIFactory.Button("Appearance-PresetLoad" + i, row, "", () => LoadPreset(index), Width - 190, 40);
-                Button save = UIFactory.Button("Appearance-PresetSave" + i, row, "Save here", () => SavePreset(index), 182, 40);
+                Button load = UIFactory.Button("Appearance-PresetLoad" + i, row, "", () => LoadPreset(index), 262, 40);
+                Button save = UIFactory.Button("Appearance-PresetSave" + i, row, "Save here", () => SavePreset(index), 140, 40);
+                Button rename = UIFactory.Button("Appearance-PresetRename" + i, row, "Rename", () => RenamePreset(index), 110, 40);
+                Button delete = UIFactory.Button("Appearance-PresetDelete" + i, row, "Delete", () => DeletePreset(index), 110, 40);
                 Place(load, 0);
-                Place(save, Width - 182);
-                presetButtons.Add((load, save));
+                Place(save, 268);
+                Place(rename, 414);
+                Place(delete, Width - 110);
+                presetButtons.Add((load, save, rename, delete));
                 sectionRows[5].Add(row.gameObject);
             }
-            presetName = UIFactory.InputField("Appearance-PresetName", col, "Name for a new preset", false, 32, Width, 48);
+            presetName = UIFactory.InputField("Appearance-PresetName", col, "Name for a new preset, or the new name for Rename", false, 32, Width, 48);
             sectionRows[5].Add(presetName.gameObject);
 
             // Actions.
@@ -516,6 +522,45 @@ namespace NightSignal.Front
                 });
         }
 
+        /// <summary>Renames the preset in slot <paramref name="index"/> to the name typed in the name field.</summary>
+        public void RenamePreset(int index)
+        {
+            List<VisualPreset> list = Liveries();
+            if (editor == null || busy || index >= list.Count) return;
+            VisualPreset p = list[index];
+            string name = presetName.text.Trim();
+            if (name.Length == 0)
+            {
+                message.text = $"Type the new name for \"{p.Name}\" in the name field, then press Rename.";
+                return;
+            }
+            Run(new GarageOp { Kind = "visual-preset-rename", PresetId = p.PresetId, Name = name }, $"Renamed \"{p.Name}\" to \"{name}\".", false, a =>
+            {
+                if (a.Accepted) presetName.text = "";
+            });
+        }
+
+        /// <summary>Deletes the preset in slot <paramref name="index"/>: the first press asks, the second (same preset) deletes.</summary>
+        public void DeletePreset(int index)
+        {
+            List<VisualPreset> list = Liveries();
+            if (editor == null || busy || index >= list.Count) return;
+            VisualPreset p = list[index];
+            string key = "delete:" + p.PresetId;
+            string token = pendingTokenFor == key ? pendingToken : null;
+            Run(new GarageOp { Kind = "visual-preset-delete", PresetId = p.PresetId, ConfirmationToken = token }, $"Deleted \"{p.Name}\".", false, a =>
+            {
+                if (a.ConfirmationRequired)
+                {
+                    pendingToken = a.ConfirmationToken;
+                    pendingTokenFor = key;
+                    message.text = $"Delete \"{p.Name}\"? Its saved look is lost. Press Delete again to confirm.";
+                }
+                else pendingToken = null;
+                if (a.Accepted && loadedPresetId == p.PresetId) loadedPresetId = "";
+            });
+        }
+
         static string NextName(List<VisualPreset> list)
         {
             for (int n = list.Count + 1; ; n++)
@@ -581,11 +626,13 @@ namespace NightSignal.Front
             int capacity = Math.Max(CarBuildWorkspace.MinVisualPresetSlots, ws.VisualPresetCapacity);
             for (int i = 0; i < presetButtons.Count; i++)
             {
-                (Button load, Button save) = presetButtons[i];
+                (Button load, Button save, Button rename, Button delete) = presetButtons[i];
                 bool used = i < list.Count, open = i < capacity;
                 load.transform.parent.gameObject.SetActive(section == 5 && open);
                 load.interactable = used && !busy;
                 save.interactable = !busy && (used || i == list.Count);
+                rename.interactable = used && !busy;
+                delete.interactable = used && !busy;
                 string name = used ? list[i].Name : "(empty)";
                 string mark = used && list[i].PresetId == ws.AppliedVisualPresetId ? "  <color=#3EC6D8>applied</color>" : "";
                 TextMeshProUGUI t = load.GetComponentInChildren<TextMeshProUGUI>();

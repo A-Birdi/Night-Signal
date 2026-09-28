@@ -1697,3 +1697,21 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   model, and genuine hits (which should be felt).
 - **Limits:** an emulation — it re-implements RaceClient's reconcile and the one-sided predictor rather than calling
   RaceClient; one scripted scenario on flat ground; no built-player run.
+
+## V-088 — Visual presets: rename and delete in the Appearance screen (2026-09-28)
+- Revision: working tree on `217b921` (committed with this entry); player build of it.
+- **What changed:** each preset row has Rename (the name typed in the name field; Core's name rules and per-car
+  uniqueness) and Delete (Core's confirmation: the first press asks "Its saved look is lost. Press Delete again", the
+  second deletes; the applied livery itself is untouched). The Local backend gained `visual-preset-rename` (the control
+  plane already had both, with .NET tests in `GarageServiceTests`).
+- **Built player, Local** (`-nsAppearanceTour`, isolated profile folder): after the two presets of V-046, "Livery 2"
+  renamed to "Night Run"; Delete on "Livery 1" asked first (both kept), then deleted; the profile re-read from disk holds
+  exactly "Night Run"; S01 still drew the applied livery — **PASS**. Screenshots `Evidence/ui/appearance/10b-delete-asked.jpg`,
+  `10c-presets-after.jpg`. (The first launch after the build failed at its first click — "OfflinePlay" not available at
+  3 s — and was not reproduced on two relaunches; the tour's Click now logs whether a button was missing or disabled and
+  on which screen.)
+- **Built player, online** (`ui-tour-online.ps1 -Appearance`, loopback game server, local control plane, seed dev
+  account): livery applied (`5ea613e7…` → `c8b69cee…`); a preset saved into the first empty slot, renamed to a
+  per-run name, Delete asked (kept), then deleted — all through the control plane; the race then carried the livery
+  (roster 277 bytes, plate "NS ONL", 2 decals), P2 of 3, settled — **PASS**.
+- **Limits:** the online tour only touches the preset it created; the pearl flip tint is still not rendered.

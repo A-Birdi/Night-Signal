@@ -34,7 +34,7 @@ namespace NightSignal.Front
     {
         /// <summary>
         /// edit-draft | apply | discard-draft | save-as | load-into-draft | begin-workshop | end-workshop | livery-apply |
-        /// visual-preset-save | visual-preset-update | visual-preset-delete
+        /// visual-preset-save | visual-preset-update | visual-preset-rename | visual-preset-delete
         /// </summary>
         public string Kind = "";
         public MechanicalSnapshot Build;
@@ -145,6 +145,7 @@ namespace NightSignal.Front
                 case "visual-preset-update":
                     r = PresetPayload(ws, op, out string canonical) ?? GarageOperations.UpdateVisualPreset(ws, ws.Revision, op.PresetId, op.PayloadSchema, canonical, op.ConfirmationToken, now);
                     break;
+                case "visual-preset-rename": r = GarageOperations.RenameVisualPreset(ws, ws.Revision, op.PresetId, op.Name, now); break;
                 case "visual-preset-delete": r = GarageOperations.DeleteVisualPreset(ws, ws.Revision, op.PresetId, op.ConfirmationToken); break;
                 default: throw new ArgumentException("unknown garage operation " + op.Kind);
             }

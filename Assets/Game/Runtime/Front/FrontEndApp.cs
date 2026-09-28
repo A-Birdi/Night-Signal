@@ -721,6 +721,31 @@ namespace NightSignal.Front
                 onlineLiveryHash = Appearance.Workspace.AppliedLiveryHash;
                 Note($"online appearance: {Appearance.Message} hash {liveryBefore} -> {onlineLiveryHash} ({onlineLivery?.Length} chars)");
                 if (string.IsNullOrEmpty(onlineLivery) || onlineLiveryHash == liveryBefore) failures.Add("online appearance: the livery was not applied: " + Appearance.Message);
+                // Presets online: save the look into the first empty slot, rename it, delete it (asked, then confirmed) —
+                // only the preset this tour made is touched.
+                yield return Press("Section", 1); // presets
+                int slot = Appearance.Workspace.VisualPresets.Count(p => p.PayloadSchema == Core.Customization.LiveryDocument.SchemaId);
+                if (slot < 5)
+                {
+                    string tag = "Tour " + DateTime.UtcNow.ToString("HHmmss", System.Globalization.CultureInfo.InvariantCulture);
+                    Click("Appearance-PresetSave" + slot);
+                    yield return Until(() => !Appearance.Busy, 10f, "preset saved");
+                    string saved = Appearance.Workspace.VisualPresets.Where(p => p.PayloadSchema == Core.Customization.LiveryDocument.SchemaId).Select(p => p.Name).ElementAtOrDefault(slot);
+                    Appearance.TypePresetName(tag);
+                    Click("Appearance-PresetRename" + slot);
+                    yield return Until(() => !Appearance.Busy, 10f, "preset renamed");
+                    bool renamed = Appearance.Workspace.VisualPresets.Any(p => p.Name == tag);
+                    Click("Appearance-PresetDelete" + slot);
+                    yield return Until(() => !Appearance.Busy, 10f, "delete asked");
+                    string asked = Appearance.Message;
+                    bool keptUntilConfirmed = Appearance.Workspace.VisualPresets.Any(p => p.Name == tag);
+                    Click("Appearance-PresetDelete" + slot);
+                    yield return Until(() => !Appearance.Busy, 10f, "preset deleted");
+                    bool gone = !Appearance.Workspace.VisualPresets.Any(p => p.Name == tag);
+                    Note($"online presets: saved \"{saved}\" in slot {slot + 1}, renamed to \"{tag}\" {renamed}, delete asked \"{asked}\" (kept {keptUntilConfirmed}), deleted {gone}: {Appearance.Message}");
+                    if (saved == null || !renamed || !keptUntilConfirmed || !gone) failures.Add("online presets: save/rename/delete did not complete: " + Appearance.Message);
+                }
+                else Note($"online presets: all {slot} slots in use on this account — save/rename/delete not exercised");
                 Click("Back");
                 yield return Until(() => Router.Current == Garage, 10f, "back at the garage");
                 yield return new WaitForSeconds(0.8f);
