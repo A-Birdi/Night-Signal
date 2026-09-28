@@ -700,3 +700,34 @@ public sealed class LocalCardStyleTests
         Assert.Equal(LocalOperationStatus.Applied, LocalProgression.SetCard(owner, "Robin", "", "", locked, card).Status);
     }
 }
+
+public sealed class LocalShowcaseTests
+{
+    static RecordEntry Entry(RecordEventType type, string eventId, string course, string format, string difficulty, MetricKind metric, long value) => new()
+    {
+        Key = new RecordKey { EventType = type, EventId = eventId, CourseId = course, Format = format, Difficulty = difficulty, Metric = metric },
+        Value = value,
+    };
+
+    [Fact]
+    public void Showcase_OwnRecordsOnly_BestKept_StoredOnTheCard()
+    {
+        LocalProfile p = LocalProgressionTests.NewProfile("Robin");
+        p.Records.Entries.Add(Entry(RecordEventType.Freeplay, "C01/sprint", "C01", "sprint", "", MetricKind.ElapsedTime, 151_408));
+        p.Records.Entries.Add(Entry(RecordEventType.Freeplay, "C01/sprint", "C01", "sprint", "", MetricKind.ElapsedTime, 149_000));
+        p.Records.Entries.Add(Entry(RecordEventType.CampaignStage, "S07", "C04", "sprint", "normal", MetricKind.ElapsedTime, 190_329));
+        p.Records.Entries.Add(Entry(RecordEventType.Freeplay, "C08/drift-attack", "C08", "drift-attack", "", MetricKind.RawDriftScore, 71_250));
+        var records = LocalShowcase.Records(p, TestContent.Catalogue).ToDictionary(r => r.Key, r => r.Value);
+        Assert.Equal("2:29.000", records["course:C01:sprint"]);
+        Assert.Equal("3:10.329", records["stage:S07:normal"]);
+        Assert.Equal("71,250 raw", records["course:C08:drift-attack"]);
+
+        LocalProgressionResult set = LocalProgression.SetCard(p, "Robin", "", "", showcase: new[] { "stage:S07:normal", "course:C01:sprint" }, content: TestContent.Catalogue);
+        Assert.Equal(LocalOperationStatus.Applied, set.Status);
+        Assert.Equal(new[] { "stage:S07:normal", "course:C01:sprint" }, set.Profile.Card.Showcase);
+        Assert.Empty(set.Profile.Validate());
+        Assert.Equal(LocalOperationStatus.Rejected, LocalProgression.SetCard(p, "Robin", "", "", showcase: new[] { "course:C09:sprint" }, content: TestContent.Catalogue).Status);
+        Assert.Equal(LocalOperationStatus.Rejected, LocalProgression.SetCard(p, "Robin", "", "", showcase: new[] { "stage:S07:normal", "stage:S07:normal" }, content: TestContent.Catalogue).Status);
+        Assert.Equal(LocalOperationStatus.AlreadyApplied, LocalProgression.SetCard(set.Profile, "Robin", "", "", showcase: new[] { "stage:S07:normal", "course:C01:sprint" }, content: TestContent.Catalogue).Status);
+    }
+}

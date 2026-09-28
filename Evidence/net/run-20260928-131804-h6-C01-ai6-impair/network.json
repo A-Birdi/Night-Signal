@@ -1,0 +1,89 @@
+﻿{
+    "endpoint":  {
+                     "bindHost":  "127.0.0.1",
+                     "publicHost":  "127.0.0.1",
+                     "port":  7777,
+                     "protocol":  "udp",
+                     "classification":  "local",
+                     "lanOptIn":  false,
+                     "executable":  "NightSignal.exe",
+                     "role":  "dedicated-server"
+                 },
+    "serverPid":  72996,
+    "serverGameListener":  "127.0.0.1:7777",
+    "processes":  [
+                      {
+                          "name":  "client-0 (leader)",
+                          "pid":  19380,
+                          "udp":  [
+                                      "0.0.0.0:60445",
+                                      "0.0.0.0:60452"
+                                  ],
+                          "tcpListen":  [
+
+                                        ]
+                      },
+                      {
+                          "name":  "client-1 (member)",
+                          "pid":  82980,
+                          "udp":  [
+                                      "0.0.0.0:60443"
+                                  ],
+                          "tcpListen":  [
+
+                                        ]
+                      },
+                      {
+                          "name":  "client-2 (member)",
+                          "pid":  60376,
+                          "udp":  [
+                                      "0.0.0.0:60446"
+                                  ],
+                          "tcpListen":  [
+
+                                        ]
+                      },
+                      {
+                          "name":  "client-3 (member)",
+                          "pid":  82532,
+                          "udp":  [
+                                      "0.0.0.0:60447"
+                                  ],
+                          "tcpListen":  [
+
+                                        ]
+                      },
+                      {
+                          "name":  "client-4 (member)",
+                          "pid":  83392,
+                          "udp":  [
+                                      "0.0.0.0:60444"
+                                  ],
+                          "tcpListen":  [
+
+                                        ]
+                      },
+                      {
+                          "name":  "client-5 (member)",
+                          "pid":  78288,
+                          "udp":  [
+                                      "0.0.0.0:60448"
+                                  ],
+                          "tcpListen":  [
+
+                                        ]
+                      },
+                      {
+                          "name":  "server",
+                          "pid":  72996,
+                          "udp":  [
+                                      "127.0.0.1:7777"
+                                  ],
+                          "tcpListen":  [
+
+                                        ]
+                      }
+                  ],
+    "portReleasedAfterRun":  true,
+    "firewall":  "not read or changed by this harness (user-controlled)"
+}

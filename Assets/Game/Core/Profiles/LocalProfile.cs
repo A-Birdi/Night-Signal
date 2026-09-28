@@ -129,6 +129,9 @@ namespace NightSignal.Core.Profiles
                     if (look == null || Characters.PlayerLooks.Problems(look).Count > 0) e.Add("The card's driver look is not a valid look.");
                 }
                 if (!LocalProgression.PronounsOk(Card.Pronouns ?? "")) e.Add("Pronouns: up to 24 plain characters.");
+                List<string> showcase = Card.Showcase ?? new List<string>();
+                if (showcase.Count > LocalShowcase.MaxShowcase || showcase.Distinct(StringComparer.Ordinal).Count() != showcase.Count)
+                    e.Add($"The card shows up to {LocalShowcase.MaxShowcase} different records.");
             }
             if (Cars == null || UnassignedParts == null || Courses == null || Campaign == null || Challenges == null || Cosmetics == null ||
                 Music == null || Records == null || Tutorial == null || AppliedOperations == null || Toys == null || WalletHistory == null)
@@ -182,6 +185,8 @@ namespace NightSignal.Core.Profiles
         public string Region { get; set; } = "";
         /// <summary>A car model the profile owns, shown on the card ("" = none).</summary>
         public string PreferredCar { get; set; } = "";
+        /// <summary>Up to three of this profile's record keys shown on the card (<see cref="LocalShowcase"/>).</summary>
+        public List<string> Showcase { get; set; } = new List<string>();
         /// <summary>The driver's look (canonical <c>CharacterLook</c> JSON, the online card's form); "" = the default look from the name.</summary>
         public string Look { get; set; } = "";
         /// <summary>Optional pronouns shown with the name (up to 24 plain characters).</summary>

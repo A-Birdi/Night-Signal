@@ -307,7 +307,8 @@ namespace NightSignal.Core.Profiles
         /// the online card's (<see cref="Characters.PlayerLooks"/>); "" = the default look from the name. Unchanged is a no-op.
         /// </summary>
         public static LocalProgressionResult SetCard(LocalProfile profile, string displayName, string lookJson, string pronouns,
-            Customization.CardStyle style = null, Customization.CardStyleCatalogue card = null)
+            Customization.CardStyle style = null, Customization.CardStyleCatalogue card = null, IReadOnlyList<string> showcase = null,
+            ContentCatalogue content = null)
         {
             LocalProgressionResult result = Begin(profile);
             if (!LocalDisplayName.TryNormalize(displayName, out string name, out string error)) return Reject(result, error);
@@ -332,7 +333,10 @@ namespace NightSignal.Core.Profiles
                 if (bad.Count > 0) return Reject(result, bad[0]);
             }
             bool sameStyle = style == null || StyleOf(profile.Card, null).ContentEquals(styled);
-            if (name == profile.DisplayName && look == (profile.Card?.Look ?? "") && words == (profile.Card?.Pronouns ?? "") && sameStyle)
+            // The showcase: up to three of this profile's own records (null = keep).
+            if (LocalShowcase.Problem(showcase, profile, content) is string showcaseProblem) return Reject(result, showcaseProblem);
+            bool sameShowcase = showcase == null || (profile.Card?.Showcase ?? new List<string>()).SequenceEqual(showcase);
+            if (name == profile.DisplayName && look == (profile.Card?.Look ?? "") && words == (profile.Card?.Pronouns ?? "") && sameStyle && sameShowcase)
                 return Already(result, "The card is unchanged.");
             LocalProfile p = ProfileJson.Clone(profile);
             p.DisplayName = name;
@@ -349,6 +353,7 @@ namespace NightSignal.Core.Profiles
                 p.Card.Region = styled.Region;
                 p.Card.PreferredCar = styled.PreferredCar;
             }
+            if (showcase != null) p.Card.Showcase = showcase.ToList();
             Add(result, ProgressionChangeKind.CardChanged, name, 0, "Driver card changed.");
             result.Status = LocalOperationStatus.Applied;
             return Finish(result, p);

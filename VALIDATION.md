@@ -1854,3 +1854,35 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   - No latency, pipelined sender (regression): **PASS** on all three; 472 poses, 0 corrections.
 - **Limits:** latency only (no loss or reordering, which the reliable channel does not show); the look of remote
   motion under latency was not judged by a person; the race netcode's impairment (`-nsImpair`) is separate (V-054/V-061).
+
+## V-095 — Drops, refused re-entry and spectating in a full impaired race; the offline showcase (2026-09-28)
+- Revisions: the race ran on the player build of `3bd3b2c` (control plane on `ee58844`, race content hash `3677a844…`);
+  the offline showcase is the work committed with this entry, on a player build of it.
+- **Six humans under load** (`Tools/run/net-race.ps1`, C01 freeplay sprint, 6 scripted client processes + 6 AI, every
+  client impaired 80 ± 20 ms each way with 1 % application-level loss, `-ResetAt 25 -DropAfterReset -DropAt 40`;
+  loopback, the dedicated server bound to 127.0.0.1 — the clients' ephemeral UDP sockets are the known wildcard ones of
+  `UnityTransport`, see `docs/EFFECTIVE_RULES.md` Addendum 04): client 0 (the convoy leader) asked for a recovery at 25 s, dropped its connection once
+  the server completed it, came back 2 s later with the same ticket and was **refused** (`ticket_Replayed`), then
+  spectated the rest of the event (4 target changes, 0 losses; the 40 inputs it forged as a spectator were ignored —
+  the server counts 40 ignored inputs from non-entrants and 1 spectator served). Client 1 dropped at 40 s and stayed
+  away. Both settled **DisqualifiedDisconnect**: no payout, wallet and RP unchanged, the slot not refilled (the server
+  lists entrants 0 and 1 as `DqDisconnected`). Clients 2–5 finished (4th, 6th, 9th, 10th of 12), were credited
+  (9,460 / 12,460 / 9,460 / 6,460 cr; RP up) with their challenge unlocks; round trip ≈ 190–204 ms, 81–84 inputs and
+  27–29 snapshots dropped by the impairment each, 270–922 reconciliations. The large maximum corrections (36–90 m) on
+  clients 3–5 are their own server recoveries (1–2 each), which move the car by design. All six clients **PASS**;
+  `Evidence/net/run-20260928-131804-h6-C01-ai6-impair/` (client and server summaries, network sockets).
+- **The offline showcase:** the Local profile's card keeps up to three of its own records (`LocalShowcase`: best time per
+  campaign stage and difficulty and per freeplay course and format, best raw score per Drift Attack course — the online
+  key form, never mixed with online records); `LocalProgression.SetCard` refuses more than three, repeats and records
+  the profile does not hold, and is a no-op when nothing changed. The Player Card's three showcase slots now work
+  offline and the card preview lists the chosen records.
+- **Tests:** .NET `LocalShowcaseTests` (best kept per key, times and raw scores formatted, stored in order; foreign,
+  repeated keys refused; repeat is a no-op) — Core 130/130; Unity EditMode 471 passed, 2 skipped (the explicit V-087 experiment), 0 failed.
+- **Built player** (`-nsDriverCardTour`, buttons only, isolated profile folder): the new profile gets two seeded records
+  (C01 sprint 2:29.000, C08 Drift Attack 71,250 raw — seeded, not raced; a raced record reaches a profile through
+  `ApplyEvent`, covered by the progression tests); both are offered, chosen in slots 1 and 2, saved, drawn on the card
+  ("Best: C01 Tea Lantern Road · sprint 2:29.000", "Best: C08 Rain Thread Pass · drift attack 71,250 raw") and still
+  there after the profile is re-read from disk; the earlier look, pronoun and style steps still pass — **PASS**.
+  `Evidence/meet/card-showcase-offline.jpg`, `Evidence/meet/driver-card-offline-log.txt`.
+- **Limits:** the drops are scripted (a real crash and the Rejoin UI path were driven in V-060, with two clients); the
+  six clients are scripted autopilots on one machine, not people; the offline meet has no one to show the card to.

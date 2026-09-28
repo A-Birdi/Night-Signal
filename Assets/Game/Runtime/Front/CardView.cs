@@ -30,6 +30,8 @@ namespace NightSignal.Front
 
         /// <summary>The style last drawn (tests and evidence read it).</summary>
         public CardStyle Shown { get; private set; }
+        /// <summary>The public lines last drawn (tests and evidence read it).</summary>
+        public IReadOnlyList<string> ShownLines { get; private set; } = new List<string>();
 
         public CardView(Transform parent, Vector2 anchorMin, Vector2 anchorMax)
         {
@@ -102,6 +104,7 @@ namespace NightSignal.Front
         {
             style = style ?? cat.Default;
             Shown = style.Copy();
+            ShownLines = new List<string>(stats ?? new List<string>());
             CardBackgroundDef bg = cat.Background(style.Background) ?? cat.Background(cat.Default.Background);
             CardFrameDef frame = cat.Frame(style.Frame) ?? cat.Frame(cat.Default.Frame);
             CardMotifDef mo = cat.Motif(style.Motif) ?? cat.Motif(cat.Default.Motif);

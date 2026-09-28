@@ -392,7 +392,16 @@ namespace NightSignal.Front
             }
             for (int s = 0; s < showcase.Length; s++) showcase[s] = "";
             records = new List<(string, string, string)>();
-            if (Local == null)
+            if (Local != null)
+            {
+                // Offline: the Local profile's own records (never mixed with online ones).
+                records = Core.Profiles.LocalShowcase.Records(Local.Profile, Content.ContentLibrary.Load()?.Catalogue);
+                int n = 0;
+                foreach (string k in Local.Profile.Card?.Showcase ?? new List<string>())
+                    if (n < showcase.Length) showcase[n++] = k ?? "";
+                recordsLoaded = true;
+            }
+            else
             {
                 int n = 0;
                 foreach (JToken k in ((S.Me?["card"] as JObject)?["showcase"] as JArray) ?? new JArray())
@@ -458,7 +467,7 @@ namespace NightSignal.Front
             {
                 // Offline: the Local profile's card, validated like the online one and saved atomically.
                 Core.Profiles.LocalProgressionResult r = Core.Profiles.LocalProgression.SetCard(Local.Profile, nameField.text,
-                    PlayerLooks.Canonical(look), pronounsField.text, style, Cat);
+                    PlayerLooks.Canonical(look), pronounsField.text, style, Cat, Showcase, Content.ContentLibrary.Load()?.Catalogue);
                 if (r.Status == Core.Profiles.LocalOperationStatus.AlreadyApplied)
                 {
                     status.text = "Nothing changed.";

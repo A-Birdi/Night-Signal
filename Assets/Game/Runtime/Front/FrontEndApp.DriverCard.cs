@@ -12,7 +12,9 @@ namespace NightSignal.Front
         /// <summary>
         /// Offline Driver Card evidence (<c>-nsDriverCardTour</c>), buttons only (no keyboard, so no window focus is needed):
         /// a fresh Local profile in an isolated folder → Driver Card → pronouns with markup refused → a starting look and
-        /// pronouns saved → the profile re-read from disk → the offline meet builds the avatar from that look.
+        /// pronouns saved → a card style with a locked frame refused → two records showcased → the profile re-read from disk
+        /// → the offline meet builds the avatar from that look. The profile is new, so its two records are seeded into it
+        /// (a raced record reaches the profile through ApplyEvent, covered by the .NET progression tests).
         /// </summary>
         IEnumerator DriverCardTour()
         {
@@ -53,6 +55,16 @@ namespace NightSignal.Front
             Click("Create");
             yield return Until(() => LocalSession.Current?.Profile != null && Router.Current == OfflineHub, 10f);
             if (LocalSession.Current?.Profile == null) { Fail("no profile"); Finish(); yield break; }
+            foreach (var seed in new[] { ("C01", "sprint", 149_000L), ("C08", "drift-attack", 71_250L) })
+                LocalSession.Current.Profile.Records.Entries.Add(new Core.Profiles.RecordEntry
+                {
+                    Key = new Core.Profiles.RecordKey
+                    {
+                        EventType = Core.Profiles.RecordEventType.Freeplay, EventId = seed.Item1 + "/" + seed.Item2, CourseId = seed.Item1, Format = seed.Item2,
+                        Metric = seed.Item2 == "drift-attack" ? Core.Profiles.MetricKind.RawDriftScore : Core.Profiles.MetricKind.ElapsedTime,
+                    },
+                    Value = seed.Item3,
+                });
 
             Click("DriverCard");
             yield return Until(() => Router.Current == PlayerCard, 5f);
@@ -98,10 +110,27 @@ namespace NightSignal.Front
             Note($"style saved: {styleSaved.Canonical()} (preview {PlayerCard.Card?.Shown?.Canonical()})");
             if (!styleSaved.ContentEquals(styleWanted)) Fail("the card style was not saved");
 
+            // The showcase: the profile's own records, one per slot (slot N takes record N).
+            Note($"records offered: {PlayerCard.RecordCount}");
+            if (PlayerCard.RecordCount != 2) Fail($"expected the 2 seeded records, got {PlayerCard.RecordCount}");
+            for (int s = 0; s < Math.Min(2, PlayerCard.RecordCount); s++)
+                for (int k = 0; k <= s; k++) Click($"Showcase {s + 1}/Next");
+            var chosen = new List<string>(PlayerCard.Showcase);
+            Click("SaveCard");
+            yield return new WaitForSeconds(0.8f);
+            yield return Snap("01c-showcase");
+            var stored = LocalSession.Current.Profile.Card.Showcase ?? new List<string>();
+            var best = new List<string>();
+            foreach (string l in PlayerCard.Card?.ShownLines ?? new List<string>()) if (l.StartsWith("Best: ")) best.Add(l);
+            Note($"showcase chosen {string.Join(", ", chosen)}; stored {string.Join(", ", stored)}; drawn: {string.Join(" | ", best)} (\"{PlayerCard.Status}\")");
+            if (chosen.Count != 2 || string.Join(",", stored) != string.Join(",", chosen)) Fail("the showcase was not saved");
+            if (best.Count != 2) Fail("the card does not draw the showcased records");
+
             string id = LocalSession.Current.Profile.ProfileId;
             bool reread = LocalSession.Current.Open(id, out string reopen);
             bool same = reread && LocalSession.Current.Profile.Card.Look == saved && LocalSession.Current.Profile.Card.Pronouns == "she/they" &&
-                        Core.Profiles.LocalProgression.StyleOf(LocalSession.Current.Profile.Card, null).ContentEquals(styleWanted);
+                        Core.Profiles.LocalProgression.StyleOf(LocalSession.Current.Profile.Card, null).ContentEquals(styleWanted) &&
+                        string.Join(",", LocalSession.Current.Profile.Card.Showcase ?? new List<string>()) == string.Join(",", chosen);
             Note($"re-read from disk: {same} {reopen}");
             if (!same) Fail("the card did not persist");
 
