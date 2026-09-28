@@ -42,6 +42,8 @@ namespace NightSignal.Race
         public RaceEntrant Player { get; private set; }
         /// <summary>The player's car as drawn (null headless or before the views exist).</summary>
         public VehicleView PlayerView => Player != null && views.TryGetValue(Player, out VehicleView v) ? v : null;
+        /// <summary>Every car as drawn (empty headless).</summary>
+        public IReadOnlyCollection<VehicleView> Views => views.Values;
         public int CurrentTick { get; private set; }
         public bool Ready { get; private set; }
         public MatchPhase Phase { get; private set; } = MatchPhase.Loading;

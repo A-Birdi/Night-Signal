@@ -168,6 +168,13 @@ namespace NightSignal.Art
         static void Patch(MeshBuilder mb, int sub, int rows, int cols, Func<float, float, Vector3> map, Vector3 facing, Span span = null)
         {
             span = span ?? Full;
+            if (buildLod > 0)
+            {
+                // The distant bodies draw every conformed patch (lamps, openings, trim) more coarsely.
+                int div = buildLod == 1 ? 2 : 3;
+                rows = Mathf.Max(1, (rows + div - 1) / div);
+                cols = Mathf.Max(1, (cols + div - 1) / div);
+            }
             var index = new int[(rows + 1) * (cols + 1)];
             for (int r = 0; r <= rows; r++)
             {
@@ -516,7 +523,8 @@ namespace NightSignal.Art
             float lipW = d.Arches == "flared" ? 0.07f : d.Arches == "square" ? 0.05f : 0.045f;
             float flare = d.Arches == "flared" ? 0.03f : 0.011f;
             float wr = d.WheelRadius;
-            const int arc = 24, leg = 3;
+            int arc = buildLod == 0 ? 24 : buildLod == 1 ? 12 : 8;
+            const int leg = 3;
             int lipSub = d.Features.Contains("arch-cladding") ? TrimSub : PaintSub;
             // The opening as the loft cuts it: vertical legs from the sill up to the wheel centre at |dz| = r, and the arch
             // shape over the top. Each point carries its outward direction in the (z, y) plane.
@@ -755,6 +763,7 @@ namespace NightSignal.Art
             // Dash top under the windscreen.
             float dz = f.WindshieldBaseZ - 0.2f;
             Pod(mb, TrimSub, new Vector3(0f, f.CowlY - 0.05f, dz), new Vector3(f.InteriorHalfWidth(dz) * 0.94f, 0.06f, 0.17f), 0.04f, Quaternion.Euler(-6f, 0f, 0f));
+            if (buildLod > 0) return; // the mid-distance body shows the seats and dash only
             // Steering wheel rim where the fitted cockpit places it.
             Vector3 wheelAt = f.Eye + new Vector3(0f, -0.3f, 0.46f);
             Quaternion tilt = Quaternion.Euler(24f, 0f, 0f);

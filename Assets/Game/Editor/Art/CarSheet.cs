@@ -30,6 +30,22 @@ namespace NightSignal.Editor.ArtTools
             Debug.Log("[NightSignal.Art] car sheets written to " + dir);
         }
 
+        /// <summary>
+        /// The distant levels of detail forced up close (front and rear three-quarter, side) for every car — the inspection
+        /// sheets of the LOD pass: cars-{view}-lod1.png and -lod2.png.
+        /// </summary>
+        [MenuItem("Night Signal/Art/Render Car LOD Sheets")]
+        public static void RenderLodDefault() => RenderLods(Path.GetFullPath(Path.Combine("Builds", "Screenshots", "cars")));
+
+        public static void RenderLods(string dir)
+        {
+            Directory.CreateDirectory(dir);
+            for (int lod = 1; lod <= 2; lod++)
+            foreach (View v in new[] { View.FrontQuarter, View.RearQuarter, View.Side })
+                Render(Path.Combine(dir, $"cars-{Slug(v)}-lod{lod}.png"), v, forceLod: lod);
+            Debug.Log("[NightSignal.Art] car LOD sheets written to " + dir);
+        }
+
         static string Slug(View v)
         {
             switch (v)
@@ -43,8 +59,9 @@ namespace NightSignal.Editor.ArtTools
             }
         }
 
+        /// <param name="forceLod">A level of detail to draw regardless of distance (−1: the level the camera picks).</param>
         public static void Render(string path, View view, List<string> cars = null, int columns = 6, int tileWidth = 520, int tileHeight = 320,
-            Color? paint = null)
+            Color? paint = null, int forceLod = -1)
         {
             ContentLibrary lib = ContentLibrary.Load();
             CarMaterialSet mats = Resources.Load<CarMaterialSet>("CarMaterialSet");
@@ -102,6 +119,7 @@ namespace NightSignal.Editor.ArtTools
                     VehicleView car = VehicleView.Create("SheetCar", p, lib.Body(cars[i]), mats, paint ?? new Color(0.46f, 0.56f, 0.66f));
                     SceneManager.MoveGameObjectToScene(car.gameObject, scene);
                     car.ShowParked(Vector3.zero, Quaternion.identity, view == View.FrontQuarter ? 12f : 0f);
+                    if (forceLod >= 0) car.Lods.ForceLOD(forceLod);
                     float mid = (p.FrontAxleZ + p.RearAxleZ) * 0.5f;
                     Vector3 target = new Vector3(0f, 0.62f, mid);
                     Vector3 eye;

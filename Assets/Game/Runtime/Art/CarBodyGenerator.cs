@@ -34,7 +34,11 @@ namespace NightSignal.Art
     /// </summary>
     public static partial class CarBodyGenerator
     {
-        const int Stations = 80; // ~5 cm spacing so wheel arches read as curves
+        const int FullStations = 80; // ~5 cm spacing so wheel arches read as curves
+        /// <summary>Loft stations for the body being built (fewer for the distant levels of detail).</summary>
+        static int Stations = FullStations;
+        /// <summary>Level of detail being built: 0 full, 1 mid distance, 2 far.</summary>
+        static int buildLod;
 
         internal sealed class Profile
         {
@@ -54,24 +58,49 @@ namespace NightSignal.Art
         /// greenhouse sits on) so the fitted cockpit below it can be seen from the driver's seat; the exterior views use the
         /// closed body, whose lid is dark interior with the seats, dash and wheel standing on it as seen through the glass.
         /// </summary>
-        public static Mesh BuildBody(CarBodyDef d, VehicleParams p, CarAppearance appearance = null, bool openCabin = false)
+        public static Mesh BuildBody(CarBodyDef d, VehicleParams p, CarAppearance appearance = null, bool openCabin = false) =>
+            BuildBody(d, p, appearance, openCabin, 0);
+
+        /// <summary>
+        /// A body at a level of detail (spec §15 vehicle LOD tiers). 0 is the full body. 1, for mid distance, lofts 28 stations
+        /// instead of 80, draws the lamp and trim patches and the arch lips about half as finely, and leaves out the feature
+        /// lines and the steering-wheel rim (the seats and dash still show through the glass). 2, for far away, lofts 14
+        /// stations, samples the glasshouse half as finely, draws patches a third as finely and leaves out the mirrors and
+        /// the interior as well. Every level keeps the fascia and the lamps, so a car still reads (and its lamps still glow)
+        /// at night; the silhouette, the height and length and the paint zones are the same.
+        /// </summary>
+        public static Mesh BuildBody(CarBodyDef d, VehicleParams p, CarAppearance appearance, bool openCabin, int lod)
         {
-            Profile pr = Layout(d, p);
-            pr.A = appearance ?? new CarAppearance();
-            var mb = new MeshBuilder(BodySubmeshes);
-            LowerBody(mb, pr, openCabin ? CabinRear(pr) : float.PositiveInfinity);
-            if (d.Style == "roadster") Roadster(mb, pr);
-            else Greenhouse(mb, pr);
-            Fascia(mb, pr);
-            ArchLips(mb, pr);
-            Lines(mb, pr);
-            Mirrors(mb, pr);
-            if (!openCabin) InteriorSilhouette(mb, pr);
-            Details(mb, pr);
-            Mesh m = mb.Build($"{d.Id}_body");
-            m.RecalculateNormals();
-            m.RecalculateTangents();
-            return m;
+            int keepStations = Stations, keepLod = buildLod;
+            Stations = lod <= 0 ? FullStations : lod == 1 ? 28 : 14;
+            buildLod = lod;
+            try
+            {
+                Profile pr = Layout(d, p);
+                pr.A = appearance ?? new CarAppearance();
+                var mb = new MeshBuilder(BodySubmeshes);
+                LowerBody(mb, pr, openCabin ? CabinRear(pr) : float.PositiveInfinity);
+                if (d.Style == "roadster") Roadster(mb, pr);
+                else Greenhouse(mb, pr);
+                Fascia(mb, pr);
+                ArchLips(mb, pr);
+                if (lod < 1) Lines(mb, pr);
+                if (lod < 2)
+                {
+                    Mirrors(mb, pr);
+                    if (!openCabin) InteriorSilhouette(mb, pr);
+                }
+                Details(mb, pr);
+                Mesh m = mb.Build(lod == 0 ? $"{d.Id}_body" : $"{d.Id}_body_lod{lod}");
+                m.RecalculateNormals();
+                m.RecalculateTangents();
+                return m;
+            }
+            finally
+            {
+                Stations = keepStations;
+                buildLod = keepLod;
+            }
         }
 
         /// <summary>The loft of one car body, for placing things on its surface (decals).</summary>
@@ -722,7 +751,8 @@ namespace NightSignal.Art
         static void Greenhouse(MeshBuilder mb, Profile pr)
         {
             CarBodyDef d = pr.D;
-            const int n = 36, per = 12;
+            int n = buildLod >= 2 ? 18 : 36; // the far body's glasshouse is sampled half as finely
+            const int per = 12;
             float z0 = pr.ZRw, z1 = pr.ZWs;
             var rows = new List<int>();
             var zs = new List<float>();

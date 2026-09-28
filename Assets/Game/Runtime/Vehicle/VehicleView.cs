@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using NightSignal.Art;
 using UnityEngine;
 
@@ -43,6 +45,9 @@ namespace NightSignal.Vehicle
         }
 
         Mesh closedBody, openBody;
+        LODGroup lodGroup;
+        /// <summary>The car's levels of detail (tests and evidence read the meshes and transition heights).</summary>
+        public LODGroup Lods => lodGroup;
 
         /// <summary>
         /// Cockpit view on/off for this car: shows the fitted cabin and swaps to the open-cabin body (no lid over the
@@ -133,6 +138,22 @@ namespace NightSignal.Vehicle
             if (!string.IsNullOrEmpty(a.PlateText)) Plate(def, a, mats.Trim);
             CarDecals.Build(body, def, p, a.Decals, mats.Paint, owned, a.Primary);
 
+            // Levels of detail (spec §15): the distant bodies share the paint and the body transform (so they lean too).
+            // The livery decals stay at mid distance (they sit on the full body's surface; the coarser loft lies inside it on
+            // convex panels, so they never sink); the plate shows only up close; the wheels belong to every level.
+            var lodBodies = new List<Renderer>();
+            for (int lod = 1; lod <= 2; lod++)
+            {
+                Mesh lodMesh = CarBodyGenerator.BuildBody(def, p, a, false, lod);
+                owned.Add(lodMesh);
+                var go = new GameObject($"BodyLod{lod}");
+                go.transform.SetParent(body, false);
+                go.AddComponent<MeshFilter>().sharedMesh = lodMesh;
+                var r = go.AddComponent<MeshRenderer>();
+                r.sharedMaterials = cm.BodyArray;
+                lodBodies.Add(r);
+            }
+
             Mesh wheelMesh = CarBodyGenerator.BuildWheel(def, a);
             for (int i = 0; i < 4; i++)
             {
@@ -150,6 +171,23 @@ namespace NightSignal.Vehicle
                 wheels[i] = pivot;
                 wheelSpin[i] = spin;
             }
+
+            var near = new List<Renderer>(body.GetComponentsInChildren<Renderer>(true).Where(r => !lodBodies.Contains(r)));
+            var wheelRenderers = new List<Renderer>();
+            foreach (Transform w in wheels) wheelRenderers.AddRange(w.GetComponentsInChildren<Renderer>(true));
+            Transform decals = body.Find("Decals");
+            Renderer[] livery = decals != null ? decals.GetComponentsInChildren<Renderer>(true) : new Renderer[0];
+            near.AddRange(wheelRenderers);
+            // Screen-relative heights (× the quality level's LOD bias, 2 on PC): with the 60° race camera a car switches to
+            // the mid body at about 43 m, to the far body at about 130 m and is culled beyond about 1 km.
+            lodGroup = gameObject.AddComponent<LODGroup>();
+            lodGroup.SetLODs(new[]
+            {
+                new LOD(0.18f, near.ToArray()),
+                new LOD(0.06f, wheelRenderers.Concat(livery).Append(lodBodies[0]).ToArray()),
+                new LOD(0.008f, wheelRenderers.Append(lodBodies[1]).ToArray()),
+            });
+            lodGroup.RecalculateBounds();
 
             headlights = new Light[2];
             for (int s = 0; s < 2; s++)
