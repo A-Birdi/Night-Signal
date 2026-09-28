@@ -26,6 +26,46 @@ namespace NightSignal.Editor.Courses
         public static void AuthorC01() => Author("C01", "late-afternoon", new TerrainStyle { TeaRowCoverage = 0.35f, Seed = 101 });
 
         public const string TestYardFolder = "Assets/Content/Facilities/TestYard";
+        public const string MeetFolder = "Assets/Content/Facilities/Meet";
+        public const string MeetScene = MeetFolder + "/Meet.unity";
+
+        /// <summary>The meet scene (spec §12, Appendix F): entry point, sun, sky, post-processing; the terrace generates on load.</summary>
+        [MenuItem("Night Signal/Meet/Author Meet Scene")]
+        public static string AuthorMeet()
+        {
+            Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            Directory.CreateDirectory(MeetFolder);
+            CourseMaterialSet mats = EnsureMaterialSet();
+            string skyPath = $"{MeetFolder}/Meet_Sky.mat";
+            var sky = AssetDatabase.LoadAssetAtPath<Material>(skyPath);
+            if (sky == null)
+            {
+                sky = new Material(Shader.Find("Skybox/Procedural")) { name = "Meet_Sky" };
+                AssetDatabase.CreateAsset(sky, skyPath);
+            }
+            VolumeProfile profile = EnsureVolumeProfile($"{MeetFolder}/Meet_Volume.asset");
+            var root = new GameObject("Meet_CedarLanternTerrace");
+            var sunGo = new GameObject("Sun");
+            sunGo.transform.SetParent(root.transform, false);
+            var sun = sunGo.AddComponent<Light>();
+            sun.type = LightType.Directional;
+            sun.shadows = LightShadows.Soft;
+            var volGo = new GameObject("GlobalVolume");
+            volGo.transform.SetParent(root.transform, false);
+            var vol = volGo.AddComponent<Volume>();
+            vol.isGlobal = true;
+            vol.sharedProfile = profile;
+            root.SetActive(false);
+            var rt = root.AddComponent<NightSignal.Meet.MeetRuntime>();
+            rt.Materials = mats;
+            rt.Sun = sun;
+            rt.Sky = sky;
+            root.SetActive(true);
+            EditorUtility.SetDirty(sky);
+            AssetDatabase.SaveAssets();
+            EditorSceneManager.SaveScene(scene, MeetScene);
+            return $"meet scene authored; generation {rt.GenerationSeconds:F2} s";
+        }
 
         /// <summary>The private Garage Test Yard facility (Addendum 02 §10): not a counted course.</summary>
         [MenuItem("Night Signal/Courses/Author Test Yard Scene")]
@@ -157,6 +197,10 @@ namespace NightSignal.Editor.Courses
             set.Bark = MaterialLibrary.Bark;
             set.Sea = MaterialLibrary.Sea;
             set.TunnelLining = MaterialLibrary.TunnelLining;
+            set.Blossom = MaterialLibrary.Blossom;
+            set.Paver = MaterialLibrary.Paver;
+            set.Mountain = MaterialLibrary.MountainFar;
+            set.Grass = MaterialLibrary.Grassland;
             set.TerrainTemplate = MaterialLibrary.TerrainTemplate;
             set.TerrainLayers = new[]
             {

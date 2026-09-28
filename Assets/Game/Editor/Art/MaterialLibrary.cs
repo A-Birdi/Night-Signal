@@ -97,6 +97,10 @@ namespace NightSignal.Editor.Art
         public static Material Foliage => Get("Foliage", ProceduralTextures.Grass(), new Color(0.55f, 0.75f, 0.5f), 0.2f);
         public static Material Bark => Get("Bark", ProceduralTextures.WoodPlanks(), new Color(0.5f, 0.42f, 0.36f), 0.15f);
         public static Material Sea => Get("SeaWater", null, new Color(0.05f, 0.14f, 0.2f), 0.78f, 0.1f);
+        public static Material Blossom => Get("Blossom", ProceduralTextures.Paper(), new Color(1f, 0.72f, 0.8f), 0.22f);
+        public static Material Paver => Get("Paver", ProceduralTextures.Stone(), new Color(0.9f, 0.88f, 0.84f), 0.2f);
+        public static Material MountainFar => Get("MountainFar", ProceduralTextures.Rock(), new Color(0.36f, 0.44f, 0.4f), 0.08f);
+        public static Material Grassland => Get("Grassland", ProceduralTextures.Grass(), new Color(0.52f, 0.66f, 0.4f), 0.12f);
         public static Material TunnelLining => Get("TunnelLining", ProceduralTextures.Rock(), new Color(0.62f, 0.62f, 0.6f), 0.2f);
     }
 }

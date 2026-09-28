@@ -42,6 +42,8 @@ namespace NightSignal.Editor.Build
             // Private Garage facility (Addendum 02 §10) — not a counted course.
             const string yard = "Assets/Content/Facilities/TestYard/TestYard.unity";
             if (File.Exists(yard)) scenes.Add(yard);
+            // The meet (spec §12): Cedar Lantern Terrace, a separate scene/room from race instances.
+            if (File.Exists(Courses.CourseSceneAuthoring.MeetScene)) scenes.Add(Courses.CourseSceneAuthoring.MeetScene);
             return scenes.ToArray();
         }
 

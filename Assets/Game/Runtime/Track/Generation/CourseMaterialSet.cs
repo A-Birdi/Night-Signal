@@ -31,6 +31,8 @@ namespace NightSignal.Track.Generation
         public Material Bark;
         public Material Sea;
         public Material TunnelLining;
+        /// <summary>Meet scenery (Cedar Lantern Terrace): cherry blossom, plaza pavers, distant ridges, grassland.</summary>
+        public Material Blossom, Paver, Mountain, Grass;
         public Material TerrainTemplate;
         /// <summary>Order: verge, field grass, tea rows, soil, rock.</summary>
         public TerrainLayer[] TerrainLayers;

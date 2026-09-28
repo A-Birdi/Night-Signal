@@ -37,6 +37,10 @@ MonoBehaviour:
   Bark: {fileID: 2100000, guid: 4a90e97153c741142bb8516d4b74ede3, type: 2}
   Sea: {fileID: 2100000, guid: 8a519e2fc004d204cb6556aca0f3342a, type: 2}
   TunnelLining: {fileID: 2100000, guid: 37a1ce9b67f5ff9439f914c24cc218e5, type: 2}
+  Blossom: {fileID: 2100000, guid: abf743b597fd8e24a8f677936e200e0c, type: 2}
+  Paver: {fileID: 2100000, guid: 8a3c596f61e4b3547833c051d76668ad, type: 2}
+  Mountain: {fileID: 2100000, guid: 3abfdcf5bcfa60c4aacfeed6841e9d84, type: 2}
+  Grass: {fileID: 2100000, guid: da51a9eedbce2284198ef52ac9fbbacd, type: 2}
   TerrainTemplate: {fileID: 2100000, guid: 6bca20fb202911849aec863e80eccef4, type: 2}
   TerrainLayers:
   - {fileID: 8574412962073106934, guid: ef180cab3856c844a90fbd365d560abe, type: 2}

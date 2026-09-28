@@ -40,7 +40,8 @@ namespace NightSignal.Track.Generation
         enum M
         {
             Concrete, Brick, WoodDark, WoodLight, RoofTiles, MetalRoof, SteelGrey, SteelRed, SteelYellow, WindowLit, Stone,
-            Graphite, OffWhite, Foliage, Bark, Water, Sea, LanternPaper, Rope, Post, Guardrail, Count,
+            Graphite, OffWhite, Foliage, Bark, Water, Sea, LanternPaper, Rope, Post, Guardrail,
+            Asphalt, Gravel, LinePaint, Blossom, Paver, Mountain, Grass, Count,
         }
 
         static Material Mat(CourseMaterialSet m, M slot)
@@ -67,6 +68,13 @@ namespace NightSignal.Track.Generation
                 case M.LanternPaper: return m.LanternPaper;
                 case M.Rope: return m.Rope;
                 case M.Post: return m.Post;
+                case M.Asphalt: return m.Asphalt;
+                case M.Gravel: return m.Gravel;
+                case M.LinePaint: return m.LinePaint;
+                case M.Blossom: return m.Blossom != null ? m.Blossom : m.Foliage;
+                case M.Paver: return m.Paver != null ? m.Paver : m.Concrete;
+                case M.Mountain: return m.Mountain != null ? m.Mountain : m.Foliage;
+                case M.Grass: return m.Grass != null ? m.Grass : m.Foliage;
                 default: return m.Guardrail;
             }
         }
