@@ -2,7 +2,7 @@
 
 _Last updated: 2026-09-28 — the meet, offline (V-073): Cedar Lantern Terrace, walking, twelve emotes, host, boombox;
 the meet online with three real clients (V-074), the convoy at the meet (V-075), race from the meet and back plus
-walking controls (V-076), the Player Card with a driver appearance (V-077). Now: the gameplay backlog._
+walking controls (V-076), the Player Card with a driver appearance (V-077), race audio (V-078). Now: the gameplay backlog._
 
 **Rules revision:** `docs/brief/Night_Signal_Addendum_01.txt` supersedes parts of the master (six humans + up to
 twelve vehicles, live finale rivals, light contact, course access, offline domain, rejoin grants, voting, friends,
@@ -171,8 +171,7 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
    run 5 on `7d9119d`); the steep dark terrain "cliffs" of the gorge/highland terrain styles (heightfield resolution)
    are untouched.
 2. **Card and meet follow-ups** (smaller): card cosmetics (showcase records, flag, preferred car, background/frame/
-   motif/title); the offline profile's look; the host lesson wired to challenge CH63; a meet run under impairment; music
-   and engine audio in races (R16.1).
+   motif/title); the offline profile's look; the host lesson wired to challenge CH63; a meet run under impairment.
 3. **Gameplay backlog**: AI drift skill per profile and campaign drift benchmarks; restrict Drift Attack to courses with
    judged zones; group Time Attack and toy tables with 3–6 humans; UI/reconnect/rejoin/DQ under load; Canvas controller
    cursor; customization follow-ups (meet livery refresh, pearl flip tint, preset rename/delete UI).
@@ -183,7 +182,8 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
 
 Human checks outstanding (cannot be automated): S29 run, featured-rival pace feel after calibration, camera/comfort
 feel, cockpit/visual review including the 18 detailed car bodies (V-070), a look at the 48 rivals (V-072) and a walk
-round the meet (V-073), a real cross-device LAN test once authorized.
+round the meet (V-073), a listen to a race (engines, tyres, music balance; V-078), a real cross-device LAN test once
+authorized.
 
 ## Recovery notes
 

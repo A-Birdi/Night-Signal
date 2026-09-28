@@ -1,0 +1,19 @@
+# -nsRaceAudioTour on c8cd328 (built player, non-development), offline races with the validator autopilot.
+[NightSignal.Music] race cue MUS_LT_DAIGO (campaign S07)
+[NightSignal.RaceAudioTour] countdown: music MUS_LT_DAIGO; cars 4
+[NightSignal.RaceAudioTour] racing: listener peak RMS -14.3 dBFS (music + cars), cars alone -16.4, music alone -19.1; cars synthesizing 4 of 4; own car audible True; own rpm 5410
+[NightSignal.RaceAudioTour] t 37 s: level -18.7 dBFS, cars synthesizing 4, music MUS_LT_DAIGO
+[NightSignal.RaceAudioTour] t 57 s: level -20.7 dBFS, cars synthesizing 4, music MUS_LT_DAIGO
+[NightSignal.RaceAudioTour] t 77 s: level -22.3 dBFS, cars synthesizing 4, music MUS_LT_DAIGO
+[NightSignal.RaceAudioTour] t 97 s: level -20.1 dBFS, cars synthesizing 3, music MUS_LT_DAIGO
+[NightSignal.RaceAudioTour] t 117 s: level -25.9 dBFS, cars synthesizing 2, music MUS_LT_DAIGO
+[NightSignal.RaceAudioTour] t 137 s: level -27.0 dBFS, cars synthesizing 3, music MUS_LT_DAIGO
+[NightSignal.RaceAudioTour] t 157 s: level -19.0 dBFS, cars synthesizing 4, music MUS_LT_DAIGO
+[NightSignal.RaceAudioTour] finish: Finished P1; results music MUS_RESULTS_WIN
+[NightSignal.Music] race cue MUS_RACE_MIZUHANA (freeplay C01)
+[NightSignal.RaceAudioTour] full grid on C01: 12 cars, music MUS_RACE_MIZUHANA; cars synthesizing 6..6 (limit 6); level -18.3 dBFS
+[NightSignal.RaceAudioTour] PASS
+# Online (Tools/run/meet-online.ps1 -Convoy -Race on c8cd328): race launched from the meet, both clients' logs:
+[NightSignal.Music] race cue MUS_RACE_KASUMI (campaign S05)   (host)
+[NightSignal.Music] race cue MUS_RACE_KASUMI (campaign S05)   (guest)
+host PASS (P1 of 3), guest PASS (P2 of 3); no exceptions in either client log

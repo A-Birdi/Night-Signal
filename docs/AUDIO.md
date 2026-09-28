@@ -315,6 +315,14 @@ meet bell chorus bar 2 A→G# suspension; penultimate Descent line F# ninth over
 - Full in-race stack (one race cue + six cars × three buses + UI): 63 ms/s = 6.3 % of one core
   (music 1.8 %, cars 0.7 % each).
 
+## In the game (V-078)
+
+- Every drawn race car carries `EngineAudio` through `CarAudio` (fed from `VehicleView.Render`); your car plus the
+  nearest cars within 170 m synthesize, at most six at once. Race cues come from Core `RaceMusic` (stage → encounter
+  theme, trial kind → trial theme, otherwise the course region), started at the countdown; results play
+  `MUS_RESULTS_WIN`/`MUS_RESULTS_LOSS`. Built-player levels at the listener (S07): cars alone −16.4 dBFS RMS, music alone
+  −19.1, together −14.3.
+
 ## Known limitations / not verified
 
 - **No human listening.** Musical quality, engine realism, the balance between music and engine audio

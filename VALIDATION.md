@@ -1481,3 +1481,26 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   preferred car and card background/frame/motif/title are not built; the look is
   read when a visitor joins a room (a change is seen after they next join); remote looks were checked in data and in the
   host's own view, not photographed from the guest's camera.
+
+## V-078 — Race audio: engines on every race car, race music by stage and region, results cues (2026-09-28)
+- Revisions: `6df7412` (CarAudio, Core RaceMusic, session wiring, tests), `c8cd328` (the tour's full-grid leg).
+- **What changed:** every drawn race car — offline races, online races (racing or spectating), the Garage Test Yard and
+  practice — carries the existing procedural `EngineAudio` (engine by architecture/rpm/load, turbo, shifts; tyres by
+  slip and surface; impacts), fed each frame from `VehicleView.Render`: the local simulation's telemetry where the car
+  is simulated, the replicated rpm/gear/boost/suspension otherwise; throttle estimated from acceleration and engine
+  speed. Your car and the nearest cars within 170 m synthesize — at most six at once (the stack measured in
+  docs/AUDIO.md). Race music (Core `RaceMusic`): the four lieutenant themes, Four Signals and the two finals are chosen
+  by the campaign STAGE only (a course never selects a final theme); Team Trials by kind; the tutorial bed; otherwise
+  the course region's arrangement. It starts at the countdown and the win/loss results variant plays at the finish.
+- **Tests:** EditMode `RaceMusicTests` (encounter themes by stage and not by course, trial kinds, the six regions, every
+  chosen cue present in the manifest for every course and stage) with `MeetRulesTests` + `CharacterTests`: 119/119.
+- **Built player** (`c8cd328`, non-development, `-nsRaceAudioTour`, tour-scoped preferences): **PASS** — offline S07 on
+  C04 (the Mizuhana lieutenant encounter, 4 cars, validator autopilot): `MUS_LT_DAIGO` from the countdown; at the
+  listener, cars alone peak −16.4 dBFS RMS and music alone −19.1 (each measured by muting the other's volume setting),
+  both together −14.3; all 4 cars synthesizing, yours always; finished P1 → `MUS_RESULTS_WIN`. Then a full grid (you +
+  11 AI) on C01: `MUS_RACE_MIZUHANA`, exactly 6 of 12 cars synthesizing throughout. The same tour on `6df7412` (S07
+  leg only) also PASSed. Online: **PASS** (`meet-online.ps1 -Convoy -Race`, `c8cd328`) — both clients' race launched from the meet played `MUS_RACE_KASUMI` from the countdown (S05, a regular Kasumi stage), with engine audio on the `RaceClient` cars and no exceptions in either log; the online results cue shares the offline code path but was not logged in that run. Evidence: `Evidence/audio/race-audio-log.txt`.
+- **Limits:** measured levels, not listening — the mix balance, engine realism and music against engines are unheard
+  by a person (human check); the in-race CPU cost was not profiled in the player (the six-car stack was measured
+  offline in docs/AUDIO.md); remote cars' throttle is an estimate; spoiler protection of encounter titles is not
+  involved (themes play in their own races).

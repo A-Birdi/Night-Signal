@@ -95,7 +95,7 @@ lists the superseded rules and where each lands. Rows marked _(A01)_ carry the r
 | R14.1 | §14 | Route authoring (centreline, width, elevation, camber, gates, AI lines) | implemented as route.json + generator; visual editor tooling pending |
 | R14.2 | §14 | Course uniqueness validator (≥70% exclusive centreline) | not started |
 | R15.1 | §15 | Signal/Sector UI across all screens; accessibility | not started |
-| R16.1 | §16 | Original soundtrack; engine audio families | in progress — the game now creates its music player and each menu screen plays its context cue; the meet plays its bed and boombox; engine audio is used by the meet car (arrival, rev) — races do not yet play music or engine audio (V-073) |
+| R16.1 | §16 | Original soundtrack; engine audio families | in progress — the game now creates its music player and each menu screen plays its context cue; the meet plays its bed and boombox; engine audio is used by the meet car (arrival, rev) (V-073); races play their music (encounter themes by stage, Team Trial themes, regional arrangements) and results cues, and every race car has engine/tyre/impact sound with a six-car synthesis budget (V-078). Not heard by a person yet |
 | R16.2 | §16 | Tutorial T00 lessons | not started |
 | R17.1 | §17 | Typed schemas, reference validator, coverage report | in progress |
 | R17.2 | §17 | Editor tools: generation/validation, builds, smoke, capture | in progress (course/scene/car/material/content tools, BuildCommands) |
