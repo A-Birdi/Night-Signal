@@ -59,7 +59,7 @@ namespace NightSignal.Front
                 b.onClick.Invoke();
                 return true;
             }
-            var ledger = new StringBuilder("car,course,where,view,cam_x,cam_y,cam_z,fov,near,road_kmh,driven_m,drift_framing,collision_m,speed_lines,lines_peripheral,cockpit_visible,wheel_deg,luma_mean,luma_sd,dark_fraction,fps\n");
+            var ledger = new StringBuilder("car,course,where,view,cam_x,cam_y,cam_z,fov,near,road_kmh,driven_m,drift_framing,collision_m,speed_lines,lines_peripheral,cockpit_visible,wheel_deg,luma_mean,luma_sd,dark_fraction,fps,blown_fraction\n");
             Canvas labelCanvas = UIFactory.Root("CameraTourLabel", 100);
             TextMeshProUGUI label = UIFactory.Label("Label", labelCanvas.transform, "", 40f, Color.white, TextAlignmentOptions.TopLeft);
             RectTransform lrt = label.rectTransform;
@@ -255,6 +255,9 @@ namespace NightSignal.Front
                     coverage[key] = driven > 5f ? 1 : 0;
                     if (driven < 5f) failures.Add($"{car} {v}: the car did not drive in this view ({driven:F1} m)");
                     if (stats[1] < 4f) failures.Add($"{car} {v}: a flat, featureless frame (luma sd {stats[1]:F1}) — inside geometry?");
+                    // A large blown-out region is never a legitimate driving frame (V-070: NaN shading spread by bloom passed
+                    // every other check); the HUD's white figures stay far below this.
+                    if (stats[3] > BlownLimit) failures.Add($"{car} {v}: {stats[3]:P0} of the frame blown out to white — NaN shading or a light in the lens?");
                     if (v == DrivingView.Cockpit && (cam.Target.Cockpit == null || !cam.Target.Cockpit.Root.gameObject.activeSelf)) failures.Add($"{car}: no visible cockpit");
                 }
                 // Back to the player's preference: the next scene must bring it back by itself.
@@ -304,6 +307,7 @@ namespace NightSignal.Front
                             float[] stats = Tile(shot, null, 0, 0);
                             Destroy(shot);
                             ledger.Append(Row(cars[0], "C08", $"tunnel@{activeRace.Player.Progress.Location.Distance:F0}m", cam, activeRace.SpeedLines, 0f, 0f, stats));
+                            if (stats[3] > BlownLimit) failures.Add($"tunnel {v}: {stats[3]:P0} of the frame blown out to white");
                         }
                     }
                     if (activeRace != null) Destroy(activeRace.gameObject);
@@ -349,7 +353,10 @@ namespace NightSignal.Front
             yield return new WaitForSeconds(0.35f);
         }
 
-        /// <summary>Downscales a capture into a contact-sheet cell (when a sheet is given); returns luma mean, sd and dark fraction.</summary>
+        /// <summary>Largest share of a driving frame allowed at full white.</summary>
+        const float BlownLimit = 0.06f;
+
+        /// <summary>Downscales a capture into a contact-sheet cell (when a sheet is given); returns luma mean, sd, dark fraction and blown-out fraction.</summary>
         static float[] Tile(Texture2D shot, Texture2D sheet, int x, int y)
         {
             RenderTexture rt = RenderTexture.GetTemporary(TileW, TileH, 0);
@@ -369,17 +376,18 @@ namespace NightSignal.Front
             Color32[] px = tile.GetPixels32();
             Destroy(tile);
             double sum = 0, sum2 = 0;
-            int dark = 0;
+            int dark = 0, blown = 0;
             foreach (Color32 c in px)
             {
                 float l = 0.2126f * c.r + 0.7152f * c.g + 0.0722f * c.b;
                 sum += l;
                 sum2 += l * l;
                 if (l < 8f) dark++;
+                if (l >= 252f) blown++;
             }
             float mean = (float)(sum / px.Length);
             float sd = Mathf.Sqrt(Mathf.Max(0f, (float)(sum2 / px.Length) - mean * mean));
-            return new[] { mean, sd, dark / (float)px.Length };
+            return new[] { mean, sd, dark / (float)px.Length, blown / (float)px.Length };
         }
 
         static string Row(string car, string course, string where, DrivingCamera cam, SpeedLines lines, float driven, float fps, float[] stats)
@@ -390,11 +398,11 @@ namespace NightSignal.Front
             Art.CockpitRig rig = cam.Target.Cockpit;
             bool cockpit = rig != null && rig.Root.gameObject.activeSelf;
             float wheel = rig != null && rig.Wheel != null ? Mathf.DeltaAngle(0f, rig.Wheel.localEulerAngles.z) : 0f;
-            return string.Format(ci, "{0},{1},{2},{3},{4:F2},{5:F2},{6:F2},{7:F1},{8:F2},{9:F0},{10:F1},{11:F2},{12:F2},{13:F2},{14},{15},{16:F0},{17:F1},{18:F1},{19:F3},{20:F0}\n",
+            return string.Format(ci, "{0},{1},{2},{3},{4:F2},{5:F2},{6:F2},{7:F1},{8:F2},{9:F0},{10:F1},{11:F2},{12:F2},{13:F2},{14},{15},{16:F0},{17:F1},{18:F1},{19:F3},{20:F0},{21:F3}\n",
                 car, course, where, cam.View, local.x, local.y, local.z, cam.Camera.fieldOfView, cam.Camera.nearClipPlane,
                 cam.LastSpeedMps * 3.6f, driven, cam.DriftFraming, cam.CollisionDistance, lines != null ? lines.Strength : 0f,
                 lines == null || lines.AllOutsideClearCentre(), cockpit, wheel,
-                stats != null ? stats[0] : -1f, stats != null ? stats[1] : -1f, stats != null ? stats[2] : -1f, fps);
+                stats != null ? stats[0] : -1f, stats != null ? stats[1] : -1f, stats != null ? stats[2] : -1f, fps, stats != null && stats.Length > 3 ? stats[3] : -1f);
         }
     }
 }
