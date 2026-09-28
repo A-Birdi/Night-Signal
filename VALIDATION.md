@@ -1767,3 +1767,25 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - **Not implementable yet, and why:** CH04, CH08, CH12 need published gate speeds / windows (the routes author the
   gates with `targetSpeedKmh` 0); CH26, CH29 need fixed Gold drift references; CH41 needs the class-equalized challenge
   race format. 23 of 75 challenges now have predicates.
+
+## V-091 — The Driver Card offline: a Local profile's look at the offline meet (2026-09-28)
+- Revision: `0bcd323` plus the Driver Card work committed with this entry; player build of it.
+- **What changed:** the Local profile's card (`CardAppearance`) gains `Look` (canonical `CharacterLook` JSON, the online
+  card's form; "" = the default look from the name) and `Pronouns` — optional fields, so earlier profiles load unchanged
+  with the default look. `LocalProgression.SetCard` validates the name, the look (`PlayerLooks`, as the server does) and
+  the pronouns (the server's rule: up to 24 plain characters) and is a no-op when nothing changed; the profile validator
+  checks both. The Player Card screen works offline against the open Local profile (reached from the offline hub's new
+  Driver Card button) and the offline meet builds the player's avatar from that look. The .NET Core subset now compiles
+  `Core/Characters` (engine-free).
+- **Tests:** .NET `LocalCardTests` (look stored canonically, re-read identical, repeat is a no-op; five accessories,
+  unreadable JSON, 25-character or markup pronouns refused; back to the default look; a profile document without the new
+  fields loads and validates) — Core 125/125.
+- **Built player** (`-nsDriverCardTour`, buttons only, isolated profile folder): markup in the pronouns refused with the
+  rule's message and nothing stored; starting look 5 and "she/they" saved; the profile re-read from disk holds both; the
+  offline meet's avatar is built from that look — **PASS**. `Evidence/meet/driver-card-offline.jpg` (the card screen
+  and the avatar at the terrace).
+- **The offline meet tour on this build:** one run passed its new Driver Card steps (saved, read back, used by the meet)
+  but failed its boombox check — an extra Interact reached the game during the 3 s check (a second "interact boombox" in
+  the meet log that the tour never issues; Interact only comes from real input), with the game window in front of a
+  desktop in use. Two reruns could not get keyboard focus at their first keystroke. Not reproduced under control; the
+  boombox code is unchanged since the tour's last PASS (V-084). Keyboard tours need an idle machine.

@@ -161,6 +161,7 @@ namespace NightSignal.Core.Profiles
         WorkspaceSaved = 20,
         /// <summary>Garage: Last Race Build recorded when a Local race began.</summary>
         RaceBuildRecorded = 21,
+        CardChanged = 22,
     }
 
     /// <summary>One itemised line for the results screen: what changed and why.</summary>
@@ -300,6 +301,41 @@ namespace NightSignal.Core.Profiles
             result.Status = LocalOperationStatus.Applied;
             return Finish(result, p);
         }
+
+        /// <summary>
+        /// The Local driver card: display name, driver look and pronouns — the look validated and stored canonically exactly as
+        /// the online card's (<see cref="Characters.PlayerLooks"/>); "" = the default look from the name. Unchanged is a no-op.
+        /// </summary>
+        public static LocalProgressionResult SetCard(LocalProfile profile, string displayName, string lookJson, string pronouns)
+        {
+            LocalProgressionResult result = Begin(profile);
+            if (!LocalDisplayName.TryNormalize(displayName, out string name, out string error)) return Reject(result, error);
+            string look = "";
+            if (!string.IsNullOrEmpty(lookJson))
+            {
+                Characters.CharacterLook parsed = Characters.PlayerLooks.Parse(lookJson);
+                if (parsed == null) return Reject(result, "That look could not be read.");
+                List<string> problems = Characters.PlayerLooks.Problems(parsed).ToList();
+                if (problems.Count > 0) return Reject(result, problems[0]);
+                look = Characters.PlayerLooks.Canonical(parsed);
+            }
+            string words = (pronouns ?? "").Trim();
+            if (!PronounsOk(words)) return Reject(result, "Pronouns: up to 24 plain characters.");
+            if (name == profile.DisplayName && look == (profile.Card?.Look ?? "") && words == (profile.Card?.Pronouns ?? ""))
+                return Already(result, "The card is unchanged.");
+            LocalProfile p = ProfileJson.Clone(profile);
+            p.DisplayName = name;
+            p.Card = p.Card ?? new CardAppearance();
+            p.Card.Look = look;
+            p.Card.Pronouns = words;
+            Add(result, ProgressionChangeKind.CardChanged, name, 0, "Driver card changed.");
+            result.Status = LocalOperationStatus.Applied;
+            return Finish(result, p);
+        }
+
+        /// <summary>The online card's pronoun rule: up to 24 characters, no control characters, markup or surrogates.</summary>
+        public static bool PronounsOk(string pronouns) =>
+            pronouns.Length <= 24 && !pronouns.Any(ch => char.IsControl(ch) || ch == '<' || ch == '>' || ch == '{' || ch == '}' || char.IsSurrogate(ch));
 
         /// <summary>Grants any baseline cues the profile is missing (e.g. after the manifest gained one). Idempotent.</summary>
         public static LocalProgressionResult SyncBaselineMusic(LocalProfile profile, IMusicUnlockSource music, DateTime utc)

@@ -15,14 +15,17 @@ namespace NightSignal.Front
     /// <summary>
     /// The Player Card (spec §11): display name, optional pronouns and the driver's appearance, chosen from accessible
     /// starting looks and simple steps (build, height, skin, face, posture, hair, clothes, colours, two accessories) with a
-    /// live turntable preview. Visual only — never hitboxes, steering or performance. Saved to the server-owned card with a
-    /// revision; the server validates the look and hands it to the meet, where other drivers see the same person.
+    /// live turntable preview. Visual only — never hitboxes, steering or performance. Online it is saved to the server-owned
+    /// card with a revision; the server validates the look and hands it to the meet, where other drivers see the same
+    /// person. Offline (a Local profile, no online session) the same card is saved in the profile and used at the offline meet.
     /// </summary>
     public sealed class PlayerCardScreen : UIScreen
     {
         public override string ScreenName => "Player Card";
 
         OnlineSession S => OnlineSession.Current;
+        /// <summary>No online session but a Local profile open: the card belongs to that profile.</summary>
+        LocalSession Local => S == null ? LocalSession.Current?.Profile != null ? LocalSession.Current : null : null;
 
         static readonly float[] Heights = { 1.50f, 1.55f, 1.60f, 1.65f, 1.70f, 1.75f, 1.80f, 1.85f, 1.90f, 1.95f };
         static readonly string[] Headwear = { "", "glasses", "round-glasses", "sunglasses", "cap", "beanie", "headband", "bandana", "headphones", "goggles", "earrings" };
@@ -190,22 +193,36 @@ namespace NightSignal.Front
 
         public override void OnShow()
         {
-            if (S == null)
+            bool hasLook;
+            if (Local != null)
+            {
+                Core.Profiles.LocalProfile profile = Local.Profile;
+                nameField.text = profile.DisplayName;
+                pronounsField.text = profile.Card?.Pronouns ?? "";
+                CharacterLook stored = string.IsNullOrEmpty(profile.Card?.Look) ? null : PlayerLooks.Parse(profile.Card.Look);
+                hasLook = stored != null;
+                loaded = stored ?? MeetSession.DefaultPlayerLook(profile.DisplayName);
+            }
+            else if (S == null)
             {
                 App.Router.Show(App.SignIn, false);
                 return;
             }
-            JObject card = S.Me?["card"] as JObject;
-            nameField.text = (string)card?["displayName"] ?? S.DisplayName;
-            pronounsField.text = (string)card?["pronouns"] ?? "";
-            loaded = S.CardLook ?? MeetSession.DefaultPlayerLook(S.DisplayName);
+            else
+            {
+                JObject card = S.Me?["card"] as JObject;
+                nameField.text = (string)card?["displayName"] ?? S.DisplayName;
+                pronounsField.text = (string)card?["pronouns"] ?? "";
+                hasLook = S.CardLook != null;
+                loaded = S.CardLook ?? MeetSession.DefaultPlayerLook(S.DisplayName);
+            }
             loaded.Id = "";
             look = PlayerLooks.Copy(loaded);
             loading = true;
             preset.Set(0);
             loading = false;
             Sync();
-            status.text = S.CardLook == null ? "You have the default look — choose a starting look or change anything, then Save Card." : "";
+            status.text = !hasLook ? "You have the default look — choose a starting look or change anything, then Save Card." : "";
             if (stage == null)
             {
                 Rect r = preview.rectTransform.rect;
@@ -258,6 +275,33 @@ namespace NightSignal.Front
 
         async void Save()
         {
+            if (Local != null && !busy && look != null)
+            {
+                // Offline: the Local profile's card, validated like the online one and saved atomically.
+                Core.Profiles.LocalProgressionResult r = Core.Profiles.LocalProgression.SetCard(Local.Profile, nameField.text,
+                    PlayerLooks.Canonical(look), pronounsField.text);
+                if (r.Status == Core.Profiles.LocalOperationStatus.AlreadyApplied)
+                {
+                    status.text = "Nothing changed.";
+                    return;
+                }
+                if (r.Status != Core.Profiles.LocalOperationStatus.Applied)
+                {
+                    status.text = r.Reason;
+                    return;
+                }
+                if (!Local.Commit(r, out string message))
+                {
+                    status.text = "The card could not be saved: " + message;
+                    return;
+                }
+                loaded = PlayerLooks.Copy(look);
+                App.DisplayName = Local.Profile.DisplayName;
+                App.RefreshStrip();
+                status.text = "Saved. You look like this at the offline meet.";
+                stage?.Play(Emote.Wave);
+                return;
+            }
             if (busy || S == null || look == null) return;
             busy = true;
             status.text = "Saving…";

@@ -27,6 +27,8 @@
     <Compile Include="$(ProfilesSource)/**/*.cs" Link="Core/Profiles/%(RecursiveDir)%(Filename)%(Extension)" />
     <!-- Customization (appearance catalogue, livery document, editor, wire form): visual only, never a simulation input. -->
     <Compile Include="../../../Assets/Game/Core/Customization/**/*.cs" Link="Core/Customization/%(RecursiveDir)%(Filename)%(Extension)" />
+    <!-- Characters (the driver look): the Local card stores and validates it like the online card. -->
+    <Compile Include="../../../Assets/Game/Core/Characters/**/*.cs" Link="Core/Characters/%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>

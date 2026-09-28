@@ -615,3 +615,52 @@ public sealed class LocalProgressionTests
         Assert.Equal(LocalOperationStatus.Rejected, LocalProgression.PurchaseCar(second.Profile, Cat, "V18", "buy_v18", TestContent.T0, ids).Status);
     }
 }
+
+public sealed class LocalCardTests
+{
+    [Fact]
+    public void SetCard_StoresTheLookCanonically_RejectsBadInput_AndIsIdempotent()
+    {
+        LocalProfile p = LocalProgressionTests.NewProfile("Robin");
+        Assert.Equal("", p.Card.Look);
+        NightSignal.Characters.CharacterLook preset = NightSignal.Characters.PlayerLooks.Copy(NightSignal.Characters.PlayerLooks.Presets[2]);
+        string look = NightSignal.Characters.PlayerLooks.Canonical(preset);
+
+        LocalProgressionResult set = LocalProgression.SetCard(p, "Robin Night", look, "they/them");
+        Assert.Equal(LocalOperationStatus.Applied, set.Status);
+        Assert.Equal("Robin Night", set.Profile.DisplayName);
+        Assert.Equal(look, set.Profile.Card.Look);
+        Assert.Equal("they/them", set.Profile.Card.Pronouns);
+        Assert.Empty(set.Profile.Validate());
+        Assert.Contains(set.Changes, c => c.Kind == ProgressionChangeKind.CardChanged);
+
+        // Round trip through the stored document keeps it exactly.
+        LocalProfile reread = ProfileJson.Clone(set.Profile);
+        Assert.Equal(look, reread.Card.Look);
+        Assert.Equal(LocalOperationStatus.AlreadyApplied, LocalProgression.SetCard(reread, "Robin Night", look, "they/them").Status);
+
+        // Bad input is refused and nothing changes.
+        preset.Accessories = new List<string>(NightSignal.Characters.CharacterVocabulary.Accessories.Take(5));
+        Assert.Equal(LocalOperationStatus.Rejected, LocalProgression.SetCard(p, "Robin", NightSignal.Characters.PlayerLooks.Canonical(preset), "").Status);
+        Assert.Equal(LocalOperationStatus.Rejected, LocalProgression.SetCard(p, "Robin", "{not a look", "").Status);
+        Assert.Equal(LocalOperationStatus.Rejected, LocalProgression.SetCard(p, "Robin", look, new string('x', 25)).Status);
+        Assert.Equal(LocalOperationStatus.Rejected, LocalProgression.SetCard(p, "Robin", look, "<b>").Status);
+
+        // Back to the default look.
+        LocalProgressionResult cleared = LocalProgression.SetCard(set.Profile, "Robin Night", "", "");
+        Assert.Equal(LocalOperationStatus.Applied, cleared.Status);
+        Assert.Equal("", cleared.Profile.Card.Look);
+    }
+
+    [Fact]
+    public void AProfileSavedBeforeTheCardLook_LoadsWithTheDefaultLook()
+    {
+        LocalProfile p = LocalProgressionTests.NewProfile("Robin");
+        var doc = Newtonsoft.Json.Linq.JObject.Parse(ProfileJson.Serialize(p));
+        var card = (Newtonsoft.Json.Linq.JObject)doc["card"]!;
+        Assert.True(card.Remove("look") && card.Remove("pronouns"), "the stored card has the new fields");
+        LocalProfile old = ProfileJson.Deserialize<LocalProfile>(doc.ToString());
+        Assert.Equal("", old.Card.Look ?? "");
+        Assert.Empty(old.Validate());
+    }
+}

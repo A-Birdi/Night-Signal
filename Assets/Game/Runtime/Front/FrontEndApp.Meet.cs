@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using NightSignal.Art;
+using NightSignal.Characters;
 using NightSignal.Content;
 using NightSignal.Core.Content;
 using NightSignal.Core.Meet;
@@ -48,6 +49,9 @@ namespace NightSignal.Front
             ActiveMeet.CarPi = owned != null ? s.AppliedPi(owned) : def.BasePI;
             ActiveMeet.TuneSummary = owned != null ? $"Applied Garage build (PI {ActiveMeet.CarPi})" : "Stock factory build";
             ActiveMeet.PlayerName = string.IsNullOrEmpty(profile.DisplayName) ? "You" : profile.DisplayName;
+            // The Local driver card's look (validated when saved; an unreadable one falls back to the default look).
+            CharacterLook cardLook = string.IsNullOrEmpty(profile.Card?.Look) ? null : PlayerLooks.Parse(profile.Card.Look);
+            ActiveMeet.PlayerLook = cardLook != null && PlayerLooks.Problems(cardLook).Count == 0 ? cardLook : null;
             ActiveMeet.OwnsCue = profile.HasCue;
             ActiveMeet.RecentSlips = Slips(profile);
             // Touring challenges (CH61–CH65) on the Local profile: acts counted where they happen, each reward once.
@@ -160,6 +164,31 @@ namespace NightSignal.Front
             GameObject.Find("ProfileName").GetComponent<TMPro.TMP_InputField>().text = "Meet Walker";
             Click("Create");
             yield return new WaitForSeconds(1.2f);
+
+            // The Driver Card offline: a starting look and pronouns, saved in the Local profile and read back from disk.
+            string savedLook = "";
+            Click("DriverCard");
+            yield return new WaitForSeconds(1.5f);
+            if (Router.Current != PlayerCard) Fail("the Driver Card did not open offline");
+            else
+            {
+                PlayerCard.ChooseStart(3);
+                var pronouns = GameObject.Find("CardPronouns")?.GetComponent<TMPro.TMP_InputField>();
+                if (pronouns != null) pronouns.text = "they/them";
+                yield return new WaitForSeconds(0.6f);
+                Click("SaveCard");
+                yield return new WaitForSeconds(0.8f);
+                yield return Snap("00c-driver-card");
+                savedLook = LocalSession.Current.Profile.Card?.Look ?? "";
+                string profileId = LocalSession.Current.Profile.ProfileId;
+                bool reread = LocalSession.Current.Open(profileId, out string reopen) && LocalSession.Current.Profile.Card?.Look == savedLook &&
+                              LocalSession.Current.Profile.Card?.Pronouns == "they/them";
+                Note($"driver card: {PlayerCard.Status} look {savedLook.Length} chars, read back from disk {reread}");
+                if (savedLook != PlayerLooks.Canonical(PlayerLooks.Presets[2])) Fail("the saved look is not the chosen starting look");
+                if (!reread) Fail("the driver card did not persist: " + reopen);
+                Click("Back");
+                yield return new WaitForSeconds(1.2f);
+            }
             Click("Meet");
             float until = Time.realtimeSinceStartup + 40f;
             while (ActiveMeet == null && Time.realtimeSinceStartup < until) yield return null;
@@ -172,6 +201,9 @@ namespace NightSignal.Front
             while (!m.Ready && Time.realtimeSinceStartup - t0 < 15f) yield return null;
             float arrival = Time.realtimeSinceStartup - t0;
             Note($"arrival {arrival:F2} s, bay {m.PlayerBay + 1}");
+            bool cardLookUsed = m.PlayerLook != null && PlayerLooks.Canonical(m.PlayerLook) == savedLook;
+            Note($"the meet's avatar look is the Driver Card's: {cardLookUsed}");
+            if (!cardLookUsed) Fail("the offline meet did not use the Driver Card's look");
             if (!m.Ready) { Fail("arrival never finished"); Finish(); yield break; }
             if (arrival > 5.5f) Fail($"arrival took {arrival:F1} s (target 3–4 s)");
             Vector3 p0 = m.Player.transform.position;
