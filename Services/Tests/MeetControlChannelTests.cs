@@ -70,6 +70,7 @@ public sealed class MeetControlChannelTests : IDisposable
         string room = Result(ja).GetProperty("roomId").GetString()!;
         Assert.Equal(room, Result(jb).GetProperty("roomId").GetString());
         Assert.Equal("arriving", Member(Result(ja).GetProperty("state"), a.AccountId).GetProperty("state").GetString());
+        Assert.Equal(JsonValueKind.Null, Member(Result(ja).GetProperty("state"), a.AccountId).GetProperty("look").ValueKind);
 
         clock.Advance(TimeSpan.FromSeconds(3.5));
         JsonElement arrivedA = Result(await a.Control.RequestAsync("meet.arrived"));
@@ -106,6 +107,17 @@ public sealed class MeetControlChannelTests : IDisposable
         JsonElement liked = Result(await b.Control.RequestAsync("meet.like", new { accountId = a.AccountId }));
         Assert.Equal(1, liked.GetProperty("likes").GetInt32());
         Assert.True(liked.GetProperty("cosmeticOnly").GetBoolean());
+
+        // A Player Card look reaches the other visitors (after a rejoin the room holds the new look).
+        (await a.Http.PostAsJsonAsync("/v1/me/card", new { displayName = "Aki Night", look = new { hair = "bun", primary = "#5A3A7A" } })).EnsureSuccessStatusCode();
+        AssertOk(await a.Control.RequestAsync("meet.leave"));
+        clock.Advance(TimeSpan.FromSeconds(1));
+        await WaitForMeet(b.Control, s => !HasMember(s, a.AccountId));
+        AssertOk(await a.Control.RequestAsync("meet.join", new { kind = "public" }));
+        JsonElement styled = await WaitForMeet(b.Control, s => HasMember(s, a.AccountId) && Member(s, a.AccountId).GetProperty("look").ValueKind == JsonValueKind.Object);
+        Assert.Equal("bun", Member(styled, a.AccountId).GetProperty("look").GetProperty("hair").GetString());
+        clock.Advance(TimeSpan.FromSeconds(4));
+        AssertOk(await a.Control.RequestAsync("meet.arrived"));
 
         // Leaving: "departed" once, then the member fades out and the bay is free.
         AssertOk(await a.Control.RequestAsync("meet.leave"));

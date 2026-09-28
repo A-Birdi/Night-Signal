@@ -101,8 +101,8 @@ public abstract partial class SqlGameStore : IPlayerStore, IResultLedger, ISocia
     public Task<PlayerSnapshot> GetSnapshotAsync(string accountId, CancellationToken ct = default) =>
         ReadAsync(async (c, tx) =>
         {
-            PlayerCard? card = await c.FirstOrDefaultAsync(tx, "SELECT display_name, revision FROM player_cards WHERE account_id = @a",
-                r => new PlayerCard(r.Str(0), r.Long(1)), ("@a", accountId));
+            PlayerCard? card = await c.FirstOrDefaultAsync(tx, "SELECT display_name, revision, look_json, pronouns FROM player_cards WHERE account_id = @a",
+                r => new PlayerCard(r.Str(0), r.Long(1), r.NStr(2), r.NStr(3)), ("@a", accountId));
             long balance = await c.FirstOrDefaultAsync(tx, "SELECT balance FROM wallets WHERE account_id = @a", r => r.Long(0), ("@a", accountId));
             var cars = await c.QueryAsync(tx, "SELECT car_id, source FROM owned_cars WHERE account_id = @a ORDER BY car_id",
                 r => new OwnedCar(r.Str(0), r.Str(1)), ("@a", accountId));
@@ -227,20 +227,27 @@ public abstract partial class SqlGameStore : IPlayerStore, IResultLedger, ISocia
     }
 
     public Task<CardWriteResult> UpsertCardAsync(string accountId, string displayName, long? expectedRevision, CancellationToken ct = default) =>
+        UpsertCardAsync(accountId, displayName, expectedRevision, null, ct);
+
+    public Task<CardWriteResult> UpsertCardAsync(string accountId, string displayName, long? expectedRevision, CardExtras? extras, CancellationToken ct = default) =>
         WriteAsync(async (c, tx) =>
         {
             await EnsureAccount(c, tx, accountId);
-            long current = await c.FirstOrDefaultAsync(tx, "SELECT revision FROM player_cards WHERE account_id = @a" + ForUpdate,
-                r => r.Long(0), ("@a", accountId));
+            (long current, string? look, string? pronouns) = await c.FirstOrDefaultAsync(tx,
+                "SELECT revision, look_json, pronouns FROM player_cards WHERE account_id = @a" + ForUpdate,
+                r => (r.Long(0), r.NStr(1), r.NStr(2)), ("@a", accountId));
             if (expectedRevision is { } expected && expected != current)
                 return new CardWriteResult(WriteStatus.Conflict, null);
+            // null = keep what is stored; "" = clear (back to the default look / no pronouns).
+            if (extras?.LookJson is { } l) look = l.Length == 0 ? null : l;
+            if (extras?.Pronouns is { } p) pronouns = p.Length == 0 ? null : p;
             if (current == 0)
-                await c.ExecAsync(tx, "INSERT INTO player_cards (account_id, display_name, revision) VALUES (@a, @n, 1)",
-                    ("@a", accountId), ("@n", displayName));
+                await c.ExecAsync(tx, "INSERT INTO player_cards (account_id, display_name, revision, look_json, pronouns) VALUES (@a, @n, 1, @l, @p)",
+                    ("@a", accountId), ("@n", displayName), ("@l", look), ("@p", pronouns));
             else
-                await c.ExecAsync(tx, "UPDATE player_cards SET display_name = @n, revision = revision + 1, updated_at = CURRENT_TIMESTAMP WHERE account_id = @a",
-                    ("@a", accountId), ("@n", displayName));
-            return new CardWriteResult(WriteStatus.Ok, new PlayerCard(displayName, current + 1));
+                await c.ExecAsync(tx, "UPDATE player_cards SET display_name = @n, look_json = @l, pronouns = @p, revision = revision + 1, updated_at = CURRENT_TIMESTAMP WHERE account_id = @a",
+                    ("@a", accountId), ("@n", displayName), ("@l", look), ("@p", pronouns));
+            return new CardWriteResult(WriteStatus.Ok, new PlayerCard(displayName, current + 1, look, pronouns));
         }, ct);
 
     static string StarterKey(string accountId) => $"starter/{accountId}";

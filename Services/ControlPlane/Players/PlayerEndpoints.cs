@@ -17,7 +17,8 @@ public static partial class PlayerEndpoints
     public static readonly string[] StarterCars = { "V01", "V02", "V03" };
     public const string IdempotencyKeyHeader = "Idempotency-Key";
 
-    public sealed record CardRequest(string? DisplayName, long? Revision);
+    /// <summary><c>Look</c> (a driver look object) and <c>Pronouns</c> are optional: absent = unchanged, empty = cleared.</summary>
+    public sealed record CardRequest(string? DisplayName, long? Revision, JsonElement Look = default, string? Pronouns = null);
     public sealed record StarterRequest(string? CarId);
     public sealed record HandleRequest(string? Handle);
     /// <summary><c>ExpectedPrice</c> is the price the client showed the player; the server's catalogue price decides.</summary>
@@ -38,10 +39,32 @@ public static partial class PlayerEndpoints
         {
             if (!DisplayNameRules.TryNormalize(body.DisplayName, out string name, out string error))
                 return Problem(400, "invalid_display_name", error);
-            CardWriteResult result = await store.UpsertCardAsync(user.AccountId(), name, body.Revision, ct);
+            // Spec §11: accessible appearance choices, visual only; the server keeps only a look it can build.
+            string? look = null;
+            JsonElement lj = body.Look; // Undefined = absent, Null = clear
+            if (lj.ValueKind != JsonValueKind.Undefined)
+            {
+                if (lj.ValueKind == JsonValueKind.Null) look = "";
+                else
+                {
+                    NightSignal.Characters.CharacterLook? parsed = lj.ValueKind == JsonValueKind.Object ? NightSignal.Characters.PlayerLooks.Parse(lj.GetRawText()) : null;
+                    List<string> problems = NightSignal.Characters.PlayerLooks.Problems(parsed);
+                    if (problems.Count > 0) return Problem(400, "invalid_look", "That appearance cannot be used: " + string.Join("; ", problems.Take(3)));
+                    look = NightSignal.Characters.PlayerLooks.Canonical(parsed!);
+                }
+            }
+            string? pronouns = null;
+            if (body.Pronouns is { } pr)
+            {
+                pronouns = pr.Trim();
+                if (pronouns.Length > 24 || pronouns.Any(ch => char.IsControl(ch) || ch is '<' or '>' or '{' or '}' || char.IsSurrogate(ch)))
+                    return Problem(400, "invalid_pronouns", "Pronouns: up to 24 plain characters.");
+            }
+            CardWriteResult result = await store.UpsertCardAsync(user.AccountId(), name, body.Revision,
+                look is null && pronouns is null ? null : new CardExtras(look, pronouns), ct);
             return result.Status == WriteStatus.Conflict
                 ? Problem(409, "revision_conflict", "Your card changed elsewhere; reload it and apply your edit again.")
-                : Results.Ok(new { displayName = result.Card!.DisplayName, revision = result.Card.Revision });
+                : Results.Ok(new { displayName = result.Card!.DisplayName, revision = result.Card.Revision, look = LookElement(result.Card.LookJson), pronouns = result.Card.Pronouns });
         });
 
         // Public @handle claim/change (Addendum 01 §9.2). Existing accounts claim one here; nothing else is reset.
@@ -199,7 +222,7 @@ public static partial class PlayerEndpoints
         return new
         {
             accountId = s.AccountId,
-            card = s.Card is null ? null : new { displayName = s.Card.DisplayName, revision = s.Card.Revision },
+            card = s.Card is null ? null : new { displayName = s.Card.DisplayName, revision = s.Card.Revision, look = LookElement(s.Card.LookJson), pronouns = s.Card.Pronouns },
             handle = s.Handle is null ? null : new { handle = s.Handle.Display, revision = s.Handle.Revision },
             needsHandle = s.Handle is null,
             wallet = new { balance = s.Balance, cap = Limits.WalletCap },
@@ -236,6 +259,9 @@ public static partial class PlayerEndpoints
     }
 
     public static IResult Problem(int status, string code, string message) => Results.Json(new { error = code, message }, statusCode: status);
+
+    /// <summary>A stored look as a JSON value in a response (null = the default look).</summary>
+    public static JsonElement? LookElement(string? json) => string.IsNullOrEmpty(json) ? null : JsonDocument.Parse(json).RootElement.Clone();
 
     public static IResult RateLimited(long retryAfterMs) =>
         Results.Json(new { error = "rate_limited", message = "Too many requests. Try again later.", retryAfterMs }, statusCode: 429);

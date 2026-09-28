@@ -72,6 +72,40 @@ public sealed class PlayerApiTests : IDisposable
     }
 
     [Fact]
+    public async Task Card_Appearance_ValidatedStoredAndKeptAcrossNameEdits()
+    {
+        HttpClient c = await Me();
+        var look = new
+        {
+            height = 1.7, build = "athletic", skin = "#c68e63", hair = "ponytail", hairColour = "#3B2A20", outfit = "bomber",
+            sleeves = "long", primary = "#2F4A3A", secondary = "#F2F0EA", accent = "#E0B040", lower = "cargo", lowerColour = "#3A3A44",
+            shoes = "boots", shoeColour = "#161616", accessories = new[] { "cap", "watch" }, face = "grin", id = "R40",
+        };
+        JsonElement saved = await (await c.PostAsJsonAsync("/v1/me/card", new { displayName = "Aki Night", look, pronouns = " they/them " })).Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("ponytail", saved.GetProperty("look").GetProperty("hair").GetString());
+        Assert.Equal("#C68E63", saved.GetProperty("look").GetProperty("skin").GetString()); // canonical: colours upper-case
+        Assert.Equal("", saved.GetProperty("look").GetProperty("id").GetString());         // the account is the id
+        Assert.Equal("they/them", saved.GetProperty("pronouns").GetString());
+
+        // Refused: words the builder does not know, too many accessories, markup in pronouns — nothing changes.
+        Assert.Equal("invalid_look", await Error(await c.PostAsJsonAsync("/v1/me/card", new { displayName = "Aki Night", look = new { hair = "mohawk" } })));
+        Assert.Equal("invalid_look", await Error(await c.PostAsJsonAsync("/v1/me/card", new { displayName = "Aki Night", look = new { accessories = new[] { "cap", "watch", "scarf", "pin", "belt" } } })));
+        Assert.Equal("invalid_look", await Error(await c.PostAsJsonAsync("/v1/me/card", new { displayName = "Aki Night", look = "tall" })));
+        Assert.Equal("invalid_pronouns", await Error(await c.PostAsJsonAsync("/v1/me/card", new { displayName = "Aki Night", pronouns = "<b>she</b>" })));
+
+        // A name-only edit keeps the look and pronouns; null clears the look back to the default.
+        await c.PostAsJsonAsync("/v1/me/card", new { displayName = "Aki Nightfall" });
+        JsonElement card = (await c.GetFromJsonAsync<JsonElement>("/v1/me")).GetProperty("card");
+        Assert.Equal("Aki Nightfall", card.GetProperty("displayName").GetString());
+        Assert.Equal("athletic", card.GetProperty("look").GetProperty("build").GetString());
+        Assert.Equal(2, card.GetProperty("look").GetProperty("accessories").GetArrayLength());
+        Assert.Equal("they/them", card.GetProperty("pronouns").GetString());
+        await c.PostAsJsonAsync("/v1/me/card", new { displayName = "Aki Nightfall", look = (object?)null });
+        card = (await c.GetFromJsonAsync<JsonElement>("/v1/me")).GetProperty("card");
+        Assert.Equal(JsonValueKind.Null, card.GetProperty("look").ValueKind);
+    }
+
+    [Fact]
     public async Task Starter_OnlyStarterCars_OnlyOnce()
     {
         HttpClient c = await Me();

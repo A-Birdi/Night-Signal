@@ -206,6 +206,7 @@ public sealed class MeetService(ConvoyDirectory directory, IPlayerStore store, I
             member.Pi = pi;
             member.PiClass = piClass ?? "";
             member.Tune = tune ?? "";
+            member.Look = me.Card?.LookJson ?? "";
             visitors[account] = new Visitor { RoomId = room.Core.Id, OwnedCues = Owned(me), Blocked = blocked };
             room.EmptySince = DateTimeOffset.MaxValue;
             log.LogInformation("{Account} joined meet {Room} ({Kind}) in bay {Bay}: {Status}", account, room.Core.Id, kind, member.Bay + 1, status);
@@ -453,12 +454,23 @@ public sealed class MeetService(ConvoyDirectory directory, IPlayerStore store, I
                 chat = m.ChatIndex >= 0 && now - m.ChatMs < 4000 && !Hidden(m.AccountId) ? new { index = m.ChatIndex, atMs = m.ChatMs } : null,
                 likes = m.Likes, likedByYou = m.LikedBy.Contains(viewer), blocked = Hidden(m.AccountId),
                 pi = m.Pi, piClass = m.PiClass, tune = m.Tune,
+                look = LookWire(m.Look),
             }).ToList(),
             reservations = r.Reservations.Where(x => x.Value.UntilMs > now)
                 .Select(x => new { bay = x.Value.Bay + 1, untilMs = x.Value.UntilMs, forYou = x.Key == viewer }).ToList(),
             events = r.Events.Select(e => new { seq = e.Seq, key = e.Key, kind = e.Kind.ToString().ToLowerInvariant(), accountId = e.AccountId, name = e.Name, atMs = e.AtMs }).ToList(),
             boombox = BoomboxWire(r.Boombox),
         };
+    }
+
+    static readonly System.Collections.Concurrent.ConcurrentDictionary<string, JsonElement> looks = new();
+
+    /// <summary>A member's stored look as a JSON value (parsed once per distinct look), or null for the default look.</summary>
+    static JsonElement? LookWire(string look)
+    {
+        if (string.IsNullOrEmpty(look)) return null;
+        if (looks.Count > 4096) looks.Clear();
+        return looks.GetOrAdd(look, l => JsonDocument.Parse(l).RootElement.Clone());
     }
 
     static object BoomboxWire(BoomboxState b) => new

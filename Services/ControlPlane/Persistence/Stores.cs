@@ -7,7 +7,11 @@ namespace NightSignal.ControlPlane.Persistence;
 // Small persistence interfaces (spec §3.2: PlayerStore, ResultLedger). Implementations: SqliteGameStore
 // (local development/tests, executed) and PostgresGameStore (Supabase, compiles but not executed here).
 
-public sealed record PlayerCard(string DisplayName, long Revision);
+/// <summary>The Player Card: display name, optional driver look (canonical JSON, Core PlayerLooks) and pronouns.</summary>
+public sealed record PlayerCard(string DisplayName, long Revision, string? LookJson = null, string? Pronouns = null);
+
+/// <summary>Optional card fields for a write; null leaves the stored value unchanged, "" clears it.</summary>
+public sealed record CardExtras(string? LookJson, string? Pronouns);
 
 public sealed record OwnedCar(string CarId, string Source);
 
@@ -120,6 +124,8 @@ public interface IPlayerStore
     Task<IReadOnlyDictionary<string, MemberProgress>> GetProgressAsync(IReadOnlyCollection<string> accountIds, CancellationToken ct = default);
     /// <summary>Versioned write: when <paramref name="expectedRevision"/> is given it must match (0 = no card yet).</summary>
     Task<CardWriteResult> UpsertCardAsync(string accountId, string displayName, long? expectedRevision, CancellationToken ct = default);
+    /// <summary>As above, also setting the appearance and/or pronouns (null fields are left as stored).</summary>
+    Task<CardWriteResult> UpsertCardAsync(string accountId, string displayName, long? expectedRevision, CardExtras? extras, CancellationToken ct = default);
     /// <summary>Once per account: owns the starter car and credits the starter grant.</summary>
     Task<StarterResult> ClaimStarterAsync(string accountId, string carId, long credits, CancellationToken ct = default);
     /// <summary>Exactly-once under the idempotency key; rejects insufficient funds and invalid prices.</summary>

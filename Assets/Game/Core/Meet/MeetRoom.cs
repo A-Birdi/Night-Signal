@@ -34,6 +34,8 @@ namespace NightSignal.Core.Meet
         /// <summary>What others may inspect: the applied build's legal PI and class and a one-line tune summary.</summary>
         public int Pi;
         public string PiClass = "", Tune = "";
+        /// <summary>The driver's look from their Player Card (canonical JSON, Characters.PlayerLooks); "" = the default look.</summary>
+        public string Look = "";
         public readonly HashSet<string> LikedBy = new HashSet<string>();
 
         public bool EmoteActive(long now) => Emote != Emote.None && now - EmoteStartMs < (long)(Emotes.Duration(Emote) * 1000f);
