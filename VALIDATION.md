@@ -1967,3 +1967,33 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   at the offline meet as in V-097; both still there after the profile is re-read from disk — **PASS**.
   `Evidence/ui/appearance/workshop-tour.txt`, `workshop-ch50-first-preset-restored.jpg`.
 - **Limits:** the online path is covered by the service test, not a built networked run.
+
+## V-099 — The campaign story on screen, offline: stage intros, reactions, the race diary (2026-09-28)
+- Revision: the work committed with this entry; player build of it. No control-plane change; the race content hash is
+  unchanged (`3677a844…`: the story documents are presentation text outside it).
+- **What changed:** the authored story (stages.story, crews.diary, radio-records, rivals.story — written long ago, never
+  shown: R5.3 said "presentation not built") is now in the content library and on screen for a Local profile. Core
+  `StoryText` (engine-free): each stage's intro for Normal and Hard; on a rematch (the profile has raced that stage in
+  that mode) only the opening and closing lines, the full scene staying in the diary; the reaction for the outcome read
+  from the convoy's side — win, loss, cleared-but-lost, and the fourth case (rival beaten on track, benchmark missed),
+  which has no stage line and uses the featured rival's own "loss" line as the story conventions say; {player}/{convoy}
+  filled; scene pacing: the scene's length at about 22 characters a second held to the 10–18 s target, shared between
+  its lines (at least 1.8 s each; a rematch has no 10 s floor). Front end: before an offline campaign race the intro
+  plays by itself with Next and Skip (skipping is local and only starts this player's own race); the results show the
+  reaction; the offline hub has a Race Diary — the entry of every cleared stage (Normal, then Hard), the crew
+  introductions their clears unlock, and the radio and timing-slip records collected through Normal progression.
+- **Tests:** .NET `StoryTextTests` (every stage has both sides' title, intro, the three reactions and a diary entry, all
+  spoken by a known rival or the three narrators; 4 acts, 6 crews, 6 records; the rematch intro is the first and last
+  line; each outcome's reaction, the fourth from R01's own line; placeholders; the diary for nothing, S01, S01–S06 plus
+  S01 Hard, and everything (60 + 6 + 6); every one of the 60 full intros paces to 10–18.5 s and every rematch is shorter
+  and at most 10 s) — Core 140; SharedCore builds; Unity EditMode 481 passed, 2 skipped (explicit), 0 failed.
+- **Built player** (`-nsStoryTour`, offline, buttons only, isolated profile folder): the diary empty at first; S01's
+  intro — five lines, played by itself in 18.0 s; the validator autopilot won S01 (first clear) and the results showed
+  Sora Matsuda's win line, matching the verdict; the diary then held S01 and the Tea Hour introduction, readable; S01
+  again: the two-line rematch intro, ended at once by Skip, and the race started — **PASS**. A first run measured the
+  intro at 27.5 s (each line held by its own length); the scene is now paced as a whole. `Evidence/ui/story/`
+  (`story-tour.txt`, intro, reaction, diary and rematch screenshots).
+- **Limits:** offline only — online, the intro during loading with the finite window and synchronized start barrier
+  (spec §5.3), the reaction on online results and the diary from the account's clears are not built; no crew
+  introduction "read" tracking yet (CH70); no portraits or staged 3D scene (text over the menu backdrop); the pacing and
+  the words have not been judged by a person.

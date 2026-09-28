@@ -51,6 +51,8 @@ namespace NightSignal.Front
         public readonly GarageScreen Garage = new GarageScreen();
         public readonly AppearanceScreen Appearance = new AppearanceScreen();
         public readonly PlayerCardScreen PlayerCard = new PlayerCardScreen();
+        public readonly StoryScreen Story = new StoryScreen();
+        public readonly DiaryScreen Diary = new DiaryScreen();
         /// <summary>Rich-text summary of the last online race (placing, time, settled receipt) for the convoy screen.</summary>
         public string LastOnlineResult { get; private set; }
         /// <summary>UI tours drive online races with the validator autopilot (automation, labelled as such).</summary>
@@ -122,6 +124,8 @@ namespace NightSignal.Front
                 StartCoroutine(RacecraftTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsWorkshopTour") >= 0)
                 StartCoroutine(WorkshopTour());
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsStoryTour") >= 0)
+                StartCoroutine(StoryTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsDriverCardTour") >= 0)
                 StartCoroutine(DriverCardTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsCanvasPadTour") >= 0)
@@ -992,6 +996,19 @@ namespace NightSignal.Front
             string livery = plan.Car.Loaner ? "" : local?.RaceLivery(plan.Car.InstanceId) ?? "";
             Debug.Log($"[NightSignal.Local] {plan.EventId}: {plan.Car.ModelId} races build {(spec != null ? spec.BuildHash.Substring(0, 12) : "stock")} (PI {frozen?.Pi}), " +
                       $"livery {(livery.Length > 0 ? livery.Length + " bytes" : "stock")}");
+            // The stage's introductory scene (spec §5.3), shortened on a rematch; skippable.
+            Core.Story.StoryText story = NightSignal.Content.ContentLibrary.Load()?.Story;
+            if (plan.Kind == EventKind.CampaignStage && plan.Stage != null && story != null)
+            {
+                bool rematch = IsRematch(local?.Profile, plan.Stage, plan.Mode), introDone = false;
+                Router.Show(Story, true);
+                Story.Play(plan.Stage, plan.Mode, rematch, local?.Profile?.DisplayName, () => introDone = true);
+                float started = Time.realtimeSinceStartup;
+                while (!introDone) yield return null;
+                Debug.Log($"[NightSignal.Story] {plan.Stage.Id} {plan.Mode} intro{(rematch ? " (rematch: short)" : "")}: {Story.LineCount} line(s), " +
+                          $"ended at line {Math.Min(Story.LineIndex + 1, Story.LineCount)} after {Time.realtimeSinceStartup - started:F1} s");
+                Router.Back();
+            }
             yield return RunOfflineRace(plan.CourseId, plan.Car.ModelId, plan.Rules, plan.OpposingAi, false,
                 (r, rev) => { results = r; courseRevision = rev; }, spec, () =>
                 {
@@ -1019,9 +1036,27 @@ namespace NightSignal.Front
                 }
             }
             Results.Set(plan.CourseId, plan.Rules, results, applied, saveNote, returnTo);
+            if (applied?.Stage != null && story != null)
+            {
+                // How the stage went, from the convoy's side (here: the one driver): the stage's reaction lines.
+                Core.Story.StoryOutcome outcome = Core.Story.StoryText.OutcomeOf(applied.Stage.EarnedClear, applied.Stage.BeatFeaturedRival);
+                string lead = (plan.Mode == CampaignMode.Hard ? plan.Stage.Hard : plan.Stage.Normal)?.Lead;
+                List<Core.Story.StoryLine> reaction = story.Reaction(plan.Stage.Id, plan.Mode, outcome, lead);
+                Results.SetStory(reaction, session?.Profile?.DisplayName);
+                Debug.Log($"[NightSignal.Story] {plan.Stage.Id} {plan.Mode} reaction ({outcome}): " +
+                          string.Join(" | ", reaction.Select(l => l.Speaker + ": " + l.Line)));
+            }
             Canvas.gameObject.SetActive(true);
             yield return LoadBackdrop();
             Router.Show(Results, true);
+        }
+
+        /// <summary>A rematch: this profile has raced this stage in this mode before (a shorter intro, spec §5.3).</summary>
+        static bool IsRematch(Core.Profiles.LocalProfile p, Core.Content.StageDef stage, CampaignMode mode)
+        {
+            string difficulty = mode == CampaignMode.Hard ? Core.Profiles.RecordKey.HardDifficulty : Core.Profiles.RecordKey.NormalDifficulty;
+            return p?.Records?.Attempts?.Any(a => a.Key != null && a.Key.EventType == Core.Profiles.RecordEventType.CampaignStage &&
+                                                  a.Key.EventId == stage.Id && a.Key.Difficulty == difficulty && a.Attempts > 0) == true;
         }
 
         /// <summary>Starts a Local-domain race on a course scene: the UI steps aside; results come back to <see cref="Results"/>.</summary>

@@ -1,0 +1,14 @@
+# -nsStoryTour (offline, buttons only, isolated profile folder) on the player build of the commit that adds this file (V-099). Tagged lines from the player log; absolute paths removed.
+# A first run of the tour (the build before this one) measured the S01 intro at 27.5 s against the 10-18 s target: each line was held by its own length (up to 5.5 s). The scene is now paced as a whole (StoryText.Holds).
+[NightSignal.StoryTour] diary before racing: 0 entries
+[NightSignal.Story] S01 Normal intro: 5 line(s), ended at line 5 after 18.1 s
+[NightSignal.StoryTour] S01 intro: 5 lines (authored 5), played by itself in 18.0 s
+[NightSignal.Story] S01 Normal reaction (Win): R01: You read that hairpin better than I did. I'll be thinking about it all through tomorrow's round.
+[NightSignal.StoryTour] S01 cleared; reaction shown: "Sora Matsuda  You read that hairpin better than I did. I'll be thinking about it all through tomorrow's round."; matches the verdict: True
+[NightSignal.StoryTour] diary after S01: stage:S01, crew:tea-hour
+[NightSignal.StoryTour] reading: Tea Hour Motor Club, Mizuhana (656 characters)
+[NightSignal.StoryTour] rematch intro: 2 lines
+[NightSignal.Story] S01 Normal intro (rematch: short): 2 line(s), ended at line 1 after 0.7 s
+[NightSignal.StoryTour] skipped: True after 0.00 s at line 1
+[NightSignal.StoryTour] the rematch race started: True
+[NightSignal.StoryTour] PASS

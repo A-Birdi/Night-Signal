@@ -43,6 +43,10 @@ namespace NightSignal.Editor.ContentTools
             if (File.Exists("Assets/Content/Data/authored/story/npcs.look.json"))
                 lib.NpcLooks = Load("Assets/Content/Data/authored/story/npcs.look.json");
             lib.MeetText = Load("Assets/Content/Data/authored/story/meet.text.json");
+            lib.StageStory = Load("Assets/Content/Data/authored/story/stages.story.json");
+            lib.CrewDiary = Load("Assets/Content/Data/authored/story/crews.diary.json");
+            lib.StoryRecords = Load("Assets/Content/Data/authored/story/radio-records.json");
+            lib.RivalStory = Load("Assets/Content/Data/authored/story/rivals.story.json");
             if (create) AssetDatabase.CreateAsset(lib, LibraryPath);
             EditorUtility.SetDirty(lib);
 

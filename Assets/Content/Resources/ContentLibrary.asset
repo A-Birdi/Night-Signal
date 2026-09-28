@@ -41,3 +41,7 @@ MonoBehaviour:
   CharacterLooks: {fileID: 4900000, guid: aed8edd65d4921b479cc13da3405781f, type: 3}
   NpcLooks: {fileID: 4900000, guid: 2603d8b3894808b49985305577f94d10, type: 3}
   MeetText: {fileID: 4900000, guid: ea8ae2ccf04761d4da929a095cff05cc, type: 3}
+  StageStory: {fileID: 4900000, guid: cc954783bbc3bcf4cabf17c234ba5b8c, type: 3}
+  CrewDiary: {fileID: 4900000, guid: 0e274fe30b3514946a59d1e98c127686, type: 3}
+  StoryRecords: {fileID: 4900000, guid: 810dbe7af5665a24e9069f6a121c542c, type: 3}
+  RivalStory: {fileID: 4900000, guid: 183a335e5187b2644a01c69afc5ef1fd, type: 3}

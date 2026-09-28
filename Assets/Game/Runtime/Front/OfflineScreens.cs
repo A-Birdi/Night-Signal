@@ -114,6 +114,7 @@ namespace NightSignal.Front
             UIFactory.Button("Garage", col, "Garage", () => App.Router.Show(App.Garage), 620, 52);
             UIFactory.Button("WhileWeWait", col, "While We Wait", () => App.Router.Show(App.WhileWeWait), 620, 52);
             UIFactory.Button("DriverCard", col, "Driver Card", () => App.Router.Show(App.PlayerCard), 620, 52);
+            UIFactory.Button("RaceDiary", col, "Race Diary", () => App.Router.Show(App.Diary), 620, 52);
             UIFactory.Button("Meet", col, "Car Meet: Cedar Lantern Terrace", () =>
             {
                 if (cars.Count > 0) App.StartOfflineMeet(cars[car.Index], this);
@@ -217,8 +218,13 @@ namespace NightSignal.Front
     public sealed class ResultsScreen : UIScreen
     {
         public override string ScreenName => "Results";
-        TextMeshProUGUI heading, table, summary, progress;
+        TextMeshProUGUI heading, table, summary, progress, reaction;
         Button cont;
+        List<Core.Story.StoryLine> story = new List<Core.Story.StoryLine>();
+        string storyPlayer = "";
+
+        /// <summary>The post-race reaction shown (tours read it): speaker and line, one per row.</summary>
+        public string Reaction => reaction != null ? reaction.text : "";
         UIScreen returnTo;
         Core.Profiles.LocalProgressionResult applied;
         string saveNote = "";
@@ -236,11 +242,19 @@ namespace NightSignal.Front
             summary.rectTransform.offsetMin = new Vector2(48, 0);
             summary.textWrappingMode = TextWrappingModes.Normal;
             table = UIFactory.Label("Table", panel.transform, "", SignalTheme.Body, SignalTheme.Label, TextAlignmentOptions.TopLeft);
-            table.rectTransform.anchorMin = new Vector2(0, 0.14f);
+            table.rectTransform.anchorMin = new Vector2(0, 0.27f);
             table.rectTransform.anchorMax = new Vector2(0.6f, 0.76f);
             table.rectTransform.offsetMin = new Vector2(48, 0);
             table.rectTransform.offsetMax = new Vector2(-24, 0);
             table.richText = true;
+            // The featured rival's (or the radio's) reaction to how the stage went (spec §5.3: a 3–6 s post-race quip).
+            reaction = UIFactory.Label("Reaction", panel.transform, "", SignalTheme.Body, SignalTheme.Label, TextAlignmentOptions.TopLeft);
+            reaction.rectTransform.anchorMin = new Vector2(0, 0.13f);
+            reaction.rectTransform.anchorMax = new Vector2(0.6f, 0.26f);
+            reaction.rectTransform.offsetMin = new Vector2(48, 0);
+            reaction.rectTransform.offsetMax = new Vector2(-24, 0);
+            reaction.textWrappingMode = TextWrappingModes.Normal;
+            reaction.richText = true;
             // Reward itemisation stays separate from the classification (spec §15).
             progress = UIFactory.Label("Progression", panel.transform, "", SignalTheme.Small, SignalTheme.Label, TextAlignmentOptions.TopLeft);
             progress.rectTransform.anchorMin = new Vector2(0.6f, 0.14f);
@@ -268,6 +282,15 @@ namespace NightSignal.Front
             applied = progression;
             saveNote = note ?? "";
             returnTo = back;
+            story = new List<Core.Story.StoryLine>();
+            if (heading != null) Render();
+        }
+
+        /// <summary>The stage's reaction lines for this result (after <see cref="Set"/>; none outside the campaign).</summary>
+        public void SetStory(List<Core.Story.StoryLine> lines, string player)
+        {
+            story = lines ?? new List<Core.Story.StoryLine>();
+            storyPlayer = player ?? "";
             if (heading != null) Render();
         }
 
@@ -278,6 +301,10 @@ namespace NightSignal.Front
             string courseId = pendingCourse;
             List<RaceEntrantResult> results = pendingResults;
             heading.text = $"RESULTS  ·  {courseId}";
+            ContentCatalogue storyCat = ContentLibrary.Load()?.Catalogue;
+            reaction.text = string.Join("\n", story.Select(l => l.Speaker == "narration"
+                ? $"<i>{Escape(Core.Story.StoryText.Fill(l.Line, storyPlayer, ""))}</i>"
+                : $"<color=#D7263D>{Escape(StoryScreen.SpeakerName(l.Speaker, storyCat))}</color>  {Escape(Core.Story.StoryText.Fill(l.Line, storyPlayer, ""))}"));
             if (results == null || results.Count == 0)
             {
                 summary.text = "The race ended without results.";

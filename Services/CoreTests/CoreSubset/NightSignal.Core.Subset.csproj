@@ -29,6 +29,8 @@
     <Compile Include="../../../Assets/Game/Core/Customization/**/*.cs" Link="Core/Customization/%(RecursiveDir)%(Filename)%(Extension)" />
     <!-- Characters (the driver look): the Local card stores and validates it like the online card. -->
     <Compile Include="../../../Assets/Game/Core/Characters/**/*.cs" Link="Core/Characters/%(RecursiveDir)%(Filename)%(Extension)" />
+    <!-- Story (stage intros and reactions, the race diary): presentation text, never a simulation input. -->
+    <Compile Include="../../../Assets/Game/Core/Story/**/*.cs" Link="Core/Story/%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>
