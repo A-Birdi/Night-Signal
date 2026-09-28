@@ -19,7 +19,7 @@ using UnityEngine.TestTools;
 namespace NightSignal.Tests
 {
     /// <summary>
-    /// Addendum 02 F08: a complete Normal campaign for each starter from a fresh Local profile, played through the same Core
+    /// Addendum 02 F08: a complete Normal (and, after it, Hard) campaign for each starter from a fresh Local profile, played through the same Core
     /// calls the game makes — the event plan (roster, live featured rivals, benchmark, cap), a real race on the stage's
     /// course driven by the validator autopilot (legal inputs, automation), Core Local progression settling it, and the
     /// Garage buying the starter's intended upgrade path (build-recipes.json) with the credits earned, when the shop has it.
@@ -49,9 +49,60 @@ namespace NightSignal.Tests
 
             var evidence = new CampaignEvidence
             {
-                starter = starter, startingCredits = session.Profile.WalletBalance,
+                starter = starter, mode = "normal", startingCredits = session.Profile.WalletBalance,
                 driver = "RouteFollower validator autopilot (automation, legal inputs) — not a human run", unityVersion = Application.unityVersion,
             };
+            string stoppedAt = null;
+            yield return Play(session, cat, parts, car, recipe, starter, CampaignMode.Normal, evidence, s => stoppedAt = s);
+            Save(evidence, starter, "normal");
+            Assert.That(stoppedAt, Is.Null, $"{starter}: the campaign stopped at {stoppedAt} after {MaxAttempts} attempts (see the evidence)");
+        }
+
+        /// <summary>
+        /// F08's Hard gates: the same profile plays the whole Normal campaign first (Hard opens only after Normal S30 is really
+        /// cleared — nothing is written as a clear), then the Hard campaign under each Hard side's own conditions and targets,
+        /// buying the recipe's Hard steps as it goes. Evidence {starter}-hard.json.
+        /// </summary>
+        [UnityTest, Timeout(7200000)]
+        public IEnumerator HardCampaign_AfterNormal([Values("V01", "V02", "V03")] string starter)
+        {
+            string folder = Path.GetFullPath(Path.Combine("Builds", "ProgressionRuns", starter + "-hard"));
+            if (Directory.Exists(folder)) Directory.Delete(folder, true);
+            LocalSession.UseFolder(folder);
+            LocalSession session = LocalSession.Current;
+            Assert.That(session.Create("Progression " + starter + " Hard", starter, out string created), Is.True, created);
+            ContentLibrary lib = ContentLibrary.Load();
+            ContentCatalogue cat = session.Catalogue;
+            PartsCatalogue parts = lib.Parts;
+            OwnedCar car = session.Profile.Cars.First(c => c.ModelId == starter);
+            CarRecipe recipe = lib.Recipes.Car(starter);
+            string driver = "RouteFollower validator autopilot (automation, legal inputs) — not a human run";
+
+            var normal = new CampaignEvidence { starter = starter, mode = "normal", startingCredits = session.Profile.WalletBalance, driver = driver, unityVersion = Application.unityVersion };
+            string normalStop = null;
+            yield return Play(session, cat, parts, car, recipe, starter, CampaignMode.Normal, normal, s => normalStop = s);
+            if (normalStop != null)
+            {
+                Save(normal, starter, "normal-before-hard");
+                Assert.Fail($"{starter}: Hard is unreachable — the Normal campaign stopped at {normalStop}");
+            }
+            var hard = new CampaignEvidence { starter = starter, mode = "hard", startingCredits = session.Profile.WalletBalance, driver = driver, unityVersion = Application.unityVersion };
+            string hardStop = null;
+            yield return Play(session, cat, parts, car, recipe, starter, CampaignMode.Hard, hard, s => hardStop = s);
+            Save(hard, starter, "hard");
+            Assert.That(hardStop, Is.Null, $"{starter}: the Hard campaign stopped at {hardStop} after {MaxAttempts} attempts (see the evidence)");
+        }
+
+        static void Save(CampaignEvidence evidence, string starter, string name)
+        {
+            Directory.CreateDirectory("Evidence/progression/campaign");
+            File.WriteAllText($"Evidence/progression/campaign/{starter}-{name}.json", JsonUtility.ToJson(evidence, true));
+        }
+
+        /// <summary>One campaign mode, stage by stage, retrying like a player; reports where it stopped (null = all cleared).</summary>
+        static IEnumerator Play(LocalSession session, ContentCatalogue cat, PartsCatalogue parts, OwnedCar car, CarRecipe recipe, string starter,
+            CampaignMode mode, CampaignEvidence evidence, Action<string> stopped)
+        {
             string stoppedAt = null;
             for (int n = 1; n <= Limits.CampaignStages && stoppedAt == null; n++)
             {
@@ -59,9 +110,9 @@ namespace NightSignal.Tests
                 bool cleared = false;
                 for (int attempt = 1; attempt <= MaxAttempts && !cleared; attempt++)
                 {
-                    evidence.purchases.AddRange(Develop(session, cat, parts, car.InstanceId, recipe, n, attempt - 1));
+                    evidence.purchases.AddRange(Develop(session, cat, parts, car.InstanceId, recipe, mode, n, attempt - 1));
                     var choice = new LocalCarChoice { ModelId = starter, InstanceId = car.InstanceId };
-                    LocalEventPlan plan = LocalEvents.Campaign(session, stage, CampaignMode.Normal, choice);
+                    LocalEventPlan plan = LocalEvents.Campaign(session, stage, mode, choice);
                     ResolvedCarSpec spec = session.RaceSpec(car.InstanceId, out AppliedVehicleBuild frozen, out string problem);
                     Assert.That(problem, Is.Null, problem);
                     int pi = session.AppliedPi(car);
@@ -72,12 +123,13 @@ namespace NightSignal.Tests
                     long before = session.Profile.WalletBalance;
                     LocalProgressionResult applied = LocalProgression.ApplyEvent(session.Profile, cat, session.Music, facts);
                     Assert.That(!applied.Changed || session.Commit(applied, out string saveNote), Is.True, "saved");
-                    cleared = session.Profile.Campaign.IsCleared(CampaignMode.Normal, n);
+                    cleared = session.Profile.Campaign.IsCleared(mode, n);
                     RaceEntrantResult me = results.First(r => r.Entrant.Human);
                     RaceEntrantResult featured = results.FirstOrDefault(r => r.Entrant.Roster.Role == "featured");
                     evidence.attempts.Add(new AttemptRow
                     {
                         stage = stage.Id, type = stage.Type, course = stage.Course, attempt = attempt, capPi = stage.MaxPI, pi = pi,
+                        surface = plan.Rules.Surface,
                         build = frozen?.Build == null ? "stock" : string.Join("+", frozen.Build.AllPartIds()),
                         outcome = me.Outcome.ToString(), placement = me.Placement, of = results.Count, timeMs = me.FinishTimeMicros / 1000,
                         targetMs = plan.Benchmark.TargetTimeMs, featured = featured?.Entrant.Roster.EntrantId ?? "",
@@ -86,7 +138,7 @@ namespace NightSignal.Tests
                         wallet = session.Profile.WalletBalance, reason = applied.Reason ?? "",
                         contracts = me.ContractsPassed, contractDetail = me.ContractDetail ?? "",
                     });
-                    Debug.Log($"[NightSignal.Campaign] {starter} {stage.Id} ({stage.Type}, {stage.Course}, cap {stage.MaxPI}) try {attempt}: PI {pi}, " +
+                    Debug.Log($"[NightSignal.Campaign] {starter} {mode} {stage.Id} ({stage.Type}, {stage.Course}, {plan.Rules.Surface}, cap {stage.MaxPI}) try {attempt}: PI {pi}, " +
                               $"{me.Outcome} P{me.Placement}/{results.Count} {me.FinishTimeMicros / 1e6:F1}s vs target {plan.Benchmark.TargetTimeMs / 1000.0:F0}s" +
                               (featured != null ? $", featured {featured.Entrant.Roster.EntrantId} {(featured.Outcome == RunOutcome.Finished ? (featured.FinishTimeMicros / 1e6).ToString("F1") + "s" : featured.Outcome.ToString())}" : "") +
                               (me.ContractsPassed >= 0 ? $", Four Signals {me.ContractsPassed}/4 ({me.ContractDetail})" : "") +
@@ -94,26 +146,24 @@ namespace NightSignal.Tests
                 }
                 if (!cleared) stoppedAt = stage.Id;
             }
-            evidence.stagesCleared = session.Profile.Campaign.Count(CampaignMode.Normal);
+            evidence.stagesCleared = session.Profile.Campaign.Count(mode);
             evidence.finalWallet = session.Profile.WalletBalance;
             evidence.stoppedAt = stoppedAt ?? "";
-            Directory.CreateDirectory("Evidence/progression/campaign");
-            File.WriteAllText($"Evidence/progression/campaign/{starter}-normal.json", JsonUtility.ToJson(evidence, true));
-            Debug.Log($"[NightSignal.Campaign] {starter}: {evidence.stagesCleared}/30 Normal stages cleared in {evidence.attempts.Count} attempts, " +
+            Debug.Log($"[NightSignal.Campaign] {starter} {mode}: {evidence.stagesCleared}/30 stages cleared in {evidence.attempts.Count} attempts, " +
                       $"{evidence.purchases.Count} purchases, wallet {evidence.finalWallet:N0}{(stoppedAt != null ? ", stopped at " + stoppedAt : "")}");
-            Assert.That(stoppedAt, Is.Null, $"{starter}: the campaign stopped at {stoppedAt} after {MaxAttempts} attempts (see the evidence)");
+            stopped(stoppedAt);
         }
 
         /// <summary>
         /// Buys (or applies, when owned) the latest recipe step meant by this stage — or, after lost attempts, up to
         /// <paramref name="ahead"/> steps further along the same Normal path — if the shop has it and the wallet allows.
         /// </summary>
-        static List<PurchaseRow> Develop(LocalSession session, ContentCatalogue cat, PartsCatalogue parts, string instanceId, CarRecipe recipe, int stageNumber, int ahead)
+        static List<PurchaseRow> Develop(LocalSession session, ContentCatalogue cat, PartsCatalogue parts, string instanceId, CarRecipe recipe, CampaignMode mode, int stageNumber, int ahead)
         {
             var rows = new List<PurchaseRow>();
-            var at = new StageRef { Mode = CampaignMode.Normal, Stage = stageNumber };
-            List<RecipeStep> normal = recipe.Path.Where(s => s.Kind == "main" && StageRef.Parse(s.By).Mode == CampaignMode.Normal)
-                .OrderBy(s => StageRef.Parse(s.By)).ToList();
+            var at = new StageRef { Mode = mode, Stage = stageNumber };
+            // The whole main path in stage order (Normal steps, then the Hard steps "by H:Sxx").
+            List<RecipeStep> normal = recipe.Path.Where(s => s.Kind == "main" && s.By != null).OrderBy(s => StageRef.Parse(s.By)).ToList();
             int due = normal.FindLastIndex(s => StageRef.Parse(s.By).CompareTo(at) <= 0);
             int pick = Math.Min(normal.Count - 1, due + ahead);
             if (pick < 0) return rows;
@@ -123,7 +173,7 @@ namespace NightSignal.Tests
             LocalWorkspaceLoad load = LocalGarage.LoadWorkspace(session.Profile, cat, parts, instanceId, DateTime.UtcNow);
             if (!load.Ok || load.Workspace.Applied.Build.ContentEquals(target)) return rows;
             QuoteResult q = LocalGarage.Quote(session.Profile, cat, parts, instanceId, target, DateTime.UtcNow);
-            var row = new PurchaseRow { beforeStage = "S" + stageNumber.ToString("00"), step = step.Id + (early ? " (ahead, after a lost attempt)" : ""), wallet = session.Profile.WalletBalance };
+            var row = new PurchaseRow { beforeStage = (mode == CampaignMode.Hard ? "H:" : "") + "S" + stageNumber.ToString("00"), step = step.Id + (early ? " (ahead, after a lost attempt)" : ""), wallet = session.Profile.WalletBalance };
             if (q.Status == QuoteStatus.Ok && q.Quote.Total <= session.Profile.WalletBalance)
             {
                 LocalProgressionResult r = LocalGarage.BuyAndApply(session.Profile, cat, parts, instanceId, q.Quote, true, "run-" + Guid.NewGuid().ToString("N").Substring(0, 16), DateTime.UtcNow);
@@ -176,7 +226,7 @@ namespace NightSignal.Tests
         [Serializable]
         sealed class CampaignEvidence
         {
-            public string starter, driver, unityVersion, stoppedAt;
+            public string starter, mode, driver, unityVersion, stoppedAt;
             public long startingCredits, finalWallet;
             public int stagesCleared;
             public List<AttemptRow> attempts = new List<AttemptRow>();
@@ -186,7 +236,7 @@ namespace NightSignal.Tests
         [Serializable]
         sealed class AttemptRow
         {
-            public string stage, type, course, build, outcome, featured, reason, contractDetail;
+            public string stage, type, course, surface, build, outcome, featured, reason, contractDetail;
             public int attempt, capPi, pi, placement, of, contracts = -1;
             public long timeMs, targetMs, featuredTimeMs, earned, wallet;
             public bool beatFeatured, cleared;

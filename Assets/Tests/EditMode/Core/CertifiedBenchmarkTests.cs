@@ -7,10 +7,10 @@ using NUnit.Framework;
 namespace NightSignal.Tests.Core
 {
     /// <summary>
-    /// Certified stage benchmarks (authored/stage-benchmarks.json, produced by the PlayMode certification run): every Normal
-    /// stage has one, targets follow factor × P with the factor falling 1.18 → 1.05, the featured rival pace is never above
-    /// its profile, the shared StageBenchmarks resolves to them (Local and the control plane alike), Hard stays provisional
-    /// and labelled so, and the loader refuses broken entries.
+    /// Certified stage benchmarks (authored/stage-benchmarks.json, produced by the PlayMode certification run): every stage
+    /// side has one, targets follow factor × P with the factor falling 1.18 → 1.05 (Normal) and 1.04 → 1.00 (Hard), the
+    /// featured rival pace is never above its profile, the shared StageBenchmarks resolves to them (Local and the control
+    /// plane alike), and the loader refuses broken entries.
     /// </summary>
     public sealed class CertifiedBenchmarkTests
     {
@@ -36,8 +36,11 @@ namespace NightSignal.Tests.Core
                 Assert.That(StageBenchmarks.IsCertified(cat, stage, CampaignMode.Normal), Is.True);
                 StringAssert.StartsWith("certified:", StageBenchmarks.Source(cat, stage, CampaignMode.Normal));
 
-                Assert.That(StageBenchmarks.IsCertified(cat, stage, CampaignMode.Hard), Is.False, "Hard needs its own reference runs");
-                StringAssert.StartsWith("provisional", StageBenchmarks.Source(cat, stage, CampaignMode.Hard));
+                Assert.That(cat.TryCertifiedBenchmark(stage.Id, CampaignMode.Hard, out CertifiedBenchmark h), Is.True, stage.Id + " Hard");
+                Assert.That(h.Factor, Is.InRange(1.00 - 1e-9, 1.04 + 1e-9), stage.Id + " Hard");
+                Assert.That(h.TargetMs, Is.EqualTo((long)System.Math.Round(h.ReferenceMs * h.Factor)), stage.Id + " Hard");
+                Assert.That(StageBenchmarks.For(cat, stage, CampaignMode.Hard).TargetTimeMs, Is.EqualTo(h.TargetMs));
+                StringAssert.StartsWith("certified:", StageBenchmarks.Source(cat, stage, CampaignMode.Hard));
             }
         }
 

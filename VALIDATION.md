@@ -1084,3 +1084,22 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   `2ac19629…`, loopback; `ui-tour-online.ps1`, `Evidence/ui/online/certified`): the convoy proposal for S10 shows
   "target 02:47.988" with no provisional label (the certified 167,988 ms); the server-authoritative race (1 human + 3 AI,
   C09) finished in 2:46.660 — qualified, first clear, +17,996 credits, receipt settled — **PASS**.
+
+## V-066 — Stage conditions in races; Hard certified; Normal recertified under authored conditions (2026-09-27)
+- Revision: `58080e8` working tree (committed in the next checkpoint). PlayMode in the editor, automation (validator
+  autopilot, legal inputs) — not human runs; EditMode **246/246**; services **335/335** (at `58080e8`).
+- **Conditions were never applied:** `story/conditions.json` (each stage side's time of day, surface, weather, derived
+  from the catalogue with documented rules) was loaded by nothing — every campaign race, Local and online, used the
+  course's default surface, so no Hard side was ever damp or wet (12 damp + 6 wet Hard sides; 6 damp Normal sides, C08's
+  S09/S14 raced "wet" from the route instead of the authored "damp"). Now `authored/stage-conditions.json` is in the
+  content hash; `RaceConditions` gives a campaign side's surface and time of day (else the course's) to the Local race,
+  the dedicated server (which also sends the time of day to clients for lighting and headlights) and the certification.
+  EditMode `StageConditionsTests`.
+- **Certification of both modes** (`CertifyHard` + `CertifyNormal`, 56 min, `Evidence/progression/benchmarks/N-*`,
+  `H-*`): each side under its own conditions; Hard factor 1.04 (S01) → 1.00 (S30) with the Hard lead rivals and the
+  recipes' Hard steps (e.g. H S01 damp: P 88.7 s → 92.3 s, R05 pace 0.969; H S14 wet: P 168.6 s → 172.3 s; H S30: P 284.7
+  s → 284.7 s, R48 at full pace 291.7 s); Hard rivals run at 0.72–1.0 of their profiles (four cannot reach the target even
+  at full pace). Hard S29 has its own, tighter contracts (Entry 64.5 s vs Normal 77.6 s). Normal S09/S14 now certified on
+  damp (targets 191.5 s / 187.8 s). The whole file is authored content (hash `2661eaf8…`); Hard no longer provisional.
+- Hard campaign run (`StarterCampaignRunTests.HardCampaign_AfterNormal`: Normal first, then Hard with the Hard recipe
+  steps) is in place and not yet run.

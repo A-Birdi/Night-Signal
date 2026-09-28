@@ -1,0 +1,89 @@
+{
+  "stage": "S02",
+  "mode": "hard",
+  "course": "C02",
+  "type": "regular",
+  "surface": "dry",
+  "referenceCar": "V01",
+  "referenceBuild": "V01-H1a",
+  "featured": "R06",
+  "capPi": 299,
+  "provisionalTargetMs": 204250,
+  "referenceMs": 142587,
+  "targetMs": 148091,
+  "featuredMs": 149177,
+  "factor": 1.0386,
+  "featuredPace": 0.8438,
+  "starters": [
+    {
+      "car": "V01",
+      "build": "V01-H1a",
+      "ms": 142587,
+      "finished": true,
+      "entryMs": -1,
+      "arcDrift": -1,
+      "apexHits": -1,
+      "descentWalls": -1,
+      "descentResets": -1,
+      "brakedAndReleased": false,
+      "brakeExitKmh": -1.0,
+      "brakeStartMetres": -1.0,
+      "brakeReleaseMetres": -1.0,
+      "brakeOffAtExit": false
+    },
+    {
+      "car": "V02",
+      "build": "V02-H1a",
+      "ms": 140010,
+      "finished": true,
+      "entryMs": -1,
+      "arcDrift": -1,
+      "apexHits": -1,
+      "descentWalls": -1,
+      "descentResets": -1,
+      "brakedAndReleased": false,
+      "brakeExitKmh": -1.0,
+      "brakeStartMetres": -1.0,
+      "brakeReleaseMetres": -1.0,
+      "brakeOffAtExit": false
+    },
+    {
+      "car": "V03",
+      "build": "V03-H1a",
+      "ms": 139022,
+      "finished": true,
+      "entryMs": -1,
+      "arcDrift": -1,
+      "apexHits": -1,
+      "descentWalls": -1,
+      "descentResets": -1,
+      "brakedAndReleased": false,
+      "brakeExitKmh": -1.0,
+      "brakeStartMetres": -1.0,
+      "brakeReleaseMetres": -1.0,
+      "brakeOffAtExit": false
+    }
+  ],
+  "tries": [
+    {
+      "pace": 1.0,
+      "ms": 140634
+    },
+    {
+      "pace": 0.75,
+      "ms": 157155
+    },
+    {
+      "pace": 0.875,
+      "ms": 146791
+    },
+    {
+      "pace": 0.8125,
+      "ms": 151712
+    },
+    {
+      "pace": 0.8438,
+      "ms": 149177
+    }
+  ]
+}

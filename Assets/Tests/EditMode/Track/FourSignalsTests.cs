@@ -13,8 +13,8 @@ namespace NightSignal.Tests.Track
 {
     /// <summary>
     /// S29 "Four Signals" judging on C24's authored contract sectors with the certified published targets: a run that meets
-    /// everything passes all four; each contract fails on its own condition and says why; Hard borrows the Normal targets
-    /// as provisional; courses without the four sectors have no judge.
+    /// everything passes all four; each contract fails on its own condition and says why; Hard has its own, tighter
+    /// certified targets; courses without the four sectors have no judge.
     /// </summary>
     public sealed class FourSignalsTests
     {
@@ -94,12 +94,12 @@ namespace NightSignal.Tests.Track
         }
 
         [Test]
-        public void Hard_UsesTheNormalTargets_AsProvisional_AndOtherCoursesHaveNoJudge()
+        public void Hard_HasItsOwnTighterTargets_AndOtherCoursesHaveNoJudge()
         {
             ContentCatalogue cat = ContentFiles.LoadProjectCatalogue();
             ContractJudge hard = ContractJudge.ForEvent(track, cat, "campaign", "S29", CampaignMode.Hard);
-            Assert.That(hard.Provisional, Is.True);
-            Assert.That(hard.Targets.EntrySectorMs, Is.EqualTo(t.EntrySectorMs));
+            Assert.That(hard.Provisional, Is.False, "Hard S29 was certified from its own reference runs");
+            Assert.That(hard.Targets.EntrySectorMs, Is.LessThan(t.EntrySectorMs), "tighter legal targets (spec S29 Hard)");
             Assert.That(ContractJudge.ForEvent(track, cat, "freeplay", null, CampaignMode.Normal), Is.Null, "only a campaign event is judged");
 
             string c01 = File.ReadAllText("Assets/Content/Courses/C01/route.json");
