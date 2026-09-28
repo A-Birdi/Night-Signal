@@ -82,6 +82,10 @@ namespace NightSignal.Core.Ghosts
             Header.Format == other.Format && Header.Surface == other.Surface && Header.PhysicsVersion == other.PhysicsVersion &&
             Header.ScoringVersion == other.ScoringVersion;
 
+        /// <summary>The rules a ghost is kept and compared under (with its course and format): one best ghost per key.</summary>
+        public static string RulesKey(GhostHeader h) =>
+            h == null ? "" : $"{h.CourseRevision}|{h.Direction}|{h.Surface}|{h.PhysicsVersion}|{h.ScoringVersion}";
+
         /// <summary>The last sample at or before <paramref name="t"/> (0 before the first; the last after the end).</summary>
         public int IndexAt(float t)
         {

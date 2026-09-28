@@ -72,6 +72,34 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
     public static string Sign(string resultsSecret, byte[] body) =>
         "sha256=" + Hashing.HmacSha256Hex(Base64UrlEncoder.DecodeBytes(resultsSecret), body);
 
+    /// <summary>Largest ghost document accepted (a 15-minute event at 10 Hz fits).</summary>
+    public const int MaxGhostBytes = 400 * 1024;
+
+    /// <summary>
+    /// A ghost the game server recorded for one human entrant (spec §8: server-generated): signed like the results with the
+    /// match secret, well-formed, for this match's course; held until the match settles, when it is kept only if it matches
+    /// the settled finish.
+    /// </summary>
+    public async Task<SubmissionResult> SubmitGhostAsync(string serverId, string matchId, string accountId, byte[] body, string? signature, CancellationToken ct)
+    {
+        MatchRecord? match = await ledger.GetMatchAsync(matchId, ct);
+        if (match is null) return Error(404, "unknown_match", "No such match.");
+        if (match.ServerId != serverId) return Error(403, "wrong_server", "This match was allocated to a different server.");
+        if (signature is null || !Hashing.FixedTimeEquals(signature, Sign(match.ResultsSecret, body)))
+            return Error(401, "bad_signature", "Ghost body signature is missing or invalid.");
+        if (match.State != "allocated") return Error(409, "already_closed", "This match was already settled or aborted.");
+        MatchAssignment config = JsonSerializer.Deserialize<MatchAssignment>(match.ConfigJson, MatchAllocator.Json)!;
+        if (config.Entrants.All(e => e.AccountId != accountId)) return Error(422, "not_an_entrant", "That account is not a human entrant of this match.");
+        string json = System.Text.Encoding.UTF8.GetString(body);
+        NightSignal.Core.Ghosts.GhostRecording? ghost = NightSignal.Core.Ghosts.GhostRecording.Parse(json, out string? error);
+        if (ghost is null) return Error(400, "malformed", error ?? "Not a ghost.");
+        List<string> problems = ghost.Problems();
+        if (problems.Count > 0) return Error(422, "invalid_ghost", string.Join("; ", problems));
+        if (ghost.Header.CourseId != config.CourseId) return Error(422, "mismatch", "The ghost is for another course.");
+        await ledger.StoreMatchGhostAsync(matchId, accountId, json, ct);
+        return new SubmissionResult(200, new { status = "held", samples = ghost.Count });
+    }
+
     public async Task<SubmissionResult> SubmitAsync(string serverId, string matchId, byte[] body, string? signature, CancellationToken ct)
     {
         MatchRecord? match = await ledger.GetMatchAsync(matchId, ct);
@@ -117,6 +145,19 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
 
         // Cumulative challenges read every earlier settled finish of each finishing human.
         var finished = new Dictionary<string, IReadOnlyCollection<string>>(StringComparer.Ordinal);
+        // Ghosts (spec §8): each finishing human's recording, valid only for this settled finish; CH68 against the kept one.
+        var ghosts = new Dictionary<string, NightSignal.Core.Ghosts.GhostRecording>(StringComparer.Ordinal);
+        var ghostBeats = new HashSet<string>(StringComparer.Ordinal);
+        foreach (EntrantFacts e in submission.Entrants.Where(x => x.Human && x.Outcome == RunOutcome.Finished))
+        {
+            string? json = await ledger.MatchGhostAsync(matchId, e.EntrantId, ct);
+            NightSignal.Core.Ghosts.GhostRecording? g = json is null ? null : NightSignal.Core.Ghosts.GhostRecording.Parse(json, out _);
+            if (g is null || !g.ValidPersonal || g.Header.ResultMicros != e.FinishTimeMicros) continue;
+            ghosts[e.EntrantId] = g;
+            foreach (StoredGhost kept in await ledger.GhostsAsync(e.EntrantId, g.Header.CourseId, g.Header.Format, ct))
+                if (NightSignal.Core.Ghosts.GhostChallenges.BeatsYesterday(NightSignal.Core.Ghosts.GhostRecording.Parse(kept.Json, out _), g))
+                    ghostBeats.Add(e.EntrantId);
+        }
         // CH70 reads each finishing human's race-diary marks (all six crew introductions read before this race).
         var diaryComplete = new HashSet<string>(StringComparer.Ordinal);
         foreach (EntrantFacts e in submission.Entrants.Where(x => x.Human && x.Outcome == RunOutcome.Finished))
@@ -125,7 +166,7 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
             if (NightSignal.Core.Story.DiaryChallenges.AllCrewsRead(await players.DiaryReadsAsync(e.EntrantId, ct), content.Crews))
                 diaryComplete.Add(e.EntrantId);
         }
-        (MatchSettlement? settlement, string? invalid) = Compute(config, submission, Hashing.Sha256Hex(body), finished, diaryComplete);
+        (MatchSettlement? settlement, string? invalid) = Compute(config, submission, Hashing.Sha256Hex(body), finished, diaryComplete, ghostBeats);
         if (settlement is null) return Error(422, "invalid_results", invalid!);
 
         SettlementOutcome outcome = await ledger.SettleAsync(settlement, ct);
@@ -133,6 +174,13 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
         {
             case SettlementStatus.Settled:
                 log.LogInformation("Match {MatchId} settled: {Count} receipts", matchId, outcome.Receipts.Count);
+                foreach ((string account, NightSignal.Core.Ghosts.GhostRecording g) in ghosts)
+                {
+                    bool kept = await ledger.OfferGhostAsync(account, g.Header.CourseId, g.Header.Format, NightSignal.Core.Ghosts.GhostRecording.RulesKey(g.Header),
+                        g.Header.ResultMicros, matchId, g.ToJson(), ct);
+                    log.LogInformation("Ghost {Course} {Format} {Result:F3} s for {Account}: {Kept}", g.Header.CourseId, g.Header.Format,
+                        g.Header.ResultMicros / 1e6, account, kept ? "kept" : "slower than the kept one");
+                }
                 await EndMatchAsync(config, ct);
                 return new SubmissionResult(200, new { status = "settled", receipts = outcome.Receipts });
             case SettlementStatus.AlreadySettled:
@@ -169,7 +217,8 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
 
     /// <summary>Validates the facts against the frozen allocation and computes every reward input with Core.</summary>
     internal (MatchSettlement? Settlement, string? Error) Compute(MatchAssignment config, ResultSubmission s, string bodySha256,
-        IReadOnlyDictionary<string, IReadOnlyCollection<string>>? finishedBefore = null, IReadOnlySet<string>? diaryComplete = null)
+        IReadOnlyDictionary<string, IReadOnlyCollection<string>>? finishedBefore = null, IReadOnlySet<string>? diaryComplete = null,
+        IReadOnlySet<string>? ghostBeats = null)
     {
         if (ProgressionDomain.ToyViolation(config) is { } toy) return (null, toy);
         var humans = config.Entrants.Select(e => e.AccountId).ToHashSet(StringComparer.Ordinal);
@@ -378,6 +427,9 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
                     NightSignal.Core.Story.DiaryChallenges.RacedCrewMember(config.AiEntrants, content.Catalogue, content.Crews) &&
                     !ids.Contains(NightSignal.Core.Story.DiaryChallenges.OtherSideOfTheCard))
                     ids.Add(NightSignal.Core.Story.DiaryChallenges.OtherSideOfTheCard);
+                // CH68 Chasing Your Yesterday: the kept C07 ghost beaten by a second (the caller checked ghost and rules).
+                if (e.Human && ghostBeats is not null && ghostBeats.Contains(e.EntrantId) && !ids.Contains(NightSignal.Core.Ghosts.GhostChallenges.ChasingYourYesterday))
+                    ids.Add(NightSignal.Core.Ghosts.GhostChallenges.ChasingYourYesterday);
                 if (e.Human)
                 {
                     var courses = new HashSet<string>(finishedBefore is not null && finishedBefore.TryGetValue(e.EntrantId, out var past) ? past : Array.Empty<string>(),

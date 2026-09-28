@@ -1,0 +1,14 @@
+# Online ghosts: Tools/run/ui-tour-online.ps1 -Intent 4 -Course C07 twice (one windowed client driving the real menus, validator autopilot; loopback dedicated server; control plane running the V-104 code). Tagged lines; absolute paths removed; the dev account id shortened.
+## run 1
+[NightSignal.Ghost] online C07 time-attack: 0 kept, 0 racing
+[NightSignal.UiTourOnline] PASS; last result: <color=#9A968D>LAST RACE</color> | P1 of 1   02:00.601 | Credits +10,773   ·   balance 370,686 cr | 
+[NightSignal.Server] ghost for …000001: 1207 samples, 79 KB, result 120.601 s -> 200
+## run 2
+[NightSignal.Ghost] online C07 time-attack: 1 kept, 1 racing
+[NightSignal.UiTourOnline] PASS; last result: <color=#9A968D>LAST RACE</color> | P1 of 1   01:59.534 | Credits +18,773   ·   balance 389,459 cr | 
+[NightSignal.Server] ghost for …000001: 1197 samples, 80 KB, result 119.535 s -> 200
+## control plane (settlement)
+"message":"Ghost C07 time-attack 120.601 s for …000001: kept"
+"message":"Ghost C07 time-attack 119.535 s for …000001: kept"
+## run 2 receipt credits (server evidence controlPlaneResponse)
+credits: {"type":"event","requested":10773,"credited":10773,"clampedAway":0},{"type":"challenge:CH68","requested":8000,"credited":8000,"clampedAway":0}

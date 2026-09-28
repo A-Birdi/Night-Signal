@@ -203,12 +203,52 @@ public sealed class EndToEndTests : IDisposable
             HttpResponseMessage pending = await ha.GetAsync($"/v1/matches/{matchId}/receipt");
             Assert.Equal(HttpStatusCode.Accepted, pending.StatusCode);
 
+            // Ghosts (spec §8): the game server's recording for A, signed like the results and sent before them; a bad
+            // signature and another course are refused.
+            string course = assignment.GetProperty("courseId").GetString()!;
+            byte[] Ghost(string courseId, long resultMs)
+            {
+                var g = new NightSignal.Core.Ghosts.GhostRecording
+                {
+                    Header = new NightSignal.Core.Ghosts.GhostHeader
+                    {
+                        CourseId = courseId, CourseRevision = "r", Format = "S01-normal", PhysicsVersion = "p", ScoringVersion = "s", CarModelId = "V01",
+                        ResultMicros = resultMs * 1000, Provenance = "server-settlement", Driver = "Aki Night",
+                    },
+                };
+                for (int k = 0; k <= resultMs / 100; k++) g.Add(k / 10f, k, 0f, 0f, 0f, 0f, 0f, 1f, 30f);
+                g.CheckpointMicros.Add(resultMs * 500);
+                return Encoding.UTF8.GetBytes(g.ToJson());
+            }
+            HttpRequestMessage SignedGhost(string account, byte[] ghost, string signature)
+            {
+                var req = new HttpRequestMessage(HttpMethod.Post, $"/v1/matches/{matchId}/ghosts/{account}") { Content = new ByteArrayContent(ghost) };
+                req.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+                req.Headers.Add("X-NightSignal-Signature", signature);
+                return req;
+            }
+            byte[] ghostA = Ghost(course, 96_000);
+            Assert.Equal(HttpStatusCode.Unauthorized, (await gs.SendAsync(SignedGhost(a.AccountId, ghostA, "sha256=" + new string('0', 64)))).StatusCode);
+            byte[] elsewhere = Ghost("C25", 96_000);
+            Assert.Equal((HttpStatusCode)422, (await gs.SendAsync(SignedGhost(a.AccountId, elsewhere, Sign(secret, elsewhere)))).StatusCode);
+            Assert.Equal((HttpStatusCode)422, (await gs.SendAsync(SignedGhost(outsider.AccountId, ghostA, Sign(secret, ghostA)))).StatusCode);
+            Assert.Equal(HttpStatusCode.OK, (await gs.SendAsync(SignedGhost(a.AccountId, ghostA, Sign(secret, ghostA)))).StatusCode);
+            // B's ghost does not match B's settled finish (113 s): it is never kept.
+            byte[] ghostB = Ghost(course, 110_000);
+            Assert.Equal(HttpStatusCode.OK, (await gs.SendAsync(SignedGhost(b.AccountId, ghostB, Sign(secret, ghostB)))).StatusCode);
+
             // Accepted settlement, then an identical retry.
             HttpResponseMessage settled = await gs.SendAsync(SignedResults(matchId, body, Sign(secret, body)));
             Assert.Equal(HttpStatusCode.OK, settled.StatusCode);
             Assert.Equal(2, (await settled.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("receipts").GetArrayLength());
             JsonElement replay = await (await gs.SendAsync(SignedResults(matchId, body, Sign(secret, body)))).Content.ReadFromJsonAsync<JsonElement>();
             Assert.True(replay.GetProperty("replayed").GetBoolean());
+            // A's ghost was kept (it matches the settled 96 s finish); B's was not; a late ghost is refused.
+            JsonElement ghostsA = await ha.GetFromJsonAsync<JsonElement>($"/v1/me/ghosts/{course}/S01-normal");
+            Assert.Single(ghostsA.GetProperty("ghosts").EnumerateArray());
+            Assert.Equal(96_000_000, ghostsA.GetProperty("ghosts")[0].GetProperty("header").GetProperty("resultMicros").GetInt64());
+            Assert.Empty((await hb.GetFromJsonAsync<JsonElement>($"/v1/me/ghosts/{course}/S01-normal")).GetProperty("ghosts").EnumerateArray());
+            Assert.Equal(HttpStatusCode.Conflict, (await gs.SendAsync(SignedGhost(a.AccountId, ghostA, Sign(secret, ghostA)))).StatusCode);
 
             // Receipts recomputed with Core: B = 2,500 + 22 × 180; placement/clean multipliers; first clear; challenge cash.
             PayoutBreakdown coreA = Economy.Compute(new PayoutFacts

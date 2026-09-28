@@ -118,6 +118,24 @@ namespace NightSignal.Net
 
         async Task SubmitResults(MatchAssignment a, MatchResults results)
         {
+            // Ghosts first (signed like the results, one per human, too large for the results body); settlement keeps a valid
+            // one as the account's ghost only if it matches the settled finish.
+            foreach (KeyValuePair<string, Core.Ghosts.GhostRecording> g in active != null ? active.Ghosts : new Dictionary<string, Core.Ghosts.GhostRecording>())
+            {
+                try
+                {
+                    byte[] gb = Encoding.UTF8.GetBytes(g.Value.ToJson());
+                    var gr = new HttpRequestMessage(HttpMethod.Post, $"/v1/matches/{a.MatchId}/ghosts/{g.Key}") { Content = new ByteArrayContent(gb) };
+                    gr.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+                    gr.Headers.Add("X-NightSignal-Signature", ControlPlaneHttp.Sign(gb, a.ResultsSecret));
+                    HttpResponseMessage gresp = await http.SendAsync(gr);
+                    Debug.Log($"[NightSignal.Server] ghost for {g.Key}: {g.Value.Count} samples, {gb.Length / 1024} KB, result {g.Value.Header.ResultMicros / 1e6:F3} s -> {(int)gresp.StatusCode}");
+                }
+                catch (Exception e)
+                {
+                    Debug.LogWarning($"[NightSignal.Server] ghost for {g.Key} not sent: {e.Message}");
+                }
+            }
             byte[] body = Encoding.UTF8.GetBytes(ControlPlaneHttp.Serialize(results));
             string status;
             try

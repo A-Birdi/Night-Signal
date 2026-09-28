@@ -60,6 +60,40 @@ namespace NightSignal.Net
         ContentLibrary lib;
         RaceSimulation sim;
         readonly Dictionary<RaceEntrant, Link> links = new Dictionary<RaceEntrant, Link>();
+        /// <summary>
+        /// Ghosts (spec §8: "server-generated/validated replay samples"): every human's run recorded by this authoritative
+        /// simulation, by account, ready when the race completes; the host posts them to the control plane before the results.
+        /// </summary>
+        public readonly Dictionary<string, Core.Ghosts.GhostRecording> Ghosts = new Dictionary<string, Core.Ghosts.GhostRecording>();
+        Dictionary<RaceEntrant, GhostRecorder> recorders;
+
+        /// <summary>The format a ghost is kept under (as the Local ghosts are): the campaign stage and mode, else the Freeplay mode.</summary>
+        public static string GhostFormat(string kind, string stageId, string mode, string freeplayMode) =>
+            kind == "campaign" ? $"{stageId}-{(string.Equals(mode, "hard", StringComparison.OrdinalIgnoreCase) ? "hard" : "normal")}" : string.IsNullOrEmpty(freeplayMode) ? "race" : freeplayMode;
+
+        void RecordGhosts(int tick)
+        {
+            if (recorders == null)
+            {
+                recorders = new Dictionary<RaceEntrant, GhostRecorder>();
+                foreach (RaceEntrant e in sim.Entrants.Where(x => x.Human))
+                {
+                    AssignmentEntrant a = assignment.Entrants.FirstOrDefault(x => x.AccountId == e.Roster.EntrantId);
+                    recorders[e] = new GhostRecorder(new Core.Ghosts.GhostHeader
+                    {
+                        CourseId = assignment.CourseId, CourseRevision = CourseRuntime.Active != null ? CourseRuntime.Active.SourceHash ?? "" : "",
+                        Format = GhostFormat(assignment.Kind, assignment.StageId, assignment.Mode, assignment.FreeplayMode),
+                        Surface = string.IsNullOrEmpty(sim.Rules.Surface) ? "dry" : sim.Rules.Surface,
+                        PhysicsVersion = RaceSimulation.PhysicsVersion, ScoringVersion = RaceSimulation.ScoringVersion, GameVersion = Application.version,
+                        CarModelId = e.Roster.CarId, BuildHash = a?.VehicleBuild?.BuildHash ?? a?.PerformanceHash ?? "", Pi = a?.CarPi ?? 0,
+                        Driver = e.Roster.DisplayName, Provenance = "server-settlement", RecordedUtc = DateTime.UtcNow,
+                    });
+                }
+            }
+            long micros = sim.RaceMicros(tick);
+            foreach (KeyValuePair<RaceEntrant, GhostRecorder> kv in recorders) kv.Value.Step(kv.Key, micros, tick);
+        }
+
         readonly Dictionary<ulong, Link> byClient = new Dictionary<ulong, Link>();
         readonly Dictionary<ulong, Link> pendingApproval = new Dictionary<ulong, Link>();
         readonly Dictionary<ulong, string> pendingSpectators = new Dictionary<ulong, string>(), spectators = new Dictionary<ulong, string>();
@@ -408,6 +442,7 @@ namespace NightSignal.Net
                     break;
                 case MatchPhase.Racing:
                     sim.Tick(tick);
+                    RecordGhosts(tick);
                     if ((tick - sim.StartTick) % (60 * 15) == 0) LogProgress(tick);
                     if (sim.Complete) FinishRace();
                     break;
@@ -495,6 +530,9 @@ namespace NightSignal.Net
         void FinishRace()
         {
             SetPhase(MatchPhase.Results);
+            if (recorders != null)
+                foreach (KeyValuePair<RaceEntrant, GhostRecorder> kv in recorders)
+                    Ghosts[kv.Key.Roster.EntrantId] = kv.Value.Finish(kv.Key.Progress);
             MatchResults results = BuildResults();
             FastBufferWriter w = Wire.JsonWriter(JsonConvert.SerializeObject(results));
             using (w) nm.CustomMessagingManager.SendNamedMessageToAll(Wire.MsgResults, w, NetworkDelivery.ReliableFragmentedSequenced);

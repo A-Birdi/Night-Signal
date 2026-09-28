@@ -56,6 +56,17 @@ namespace NightSignal.Net
         /// the calm "waiting for all drivers" view, never to anyone else's start. Null or headless: nothing is played.
         /// </summary>
         public System.Func<MatchInfo, IEnumerator> Presentation;
+        /// <summary>
+        /// Ghosts (spec §8) for online Time Attack: the source fetches the player's kept (server-settled) ghosts; only those
+        /// recorded under this event's rules race, at most three, placed by interpolation at this client's race time.
+        /// </summary>
+        public System.Func<MatchInfo, System.Threading.Tasks.Task<List<Core.Ghosts.GhostRecording>>> GhostSource;
+        public readonly List<GhostPlayback> Ghosts = new List<GhostPlayback>();
+        /// <summary>The time against the first ghost at each checkpoint the server reported (evidence).</summary>
+        public readonly List<long> GhostDeltasMicros = new List<long>();
+        int ghostCheckpoints;
+        string ghostDelta = "";
+        float ghostDeltaUntil;
 
         /// <summary>
         /// Spectating (spec §4.4): the match was joined with a spectator ticket, so there is no car of our own — the camera
@@ -337,6 +348,29 @@ namespace NightSignal.Net
                 hud = UI.RaceHud.Create();
                 hud.SetCourse(UI.HudHelpers.Plan(track));
             }
+            if (GhostSource != null && !headless && Info.YourIndex >= 0 && Info.FreeplayMode == "time-attack")
+            {
+                System.Threading.Tasks.Task<List<Core.Ghosts.GhostRecording>> fetch = GhostSource(Info);
+                float until = Time.realtimeSinceStartup + 8f;
+                while (!fetch.IsCompleted && Time.realtimeSinceStartup < until) yield return null;
+                var rules = new Core.Ghosts.GhostHeader
+                {
+                    CourseId = Info.CourseId, CourseRevision = CourseRuntime.Active != null ? CourseRuntime.Active.SourceHash ?? "" : "",
+                    Format = RaceServer.GhostFormat(Info.Kind, Info.StageId, Info.Mode, Info.FreeplayMode),
+                    Surface = string.IsNullOrEmpty(Info.Surface) ? "dry" : Info.Surface,
+                    PhysicsVersion = RaceSimulation.PhysicsVersion, ScoringVersion = RaceSimulation.ScoringVersion,
+                };
+                if (fetch.Status == System.Threading.Tasks.TaskStatus.RanToCompletion)
+                    foreach (Core.Ghosts.GhostRecording g in fetch.Result)
+                    {
+                        if (Ghosts.Count >= 3) break;
+                        if (!g.CompatibleWith(rules) || g.Count < 2 || !lib.Catalogue.TryCar(g.Header.CarModelId, out Core.Content.CarDef gc)) continue;
+                        VehicleView gv = VehicleView.Create($"Ghost_{Ghosts.Count}_{gc.Id}", lib.Params(gc.Id, AssistSettings.Default), lib.Body(gc.Id),
+                            Resources.Load<CarMaterialSet>("CarMaterialSet"), new Color(0.35f, 0.85f, 1f));
+                        Ghosts.Add(new GhostPlayback(g, gv, $"Ghost · your best {g.Header.ResultMicros / 1e6:F3} s"));
+                    }
+                Debug.Log($"[NightSignal.Ghost] online {Info.CourseId} {rules.Format}: {(fetch.Status == System.Threading.Tasks.TaskStatus.RanToCompletion ? fetch.Result.Count : 0)} kept, {Ghosts.Count} racing");
+            }
             if (Presentation != null && !headless && Info.YourIndex >= 0)
             {
                 SendLoaded(0.9f); // loaded, reading: real progress for the server's loading window
@@ -388,6 +422,25 @@ namespace NightSignal.Net
             hudState.RaceSeconds = mine.FinishMillis > 0 ? mine.FinishMillis / 1000.0 : serverTick >= startTick ? (serverTick - startTick) / 60.0 : 0;
             hudState.Position = myPos;
             hudState.Entrants = cars.Count;
+            // Ghost checkpoint deltas, as the server reports each checkpoint (display only; the server settles the time).
+            if (Ghosts.Count > 0)
+            {
+                while (ghostCheckpoints < mine.CheckpointsPassed)
+                {
+                    long at = mine.FinishMillis > 0 && ghostCheckpoints == mine.CheckpointsPassed - 1 ? mine.FinishMillis * 1000L
+                        : (long)(mine.LatestTick - startTick) * 1_000_000L / VehicleSimulation.TickRate;
+                    long? d = Ghosts[0].Recording.SectorDeltaMicros(ghostCheckpoints, at);
+                    ghostCheckpoints++;
+                    if (d == null) continue;
+                    GhostDeltasMicros.Add(d.Value);
+                    ghostDelta = $"CHECKPOINT {ghostCheckpoints}  {(d.Value <= 0 ? "−" : "+")}{System.Math.Abs(d.Value) / 1e6:F2} s  vs {Ghosts[0].Label}";
+                    ghostDeltaUntil = Time.unscaledTime + 3f;
+                }
+                float gt = startTick != int.MaxValue ? Mathf.Max(0f, ((float)nm.LocalTime.TickWithPartial - startTick) / VehicleSimulation.TickRate) : 0f;
+                foreach (GhostPlayback g in Ghosts)
+                    hudState.Field.Add(new UI.HudEntrant { Name = g.Label, Position = g.At(gt).Position, IsReplay = true });
+            }
+            hudState.GhostDelta = Time.unscaledTime < ghostDeltaUntil ? ghostDelta : "";
             // The interval to the car directly ahead, as of the newest snapshot (the server judges the same interval).
             Car ahead = null;
             foreach (Car c in cars.Values)
@@ -860,6 +913,11 @@ namespace NightSignal.Net
                     continue;
                 }
                 RenderRemote(car, renderTick);
+            }
+            if (Ghosts.Count > 0 && startTick != int.MaxValue)
+            {
+                float gt = ((float)nm.LocalTime.TickWithPartial + InputLeadTicks - startTick) / VehicleSimulation.TickRate;
+                foreach (GhostPlayback g in Ghosts) g.Show(gt, Time.deltaTime);
             }
             RenderHud();
         }

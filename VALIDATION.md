@@ -2095,3 +2095,29 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - **Limits:** offline and personal only — server-generated, validated online ghosts, a convoy member's shared ghost, an
   authored rival reference and the post-race route/elevation chart are not built; the ghost is drawn with one translucent
   material (no livery); ghosts race in Time Attack only; nobody has judged the look.
+
+## V-104 — Ghosts online: server-generated, kept at settlement, raced in online Time Attack; CH68 online (2026-09-28)
+- Revision: the work committed with this entry; player build of it (client and dedicated server); control plane restarted
+  on it; migration 0010 (`match_ghosts`, `ghosts`; SQLite executed by the service tests and the running control plane,
+  PostgreSQL and its RLS written, not run); race content hash unchanged (`3677a844…`).
+- **What changed:** the dedicated game server records every human's run from its authoritative simulation (spec §8:
+  "server-generated/validated replay samples") and posts each ghost, signed with the match secret like the results,
+  before the results (`POST /v1/matches/{id}/ghosts/{account}`, ≤ 400 KB: a well-formed ghost of an entrant, for the
+  match's course, while the match is open). At settlement a ghost is kept only if it is a valid personal ghost whose
+  result equals that entrant's settled finish, as the account's best per course, format and ruleset (course revision,
+  direction, surface, physics and scoring versions); CH68 is judged against the kept C07 ghost there. Players read their
+  kept ghosts (`GET /v1/me/ghosts/{course}/{format}`); online Time Attack fetches them before reporting loaded and races
+  the compatible ones (≤ 3) as overlays at this client's race time, with the same REPLAY entry and checkpoint deltas as
+  offline (deltas from the server's checkpoint reports, display only).
+- **Tests:** Services — the end-to-end test now sends ghosts before the results: a bad signature 401, another course 422,
+  a non-entrant 422, A's accepted and kept after settlement (fetched: one ghost, 96 s), B's not kept (it does not match
+  B's settled 113 s), a late ghost 409; `GhostSettlementTests` (CH68 only for the human whose ghost was beaten) —
+  Services 353, Core 147, Builds 232, Toys 92; Unity EditMode 481 passed, 2 skipped (explicit), 0 failed.
+- **Built players** (`ui-tour-online.ps1 -Intent 4 -Course C07`, twice; one windowed client through the real menus, the
+  validator autopilot, a loopback dedicated server): run 1 — no kept ghost to race; the server sent a 79 KB ghost
+  (1,207 samples, 120.601 s) and settlement kept it; run 2 — the client fetched 1 kept ghost and raced it; 119.534 s,
+  1.07 s faster: the new ghost kept and the receipt credits `challenge:CH68` (8,000 cr); both tours **PASS**.
+  `Evidence/ghosts/ghost-online.txt`.
+- **Limits:** a convoy member's shared ghost and an authored rival reference are not served yet (the kept ghosts are
+  read by their owner only); no post-race route/elevation chart; the online checkpoint deltas are as late as the server's
+  snapshots; the autopilot's second run was faster by chance of network timing, not by design.

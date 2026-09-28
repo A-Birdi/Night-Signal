@@ -545,6 +545,7 @@ namespace NightSignal.Front
             onlineRace = go.AddComponent<Net.RaceClient>();
             onlineRace.Autopilot = OnlineAutopilot;
             if (!spectating) onlineRace.Presentation = OnlineIntro;
+            if (!spectating) onlineRace.GhostSource = FetchOwnGhosts;
             onlineRace.Connect((string)allocation["server"]["host"], (ushort)(int)allocation["server"]["port"], (string)allocation["ticket"]);
             bool racing = false;
             while (onlineRace.Results == null && onlineRace.Phase != MatchPhase.Aborted && onlineRace.DisconnectReason == null)
@@ -605,6 +606,22 @@ namespace NightSignal.Front
                       $"ended at line {Math.Min(Story.LineIndex + 1, Story.LineCount)} after {Time.realtimeSinceStartup - started:F1} s");
             Router.Back();
             Canvas.gameObject.SetActive(false);
+        }
+
+        /// <summary>The player's kept (server-settled) ghosts for the event's course and format.</summary>
+        static async System.Threading.Tasks.Task<List<Core.Ghosts.GhostRecording>> FetchOwnGhosts(Net.MatchInfo info)
+        {
+            var list = new List<Core.Ghosts.GhostRecording>();
+            OnlineSession s = OnlineSession.Current;
+            if (s == null) return list;
+            string format = Net.RaceServer.GhostFormat(info.Kind, info.StageId, info.Mode, info.FreeplayMode);
+            Newtonsoft.Json.Linq.JObject r = await s.Client.Get($"/v1/me/ghosts/{Uri.EscapeDataString(info.CourseId)}/{Uri.EscapeDataString(format)}");
+            foreach (Newtonsoft.Json.Linq.JToken g in (r?["ghosts"] as Newtonsoft.Json.Linq.JArray) ?? new Newtonsoft.Json.Linq.JArray())
+            {
+                Core.Ghosts.GhostRecording rec = Core.Ghosts.GhostRecording.Parse(g.ToString(Newtonsoft.Json.Formatting.None), out _);
+                if (rec != null) list.Add(rec);
+            }
+            return list;
         }
 
         /// <summary>The stage's reaction for a settled online receipt (the convoy's verdict), or "".</summary>

@@ -95,6 +95,23 @@ public static class ServerEndpoints
             return Results.Json(r.Body, statusCode: r.StatusCode);
         });
 
+        // Ghosts (spec §8): one per human entrant, signed like the results, before them.
+        app.MapPost("/v1/matches/{matchId}/ghosts/{accountId}", async (string matchId, string accountId, HttpContext ctx, GameServerRegistry registry,
+            IOptions<GameServerOptions> options, SettlementService settlement) =>
+        {
+            if (AuthenticateServer(ctx, registry, options) is not { } serverId) return Unauthorized();
+            byte[]? body = await ReadBodyAsync(ctx.Request, SettlementService.MaxGhostBytes, ctx.RequestAborted);
+            if (body is null) return PlayerEndpoints.Problem(413, "too_large", "Ghost body too large.");
+            string? signature = ctx.Request.Headers[SettlementService.SignatureHeader].FirstOrDefault();
+            SubmissionResult r = await settlement.SubmitGhostAsync(serverId, matchId, accountId, body, signature, ctx.RequestAborted);
+            return Results.Json(r.Body, statusCode: r.StatusCode);
+        });
+
+        // Players read their own kept ghosts for a course and format (one per ruleset; the client races the compatible one).
+        app.MapGet("/v1/me/ghosts/{courseId}/{format}", async (string courseId, string format, ClaimsPrincipal user, IResultLedger ledger, CancellationToken ct) =>
+            Results.Content("{\"ghosts\":[" + string.Join(",", (await ledger.GhostsAsync(user.AccountId(), courseId, format, ct)).Select(g => g.Json)) + "]}",
+                "application/json")).RequireAuthorization();
+
         // Players read their own itemized receipt (never submit money, RP or times).
         app.MapGet("/v1/matches/{matchId}/receipt", async (string matchId, ClaimsPrincipal user, IResultLedger ledger, CancellationToken ct) =>
         {

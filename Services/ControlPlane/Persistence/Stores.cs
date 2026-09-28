@@ -257,6 +257,14 @@ public interface IResultLedger
     Task<string?> GetReceiptJsonAsync(string matchId, string accountId, CancellationToken ct = default);
     /// <summary>Every course the account has a settled finish on (from its receipts; cumulative challenges CH66, CH71).</summary>
     Task<IReadOnlyCollection<string>> FinishedCoursesAsync(string accountId, CancellationToken ct = default);
+    /// <summary>Ghosts (spec §8): the game server's recording for an entrant, held until settlement.</summary>
+    Task StoreMatchGhostAsync(string matchId, string accountId, string json, CancellationToken ct = default);
+    Task<string?> MatchGhostAsync(string matchId, string accountId, CancellationToken ct = default);
+    /// <summary>The account's kept ghosts for a course and format (one per ruleset), fastest first.</summary>
+    Task<IReadOnlyList<StoredGhost>> GhostsAsync(string accountId, string courseId, string format, CancellationToken ct = default);
+    /// <summary>Keeps a validated ghost as the account's best for its course, format and ruleset when faster; true when kept.</summary>
+    Task<bool> OfferGhostAsync(string accountId, string courseId, string format, string rulesKey, long resultMicros, string matchId, string json,
+        CancellationToken ct = default);
 }
 
 /// <summary>Itemized reward receipt returned to the player (and stored verbatim in match_results).</summary>
