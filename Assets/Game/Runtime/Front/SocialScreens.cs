@@ -62,7 +62,7 @@ namespace NightSignal.Front
             error = UIFactory.Row("Error", lcol, "", SignalTheme.Small, SignalTheme.Caution, 740, 48);
             requestsTitle = UIFactory.Row("RequestsTitle", lcol, "REQUESTS", SignalTheme.Small, SignalTheme.LabelDim, 740, 26);
             for (int i = 0; i < RequestRows; i++) requests.Add(LineRow("Request" + i, lcol, 740));
-            invitesTitle = UIFactory.Row("InvitesTitle", lcol, "CONVOY INVITATIONS", SignalTheme.Small, SignalTheme.LabelDim, 740, 26);
+            invitesTitle = UIFactory.Row("InvitesTitle", lcol, "INVITATIONS", SignalTheme.Small, SignalTheme.LabelDim, 740, 26);
             for (int i = 0; i < InviteRows; i++) invites.Add(LineRow("Invite" + i, lcol, 740));
 
             // Right: the friend list.
@@ -196,14 +196,27 @@ namespace NightSignal.Front
                 Bind(requests[i].B, reqs[i].B, reqs[i].DoB);
             }
 
-            // Convoy invitations received this session.
+            // Convoy invitations and meet invitations (a place held for 30 s) received this session.
             List<JObject> inv = S.Invites.ToList();
-            invitesTitle.gameObject.SetActive(inv.Count > 0);
+            long nowMs = System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            S.MeetInvites.RemoveAll(x => ((long?)x["untilMs"] ?? 0) < nowMs);
+            List<JObject> meetInv = S.MeetInvites.ToList();
+            invitesTitle.gameObject.SetActive(inv.Count + meetInv.Count > 0);
             for (int i = 0; i < invites.Count; i++)
             {
-                bool on = i < inv.Count;
+                bool on = i < inv.Count + meetInv.Count;
                 invites[i].Root.SetActive(on);
                 if (!on) continue;
+                if (i >= inv.Count)
+                {
+                    JObject mi = meetInv[i - inv.Count];
+                    string from = (string)mi["fromAccountId"];
+                    long left = (((long?)mi["untilMs"] ?? nowMs) - nowMs) / 1000;
+                    invites[i].Label.text = $"<b>{Esc((string)mi["fromName"])}</b> holds a place for you at the meet  <size=80%>· bay {(int?)mi["bay"]} · {left} s</size>";
+                    Bind(invites[i].A, "Join meet", () => { S.MeetInvites.Remove(mi); App.StartOnlineMeet("friend", from, this); });
+                    Bind(invites[i].B, "Decline", () => { S.MeetInvites.Remove(mi); dirty = true; });
+                    continue;
+                }
                 JObject x = inv[i];
                 string inviteId = (string)x["inviteId"];
                 invites[i].Label.text = $"<b>{Esc((string)x["fromName"])}</b> invited you  <size=80%>· {Esc((string)x["leaderName"])}'s convoy {(int?)x["members"]}/{(int?)x["maxMembers"]}</size>";
@@ -234,6 +247,7 @@ namespace NightSignal.Front
                 if ((bool?)f["canInvite"] == true) { aLabel = "Invite"; aDo = () => Invite(id); }
                 else if ((bool?)f["canRejoin"] == true) { aLabel = "Rejoin"; aDo = () => Control("convoy.rejoin", null); }
                 else if (!inConvoy && convoyId != null) { aLabel = "Join"; aDo = () => Control("convoy.join", new { convoyId }); }
+                else if (status == "AtMeet") { aLabel = "Join meet"; aDo = () => App.StartOnlineMeet("friend", id, this); }
                 Bind(friends[i].A, aLabel, aDo);
                 Bind(friends[i].B, confirmRemove == id ? "Confirm" : "Remove", () =>
                 {

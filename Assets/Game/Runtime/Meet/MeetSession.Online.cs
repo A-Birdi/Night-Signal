@@ -152,6 +152,126 @@ namespace NightSignal.Meet
             if (arrivalConfirmed && Player != null && Player.gameObject.activeSelf && (State == Phase.Walking || State == Phase.Wheel || State == Phase.Panel || State == Phase.Photo))
                 Net.SendPose(Player.transform.position, Player.transform.eulerAngles.y, Player.Speed);
             UpdateRemotes(dt);
+            ConvoyHeader();
+        }
+
+        // ------------------------------------------------------------------ the convoy while at the meet
+
+        bool readyRequested;
+        long readyRequestRevision = -1;
+        bool convoyHooked;
+
+        /// <summary>
+        /// The compact convoy header (spec §12): members, phase and readiness, and a pinned line while the leader's ready
+        /// request waits for an answer. The menu offers Mode/Event Ready; an allocation leaves the meet for the race.
+        /// </summary>
+        void ConvoyHeader()
+        {
+            var s = Net.Session;
+            if (!convoyHooked)
+            {
+                convoyHooked = true;
+                s.Client.ReadyRequested += OnReadyRequested;
+            }
+            JObject c = s.Convoy;
+            if (!s.InConvoy || c == null)
+            {
+                Hud.SetConvoy("");
+                return;
+            }
+            JArray members = c["members"] as JArray ?? new JArray();
+            string phase = (string)c["phase"] ?? "Idle";
+            JToken me = s.MyMember;
+            string line = $"<b>CONVOY</b> · {members.Count} · leader {(string)c["leaderName"]} · {PhaseText(phase)}";
+            if (c["eventProposal"] is JObject)
+                line += $" · event ready {members.Count(m => (bool?)m["eventReady"] == true)}/{members.Count}" + ((bool?)me?["eventReady"] == true ? " (you: ready)" : " (you: not ready)");
+            else if (phase == "ModeCheck")
+                line += $" · mode ready {(int?)c["modeReadyCount"] ?? 0}/{members.Count}" + ((bool?)me?["modeReady"] == true ? " (you: ready)" : "");
+            bool pending = readyRequested && ((c["eventProposal"] is JObject && (bool?)me?["eventReady"] != true) || (phase == "ModeCheck" && (bool?)me?["modeReady"] != true));
+            if (!pending) readyRequested = false;
+            if (pending) line += $"\n<color=#F2A541>The leader asks for Ready — {controls.BindingLabel("Menu")} to answer</color>";
+            Hud.SetConvoy(line);
+        }
+
+        static string PhaseText(string phase)
+        {
+            switch (phase)
+            {
+                case "ModeCheck": return "choosing a mode";
+                case "EventSelection": return "choosing an event";
+                case "ReadyCheck": return "ready check";
+                case "Allocating": return "starting…";
+                case "InMatch": return "racing";
+                default: return "at ease";
+            }
+        }
+
+        void OnReadyRequested(JObject p)
+        {
+            if (this == null || Net == null) return;
+            readyRequested = true;
+            long rev = (long?)p?["proposalRevision"] ?? (long?)p?["modeRevision"] ?? 0;
+            if (rev != readyRequestRevision)
+            {
+                readyRequestRevision = rev;
+                // A leader's request outranks arrival notices: it goes to the front of the ribbon and stays pinned in the header.
+                Hud.Ribbon.Post(NoticeKind.Info, $"ready:{(string)p?["kind"]}:{rev}", "The convoy leader asks: ready?");
+            }
+        }
+
+        void OpenMenuOnline()
+        {
+            var s = Net.Session;
+            var actions = new List<(string, System.Action)>();
+            JObject c = s.Convoy;
+            JToken me = s.MyMember;
+            if (s.InConvoy && c?["eventProposal"] is JObject proposal)
+            {
+                bool ready = (bool?)me?["eventReady"] == true;
+                actions.Add((ready ? "Convoy: Unready" : "Convoy: Event Ready", () =>
+                {
+                    Net.Fire("event.ready", new { proposalRevision = (long)proposal["revision"], loadoutRevision = (long?)me?["loadoutRevision"] ?? 0, ready = !ready });
+                    Note(ready ? "event unready from the meet" : "event ready from the meet");
+                    ClosePanel();
+                }));
+            }
+            else if (s.InConvoy && (string)c?["phase"] == "ModeCheck")
+            {
+                bool ready = (bool?)me?["modeReady"] == true;
+                actions.Add((ready ? "Convoy: Mode Unready" : "Convoy: Mode Ready", () =>
+                {
+                    Net.Fire("mode.ready", new { modeRevision = (long)c["modeRevision"], ready = !ready });
+                    ClosePanel();
+                }));
+            }
+            actions.Add(("Invite a friend to this meet", OpenInvite));
+            actions.Add(("Leave the meet", Leave));
+            string kind = (string)Net.State?["kind"] == "convoy" ? "your convoy's meet" : "a public meet";
+            ShowPanel("Meet", $"Cedar Lantern Terrace · {kind}.\n\nLeaving (or opening the Garage) leaves the meet; an event your convoy agrees on takes you straight to the race. Nothing here costs or earns anything.", actions);
+        }
+
+        void OpenInvite() => StartCoroutine(InviteRoutine());
+
+        IEnumerator InviteRoutine()
+        {
+            System.Threading.Tasks.Task<JObject> t = Net.Session.Client.Get("/v1/friends");
+            while (!t.IsCompleted) yield return null;
+            if (t.IsFaulted || t.Result == null)
+            {
+                Hud.Notify("Friends are unavailable right now", null);
+                yield break;
+            }
+            var here = new HashSet<string>(remotes.Keys) { Net.Me };
+            var actions = new List<(string, System.Action)>();
+            foreach (JObject f in (t.Result["friends"] as JArray ?? new JArray()).OfType<JObject>())
+            {
+                string id = (string)f["accountId"], name = (string)f["displayName"] ?? (string)f["handle"] ?? "Friend";
+                string status = (string)f["status"] ?? "";
+                if (here.Contains(id) || status == "Offline") continue;
+                actions.Add(($"Invite {name}", () => { Net.Fire("meet.invite", new { accountId = id }); Hud.Notify($"A place is held for {name} for 30 seconds", null); ClosePanel(); }));
+                if (actions.Count >= 8) break;
+            }
+            ShowPanel("Invite a friend", actions.Count == 0 ? "No friends online right now." : "Your friend gets an invitation and a place held for 30 seconds.", actions);
         }
 
         void Ribbon(JObject state)

@@ -65,6 +65,19 @@ namespace NightSignal.Meet
             rescueFill = UIFactory.Panel("Fill", rescueBar, new Vector2(0, 0), new Vector2(0, 1), Vector2.zero, Vector2.zero, SignalTheme.Caution).rectTransform;
             rescueBar.gameObject.SetActive(false);
 
+            // The compact convoy header (online, in a convoy): upper centre, above the SIGNAL ribbon.
+            // A dark plate sized to the text keeps it readable against the low sun.
+            convoyBack = UIFactory.Panel("ConvoyHeader", root, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(-520, -92), new Vector2(520, -58), new Color(0.05f, 0.06f, 0.07f, 0.78f)).rectTransform;
+            convoy = UIFactory.Label("Text", convoyBack, "", 19, SignalTheme.Text, TextAlignmentOptions.Center);
+            convoy.rectTransform.anchorMin = Vector2.zero;
+            convoy.rectTransform.anchorMax = Vector2.one;
+            convoy.rectTransform.offsetMin = new Vector2(18, 2);
+            convoy.rectTransform.offsetMax = new Vector2(-18, -2);
+            convoy.textWrappingMode = TextWrappingModes.Normal;
+            convoyBack.gameObject.SetActive(false);
+            convoy.outlineWidth = 0.15f;
+            convoy.outlineColor = new Color32(0, 0, 0, 180);
+
             // SIGNAL ribbon: upper centre, below where the convoy header sits.
             Image rb = UIFactory.Panel("SignalRibbon", root, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(-330, -176), new Vector2(330, -128), new Color(0.07f, 0.08f, 0.1f, 0.9f));
             ribbonRect = rb.rectTransform;
@@ -140,6 +153,8 @@ namespace NightSignal.Meet
 
         readonly RectTransform bubbleRect;
         readonly CanvasGroup ribbonGroup;
+        readonly TextMeshProUGUI convoy;
+        readonly RectTransform convoyBack;
 
         public void SetPrompt(string text)
         {
@@ -148,6 +163,18 @@ namespace NightSignal.Meet
         }
 
         public void SetHints(string text) => hints.text = text;
+        public void SetConvoy(string text)
+        {
+            text = photo ? "" : text ?? "";
+            if (text == convoy.text && convoyBack.gameObject.activeSelf == (text.Length > 0)) return;
+            convoy.text = text;
+            convoyBack.gameObject.SetActive(text.Length > 0);
+            if (text.Length == 0) return;
+            Vector2 size = convoy.GetPreferredValues(text, 1004, 0);
+            float w = Mathf.Min(1040, size.x + 40), h = Mathf.Max(34, size.y + 10);
+            convoyBack.offsetMin = new Vector2(-w / 2, -58 - h);
+            convoyBack.offsetMax = new Vector2(w / 2, -58);
+        }
         public void SetStatus(string text) => status.text = text ?? "";
         public void SetMode(string text) => subtitle.text = text;
 

@@ -16,6 +16,8 @@ namespace NightSignal.Front
     public sealed partial class FrontEndApp
     {
         bool meetLeftForRace;
+        /// <summary>True from joining an online meet until its menus are back (or the race took over).</summary>
+        bool onlineMeetRunning;
 
         /// <summary>Visits the meet online (kind: public | convoy | friend) with the room server; back to <paramref name="returnTo"/> on leaving.</summary>
         public void StartOnlineMeet(string kind, string friendAccountId, UIScreen returnTo) => StartCoroutine(RunOnlineMeet(kind, friendAccountId, returnTo));
@@ -25,6 +27,7 @@ namespace NightSignal.Front
             OnlineSession s = OnlineSession.Current;
             if (s == null || ActiveMeet != null) yield break;
             meetLeftForRace = false;
+            onlineMeetRunning = true;
             var owned = new HashSet<string>(((s.Me?["music"] as JObject)?["owned"] as JArray ?? new JArray()).Select(m => (string)m["cueId"]));
             string instance = s.Convoy?["members"] is JArray members
                 ? (string)members.OfType<JObject>().FirstOrDefault(m => (string)m["accountId"] == s.AccountId)?["loadout"]?["instanceId"]
@@ -41,13 +44,18 @@ namespace NightSignal.Front
             ActiveMeet.OwnsCue = id => owned.Contains(id);
             _ = s.Request("presence.set", new { presence = "AtMeet" }, quiet: true);
             while (ActiveMeet != null && !ActiveMeet.ExitRequested && !meetLeftForRace) yield return null;
-            if (meetLeftForRace) yield break; // the race flow owns the screen now (RunOnlineRace)
+            if (meetLeftForRace)
+            {
+                onlineMeetRunning = false;
+                yield break; // the race flow owns the screen now (RunOnlineRace)
+            }
             if (ActiveMeet != null) Destroy(ActiveMeet.gameObject);
             ActiveMeet = null;
             _ = s.Request("presence.set", new { presence = "InMenus" }, quiet: true);
             Canvas.gameObject.SetActive(true);
             yield return LoadBackdrop();
             Router.Show(returnTo ?? Convoy, false);
+            onlineMeetRunning = false;
         }
 
         /// <summary>Called when the convoy's event allocates while at the meet: leave the room safely, the race takes over.</summary>
@@ -57,6 +65,172 @@ namespace NightSignal.Front
             meetLeftForRace = true;
             ActiveMeet.LeaveForRace();
             ActiveMeet = null; // the meet scene unloads with the race scene load
+        }
+
+        /// <summary>
+        /// Convoy meet evidence (<c>-nsMeetTourConvoy host|guest</c>, <c>-nsDevAccount N</c>; the two accounts are friends): the
+        /// host creates a convoy the guest joins, proposes Campaign S01; both go to the Convoy Meet, see the compact convoy
+        /// header and answer Event Ready from the meet menu; the guest leaves, the host invites it back with a held place
+        /// and the guest joins the friend's meet from the Friends screen. Automation over real sockets.
+        /// </summary>
+        IEnumerator MeetTourConvoy(string role)
+        {
+            string dir = System.IO.Path.GetFullPath(System.IO.Path.Combine("Builds", "Screenshots", "meet-convoy"));
+            string share = System.IO.Path.GetFullPath(System.IO.Path.Combine("Builds", "NetRuns", "meet-convoy"));
+            System.IO.Directory.CreateDirectory(dir);
+            System.IO.Directory.CreateDirectory(share);
+            string codeFile = System.IO.Path.Combine(share, "convoy-code.txt");
+            var failures = new List<string>();
+            void Note(string n) => Debug.Log($"[NightSignal.MeetConvoy:{role}] {n}");
+            void Fail(string f) { failures.Add(f); Note("FAIL " + f); }
+            IEnumerator Snap(string name)
+            {
+                ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(dir, $"{role}-{name}.png"));
+                yield return new WaitForEndOfFrame();
+                yield return null;
+            }
+            bool Click(string name)
+            {
+                Button b = GameObject.Find(name)?.GetComponent<Button>();
+                if (b == null || !b.interactable || !b.gameObject.activeInHierarchy) { Fail("button not available: " + name); return false; }
+                b.onClick.Invoke();
+                return true;
+            }
+            bool Interactable(string name) => GameObject.Find(name)?.GetComponent<Button>() is Button b && b.interactable && b.gameObject.activeInHierarchy;
+            IEnumerator Until(Func<bool> condition, float seconds, string what)
+            {
+                float until = Time.realtimeSinceStartup + seconds;
+                while (!condition() && Time.realtimeSinceStartup < until) yield return null;
+                if (!condition()) Fail("timed out: " + what + (string.IsNullOrEmpty(OnlineSession.Current?.LastError) ? "" : " (" + OnlineSession.Current.LastError + ")"));
+            }
+            OnlineSession S() => OnlineSession.Current;
+            JObject State() => S()?.Convoy;
+            bool AllMembers(string flag) => (State()?["members"] as JArray)?.All(m => (bool?)m[flag] == true) == true;
+            NetConfig cfg = NetConfig.FromCommandLine();
+            JToken account = JObject.Parse(System.IO.File.ReadAllText(cfg.DevSeedFile))["accounts"][cfg.DevAccount];
+            bool host = role == "host";
+            if (host && System.IO.File.Exists(codeFile)) System.IO.File.Delete(codeFile);
+            string ReadCode()
+            {
+                try { return System.IO.File.Exists(codeFile) ? System.IO.File.ReadAllText(codeFile).Trim() : ""; }
+                catch (System.IO.IOException) { return ""; }
+            }
+
+            yield return new WaitForSeconds(3f);
+            Click("OnlineLogin");
+            yield return new WaitForSeconds(1.2f);
+            GameObject.Find("Email").GetComponent<TMP_InputField>().text = (string)account["email"];
+            GameObject.Find("Password").GetComponent<TMP_InputField>().text = (string)account["devOnlyPassword"];
+            Click("SignIn");
+            yield return Until(() => Router.Current == Convoy && S() != null && S().Me != null, 25f, "signed in");
+            if (S() == null) { Finish(); yield break; }
+            yield return new WaitForSeconds(1.5f);
+            if (S().StarterCarId == null) { Click("ChooseStarter"); yield return Until(() => S().StarterCarId != null, 10f, "starter chosen"); }
+            if (S().InConvoy) { Click("Leave"); yield return Until(() => !S().InConvoy, 10f, "left an earlier convoy"); }
+
+            // The convoy: the host creates it and shares a code; the guest joins with the code.
+            if (host)
+            {
+                Click("CreatePrivate");
+                yield return Until(() => S().InConvoy, 10f, "convoy created");
+                System.Threading.Tasks.Task<JToken> inv = S().Request("convoy.invite.create");
+                while (!inv.IsCompleted) yield return null;
+                // Written aside and moved into place, so the guest never reads a half-written file.
+                System.IO.File.WriteAllText(codeFile + ".tmp", (string)inv.Result?["code"] ?? "");
+                System.IO.File.Move(codeFile + ".tmp", codeFile);
+                yield return Until(() => (State()?["members"] as JArray)?.Count >= 2, 60f, "the guest joined");
+                yield return Until(() => S().MyMember?["carId"]?.Type == JTokenType.String, 10f, "a loadout in the convoy");
+                yield return new WaitForSeconds(1f);
+                yield return Until(() => !Convoy.Busy, 10f, "request settled");
+                Convoy.SelectIntent(0); // Campaign · Normal (S01 is open to everyone)
+                Click("ProposeIntent");
+                yield return Until(() => State()?["intent"]?.Type == JTokenType.Object, 20f, "intent set");
+                if ((bool?)S().MyMember?["modeReady"] != true && Interactable("ModeReady")) Click("ModeReady");
+                yield return Until(() => AllMembers("modeReady"), 60f, "both mode ready");
+                yield return new WaitForSeconds(0.8f);
+                Click("EnterMode");
+                yield return Until(() => Interactable("ProposeEvent"), 30f, "propose available");
+                Click("ProposeEvent");
+                yield return Until(() => State()?["eventProposal"]?.Type == JTokenType.Object, 25f, "event proposed");
+            }
+            else
+            {
+                yield return Until(() => ReadCode().Length > 0, 60f, "the host's convoy code");
+                TMP_InputField codeField = GameObject.Find("InviteCode")?.GetComponent<TMP_InputField>();
+                if (codeField != null) codeField.text = ReadCode();
+                else Fail("no invite code field");
+                Click("JoinCode");
+                yield return Until(() => S().InConvoy, 15f, "joined the convoy");
+                yield return Until(() => State()?["intent"]?.Type == JTokenType.Object && Interactable("ModeReady"), 90f, "the host proposed a mode");
+                Click("ModeReady");
+                yield return Until(() => State()?["eventProposal"]?.Type == JTokenType.Object, 90f, "the host proposed an event");
+            }
+
+            // Both at the convoy meet: the header shows the convoy; Event Ready from the meet menu.
+            yield return new WaitForSeconds(host ? 0f : 6f);
+            yield return Until(() => Interactable("MeetConvoy"), 15f, "Convoy Meet available");
+            Click("MeetConvoy");
+            yield return Until(() => ActiveMeet != null && ActiveMeet.Ready, 40f, "at the convoy meet");
+            MeetSession m = ActiveMeet;
+            if (m == null) { Finish(); yield break; }
+            if ((string)m.Net.State?["kind"] != "convoy") Fail("not a convoy room: " + (string)m.Net.State?["kind"]);
+            string room = m.Net.RoomId;
+            yield return Until(() => m.RemoteCount >= 1 && (m.Net.State["members"] as JArray).Count(x => (string)x["state"] == "present") >= 2, 60f, "both at the convoy meet");
+            int bayA = m.PlayerBay;
+            yield return new WaitForSeconds(host ? 1f : 4f);
+            m.OpenMeetMenu();
+            yield return new WaitForSeconds(0.6f);
+            Button ready = m.Hud.PanelButtons.FirstOrDefault(b => b.GetComponentInChildren<TextMeshProUGUI>()?.text.Contains("Event Ready") == true);
+            if (ready == null) Fail("no Event Ready in the meet menu");
+            else ready.onClick.Invoke();
+            yield return Until(() => AllMembers("eventReady"), 60f, "both event ready (answered from the meet)");
+            yield return new WaitForSeconds(1f);
+            yield return Snap("01-convoy-header-ready");
+            Note($"room {room} bay {bayA + 1}; convoy event ready: {AllMembers("eventReady")}");
+
+            // A friend's meet by invitation: the guest leaves, the host invites it back, the guest joins from Friends.
+            string otherId = (m.Net.State["members"] as JArray).OfType<JObject>().Select(x => (string)x["accountId"]).FirstOrDefault(a => a != S().AccountId);
+            if (!host)
+            {
+                m.Leave();
+                yield return Until(() => ActiveMeet == null && !onlineMeetRunning && Router.Current == Convoy, 20f, "left the meet");
+                yield return Until(() => S().MeetInvites.Count > 0, 60f, "an invitation to the host's meet");
+                Router.Show(Friends, true);
+                yield return Until(() => Router.Current == Friends && Interactable("Invite0A"), 15f, "the invitation on the Friends screen");
+                yield return new WaitForSeconds(0.8f);
+                yield return Snap("02-meet-invitation");
+                Click("Invite0A");
+                yield return Until(() => ActiveMeet != null && ActiveMeet.Ready, 40f, "joined the friend's meet");
+                if (ActiveMeet != null && ActiveMeet.Net.RoomId != room) Fail($"joined {ActiveMeet.Net.RoomId}, not the host's {room}");
+                yield return new WaitForSeconds(1.5f);
+                yield return Snap("03-back-at-friends-meet");
+                ActiveMeet?.Leave();
+                yield return Until(() => ActiveMeet == null && !onlineMeetRunning, 20f, "left again");
+            }
+            else
+            {
+                yield return Until(() => m.RemoteCount == 0 || (m.Net.State["members"] as JArray).Count == 1, 40f, "the guest left");
+                yield return new WaitForSeconds(1f);
+                System.Threading.Tasks.Task<JToken> invite = m.Net.Ask("meet.invite", new { accountId = otherId ?? "" });
+                while (!invite.IsCompleted) yield return null;
+                if (invite.Result == null) Fail("invite refused: " + m.Net.LastError);
+                yield return Until(() => (m.Net.State["members"] as JArray).Count(x => (string)x["state"] == "present") >= 2, 90f, "the guest came back through the invitation");
+                yield return new WaitForSeconds(1f);
+                yield return Snap("02-guest-back");
+                yield return Until(() => (m.Net.State["members"] as JArray).Count == 1, 60f, "the guest left again");
+                m.Leave();
+                yield return Until(() => ActiveMeet == null && !onlineMeetRunning, 20f, "host left the meet");
+            }
+            if (Router.Current != Convoy) Router.Show(Convoy, false);
+            yield return new WaitForSeconds(1f);
+            if (S().InConvoy) { Click("Leave"); yield return Until(() => !S().InConvoy, 10f, "left the convoy"); }
+            Finish();
+
+            void Finish()
+            {
+                Note(failures.Count == 0 ? "PASS" : "FAILED: " + string.Join("; ", failures));
+                Application.Quit(failures.Count == 0 ? 0 : 1);
+            }
         }
 
         /// <summary>

@@ -150,6 +150,7 @@ namespace NightSignal.Meet
             controls?.Disable();
             controls?.Dispose();
             Hud?.Dispose();
+            if (Net != null && convoyHooked) Net.Session.Client.ReadyRequested -= OnReadyRequested;
             Net?.Dispose();
             foreach (GameObject go in spawned) if (go != null) Destroy(go);
             Cursor.lockState = CursorLockMode.None;
@@ -723,6 +724,7 @@ namespace NightSignal.Meet
         public void SitIn()
         {
             Hud.HidePanel();
+            Hud.SetPrompt("");
             State = Phase.InCar;
             Player.gameObject.SetActive(false);
             PlayerCar.SetCockpitMode(true);
@@ -973,8 +975,16 @@ namespace NightSignal.Meet
             if (controls.PhotoPressed || controls.MenuPressed) ExitPhoto();
         }
 
+        /// <summary>Automation: open the meet menu as the Menu control does.</summary>
+        public void OpenMeetMenu() => OpenMenu();
+
         void OpenMenu()
         {
+            if (Net != null)
+            {
+                OpenMenuOnline();
+                return;
+            }
             ShowPanel("Meet", "Cedar Lantern Terrace · offline meet.\n\nLeaving returns you to the menus; nothing here costs or earns anything.",
                 new List<(string, Action)> { ("Leave the meet", Leave) });
         }

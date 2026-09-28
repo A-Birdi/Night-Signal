@@ -12,7 +12,9 @@
     server and no other port is opened. Screenshots: Builds/Screenshots/meet-online. Raw logs stay under Builds/
     (git-ignored: they contain local paths).
 #>
-param([int]$HostAccount = 0, [int]$Guest1Account = 1, [int]$Guest2Account = 2, [int]$TimeoutSeconds = 300)
+param([int]$HostAccount = 0, [int]$Guest1Account = 1, [int]$Guest2Account = 2, [int]$TimeoutSeconds = 300,
+    # Two friends instead: a convoy meet answered Ready from inside the meet, then a friend's meet by invitation.
+    [switch]$Convoy)
 
 $ErrorActionPreference = 'Stop'
 $repo = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
@@ -28,21 +30,25 @@ $shots = Join-Path $repo 'Builds\Screenshots\meet-online'
 New-Item -ItemType Directory -Force $shots | Out-Null
 Remove-Item (Join-Path $shots '*.png') -ErrorAction SilentlyContinue
 
+$tour = if ($Convoy) { '-nsMeetTourConvoy' } else { '-nsMeetTourOnline' }
 function Start-Client([string]$role, [int]$account, [int]$x) {
-    $a = @('-nsMeetTourOnline', $role, '-nsDevAccount', "$account",
+    $a = @($tour, $role, '-nsDevAccount', "$account",
         '-screen-fullscreen', '0', '-screen-width', '1280', '-screen-height', '720', '-monitor', '1',
         '-nsPrefsFolder', "`"Builds/NetRuns/meet-online/prefs-$role`"",
         '-logFile', "`"$logs\$role.log`"")
     Start-Process -FilePath $exe -PassThru -WorkingDirectory $repo -ArgumentList $a
 }
-$clients = @(
-    @{ n = 'host'; p = (Start-Client 'host' $HostAccount 0) },
-    @{ n = 'guest1'; p = (Start-Client 'guest1' $Guest1Account 1) },
-    @{ n = 'guest2'; p = (Start-Client 'guest2' $Guest2Account 2) }
-)
+$clients = if ($Convoy) {
+    @(@{ n = 'host'; p = (Start-Client 'host' $HostAccount 0) }, @{ n = 'guest'; p = (Start-Client 'guest' $Guest1Account 1) })
+} else {
+    @(@{ n = 'host'; p = (Start-Client 'host' $HostAccount 0) },
+      @{ n = 'guest1'; p = (Start-Client 'guest1' $Guest1Account 1) },
+      @{ n = 'guest2'; p = (Start-Client 'guest2' $Guest2Account 2) })
+}
 $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
 while ((Get-Date) -lt $deadline -and ($clients | Where-Object { -not $_.p.HasExited }).Count -gt 0) { Start-Sleep -Seconds 2 }
 foreach ($c in $clients) {
     if (-not $c.p.HasExited) { Stop-Process -Id $c.p.Id -Force; Write-Output "$($c.n): TIMEOUT (killed)" } else { Write-Output "$($c.n): exit $($c.p.ExitCode)" }
 }
-Select-String -Path "$logs\host.log", "$logs\guest1.log", "$logs\guest2.log" -Pattern 'NightSignal.MeetOnline' | ForEach-Object { $_.Line }
+$files = if ($Convoy) { @("$logs\host.log", "$logs\guest.log") } else { @("$logs\host.log", "$logs\guest1.log", "$logs\guest2.log") }
+Select-String -Path $files -Pattern 'NightSignal.Meet(Online|Convoy)' | ForEach-Object { $_.Line }

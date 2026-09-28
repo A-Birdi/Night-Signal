@@ -32,6 +32,14 @@ namespace NightSignal.Front
             client.RejoinChanged += _ => Changed?.Invoke();
             client.Notice += n => { LastNotice = (string)n?["message"] ?? ""; Changed?.Invoke(); };
             client.ConvoyClosed += c => { LastNotice = ClosedText((string)c?["reason"]); Changed?.Invoke(); };
+            client.MeetInvited += i =>
+            {
+                if (i == null) return;
+                MeetInvites.RemoveAll(x => (string)x["fromAccountId"] == (string)i["fromAccountId"]);
+                MeetInvites.Add(i);
+                LastNotice = $"{(string)i["fromName"] ?? "A friend"} is holding a place for you at their meet (30 s) — open Friends to join.";
+                Changed?.Invoke();
+            };
             client.Invited += i =>
             {
                 if (i == null) return;
@@ -44,6 +52,8 @@ namespace NightSignal.Front
 
         /// <summary>Friend invitations received this session (server-side they expire; accepting re-checks everything).</summary>
         public readonly List<JObject> Invites = new List<JObject>();
+        /// <summary>Invitations to a friend's meet (each holds a bay for 30 s; joining re-checks everything).</summary>
+        public readonly List<JObject> MeetInvites = new List<JObject>();
 
         public string AccountId => Client.AccountId;
         public JObject Convoy => Client.ConvoyState;

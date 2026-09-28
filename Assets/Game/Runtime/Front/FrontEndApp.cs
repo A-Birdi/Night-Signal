@@ -99,6 +99,9 @@ namespace NightSignal.Front
                 StartCoroutine(YardTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsMeetTour") >= 0)
                 StartCoroutine(MeetTour());
+            int meetConvoy = Array.IndexOf(Environment.GetCommandLineArgs(), "-nsMeetTourConvoy");
+            if (meetConvoy >= 0 && meetConvoy + 1 < Environment.GetCommandLineArgs().Length)
+                StartCoroutine(MeetTourConvoy(Environment.GetCommandLineArgs()[meetConvoy + 1]));
             int meetOnline = Array.IndexOf(Environment.GetCommandLineArgs(), "-nsMeetTourOnline");
             if (meetOnline >= 0 && meetOnline + 1 < Environment.GetCommandLineArgs().Length)
                 StartCoroutine(MeetTourOnline(Environment.GetCommandLineArgs()[meetOnline + 1]));
