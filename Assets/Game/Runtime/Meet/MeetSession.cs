@@ -252,9 +252,13 @@ namespace NightSignal.Meet
                 spots.Add(new Spot { Kind = "placard", Id = pl.Id, Label = t != null ? t.Title : pl.Id, Pos = new Vector3(pl.X, 1f, pl.Z), Range = 2.2f });
             }
             // Photo points at the fixtures their words describe.
-            spots.Add(new Spot { Kind = "placard", Id = "PHOTO-TEA-KIOSK", Label = "The Tea Kiosk", Pos = new Vector3(0f, 1.2f, MeetLayout.Kiosk.Z - MeetLayout.Kiosk.HalfL - 0.4f), Range = 2.6f });
-            spots.Add(new Spot { Kind = "placard", Id = "PHOTO-RADIO-BENCH", Label = "The Radio Bench", Pos = new Vector3(MeetLayout.RadioBench.X - 1.2f, 0.6f, MeetLayout.RadioBench.Z), Range = 1.8f });
-            spots.Add(new Spot { Kind = "placard", Id = "PHOTO-MAINTENANCE-GATE", Label = "The Maintenance Gate", Pos = new Vector3(0f, 1f, MeetLayout.WalkMinZ + 0.6f), Range = 3f });
+            // The three named photo points (CH67), at the Core layout's points so the room validates the same places.
+            foreach ((string id, MeetPoint at) in MeetLayout.PhotoPoints)
+            {
+                string label = id == "PHOTO-TEA-KIOSK" ? "The Tea Kiosk" : id == "PHOTO-RADIO-BENCH" ? "The Radio Bench" : "The Maintenance Gate";
+                float y = id == "PHOTO-RADIO-BENCH" ? 0.6f : 1.1f, range = id == "PHOTO-RADIO-BENCH" ? 1.8f : id == "PHOTO-TEA-KIOSK" ? 2.6f : 3f;
+                spots.Add(new Spot { Kind = "placard", Id = id, Label = label, Pos = new Vector3(at.X, y, at.Z), Range = range });
+            }
             spots.Add(new Spot { Kind = "photo-marker", Id = "photo", Label = "Photo marker", Pos = new Vector3(MeetLayout.PhotoMarker.X, 0.2f, MeetLayout.PhotoMarker.Z), Range = 1.3f });
             foreach (Npc n in npcs)
             {

@@ -270,6 +270,19 @@ namespace NightSignal.Front
                 yield return new WaitForSeconds(0.3f);
                 m.ClosePanel();
             }
+            // CH67: the three named photo points, each read where it stands.
+            foreach ((string pointId, MeetPoint point) in MeetLayout.PhotoPoints)
+            {
+                Vector3 at = new Vector3(point.X, 0f, point.Z);
+                foreach (Vector2 o in new[] { Vector2.zero, new Vector2(0f, -1.2f), new Vector2(1.2f, 0f), new Vector2(-1.2f, 0f), new Vector2(0f, 1.2f) })
+                    if (MeetLayout.Walkable(point.X + o.x, point.Z + o.y)) { at = new Vector3(point.X + o.x, 0f, point.Z + o.y); break; }
+                m.Player.Teleport(at, 0f);
+                yield return new WaitForSeconds(0.3f);
+                m.Open("placard", pointId);
+                yield return new WaitForSeconds(0.3f);
+                if (!m.Hud.PanelOpen) Fail($"photo point {pointId} not shown");
+                m.ClosePanel();
+            }
             m.Player.Teleport(new Vector3(MeetLayout.TimingBoard.X, 0f, MeetLayout.TimingBoard.Z - 2.2f), 0f);
             m.Camera.Recenter();
             yield return new WaitForSeconds(0.5f);
@@ -340,10 +353,10 @@ namespace NightSignal.Front
             string[] earned = MeetTouring.Challenges.Where(tp.HasCompletedChallenge).ToArray();
             long touringCash = tp.WalletBalance - walletBefore;
             Note($"touring challenges on the profile: {string.Join(", ", earned)}; wallet +{touringCash} since the placards");
-            foreach (string ch in new[] { MeetTouring.FirstParking, MeetTouring.FourCorners, MeetTouring.Greeting, MeetTouring.Horizon })
+            foreach (string ch in new[] { MeetTouring.FirstParking, MeetTouring.FourCorners, MeetTouring.Greeting, MeetTouring.Horizon, MeetTouring.PhotoPoints })
                 if (!tp.HasCompletedChallenge(ch)) Fail($"{ch} not completed");
             if (tp.HasCompletedChallenge(MeetTouring.BringItHome)) Fail("CH65 granted without a finished event");
-            if (m.Log.Count(l => l.StartsWith("challenge ")) < 4) Fail("the completions were not announced on the ribbon");
+            if (m.Log.Count(l => l.StartsWith("challenge ")) < 5) Fail("the completions were not announced on the ribbon");
 
             // Rescue from the far corner back to the car.
             m.Player.Teleport(new Vector3(40f, 0f, 44f), 0f);

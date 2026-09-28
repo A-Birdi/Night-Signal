@@ -1,7 +1,8 @@
 [NightSignal.MeetTour] photo composition at the marker: True
-[NightSignal.MeetTour] touring challenges on the profile: CH61, CH62, CH63, CH64; wallet +9000 since the placards
+[NightSignal.MeetTour] touring challenges on the profile: CH61, CH62, CH63, CH64, CH67; wallet +17000 since the placards
 [NightSignal.MeetTour] log: challenge CH63 completed (A Driver's Greeting, +3000 cr)
 [NightSignal.MeetTour] log: challenge CH62 completed (Four Corners of the Terrace, +3000 cr)
+[NightSignal.MeetTour] log: challenge CH67 completed (The Working Landscape, +8000 cr)
 [NightSignal.MeetTour] log: challenge CH61 completed (First Parking Place, +3000 cr)
 [NightSignal.MeetTour] log: challenge CH64 completed (A Picture With a Horizon, +3000 cr)
 [NightSignal.MeetTour] PASS

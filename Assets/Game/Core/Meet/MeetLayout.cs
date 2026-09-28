@@ -128,6 +128,17 @@ namespace NightSignal.Core.Meet
             new MeetBox("VIEW-W", -67.3f, 4f, 0.45f, 0.12f, 270f),
         };
 
+        /// <summary>
+        /// The three named non-race photo points (meet.text.json placards.photoPoints): where each is read. Points, not
+        /// obstacles — the kiosk, bench and gate they describe are already in the layout.
+        /// </summary>
+        public static readonly (string Id, MeetPoint At)[] PhotoPoints =
+        {
+            ("PHOTO-TEA-KIOSK", new MeetPoint(0f, 45f - 3.2f - 0.4f)),
+            ("PHOTO-RADIO-BENCH", new MeetPoint(14f - 1.2f, 42.5f)),
+            ("PHOTO-MAINTENANCE-GATE", new MeetPoint(0f, WalkMinZ + 0.6f)),
+        };
+
         /// <summary>Where a new arrival's avatar stands before its bay is known, and the fallback rescue spot.</summary>
         public static readonly MeetPoint PlazaCentre = new MeetPoint(0f, 16f);
 

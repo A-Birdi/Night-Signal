@@ -212,6 +212,36 @@ namespace NightSignal.Tests.Core
         }
 
         [Test]
+        public void Touring_CountsOnlyInPlace_AndReportsEachChallengeOnce()
+        {
+            var p = new MeetTouringProgress();
+            // Placards: every one of the four, read at the placard; the photo points are a separate set (CH67).
+            MeetBox north = MeetLayout.Placards[0];
+            Assert.That(MeetTouring.InPlace(TouringAct.ReadPlacard, north.Id, 0, north.X, north.Z - 2f), Is.True);
+            Assert.That(MeetTouring.InPlace(TouringAct.ReadPlacard, north.Id, 0, 0f, 16f), Is.False, "from the plaza");
+            var done = new List<string>();
+            foreach (MeetBox b in MeetLayout.Placards) done.AddRange(MeetTouring.Record(p, TouringAct.ReadPlacard, b.Id));
+            Assert.That(done, Is.EqualTo(new[] { MeetTouring.FourCorners }));
+            foreach ((string id, MeetPoint at) in MeetLayout.PhotoPoints)
+            {
+                Assert.That(MeetTouring.InPlace(TouringAct.ReadPlacard, id, 0, at.X, at.Z), Is.True, id);
+                done.AddRange(MeetTouring.Record(p, TouringAct.ReadPlacard, id));
+            }
+            Assert.That(done.Last(), Is.EqualTo(MeetTouring.PhotoPoints));
+            Assert.That(MeetTouring.Record(p, TouringAct.ReadPlacard, "PHOTO-TEA-KIOSK"), Is.Empty, "never twice");
+            // The greeting needs all three acts; the own car needs the arrival first.
+            Assert.That(MeetTouring.Record(p, TouringAct.WaveAtHost), Is.Empty);
+            Assert.That(MeetTouring.Record(p, TouringAct.BowToHost), Is.Empty);
+            Assert.That(MeetTouring.Record(p, TouringAct.ReadEmoteHelp), Is.EqualTo(new[] { MeetTouring.Greeting }));
+            Assert.That(MeetTouring.Record(p, TouringAct.InspectOwnCar), Is.Empty);
+            Assert.That(MeetTouring.Record(p, TouringAct.Arrived), Is.EqualTo(new[] { MeetTouring.FirstParking }));
+            Assert.That(MeetTouring.InPlace(TouringAct.WaveAtHost, null, 0, MeetLayout.HostSpot.X + 20f, MeetLayout.HostSpot.Z), Is.False);
+            MeetBox own = MeetLayout.Bays[3].Footprint;
+            Assert.That(MeetTouring.InPlace(TouringAct.InspectOwnCar, null, 3, own.X, own.Z + 3f), Is.True);
+            Assert.That(MeetTouring.InPlace(TouringAct.InspectOwnCar, null, 7, own.X, own.Z + 3f), Is.False, "someone else's bay");
+        }
+
+        [Test]
         public void Room_LeaveFadesThenFreesTheBay_DisconnectKeepsItForTheGrace()
         {
             MeetRoom r = Room();

@@ -30,6 +30,7 @@ namespace NightSignal.Core.Meet
     {
         public bool Arrived, OwnCar, Wave, Bow, EmoteHelp, Photo, Slip;
         public readonly HashSet<string> Placards = new HashSet<string>(StringComparer.Ordinal);
+        public readonly HashSet<string> PhotoPoints = new HashSet<string>(StringComparer.Ordinal);
         /// <summary>Challenges this progress has already reported complete (never reported twice).</summary>
         public readonly HashSet<string> Reported = new HashSet<string>(StringComparer.Ordinal);
     }
@@ -41,12 +42,14 @@ namespace NightSignal.Core.Meet
     /// of the Terrace: read all four viewpoint placards at the placards. CH63 A Driver's Greeting: wave and bow at the
     /// tutorial host and read the emote help. CH64 A Picture With a Horizon: a photo at the overlook marker that passes the
     /// composition check (your car and the horizon in frame). CH65 Bring It Home: after completing an eligible event,
-    /// read the result slip at the timing board.
+    /// read the result slip at the timing board. CH67 Photo Points (silver): read the three named non-race photo points —
+    /// tea kiosk, radio bench, maintenance gate — standing at each.
     /// </summary>
     public static class MeetTouring
     {
-        public const string FirstParking = "CH61", FourCorners = "CH62", Greeting = "CH63", Horizon = "CH64", BringItHome = "CH65";
-        public static readonly string[] Challenges = { FirstParking, FourCorners, Greeting, Horizon, BringItHome };
+        public const string FirstParking = "CH61", FourCorners = "CH62", Greeting = "CH63", Horizon = "CH64", BringItHome = "CH65",
+            PhotoPoints = "CH67";
+        public static readonly string[] Challenges = { FirstParking, FourCorners, Greeting, Horizon, BringItHome, PhotoPoints };
 
         /// <summary>How close (m, on the ground) the visitor must stand for each place.</summary>
         public const float OwnCarRange = 4.5f, PlacardRange = 4f, HostRange = 5f, PhotoRange = 3f, BoardRange = 5f;
@@ -64,6 +67,8 @@ namespace NightSignal.Core.Meet
                 case TouringAct.ReadPlacard:
                     foreach (MeetBox p in MeetLayout.Placards)
                         if (p.Id == id) return Near(p.X, p.Z, x, z, PlacardRange);
+                    foreach ((string pid, MeetPoint at) in MeetLayout.PhotoPoints)
+                        if (pid == id) return Near(at.X, at.Z, x, z, PlacardRange);
                     return false;
                 case TouringAct.WaveAtHost:
                 case TouringAct.BowToHost:
@@ -92,6 +97,7 @@ namespace NightSignal.Core.Meet
                 case TouringAct.InspectOwnCar: p.OwnCar = true; break;
                 case TouringAct.ReadPlacard:
                     if (MeetLayout.Placards.Any(x => x.Id == id)) p.Placards.Add(id);
+                    else if (MeetLayout.PhotoPoints.Any(x => x.Id == id)) p.PhotoPoints.Add(id);
                     break;
                 case TouringAct.WaveAtHost: p.Wave = true; break;
                 case TouringAct.BowToHost: p.Bow = true; break;
@@ -109,6 +115,7 @@ namespace NightSignal.Core.Meet
             Check(Greeting, p.Wave && p.Bow && p.EmoteHelp);
             Check(Horizon, p.Photo);
             Check(BringItHome, p.Slip);
+            Check(PhotoPoints, MeetLayout.PhotoPoints.All(x => p.PhotoPoints.Contains(x.Id)));
             return done;
         }
 
