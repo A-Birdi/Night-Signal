@@ -762,3 +762,60 @@ public sealed class CustomizationTests(ITestOutputHelper output)
             Assert.All(t.GetFields(), f => Assert.DoesNotContain(f.FieldType.Namespace ?? "", mechanical));
     }
 }
+
+/// <summary>The Player Card's style (spec §11): the card section of customization.json and its rules.</summary>
+public sealed class CardStyleTests
+{
+    static readonly Lazy<CustomizationCatalogue> catalogue = new(() => CustomizationCatalogue.Load(
+        File.ReadAllText(Path.Combine(TestContent.RepoRoot, "Assets", "Content", "Data", "authored", CustomizationCatalogue.FileName))));
+    static CardStyleCatalogue Card => catalogue.Value.Card;
+
+    [Fact]
+    public void EveryCardReward_UnlocksExactlyOneItem_AndTheDefaultIsFree()
+    {
+        var rewards = TestContent.Catalogue.Cosmetics.Where(c => c.Category == "card_customization").Select(c => c.Id).OrderBy(x => x).ToList();
+        var locked = Card.Items().Where(i => i.CosmeticId != null).Select(i => i.CosmeticId).OrderBy(x => x).ToList();
+        Assert.Equal(15, rewards.Count);
+        Assert.Equal(rewards, locked);
+        Assert.Empty(Card.Problems(Card.Default, _ => false, _ => false));
+        foreach (var kind in new[] { "background", "frame", "motif", "title", "layout" })
+            Assert.True(Card.Items().Count(i => i.Kind == kind && i.CosmeticId == null) >= 1, $"a free {kind}");
+    }
+
+    [Fact]
+    public void Problems_NameLockedItems_UnknownIds_Regions_AndCars()
+    {
+        CardStyle s = Card.Default.Copy();
+        s.Background = "workshop-grid";
+        s.Title = "stock-line";
+        Assert.Equal(new[] { "Not owned yet: Workshop Grid Background.", "Not owned yet: Stock-Line Driver Title." }, Card.Problems(s, _ => false, _ => false));
+        Assert.Empty(Card.Problems(s, id => id is "COS-CH46" or "COS-CH55", _ => false));
+        s = Card.Default.Copy();
+        s.Frame = "no-such-frame";
+        s.Region = "XX";
+        s.PreferredCar = "V05";
+        List<string> bad = Card.Problems(s, _ => true, car => car == "V01");
+        Assert.Contains("Unknown card frame no-such-frame.", bad);
+        Assert.Contains("Unknown region XX.", bad);
+        Assert.Contains("The preferred car must be one you own.", bad);
+        s.Frame = "double";
+        s.Region = "JP";
+        s.PreferredCar = "V01";
+        Assert.Empty(Card.Problems(s, _ => false, car => car == "V01"));
+    }
+
+    [Fact]
+    public void Canonical_RoundTrips_AndParseRefusesUnknownMembers()
+    {
+        CardStyle s = Card.Default.Copy();
+        s.Motif = "lantern";
+        s.Region = "GB";
+        string wire = s.Canonical();
+        Assert.Equal("{\"background\":\"night\",\"frame\":\"thin\",\"motif\":\"lantern\",\"title\":\"none\",\"layout\":\"standard\",\"region\":\"GB\",\"preferredCar\":\"\"}", wire);
+        Assert.True(CardStyle.Parse(wire)!.ContentEquals(s));
+        Assert.Null(CardStyle.Parse("{\"background\":\"night\",\"sparkles\":true}"));
+        Assert.Null(CardStyle.Parse("not json"));
+        Assert.Equal("", CardStyle.Parse("{\"background\":\"dusk\"}")!.Frame);
+        Assert.Equal(249, RegionCodes.All.Count);
+    }
+}

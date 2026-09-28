@@ -147,5 +147,46 @@
     {"car":"V16","style":"midship","families":{"front":["stock","lip","aero","track"],"rear":["stock","diffuser","valance"],"side":["stock","skirt","sculpted"],"rearAero":["stock","ducktail","wing","gt-wing"],"exhaust":["stock","dual","quad","center"]},"notes":{"wheels":"Flush from the factory (5 mm arch clearance at stock track): wheels may tuck inward but never move outward."},"wheels":{"tyreRadiusM":0.35,"tyreWidthM":0.27,"stockRimFraction":0.72,"archClearanceMm":5,"stockRim":"R04","stockDiameterIn":20,"stockFinish":"gunmetal","diameterIn":{"min":18,"max":21},"offsetStep":{"min":-3,"max":0}},"paint":{"zones":["body","lower","roof","hood","sides","trim"],"twoTone":["none","lower","roof","hood-stripe","side-stripe"],"stock":{"primary":"#9B1C1C","secondary":"#1C1D21","accent":"#2A2C31","finish":"pearl"}},"decals":{"zones":["hood","roof","left","right","rear","front"],"keepOut":{"front":[{"id":"head-left","u0":0.03,"v0":0.55,"u1":0.33,"v1":0.8},{"id":"head-right","u0":0.67,"v0":0.55,"u1":0.97,"v1":0.8},{"id":"plate","u0":0.36,"v0":0.12,"u1":0.64,"v1":0.34}],"rear":[{"id":"tail-bar","u0":0.03,"v0":0.6,"u1":0.97,"v1":0.78},{"id":"plate","u0":0.35,"v0":0.2,"u1":0.65,"v1":0.44}],"left":[{"id":"side-intake","u0":0.2,"v0":0.25,"u1":0.38,"v1":0.7}],"right":[{"id":"side-intake","u0":0.2,"v0":0.25,"u1":0.38,"v1":0.7}]}},"anchors":{"rearAero":{"mount":"engine-cover","x":0,"y":0.763,"z":-0.47},"exhaust":{"mount":"rear-bumper-pair","x":-0.3,"y":0.169,"z":-0.5},"plateFront":{"mount":"front-bumper","x":0,"y":0.242,"z":0.5},"plateRear":{"mount":"rear-panel","x":0,"y":0.473,"z":-0.5}}},
     {"car":"V17","style":"fastback","families":{"front":["stock","lip","aero","track"],"rear":["stock","diffuser","valance"],"side":["stock","skirt","sculpted"],"rearAero":["stock","ducktail","wing","gt-wing"],"exhaust":["stock","dual","quad","center"]},"notes":{},"wheels":{"tyreRadiusM":0.35,"tyreWidthM":0.26,"stockRimFraction":0.72,"archClearanceMm":10,"stockRim":"R02","stockDiameterIn":20,"stockFinish":"gunmetal","diameterIn":{"min":18,"max":21},"offsetStep":{"min":-3,"max":1}},"paint":{"zones":["body","lower","roof","hood","sides","trim"],"twoTone":["none","lower","roof","hood-stripe","side-stripe"],"stock":{"primary":"#2E3440","secondary":"#1C1D21","accent":"#2A2C31","finish":"metallic"}},"decals":{"zones":["hood","roof","left","right","rear","front"],"keepOut":{"front":[{"id":"head-left","u0":0.03,"v0":0.62,"u1":0.34,"v1":0.78},{"id":"head-right","u0":0.66,"v0":0.62,"u1":0.97,"v1":0.78},{"id":"plate","u0":0.36,"v0":0.12,"u1":0.64,"v1":0.34}],"rear":[{"id":"tail-bar","u0":0.03,"v0":0.6,"u1":0.97,"v1":0.78},{"id":"plate","u0":0.35,"v0":0.2,"u1":0.65,"v1":0.44}]}},"anchors":{"rearAero":{"mount":"trunk-lid","x":0,"y":0.681,"z":-0.47},"exhaust":{"mount":"rear-bumper-pair","x":-0.3,"y":0.17,"z":-0.5},"plateFront":{"mount":"front-bumper","x":0,"y":0.261,"z":0.5},"plateRear":{"mount":"rear-panel","x":0,"y":0.423,"z":-0.5}}},
     {"car":"V18","style":"fastback","families":{"front":["stock","lip","aero","track"],"rear":["stock","diffuser","valance"],"side":["stock","skirt","sculpted"],"rearAero":["stock","ducktail","wing","gt-wing"],"exhaust":["stock","dual","quad","center"]},"notes":{"wheels":"Flush from the factory (0 mm arch clearance at stock track): wheels may tuck inward but never move outward."},"wheels":{"tyreRadiusM":0.35,"tyreWidthM":0.26,"stockRimFraction":0.72,"archClearanceMm":0,"stockRim":"R01","stockDiameterIn":20,"stockFinish":"silver","diameterIn":{"min":18,"max":21},"offsetStep":{"min":-3,"max":0}},"paint":{"zones":["body","lower","roof","hood","sides","trim"],"twoTone":["none","lower","roof","hood-stripe","side-stripe"],"stock":{"primary":"#F5F3EE","secondary":"#1C1D21","accent":"#2A2C31","finish":"pearl"}},"decals":{"zones":["hood","roof","left","right","rear","front"],"keepOut":{"front":[{"id":"head-left","u0":0.06,"v0":0.45,"u1":0.3,"v1":0.8},{"id":"head-right","u0":0.7,"v0":0.45,"u1":0.94,"v1":0.8},{"id":"plate","u0":0.36,"v0":0.12,"u1":0.64,"v1":0.34}],"rear":[{"id":"tail-left","u0":0.08,"v0":0.48,"u1":0.28,"v1":0.8},{"id":"tail-right","u0":0.72,"v0":0.48,"u1":0.92,"v1":0.8},{"id":"plate","u0":0.35,"v0":0.2,"u1":0.65,"v1":0.44}]}},"anchors":{"rearAero":{"mount":"trunk-lid","x":0,"y":0.677,"z":-0.47},"exhaust":{"mount":"rear-bumper-pair","x":-0.3,"y":0.173,"z":-0.5},"plateFront":{"mount":"front-bumper","x":0,"y":0.251,"z":0.5},"plateRear":{"mount":"rear-panel","x":0,"y":0.42,"z":-0.5}}}
-  ]
+  ],
+  "card": {
+    "note": "Player Card style (spec §11): free defaults for everyone; the fifteen card_customization challenge rewards (COS-CH46 to COS-CH60) are locked until owned. Visual only.",
+    "backgrounds": [
+      {"id":"night","name":"Night Plain","pattern":"plain","colors":["#12151B","#1B2029"],"animated":false,"cosmeticId":null},
+      {"id":"dusk","name":"Dusk Gradient","pattern":"gradient","colors":["#2A1E2E","#0F1218"],"animated":false,"cosmeticId":null},
+      {"id":"tea-rows","name":"Tea Rows","pattern":"stripes","colors":["#15201A","#22332A"],"animated":false,"cosmeticId":null},
+      {"id":"workshop-grid","name":"Workshop Grid Background","pattern":"grid","colors":["#141A20","#2E3A47"],"animated":false,"cosmeticId":"COS-CH46"},
+      {"id":"rain-chart","name":"Rain Chart Background","pattern":"rain-chart","colors":["#101824","#3E6D8F"],"animated":false,"cosmeticId":"COS-CH51"},
+      {"id":"hill-dyno","name":"Hill-Dyno Animated Trace","pattern":"dyno-trace","colors":["#0F1216","#F2A541"],"animated":true,"cosmeticId":"COS-CH56"}
+    ],
+    "frames": [
+      {"id":"thin","name":"Thin Signal","style":"thin","color":"#3EC6D8","cosmeticId":null},
+      {"id":"double","name":"Double Rule","style":"double","color":"#D8D4CB","cosmeticId":null},
+      {"id":"comparison-columns","name":"Comparison Columns Frame","style":"columns","color":"#9FC5E8","cosmeticId":"COS-CH47"},
+      {"id":"signed-build","name":"Signed Build Nameplate","style":"nameplate","color":"#E0B060","cosmeticId":"COS-CH48"},
+      {"id":"mass-balance","name":"Mass Balance Frame","style":"balance-ticks","color":"#C9D1D9","cosmeticId":"COS-CH52"},
+      {"id":"balance-point","name":"Balance Point Frame","style":"balance-point","color":"#E85D4A","cosmeticId":"COS-CH57"}
+    ],
+    "motifs": [
+      {"id":"none","name":"No motif","glyph":"none","color":null,"cosmeticId":null},
+      {"id":"lantern","name":"Lantern","glyph":"lantern","color":"#F2A541","cosmeticId":null},
+      {"id":"signal-bars","name":"Signal Bars","glyph":"bars","color":"#3EC6D8","cosmeticId":null},
+      {"id":"ratio-ladder","name":"Ratio Ladder Motif","glyph":"ladder","color":"#9FC5E8","cosmeticId":"COS-CH49"},
+      {"id":"differential-dial","name":"Differential Dial Emblem","glyph":"dial","color":"#E0B060","cosmeticId":"COS-CH53"},
+      {"id":"three-drive","name":"Three-Drive Emblem","glyph":"three-drive","color":"#D8D4CB","cosmeticId":"COS-CH58"}
+    ],
+    "titles": [
+      {"id":"none","name":"No title","text":"","cosmeticId":null},
+      {"id":"night-driver","name":"Night Driver","text":"Night Driver","cosmeticId":null},
+      {"id":"touring-driver","name":"Touring Driver","text":"Touring Driver","cosmeticId":null},
+      {"id":"stock-line","name":"Stock-Line Driver Title","text":"Stock-Line Driver","cosmeticId":"COS-CH55"}
+    ],
+    "layouts": [
+      {"id":"standard","name":"Standard","layout":"standard","cosmeticId":null},
+      {"id":"two-state","name":"Two-State Card Back","layout":"two-state","cosmeticId":"COS-CH50"},
+      {"id":"twin-chassis","name":"Twin-Chassis Card Layout","layout":"twin","cosmeticId":"COS-CH54"},
+      {"id":"engineer-sectors","name":"Engineer's Sector Card","layout":"sectors","cosmeticId":"COS-CH59"},
+      {"id":"technical-passport","name":"Night-Signal Technical Passport","layout":"passport","cosmeticId":"COS-CH60"}
+    ],
+    "default": {"background":"night","frame":"thin","motif":"none","title":"none","layout":"standard","region":"","preferredCar":""}
+  }
 }

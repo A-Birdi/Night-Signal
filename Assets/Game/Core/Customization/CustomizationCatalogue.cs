@@ -234,6 +234,8 @@ namespace NightSignal.Core.Customization
         public List<PlateStyleDef> PlateStyles = new List<PlateStyleDef>();
         public List<DecalShapeDef> DecalShapes = new List<DecalShapeDef>();
         public List<ChassisAppearanceDef> Chassis = new List<ChassisAppearanceDef>();
+        /// <summary>The Player Card's style items (backgrounds, frames, motifs, titles, layouts) and the default style.</summary>
+        public CardStyleSection Card;
     }
 
     /// <summary>Thrown when customization.json is structurally invalid; <see cref="Errors"/> holds the exact list.</summary>
@@ -267,6 +269,8 @@ namespace NightSignal.Core.Customization
         /// <summary>SHA-256 of the LF-normalised document text.</summary>
         public string Hash { get; private set; }
         public IReadOnlyList<PaintFinishDef> PaintFinishes { get; private set; }
+        /// <summary>The Player Card's style catalogue (spec §11 background, frame, motif, title; layouts).</summary>
+        public CardStyleCatalogue Card { get; private set; }
         public IReadOnlyList<TwoToneDef> TwoToneStyles { get; private set; }
         public IReadOnlyList<PaintSwatchDef> PaintSwatches { get; private set; }
         public IReadOnlyList<RimDesignDef> RimDesigns { get; private set; }
@@ -376,6 +380,7 @@ namespace NightSignal.Core.Customization
             }
             cat.Chassis = file.Chassis ?? new List<ChassisAppearanceDef>();
             if (cat.Chassis.Count == 0) errors.Add("No chassis entries");
+            cat.Card = CardStyleCatalogue.Validate(file.Card, errors);
 
             if (errors.Count > 0) return false;
             cat.Hash = BuildHashing.Sha256Hex(json.Replace("\r\n", "\n"));
