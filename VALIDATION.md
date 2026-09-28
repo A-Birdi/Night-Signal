@@ -1499,7 +1499,7 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   listener, cars alone peak −16.4 dBFS RMS and music alone −19.1 (each measured by muting the other's volume setting),
   both together −14.3; all 4 cars synthesizing, yours always; finished P1 → `MUS_RESULTS_WIN`. Then a full grid (you +
   11 AI) on C01: `MUS_RACE_MIZUHANA`, exactly 6 of 12 cars synthesizing throughout. The same tour on `6df7412` (S07
-  leg only) also PASSed. Online: **PASS** (`meet-online.ps1 -Convoy -Race`, `c8cd328`) — both clients' race launched from the meet played `MUS_RACE_KASUMI` from the countdown (S05, a regular Kasumi stage), with engine audio on the `RaceClient` cars and no exceptions in either log; the online results cue shares the offline code path but was not logged in that run. Evidence: `Evidence/audio/race-audio-log.txt`.
+  leg only) also PASSed. Online: **PASS** (`meet-online.ps1 -Convoy -Race`, `c8cd328`) — both clients' race launched from the meet played `MUS_RACE_KASUMI` from the countdown (S05, a regular Kasumi stage), with no exceptions in either log (engine audio is attached to the `RaceClient` cars but its level was not measured in that run); the online results cue shares the offline code path but was not logged in that run. Evidence: `Evidence/audio/race-audio-log.txt`.
 - **Limits:** measured levels, not listening — the mix balance, engine realism and music against engines are unheard
   by a person (human check); the in-race CPU cost was not profiled in the player (the six-car stack was measured
   offline in docs/AUDIO.md); remote cars' throttle is an estimate; spoiler protection of encounter titles is not
