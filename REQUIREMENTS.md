@@ -108,7 +108,7 @@ lists the superseded rules and where each lands. Rows marked _(A01)_ carry the r
 
 | ID | Content | Required | Playable now | State |
 |---|---|---|---|---|
-| C.1 | Courses T00 + C01–C25 (authored, drivable, validated) | 26 | 1 (C01, autopilot-validated; scenery sparse) | in progress |
+| C.1 | Courses T00 + C01–C25 (authored, drivable, validated) | 26 | 29 scenes (T00, C01–C25, FP01–FP03) generated and driven by the autopilot; every route landmark built and a regional kit per biome (V-071); human course review pending | implemented (automation) |
 | C.2 | Campaign stages S01–S30 per mode | 60 | 0 (data + scripts authored) | in progress |
 | C.3 | Rival identities (look, personality, livery, behaviour) | 48 | 0 in-game (48 character sheets/lines/livery specs authored) | in progress |
 | C.4 | Distinct car models | 18 | 18 detailed procedural bodies from the art pass (V-070): Appendix C cues authored per car (grille, arches, lamps, pillars, features), distinctness contact sheets `Evidence/art/cars/`; human visual review pending | implemented (automation) |

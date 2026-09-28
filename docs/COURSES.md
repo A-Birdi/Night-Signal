@@ -64,3 +64,44 @@ Target speeds that need measured reference runs are written as `0` and filled by
 | `gate` | `type` (cedar-gate, storm-gate, relay-arch, maintenance-gate, torii-style is NOT allowed — use original forms) |
 
 Kits are original geometry recipes; landmarks must read as the named place, not as generic boxes.
+
+Implementation (`Assets/Game/Runtime/Track/Generation/LandmarkKits*.cs`, V-071): every kit above is built from these
+parameters. Rules the kits keep, checked for all courses by EditMode `LandmarkKitTests`:
+
+- A landmark beside the road is pushed outward (never inward) until its footprint clears the **whole** course by the
+  road's half width + shoulder + margin — hairpins and loops that pass behind it included. `offsetMetres` is from the
+  road centre to the landmark centre.
+- Nothing is built over the paved road or shoulders unless it clears the road's highest point there by
+  `LandmarkKits.OverheadClearance` (6.5 m) — crossings, the tunnel-marker gantry, a funicular or conveyor that has to
+  pass over another leg of the road — or lies below it (open water).
+- Colliders are on the Scenery layer only (the cameras see them, the cars never do); far, purely visual pieces have none,
+  and the dedicated server (collision-only generation) skips water and fields entirely. The bespoke C01 stone bridge is
+  the one exception: its parapets are the road's barrier there.
+- A `crossing` inside a `bridge`/`viaduct` section, or an `avalanche-gallery` wall inside a `tunnel` section, is the road's
+  own structure: the bridge/tunnel builders draw it from the section style and the kit adds nothing.
+- Open water (`sea`, `reservoir`) is a plane that starts at the authored offset and runs away from the road, at a level
+  below every road inside it; channels beside the road (`canal`, `creek`, `spillway`, a waterfall's pool) are carved into
+  the terrain at planning time, and skipped where the course doubles back to within reach.
+- Everything is deterministic per course and landmark id. Editor: *Night Signal → Art → Render Landmark Sheets*
+  photographs every landmark from its road (`Builds/Screenshots/landmarks/`).
+
+## Regional kits
+
+Each route's `biome` selects a regional kit (`LandmarkKits.Regional.cs`) scattered along the whole course after the
+landmarks, both sides, in rows outward from the barrier:
+
+| biome | region | kit |
+|---|---|---|
+| `mizuhana-foothills` | C01–C04 | broadleaf trees, bamboo clumps, clipped hedges (plus the terrain's tea rows) |
+| `kasumi-forest` | C05–C08, FP02 | dense cedar forest, the back rows simplified |
+| `kurogawa-reservoir` | C09–C12 | conifers and rock outcrops |
+| `akebono-coast` | C13–C16, FP01 | wind-bent coastal pines, shore rock |
+| `hoshimi-uplands` | C17–C20, FP03 | rock outcrops, sparse shrubs, a timber pole line with wires |
+| `tsukishiro-highland`, `amanagi-finale` | C21–C25 | firs, outcrops, lingering snow, red-and-white snow poles at the road edge |
+| `hinode-campus` | T00 | lamp posts over the road edge (heads above the clearance), hedges |
+
+Rules: visual only (no colliders; not built for the collision-only server); every prop keeps its own reach (crown radius,
+clump, hedge length) clear of every leg of the road, stays out of landmark footprints and open water, and nothing grows
+under a bridge or viaduct deck; wires are not strung across a road; built in 250 m chunks so the cameras cull them.
+`LandmarkKitTests` holds the scatter to the same no-intrusion rule as the landmarks. *Render Landmark Sheets* also has
+`LandmarkSheet.RenderRegions` — three road views per course, one sheet per biome — for the regional comparison.

@@ -41,6 +41,71 @@ namespace NightSignal.Editor.ArtTools
             return report.ToString();
         }
 
+        /// <summary>
+        /// The regional-kit comparison (spec: "all six regional kits"): three road views per course — a quarter, half and three
+        /// quarters of the way along, from a raised chase position looking down the road — one sheet per biome
+        /// (a row per course). Output: Builds/Screenshots/landmarks/region-&lt;biome&gt;.png.
+        /// </summary>
+        public static string RenderRegions(string[] courses, int tileWidth = 640, int tileHeight = 360)
+        {
+            string dir = Path.GetFullPath(Path.Combine("Builds", "Screenshots", "landmarks"));
+            Directory.CreateDirectory(dir);
+            var byBiome = new SortedDictionary<string, List<string>>(System.StringComparer.Ordinal);
+            foreach (string folder in Directory.GetDirectories("Assets/Content/Courses"))
+            {
+                string id = Path.GetFileName(folder);
+                if (courses != null && System.Array.IndexOf(courses, id) < 0) continue;
+                if (!File.Exists(Path.Combine(folder, "route.json")) || !File.Exists(CourseSceneAuthoring.ScenePath(id))) continue;
+                string biome = RouteIO.Parse(File.ReadAllText(Path.Combine(folder, "route.json"))).Biome ?? "unknown";
+                if (!byBiome.TryGetValue(biome, out List<string> list)) byBiome[biome] = list = new List<string>();
+                list.Add(id);
+            }
+            var report = new StringBuilder();
+            foreach (KeyValuePair<string, List<string>> kv in byBiome)
+            {
+                kv.Value.Sort(System.StringComparer.Ordinal);
+                // Survives the scene switches below (opening a scene unloads unused assets).
+                var sheet = new Texture2D(tileWidth * 3, tileHeight * kv.Value.Count, TextureFormat.RGB24, false) { hideFlags = HideFlags.HideAndDontSave };
+                for (int row = 0; row < kv.Value.Count; row++)
+                {
+                    string id = kv.Value[row];
+                    EditorSceneManager.OpenScene(CourseSceneAuthoring.ScenePath(id), OpenSceneMode.Single);
+                    CourseRuntime rt = CourseRuntime.Active != null ? CourseRuntime.Active : Object.FindFirstObjectByType<CourseRuntime>();
+                    if (rt == null) continue;
+                    if (rt.Track == null) rt.Generate();
+                    var camGo = new GameObject("RegionCamera") { hideFlags = HideFlags.DontSave };
+                    var cam = camGo.AddComponent<Camera>();
+                    cam.fieldOfView = 60f;
+                    cam.farClipPlane = 6000f;
+                    var rtex = new RenderTexture(tileWidth, tileHeight, 24, RenderTextureFormat.ARGB32) { antiAliasing = 4 };
+                    cam.targetTexture = rtex;
+                    var read = new Texture2D(tileWidth, tileHeight, TextureFormat.RGB24, false);
+                    for (int k = 0; k < 3; k++)
+                    {
+                        float d = rt.Track.LengthMetres * (0.25f + 0.25f * k);
+                        TrackSample s = rt.Track.SampleAt(d), ahead = rt.Track.SampleAt(Mathf.Min(rt.Track.LengthMetres, d + 60f));
+                        Vector3 eye = s.Position + Vector3.up * 5f - new Vector3(s.Tangent.x, 0f, s.Tangent.z).normalized * 8f;
+                        cam.transform.SetPositionAndRotation(eye, Quaternion.LookRotation(ahead.Position + Vector3.up * 1.5f - eye, Vector3.up));
+                        cam.Render();
+                        RenderTexture.active = rtex;
+                        read.ReadPixels(new Rect(0, 0, tileWidth, tileHeight), 0, 0);
+                        read.Apply();
+                        RenderTexture.active = null;
+                        sheet.SetPixels(k * tileWidth, (kv.Value.Count - 1 - row) * tileHeight, tileWidth, tileHeight, read.GetPixels());
+                    }
+                    cam.targetTexture = null;
+                    Object.DestroyImmediate(rtex);
+                    Object.DestroyImmediate(read);
+                    Object.DestroyImmediate(camGo);
+                }
+                sheet.Apply();
+                File.WriteAllBytes(Path.Combine(dir, $"region-{kv.Key}.png"), sheet.EncodeToPNG());
+                Object.DestroyImmediate(sheet);
+                report.AppendLine($"{kv.Key}: {string.Join(", ", kv.Value)}");
+            }
+            return report.ToString();
+        }
+
         public static string RenderCourse(string id, string dir, int tileWidth = 640, int tileHeight = 360, int columns = 4)
         {
             int missingKits = 0;

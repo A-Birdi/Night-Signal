@@ -1233,3 +1233,48 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   dual exhaust, paint, lamps and plate, decals, presets, S01 started with the livery), `-nsInstrumentTour` PASS.**
 - **Limits:** automation and editor renders only — a human visual review of the 18 cars (and the paint response in the
   courses' own lighting) is outstanding; no LOD levels for the cars yet (≤ 6.5 k vertices, 9 body + 8 wheel draws per car).
+
+## V-071 — Course scenery: every route landmark built, regional kits per biome (2026-09-28)
+- Revisions: `7e33d06` (landmark kits), the following commit (regional kits, tests, docs).
+- **Before:** the route documents name 111 landmarks; only the three bespoke C01 kits existed — the other 108 (structure
+  27, wall 17, tower 16, crossing 13, water 12, sign 10, rail 6, field 5, gate 2) generated nothing and logged "No kit"
+  at every course load. The six regions differed only in hill parameters.
+- **Landmark kits** (`LandmarkKits.*.cs`, rules in `docs/COURSES.md`): each kit builds from the authored parameters —
+  buildings with plinths on slopes, the authored walls and roof (gable/hip/flat/sawtooth/curved) and per-type identity
+  (station platform and canopy, roller-door sheds, a lit terminal front, pump houses and pipes, a two-tier shrine roof, the
+  workshop's casting wheel, a switchyard's gantries and transformers, open shelters, pavilions and viewing galleries);
+  towers (water tank, mast, antenna field with guys, lighthouse, radio dish, chimneys, cooling towers, beacon, pylon line
+  with cables, tower cranes, spillway intake towers, observatory); crossings over the road (overpass, a stone aqueduct,
+  covered footbridge, gantry, pipeline arch, rail trestle, relay arch, through truss); walls (retaining in the authored
+  material, split tiers, stone stair with lanterns, quarry benches, snow fence, sea wall, breakwater with lamps and
+  armour units, flood marks and gauge); water (sea and reservoir planes, carved canal with sluice gate, stone creek,
+  stepped fishway, waterfall and pool); fields (tea hedges on contours, greenhouse tunnels, orchard, cedar and pine
+  groves); rail (coast railway with catenary, funicular, conveyor gallery, cable-car station); signs (marshal posts,
+  memorial, enamel mural, shuttered stall row, tunnel-marker gantry); gates (roofed cedar gateway — original form — and a
+  flood gate). 101 are built by kits; 7 (3 crossings, 1 two-level bridge, 3 avalanche galleries) are the road's own
+  bridge/gallery sections, already drawn by the bridge and tunnel builders from the section style.
+- **Regional kits** (`LandmarkKits.Regional.cs`): the biome's scatter along the whole course — cedar forest (Kasumi),
+  broadleaf/bamboo/hedges (Mizuhana), conifers and rock (Kurogawa), wind-bent pines and shore rock (Akebono), outcrops and
+  a pole line (Hoshimi), firs, snow patches and snow poles (Tsukishiro/Amanagi), lamps and hedges (Hinode campus); 250 m
+  chunks for culling; visual only.
+- **Driving is unchanged by construction:** landmark colliders only on the Scenery layer (cars collide with Drivable and
+  Barrier only; the cameras see Scenery), none on scatter; the server's collision-only build skips water, fields and all
+  scatter; terrain carves act only outside the road corridor. No route geometry, gate or benchmark changed.
+- **Found and fixed on the way (by the new test and the sheets):** a canal and walls following the offset line crossed
+  another leg of the road on hairpins; a funicular ran across a switchback at ground level (now bridged at the
+  clearance); a sea plane drowned a coast railway (water now starts at the authored offset); spillway-tower footbridges
+  hung in mid-air, then reached the road; the dusk sea and lakes were mirror sheets (smoothness 0.94/0.93 → 0.78/0.80);
+  tree crowns, pole-line wires and campus lamp heads overhung the road — each prop now keeps its own reach clear and wires
+  never span a road. The terrain carve loop gained a bounding-box reject (C08 generation with its creek 5.1 s → 2.5 s).
+- **Tests:** EditMode `LandmarkKitTests` 29/29 — per course: every landmark built or drawn by its section; no vertex of
+  any landmark or scatter chunk over the paved road/shoulder (that side's) below 6.3 m above it (water below −2 m allowed);
+  no landmark collider on a driving layer (the C01 stone bridge's parapets are its barrier by design); scatter has no
+  collider. Full EditMode 320/320.
+- **Evidence:** `Evidence/courses/landmarks/landmarks-<course>.jpg` (every landmark photographed from its road in the
+  course's lighting, index with vertices/colliders) and `region-<biome>.jpg` (three road views per course, per region).
+- **Built player** (`7e33d06`, landmarks without the regional kits): camera tour run 4 PASS 90/90, max 1 % of a frame
+  blown out; mean frame rate over the six tour courses ~420–450 fps against ~450–520 before the scenery (C05 with the
+  cedar grove 486 → 382).
+- **Limits:** automation and editor renders only; a human look at each region is outstanding; the regional scatter has
+  not yet been through a built-player tour; the tall dark terrain "cliffs" of the gorge/highland styles (steep terrain
+  at the heightfield resolution) are pre-existing and untouched.

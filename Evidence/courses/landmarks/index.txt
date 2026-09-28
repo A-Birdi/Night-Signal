@@ -1,0 +1,169 @@
+C01: 3 landmarks, generation 1.87 s, missing kits 0
+   1 C01-LM-TEA-SHED          tea-shed  -                    built verts=960 collider=True size=20m
+   2 C01-LM-STONE-BRIDGE      stone-bridge -                    built verts=2884 collider=True size=284m
+   3 C01-LM-LANTERN-ROW       lantern-row -                    built verts=17156 collider=False size=301m
+
+C02: 3 landmarks, generation 2.03 s, missing kits 0
+   1 C02-LM-TEA-TERRACES      field     tea-terraces         built verts=9968 collider=False size=237m
+   2 C02-LM-SPLIT-WALL        wall      split-retaining      built verts=5472 collider=True size=155m
+   3 C02-LM-WATER-TANK        tower     water-tank           built verts=886 collider=False size=20m
+
+C03: 5 landmarks, generation 2.18 s, missing kits 0
+   1 C03-LM-CANAL-SLUICE      water     canal                built verts=9120 collider=False size=525m
+   2 C03-LM-GREENHOUSES       field     greenhouses          built verts=22656 collider=False size=172m
+   3 C03-LM-PACKING-YARD      structure shed                 built verts=2696 collider=True size=74m
+   4 C03-LM-ORCHARD           field     orchard              built verts=21483 collider=False size=173m
+   5 C03-LM-OVERPASS          crossing  overpass             none (a route section draws it, or no kit) verts=0 collider=False size=17m
+
+C04: 3 landmarks, generation 1.90 s, missing kits 0
+   1 C04-LM-BELL-WHEEL        structure workshop             built verts=1916 collider=True size=40m
+   2 C04-LM-STONE-STAIR       wall      stone-stair          built verts=4320 collider=True size=46m
+   3 C04-LM-FOOTBRIDGE        crossing  covered-footbridge   built verts=1296 collider=True size=36m
+
+C05: 4 landmarks, generation 2.03 s, missing kits 0
+   1 C05-LM-TRESTLE           crossing  rail-trestle         built verts=3384 collider=True size=53m
+   2 C05-LM-SHELTER           structure shelter              built verts=356 collider=True size=16m
+   3 C05-LM-RESERVOIR         water     reservoir            built verts=976 collider=False size=1273m
+   4 C05-LM-CEDARS            field     cedar-grove          built verts=62208 collider=False size=656m
+
+C06: 3 landmarks, generation 1.93 s, missing kits 0
+   1 C06-LM-TRAM-STATION      structure station              built verts=1076 collider=True size=45m
+   2 C06-LM-CEDAR-GATE        gate      cedar-gate           built verts=716 collider=False size=27m
+   3 C06-LM-SHRINE-ROOF       structure shrine-roof          built verts=1552 collider=False size=42m
+
+C07: 3 landmarks, generation 1.93 s, missing kits 0
+   1 C07-LM-AQUEDUCT          crossing  overpass             built verts=672 collider=True size=51m
+   2 C07-LM-FOG-MAST          tower     mast                 built verts=2688 collider=False size=25m
+   3 C07-LM-VIEW-PLATFORM     structure gallery              built verts=816 collider=True size=27m
+
+C08: 4 landmarks, generation 2.49 s, missing kits 0
+   1 C08-LM-RAIN-CHAINS       structure shelter              built verts=500 collider=True size=29m
+   2 C08-LM-MAINT-BRIDGE      crossing  maintenance-bridge   built verts=3552 collider=True size=25m
+   3 C08-LM-WATERFALL         water     waterfall            built verts=552 collider=False size=41m
+   4 C08-LM-DRAIN             water     creek                built verts=13440 collider=False size=615m
+
+C09: 4 landmarks, generation 2.09 s, missing kits 0
+   1 C09-LM-SPILLWAY-TOWERS   tower     spillway-tower       built verts=1688 collider=False size=103m
+   2 C09-LM-FISHWAY           water     spillway             built verts=5808 collider=False size=221m
+   3 C09-LM-FLOOD-MARKS       wall      flood-marks          built verts=2952 collider=True size=96m
+   4 C09-LM-RESERVOIR         water     reservoir            built verts=688 collider=False size=1980m
+
+C10: 4 landmarks, generation 2.02 s, missing kits 0
+   1 C10-LM-SWITCHYARD        structure switchyard           built verts=39630 collider=True size=108m
+   2 C10-LM-PIPELINE-ARCH     crossing  pipeline-arch        built verts=1056 collider=True size=73m
+   3 C10-LM-CABLE-STATION     rail      cable-station        built verts=3466 collider=False size=235m
+   4 C10-LM-POWERHOUSE        structure machine-hall         built verts=3562 collider=True size=74m
+
+C11: 5 landmarks, generation 2.00 s, missing kits 0
+   1 C11-LM-WATER-STAIR       wall      stone-stair          built verts=2592 collider=True size=42m
+   2 C11-LM-PUMP-HOUSES       structure pump-house           built verts=1324 collider=True size=59m
+   3 C11-LM-SERVICE-TANK      tower     water-tank           built verts=886 collider=False size=13m
+   4 C11-LM-RETAINING         wall      retaining            built verts=2880 collider=True size=116m
+   5 C11-LM-LAKE              water     reservoir            built verts=688 collider=False size=1131m
+
+C12: 3 landmarks, generation 2.33 s, missing kits 0
+   1 C12-LM-FLOOD-MEMORIAL    sign      memorial             built verts=216 collider=True size=5m
+   2 C12-LM-SPILLWAY-OVERLOOK water     spillway             built verts=7920 collider=False size=314m
+   3 C12-LM-TUNNEL-MARKER     sign      tunnel-marker        built verts=216 collider=True size=19m
+
+C13: 4 landmarks, generation 2.10 s, missing kits 0
+   1 C13-LM-RUST-TRUSS        crossing  steel-truss          none (a route section draws it, or no kit) verts=0 collider=False size=17m
+   2 C13-LM-COAST-RAILWAY     rail      coast-railway        built verts=26832 collider=False size=899m
+   3 C13-LM-LIGHTHOUSE        tower     lighthouse           built verts=950 collider=False size=43m
+   4 C13-LM-SEA               water     sea                  built verts=400 collider=False size=5657m
+
+C14: 5 landmarks, generation 1.89 s, missing kits 0
+   1 C14-LM-MARKET-SIGNS      sign      placard              built verts=2304 collider=True size=19m
+   2 C14-LM-CRANES            tower     crane                built verts=12096 collider=False size=152m
+   3 C14-LM-FREIGHT-OFFICE    structure office               built verts=2252 collider=True size=51m
+   4 C14-LM-WAREHOUSES        structure shed                 built verts=8428 collider=True size=126m
+   5 C14-LM-HARBOUR           water     sea                  built verts=400 collider=False size=1273m
+
+C15: 4 landmarks, generation 2.07 s, missing kits 0
+   1 C15-LM-STORM-GATE        gate      storm-gate           built verts=408 collider=False size=44m
+   2 C15-LM-FERRY-TERMINAL    structure terminal             built verts=4184 collider=False size=85m
+   3 C15-LM-FLOATS            structure shed                 built verts=696 collider=True size=21m
+   4 C15-LM-SEA-WALL          wall      sea-wall             built verts=16800 collider=True size=1375m
+
+C16: 4 landmarks, generation 2.09 s, missing kits 0
+   1 C16-LM-BREAKWATER-LAMPS  wall      breakwater           built verts=11208 collider=False size=472m
+   2 C16-LM-FUNICULAR         rail      funicular            built verts=20208 collider=False size=442m
+   3 C16-LM-RADIO-DISH        tower     radio-dish           built verts=642 collider=False size=40m
+   4 C16-LM-HARBOUR           water     sea                  built verts=400 collider=False size=3536m
+
+C17: 4 landmarks, generation 2.05 s, missing kits 0
+   1 C17-LM-QUARRY-WALLS      wall      quarry-steps         built verts=4320 collider=False size=330m
+   2 C17-LM-CONVEYOR          rail      conveyor             built verts=6362 collider=False size=253m
+   3 C17-LM-SURVEYOR-HUT      structure hut                  built verts=284 collider=True size=15m
+   4 C17-LM-ROCK-CUT          wall      retaining            built verts=3840 collider=True size=156m
+
+C18: 4 landmarks, generation 1.90 s, missing kits 0
+   1 C18-LM-KILN-CHIMNEYS     tower     chimney              built verts=792 collider=False size=53m
+   2 C18-LM-COOLING-TOWERS    tower     cooling-tower        built verts=2816 collider=False size=318m
+   3 C18-LM-ENAMEL-MURAL      sign      mural                built verts=432 collider=True size=16m
+   4 C18-LM-RAIL-BRIDGE       crossing  rail-trestle         built verts=2592 collider=True size=33m
+
+C19: 4 landmarks, generation 2.08 s, missing kits 0
+   1 C19-LM-POWERLINE         tower     pylon-line           built verts=30240 collider=False size=522m
+   2 C19-LM-OVERLOOK          structure gallery              built verts=720 collider=True size=32m
+   3 C19-LM-SERVICE-LIFT      rail      funicular            built verts=9552 collider=False size=170m
+   4 C19-LM-SWITCHYARD        structure switchyard           built verts=43740 collider=False size=122m
+
+C20: 4 landmarks, generation 2.19 s, missing kits 0
+   1 C20-LM-RED-FACE          wall      retaining            built verts=7200 collider=True size=246m
+   2 C20-LM-LATTICE-BRIDGE    crossing  lattice              none (a route section draws it, or no kit) verts=0 collider=False size=17m
+   3 C20-LM-MACHINE-HALL      structure machine-hall         built verts=3810 collider=True size=75m
+   4 C20-LM-QUARRY-BENCHES    wall      quarry-steps         built verts=4800 collider=False size=451m
+
+C21: 4 landmarks, generation 2.01 s, missing kits 0
+   1 C21-LM-MOON-PAVILION     structure pavilion             built verts=366 collider=True size=25m
+   2 C21-LM-SNOW-FENCE        wall      snow-fence           built verts=11520 collider=True size=180m
+   3 C21-LM-OBSERVATORY       tower     observatory          built verts=1514 collider=False size=29m
+   4 C21-LM-SNOW-SHED         wall      avalanche-gallery    none (a route section draws it, or no kit) verts=0 collider=False size=17m
+
+C22: 4 landmarks, generation 2.15 s, missing kits 0
+   1 C22-LM-WHITE-PINES       field     white-pine-grove     built verts=27648 collider=False size=469m
+   2 C22-LM-AVALANCHE-GALLERY wall      avalanche-gallery    none (a route section draws it, or no kit) verts=0 collider=False size=17m
+   3 C22-LM-WEATHER-STATION   structure station              built verts=480 collider=True size=31m
+   4 C22-LM-ROCK-FACE         wall      retaining            built verts=6000 collider=True size=157m
+
+C23: 4 landmarks, generation 2.15 s, missing kits 0
+   1 C23-LM-CABLE-ANCHORAGE   wall      retaining            built verts=576 collider=False size=26m
+   2 C23-LM-TRANSMITTER-BUILDING structure station              built verts=1152 collider=True size=48m
+   3 C23-LM-BEACON-MAST       tower     beacon               built verts=5424 collider=False size=116m
+   4 C23-LM-ANTENNA-FIELD     tower     antenna              built verts=17424 collider=False size=98m
+
+C24: 6 landmarks, generation 2.19 s, missing kits 0
+   1 C24-LM-BEACON-ENTRY      sign      marshal-beacons      built verts=144 collider=True size=6m
+   2 C24-LM-BEACON-ARC        sign      marshal-beacons      built verts=144 collider=True size=6m
+   3 C24-LM-BEACON-DESCENT    sign      marshal-beacons      built verts=144 collider=True size=6m
+   4 C24-LM-BEACON-HORIZON    sign      marshal-beacons      built verts=144 collider=True size=6m
+   5 C24-LM-STONE-GALLERY     wall      avalanche-gallery    none (a route section draws it, or no kit) verts=0 collider=False size=17m
+   6 C24-LM-TIMING-CABIN      structure cabin                built verts=308 collider=True size=15m
+
+C25: 3 landmarks, generation 2.41 s, missing kits 0
+   1 C25-LM-RELAY-ARCH        crossing  relay-arch           built verts=816 collider=True size=24m
+   2 C25-LM-TWO-LEVEL-BRIDGE  crossing  two-level            none (a route section draws it, or no kit) verts=0 collider=False size=17m
+   3 C25-LM-SUNRISE-SEA       water     sea                  built verts=400 collider=False size=8485m
+
+FP01: 4 landmarks, generation 1.90 s, missing kits 0
+   1 FP01-LM-HARBOR-CRANE     tower     crane                built verts=4416 collider=False size=79m
+   2 FP01-LM-FERRY-TERMINAL   structure terminal             built verts=6104 collider=False size=81m
+   3 FP01-LM-DRYDOCK-GANTRY   crossing  steel-truss          built verts=1176 collider=True size=46m
+   4 FP01-LM-CONTAINERS       structure shed                 built verts=2976 collider=False size=65m
+
+FP02: 3 landmarks, generation 1.95 s, missing kits 0
+   1 FP02-LM-CABLE-STATION    rail      cable-station        built verts=3466 collider=False size=233m
+   2 FP02-LM-MURAL            sign      mural                built verts=432 collider=True size=15m
+   3 FP02-LM-LOOKOUT          structure gallery              built verts=1104 collider=True size=40m
+
+FP03: 3 landmarks, generation 1.96 s, missing kits 0
+   1 FP03-LM-CONTROL-TOWER    tower     beacon               built verts=2736 collider=False size=44m
+   2 FP03-LM-HANGARS          structure shed                 built verts=30264 collider=False size=227m
+   3 FP03-LM-WINDSOCK-PLAZA   tower     mast                 built verts=3456 collider=False size=29m
+
+T00: 3 landmarks, generation 3.06 s, missing kits 0
+   1 T00-LM-TIMING-PAVILION   structure pavilion             built verts=1050 collider=True size=42m
+   2 T00-LM-BRAKE-LANE        sign      placard              built verts=3456 collider=False size=28m
+   3 T00-LM-WINDSOCK-GANTRY   crossing  maintenance-bridge   built verts=3456 collider=True size=27m
+

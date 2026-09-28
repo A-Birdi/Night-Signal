@@ -89,6 +89,7 @@ namespace NightSignal.Track.Generation
             landmarks.SetParent(root, false);
             foreach (RouteLandmarkDef lm in route.Landmarks)
                 LandmarkKits.Build(track, route, lm, ground, landmarks, mats, profile);
+            LandmarkKits.BuildRegional(track, route, ground, root, mats, profile);
 
             if (profile == GenerationProfile.Full) BuildLines(track, root, mats);
         }

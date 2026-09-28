@@ -142,10 +142,10 @@ namespace NightSignal.Track.Generation
         }
 
         /// <summary>Whether a rectangle (centre, axes, half extents) keeps the road plus margin clear along the whole course.</summary>
-        static bool Clear(TrackData track, Vector3 centre, Vector3 outDir, Vector3 along, float halfAcross, float halfAlong, float margin)
+        static bool Clear(TrackData track, Vector3 centre, Vector3 outDir, Vector3 along, float halfAcross, float halfAlong, float margin, int stride = 4)
         {
             TrackSample[] samples = track.Samples;
-            for (int i = 0; i < samples.Length; i += 4)
+            for (int i = 0; i < samples.Length; i += stride)
             {
                 TrackSample k = samples[i];
                 Vector3 d = k.Position - centre;
@@ -323,10 +323,19 @@ namespace NightSignal.Track.Generation
             }
         }
 
-        /// <summary>A tree: trunk and a stack of foliage cones (conifer) or a rounded crown (broadleaf / fruit).</summary>
-        static void Tree(MeshBuilder mb, Vector3 foot, float height, bool conifer, float crownScale = 1f)
+        /// <summary>
+        /// A tree: trunk and a stack of foliage cones (conifer) or a rounded crown (broadleaf / fruit). <paramref name="simple"/>
+        /// (back rows) is one cone on a thin trunk.
+        /// </summary>
+        static void Tree(MeshBuilder mb, Vector3 foot, float height, bool conifer, float crownScale = 1f, bool simple = false)
         {
             float trunk = height * (conifer ? 0.35f : 0.45f);
+            if (simple && conifer)
+            {
+                Lathe(mb, M.Bark, foot, new[] { new Vector2(height * 0.02f + 0.06f, 0f), new Vector2(0.05f, trunk) }, 5);
+                Lathe(mb, M.Foliage, foot + Vector3.up * trunk * 0.6f, new[] { new Vector2(height * 0.2f * crownScale, 0f), new Vector2(0.05f, height * 0.8f) }, 6, true);
+                return;
+            }
             Frustum(mb, M.Bark, foot, height * 0.022f + 0.08f, height * 0.012f + 0.04f, trunk + height * 0.1f, 7);
             if (conifer)
             {

@@ -52,6 +52,11 @@ namespace NightSignal.Tests.Track
                     if (!grid.TryGetValue(k, out List<int> list)) grid[k] = list = new List<int>();
                     list.Add(i);
                 }
+                // The regional scatter is held to the same rule as the landmarks.
+                Transform regional = root.transform.Find("Regional");
+                Assert.That(regional != null && regional.childCount > 0, Is.True, "the course's regional kit was built");
+                var checks = new List<(string Id, string Kit, Transform Obj)>();
+                foreach (Transform chunk in regional) checks.Add((chunk.name, "regional", chunk));
                 foreach (RouteLandmarkDef lm in route.Landmarks)
                 {
                     Transform obj = null;
@@ -71,6 +76,13 @@ namespace NightSignal.Tests.Track
                     foreach (Collider col in obj.GetComponentsInChildren<Collider>(true))
                         if (col.gameObject.layer != Art.GameLayers.Scenery && !(lm.Kit == "stone-bridge" && col.gameObject.layer == Art.GameLayers.Barrier))
                             failures.Add($"{lm.Id}: collider on layer {col.gameObject.layer} (cars use Drivable/Barrier)");
+                    checks.Add((lm.Id, lm.Kit, obj));
+                }
+                foreach ((string Id, string Kit, Transform Obj) check in checks)
+                {
+                    Transform obj = check.Obj;
+                    string lmId = check.Id, lmKit = check.Kit;
+                    if (lmKit == "regional" && obj.GetComponentInChildren<Collider>(true) != null) failures.Add($"{lmId}: regional scatter has a collider");
                     foreach (MeshFilter mf in obj.GetComponentsInChildren<MeshFilter>(true))
                     {
                         if (mf.sharedMesh == null) continue;
@@ -97,16 +109,16 @@ namespace NightSignal.Tests.Track
                             if (bi < 0) continue;
                             TrackSample s = track.Samples[bi];
                             Vector3 flatRight = new Vector3(s.Right.x, 0f, s.Right.z).normalized;
-                            float lateral = Mathf.Abs(Vector3.Dot(p - s.Position, flatRight));
+                            float signedLateral = Vector3.Dot(p - s.Position, flatRight), lateral = Mathf.Abs(signedLateral);
                             float along = Mathf.Abs(Vector3.Dot(p - s.Position, new Vector3(s.Tangent.x, 0f, s.Tangent.z).normalized));
                             if (along > 1.5f) continue; // the nearest sample is not beside this point (past a road end)
-                            float edge = s.Width * 0.5f + Mathf.Max(s.ShoulderLeft, s.ShoulderRight);
+                            float edge = s.Width * 0.5f + (signedLateral < 0f ? s.ShoulderLeft : s.ShoulderRight); // that side's shoulder
                             if (lateral >= edge) continue;
                             float above = p.y - s.Position.y;
                             if (above >= LandmarkKits.OverheadClearance - 0.2f || above <= -2f) continue;
                             if (bad++ == 0) firstBad = p;
                         }
-                        if (bad > 0) failures.Add($"{lm.Id} ({lm.Kit}): {bad} vertices over the road below the clearance, e.g. {firstBad}");
+                        if (bad > 0) failures.Add($"{lmId} ({lmKit}): {bad} vertices over the road below the clearance, e.g. {firstBad}");
                     }
                 }
             }

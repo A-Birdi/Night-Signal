@@ -1,7 +1,7 @@
 # Handoff
 
-_Last updated: 2026-09-28 — car art/detail pass for all 18 cars (V-070); F09 driving complete for automation (V-069);
-Addendum 04 loopback-first network testing (V-067); benchmarks certified (V-065/V-066). Now: course scenery (Next actions 1)._
+_Last updated: 2026-09-28 — course scenery: all 111 route landmarks and a regional kit per biome (V-071); car art pass
+(V-070); F09 automation (V-069); Addendum 04 (V-067); benchmarks certified (V-065/V-066). Now: characters and the meet._
 
 **Rules revision:** `docs/brief/Night_Signal_Addendum_01.txt` supersedes parts of the master (six humans + up to
 twelve vehicles, live finale rivals, light contact, course access, offline domain, rejoin grants, voting, friends,
@@ -28,7 +28,8 @@ certification. `docs/brief/Night_Signal_Addendum_04.txt` makes local network tes
     silhouette, tyres/rims/brakes; per-car Appendix C cues in `authored/cars.body.json`), fitted cockpits and five
     views on all 18. Distinctness sheets: editor *Night Signal → Art → Render Car Sheets* (`CarSheet`).
   - Courses: deterministic generation from `route.json` (D-007); all 29 scenes driven by the autopilot, measured 3D
-    profiles, tunnels, bridges, relief; scenery kits still sparse (field/wall/tower/crossing/water/structure missing).
+    profiles, tunnels, bridges, relief; every route landmark built by the parametric kits and a regional kit per biome
+    (V-071, `docs/COURSES.md`); editor *Render Landmark Sheets* / `LandmarkSheet.RenderRegions` for review.
   - Control plane (`Services/`): identity (Supabase JWKS path + DevAuth), convoy/readiness, tickets, ledger,
     results settlement, garage, customization, toys; 335 .NET tests. Unity EditMode 255 tests.
   - Netcode (`Assets/Game/Runtime/Net`): dedicated server host (register/poll/ack/results), authoritative
@@ -70,7 +71,7 @@ Render Cockpit Sheets* renders the mounted views of every car.
 3. **Hosted services / internet test** — a Supabase project, a reachable server and a budget are needed for
    WAN acceptance (§3.5, Gate 5). Not approved; stays BLOCKED, not faked.
 
-## Done since the addenda (VALIDATION V-015 … V-070)
+## Done since the addenda (VALIDATION V-015 … V-071)
 
 - Addendum 01 Core rules and data overlays; control plane for Addendum 01 + 02 incl. hosted diversions (307 .NET
   tests); light car contact, shared RaceSimulation (server + offline), protocol 2 per-client snapshots.
@@ -135,6 +136,9 @@ Render Cockpit Sheets* renders the mounted views of every car.
   decals clipped to each zone's paintable panel; `CarBodyArtTests` (budget, normals, ground/bumper clearance, decals on
   the panel). Built-player camera tour caught NaN-shaded liners blooming into white discs at night that its checks
   passed — fixed, and the tour now fails blown-out frames. Built-player camera (90/90), appearance and instrument tours PASS on `12b489f`.
+- **Course scenery** (V-071): the 108 parametric landmarks that generated nothing now build (101 by kits, 7 are the
+  road's own bridge/gallery sections); a regional kit per biome along every course; `LandmarkKitTests` keeps landmarks
+  and scatter off the road (6.5 m overhead clearance) and off the cars' collision layers — driving unchanged.
 - **Addendum 04** (V-067): game server binds `127.0.0.1` by default (`-nsBindHost`, separate from `-nsPublicHost`),
   harnesses fail closed on non-loopback binds without `-AllowLan` (`Tools/run/NetGuard.psm1`), automation builds are
   non-development (no editor/profiler listener), measured sockets in the evidence; never touch Windows Firewall.
@@ -143,8 +147,8 @@ Render Cockpit Sheets* renders the mounted views of every car.
 
 Pipeline in dependency order (items at one level do not wait for later ones; human checks are listed where they gate).
 
-1. **Course scenery**: missing kits (field, wall, tower, crossing, water, structure) and a visual pass per biome, then
-   screenshot comparison of all six regional kits (Gate 3 C.1, spec §"regional kits"). **Next.**
+1. **Course scenery follow-ups** (small): a built-player tour with the regional kits (frame rate), a human look per
+   region; the steep dark terrain "cliffs" of the gorge/highland terrain styles (heightfield resolution) are untouched.
 2. **Characters and the meet**: in-game rival identities for the 48 sheets (silhouette checks), meet + boombox, walking
    controls (Gate 2/3).
 3. **Gameplay backlog**: AI drift skill per profile and campaign drift benchmarks; restrict Drift Attack to courses with
