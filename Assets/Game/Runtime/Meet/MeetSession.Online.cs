@@ -31,6 +31,8 @@ namespace NightSignal.Meet
             public int Pi, Likes;
             public string PiClass = "", Tune = "";
             public bool LikedByMe, Blocked;
+            /// <summary>Their Player Card look (validated again on arrival), or null for the default look from the name.</summary>
+            public CharacterLook Look;
             public CharacterRig Rig;
             public CharacterMotion Motion;
             public VehicleView Car;
@@ -314,6 +316,11 @@ namespace NightSignal.Meet
                 if (!remotes.TryGetValue(id, out Remote r))
                 {
                     r = new Remote { AccountId = id, Name = (string)m["displayName"] ?? "", CarId = (string)m["carId"] ?? "V01", Livery = (string)m["livery"] ?? "", Bay = (int)m["bay"] - 1 };
+                    if (m["look"] is JObject lj)
+                    {
+                        CharacterLook l = PlayerLooks.Parse(lj.ToString(Newtonsoft.Json.Formatting.None));
+                        if (l != null && PlayerLooks.Problems(l).Count == 0) r.Look = l;
+                    }
                     remotes[id] = r;
                     SpawnRemote(r);
                     Seen.Add($"remote {r.Name} in bay {r.Bay + 1}");
@@ -359,6 +366,9 @@ namespace NightSignal.Meet
             }
         }
 
+        /// <summary>The look a remote visitor's avatar was built from (null = the default look); tours check replication.</summary>
+        public CharacterLook RemoteLook(string accountId) => remotes.TryGetValue(accountId, out Remote r) ? r.Look : null;
+
         void SpawnRemote(Remote r)
         {
             var carMats = Resources.Load<CarMaterialSet>("CarMaterialSet");
@@ -368,7 +378,7 @@ namespace NightSignal.Meet
             r.Car = VehicleView.Create($"Remote_{r.Name}_{r.CarId}", p, lib.Body(r.CarId), carMats, paint, look);
             r.Car.SetHeadlights(true);
             spawned.Add(r.Car.gameObject);
-            r.Rig = CharacterRig.Create(DefaultPlayerLook(r.Name), null, null, $"Remote_{r.Name}");
+            r.Rig = CharacterRig.Create(r.Look ?? DefaultPlayerLook(r.Name), null, null, $"Remote_{r.Name}");
             r.Motion = r.Rig.gameObject.AddComponent<CharacterMotion>();
             spawned.Add(r.Rig.gameObject);
             PlaceRemoteParked(r);

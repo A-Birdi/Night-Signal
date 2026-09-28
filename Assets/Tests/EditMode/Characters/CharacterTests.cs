@@ -74,6 +74,43 @@ namespace NightSignal.Tests.Characters
             }
         }
 
+        /// <summary>
+        /// Player Card looks (spec §11): every starting look is in the vocabulary, survives the server's canonical JSON round
+        /// trip unchanged in meaning, and builds a sound body; unknown words and too many accessories are refused.
+        /// </summary>
+        [Test]
+        public void PlayerLooks_PresetsValidRoundTripAndBuild()
+        {
+            Assert.That(PlayerLooks.Presets.Length, Is.GreaterThanOrEqualTo(6));
+            foreach (CharacterLook preset in PlayerLooks.Presets)
+            {
+                Assert.That(PlayerLooks.Problems(preset), Is.Empty);
+                CharacterLook back = PlayerLooks.Parse(PlayerLooks.Canonical(preset));
+                Assert.That(back, Is.Not.Null);
+                Assert.That(PlayerLooks.Problems(back), Is.Empty);
+                Assert.That(JsonUtility.ToJson(back), Is.EqualTo(JsonUtility.ToJson(preset)), "canonical form keeps the look");
+                CharacterBuilder.Skeleton sk = CharacterBuilder.SkeletonFor(back);
+                Mesh m = CharacterBuilder.Build(back, sk);
+                try
+                {
+                    Vector3[] n = m.normals;
+                    for (int i = 0; i < n.Length; i++) Assert.That(Mathf.Abs(n[i].magnitude - 1f), Is.LessThan(0.01f));
+                    Assert.That(m.bounds.min.y, Is.InRange(-0.005f, 0.012f));
+                    Assert.That(m.vertexCount, Is.InRange(1500, 4500));
+                }
+                finally
+                {
+                    Object.DestroyImmediate(m);
+                }
+            }
+            foreach (string c in PlayerLooks.SkinTones) Assert.That(ColorUtility.TryParseHtmlString(c, out _), Is.True, c);
+            foreach (string c in PlayerLooks.HairColours) Assert.That(ColorUtility.TryParseHtmlString(c, out _), Is.True, c);
+            foreach (string c in PlayerLooks.Colours) Assert.That(ColorUtility.TryParseHtmlString(c, out _), Is.True, c);
+            Assert.That(PlayerLooks.Problems(PlayerLooks.Parse("{\"hair\":\"mohawk\"}")), Is.Not.Empty);
+            Assert.That(PlayerLooks.Problems(PlayerLooks.Parse("{\"accessories\":[\"cap\",\"watch\",\"scarf\",\"pin\",\"belt\"]}")), Is.Not.Empty);
+            Assert.That(PlayerLooks.Parse("not json"), Is.Null);
+        }
+
         [Test]
         public void Motion_KeepsFeetGroundedAndPosesFinite([ValueSource(nameof(RivalIds))] string id)
         {

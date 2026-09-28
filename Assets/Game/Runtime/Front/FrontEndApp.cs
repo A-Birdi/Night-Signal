@@ -50,6 +50,7 @@ namespace NightSignal.Front
         public readonly CourseAccessScreen Courses = new CourseAccessScreen();
         public readonly GarageScreen Garage = new GarageScreen();
         public readonly AppearanceScreen Appearance = new AppearanceScreen();
+        public readonly PlayerCardScreen PlayerCard = new PlayerCardScreen();
         /// <summary>Rich-text summary of the last online race (placing, time, settled receipt) for the convoy screen.</summary>
         public string LastOnlineResult { get; private set; }
         /// <summary>UI tours drive online races with the validator autopilot (automation, labelled as such).</summary>

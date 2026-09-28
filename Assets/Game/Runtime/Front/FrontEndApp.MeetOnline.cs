@@ -57,6 +57,7 @@ namespace NightSignal.Front
             ActiveMeet = go.AddComponent<MeetSession>();
             ActiveMeet.Net = new MeetNet(s, kind, friendAccountId, instance);
             ActiveMeet.PlayerName = s.DisplayName;
+            ActiveMeet.PlayerLook = s.CardLook; // the Player Card's look (null: the default look from the name)
             ActiveMeet.OwnsCue = id => owned.Contains(id);
             _ = s.Request("presence.set", new { presence = "AtMeet" }, quiet: true);
             while (ActiveMeet != null && !ActiveMeet.ExitRequested && !meetLeftForRace) yield return null;
@@ -152,6 +153,30 @@ namespace NightSignal.Front
             if (S().StarterCarId == null) { Click("ChooseStarter"); yield return Until(() => S().StarterCarId != null, 10f, "starter chosen"); }
             if (S().InConvoy) { Click("Leave"); yield return Until(() => !S().InConvoy, 10f, "left an earlier convoy"); }
 
+            // The host's Player Card: a starting look, locs, saved through the screen (the guest checks it at the meet).
+            const int CardPreset = 3; // Look 3: athletic, hoodie
+            if (host)
+            {
+                Router.Show(PlayerCard, true);
+                yield return Until(() => Router.Current == PlayerCard, 10f, "the Player Card");
+                yield return new WaitForSeconds(1.2f);
+                PlayerCard.ChooseStart(CardPreset);
+                PlayerCard.SetField("Hair", Array.IndexOf(Characters.CharacterVocabulary.Hair, "locs"));
+                yield return new WaitForSeconds(1.5f);
+                yield return Snap("00a-player-card");
+                Click("SaveCard");
+                yield return Until(() => !PlayerCard.Busy && PlayerCard.Status.StartsWith("Saved"), 15f, "card saved (" + PlayerCard.Status + ")");
+                Characters.CharacterLook saved = S().CardLook;
+                Note($"card look saved: {saved?.Hair} {saved?.Outfit} {saved?.Build}; status '{PlayerCard.Status}'");
+                if (saved?.Hair != "locs" || saved.Outfit != Characters.PlayerLooks.Presets[CardPreset - 1].Outfit) Fail("the saved card look is not the chosen one");
+                yield return new WaitForSeconds(1.5f);
+                yield return Snap("00b-player-card-saved");
+                PlayerCard.SavePreview(System.IO.Path.Combine(dir, "host-00c-card-preview.png"));
+                Click("Back");
+                yield return Until(() => Router.Current == Convoy, 10f, "back at the convoy screen");
+                yield return new WaitForSeconds(1f);
+            }
+
             // The convoy: the host creates it and shares a code; the guest joins with the code.
             if (host)
             {
@@ -201,6 +226,14 @@ namespace NightSignal.Front
             string room = m.Net.RoomId;
             yield return Until(() => m.RemoteCount >= 1 && (m.Net.State["members"] as JArray).Count(x => (string)x["state"] == "present") >= 2, 60f, "both at the convoy meet");
             int bayA = m.PlayerBay;
+            if (!host)
+            {
+                // The host's avatar is built from their Player Card look, replicated by the room.
+                string hostAccount = (m.Net.State["members"] as JArray).OfType<JObject>().Select(x => (string)x["accountId"]).FirstOrDefault(a => a != S().AccountId);
+                Characters.CharacterLook hl = m.RemoteLook(hostAccount);
+                Note($"the host's avatar look: {(hl == null ? "default" : hl.Hair + " " + hl.Outfit + " " + hl.Build)}");
+                if (hl?.Hair != "locs" || hl.Outfit != Characters.PlayerLooks.Presets[CardPreset - 1].Outfit) Fail("the host's card look did not reach the meet");
+            }
             yield return new WaitForSeconds(host ? 1f : 4f);
             m.OpenMeetMenu();
             yield return new WaitForSeconds(0.6f);

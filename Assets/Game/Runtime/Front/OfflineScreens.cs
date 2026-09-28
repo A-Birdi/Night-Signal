@@ -22,6 +22,8 @@ namespace NightSignal.Front
         public int Count { get; private set; }
         public event Action<int> Changed;
         public Button Left { get; }
+        /// <summary>The value text (e.g. a colour swatch tints it).</summary>
+        public TextMeshProUGUI Value => value;
         /// <summary>The whole row (label, arrows, value): hide it with SetActive to take it out of a column's layout.</summary>
         public GameObject Root => Left.transform.parent.gameObject;
 

@@ -15,6 +15,8 @@ namespace NightSignal.Characters
         [System.NonSerialized] public CharacterBuilder.Skeleton Skeleton;
         public Transform[] Bones;
         public SkinnedMeshRenderer Body;
+        /// <summary>A mesh built for this rig alone (previews that change often), destroyed with it; cached meshes are shared.</summary>
+        Mesh ownedMesh;
 
         static readonly Dictionary<string, Mesh> MeshCache = new Dictionary<string, Mesh>();
 
@@ -31,7 +33,8 @@ namespace NightSignal.Characters
             return m;
         }
 
-        public static CharacterRig Create(CharacterLook look, CharacterMaterialSet mats = null, Transform parent = null, string name = null, int layer = GameLayers.Avatar)
+        public static CharacterRig Create(CharacterLook look, CharacterMaterialSet mats = null, Transform parent = null, string name = null, int layer = GameLayers.Avatar,
+            bool cacheMesh = true)
         {
             var go = new GameObject(name ?? $"Character_{look.Id}") { layer = layer };
             if (parent != null) go.transform.SetParent(parent, false);
@@ -50,7 +53,14 @@ namespace NightSignal.Characters
                 b.localRotation = Quaternion.identity;
                 rig.Bones[i] = b;
             }
-            Mesh mesh = MeshFor(look, rig.Skeleton);
+            Mesh mesh;
+            if (cacheMesh) mesh = MeshFor(look, rig.Skeleton);
+            else
+            {
+                mesh = CharacterBuilder.Build(look, rig.Skeleton);
+                mesh.hideFlags = HideFlags.DontSave;
+                rig.ownedMesh = mesh;
+            }
             var bodyGo = new GameObject("Body") { layer = layer };
             bodyGo.transform.SetParent(go.transform, false);
             var smr = bodyGo.AddComponent<SkinnedMeshRenderer>();
@@ -68,6 +78,11 @@ namespace NightSignal.Characters
             if (mats != null) smr.sharedMaterials = mats.For(look);
             rig.Body = smr;
             return rig;
+        }
+
+        void OnDestroy()
+        {
+            if (ownedMesh != null) Destroy(ownedMesh);
         }
 
         /// <summary>Back to the rest pose.</summary>

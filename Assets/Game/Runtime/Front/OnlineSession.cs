@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NightSignal.Characters;
 using NightSignal.Content;
 using NightSignal.Net;
 using Newtonsoft.Json.Linq;
@@ -73,6 +74,17 @@ namespace NightSignal.Front
         public bool IsLeader => InConvoy && (string)Convoy["leaderId"] == AccountId;
         public JToken MyMember => Convoy?["members"]?.FirstOrDefault(m => (string)m["accountId"] == AccountId);
         public string DisplayName => (string)(Me?["card"] as JObject)?["displayName"] ?? "Driver";
+
+        /// <summary>The driver look saved on the Player Card (validated again here), or null for the default look.</summary>
+        public CharacterLook CardLook
+        {
+            get
+            {
+                if (!((Me?["card"] as JObject)?["look"] is JObject l)) return null;
+                CharacterLook look = PlayerLooks.Parse(l.ToString(Newtonsoft.Json.Formatting.None));
+                return look != null && PlayerLooks.Problems(look).Count == 0 ? look : null;
+            }
+        }
         /// <summary>The public @username, or null before one is claimed (Addendum 01 §9.2).</summary>
         public string Handle => (string)(Me?["handle"] as JObject)?["handle"];
         public string StarterCarId => Me?["starterCarId"]?.Type == JTokenType.String ? (string)Me["starterCarId"] : null;
