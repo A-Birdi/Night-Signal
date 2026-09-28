@@ -125,6 +125,32 @@ namespace NightSignal.Front
             else if (endCue != RaceMusic.ResultsWin && endCue != RaceMusic.ResultsLoss) Fail($"no results cue at the finish ({endCue})");
             else if (mine != null && (endCue == RaceMusic.ResultsWin) != (mine.Outcome == RunOutcome.Finished && mine.Placement == 1))
                 Fail($"results cue {endCue} does not match P{mine.Placement}");
+
+            // A full grid (you + 11 AI) on a regional course: the region's arrangement, and the audio budget holds.
+            yield return new WaitForSeconds(3f);
+            const string gridCourse = "C01";
+            var free = new RaceEventRules { Kind = "freeplay", Contact = ContactPolicy.LightContact, StageNumber = 10 };
+            var field = Enumerable.Range(1, 11).Select(i => $"ai-{i}").ToList();
+            StartCoroutine(RunOfflineRace(gridCourse, "V01", free, field, false, null));
+            until = Time.realtimeSinceStartup + 60f;
+            while ((activeRace == null || activeRace.Phase != MatchPhase.Countdown) && Time.realtimeSinceStartup < until) yield return null;
+            if (activeRace == null) { Fail("the full-grid race did not start"); Finish(); yield break; }
+            activeRace.Autopilot = true;
+            yield return new WaitForSeconds(0.5f);
+            string regionCue = MusicPlayer.Instance?.CurrentCue, expected = RaceMusic.CueFor(lib.Catalogue, gridCourse, "freeplay", null, false);
+            if (regionCue != expected) Fail($"freeplay {gridCourse}: music {regionCue}, expected {expected}");
+            int maxAudible = 0, minAudible = int.MaxValue;
+            float t1 = Time.realtimeSinceStartup;
+            while (Time.realtimeSinceStartup - t1 < 20f && activeRace != null)
+            {
+                yield return null;
+                if (activeRace.Phase < MatchPhase.Racing) continue;
+                maxAudible = Math.Max(maxAudible, CarAudio.AudibleCount);
+                minAudible = Math.Min(minAudible, CarAudio.AudibleCount);
+            }
+            Note($"full grid on {gridCourse}: {activeRace?.Sim.Entrants.Count} cars, music {regionCue}; cars synthesizing {minAudible}..{maxAudible} (limit {CarAudio.MaxAudible}); level {Level():F1} dBFS");
+            if (maxAudible > CarAudio.MaxAudible) Fail($"{maxAudible} cars synthesizing on a full grid");
+            if (maxAudible < 2) Fail("only your car was audible on a full grid");
             Finish();
 
             void Finish()
