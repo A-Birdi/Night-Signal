@@ -651,12 +651,18 @@ public sealed class GarageService(IGarageStore store, IPlayerStore players, Cont
         return new EntrantAppearance(customization.StockHash(carId), null);
     }
 
-    /// <summary>The car a player brings to the meet: its model and applied livery (compact wire form, null = stock); null if not theirs.</summary>
-    public async Task<(string CarId, string? Livery)?> MeetAppearanceAsync(string account, string instanceId, CancellationToken ct)
+    /// <summary>
+    /// The car a player brings to the meet as others may inspect it: model, applied livery (compact wire form, null = stock),
+    /// legal PI and class of the APPLIED build and a one-line tune summary; null if the instance is not theirs.
+    /// </summary>
+    public async Task<(string CarId, string? Livery, int Pi, string PiClass, string Tune)?> MeetAppearanceAsync(string account, string instanceId, CancellationToken ct)
     {
         LoadedCar? c = await LoadAsync(account, instanceId, ct);
         if (c is null) return null;
-        return (c.Workspace.Car.ModelId, AppearanceOf(c.Workspace).Livery);
+        (EntrantBuild? build, _) = Resolve(c);
+        int parts = build?.Parts.Count ?? 0, tuned = build?.Tuning.Count ?? 0;
+        string tune = build is null ? "Build needs repair in the Garage" : parts == 0 && tuned == 0 ? "Stock" : $"{parts} upgraded part(s), {tuned} tuning change(s)";
+        return (c.Workspace.Car.ModelId, AppearanceOf(c.Workspace).Livery, build?.Pi ?? 0, build?.PiClass ?? "", tune);
     }
 
     /// <summary>Frozen builds of several entrants' selected instances (event.start); entrants without a valid build are omitted.</summary>

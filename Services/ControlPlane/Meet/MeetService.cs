@@ -50,7 +50,8 @@ public sealed class MeetContent
 /// <c>meet.poses</c> on the low-priority lane. Nothing here touches money, RP, unlocks, convoys or readiness.
 /// </summary>
 public sealed class MeetService(ConvoyDirectory directory, IPlayerStore store, ISocialStore social, GarageService garage, IToyNotifier notifier,
-    IConvoyNotifier control, RateLimiter limiter, TimeProvider clock, MeetContent content, Content.MusicUnlockManifest music, ILogger<MeetService> log)
+    IConvoyNotifier control, RateLimiter limiter, TimeProvider clock, MeetContent content, Content.MusicUnlockManifest music, Content.ContentService cars,
+    ILogger<MeetService> log)
 {
     public static readonly (int Limit, TimeSpan Window) MoveFlood = (30, TimeSpan.FromSeconds(1));
     public static readonly (int Limit, TimeSpan Window) ActionFlood = (20, TimeSpan.FromSeconds(10));
@@ -105,14 +106,20 @@ public sealed class MeetService(ConvoyDirectory directory, IPlayerStore store, I
         PlayerSnapshot me = await store.GetSnapshotAsync(account, ct);
         string name = me.Card?.DisplayName ?? "";
         if (name.Length == 0) return ConvoyResult.Fail("needs_card", "Create your player card before visiting the meet.");
-        string? carId = null, livery = null;
+        string? carId = null, livery = null, piClass = "", tune = "Stock";
+        int pi = 0;
         if (!string.IsNullOrEmpty(p.InstanceId))
         {
-            (string CarId, string? Livery)? car = await garage.MeetAppearanceAsync(account, p.InstanceId!, ct);
+            var car = await garage.MeetAppearanceAsync(account, p.InstanceId!, ct);
             if (car is null) return ConvoyResult.Fail("not_owned", "That car instance is not yours.");
-            (carId, livery) = car.Value;
+            (carId, livery, pi, piClass, tune) = car.Value;
         }
-        else if (me.Cars.Count > 0) carId = me.Cars[0].CarId;
+        else if (me.Cars.Count > 0)
+        {
+            carId = me.Cars[0].CarId;
+            pi = cars.Catalogue.Cars.FirstOrDefault(c => c.Id == carId)?.BasePI ?? 0;
+            piClass = PerformanceIndex.ClassOf(pi).ToString();
+        }
         if (carId is null) return ConvoyResult.Fail("needs_car", "Choose your starter car before visiting the meet.");
         FriendGraph graph = await social.GetFriendGraphAsync(account, ct);
         var blocked = new HashSet<string>(graph.Blocked.Select(b => b.AccountId), StringComparer.Ordinal);
@@ -195,6 +202,9 @@ public sealed class MeetService(ConvoyDirectory directory, IPlayerStore store, I
             }
             MeetJoinStatus status = room.Core.Join(account, name, carId, livery ?? "", convoySession ?? "", now, out MeetMember? member);
             if (member is null) return ConvoyResult.Fail("meet_full", "That meet is full.");
+            member.Pi = pi;
+            member.PiClass = piClass ?? "";
+            member.Tune = tune ?? "";
             visitors[account] = new Visitor { RoomId = room.Core.Id, OwnedCues = Owned(me), Blocked = blocked };
             room.EmptySince = DateTimeOffset.MaxValue;
             log.LogInformation("{Account} joined meet {Room} ({Kind}) in bay {Bay}: {Status}", account, room.Core.Id, kind, member.Bay + 1, status);
@@ -437,6 +447,7 @@ public sealed class MeetService(ConvoyDirectory directory, IPlayerStore store, I
                 emote = m.EmoteActive(now) ? m.Emote.ToString() : null, emoteStartMs = m.EmoteStartMs,
                 chat = m.ChatIndex >= 0 && now - m.ChatMs < 4000 && !Hidden(m.AccountId) ? new { index = m.ChatIndex, atMs = m.ChatMs } : null,
                 likes = m.Likes, likedByYou = m.LikedBy.Contains(viewer), blocked = Hidden(m.AccountId),
+                pi = m.Pi, piClass = m.PiClass, tune = m.Tune,
             }).ToList(),
             reservations = r.Reservations.Where(x => x.Value.UntilMs > now)
                 .Select(x => new { bay = x.Value.Bay + 1, untilMs = x.Value.UntilMs, forYou = x.Key == viewer }).ToList(),

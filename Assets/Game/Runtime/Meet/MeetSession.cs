@@ -24,7 +24,7 @@ namespace NightSignal.Meet
     /// their car. Offline, the same interactions run locally: rivals and the host are story characters standing by
     /// their cars, labelled as such — nobody pretends to be a connected player.
     /// </summary>
-    public sealed class MeetSession : MonoBehaviour
+    public sealed partial class MeetSession : MonoBehaviour
     {
         // ------------------------------------------------------------------ inputs (set before Start)
 
@@ -122,19 +122,25 @@ namespace NightSignal.Meet
             Physics.IgnoreLayerCollision(GameLayers.Avatar, GameLayers.Avatar, true);
             controls = new WalkingControls();
             controls.Enable();
-            Hud = new MeetHud("Cedar Lantern Terrace", "Offline meet · no other drivers are connected");
+            Hud = new MeetHud("Cedar Lantern Terrace", Net != null ? "Connecting to the meet…" : "Offline meet · no other drivers are connected");
             Hud.SetHints(Hints());
             Camera = MeetCamera.Create();
             spawned.Add(Camera.gameObject);
             Boombox = new BoomboxState("offline", id => MusicPlayer.Instance != null ? MusicPlayer.Instance.CueSeconds(id) : 0, NowMs);
             unlockHints = UnlockHints();
             PlaceNpcs();
-            PlayerBay = MeetLayout.AllocateBay(occupied);
-            occupied.Add(PlayerBay);
             BuildSpots();
             BuildBoard();
-            BeginArrival();
             MusicPlayer.Ensure()?.Play(BoomboxState.DefaultCue, 2f);
+            if (Net != null)
+            {
+                // Online: the room server chooses the bay (never a local pick); the arrival starts once it has.
+                StartCoroutine(JoinOnline());
+                return;
+            }
+            PlayerBay = MeetLayout.AllocateBay(occupied);
+            occupied.Add(PlayerBay);
+            BeginArrival();
             Hud.Notify("Offline meet: no other drivers are connected", "offline");
             Note($"meet opened; player bay {PlayerBay + 1}; {npcs.Count - 1} rivals at their cars; host {Text.HostName}");
         }
@@ -144,6 +150,7 @@ namespace NightSignal.Meet
             controls?.Disable();
             controls?.Dispose();
             Hud?.Dispose();
+            Net?.Dispose();
             foreach (GameObject go in spawned) if (go != null) Destroy(go);
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
@@ -390,6 +397,7 @@ namespace NightSignal.Meet
             Camera.Recenter();
             State = Phase.Walking;
             Hud.Notify($"Parked in bay {PlayerBay + 1}: {CarName}", "parked");
+            if (Net != null) StartCoroutine(ArrivedOnline());
             Note($"arrived in bay {PlayerBay + 1} after {arrivalT:F2} s (skippable flourish)");
         }
 
@@ -407,9 +415,14 @@ namespace NightSignal.Meet
 
         void Update()
         {
-            if (State == Phase.Loading) return;
             float dt = Time.deltaTime;
+            if (State == Phase.Loading)
+            {
+                Hud?.Tick(dt);
+                return;
+            }
             Hud.Tick(dt);
+            if (Net != null) OnlineFrame(dt);
             Boombox.Tick(NowMs);
             UpdateNpcs(dt);
             switch (State)
@@ -515,6 +528,7 @@ namespace NightSignal.Meet
                 float score = dist - facing * 0.8f;
                 if (score < bestScore) { bestScore = score; best = s; }
             }
+            if (Net != null) best = NearestRemote(me, fwd, best, ref bestScore);
             // Your own car.
             MeetBay b = MeetLayout.Bays[PlayerBay];
             Vector3 car = new Vector3(b.X, 0f, b.Z);
@@ -531,6 +545,7 @@ namespace NightSignal.Meet
             if (Player == null) return;
             Player.Intent = Vector3.zero;
             PlayerMotion.Play(e);
+            Net?.Fire("meet.emote", new { emote = e.ToString() });
             Note($"emote {e}");
             // The host returns a wave or a bow made within a few metres (the tutorial lesson).
             if (host != null && (e == Emote.Wave || e == Emote.Bow) && Vector3.Distance(host.Rig.transform.position, Player.transform.position) < 7f)
@@ -594,6 +609,8 @@ namespace NightSignal.Meet
         {
             Hud.HidePanel();
             if (Boombox.LeaseHolder == PlayerName) Boombox.Release(PlayerName);
+            if (Net != null && boomboxOpen) Net.Fire("meet.boombox", new { op = "release" });
+            boomboxOpen = false;
             if (State == Phase.Panel) State = Phase.Walking;
             if (Player != null) Player.Frozen = false;
         }
@@ -606,7 +623,17 @@ namespace NightSignal.Meet
             if (Hud.PanelTitle == "Boombox")
             {
                 bool inRange = Vector3.Distance(Player.transform.position, new Vector3(MeetLayout.Boombox.X, 0f, MeetLayout.Boombox.Z)) < 3f;
-                if (Boombox.Acquire(PlayerName, NowMs, inRange) != BoomboxStatus.Ok) { ClosePanel(); return; }
+                if (Net != null)
+                {
+                    // The room's lease lasts 15 s: renew it while the panel stays open and in range.
+                    if (!inRange) { ClosePanel(); return; }
+                    if (Time.unscaledTime >= nextLeaseRenew)
+                    {
+                        nextLeaseRenew = Time.unscaledTime + 8f;
+                        Net.Fire("meet.boombox", new { op = "acquire" });
+                    }
+                }
+                else if (Boombox.Acquire(PlayerName, NowMs, inRange) != BoomboxStatus.Ok) { ClosePanel(); return; }
             }
         }
 
@@ -630,6 +657,8 @@ namespace NightSignal.Meet
                     break;
                 case "car": InspectNpcCar(s.Npc); break;
                 case "own-car": OwnCar(); break;
+                case "remote-car": InspectRemoteCar(s.Id); break;
+                case "remote-person": GreetRemote(s.Id); break;
                 case "placard":
                 {
                     MeetText.Placard t = Text.Find(s.Id);
@@ -751,7 +780,7 @@ namespace NightSignal.Meet
             else if (controls.InteractPressed && !Hud.PanelOpen) ShowCarOptions();
         }
 
-        float inCarYaw, inCarPitch;
+        float inCarYaw, inCarPitch, nextLeaseRenew;
 
         public void GetOutOfCar()
         {
@@ -771,6 +800,11 @@ namespace NightSignal.Meet
 
         public void OpenBoombox()
         {
+            if (Net != null)
+            {
+                OpenBoomboxOnline();
+                return;
+            }
             BoomboxStatus s = Boombox.Acquire(PlayerName, NowMs);
             if (s != BoomboxStatus.Ok)
             {
@@ -782,6 +816,11 @@ namespace NightSignal.Meet
 
         void RefreshBoombox()
         {
+            if (Net != null)
+            {
+                RefreshBoomboxOnline();
+                return;
+            }
             MusicPlayer mp = MusicPlayer.Instance;
             bool protect = DrivingPreferences.Current.ProtectBossMusic;
             string Title(string id)
@@ -798,14 +837,8 @@ namespace NightSignal.Meet
             var locked = new List<string>();
             var actions = new List<(string, Action)>();
             foreach (string id in MusicCueIdsAll())
-            {
-                if (OwnsCue(id))
-                {
-                    string cue = id;
-                    actions.Add(($"Queue: {Title(id)}", () => Queue(cue)));
-                }
-                else locked.Add(BoomboxState.IsProtected(id) ? $"Locked encounter theme — {Hint(id)}" : $"Locked: {Title(id)} — {Hint(id)}");
-            }
+                if (!OwnsCue(id)) locked.Add(BoomboxState.IsProtected(id) ? $"Locked encounter theme — {Hint(id)}" : $"Locked: {Title(id)} — {Hint(id)}");
+            AddCuePage(actions, Title, Queue, RefreshBoombox);
             if (locked.Count > 0) sb.AppendLine("<color=#9A968D>" + string.Join("\n", locked.Take(8)) + (locked.Count > 8 ? $"\n… and {locked.Count - 8} more" : "") + "</color>");
             sb.AppendLine();
             sb.AppendLine($"One request each · up to {BoomboxState.MaxQueue} queued · a change at most every {BoomboxState.MinChangeIntervalMs / 1000} s.");
@@ -822,6 +855,11 @@ namespace NightSignal.Meet
 
         public void Queue(string cue)
         {
+            if (Net != null)
+            {
+                BoomboxOp("queue", cue);
+                return;
+            }
             BoomboxStatus s = Boombox.Enqueue(PlayerName, cue, OwnsCue(cue), NowMs);
             Hud.Notify(Status(s), null);
             Note($"boombox queue {cue}: {s}");
@@ -846,6 +884,24 @@ namespace NightSignal.Meet
 
         static IEnumerable<string> MusicCueIdsAll() => NightSignal.AudioSynth.MusicCueIds.All;
 
+        int cuePage;
+        const int CuesPerPage = 8;
+
+        /// <summary>The owned cues as queue buttons, eight at a time, with a button to the next page when there are more.</summary>
+        void AddCuePage(List<(string, Action)> actions, Func<string, string> title, Action<string> queue, Action refresh)
+        {
+            List<string> owned = MusicCueIdsAll().Where(id => OwnsCue(id)).ToList();
+            int pages = Mathf.Max(1, (owned.Count + CuesPerPage - 1) / CuesPerPage);
+            cuePage = Mathf.Clamp(cuePage, 0, pages - 1);
+            foreach (string id in owned.Skip(cuePage * CuesPerPage).Take(CuesPerPage))
+            {
+                string cue = id;
+                actions.Add(($"Queue: {title(id)}", () => queue(cue)));
+            }
+            if (pages > 1)
+                actions.Add(($"More music ({cuePage + 1} of {pages})", () => { cuePage = (cuePage + 1) % pages; refresh(); }));
+        }
+
         /// <summary>Near the boombox you hear its track; further out the meet bed (never two full-volume tracks at once).</summary>
         void Music()
         {
@@ -853,7 +909,8 @@ namespace NightSignal.Meet
             if (mp == null || Player == null) return;
             float d = Vector3.Distance(Player.transform.position, new Vector3(MeetLayout.Boombox.X, 0f, MeetLayout.Boombox.Z));
             nearBoombox = nearBoombox ? d < 26f : d < 20f;
-            string want = nearBoombox ? BoomboxState.AudibleFor(Boombox.TrackId, OwnsCue, DrivingPreferences.Current.ProtectBossMusic) : BoomboxState.DefaultCue;
+            string track = Net != null ? OnlineTrack() : Boombox.TrackId;
+            string want = nearBoombox ? BoomboxState.AudibleFor(track, OwnsCue, DrivingPreferences.Current.ProtectBossMusic) : BoomboxState.DefaultCue;
             mp.Play(want, 2.5f);
         }
 
@@ -874,6 +931,7 @@ namespace NightSignal.Meet
         {
             bubbleText = phrase;
             bubbleUntil = Time.time + 4f;
+            if (Net != null && Text.QuickChat.IndexOf(phrase) >= 0) Net.Fire("meet.chat", new { index = Text.QuickChat.IndexOf(phrase) });
             Note($"quick chat: {phrase}");
         }
 
@@ -924,7 +982,8 @@ namespace NightSignal.Meet
         public void Leave()
         {
             Note("leave requested");
-            ExitRequested = true;
+            if (Net != null) StartCoroutine(LeaveOnline());
+            else ExitRequested = true;
         }
 
         string Hints() =>
@@ -962,6 +1021,7 @@ namespace NightSignal.Meet
                 Vector3 p = n.Rig.transform.position;
                 Hud.Nameplate(n, cam, p + Vector3.up * (n.Rig.Skeleton.H + 0.35f), tag, show);
             }
+            if (Net != null) RemoteLabels(cam, show);
             if (Player != null)
                 Hud.Bubble(cam, Player.transform.position + Vector3.up * (Player.GetComponent<CharacterRig>().Skeleton.H + 0.4f), Time.time < bubbleUntil ? bubbleText : "");
         }

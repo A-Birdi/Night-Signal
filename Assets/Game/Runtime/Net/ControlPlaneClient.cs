@@ -54,6 +54,8 @@ namespace NightSignal.Net
         public event Action<JObject> ToyActivity;
         /// <summary>convoy.invited: a friend invited this account to their convoy (accept = convoy.join {inviteId}).</summary>
         public event Action<JObject> Invited;
+        /// <summary>The meet room's state (on change) and poses (≈10 Hz), and an invitation to a friend's meet.</summary>
+        public event Action<JObject> MeetState, MeetPoses, MeetInvited;
 
         public ControlPlaneClient(string baseUrl)
         {
@@ -208,6 +210,9 @@ namespace NightSignal.Net
                     case "toy.state": ToyState?.Invoke(payload); break;
                     case "toy.activity": ToyActivity?.Invoke(payload); break;
                     case "convoy.invited": Invited?.Invoke(payload); break;
+                    case "meet.state": MeetState?.Invoke(payload); break;
+                    case "meet.poses": MeetPoses?.Invoke(payload); break;
+                    case "meet.invited": MeetInvited?.Invoke(payload); break;
                     case "convoy.closed":
                         ConvoyState = null;
                         ConvoyRevision = -1;

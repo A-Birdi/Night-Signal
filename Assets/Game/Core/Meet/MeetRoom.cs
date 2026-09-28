@@ -31,6 +31,9 @@ namespace NightSignal.Core.Meet
         public int ChatIndex = -1;
         public long ChatMs = long.MinValue / 2;
         public int Likes;
+        /// <summary>What others may inspect: the applied build's legal PI and class and a one-line tune summary.</summary>
+        public int Pi;
+        public string PiClass = "", Tune = "";
         public readonly HashSet<string> LikedBy = new HashSet<string>();
 
         public bool EmoteActive(long now) => Emote != Emote.None && now - EmoteStartMs < (long)(Emotes.Duration(Emote) * 1000f);

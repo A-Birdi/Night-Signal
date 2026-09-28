@@ -35,7 +35,8 @@ namespace NightSignal.Front
 
         TextMeshProUGUI heading, status, error, rosterText, lastResult, intentLine, proposalLine, postLine, inviteLine;
         Button create, createPrivate, joinCode, refresh, rejoin, notNow, chooseStarter;
-        Button proposeIntent, modeReady, enterMode, proposeEvent, eventReady, start, cont, serviceBreak, advance, invite, leave, signOut, table, friendsButton, coursesButton, garageButton, spectate;
+        Button proposeIntent, modeReady, enterMode, proposeEvent, eventReady, start, cont, serviceBreak, advance, invite, leave, signOut, table, friendsButton, coursesButton, garageButton, spectate,
+            meetPublic, meetConvoy;
         Button votingToggle, openVote, castVote, drawVote, cancelVote;
         List<string> ballotIds = new List<string>();
         Stepper ballotCourse;
@@ -141,6 +142,9 @@ namespace NightSignal.Front
             inviteLine.richText = true;
             // While We Wait (Addendum 02 §1): the convoy's shared Pocket Circuit table; readiness is kept while playing.
             table = UIFactory.Button("WhileWeWait", col, "While We Wait", () => App.Router.Show(App.WhileWeWait), 620, 52);
+            // The meet (spec §12): a public instance, or the convoy's own (members kept together).
+            meetPublic = UIFactory.Button("MeetPublic", col, "Car Meet: Join Public Meet", () => App.StartOnlineMeet("public", null, this), 620, 48);
+            meetConvoy = UIFactory.Button("MeetConvoy", col, "Car Meet: Convoy Meet", () => App.StartOnlineMeet("convoy", null, this), 620, 48);
             friendsButton = UIFactory.Button("OpenFriends", col, "Friends", () => App.Router.Show(App.Friends), 620, 48);
             coursesButton = UIFactory.Button("OpenCourses", col, "Courses", () => App.Router.Show(App.Courses), 620, 48);
             garageButton = UIFactory.Button("OpenGarage", col, "Garage", () => App.Router.Show(App.Garage), 620, 48);
@@ -250,6 +254,8 @@ namespace NightSignal.Front
             friendsButton.GetComponentInChildren<TextMeshProUGUI>().text = pendingSocial > 0 ? $"Friends   ({pendingSocial} invitation{(pendingSocial == 1 ? "" : "s")})" : "Friends";
             string phaseNow = inConvoy ? (string)c["phase"] : "";
             table.gameObject.SetActive(inConvoy && phaseNow != "Allocating" && phaseNow != "InMatch");
+            meetPublic.gameObject.SetActive(!needStarter && phaseNow != "Allocating" && phaseNow != "InMatch");
+            meetConvoy.gameObject.SetActive(!needStarter && inConvoy && phaseNow != "Allocating" && phaseNow != "InMatch");
 
             string phase = inConvoy ? (string)c["phase"] : "";
             JObject intentObj = inConvoy ? c["intent"] as JObject : null;

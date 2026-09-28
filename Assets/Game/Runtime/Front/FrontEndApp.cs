@@ -99,6 +99,9 @@ namespace NightSignal.Front
                 StartCoroutine(YardTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsMeetTour") >= 0)
                 StartCoroutine(MeetTour());
+            int meetOnline = Array.IndexOf(Environment.GetCommandLineArgs(), "-nsMeetTourOnline");
+            if (meetOnline >= 0 && meetOnline + 1 < Environment.GetCommandLineArgs().Length)
+                StartCoroutine(MeetTourOnline(Environment.GetCommandLineArgs()[meetOnline + 1]));
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsAppearanceTour") >= 0)
                 StartCoroutine(AppearanceTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsInstrumentTour") >= 0)
@@ -487,6 +490,8 @@ namespace NightSignal.Front
         IEnumerator RunOnlineRace(Newtonsoft.Json.Linq.JObject allocation, bool spectating = false)
         {
             if (onlineRace != null) yield break;
+            // At the meet when the convoy's event allocates: cancel emotes/panels and leave the room first (spec §12).
+            LeaveMeetForRace();
             OnlineSession session = OnlineSession.Current;
             string matchId = (string)allocation["matchId"];
             // The server has already paused the toys at the match commit; leave the table view so nothing renders under the race.
