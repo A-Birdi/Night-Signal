@@ -65,6 +65,12 @@ namespace NightSignal.UI
         public bool MotionBlur;
         /// <summary>Remapped driving controls (the Input System's binding-override JSON); empty = the documented defaults.</summary>
         public string BindingOverrides = "";
+        /// <summary>Remapped meet walking controls (same format as <see cref="BindingOverrides"/>).</summary>
+        public string WalkingBindingOverrides = "";
+        /// <summary>Meet boombox: hear the neutral bed instead of boss themes you have not reached (Addendum 01 §11.4; default on).</summary>
+        public bool ProtectBossMusic = true;
+        /// <summary>Meet camera look sensitivity multiplier.</summary>
+        public float LookSensitivity = 1f;
 
         public SpeedUnit Unit => SpeedDisplay.Parse(Units);
         public bool Dial => SpeedStyle != "strip";
@@ -119,6 +125,8 @@ namespace NightSignal.UI
             HudScale = float.IsNaN(HudScale) ? 1f : Mathf.Clamp(HudScale, 0.8f, 1.4f);
             Custom = Custom.Clamped();
             if (BindingOverrides == null) BindingOverrides = "";
+            if (WalkingBindingOverrides == null) WalkingBindingOverrides = "";
+            LookSensitivity = float.IsNaN(LookSensitivity) || LookSensitivity <= 0f ? 1f : Mathf.Clamp(LookSensitivity, 0.3f, 3f);
             Schema = CurrentSchema;
             return this;
         }

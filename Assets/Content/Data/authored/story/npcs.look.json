@@ -1,0 +1,8 @@
+{
+  "schema": "night-signal/character-looks@1",
+  "authoredBy": "Night Signal art pass (meet host from meet.text.json: terrace warden, retired timing-crew chief)",
+  "conventions": "Visual only, never gameplay. Same vocabulary as rivals.look.json.",
+  "looks": [
+    {"id": "NPC-GENZO", "height": 1.66, "build": "sturdy", "limbs": 0.98, "skin": "#D9A87E", "hair": "receding", "hairColour": "#B8B4AE", "facialHair": "moustache", "outfit": "cardigan", "sleeves": "long", "length": "", "primary": "#5B6B5A", "secondary": "#E8E0CC", "accent": "#C9A227", "lower": "trousers", "lowerColour": "#3A3A3A", "shoes": "loafers", "shoeColour": "#3A2A20", "accessories": ["glasses", "lanyard"], "posture": "relaxed", "face": "smile"}
+  ]
+}

@@ -26,6 +26,10 @@ namespace NightSignal.Content
         public TextAsset CustomizationDocument;
         /// <summary>Rival appearances (story/rivals.look.json): visual only, not in the race hash.</summary>
         public TextAsset CharacterLooks;
+        /// <summary>Meet NPC appearances (story/npcs.look.json): the terrace host.</summary>
+        public TextAsset NpcLooks;
+        /// <summary>Meet text (story/meet.text.json): host dialogue, placards, timing board, quick chat.</summary>
+        public TextAsset MeetText;
 
         ContentCatalogue catalogue;
         Dictionary<string, CarBodyDef> bodies;
@@ -50,8 +54,9 @@ namespace NightSignal.Content
             if (looks == null)
             {
                 looks = new Dictionary<string, Characters.CharacterLook>();
-                if (CharacterLooks != null)
-                    foreach (Characters.CharacterLook l in JsonConvert.DeserializeObject<Characters.CharacterLookFile>(CharacterLooks.text).Looks) looks[l.Id] = l;
+                foreach (TextAsset t in new[] { CharacterLooks, NpcLooks })
+                    if (t != null)
+                        foreach (Characters.CharacterLook l in JsonConvert.DeserializeObject<Characters.CharacterLookFile>(t.text).Looks) looks[l.Id] = l;
             }
             return looks.TryGetValue(id, out Characters.CharacterLook look) ? look : null;
         }

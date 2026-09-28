@@ -113,6 +113,15 @@ namespace NightSignal.Core.Meet
         /// <summary>The photo marker: stand here and the east bays frame against the mountain horizon.</summary>
         public static readonly MeetPoint PhotoMarker = new MeetPoint(-18f, 8f);
         public const float PhotoYaw = 90f;
+        /// <summary>The four viewpoint placards (meet.text.json placards.viewpoints), each facing its view.</summary>
+        public static readonly MeetBox[] Placards =
+        {
+            new MeetBox("VIEW-N", -22f, 47.4f, 0.45f, 0.12f, 0f),
+            new MeetBox("VIEW-E", 67.4f, 9f, 0.45f, 0.12f, 90f),
+            new MeetBox("VIEW-S", -12f, -45.6f, 0.45f, 0.12f, 180f),
+            new MeetBox("VIEW-W", -67.3f, 4f, 0.45f, 0.12f, 270f),
+        };
+
         /// <summary>Where a new arrival's avatar stands before its bay is known, and the fallback rescue spot.</summary>
         public static readonly MeetPoint PlazaCentre = new MeetPoint(0f, 16f);
 
@@ -133,6 +142,7 @@ namespace NightSignal.Core.Meet
                     new MeetBox("bench-a", -6f, 36.2f, 1.2f, 0.3f), new MeetBox("bench-b", 6f, 36.2f, 1.2f, 0.3f),
                     new MeetBox("bench-garden-n", -5.5f, 5.2f, 1.4f, 0.3f), new MeetBox("bench-garden-s", 5.5f, -9.2f, 1.4f, 0.3f),
                 };
+                boxes.AddRange(Placards);
                 // Awning posts.
                 foreach (float x in new[] { -7.6f, 7.6f })
                     boxes.Add(new MeetBox($"awning-post{(x < 0 ? "W" : "E")}", x, 37.4f, 0.12f, 0.12f));
@@ -176,20 +186,20 @@ namespace NightSignal.Core.Meet
             return true;
         }
 
-        /// <summary>The driver's door point beside a bay's car (the plaza-side... left of the car, 1 m out).</summary>
-        public static MeetPoint DoorPoint(int bay)
+        /// <summary>The driver's door point beside a bay's car, 0.75 m out from the body (<paramref name="driverSide"/> −1 left-hand drive, +1 right-hand).</summary>
+        public static MeetPoint DoorPoint(int bay, int driverSide = -1)
         {
             MeetBox f = Bays[bay].Footprint;
-            return f.FromLocal(-(MeetBay.HalfWidth + 0.75f), 0.35f);
+            return f.FromLocal((driverSide >= 0 ? 1f : -1f) * (MeetBay.HalfWidth + 0.75f), 0.35f);
         }
 
         /// <summary>
         /// A validated free point beside the bay's car for getting out or rescue: the door point first, then points around
         /// the car and out into the plaza, skipping anything not walkable or within 0.8 m of another avatar.
         /// </summary>
-        public static bool TryFreeSpot(int bay, ICollection<int> occupiedBays, IList<MeetPoint> avatars, out MeetPoint spot)
+        public static bool TryFreeSpot(int bay, ICollection<int> occupiedBays, IList<MeetPoint> avatars, out MeetPoint spot, int driverSide = -1)
         {
-            var candidates = new List<MeetPoint> { DoorPoint(bay) };
+            var candidates = new List<MeetPoint> { DoorPoint(bay, driverSide), DoorPoint(bay, -driverSide) };
             MeetBox f = Bays[bay].Footprint;
             float w = MeetBay.HalfWidth + 0.75f, l = MeetBay.HalfLength + 0.8f;
             candidates.Add(f.FromLocal(-w, -1.4f));

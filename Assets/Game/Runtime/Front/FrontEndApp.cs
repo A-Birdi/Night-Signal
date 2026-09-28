@@ -97,6 +97,8 @@ namespace NightSignal.Front
                 StartCoroutine(UiTourOnline());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsYardTour") >= 0)
                 StartCoroutine(YardTour());
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsMeetTour") >= 0)
+                StartCoroutine(MeetTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsAppearanceTour") >= 0)
                 StartCoroutine(AppearanceTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsInstrumentTour") >= 0)

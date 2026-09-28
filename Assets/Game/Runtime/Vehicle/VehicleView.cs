@@ -258,6 +258,17 @@ namespace NightSignal.Vehicle
             body.localRotation = Quaternion.identity;
         }
 
+        /// <summary>
+        /// Presentation driving (the meet's arrival spline): parked ride height, steered front wheels and wheels rolled by
+        /// the distance travelled. No physics, no collision.
+        /// </summary>
+        public void ShowRolling(Vector3 groundPosition, Quaternion rotation, float steerDeg, float rolledMetres)
+        {
+            ShowParked(groundPosition, rotation, steerDeg);
+            float deg = Mathf.Repeat(rolledMetres / Mathf.Max(0.2f, p.WheelRadiusM) * Mathf.Rad2Deg, 360f);
+            for (int i = 0; i < 4; i++) wheelSpin[i].localRotation = Quaternion.Euler(deg, 0f, 0f);
+        }
+
         /// <summary>Visual wheel offset (appearance only): left wheels move −x, right +x.</summary>
         Vector3 Offset(int wheel) => Appearance == null || Appearance.WheelOffsetM == 0f ? Vector3.zero
             : new Vector3(wheel % 2 == 0 ? -Appearance.WheelOffsetM : Appearance.WheelOffsetM, 0f, 0f);

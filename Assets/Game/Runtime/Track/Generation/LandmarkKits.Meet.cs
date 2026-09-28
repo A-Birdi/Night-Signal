@@ -485,6 +485,15 @@ namespace NightSignal.Track.Generation
             // Petals scattered on the garden and the west paving.
             Petals(mb, new Vector3(0f, 0.15f, -2f), 8f, 60, rng);
             Petals(mb, new Vector3(-40f, 0f, 0f), 14f, 70, rng);
+            // Viewpoint placards: a post and a sloped reading board facing the view.
+            foreach (MeetBox pl in MeetLayout.Placards)
+            {
+                var pc = new Vector3(pl.X, 0f, pl.Z);
+                Quaternion face = Quaternion.Euler(0f, pl.Yaw, 0f);
+                Bx(mb, M.WoodDark, pc + Vector3.up * 0.45f, new Vector3(0.06f, 0.45f, 0.06f), pl.Yaw);
+                mb.AddBox((int)M.WoodDark, pc + Vector3.up * 0.98f, new Vector3(0.45f, 0.28f, 0.035f), face * Quaternion.Euler(35f, 0f, 0f), 0.5f);
+                mb.AddBox((int)M.OffWhite, pc + Vector3.up * 0.98f + face * Quaternion.Euler(35f, 0f, 0f) * new Vector3(0f, 0f, -0.037f), new Vector3(0.4f, 0.23f, 0.004f), face * Quaternion.Euler(35f, 0f, 0f), 0.5f);
+            }
             // Photo marker: a brass-edged stone disc with a direction notch facing the east bays and the mountains.
             var pm = V(MeetLayout.PhotoMarker, 0.006f);
             Lathe(mb, M.OffWhite, pm, new[] { new Vector2(0.55f, 0f), new Vector2(0.55f, 0.012f) }, 24, false, true);

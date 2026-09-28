@@ -40,6 +40,9 @@ namespace NightSignal.Editor.ContentTools
             lib.CustomizationDocument = Load("Assets/Content/Data/authored/customization.json");
             if (File.Exists("Assets/Content/Data/authored/story/rivals.look.json"))
                 lib.CharacterLooks = Load("Assets/Content/Data/authored/story/rivals.look.json");
+            if (File.Exists("Assets/Content/Data/authored/story/npcs.look.json"))
+                lib.NpcLooks = Load("Assets/Content/Data/authored/story/npcs.look.json");
+            lib.MeetText = Load("Assets/Content/Data/authored/story/meet.text.json");
             if (create) AssetDatabase.CreateAsset(lib, LibraryPath);
             EditorUtility.SetDirty(lib);
 

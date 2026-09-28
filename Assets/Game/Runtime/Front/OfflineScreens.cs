@@ -111,6 +111,10 @@ namespace NightSignal.Front
             campaign = UIFactory.Button("Campaign", col, "Campaign Map", () => App.Router.Show(App.CampaignMap), 620, 60);
             UIFactory.Button("Garage", col, "Garage", () => App.Router.Show(App.Garage), 620, 52);
             UIFactory.Button("WhileWeWait", col, "While We Wait", () => App.Router.Show(App.WhileWeWait), 620, 52);
+            UIFactory.Button("Meet", col, "Car Meet: Cedar Lantern Terrace", () =>
+            {
+                if (cars.Count > 0) App.StartOfflineMeet(cars[car.Index], this);
+            }, 620, 52);
             UIFactory.Row("FreeplayHeading", col, "FREEPLAY", SignalTheme.Small, SignalTheme.LabelDim, 640, 28, true);
             course = new Stepper(col, "Course", playable.Count, CourseLabel);
             car = new Stepper(col, "Car", 1, i => cars.Count == 0 ? "—" : CarLabel(cars[i]));

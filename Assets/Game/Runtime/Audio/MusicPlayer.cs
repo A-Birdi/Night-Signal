@@ -110,6 +110,33 @@ namespace NightSignal.GameAudio
             return score;
         }
 
+        public bool HasCue(string cueId) => cueId != null && sources.ContainsKey(cueId);
+
+        /// <summary>A cue's display title and category from its score metadata (the boombox list); false when unknown.</summary>
+        public bool CueInfo(string cueId, out string displayTitle, out string category)
+        {
+            displayTitle = cueId;
+            category = "";
+            if (cueId == null || !sources.TryGetValue(cueId, out TextAsset asset)) return false;
+            try
+            {
+                JsonValue root = Json.Parse(asset.text);
+                JsonValue cue = root.Get("cue");
+                displayTitle = cue?.Str("displayTitle") ?? root.Str("title", cueId);
+                category = cue?.Str("category", "") ?? "";
+                return true;
+            }
+            catch (JsonException) { return false; }
+        }
+
+        /// <summary>One full pass of a cue (intro + loop body) in seconds; compiles it if needed. 0 when unknown.</summary>
+        public double CueSeconds(string cueId)
+        {
+            if (!HasCue(cueId)) return 0;
+            CompiledScore score = GetScore(cueId);
+            return score != null ? score.TotalSeconds : 0;
+        }
+
         /// <summary>Crossfades to <paramref name="cueId"/>. Returns false if the cue is unknown or invalid.</summary>
         public bool Play(string cueId, float crossfadeSeconds = -1f)
         {
