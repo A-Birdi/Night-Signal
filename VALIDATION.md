@@ -2121,3 +2121,18 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - **Limits:** a convoy member's shared ghost and an authored rival reference are not served yet (the kept ghosts are
   read by their owner only); no post-race route/elevation chart; the online checkpoint deltas are as late as the server's
   snapshots; the autopilot's second run was faster by chance of network timing, not by design.
+
+## V-105 — The course-uniqueness validator and report (spec §14) (2026-09-28)
+- Revision: the work committed with this entry; executed in the editor on the routes as committed.
+- **What changed:** R14.2 was "not started". Core `CourseUniqueness`: every counted course (the 24 regular stages, the
+  finale and the three Freeplay additions — not the tutorial) is compared with every other in the frame it is authored
+  in (each course is its own scene starting at its grid, so overlap means a near-copy of another course's shape): a
+  centreline point is shared when another course passes within 8 m; the first and last 100 m are the allowed approaches;
+  at least 70% must be exclusive. The editor report (Night Signal > Content > Course Uniqueness Report) runs it on the
+  generated centrelines (every 4 m) and writes `Evidence/courses/uniqueness-report.txt`.
+- **Result:** 28 counted courses, none flagged; the lowest are FP01 72.8% (closest FP03), C14 76.1% (FP01), FP03 78.4%
+  (FP01); every regular course except C14 is at least 89% exclusive.
+- **Tests:** .NET `CourseUniquenessTests` (a copy fails, a distinct course passes, a crossing costs little, a shared
+  approach is allowed, a course sharing half its road fails; which kinds count) — Core 148.
+- **Limits:** a geometric shape check with an 8 m tolerance, not a judgement of how different two courses feel; FP01,
+  C14 and FP03 sit closest to the floor and are worth a visual review.
