@@ -1,0 +1,10 @@
+[NightSignal.MeetTour] photo composition at the marker: True
+[NightSignal.MeetTour] touring challenges on the profile: CH61, CH62, CH63, CH64; wallet +9000 since the placards
+[NightSignal.MeetTour] log: challenge CH63 completed (A Driver's Greeting, +3000 cr)
+[NightSignal.MeetTour] log: challenge CH62 completed (Four Corners of the Terrace, +3000 cr)
+[NightSignal.MeetTour] log: challenge CH61 completed (First Parking Place, +3000 cr)
+[NightSignal.MeetTour] log: challenge CH64 completed (A Picture With a Horizon, +3000 cr)
+[NightSignal.MeetTour] PASS
+[NightSignal.MeetConvoy:host] CH61 on the account: True (ribbon notice this visit: True)
+[NightSignal.Meet] viewed Driver 1's driver card
+[NightSignal.MeetConvoy:guest] host's driver card: <b>Driver 1</b>   @nsdriver0 |  | Rank: Night Runner · 1,120 RP | Campaign: Normal 10/30 · Hard 0/30 | Challenges: 3/75 | Here with: V01 Kogane Hachi RS · PI 220 class D

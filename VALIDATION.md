@@ -1584,3 +1584,32 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   Tool/Prev throughout, and a mouse move handed the pointer back. Evidence: `Evidence/ui/canvas-pad/`.
 - **Limits:** a simulated controller, not a person with a pad; the online Canvas uses the same screen code but was not
   driven by a controller in a networked run.
+
+
+## V-084 — The meet's touring challenges CH61–CH65 (2026-09-28)
+- Revision: `5934d04` (player build of that commit; control plane restarted on it).
+- **What changed:** Core `MeetTouring` defines the five touring challenges and where each act counts: CH61 First
+  Parking Place (arrive, then inspect your own car beside it), CH62 Four Corners of the Terrace (read all four viewpoint
+  placards at the placards), CH63 A Driver's Greeting (wave and bow at the tutorial host and read the emote help there),
+  CH64 A Picture With a Horizon (save a photo at the overlook marker that passes the new composition check: marker,
+  your car in frame, horizon level), CH65 Bring It Home (read your result slip at the timing board after a finished
+  event). **Online** the meet room records arrivals and wave/bow itself and `meet.touring {step, id}` for the rest,
+  always against the server-held position (a claim from across the terrace is refused `not_here`; the result slip
+  needs a settled finish, else `no_event`); completions go through the new `GrantChallengeAsync` — unlock, cosmetic and
+  cash exactly once with an append-only ledger entry (`challenge/<account>/<id>`) — and are pushed as `meet.challenge`
+  (a SIGNAL notice). **Offline** the Local profile grants them through `LocalProgression.CompleteMeetChallenge`
+  (touring family only, once). The meet menus now say that only these challenges pay out at the terrace.
+- **Tests:** .NET `MeetTouringTests` (over the real control channel with a route found on the Core walkable map: refused
+  before arriving, CH61 beside the car, emote help refused from the bay, result slip refused at the board with no
+  event, CH63 after walking to the host with server-played wave and bow, never twice, wallet and `/v1/me` updated);
+  all Services suites 232 + 92 + 123 + 342 pass.
+- **Built players:** offline meet tour — **PASS**: CH63 at the host, CH62 after reading the four placards at their
+  places (the East placard read from the plaza earlier counted for nothing), CH61 beside the own car, CH64 with the car
+  framed from the marker (composition check true), each +3,000 cr once; CH65 *not* granted (the new profile has no
+  finished event). Convoy tour online — **PASS**: the host's own-car inspection granted CH61 with the ribbon notice; the
+  guest's view of the host's driver card then read 1,120 RP and 3/75 challenges (1,080 and 2/75 before). Evidence:
+  `Evidence/meet/touring-log.txt`, `touring-ch64-photo-composed.jpg`.
+- **Limits:** the photo composition is judged by the client (the room checks where you stand); CH65 online was
+  exercised by the server test's refusal only (no run finished an event and then read the slip); progress towards a
+  challenge (e.g. two of four placards) is kept only while the service or the session runs; the cosmetic rewards are
+  granted as ownership records — the reward assets themselves are not built.

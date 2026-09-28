@@ -2,8 +2,8 @@
 
 _Last updated: 2026-09-28 — the meet, offline (V-073): Cedar Lantern Terrace, walking, twelve emotes, host, boombox;
 the meet online with three real clients (V-074), the convoy at the meet (V-075), race from the meet and back plus
-walking controls (V-076), the Player Card with a driver appearance (V-077), race audio (V-078), Drift Attack only where zones exist (V-079), AI drift skill (V-080), group Time Attack and tables with 4/6 humans (V-081, V-082), Canvas controller pen (V-083). Now: the gameplay
-backlog._
+walking controls (V-076), the Player Card with a driver appearance (V-077), race audio (V-078), Drift Attack only where zones exist (V-079), AI drift skill (V-080), group Time Attack and tables with 4/6 humans (V-081, V-082), Canvas controller pen (V-083), the meet's touring challenges CH61–CH65 (V-084).
+Now: the gameplay backlog._
 
 **Rules revision:** `docs/brief/Night_Signal_Addendum_01.txt` supersedes parts of the master (six humans + up to
 twelve vehicles, live finale rivals, light contact, course access, offline domain, rejoin grants, voting, friends,
@@ -172,7 +172,8 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
    run 5 on `7d9119d`); the steep dark terrain "cliffs" of the gorge/highland terrain styles (heightfield resolution)
    are untouched.
 2. **Card and meet follow-ups** (smaller): card cosmetics (showcase records, flag, preferred car, background/frame/
-   motif/title); the offline profile's look; the host lesson wired to challenge CH63; a meet run under impairment.
+   motif/title); the offline profile's look; a meet run under impairment; the remaining challenge predicates (R11.3:
+   CH01/CH05 and the touring CH61–CH65 exist).
 3. **Gameplay backlog**: a drift controller that manages the road edge (every AI attempt still ends at the edge; the
    per-driver drift skill of V-080 raises scores on average, not per course) and a re-measure of S29 with it (group
    Time Attack and the hosted tables with 4 and 6 humans passed — V-081, V-082); UI/reconnect/rejoin/DQ under load; customization follow-ups (meet livery refresh,
