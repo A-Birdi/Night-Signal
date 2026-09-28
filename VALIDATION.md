@@ -1608,6 +1608,9 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   finished event). Convoy tour online — **PASS**: the host's own-car inspection granted CH61 with the ribbon notice; the
   guest's view of the host's driver card then read 1,120 RP and 3/75 challenges (1,080 and 2/75 before). Evidence:
   `Evidence/meet/touring-log.txt`, `touring-ch64-photo-composed.jpg`.
+- **CH67 The Working Landscape** (silver, `333b217`): the three named photo points (tea kiosk, radio bench, maintenance
+  gate) are Core `MeetLayout.PhotoPoints`, read in place like the placards; EditMode `MeetRulesTests` 18/18 (in place
+  only, each challenge once); the offline tour then earned CH61–CH64 and CH67 (+8,000 cr) and not CH65 — **PASS**.
 - **Limits:** the photo composition is judged by the client (the room checks where you stand); CH65 online was
   exercised by the server test's refusal only (no run finished an event and then read the slip); progress towards a
   challenge (e.g. two of four placards) is kept only while the service or the session runs; the cosmetic rewards are
