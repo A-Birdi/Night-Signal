@@ -109,6 +109,7 @@ namespace NightSignal.Front
         {
             yield return LoadBackdrop();
             Router.Show(MainMenu, false);
+            if (BoundsAuditOn) StartCoroutine(BoundsAuditLoop());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsUiTour") >= 0)
                 StartCoroutine(UiTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsUiTourOnline") >= 0)
@@ -192,7 +193,11 @@ namespace NightSignal.Front
             if (System.IO.Directory.Exists(profiles)) System.IO.Directory.Delete(profiles, true);
             LocalSession.UseFolder(profiles);
             var failures = new List<string>();
-            void Shot(string name) => ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(dir, name + ".png"));
+            void Shot(string name)
+            {
+                ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(dir, name + ".png"));
+                AuditBounds(name); // -nsBoundsAudit only
+            }
             bool Click(string name)
             {
                 Button b = GameObject.Find(name)?.GetComponent<Button>();
@@ -463,6 +468,7 @@ namespace NightSignal.Front
             Click("Back");
             yield return new WaitForSeconds(1.2f);
 
+            if (BoundsAuditOn && BoundsAutoSizeOverflows > 0) failures.Add($"{BoundsAutoSizeOverflows} label(s) do not fit their box (see the bounds report)");
             string summary = failures.Count == 0 ? "PASS" : "FAILED: " + string.Join("; ", failures);
             bool toySaved = LocalSession.Current?.ToySnapshot(Toys.LocalToyHost.DocumentKey) != null;
             Debug.Log($"[NightSignal.UiTour] {summary} (profile wallet {s?.Profile?.WalletBalance}, S01 cleared {cleared}, toy table saved {toySaved})");
