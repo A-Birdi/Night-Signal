@@ -2366,3 +2366,20 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   their feel is still owed; CH04/CH08/CH12 references sit inside the reference drivers' own envelopes by construction;
   offline Freeplay has no weather choice, so CH26 (wet C12) is reachable online (the Freeplay weather option) only.
   37 challenges need the fixed challenge-trial format (loaners, fixed builds, cups, scripted AI) — 37 of 75 exist now.
+
+## V-114 — Gate 4 audit; three and five humans; a crash in the middle of a settlement (2026-09-29)
+- Revision: the work committed with this entry; the player build of V-113 for the races (no game code changed since).
+- **Audit:** `docs/GATE4.md` maps every Gate 4 item to executed evidence (entries and tests) and names what is open —
+  a built-player convoy of mixed progress, Custom Cup multi-leg races, challenge loaners, PostgreSQL, a pad-only
+  walkthrough, localisation and string bounds, the §14 performance profile — and lists the Gate 5 items known to be
+  blocked (internet and LAN tests with people, PostgreSQL/Supabase, the Linux server module).
+- **Party sizes 3 and 5** (the two never run): `net-race.ps1 -Humans 3 -FreeplayAi 3` and `-Humans 5 -FreeplayAi 1` on C01
+  (loopback dedicated server, separate AutoClient processes with the validator autopilot, content `aff0ce06…`): every
+  human finished (3 humans: P1 86.409 s, P3, P5; 5 humans: P1 85.957 s, P2, P3, P5, P6) and the control plane settled
+  both — `Evidence/net/run-20260928-223616-h3-C01-ai3`, `run-20260928-223837-h5-C01-ai1`. Every size 1–6 has now run.
+- **Crashes during transactions:** Services `SettlementCrashTests` — a trigger refuses the receipt row, i.e. the
+  settlement fails after the wallet, ledger, challenge unlock and cosmetic were written: nothing remains (balance,
+  ledger, unlocks, cosmetics, receipts, match state all unchanged); the retry settles once; an identical replay is
+  recognised and pays nothing. SQLite only (no PostgreSQL here).
+- **Limits:** automation over loopback, not people; the crash is an in-process failure inside the transaction, not a
+  killed process (SQLite's journal covers that case by its own design; not exercised).

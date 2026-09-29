@@ -1,0 +1,115 @@
+{
+  "driver": "AutoClient scripted autopilot (not a human)",
+  "process": "independent client player process",
+  "account": "…000005",
+  "role": "member",
+  "matchId": "m_108ec2e1ea7525a54f6bc710",
+  "stage": "S01",
+  "course": "C01",
+  "car": "V01",
+  "rttMs": 18,
+  "inputAckMsAverage": 17.6579723,
+  "inputAckMsMax": 53.5347,
+  "minInputLeadTicks": 3,
+  "ticksFilled": 0,
+  "snapshots": 1873,
+  "inputPacketsSent": 5488,
+  "reconciliations": 122,
+  "maxCorrectionMetres": 2.56368136,
+  "serverRecoveries": 0,
+  "impairedSnapshotDrops": 0,
+  "impairedInputDrops": 0,
+  "result": {
+    "EntrantId": "00000000-0000-4000-8000-000000000005",
+    "Human": true,
+    "Outcome": "Finished",
+    "FinishTimeMicros": 87212436,
+    "Placement": 2,
+    "Clean": true,
+    "CheckpointFraction": 1.0,
+    "ActiveProgressVerified": true,
+    "ActivelyDroveLegalCourse": true,
+    "LegalProgressMetres": 3025.215576171875,
+    "RawDriftScore": 0,
+    "ContractsPassed": 0,
+    "ChallengesCompleted": [
+      "CH01",
+      "CH33",
+      "CH31"
+    ]
+  },
+  "entrants": 6,
+  "receipt": {
+    "matchId": "m_108ec2e1ea7525a54f6bc710",
+    "accountId": "00000000-0000-4000-8000-000000000005",
+    "status": "settled",
+    "eventKind": "FreeplaySprint",
+    "mode": null,
+    "stageId": null,
+    "courseId": "C01",
+    "outcome": "Finished",
+    "placement": 2,
+    "tied": false,
+    "finishTimeMs": 87212,
+    "stage": null,
+    "payout": {
+      "base": 6460,
+      "difficultyX100": 100,
+      "placementX100": 120,
+      "cleanlinessX100": 105,
+      "utilityX100": 100,
+      "pvPX100": 100,
+      "eventCredits": 8139,
+      "firstClearBonus": 0,
+      "challengeCash": 3000,
+      "total": 11139,
+      "note": ""
+    },
+    "credits": [
+      {
+        "type": "event",
+        "requested": 8139,
+        "credited": 8139,
+        "clampedAway": 0
+      },
+      {
+        "type": "challenge:CH31",
+        "requested": 3000,
+        "credited": 3000,
+        "clampedAway": 0
+      }
+    ],
+    "balanceAfter": 113201,
+    "clampedAwayTotal": 0,
+    "firstClearAwarded": false,
+    "challengesUnlocked": [
+      "CH31"
+    ],
+    "cosmeticsGranted": [
+      "COS-CH31"
+    ],
+    "coursesUnlocked": [],
+    "musicUnlocked": [],
+    "guestPass": null,
+    "teamTrial": null,
+    "rankPointsBefore": 220,
+    "rankPointsAfter": 260,
+    "rank": "Local Line",
+    "notes": [
+      "CH01 was already completed; no repeat reward.",
+      "CH33 was already completed; no repeat reward."
+    ]
+  },
+  "reconnect": null,
+  "recoveriesBeforeDrop": -1,
+  "spectated": false,
+  "spectateLog": null,
+  "spectateSwitches": 0,
+  "spectateTargetLosses": 0,
+  "walletBefore": 102062,
+  "walletAfter": 113201,
+  "rankPointsBefore": 220,
+  "rankPointsAfter": 260,
+  "log": "[02:38:46] signed in as account …000005\n[02:38:46] joined convoy cv_b131712471410e99\n[02:39:03] connecting to match m_108ec2e1ea7525a54f6bc710\n[02:40:41] ready request 'post-event' ignored by the scripted client\n",
+  "utc": "2026-09-29T02:40:41.4008265Z"
+}

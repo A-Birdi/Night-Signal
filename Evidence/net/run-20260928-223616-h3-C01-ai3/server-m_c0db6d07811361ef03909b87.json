@@ -1,0 +1,207 @@
+{
+  "role": "dedicated game server (separate process)",
+  "matchId": "m_c0db6d07811361ef03909b87",
+  "kind": "freeplay",
+  "stageId": null,
+  "courseId": "C01",
+  "humans": 3,
+  "ai": 3,
+  "build": "0.1.0",
+  "contentHash": "aff0ce06d96d64d217d2819f995d137449125754620c57cd38d11f1e40431acb",
+  "results": {
+    "MatchId": "m_c0db6d07811361ef03909b87",
+    "ContentHash": "aff0ce06d96d64d217d2819f995d137449125754620c57cd38d11f1e40431acb",
+    "AbortReason": null,
+    "Aborted": false,
+    "Entrants": [
+      {
+        "EntrantId": "00000000-0000-4000-8000-000000000001",
+        "Human": true,
+        "Outcome": "Finished",
+        "FinishTimeMicros": 86409467,
+        "Placement": 1,
+        "Clean": true,
+        "CheckpointFraction": 1.0,
+        "ActiveProgressVerified": true,
+        "ActivelyDroveLegalCourse": true,
+        "LegalProgressMetres": 3025.367431640625,
+        "RawDriftScore": 304,
+        "ContractsPassed": 0,
+        "ChallengesCompleted": [
+          "CH01",
+          "CH33"
+        ]
+      },
+      {
+        "EntrantId": "00000000-0000-4000-8000-000000000002",
+        "Human": true,
+        "Outcome": "Finished",
+        "FinishTimeMicros": 88614413,
+        "Placement": 3,
+        "Clean": false,
+        "CheckpointFraction": 1.0,
+        "ActiveProgressVerified": true,
+        "ActivelyDroveLegalCourse": true,
+        "LegalProgressMetres": 3025.114013671875,
+        "RawDriftScore": 6402,
+        "ContractsPassed": 0,
+        "ChallengesCompleted": [
+          "CH33"
+        ]
+      },
+      {
+        "EntrantId": "00000000-0000-4000-8000-000000000003",
+        "Human": true,
+        "Outcome": "Finished",
+        "FinishTimeMicros": 92210877,
+        "Placement": 5,
+        "Clean": false,
+        "CheckpointFraction": 1.0,
+        "ActiveProgressVerified": true,
+        "ActivelyDroveLegalCourse": true,
+        "LegalProgressMetres": 3025.290283203125,
+        "RawDriftScore": 1032,
+        "ContractsPassed": 0,
+        "ChallengesCompleted": [
+          "CH33"
+        ]
+      },
+      {
+        "EntrantId": "ai-1",
+        "Human": false,
+        "Outcome": "Finished",
+        "FinishTimeMicros": 86551482,
+        "Placement": 2,
+        "Clean": true,
+        "CheckpointFraction": 1.0,
+        "ActiveProgressVerified": true,
+        "ActivelyDroveLegalCourse": true,
+        "LegalProgressMetres": 3025.5,
+        "RawDriftScore": 0,
+        "ContractsPassed": 0,
+        "ChallengesCompleted": []
+      },
+      {
+        "EntrantId": "ai-2",
+        "Human": false,
+        "Outcome": "Finished",
+        "FinishTimeMicros": 88722317,
+        "Placement": 4,
+        "Clean": false,
+        "CheckpointFraction": 1.0,
+        "ActiveProgressVerified": true,
+        "ActivelyDroveLegalCourse": true,
+        "LegalProgressMetres": 3025.5,
+        "RawDriftScore": 942,
+        "ContractsPassed": 0,
+        "ChallengesCompleted": []
+      },
+      {
+        "EntrantId": "ai-3",
+        "Human": false,
+        "Outcome": "Finished",
+        "FinishTimeMicros": 101547392,
+        "Placement": 6,
+        "Clean": false,
+        "CheckpointFraction": 1.0,
+        "ActiveProgressVerified": true,
+        "ActivelyDroveLegalCourse": true,
+        "LegalProgressMetres": 3025.1455078125,
+        "RawDriftScore": 2146,
+        "ContractsPassed": 0,
+        "ChallengesCompleted": []
+      }
+    ]
+  },
+  "transport": {
+    "entrants": [
+      {
+        "entrant": 0,
+        "human": true,
+        "team": "player",
+        "role": "driver",
+        "status": "Finished",
+        "starvedTicks": 0,
+        "lateInputs": 0,
+        "vehicleContacts": 1,
+        "wallIncidents": 0,
+        "resets": 0
+      },
+      {
+        "entrant": 1,
+        "human": true,
+        "team": "player",
+        "role": "driver",
+        "status": "Finished",
+        "starvedTicks": 0,
+        "lateInputs": 0,
+        "vehicleContacts": 3,
+        "wallIncidents": 1,
+        "resets": 0
+      },
+      {
+        "entrant": 2,
+        "human": true,
+        "team": "player",
+        "role": "driver",
+        "status": "Finished",
+        "starvedTicks": 0,
+        "lateInputs": 0,
+        "vehicleContacts": 5,
+        "wallIncidents": 2,
+        "resets": 0
+      },
+      {
+        "entrant": 3,
+        "human": false,
+        "team": "opposing",
+        "role": "opponent",
+        "status": "Finished",
+        "starvedTicks": 0,
+        "lateInputs": 0,
+        "vehicleContacts": 1,
+        "wallIncidents": 0,
+        "resets": 0
+      },
+      {
+        "entrant": 4,
+        "human": false,
+        "team": "opposing",
+        "role": "opponent",
+        "status": "Finished",
+        "starvedTicks": 0,
+        "lateInputs": 0,
+        "vehicleContacts": 8,
+        "wallIncidents": 1,
+        "resets": 0
+      },
+      {
+        "entrant": 5,
+        "human": false,
+        "team": "opposing",
+        "role": "opponent",
+        "status": "Finished",
+        "starvedTicks": 0,
+        "lateInputs": 0,
+        "vehicleContacts": 6,
+        "wallIncidents": 2,
+        "resets": 1
+      }
+    ],
+    "spectatorsServed": 0,
+    "ignoredInputsFromNonEntrants": 0,
+    "network": {
+      "executable": "NightSignal.exe",
+      "role": "dedicated-server",
+      "bindHost": "127.0.0.1",
+      "publicHost": "127.0.0.1",
+      "port": 7777,
+      "protocol": "udp",
+      "classification": "local",
+      "lanOptIn": false,
+      "pid": 53640
+    }
+  },
+  "controlPlaneResponse": "200 {\"status\":\"settled\",\"receipts\":[{\"matchId\":\"m_c0db6d07811361ef03909b87\",\"accountId\":\"00000000-0000-4000-8000-000000000001\",\"status\":\"settled\",\"eventKind\":\"FreeplaySprint\",\"mode\":null,\"stageId\":null,\"courseId\":\"C01\",\"outcome\":\"Finished\",\"placement\":1,\"tied\":false,\"finishTimeMs\":86409,\"stage\":null,\"payout\":{\"base\":6460,\"difficultyX100\":100,\"placementX100\":135,\"cleanlinessX100\":105,\"utilityX100\":100,\"pvPX100\":100,\"eventCredits\":9157,\"firstClearBonus\":0,\"challengeCash\":0,\"total\":9157,\"note\":\"\"},\"credits\":[{\"type\":\"event\",\"requested\":9157,\"credited\":9157,\"clampedAway\":0}],\"balanceAfter\":430935,\"clampedAwayTotal\":0,\"firstClearAwarded\":false,\"challengesUnlocked\":[],\"cosmeticsGranted\":[],\"coursesUnlocked\":[],\"musicUnlocked\":[],\"guestPass\":null,\"teamTrial\":null,\"rankPointsBefore\":1440,\"rankPointsAfter\":1440,\"rank\":\"Corner Scholar\",\"notes\":[\"CH01 was already completed; no repeat reward.\",\"CH33 was already completed; no repeat reward.\"]},{\"matchId\":\"m_c0db6d07811361ef03909b87\",\"accountId\":\"00000000-0000-4000-8000-000000000002\",\"status\":\"settled\",\"eventKind\":\"FreeplaySprint\",\"mode\":null,\"stageId\":null,\"courseId\":\"C01\",\"outcome\":\"Finished\",\"placement\":3,\"tied\":false,\"finishTimeMs\":88614,\"stage\":null,\"payout\":{\"base\":6460,\"difficultyX100\":100,\"placementX100\":110,\"cleanlinessX100\":100,\"utilityX100\":100,\"pvPX100\":100,\"eventCredits\":7106,\"firstClearBonus\":0,\"challengeCash\":0,\"total\":7106,\"note\":\"\"},\"credits\":[{\"type\":\"event\",\"requested\":7106,\"credited\":7106,\"clampedAway\":0}],\"balanceAfter\":236042,\"clampedAwayTotal\":0,\"firstClearAwarded\":false,\"challengesUnlocked\":[],\"cosmeticsGranted\":[],\"coursesUnlocked\":[],\"musicUnlocked\":[],\"guestPass\":null,\"teamTrial\":null,\"rankPointsBefore\":620,\"rankPointsAfter\":620,\"rank\":\"Night Runner\",\"notes\":[\"CH33 was already completed; no repeat reward.\"]},{\"matchId\":\"m_c0db6d07811361ef03909b87\",\"accountId\":\"00000000-0000-4000-8000-000000000003\",\"status\":\"settled\",\"eventKind\":\"FreeplaySprint\",\"mode\":null,\"stageId\":null,\"courseId\":\"C01\",\"outcome\":\"Finished\",\"placement\":5,\"tied\":false,\"finishTimeMs\":92210,\"stage\":null,\"payout\":{\"base\":6460,\"difficultyX100\":100,\"placementX100\":100,\"cleanlinessX100\":100,\"utilityX100\":100,\"pvPX100\":100,\"eventCredits\":6460,\"firstClearBonus\":0,\"challengeCash\":0,\"total\":6460,\"note\":\"\"},\"credits\":[{\"type\":\"event\",\"requested\":6460,\"credited\":6460,\"clampedAway\":0}],\"balanceAfter\":140045,\"clampedAwayTotal\":0,\"firstClearAwarded\":false,\"challengesUnlocked\":[],\"cosmeticsGranted\":[],\"coursesUnlocked\":[],\"musicUnlocked\":[],\"guestPass\":null,\"teamTrial\":null,\"rankPointsBefore\":220,\"rankPointsAfter\":220,\"rank\":\"Local Line\",\"notes\":[\"CH33 was already completed; no repeat reward.\"]}]}",
+  "utc": "2026-09-29T02:38:26.9666969Z"
+}
