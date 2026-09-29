@@ -1,0 +1,74 @@
+# ui-tour-social.ps1 -Mixed (built players: two windowed clients driving the real menus, one dedicated game server; validator autopilot; automation)
+# host = dev account 0 (Normal S01-S12 cleared), guest = dev account 1 (S01-S06 cleared before this run)
+## run 2 (PASS, both clients)
+[NightSignal.UiTourSocial:host] signed in as @nsdriver0; peer @nsdriver1
+[NightSignal.UiTourSocial:host] friends with @nsdriver1
+[NightSignal.UiTourSocial:host] alone: 13 stages listed, shared frontier S13; 'Next shared stage: S13.'
+[NightSignal.UiTourSocial:host] proposed S10 alone
+[NightSignal.UiTourSocial:host] convoy members: Driver 1, Driver 2
+[NightSignal.UiTourSocial:host] after the join: notice 'S10 is no longer available to this convoy. Next shared stage: S07 — one member has not cleared it.'; 13 stages listed, shared frontier S07, selected S07; 'Next shared stage: S07 — one member has not cleared it.'
+[NightSignal.UiTourSocial:host] stepped to 'S08  Mistglass Hollow  · locked for this convoy': propose unavailable
+[NightSignal.UiTourSocial:host] asked the server directly for S08: refused — Next shared stage: S07 — one member has not cleared it.
+[NightSignal.UiTourSocial:host] last result: <color=#9A968D>LAST RACE</color> | P1 of 5   02:16.060 | <color=#3EC6D8>Stage cleared</color> | <i><color=#D7263D>Daigo Ibuki</color>  Repeatable. Controlled. Yours. That's the run I asked for.</i> | <i><color=#D7263D>Daigo Ibuki</color>  Take this aerial. I straightened it this afternoon. You'll hear the Night Signal properly now.</i> | Credits +11,651   ·   balance 535,126 cr | 
+[NightSignal.UiTourSocial:host] after the race: shared frontier S08, highest S13; 'Next shared stage: S08 — one member has not cleared it.'
+[NightSignal.UiTourSocial:host] PASS
+[NightSignal.UiTourSocial:guest] signed in as @nsdriver1; peer @nsdriver0
+[NightSignal.UiTourSocial:guest] friends with @nsdriver0
+[NightSignal.UiTourSocial:guest] joined Driver 1's convoy
+[NightSignal.UiTourSocial:guest] joined at the shared frontier: 'Next shared stage: S07 — one member has not cleared it.'
+[NightSignal.UiTourSocial:guest] the host proposed S07
+[NightSignal.UiTourSocial:guest] last result: <color=#9A968D>LAST RACE</color> | P2 of 5   02:16.777 | <color=#3EC6D8>Stage cleared</color> — first clear | <i><color=#D7263D>Daigo Ibuki</color>  Repeatable. Controlled. Yours. That's the run I asked for.</i> | <i><color=#D7263D>Daigo Ibuki</color>  Take this aerial. I straightened it this afternoon. You'll hear the Night Signal properly now.</i> | Credits +30,357   ·   balance 290,523 cr | <color=#3EC6D8>+</color> Soundtrack MUS_LT_DAIGO | 
+[NightSignal.UiTourSocial:guest] after the race: shared frontier S08, highest S13; 'Next shared stage: S08 — one member has not cleared it.'
+[NightSignal.UiTourSocial:guest] the guest cleared S07 for the first time; expected shared frontier S08
+[NightSignal.UiTourSocial:guest] PASS
+## run 2 game server
+[NightSignal.Server] network boundary: bind 127.0.0.1 (local), advertise 127.0.0.1, UDP 7792, LAN opt-in no
+[NightSignal.Server] registered as dev-local; build 0.1.0; content aff0ce06d96d; 1 ticket key(s)
+[NightSignal.Server] Driver 1 races the frozen build ab6c3d46f265 of ci_702e155f59e36e91f69dfc14 (applied revision 4, 1 part(s), PI 240) — hash verified
+[NightSignal.Server] Driver 2 races the frozen build c12c2bea1a67 of ci_7d632aec226adb967fecd74a (applied revision 1, 0 part(s), PI 220) — hash verified
+[NightSignal.Server] listening UDP 127.0.0.1:7792 (local), advertised 127.0.0.1:7792, LAN opt-in no, pid 92732
+[NightSignal.Server] phase Loading at tick 0
+[NightSignal.Server] match m_1842f764df451b527dbcbbe3 on C04: 2 humans, 3 AI, contact light-contact, port 7792
+[NightSignal.Server] entrant 1 (Driver 2) connected as client 1
+[NightSignal.Server] entrant 0 (Driver 1) connected as client 2
+[NightSignal.Server] phase Countdown at tick 1206, start tick 1446
+[NightSignal.Server] phase Racing at tick 1446
+[NightSignal.Server] t=15s | #0 H Racing 462m 161km/h cp3 starved0 late0 lead3 | #1 H Racing 454m 160km/h cp3 starved0 late0 lead3 | #2 AI Racing 421m 151km/h cp3 | #3 AI Racing 413m 151km/h cp3 | #4 AI Racing 399m 155km/h cp3
+[NightSignal.Server] t=30s | #0 H Racing 1104m 178km/h cp10 starved0 late0 lead3 | #1 H Racing 1091m 177km/h cp10 starved0 late0 lead3 | #2 AI Racing 963m 142km/h cp8 | #3 AI Racing 941m 148km/h cp8 | #4 AI Racing 1018m 169km/h cp9
+[NightSignal.Server] t=45s | #0 H Racing 1772m 172km/h cp17 starved0 late0 lead3 | #1 H Racing 1756m 170km/h cp16 starved0 late0 lead3 | #2 AI Racing 1537m 114km/h cp14 | #3 AI Racing 1593m 152km/h cp15 | #4 AI Racing 1689m 161km/h cp16
+[NightSignal.Server] t=60s | #0 H Racing 2278m 142km/h cp22 starved0 late0 lead3 | #1 H Racing 2262m 149km/h cp21 starved0 late0 lead3 | #2 AI Racing 2009m 84km/h cp19 | #3 AI Racing 2117m 124km/h cp20 | #4 AI Racing 2191m 144km/h cp21
+[NightSignal.Server] t=75s | #0 H Racing 2636m 88km/h cp25 starved0 late0 lead3 | #1 H Racing 2625m 82km/h cp25 starved0 late0 lead3 | #2 AI Racing 2436m 74km/h cp23 | #3 AI Racing 2539m 83km/h cp24 | #4 AI Racing 2587m 80km/h cp25
+[NightSignal.Server] t=90s | #0 H Racing 3039m 112km/h cp29 starved0 late0 lead3 | #1 H Racing 3022m 106km/h cp29 starved0 late0 lead3 | #2 AI Racing 2713m 49km/h cp26 | #3 AI Racing 2909m 131km/h cp28 | #4 AI Racing 2969m 98km/h cp28
+[NightSignal.Server] t=105s | #0 H Racing 3560m 130km/h cp34 starved0 late0 lead3 | #1 H Racing 3538m 123km/h cp34 starved0 late0 lead3 | #2 AI Racing 3099m 127km/h cp30 | #3 AI Racing 3398m 141km/h cp33 | #4 AI Racing 3474m 124km/h cp34
+[NightSignal.Server] t=120s | #0 H Racing 4064m 85km/h cp39 starved0 late0 lead3 | #1 H Racing 4049m 89km/h cp39 starved0 late0 lead3 | #2 AI Racing 3547m 104km/h cp34 | #3 AI Racing 3967m 89km/h cp38 | #4 AI Racing 4008m 70km/h cp39
+[NightSignal.Server] t=135s | #0 H Racing 4525m 157km/h cp44 starved0 late0 lead3 | #1 H Racing 4494m 154km/h cp44 starved0 late0 lead3 | #2 AI Racing 4005m 54km/h cp39 | #3 AI Racing 4328m 133km/h cp42 | #4 AI Racing 4406m 145km/h cp43
+[NightSignal.Server] first human finish; finish window closes at race time 232.2 s
+[NightSignal.Server] t=150s | #0 H Finished 4572m 161km/h cp46 starved0 late0 lead-833 | #1 H Finished 4572m 161km/h cp46 starved0 late0 lead-790 | #2 AI Racing 4352m 112km/h cp42 | #3 AI Finished 4572m 157km/h cp46 | #4 AI Finished 4573m 159km/h cp46
+[NightSignal.Server] phase Results at tick 10800
+[NightSignal.Server] ghost for 00000000-0000-4000-8000-000000000001: 1361 samples, 89 KB, result 136.061 s -> 200
+[NightSignal.Server] ghost for 00000000-0000-4000-8000-000000000002: 1368 samples, 90 KB, result 136.777 s -> 200
+[NightSignal.Server] results for m_1842f764df451b527dbcbbe3: 200 {"status":"settled","receipts":[{"matchId":"m_1842f764df451b527dbcbbe3","accountId":"00000000-0000-4000-8000-000000000001","status":"settled","eventKind":"CampaignStage","mode":"normal","stageId":"S07","courseId":"C04","outcome":"Finished","placement":1,"tied":false,"finishTimeMs":136060,"stage":{"qualified":true,"withinSupport":true,"earnedClear":true,"teamSuccess":true,"qualifiers":2,"requir…
+[NightSignal.Server] entrant 1 disconnected → Finished
+[NightSignal.Server] entrant 0 disconnected → Finished
+## run 1 (earlier the same night, guest with S01-S05 cleared, raced S06; guest PASS, host FAILED only on the tour's own wait for the readiness cooldown, a stale snapshot figure - fixed; the product checks all held)
+[NightSignal.UiTourSocial:host] signed in as @nsdriver0; peer @nsdriver1
+[NightSignal.UiTourSocial:host] friends with @nsdriver1
+[NightSignal.UiTourSocial:host] alone: 13 stages listed, shared frontier S13; 'Next shared stage: S13.'
+[NightSignal.UiTourSocial:host] proposed S10 alone
+[NightSignal.UiTourSocial:host] convoy members: Driver 1, Driver 2
+[NightSignal.UiTourSocial:host] after the join: notice 'S10 is no longer available to this convoy. Next shared stage: S06 — one member has not cleared it.'; 13 stages listed, shared frontier S06, selected S06; 'Next shared stage: S06 — one member has not cleared it.'
+[NightSignal.UiTourSocial:host] stepped to 'S07  Bellmaker Descent  · locked for this convoy': propose unavailable
+[NightSignal.UiTourSocial:host] timed out: readiness cooldown over ()
+[NightSignal.UiTourSocial:host] asked the server directly for S07: refused — Next shared stage: S06 — one member has not cleared it.
+[NightSignal.UiTourSocial:host] last result: <color=#9A968D>LAST RACE</color> | P3 of 4   02:56.576 | <color=#3EC6D8>Stage cleared</color> | <i><color=#D7263D>Masato Kido</color>  You set up the zigzag two corners early. That's my trick. Please give it back.</i> | Credits +11,437   ·   balance 523,475 cr | 
+[NightSignal.UiTourSocial:host] after the race: shared frontier S07, highest S13; 'Next shared stage: S07 — one member has not cleared it.'
+[NightSignal.UiTourSocial:host] FAILED: timed out: readiness cooldown over
+[NightSignal.UiTourSocial:guest] signed in as @nsdriver1; peer @nsdriver0
+[NightSignal.UiTourSocial:guest] friends with @nsdriver0
+[NightSignal.UiTourSocial:guest] joined Driver 1's convoy
+[NightSignal.UiTourSocial:guest] joined at the shared frontier: 'Next shared stage: S06 — one member has not cleared it.'
+[NightSignal.UiTourSocial:guest] the host proposed S06
+[NightSignal.UiTourSocial:guest] last result: <color=#9A968D>LAST RACE</color> | P2 of 4   02:42.513 | <color=#3EC6D8>Stage cleared</color> — first clear | <i><color=#D7263D>Masato Kido</color>  You set up the zigzag two corners early. That's my trick. Please give it back.</i> | Credits +17,664   ·   balance 260,166 cr | 
+[NightSignal.UiTourSocial:guest] after the race: shared frontier S07, highest S13; 'Next shared stage: S07 — one member has not cleared it.'
+[NightSignal.UiTourSocial:guest] the guest cleared S06 for the first time; expected shared frontier S07
+[NightSignal.UiTourSocial:guest] PASS

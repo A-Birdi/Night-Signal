@@ -345,6 +345,9 @@ namespace NightSignal.Front
             // the selection returns to the shared frontier; a locked stage cannot be proposed (and the server refuses it when
             // asked directly); then they race the shared frontier stage together.
             int aloneFrontier = 0, aloneStage = 0, racedStage = 0;
+            float aloneProposedAt = 0f;
+            // eventProposal is a JSON null while nothing is proposed: never index into it.
+            string ProposedStage() => ((State()?["eventProposal"] as JObject)?["settings"] as JObject)?["stageId"]?.ToString();
             IEnumerator MixedAlone()
             {
                 OnlineAutopilot = true;
@@ -362,7 +365,8 @@ namespace NightSignal.Front
                 yield return new WaitForSeconds(0.8f);
                 Shot("05m-alone-stage");
                 Click("ProposeEvent");
-                yield return Until(() => (string)State()?["eventProposal"]?["settings"]?["stageId"] == $"S{aloneStage:00}", 20f, "the stage proposed alone");
+                yield return Until(() => ProposedStage() == $"S{aloneStage:00}", 20f, "the stage proposed alone");
+                aloneProposedAt = Time.realtimeSinceStartup;
                 Note($"proposed S{aloneStage:00} alone");
             }
 
@@ -394,7 +398,8 @@ namespace NightSignal.Front
                     Shot("07m-locked-stage");
                     if (!Convoy.StageText.Contains("locked for this convoy")) failures.Add("a stage above the shared frontier is not marked locked");
                     if (Interactable("ProposeEvent")) failures.Add("a locked stage could be proposed from the screen");
-                    yield return Until(() => (long?)State()?["readyRequestCooldownMs"] == 0 || State()?["readyRequestCooldownMs"] == null, 20f, "readiness cooldown over");
+                    // Proposals share the 15 s readiness cooldown (the snapshot's figure is not re-sent as it runs down).
+                    while (Time.realtimeSinceStartup < aloneProposedAt + 16f) yield return null;
                     var direct = S().Request("event.propose", new { stageId = $"S{shared + 1:00}" });
                     while (!direct.IsCompleted) yield return null;
                     Note($"asked the server directly for S{shared + 1:00}: {(direct.Result == null ? "refused — " + S().LastError : "accepted")}");
@@ -403,7 +408,7 @@ namespace NightSignal.Front
                     Convoy.SelectStage(shared);
                     yield return Until(() => Interactable("ProposeEvent"), 30f, "the shared frontier can be proposed");
                     Click("ProposeEvent");
-                    yield return Until(() => (string)State()?["eventProposal"]?["settings"]?["stageId"] == $"S{shared:00}", 20f, "the shared frontier proposed");
+                    yield return Until(() => ProposedStage() == $"S{shared:00}", 20f, "the shared frontier proposed");
                     racedStage = shared;
                     yield return new WaitForSeconds(0.8f);
                     if ((bool?)S().MyMember?["eventReady"] != true) Click("EventReady");
@@ -419,7 +424,7 @@ namespace NightSignal.Front
                     Shot("05m-guest-frontier");
                     yield return Until(() => State()?["eventProposal"]?.Type == JTokenType.Object && Interactable("EventReady"), 150f, "the host proposed the shared stage");
                     yield return new WaitForSeconds(0.8f);
-                    string proposed = (string)State()?["eventProposal"]?["settings"]?["stageId"];
+                    string proposed = ProposedStage();
                     Note($"the host proposed {proposed}");
                     if (proposed != null && proposed.Length == 3) racedStage = int.Parse(proposed.Substring(1));
                     Click("EventReady");

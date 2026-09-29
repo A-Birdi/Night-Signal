@@ -2450,3 +2450,38 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - **Limits:** the fixed challenge cups (CH14, CH42, CH69, CH72) still need the challenge-trial format (loaners, fixed
   builds, scripted AI); one human only in the built-player cup (the convoy rules for more are covered by the Services
   tests).
+
+## V-117 — Campaign across mixed progress in built players (spec §5.1, Gate 4) (2026-09-29)
+- Revision: the work committed with this entry (the code at `2544716`, the tour fixes after it); player build of that
+  tree. The control plane was restarted once for the server change below (tracked task; health ok, race content
+  `aff0ce06…`) and served both runs.
+- **What was missing:** the rules were enforced and tested (V-009, V-013; Services `ConvoyDirectoryTests`), but the
+  Convoy screen only shrank its stage row to the shared frontier: it never said whose frontier limits the convoy and
+  never showed a stage as locked, both of which spec §5.1 asks for.
+- **Now:** the convoy's campaign access also carries the most-progressed member's frontier (`highestStage`). The stage
+  row lists every stage up to it; those above the shared frontier read "· locked for this convoy" and cannot be proposed;
+  when the shared frontier moves (a member joins or leaves, a stage is cleared) the selection returns to it; every member
+  sees the neutral line from the server, "Next shared stage: S07 — one member has not cleared it." (no names). A joining
+  member who pulls the frontier below an open proposal withdraws it with the reason (the existing server rule, now seen
+  in a built player).
+- **Tests:** Services `ANewerMemberJoining_WithdrawsAStageBeyondTheNewSharedFrontier_WithANeutralExplanation` (the
+  proposal withdrawn with its reason, `highestStage` 13 against a shared S06, the line without names, S08 refused, S06
+  accepted) and `highestStage` in the existing frontier test — Services 360, Core 176, Builds 232, Toys 92; EditMode 483 passed, 2 skipped.
+- **Built players** (`ui-tour-social.ps1 -Mixed`: two windowed clients on the real menus, one dedicated game server;
+  host = dev account 0 with Normal S01–S12 cleared, guest = dev account 1; validator autopilot) **PASS on both clients**
+  (run 2): alone, the host's row listed 13 stages ("Next shared stage: S13.") and it proposed S10; the guest (S01–S06
+  cleared) joined from a friend invitation and the proposal was withdrawn — "S10 is no longer available to this convoy.
+  Next shared stage: S07 — one member has not cleared it." — with 13 stages still listed, S08–S13 locked, the selection
+  back on S07 and the same line on the guest's screen; S08 could not be proposed from the screen, and asked directly the
+  server refused it with the same explanation; they raced S07 (C04, 2 humans + 3 AI): the guest's receipt read "Stage
+  cleared — first clear" (+30,357 cr) and the host's "Stage cleared" with no first clear (+11,651 cr, ordinary race money
+  — spec §5.1), and both screens then showed the shared frontier at S08. Run 1 (the guest from S01–S05) showed the same
+  on S06: guest PASS, host FAILED only on the tour's own wait (it read the readiness cooldown from a snapshot that is not
+  re-sent as the cooldown runs down — the tour now waits on its own clock); every product check in it held.
+  `Evidence/ui/online/mixed-progress/`.
+- **Also fixed in the tour:** it read `eventProposal.settings` while the proposal was a JSON null (an exception stopped
+  the host's script in the first attempt; nothing was raced).
+- **State left by the runs:** dev account 1 (the guest) now has Normal S01–S07 cleared in the local development
+  database (two genuine first clears from these races).
+- **Limits:** two humans; Hard access across mixed progress stays covered by tests only (no dev account has the Normal
+  finale); the spec's separate "leader inspecting" preview is not built (the leader's row is the selection).
