@@ -2322,3 +2322,17 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   run offline — online accounts can open them only with a Local profile (no convoy tutorial session yet, spec §16 asks
   for one with independent progress); the braking lane, skid pad and training bays off the loop are not used (the
   route's progress and recovery cover the loop only); no human has taken the lessons.
+
+## V-112 — The route/elevation chart online (spec §8) (2026-09-28)
+- Revision: the work committed with this entry; player build of that tree.
+- **What changed:** the race client keeps a display-only trace of its own car (`RaceClient.OwnTrace`: predicted positions
+  at 10 Hz and the server's checkpoint times — never sent, never a result; the server records the real ghost). After an
+  online race the convoy screen offers "Route Chart — last race", a page (`RouteChartScreen`) with the same chart as the
+  offline Results page, against the first ghost on the road.
+- **Built player** (`ui-tour-online.ps1 -Intent 4 -Course C07`, loopback dedicated server, one windowed client, validator
+  autopilot) **PASS**: "vs your best 119.535 s: most lost in sector 1 (+0.95 s, 0–108 m); most gained in sector 11
+  (−0.03 s) · 7 braking points". `Evidence/ui/route-chart/`. The first build stretched the chart and let the summary
+  overlap it (the area's proportions and the label's default offsets); fixed before this run. EditMode 483 passed, 2
+  skipped.
+- **Limits:** the trace is this client's prediction (corrections included as they happened), fine for a chart, not for
+  timing; spectators get no chart.

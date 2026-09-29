@@ -67,6 +67,12 @@ namespace NightSignal.Net
         static readonly Color MemberTint = new Color(1f, 0.72f, 0.3f);
         /// <summary>The time against the first ghost at each checkpoint the server reported (evidence).</summary>
         public readonly List<long> GhostDeltasMicros = new List<long>();
+        /// <summary>
+        /// This client's own car for the post-race route chart (spec §8): predicted positions at 10 Hz and the server's
+        /// checkpoint times — presentation only, never sent, never a result (the server records the real ghost).
+        /// </summary>
+        public Core.Ghosts.GhostRecording OwnTrace { get; } = new Core.Ghosts.GhostRecording();
+        int traceCheckpoints;
         int ghostCheckpoints;
         string ghostDelta = "";
         float ghostDeltaUntil;
@@ -386,6 +392,22 @@ namespace NightSignal.Net
             SendLoaded(1f);
         }
 
+        void TraceOwn(Car mine)
+        {
+            if (startTick == int.MaxValue) return;
+            while (traceCheckpoints < mine.CheckpointsPassed)
+            {
+                OwnTrace.CheckpointMicros.Add(mine.FinishMillis > 0 && traceCheckpoints == mine.CheckpointsPassed - 1 ? mine.FinishMillis * 1000L
+                    : (long)(mine.LatestTick - startTick) * 1_000_000L / VehicleSimulation.TickRate);
+                traceCheckpoints++;
+            }
+            if (Phase != MatchPhase.Racing || mine.FinishMillis > 0) return;
+            float t = Mathf.Max(0f, ((float)nm.LocalTime.TickWithPartial - startTick) / VehicleSimulation.TickRate);
+            if (OwnTrace.Count > 0 && t < OwnTrace.T[OwnTrace.Count - 1] + 0.1f) return;
+            Quaternion q = ownState.Rotation;
+            OwnTrace.Add(t, ownState.Position.x, ownState.Position.y, ownState.Position.z, q.x, q.y, q.z, q.w, ownState.Velocity.magnitude);
+        }
+
         UI.RaceHud hud;
         readonly UI.HudState hudState = new UI.HudState();
         public bool ShowDebugOverlay;
@@ -446,6 +468,7 @@ namespace NightSignal.Net
                 foreach (GhostPlayback g in Ghosts)
                     hudState.Field.Add(new UI.HudEntrant { Name = g.Label, Position = g.At(gt).Position, IsReplay = true });
             }
+            TraceOwn(mine);
             hudState.GhostDelta = Time.unscaledTime < ghostDeltaUntil ? ghostDelta : "";
             // The interval to the car directly ahead, as of the newest snapshot (the server judges the same interval).
             Car ahead = null;

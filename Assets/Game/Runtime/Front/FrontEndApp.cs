@@ -62,6 +62,9 @@ namespace NightSignal.Front
         public string LastGhostLabel { get; private set; }
         public readonly DiaryScreen Diary = new DiaryScreen();
         public readonly TutorialScreen Lessons = new TutorialScreen();
+        public readonly RouteChartScreen ChartScreen = new RouteChartScreen();
+        /// <summary>The last online race left a route chart (its trace had samples).</summary>
+        public bool HasOnlineChart { get; private set; }
         /// <summary>Rich-text summary of the last online race (placing, time, settled receipt) for the convoy screen.</summary>
         public string LastOnlineResult { get; private set; }
         /// <summary>UI tours drive online races with the validator autopilot (automation, labelled as such).</summary>
@@ -568,6 +571,12 @@ namespace NightSignal.Front
             }
             Net.MatchResults results = onlineRace.Results;
             onlineRaceAborted = onlineRace.Phase == MatchPhase.Aborted;
+            if (!spectating)
+            {
+                ChartScreen.Set(onlineRace.OwnTrace, onlineRace.GhostDeltasMicros, onlineRace.Ghosts.Count > 0 ? onlineRace.Ghosts[0].Label : null,
+                    onlineRace.Info?.CourseId);
+                HasOnlineChart = ChartScreen.HasChart;
+            }
             yield return new WaitForSeconds(results != null ? 4f : 1.5f); // let the finish banner read
             Destroy(go);
             onlineRace = null;
@@ -980,6 +989,18 @@ namespace NightSignal.Front
             }
             yield return Until(() => onlineRace == null && Router.Current == Convoy, 400f, "race finished and back at the convoy");
             yield return Until(() => (LastOnlineResult ?? "").Contains("Credits"), 25f, "settled receipt");
+            // The post-race route/elevation chart online (spec §8), from this client's own trace.
+            yield return Until(() => GameObject.Find("OnlineRouteChart") != null, 5f, "route chart offered");
+            if (Click("OnlineRouteChart"))
+            {
+                yield return Until(() => Router.Current == ChartScreen, 5f, "route chart open");
+                yield return new WaitForSeconds(0.8f);
+                Note("online route chart: " + ChartScreen.Summary);
+                if (!ChartScreen.HasChart) failures.Add("the online route chart is empty");
+                Shot("07b-route-chart");
+                Click("Back");
+                yield return Until(() => Router.Current == Convoy, 5f, "back at the convoy");
+            }
             yield return Until(() => State()?["postEvent"]?.Type == Newtonsoft.Json.Linq.JTokenType.Object, 15f, "post-event decision");
             yield return new WaitForSeconds(1.5f);
             Shot("08-post-event");

@@ -34,7 +34,7 @@ namespace NightSignal.Front
         };
 
         TextMeshProUGUI heading, status, error, rosterText, lastResult, intentLine, proposalLine, postLine, inviteLine;
-        Button create, createPrivate, joinCode, refresh, rejoin, notNow, chooseStarter;
+        Button create, createPrivate, joinCode, refresh, rejoin, notNow, chooseStarter, routeChart;
         Button proposeIntent, modeReady, enterMode, proposeEvent, eventReady, start, cont, serviceBreak, advance, invite, leave, signOut, table, friendsButton, coursesButton, garageButton, spectate, returnToMeet, cardButton, diaryButton,
             meetPublic, meetConvoy;
         Button votingToggle, openVote, castVote, drawVote, cancelVote;
@@ -84,6 +84,7 @@ namespace NightSignal.Front
             rosterText.richText = true;
             lastResult = UIFactory.Row("LastResult", lcol, "", SignalTheme.Small, SignalTheme.Label, 640, 300);
             lastResult.richText = true;
+            routeChart = UIFactory.Button("OnlineRouteChart", lcol, "Route Chart — last race", () => App.Router.Show(App.ChartScreen), 520, 48);
 
             // Right: whatever the convoy needs next.
             RectTransform col = UIFactory.Column("Flow", root, new Vector2(0.4f, 0.03f), new Vector2(0.98f, 0.96f), Vector2.zero, Vector2.zero, 10f);
@@ -292,6 +293,8 @@ namespace NightSignal.Front
             JObject post = inConvoy ? c["postEvent"] as JObject : null;
             bool matchOn = phase == "Allocating" || phase == "InMatch";
             JToken me = S.MyMember;
+
+            routeChart.gameObject.SetActive(App.HasOnlineChart && !matchOn);
 
             // Intent and Mode Ready.
             intentLine.text = intentObj != null ? $"Intent: {(string)intentObj["label"]}{(modeEntered ? "  (entered)" : "")}" : "No intent yet.";

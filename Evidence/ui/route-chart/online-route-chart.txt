@@ -1,0 +1,5 @@
+# ui-tour-online.ps1 -Intent 4 -Course C07 (one windowed client, loopback dedicated server, validator autopilot; automation)
+[NightSignal.UiTourOnline] shared table: progress 7.14 -> 1005.62, still event ready True
+[NightSignal.Ghost] online C07 time-attack: 2 offered, 2 racing: Ghost · your best 119.535 s, Ghost · Airi Shiba's reference 116.497 s
+[NightSignal.UiTourOnline] online route chart: vs your best 119.535 s: most lost in sector 1 (+0.95 s, 0–108 m); most gained in sector 11 (−0.03 s) · 7 braking points
+[NightSignal.UiTourOnline] PASS; last result: <color=#9A968D>LAST RACE</color> | P1 of 1   02:00.485 | Credits +10,773   ·   balance 421,778 cr | 
