@@ -2211,8 +2211,8 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - **Follow-up:** the V-106 crew telemetry was measured with the momentum-reader's apex shift; it is rerun with the next
   player build (tea-hour's R01 is the only crew member affected).
 
-## V-109 — Three ghost sources and Freeplay rival archetypes (CH38, CH73): code and tests (2026-09-28)
-- Revision: the work committed with this entry; editor tests on that tree; built-player tours in the next checkpoint.
+## V-109 — Three ghost sources and Freeplay rival archetypes (CH38, CH73) (2026-09-28)
+- Revision: code and editor tests at `24f4e2a`; the fixes and the built-player tours below in the checkpoint after it.
 - **Convoy member's ghost (client of V-107):** the convoy screen's "Chase ghost" row (Freeplay Time Attack, each member
   for themself: your best only, or your best + a member's); the race client labels every overlay by whose it is and
   tints them (your best cyan, a member's amber, a third violet); `ui-tour-social.ps1 -GhostChase`.
@@ -2241,3 +2241,23 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   path substitution failed); it was reverted within a minute with `git checkout` of those files (all clean at HEAD) and
   removal of the new ones — no import or compile happened (assemblies and console unchanged), and the certification
   continued. The copy scripts now refuse to run unless they point away from the checkout.
+- **Built players** (the player build of this checkpoint; content `26709731…`; automation with the validator autopilot):
+  - `-nsFreeplayRivalTour` (isolated profile, buttons only) **PASS**: C01, one opponent named on the Lead rival row —
+    the field led with R08 (late-brake-anchor); the autopilot won, recording late-brake-anchor as raced (CH73 1/12) and
+    beaten (CH38 1/3), shown on the hub's progress line; then Time Attack with Sora Matsuda's (R01) reference on the
+    road: 86.501 s against its 87.025 s, 0.52 s ahead at the finish. `Evidence/ui/freeplay-rival/`.
+  - The first run of that tour exposed two faults, both fixed before the passing run: the Freeplay rows ran off the
+    bottom of the offline hub at 1080p (Freeplay now has its own panel), and ghost overlays ignored their colour (the
+    ghost paint replaced it; `GhostPlayback` now takes a tint: your best cyan, a member's amber, a reference red).
+  - `-nsGhostTour` (C07, personal ghosts) **PASS** with Airi Shiba's (R11) reference as a second overlay: 124.413 →
+    120.012 s (CH68) → 122.863 s; the stored ghost is the fastest. `Evidence/ghosts/ghost-tour-with-reference.txt`.
+  - `-nsCrewTelemetryTour` **PASS** after the V-108 momentum-reader change: only R01's row moved (tea-hour still 5
+    distinct outcomes); every other row identical. `Evidence/ai/crew-telemetry.txt`.
+  - `ui-tour-social.ps1 -GhostChase` (two windowed clients, a loopback dedicated server) **PASS**: the guest chose "your
+    best + Driver 1's" on the convoy screen; `GET /v1/convoy/ghosts/…` answered 200 with the host's kept 119.535 s C07
+    ghost; the guest raced it and R11's reference; the host raced its own best and the reference; both settled.
+    `Evidence/ghosts/convoy/`.
+- **Limits:** CH38 needs three wins, CH73 twelve archetypes — the tours show one of each recorded, the rest is covered by
+  the Core/Services tests; the convoy ghost is shared only while both ride in the same convoy (no friends' archive);
+  the rival references are recorded AI runs (C23's includes a reset) and must be re-recorded after a physics, scoring or
+  route change; no post-race route/elevation chart yet.

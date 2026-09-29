@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using NightSignal.Art;
 using NightSignal.Core.Ghosts;
 using NightSignal.Vehicle;
@@ -67,19 +68,34 @@ namespace NightSignal.Race
         VehicleState last;
         bool hasLast;
 
-        public GhostPlayback(GhostRecording recording, VehicleView view, string label)
+        static readonly Dictionary<Color, Material> tinted = new Dictionary<Color, Material>();
+
+        /// <summary>The ghost paint, or a copy of it in <paramref name="tint"/> (the paint's transparency kept; one per colour).</summary>
+        static Material Paint(CarMaterialSet mats, Color? tint)
+        {
+            if (mats?.GhostPaint == null || tint == null) return mats?.GhostPaint;
+            if (tinted.TryGetValue(tint.Value, out Material m) && m != null) return m;
+            m = new Material(mats.GhostPaint) { name = "GhostPaint (tinted)" };
+            Color c = tint.Value;
+            m.SetColor("_BaseColor", new Color(c.r, c.g, c.b, mats.GhostPaint.GetColor("_BaseColor").a));
+            tinted[tint.Value] = m;
+            return m;
+        }
+
+        /// <param name="tint">Overlay colour (null = the standard cyan ghost paint): tells whose ghost it is at a glance.</param>
+        public GhostPlayback(GhostRecording recording, VehicleView view, string label, Color? tint = null)
         {
             Recording = recording;
             View = view;
             Label = label;
+            Material paint = Paint(Resources.Load<CarMaterialSet>("CarMaterialSet"), tint);
             foreach (Renderer r in view.GetComponentsInChildren<Renderer>(true))
             {
                 r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-                var mats = Resources.Load<CarMaterialSet>("CarMaterialSet");
-                if (mats?.GhostPaint != null)
+                if (paint != null)
                 {
                     var shared = new Material[r.sharedMaterials.Length];
-                    for (int i = 0; i < shared.Length; i++) shared[i] = mats.GhostPaint;
+                    for (int i = 0; i < shared.Length; i++) shared[i] = paint;
                     r.sharedMaterials = shared;
                 }
             }

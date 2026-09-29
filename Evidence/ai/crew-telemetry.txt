@@ -56,7 +56,7 @@ expectation: exit specialist R22 trades entry for exit (vmin 95.4 vs median 97.4
 
 ## tea-hour: corners at 945, 1185, 2135 m of 3109 m; 8 of 8 members measured
 rival  tendency                  brake m  vmin km/h  exit km/h  throttle m  turn-in m  apex m
-R01    momentum-reader             152.7       98.7      114.9        33.0       0.38   -0.12
+R01    momentum-reader             153.0       98.3      115.4        30.7       0.34   -0.02
 R02    early-set-cornerer          149.0       98.5      113.8        29.7       0.70    0.10
 R03    exit-traction-specialist    146.0       95.4      111.2        29.7       0.48    0.89
 R04    brake-release-student       157.7       97.6      114.6        32.7       0.59   -0.29
@@ -64,9 +64,9 @@ R05    inside-line-defender        147.7       97.4      113.7        27.7      
 R06    surface-reader              148.7       97.6      113.9        28.3       0.24    0.24
 R07    rhythm-linker               148.3       96.4      114.6        28.7       0.09   -0.14
 R08    late-brake-anchor           139.0       94.2      113.1        26.3      -0.22    0.06
-spreads: brake point 18.7 ✓; minimum speed 4.5 ✓; exit speed 3.8 ✓; throttle-on 6.7; turn-in line 0.9 ✓; apex line 1.2 ✓ → 5 distinct outcomes
+spreads: brake point 18.7 ✓; minimum speed 4.3 ✓; exit speed 4.2 ✓; throttle-on 6.3; turn-in line 0.9 ✓; apex line 1.2 ✓ → 5 distinct outcomes
 expectation: late braker R08 brakes later than the crew median (139.0 m vs 148.5 m): observed
-expectation: exit specialist R03 trades entry for exit (vmin 95.4 vs median 97.5; gain 15.8 vs 16.4): NOT observed
+expectation: exit specialist R03 trades entry for exit (vmin 95.4 vs median 97.5; gain 15.8 vs 16.7): NOT observed
 
 ## zero-frequency: corners at 945, 1185, 2135 m of 3109 m; 7 of 7 members measured
 rival  tendency                  brake m  vmin km/h  exit km/h  throttle m  turn-in m  apex m

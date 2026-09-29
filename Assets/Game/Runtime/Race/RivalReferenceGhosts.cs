@@ -25,6 +25,9 @@ namespace NightSignal.Race
             return g;
         }
 
+        /// <summary>The reference's overlay colour (a personal ghost is cyan, a convoy member's amber).</summary>
+        public static readonly Color Tint = new Color(1f, 0.42f, 0.32f);
+
         public static bool IsReference(GhostRecording g) => g?.Header?.Provenance == Core.Rules.RivalReference.Provenance;
 
         /// <summary>The overlay label's owner part: "Aki Night's reference".</summary>

@@ -122,20 +122,25 @@ namespace NightSignal.Front
             {
                 if (cars.Count > 0) App.StartOfflineMeet(cars[car.Index], this);
             }, 620, 52);
-            UIFactory.Row("FreeplayHeading", col, "FREEPLAY", SignalTheme.Small, SignalTheme.LabelDim, 640, 28, true);
-            course = new Stepper(col, "Course", playable.Count, CourseLabel);
-            car = new Stepper(col, "Car", 1, i => cars.Count == 0 ? "—" : CarLabel(cars[i]));
-            format = new Stepper(col, "Format", 2, i => i == 0 ? "Race — light contact" : "Time Attack — no contact, no AI");
-            ai = new Stepper(col, "Opponents", Limits.MaxRaceVehicles, i => i == 0 ? "none" : $"{i} AI", 5);
-            rival = new Stepper(col, "Lead rival", rivals.Count + 1, i => i == 0 || i > rivals.Count ? "random authored rivals" : RivalLabel(rivals[i - 1]));
-            archetypeLine = UIFactory.Row("Archetypes", col, "", SignalTheme.Small, SignalTheme.LabelDim, 640, 28);
+            UIFactory.Button("Switch", col, "Switch Profile", () => { LocalSession.Current?.Close(); App.Router.Show(App.ProfileSelect, false); }, 620, 52);
+            UIFactory.Button("Back", col, "Back to Title", () => App.Router.Show(App.MainMenu, false), 620, 52);
+
+            // Freeplay in its own panel on the right (every row fits at 1080p with the lead rival and its progress line).
+            Image fpPanel = UIFactory.Panel("FreeplayPanel", root, new Vector2(0.46f, 0.05f), new Vector2(0.98f, 0.68f), Vector2.zero, Vector2.zero,
+                new Color(0.055f, 0.06f, 0.07f, 0.9f));
+            RectTransform fcol = UIFactory.Column("Freeplay", fpPanel.transform, new Vector2(0, 0.04f), new Vector2(1, 0.96f), new Vector2(48, 0), new Vector2(-32, 0), 10f);
+            UIFactory.Row("FreeplayHeading", fcol, "FREEPLAY", SignalTheme.Small, SignalTheme.LabelDim, 820, 28, true);
+            course = new Stepper(fcol, "Course", playable.Count, CourseLabel, 0, 820);
+            car = new Stepper(fcol, "Car", 1, i => cars.Count == 0 ? "—" : CarLabel(cars[i]), 0, 820);
+            format = new Stepper(fcol, "Format", 2, i => i == 0 ? "Race — light contact" : "Time Attack — no contact, no AI", 0, 820);
+            ai = new Stepper(fcol, "Opponents", Limits.MaxRaceVehicles, i => i == 0 ? "none" : $"{i} AI", 5, 820);
+            rival = new Stepper(fcol, "Lead rival", rivals.Count + 1, i => i == 0 || i > rivals.Count ? "random authored rivals" : RivalLabel(rivals[i - 1]), 0, 820);
+            archetypeLine = UIFactory.Row("Archetypes", fcol, "", SignalTheme.Small, SignalTheme.LabelDim, 820, 28);
             format.Changed += i => { ai.SetCount(i == 1 ? 1 : Limits.MaxRaceVehicles); RefreshRival(); };
             ai.Changed += _ => RefreshRival();
             course.Changed += _ => RefreshStart();
-            start = UIFactory.Button("Start", col, "Start Freeplay Race", StartRace, 620, 60);
-            UIFactory.Button("Switch", col, "Switch Profile", () => { LocalSession.Current?.Close(); App.Router.Show(App.ProfileSelect, false); }, 620, 52);
-            UIFactory.Button("Back", col, "Back to Title", () => App.Router.Show(App.MainMenu, false), 620, 52);
-            note = UIFactory.Row("Note", col, "", SignalTheme.Small, SignalTheme.LabelDim, 640, 60);
+            start = UIFactory.Button("Start", fcol, "Start Freeplay Race", StartRace, 620, 60);
+            note = UIFactory.Row("Note", fcol, "", SignalTheme.Small, SignalTheme.LabelDim, 820, 60);
         }
 
         public override Selectable DefaultFocus => campaign;

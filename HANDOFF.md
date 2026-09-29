@@ -2,7 +2,7 @@
 
 _Last updated: 2026-09-28 — the meet, offline (V-073): Cedar Lantern Terrace, walking, twelve emotes, host, boombox;
 the meet online with three real clients (V-074), the convoy at the meet (V-075), race from the meet and back plus
-walking controls (V-076), the Player Card with a driver appearance (V-077), race audio (V-078), Drift Attack only where zones exist (V-079), AI drift skill (V-080), group Time Attack and tables with 4/6 humans (V-081, V-082), Canvas controller pen (V-083), the meet's touring challenges CH61–CH65 and CH67 (V-084), CH33/CH35/CH44/CH45/CH66/CH71 (V-085), car levels of detail (V-086), the contact-prediction experiment (V-087, negative), preset rename/delete (V-088), the meet showing applied liveries (V-089), challenge gates CH03/CH06/CH09 and CH16 (V-090), the Driver Card offline (V-091), card style (V-092), showcase records (V-093), the meet under latency (V-094), drops/refused re-entry/spectating in a full impaired race and the offline showcase (V-095), racecraft CH31/CH32 and the HUD gap (V-096), CH48 Sign Your Car and the offline meet's livery fix (V-097), CH50 Change Without Losing (V-098), the campaign story on screen offline — intros, reactions, race diary (V-099) — and online (V-100), the endings and Shiori's epilogue / CH75 (V-101), the diary's read marks and CH70 (V-102), offline ghosts and CH68 (V-103), online ghosts and CH68 online (V-104), the course-uniqueness report (V-105), crew behaviour telemetry with tendency behaviours (V-106), a convoy member's shared ghost on the server (V-107), benchmarks recertified after the tendency behaviours (V-108), the convoy-member and rival-reference ghosts and CH38/CH73 (V-109, code and tests).
+walking controls (V-076), the Player Card with a driver appearance (V-077), race audio (V-078), Drift Attack only where zones exist (V-079), AI drift skill (V-080), group Time Attack and tables with 4/6 humans (V-081, V-082), Canvas controller pen (V-083), the meet's touring challenges CH61–CH65 and CH67 (V-084), CH33/CH35/CH44/CH45/CH66/CH71 (V-085), car levels of detail (V-086), the contact-prediction experiment (V-087, negative), preset rename/delete (V-088), the meet showing applied liveries (V-089), challenge gates CH03/CH06/CH09 and CH16 (V-090), the Driver Card offline (V-091), card style (V-092), showcase records (V-093), the meet under latency (V-094), drops/refused re-entry/spectating in a full impaired race and the offline showcase (V-095), racecraft CH31/CH32 and the HUD gap (V-096), CH48 Sign Your Car and the offline meet's livery fix (V-097), CH50 Change Without Losing (V-098), the campaign story on screen offline — intros, reactions, race diary (V-099) — and online (V-100), the endings and Shiori's epilogue / CH75 (V-101), the diary's read marks and CH70 (V-102), offline ghosts and CH68 (V-103), online ghosts and CH68 online (V-104), the course-uniqueness report (V-105), crew behaviour telemetry with tendency behaviours (V-106), a convoy member's shared ghost on the server (V-107), benchmarks recertified after the tendency behaviours (V-108), the convoy-member and rival-reference ghosts and CH38/CH73 (V-109).
 Now: the gameplay backlog._
 
 **Rules revision:** `docs/brief/Night_Signal_Addendum_01.txt` supersedes parts of the master (six humans + up to
@@ -169,21 +169,20 @@ Render Cockpit Sheets* renders the mounted views of every car.
 
 Pipeline in dependency order (items at one level do not wait for later ones; human checks are listed where they gate).
 
-0. **Rerun the crew telemetry** (`-nsCrewTelemetryTour`) on the next player build: V-108 removed the momentum-reader's
-   apex shift (it cost R48 17.6 s on the Hard finale); the benchmarks are recertified and authored (V-108). A change to
-   a tendency later needs only `CertifyListed` for the stages whose featured rival has it.
+0. **After any AI tendency change**: rerun `-nsCrewTelemetryTour` and `CertifyListed` for the stages whose featured
+   rival has that tendency (V-108; the crew telemetry was rerun on the V-109 build and passes).
 
 1. **Course scenery follow-ups** (small): a human look per region (the built-player tour with the regional kits passed,
    run 5 on `7d9119d`); the steep dark terrain "cliffs" of the gorge/highland terrain styles (heightfield resolution)
    are untouched.
 2. **Card and meet follow-ups** (smaller): the card is done — look (V-077, offline V-091), style (V-092), showcase online
    and offline (V-093, V-095); the meet under latency is done (V-094); the remaining challenge predicates (R11.3:
-   29 of 75 exist: CH01, CH03, CH05, CH06, CH09, CH16, CH18, CH20, CH21, CH24, CH31, CH32, CH33, CH35, CH44, CH45, CH48, CH50, CH61–CH68, CH70, CH71, CH75 —
+   31 of 75 exist: CH01, CH03, CH05, CH06, CH09, CH16, CH18, CH20, CH21, CH24, CH31, CH32, CH33, CH35, CH38, CH44, CH45, CH48, CH50, CH61–CH68, CH70, CH71, CH73, CH75 —
    see REQUIREMENTS R11.3; CH04/CH08/CH12 wait for published gate speeds, CH26/CH29 for Gold drift references, CH41 for
    the challenge-race format — V-090; CH10 for a published Silver reference time).
-3. **Gameplay backlog**: ghosts — personal ghosts offline (V-103) and online (V-104) are done; a convoy member's shared
-   ghost is served (V-107; the client chooser is drafted, to apply and tour after the recertification); left: an authored rival reference ghost, the post-race
-   route/elevation chart. The story is on screen offline and online (V-099, V-100); left: portraits or a
+3. **Gameplay backlog**: ghosts — personal (V-103, V-104), a convoy member's (V-107, V-109) and the authored rival
+   reference (V-109) are raced offline and online; left: the post-race route/elevation chart (spec §8), and re-recording
+   the references (`RivalReferenceGhostTests`) whenever physics, scoring or a route changes. The story is on screen offline and online (V-099, V-100); left: portraits or a
    staged scene instead of text over the backdrop. Then a drift controller that manages the road edge (every AI attempt still ends at the edge; the
    per-driver drift skill of V-080 raises scores on average, not per course) and a re-measure of S29 with it (group
    Time Attack and the hosted tables with 4 and 6 humans passed — V-081, V-082); (reconnect/rejoin/DQ under load — V-095 — is done); customization follow-up: pearl flip tint (meet livery refresh — V-089 — and preset rename/delete — V-088 — are done). (Drift Attack is now limited to courses with judged zones — V-079.)

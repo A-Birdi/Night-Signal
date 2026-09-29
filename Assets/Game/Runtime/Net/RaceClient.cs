@@ -63,8 +63,8 @@ namespace NightSignal.Net
         /// <summary>Time Attack ghost offers, each with its label ("your best", "Mika's best"); up to three compatible ones race.</summary>
         public System.Func<MatchInfo, System.Threading.Tasks.Task<List<KeyValuePair<string, Core.Ghosts.GhostRecording>>>> GhostSource;
         public readonly List<GhostPlayback> Ghosts = new List<GhostPlayback>();
-        /// <summary>Overlay tints in offer order: your best cyan, a convoy member's amber, a third violet.</summary>
-        static readonly Color[] GhostTints = { new Color(0.35f, 0.85f, 1f), new Color(1f, 0.72f, 0.3f), new Color(0.75f, 0.55f, 1f) };
+        /// <summary>A convoy member's overlay colour (your own best keeps the standard cyan; a rival reference is red).</summary>
+        static readonly Color MemberTint = new Color(1f, 0.72f, 0.3f);
         /// <summary>The time against the first ghost at each checkpoint the server reported (evidence).</summary>
         public readonly List<long> GhostDeltasMicros = new List<long>();
         int ghostCheckpoints;
@@ -370,8 +370,9 @@ namespace NightSignal.Net
                         if (Ghosts.Count >= 3) break;
                         if (!g.CompatibleWith(rules) || g.Count < 2 || !lib.Catalogue.TryCar(g.Header.CarModelId, out Core.Content.CarDef gc)) continue;
                         VehicleView gv = VehicleView.Create($"Ghost_{Ghosts.Count}_{gc.Id}", lib.Params(gc.Id, AssistSettings.Default), lib.Body(gc.Id),
-                            Resources.Load<CarMaterialSet>("CarMaterialSet"), GhostTints[Ghosts.Count]);
-                        Ghosts.Add(new GhostPlayback(g, gv, $"Ghost · {offer.Key} {g.Header.ResultMicros / 1e6:F3} s"));
+                            Resources.Load<CarMaterialSet>("CarMaterialSet"), new Color(0.35f, 0.85f, 1f));
+                        Color? tint = RivalReferenceGhosts.IsReference(g) ? RivalReferenceGhosts.Tint : offer.Key == "your best" ? (Color?)null : MemberTint;
+                        Ghosts.Add(new GhostPlayback(g, gv, $"Ghost · {offer.Key} {g.Header.ResultMicros / 1e6:F3} s", tint));
                     }
                 Debug.Log($"[NightSignal.Ghost] online {Info.CourseId} {rules.Format}: {(fetch.Status == System.Threading.Tasks.TaskStatus.RanToCompletion ? fetch.Result.Count : 0)} offered, " +
                           $"{Ghosts.Count} racing{(Ghosts.Count > 0 ? ": " + string.Join(", ", Ghosts.Select(x => x.Label)) : "")}");

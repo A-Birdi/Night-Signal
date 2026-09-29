@@ -1,0 +1,17 @@
+# ui-tour-social.ps1 -GhostChase (two windowed clients, loopback dedicated server, validator autopilot; automation)
+[NightSignal.UiTourSocial:host] signed in as @nsdriver0; peer @nsdriver1
+[NightSignal.UiTourSocial:host] friends with @nsdriver1
+[NightSignal.UiTourSocial:host] convoy members: Driver 1, Driver 2
+[NightSignal.Ghost] online C07 time-attack: 2 offered, 2 racing: Ghost · your best 119.535 s, Ghost · Airi Shiba's reference 116.497 s
+[NightSignal.UiTourSocial:host] racing 2 ghost(s): Ghost · your best 119.535 s, Ghost · Airi Shiba's reference 116.497 s
+[NightSignal.UiTourSocial:host] last result: <color=#9A968D>LAST RACE</color> | P1 of 2   01:59.534 | Credits +10,773   ·   balance 400,232 cr | 
+[NightSignal.UiTourSocial:host] PASS
+[NightSignal.UiTourSocial:guest] signed in as @nsdriver1; peer @nsdriver0
+[NightSignal.UiTourSocial:guest] friends with @nsdriver0
+[NightSignal.UiTourSocial:guest] joined Driver 1's convoy
+[NightSignal.UiTourSocial:guest] chasing Driver 1's ghost on C07
+[NightSignal.Ghost] online shared ghosts of Driver 1: HTTP 200, 1 kept
+[NightSignal.Ghost] online C07 time-attack: 2 offered, 2 racing: Ghost · Driver 1's best 119.535 s, Ghost · Airi Shiba's reference 116.497 s
+[NightSignal.UiTourSocial:guest] racing 2 ghost(s): Ghost · Driver 1's best 119.535 s, Ghost · Airi Shiba's reference 116.497 s
+[NightSignal.UiTourSocial:guest] last result: <color=#9A968D>LAST RACE</color> | P2 of 2   02:00.146 | Credits +10,773   ·   balance 228,936 cr | 
+[NightSignal.UiTourSocial:guest] PASS

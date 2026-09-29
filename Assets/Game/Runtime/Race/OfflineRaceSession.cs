@@ -175,7 +175,7 @@ namespace NightSignal.Race
                         reference ? new Color(1f, 0.45f, 0.35f) : new Color(0.35f, 0.85f, 1f));
                     string who = reference ? RivalReferenceGhosts.Owner(g) : string.IsNullOrEmpty(g.Header.Driver) ? "best" : g.Header.Driver;
                     string label = $"Ghost · {who} {g.Header.ResultMicros / 1e6:F3} s";
-                    Ghosts.Add(new GhostPlayback(g, gv, label));
+                    Ghosts.Add(new GhostPlayback(g, gv, label, reference ? RivalReferenceGhosts.Tint : (Color?)null));
                 }
                 var camGo = CameraRig.EnsureMain("RaceCamera").gameObject;
                 camGo.tag = "MainCamera";
