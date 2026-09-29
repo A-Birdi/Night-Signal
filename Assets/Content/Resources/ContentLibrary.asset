@@ -30,6 +30,7 @@ MonoBehaviour:
   - {fileID: 4900000, guid: eef221d50c445174ea5efaf3b3db5f15, type: 3}
   - {fileID: 4900000, guid: 7d74bda2a026a324abe59b87d3d73975, type: 3}
   - {fileID: 4900000, guid: 60bff5a44b003b340a25c2f2c358f86a, type: 3}
+  - {fileID: 4900000, guid: 5de3a6c5cf8558f409b76f857f2f8a10, type: 3}
   CarBodies: {fileID: 4900000, guid: d1916b9e892ad2744a9d4c7a980c66ac, type: 3}
   ToyDocuments:
   - {fileID: 4900000, guid: 786c873900cb7d44989babaa91d3e951, type: 3}

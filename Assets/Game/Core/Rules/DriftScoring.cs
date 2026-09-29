@@ -78,6 +78,8 @@ namespace NightSignal.Core.Rules
         /// <summary>Every banked chain in order: its raw points and the slowest valid scoring step in it (km/h) — the
         /// facts drift challenges read (CH18 two chains, CH24 one chain above a speed floor).</summary>
         public readonly List<BankedChain> BankedChains = new List<BankedChain>();
+        /// <summary>The judged zones crossed by at least one banked chain (CH30: a chain banked in every judged sector).</summary>
+        public readonly HashSet<int> ZonesBanked = new HashSet<int>();
         float chainMinSpeed = float.MaxValue;
 
         public static double AngleFactor(double slipDegrees)
@@ -165,6 +167,7 @@ namespace NightSignal.Core.Rules
             result.AmountBankedOrLost = UnbankedRaw;
             BankedRaw += UnbankedRaw;
             BankedChains.Add(new BankedChain { Raw = UnbankedRaw, MinSpeedKmh = chainMinSpeed });
+            ZonesBanked.UnionWith(zonesInChain);
             UnbankedRaw = 0;
             ChainsBanked++;
             ClearChain();

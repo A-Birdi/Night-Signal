@@ -10,7 +10,7 @@
     Automation, not a human check. Each run has its own preferences and Local profile folders under Builds/BoundsRuns
     (git-ignored), never the player's own settings. Runs one window at a time. Raw logs stay under Builds/.
 #>
-param([int]$TimeoutSeconds = 900, [string[]]$Only)
+param([int]$TimeoutSeconds = 900, [string[]]$Only, [string[]]$Tours)
 
 $ErrorActionPreference = 'Stop'
 $repo = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
@@ -18,13 +18,17 @@ Set-Location $repo
 $exe = Join-Path $repo 'Builds\Game\NightSignal.exe'
 if (-not (Test-Path $exe)) { throw "Game build not found: $exe (build it first)" }
 
-$every = 'UiTour', 'InstrumentTour', 'DriverCardTour', 'DiaryTour', 'CupTour', 'TutorialTour', 'StoryTour', 'AppearanceTour'
+$every = 'UiTour', 'InstrumentTour', 'DriverCardTour', 'DiaryTour', 'CupTour', 'TutorialTour', 'StoryTour', 'AppearanceTour', 'TrialTour'
 $runs = @(
     @{ Name = '720p-large'; Width = 1280; Height = 720; Text = 1.5; Hud = 1.3; Tours = $every },
     @{ Name = 'ultrawide-large'; Width = 2560; Height = 1080; Text = 1.5; Hud = 1.3; Tours = @('UiTour', 'InstrumentTour') },
     @{ Name = '1080p-default'; Width = 1920; Height = 1080; Text = 1.0; Hud = 1.0; Tours = @('UiTour') }
 )
+# -File passes "a,b" as one string: split comma lists.
+$Only = @($Only | ForEach-Object { $_ -split ',' } | Where-Object { $_ })
+$Tours = @($Tours | ForEach-Object { $_ -split ',' } | Where-Object { $_ })
 if ($Only) { $runs = $runs | Where-Object { $Only -contains $_.Name } }
+if ($Tours) { foreach ($r in $runs) { $r.Tours = @($r.Tours | Where-Object { $Tours -contains $_ }) } }
 
 foreach ($r in $runs) { foreach ($tour in $r.Tours) {
     $root = Join-Path $repo "Builds\BoundsRuns\$($r.Name)-$tour"

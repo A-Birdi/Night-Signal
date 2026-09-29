@@ -38,6 +38,8 @@ namespace NightSignal.AI
         /// or more gently when the plan allows speed; <see cref="BrakeGain"/> (0 = 1) is how sharply braking comes on.
         /// </summary>
         public float ApexShift, EntryWidth, ThrottleBias, BrakeGain;
+        /// <summary>Starts slides with power instead of the handbrake (measuring trials that forbid it: CH25).</summary>
+        public bool NoHandbrake;
 
         /// <summary>The skill the drift controller was tuned at (the handling harness' drifter).</summary>
         public const float BaselineDriftSkill = 0.65f;
@@ -317,7 +319,8 @@ namespace NightSignal.AI
                     }
                     flickTicks++;
                     Drifting = true;
-                    input = DriverInput.Quantize(wantSign, 0.5f, 0f, InputButtons.Handbrake);
+                    input = Profile.NoHandbrake ? DriverInput.Quantize(wantSign, 1f, 0f, InputButtons.None)
+                        : DriverInput.Quantize(wantSign, 0.5f, 0f, InputButtons.Handbrake);
                     return true;
                 }
                 case DriftPhase.Done:

@@ -27,6 +27,8 @@ namespace NightSignal.Race
         public int VehicleContacts;
         public double LastVehicleContactTime = double.NegativeInfinity;
         public int Resets;
+        /// <summary>Seconds with the handbrake held while racing (challenge trials: CH25).</summary>
+        public float HandbrakeSeconds;
         /// <summary>Time penalties (resets: 3 s each) added to the finish time.</summary>
         public long PenaltyMicros;
         public bool CorridorCut;

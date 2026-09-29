@@ -1,0 +1,186 @@
+using NightSignal.Core.Builds;
+using NightSignal.Core.Content;
+using NightSignal.Core.Profiles;
+using NightSignal.Core.Rules;
+
+namespace NightSignal.CoreTests;
+
+/// <summary>Challenge trials (docs/CHALLENGE_TRIALS.md): the authored file, the supplied loaners and the judge.</summary>
+public sealed class ChallengeTrialsTests
+{
+    static ContentCatalogue Cat => TestContent.Catalogue;
+    static ChallengeTrialsFile Trials => Cat.ChallengeTrials;
+    static readonly Lazy<PartsCatalogue> parts = new(() =>
+        PartsCatalogue.Load(File.ReadAllText(Path.Combine(TestContent.RepoRoot, "Assets", "Content", "Data", "authored", "parts.json"))));
+
+    static ChallengeTrialDef Trial(long timeMs = 0, long driftRaw = 0, TrialRules? rules = null, string id = "TR-X", string challenge = "CH55", string group = "") => new()
+    {
+        Kind = timeMs > 0 && driftRaw > 0 ? "time+drift" : driftRaw > 0 ? "drift" : "time", Id = id, Challenge = challenge, Course = "C04", Loaner = new TrialLoaner { Car = "V01" }, Rules = rules ?? new TrialRules(),
+        Targets = new TrialTargets { TimeMs = timeMs, DriftRaw = driftRaw }, Group = group,
+    };
+
+    static TrialRunFacts Run(long timeMs = 90_000, int resets = 0, int walls = 0, long drift = 0, float handbrake = 0f, int banked = 0, int zones = 0) => new()
+    {
+        Finished = true, TimeMs = timeMs, Resets = resets, WallImpacts = walls, DriftRaw = drift, HandbrakeSeconds = handbrake,
+        ZonesBanked = banked, ZonesTotal = zones, DroveLoaner = true,
+    };
+
+    [Fact]
+    public void TheAuthoredTrials_LoadIntoTheHashedCatalogue_OnePerChallengeOrOneGroup()
+    {
+        Assert.Contains(ContentCatalogue.AuthoredFiles, f => f == "challenge-trials.json");
+        Assert.Equal(8, Trials.Trials.Count);
+        Assert.Equal(new[] { "CH11", "CH25", "CH28", "CH30", "CH51", "CH54", "CH55" }, Trials.Trials.Select(t => t.Challenge).Distinct().OrderBy(c => c));
+        Assert.Equal(2, Trials.ForChallenge("CH54").Count);
+        Assert.All(Trials.ForChallenge("CH54"), t => Assert.Equal("CH54-LAYOUTS", t.Group));
+        Assert.Equal(new[] { "TR-CH25", "TR-CH28", "TR-CH30" }, Trials.Trials.Where(t => t.JudgesDrift).Select(t => t.Id));
+        Assert.True(Trials.Find("TR-CH28")!.JudgesTime); // time and raw drift in the same run
+        Assert.All(Trials.Trials, t => Assert.Equal(Cat.TryChallenge(t.Challenge, out ChallengeDef c) ? c.Tier : "?", t.Tier));
+        Assert.Empty(TrialJudge.Problems(Trials, id => Cat.TryCourse(id, out _), id => Cat.TryChallenge(id, out _), id => Cat.Cars.Any(c => c.Id == id)));
+    }
+
+    [Fact]
+    public void EveryLoaner_ResolvesLikeAGarageBuild_WithinItsCap()
+    {
+        foreach (ChallengeTrialDef t in Trials.Trials)
+        {
+            CarDef car = Cat.Car(t.Loaner.Car);
+            ResolveResult r = TrialLoaners.Resolve(t.Loaner, car, Cat.CarTunings[car.Id], parts.Value, out PiEstimate? pi);
+            Assert.True(r.Ok, $"{t.Id}: {string.Join("; ", r.Issues)}");
+            Assert.Equal(t.Loaner.Parts.Values.OrderBy(x => x), r.Spec.PartIds.OrderBy(x => x));
+            if (t.Loaner.PiCap > 0) Assert.True(pi!.Value <= t.Loaner.PiCap, $"{t.Id}: PI {pi.Value} over the cap {t.Loaner.PiCap}");
+        }
+        // The two CH54 layouts are equalised under one cap: front drive and rear drive.
+        List<ChallengeTrialDef> layouts = Trials.ForChallenge("CH54").ToList();
+        Assert.Single(layouts.Select(t => t.Loaner.PiCap).Distinct());
+        Assert.Equal(new[] { "FWD", "RWD" }, layouts.Select(t => Cat.Car(t.Loaner.Car).Drive).OrderBy(d => d));
+    }
+
+    [Fact]
+    public void TheJudge_NamesEveryCondition_AndPassesOnlyWhenAllHold()
+    {
+        ChallengeTrialDef t = Trial(timeMs: 100_000, rules: new TrialRules { NoReset = true, MaxWallImpacts = 1 });
+        TrialVerdict ok = TrialJudge.Judge(t, Run(timeMs: 99_999, walls: 1));
+        Assert.True(ok.Passed, ok.Summary);
+        Assert.Equal(5, ok.Checks.Count); // loaner, finish, time, reset, walls
+
+        Assert.False(TrialJudge.Judge(t, Run(timeMs: 100_000)).Passed);          // equal is not faster
+        Assert.False(TrialJudge.Judge(t, Run(resets: 1)).Passed);
+        TrialVerdict walls = TrialJudge.Judge(t, Run(walls: 2));
+        Assert.False(walls.Passed);
+        Assert.Contains("✗ at most 1 wall impact (2)", walls.Summary);
+        Assert.False(TrialJudge.Judge(t, Run() with { Finished = false }).Passed);
+        Assert.False(TrialJudge.Judge(t, Run() with { DroveLoaner = false }).Passed); // any other car or build fails the trial
+    }
+
+    [Fact]
+    public void DriftTrials_JudgeBankedRaw_Handbrake_AndEveryZone()
+    {
+        ChallengeTrialDef t = Trial(driftRaw: 50_000, rules: new TrialRules { NoHandbrake = true, BankEveryZone = true });
+        Assert.True(TrialJudge.Judge(t, Run(drift: 50_000, banked: 4, zones: 4)).Passed);
+        Assert.False(TrialJudge.Judge(t, Run(drift: 49_999, banked: 4, zones: 4)).Passed);
+        Assert.False(TrialJudge.Judge(t, Run(drift: 60_000, banked: 3, zones: 4)).Passed);
+        TrialVerdict hb = TrialJudge.Judge(t, Run(drift: 60_000, handbrake: 0.4f, banked: 4, zones: 4));
+        Assert.False(hb.Passed);
+        Assert.Contains("held 0.4 s", hb.Summary);
+    }
+
+    [Fact]
+    public void AnUnpublishedTrial_CannotBePassed()
+    {
+        TrialVerdict v = TrialJudge.Judge(Trial(), Run());
+        Assert.False(v.Passed);
+        Assert.Contains("targets not published yet", v.Summary);
+    }
+
+    [Fact]
+    public void AGroupedChallenge_IsEarnedOnlyWhenEveryTrialOfItsGroupIsPassed()
+    {
+        var file = new ChallengeTrialsFile
+        {
+            Trials = { Trial(1, id: "TR-A", challenge: "CH54", group: "G"), Trial(1, id: "TR-B", challenge: "CH54", group: "G"), Trial(1, id: "TR-C") },
+        };
+        Assert.False(TrialJudge.ChallengeEarned(file, "CH54", new HashSet<string> { "TR-A" }));
+        Assert.True(TrialJudge.ChallengeEarned(file, "CH54", new HashSet<string> { "TR-A", "TR-B" }));
+        Assert.True(TrialJudge.ChallengeEarned(file, "CH55", new HashSet<string> { "TR-C" }));
+        Assert.False(TrialJudge.ChallengeEarned(file, "CH11", new HashSet<string> { "TR-A", "TR-B", "TR-C" }));
+    }
+
+    [Fact]
+    public void Problems_CatchDuplicatesUnknownIdsAndLooseGroups()
+    {
+        var file = new ChallengeTrialsFile
+        {
+            Trials =
+            {
+                Trial(1, id: "TR-A"), Trial(1, id: "TR-A"),
+                Trial(1, id: "TR-B", challenge: "CH99"),
+                Trial(1, id: "TR-C", challenge: "CH11"), Trial(1, id: "TR-D", challenge: "CH11"),
+            },
+        };
+        List<string> p = TrialJudge.Problems(file, id => id == "C04", id => id != "CH99", id => id == "V01");
+        Assert.Contains(p, x => x.Contains("TR-A is listed 2 times"));
+        Assert.Contains(p, x => x.Contains("unknown challenge CH99"));
+        Assert.Contains(p, x => x.Contains("CH11 has several trials that are not one group"));
+    }
+
+    // ---------------- the Local profile ----------------
+
+    static LocalEventFacts TrialRun(LocalProfile p, string trialId, bool passed, RunOutcome outcome = RunOutcome.Finished)
+    {
+        ChallengeTrialDef t = Trials.Find(trialId)!;
+        LocalEventFacts f = LocalProgressionTests.FreeplayRun(p, t.Course, 0, outcome, EventKind.FreeplayTimeTrial);
+        f.CarModelId = t.Loaner.Car;
+        f.CarInstanceId = null;
+        f.Loaner = true;
+        f.TrialId = t.Id;
+        f.TrialPassed = passed;
+        return f;
+    }
+
+    [Fact]
+    public void ALocalTrialPass_GrantsItsChallengeOnce_AndAGroupNeedsEveryTrial()
+    {
+        LocalProfile p = LocalProgressionTests.NewProfile();
+        p = LocalProgressionTests.Apply(p, TrialRun(p, "TR-CH55", passed: true));
+        Assert.True(p.HasCompletedChallenge("CH55"));
+        Assert.Equal(new[] { "TR-CH55" }, p.TrialsPassed);
+
+        // CH54: two layouts, one group — the first pass alone is kept but earns nothing yet.
+        p = LocalProgressionTests.Apply(p, TrialRun(p, "TR-CH54-FWD", passed: true));
+        Assert.False(p.HasCompletedChallenge("CH54"));
+        p = LocalProgressionTests.Apply(p, TrialRun(p, "TR-CH54-RWD", passed: false));
+        Assert.False(p.HasCompletedChallenge("CH54"));
+        p = LocalProgressionTests.Apply(p, TrialRun(p, "TR-CH54-RWD", passed: true));
+        Assert.True(p.HasCompletedChallenge("CH54"));
+        Assert.Equal(new[] { "TR-CH54-FWD", "TR-CH54-RWD", "TR-CH55" }, p.TrialsPassed);
+        Assert.Empty(p.Validate());
+
+        // A repeat pays nothing again.
+        LocalProgressionResult again = LocalProgression.ApplyEvent(p, Cat, TestContent.Music, TrialRun(p, "TR-CH55", passed: true));
+        Assert.Equal(p.Challenges.Count, again.Profile.Challenges.Count);
+    }
+
+    [Fact]
+    public void ALocalTrialRun_MustBeTheTrialsCourseAndLoaner()
+    {
+        LocalProfile p = LocalProgressionTests.NewProfile();
+        LocalEventFacts wrongCar = TrialRun(p, "TR-CH11", passed: true);
+        wrongCar.CarModelId = "V01";
+        Assert.Equal(LocalOperationStatus.Rejected, LocalProgression.ApplyEvent(p, Cat, TestContent.Music, wrongCar).Status);
+        LocalEventFacts owned = TrialRun(p, "TR-CH55", passed: true);
+        owned.Loaner = false;
+        owned.CarInstanceId = p.Cars[0].InstanceId;
+        Assert.Equal(LocalOperationStatus.Rejected, LocalProgression.ApplyEvent(p, Cat, TestContent.Music, owned).Status);
+        LocalEventFacts unknown = TrialRun(p, "TR-CH55", passed: true);
+        unknown.TrialId = "TR-NOPE";
+        Assert.Equal(LocalOperationStatus.Rejected, LocalProgression.ApplyEvent(p, Cat, TestContent.Music, unknown).Status);
+        LocalEventFacts claimed = LocalProgressionTests.FreeplayRun(p, "C04", 0, kind: EventKind.FreeplayTimeTrial);
+        claimed.TrialPassed = true; // a pass without its trial
+        Assert.Equal(LocalOperationStatus.Rejected, LocalProgression.ApplyEvent(p, Cat, TestContent.Music, claimed).Status);
+        // A trial not passed, or a run without a valid finish, keeps nothing.
+        LocalProfile q = LocalProgressionTests.Apply(p, TrialRun(p, "TR-CH55", passed: true, outcome: RunOutcome.DidNotFinish));
+        Assert.Empty(q.TrialsPassed);
+        Assert.False(q.HasCompletedChallenge("CH55"));
+    }
+}

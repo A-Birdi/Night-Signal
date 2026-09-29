@@ -1,0 +1,254 @@
+{
+  "schema": "night-signal/challenge-trials@1",
+  "method": "Measured 2026-09-29 by ChallengeTrialReferenceTests: each trial's loaner resolved like a garage build (hm-1), solo, validator autopilot, the trial's course and conditions; time targets Gold 1.02 ×, Silver 1.10 ×, Bronze 1.20 × its time; drift trials use the cleanest of drift skills 0.95/0.80/0.65 (fewest resets, then most scored; slides started by power where the handbrake is forbidden), time and drift from that one run, drift targets Gold = the raw it scored in the zones (banked or earned, the larger), Silver 0.85 ×, Bronze 0.70 ×; physics chassis-2026.09-contact1, scoring classify-2. Automation, not a human.",
+  "trials": [
+    {
+      "id": "TR-CH55",
+      "challenge": "CH55",
+      "title": "No Power Purchase",
+      "course": "C04",
+      "tier": "silver",
+      "kind": "time",
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V01",
+        "parts": {},
+        "piCap": 0
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false
+      },
+      "targets": {
+        "timeMs": 150400,
+        "driftRaw": 0
+      },
+      "group": "",
+      "brief": "Stock Kogane Hachi RS (V01), no performance parts. Beat the published Silver time on C04.",
+      "judgesTime": true,
+      "judgesDrift": false,
+      "published": true
+    },
+    {
+      "id": "TR-CH11",
+      "challenge": "CH11",
+      "title": "Blackwater Needle",
+      "course": "C12",
+      "tier": "gold",
+      "kind": "time",
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V12",
+        "parts": {},
+        "piCap": 699
+      },
+      "rules": {
+        "noReset": true,
+        "maxWallImpacts": 1,
+        "noHandbrake": false,
+        "bankEveryZone": false
+      },
+      "targets": {
+        "timeMs": 194300,
+        "driftRaw": 0
+      },
+      "group": "",
+      "brief": "Class-capped loaner: stock Shinmei Stormline 32 (V12, AWD) under the C12 stages' PI 699 cap. Beat the Gold time with no reset and at most one meaningful wall impact.",
+      "judgesTime": true,
+      "judgesDrift": false,
+      "published": true
+    },
+    {
+      "id": "TR-CH51",
+      "challenge": "CH51",
+      "title": "Rain Has a Setup",
+      "course": "C08",
+      "tier": "silver",
+      "kind": "time",
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V07",
+        "parts": {
+          "tyres": "TYR-T3-RAINSPORT"
+        },
+        "piCap": 0
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false
+      },
+      "targets": {
+        "timeMs": 169200,
+        "driftRaw": 0
+      },
+      "group": "",
+      "brief": "The supplied wet tune: Arata Shigure GT (V07, AWD) on rain-sport tyres, in C08's wet. Beat the Silver time.",
+      "judgesTime": true,
+      "judgesDrift": false,
+      "published": true
+    },
+    {
+      "id": "TR-CH54-FWD",
+      "challenge": "CH54",
+      "title": "Two Layouts, One Cap — front drive",
+      "course": "C09",
+      "tier": "silver",
+      "kind": "time",
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V06",
+        "parts": {},
+        "piCap": 450
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false
+      },
+      "targets": {
+        "timeMs": 158400,
+        "driftRaw": 0
+      },
+      "group": "CH54-LAYOUTS",
+      "brief": "Front-drive layout: stock Mizuno Sparrow Type-S (V06, FWD), PI cap 450. Beat this layout's own Silver time; the challenge needs the rear-drive trial too.",
+      "judgesTime": true,
+      "judgesDrift": false,
+      "published": true
+    },
+    {
+      "id": "TR-CH54-RWD",
+      "challenge": "CH54",
+      "title": "Two Layouts, One Cap — rear drive",
+      "course": "C09",
+      "tier": "silver",
+      "kind": "time",
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V05",
+        "parts": {},
+        "piCap": 450
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false
+      },
+      "targets": {
+        "timeMs": 160500,
+        "driftRaw": 0
+      },
+      "group": "CH54-LAYOUTS",
+      "brief": "Rear-drive layout: stock Shinmei Linea 20 (V05, RWD), PI cap 450. Beat this layout's own Silver time; the challenge needs the front-drive trial too.",
+      "judgesTime": true,
+      "judgesDrift": false,
+      "published": true
+    },
+    {
+      "id": "TR-CH25",
+      "challenge": "CH25",
+      "title": "Both Hands Light",
+      "course": "C16",
+      "tier": "silver",
+      "kind": "drift",
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V09",
+        "parts": {
+          "tyres": "TYR-T2-DRIFT"
+        },
+        "piCap": 0
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": true,
+        "bankEveryZone": false
+      },
+      "targets": {
+        "timeMs": 0,
+        "driftRaw": 2900
+      },
+      "group": "",
+      "brief": "The C16 drift loaner: Shinmei Crestline 26 (V09, RWD) on drift tyres. Bank the Silver drift score without touching the handbrake after the start, then finish.",
+      "judgesTime": false,
+      "judgesDrift": true,
+      "published": true
+    },
+    {
+      "id": "TR-CH28",
+      "challenge": "CH28",
+      "title": "One Car, Two Languages",
+      "course": "C23",
+      "tier": "gold",
+      "kind": "time+drift",
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V15",
+        "parts": {
+          "tyres": "TYR-T2-DRIFT"
+        },
+        "piCap": 0
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false
+      },
+      "targets": {
+        "timeMs": 274100,
+        "driftRaw": 2000
+      },
+      "group": "",
+      "brief": "The fixed C23 build: Kogane Halo T (V15, RWD) on drift tyres. Beat both the published time and the raw drift target in the same legal run.",
+      "judgesTime": true,
+      "judgesDrift": true,
+      "published": true
+    },
+    {
+      "id": "TR-CH30",
+      "challenge": "CH30",
+      "title": "Dawn Ribbon",
+      "course": "C25",
+      "tier": "gold",
+      "kind": "drift",
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V16",
+        "parts": {
+          "tyres": "TYR-T2-DRIFT"
+        },
+        "piCap": 0
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": true
+      },
+      "targets": {
+        "timeMs": 0,
+        "driftRaw": 10800
+      },
+      "group": "",
+      "brief": "The C25 Gold drift route loaner: Mizuno Meridian X (V16, RWD) on drift tyres. Bank the Gold raw target, with a chain banked in every judged zone.",
+      "judgesTime": false,
+      "judgesDrift": true,
+      "published": true
+    }
+  ]
+}

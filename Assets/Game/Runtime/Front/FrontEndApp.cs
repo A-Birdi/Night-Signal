@@ -64,6 +64,7 @@ namespace NightSignal.Front
         public readonly TutorialScreen Lessons = new TutorialScreen();
         public readonly RouteChartScreen ChartScreen = new RouteChartScreen();
         public readonly CupScreen Cup = new CupScreen();
+        public readonly ChallengeTrialsScreen Trials = new ChallengeTrialsScreen();
         /// <summary>The last Local race's classification (the Custom Cup table reads each leg).</summary>
         public List<RaceEntrantResult> LastLocalResults { get; private set; }
         /// <summary>The last online race left a route chart (its trace had samples).</summary>
@@ -156,6 +157,8 @@ namespace NightSignal.Front
                 StartCoroutine(TutorialTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsReferenceTour") >= 0)
                 StartCoroutine(ReferenceTour());
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsTrialTour") >= 0)
+                StartCoroutine(TrialTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsCupTour") >= 0)
                 StartCoroutine(CupTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsDriverCardTour") >= 0)
@@ -1202,7 +1205,8 @@ namespace NightSignal.Front
             LocalSession local = LocalSession.Current;
             Core.Builds.AppliedVehicleBuild frozen = null;
             string buildProblem = null;
-            Core.Builds.ResolvedCarSpec spec = plan.Car.Loaner ? null : local?.RaceSpec(plan.Car.InstanceId, out frozen, out buildProblem);
+            Core.Builds.ResolvedCarSpec spec = plan.TrialId != null ? TrialLoanerSpec(plan, out buildProblem)
+                : plan.Car.Loaner ? null : local?.RaceSpec(plan.Car.InstanceId, out frozen, out buildProblem);
             if (buildProblem != null) Debug.LogWarning("[NightSignal.Local] " + buildProblem);
             string livery = plan.Car.Loaner ? "" : local?.RaceLivery(plan.Car.InstanceId) ?? "";
             Debug.Log($"[NightSignal.Local] {plan.EventId}: {plan.Car.ModelId} races build {(spec != null ? spec.BuildHash.Substring(0, 12) : "stock")} (PI {frozen?.Pi}), " +
@@ -1218,7 +1222,7 @@ namespace NightSignal.Front
             };
             pendingGhosts.Clear();
             if (plan.Kind == EventKind.FreeplayTimeTrial && yesterday != null) pendingGhosts.Add(yesterday);
-            if (plan.Kind == EventKind.FreeplayTimeTrial && RivalReferenceGhosts.For(plan.CourseId) is Core.Ghosts.GhostRecording reference)
+            if (plan.Kind == EventKind.FreeplayTimeTrial && plan.TrialId == null && RivalReferenceGhosts.For(plan.CourseId) is Core.Ghosts.GhostRecording reference)
                 pendingGhosts.Add(reference);
 
             // The stage's introductory scene (spec §5.3), shortened on a rematch; skippable.
@@ -1245,10 +1249,12 @@ namespace NightSignal.Front
                 }, livery);
             LocalSession session = LocalSession.Current;
             Core.Profiles.LocalProgressionResult applied = null;
+            Core.Profiles.LocalEventFacts facts0 = null;
             string saveNote = "";
             if (session?.Profile != null)
             {
                 Core.Profiles.LocalEventFacts facts = LocalEvents.Facts(session, plan, results, courseRevision);
+                facts0 = facts;
                 // CH68: yesterday's valid C07 ghost beaten by a second under the same rules.
                 if (facts != null && Core.Ghosts.GhostChallenges.BeatsYesterday(yesterday, LastRunGhost) &&
                     !facts.ChallengesCompleted.Contains(Core.Ghosts.GhostChallenges.ChasingYourYesterday))
@@ -1273,6 +1279,13 @@ namespace NightSignal.Front
                     ghostNote += $"; against the ghost: {Signed(LastGhostDeltas[0])} at the first checkpoint, {Signed(LastGhostDeltas[LastGhostDeltas.Count - 1])} at the finish";
                 Debug.Log($"[NightSignal.Ghost] {plan.CourseId} {ghostFormat}: {LastRunGhost.Count} samples, result {LastRunGhost.Header.ResultMicros / 1e6:F3} s, " +
                           $"resets {LastRunGhost.Header.Resets}, valid {LastRunGhost.ValidPersonal}; raced ghost {(yesterday != null && plan.Kind == EventKind.FreeplayTimeTrial ? (yesterday.Header.ResultMicros / 1e6).ToString("F3") + " s" : "none")} — {ghostNote}");
+            }
+            if (plan.TrialId != null && LocalEvents.LastTrialVerdict != null && facts0 != null)
+            {
+                string line = (LocalEvents.LastTrialVerdict.Passed ? "TRIAL PASSED — " : "Trial not passed — ") + LocalEvents.LastTrialVerdict.Summary;
+                Trials.SetVerdict(plan.TrialId, line);
+                saveNote = line + (saveNote.Length > 0 ? " " + saveNote : "");
+                Debug.Log($"[NightSignal.Trial] {plan.TrialId}: {line}");
             }
             LastLocalResults = results;
             Results.Set(plan.CourseId, plan.Rules, results, applied, string.IsNullOrEmpty(ghostNote) ? saveNote : (saveNote.Length > 0 ? saveNote + " " : "") + "Ghost: " + ghostNote + ".", returnTo);
@@ -1396,7 +1409,9 @@ namespace NightSignal.Front
             activeRace.Rules = rules;
             activeRace.OpposingAi = opposingAi;
             activeRace.AutopilotDriftSkill = pendingAutopilotDriftSkill;
+            activeRace.AutopilotNoHandbrake = pendingAutopilotNoHandbrake;
             pendingAutopilotDriftSkill = 0f;
+            pendingAutopilotNoHandbrake = false;
             LastRunGhost = null;
             LastGhostDeltas.Clear();
             if (pendingGhostTemplate != null)

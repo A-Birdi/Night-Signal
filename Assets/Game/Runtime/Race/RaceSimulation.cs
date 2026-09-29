@@ -283,6 +283,7 @@ namespace NightSignal.Race
                 DriverInput input = e.Human ? (HumanInput != null ? HumanInput(e, tick) : DriverInput.Neutral) : e.Ai.Drive(e.State, TrafficFor(e));
                 VehicleState prev = e.State;
                 e.Sim.Step(ref e.State, input);
+                if (input.Handbrake && !e.Progress.Finished) e.Progress.HandbrakeSeconds += VehicleSimulation.TickDt;
                 Tracker.Step(e.Progress, prev, e.State, e.Sim.Telemetry, raceMicros, VehicleSimulation.TickDt);
                 e.OverturnedSeconds = IsOverturned(e.State) ? e.OverturnedSeconds + VehicleSimulation.TickDt : 0f;
                 e.StuckSeconds = e.State.Velocity.sqrMagnitude < 1f ? e.StuckSeconds + VehicleSimulation.TickDt : 0f;

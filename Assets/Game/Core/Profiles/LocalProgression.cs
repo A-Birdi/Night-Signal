@@ -121,6 +121,10 @@ namespace NightSignal.Core.Profiles
         /// <summary>The local human shares its placing with another entrant (a tie is not a win).</summary>
         public bool Tied;
 
+        /// <summary>Challenge trial run (docs/CHALLENGE_TRIALS.md): the trial id, and whether the Core TrialJudge passed it.</summary>
+        public string TrialId;
+        public bool TrialPassed;
+
         /// <summary>Challenge predicates the local simulation judged met by THIS driver's personal performance.</summary>
         public List<string> ChallengesCompleted = new List<string>();
         public List<RecordCandidate> Records = new List<RecordCandidate>();
@@ -584,7 +588,9 @@ namespace NightSignal.Core.Profiles
             {
                 if (!CanStartCampaignStage(profile, catalogue, stage.Id, facts.Mode, out denied)) return Reject(result, denied);
             }
-            else if (facts.Kind != EventKind.Tutorial && !CanStartFreeplay(profile, catalogue, course.Id, out denied))
+            // A challenge trial supplies its course as it supplies its loaner (spec §11: every challenge without a purchase);
+            // the trial id was validated above against the trial's course and car.
+            else if (facts.Kind != EventKind.Tutorial && string.IsNullOrEmpty(facts.TrialId) && !CanStartFreeplay(profile, catalogue, course.Id, out denied))
                 return Reject(result, denied);
 
             LocalProfile p = ProfileJson.Clone(profile);
@@ -721,6 +727,17 @@ namespace NightSignal.Core.Profiles
                         if (!facts.ChallengesCompleted.Contains(id) && !p.HasCompletedChallenge(id)) facts.ChallengesCompleted.Add(id);
             }
 
+            // ---- challenge trials: a passed trial is kept; its challenge once every trial of its group is passed
+            if (!string.IsNullOrEmpty(facts.TrialId) && facts.TrialPassed && facts.Outcome == RunOutcome.Finished)
+            {
+                ChallengeTrialDef trial = catalogue.ChallengeTrials.Find(facts.TrialId);
+                var passed = new HashSet<string>(p.TrialsPassed ?? new List<string>(), StringComparer.Ordinal) { trial.Id };
+                p.TrialsPassed = passed.OrderBy(x => x, StringComparer.Ordinal).ToList();
+                if (TrialJudge.ChallengeEarned(catalogue.ChallengeTrials, trial.Challenge, passed) &&
+                    !facts.ChallengesCompleted.Contains(trial.Challenge) && !p.HasCompletedChallenge(trial.Challenge))
+                    facts.ChallengesCompleted.Add(trial.Challenge);
+            }
+
             // ---- cumulative challenges (CH66, CH71) from every course this profile has legally finished, this one included
             if (facts.Outcome == RunOutcome.Finished)
             {
@@ -839,6 +856,14 @@ namespace NightSignal.Core.Profiles
                 if (!catalogue.Challenges.Any(c => c.Id == id)) return $"Unknown challenge '{id}'.";
 
             if (string.IsNullOrEmpty(f.CarModelId) || !catalogue.TryCar(f.CarModelId, out _)) return "The event needs the car model driven.";
+            if (!string.IsNullOrEmpty(f.TrialId))
+            {
+                ChallengeTrialDef trial = catalogue.ChallengeTrials.Find(f.TrialId);
+                if (trial == null) return $"Unknown challenge trial '{f.TrialId}'.";
+                if (f.Kind != EventKind.FreeplayTimeTrial || f.CourseId != trial.Course) return $"{trial.Id} runs as a time trial on {trial.Course}.";
+                if (!f.Loaner || f.CarModelId != trial.Loaner.Car) return $"{trial.Id} is driven in its supplied {trial.Loaner.Car}.";
+            }
+            else if (f.TrialPassed) return "A trial pass needs its trial id.";
             if (string.IsNullOrEmpty(f.CarInstanceId))
             {
                 if (!f.Loaner) return "Name the owned car instance driven, or mark the run as a loaner.";

@@ -29,6 +29,8 @@ namespace NightSignal.Front
         public List<string> OpposingAi = new List<string>();
         public LocalCarChoice Car;
         public string FreeplayFormat = "";
+        /// <summary>A challenge trial run (docs/CHALLENGE_TRIALS.md): its id, and the build hash of the loaner actually driven.</summary>
+        public string TrialId, TrialBuildHash;
     }
 
     /// <summary>
@@ -107,6 +109,26 @@ namespace NightSignal.Front
             return plan;
         }
 
+        /// <summary>A challenge trial: solo, non-contact, on the trial's course and conditions in its supplied loaner (never a garage car).</summary>
+        public static LocalEventPlan Trial(ChallengeTrialDef trial) => new LocalEventPlan
+        {
+            EventId = NewEventId(),
+            Kind = EventKind.FreeplayTimeTrial,
+            CourseId = trial.Course,
+            Car = new LocalCarChoice { ModelId = trial.Loaner.Car },
+            FreeplayFormat = "trial-" + trial.Id,
+            TrialId = trial.Id,
+            Rules = new RaceEventRules
+            {
+                Kind = "freeplay", Contact = ContactPolicy.NonContact, StageNumber = 10,
+                CarCapPi = trial.Loaner.PiCap > 0 ? trial.Loaner.PiCap : PerformanceIndex.Max,
+                Surface = trial.Conditions == "course" ? null : trial.Conditions, DriftRanking = trial.JudgesDrift,
+            },
+        };
+
+        /// <summary>The verdict of the last challenge trial run (shown on its screen and the results).</summary>
+        public static TrialVerdict LastTrialVerdict;
+
         /// <summary>The Hinode Campus tutorial drive: no opponents; the first completion pays once.</summary>
         public static LocalEventPlan Tutorial(CourseDef course, LocalCarChoice car) => new LocalEventPlan
         {
@@ -165,11 +187,28 @@ namespace NightSignal.Front
             // The same race predicates the game server evaluates online, from this run's facts.
             facts.ChallengesCompleted.AddRange(Net.ChallengePredicates.Evaluate(plan.CourseId, me.Entrant.Progress, me.Entrant.Drift,
                 plan.FreeplayFormat, plan.Rules?.Surface, me.Entrant.GateRun, me.Entrant.Racecraft));
+            // A challenge trial: judged by the Core TrialJudge from this run's facts; the profile keeps the pass.
+            if (!string.IsNullOrEmpty(plan.TrialId) && s.Catalogue.ChallengeTrials.Find(plan.TrialId) is ChallengeTrialDef trial)
+            {
+                LastTrialVerdict = TrialJudge.Judge(trial, new TrialRunFacts
+                {
+                    Finished = me.Outcome == RunOutcome.Finished,
+                    TimeMs = me.Outcome == RunOutcome.Finished ? me.FinishTimeMicros / 1000 : 0,
+                    Resets = me.Entrant.Progress.Resets, WallImpacts = me.Entrant.Progress.WallIncidents,
+                    HandbrakeSeconds = me.Entrant.Progress.HandbrakeSeconds,
+                    DriftRaw = (long)Math.Floor(me.Entrant.Drift.BankedRaw),
+                    ZonesBanked = me.Entrant.Drift.ZonesBanked.Count,
+                    ZonesTotal = s.Catalogue.DriftZones.TryGetValue(trial.Course, out int zones) ? zones : 0,
+                    DroveLoaner = !string.IsNullOrEmpty(plan.TrialBuildHash) && plan.Car.Loaner && plan.Car.ModelId == trial.Loaner.Car,
+                });
+                facts.TrialId = trial.Id;
+                facts.TrialPassed = LastTrialVerdict.Passed;
+            }
             IReadOnlyList<Core.Story.CrewIntroduction> crews = NightSignal.Content.ContentLibrary.Load()?.Story?.Crews;
             if (me.Outcome == RunOutcome.Finished && crews != null && Core.Story.DiaryChallenges.AllCrewsRead(s.Profile.DiaryRead, crews) &&
                 Core.Story.DiaryChallenges.RacedCrewMember(plan.OpposingAi, s.Catalogue, crews))
                 facts.ChallengesCompleted.Add(Core.Story.DiaryChallenges.OtherSideOfTheCard);
-            if (plan.Kind == EventKind.Tutorial) return facts; // tutorial demonstrations keep no personal record
+            if (plan.Kind == EventKind.Tutorial || plan.TrialId != null) return facts; // lessons and trials keep no personal record
             RecordRuleset rules = Ruleset(plan.Rules, courseRevision);
             RecordKey key = plan.Kind == EventKind.CampaignStage
                 ? RecordKey.ForCampaignStage(ProgressionDomain.Local, plan.Stage, course, plan.Mode, MetricKind.ElapsedTime, rules)

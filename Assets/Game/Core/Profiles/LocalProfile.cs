@@ -55,6 +55,9 @@ namespace NightSignal.Core.Profiles
         public List<string> ArchetypesRaced { get; set; } = new List<string>();
         /// <summary>Lead archetypes beaten in Freeplay since the last quit (CH38), sorted.</summary>
         public List<string> ArchetypeWinStreak { get; set; } = new List<string>();
+        /// <summary>Challenge trials passed (docs/CHALLENGE_TRIALS.md), sorted: a grouped challenge (CH54) needs every trial of its group.</summary>
+        public List<string> TrialsPassed { get; set; } = new List<string>();
+        public bool ShouldSerializeTrialsPassed() => TrialsPassed != null && TrialsPassed.Count > 0;
         public DateTime CreatedUtc { get; set; }
         public DateTime UpdatedUtc { get; set; }
         /// <summary>Incremented by every successful save; used for stale-copy conflict checks.</summary>
@@ -145,6 +148,9 @@ namespace NightSignal.Core.Profiles
             List<string> lessons = Tutorial?.LessonsPassed ?? new List<string>();
             if (lessons.Count > 64 || lessons.Distinct(StringComparer.Ordinal).Count() != lessons.Count || lessons.Any(x => string.IsNullOrEmpty(x) || x.Length > 64))
                 e.Add("The tutorial's passed lessons are malformed.");
+            List<string> trials = TrialsPassed ?? new List<string>();
+            if (trials.Count > 128 || trials.Distinct(StringComparer.Ordinal).Count() != trials.Count || trials.Any(x => string.IsNullOrEmpty(x) || x.Length > 64))
+                e.Add("The passed challenge trials are malformed.");
             foreach (List<string> set in new[] { ArchetypesRaced ?? new List<string>(), ArchetypeWinStreak ?? new List<string>() })
                 if (set.Count > 32 || set.Distinct(StringComparer.Ordinal).Count() != set.Count || set.Any(x => string.IsNullOrEmpty(x) || x.Length > 64))
                 {
