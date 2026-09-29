@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using NightSignal.Core.Rules;
 using NightSignal.Track;
 using NightSignal.Vehicle;
 using UnityEngine;
@@ -19,6 +20,28 @@ namespace NightSignal.Race
         public int BarrierTouchSteps;
         /// <summary>The challenge each touch gate and each lane zone serves (from the route).</summary>
         readonly string[] touchChallenges, laneChallenges;
+        /// <summary>Per speed gate (exit-speed gates and braking zones with a challenge tag): its id and what the car did there.</summary>
+        public readonly string[] SpeedGateIds = new string[0];
+        public readonly GateSpeedFact[] Speed = new GateSpeedFact[0];
+        internal bool[] SpeedInside = new bool[0], Braking = new bool[0];
+        internal int[] WallsAtEntry = new int[0], ContactsAtEntry = new int[0];
+
+        public GateRun(string[] touchChallenges, string[] laneChallenges, string[] speedGateIds) : this(touchChallenges, laneChallenges)
+        {
+            SpeedGateIds = speedGateIds;
+            Speed = new GateSpeedFact[speedGateIds.Length];
+            SpeedInside = new bool[speedGateIds.Length];
+            Braking = new bool[speedGateIds.Length];
+            WallsAtEntry = new int[speedGateIds.Length];
+            ContactsAtEntry = new int[speedGateIds.Length];
+        }
+
+        /// <summary>The facts at one speed gate by its route id (null when the course has no such gate).</summary>
+        public GateSpeedFact? SpeedFact(string gateId)
+        {
+            int i = System.Array.IndexOf(SpeedGateIds, gateId);
+            return i < 0 ? (GateSpeedFact?)null : Speed[i];
+        }
 
         public GateRun(string[] touchChallenges, string[] laneChallenges)
         {
@@ -73,13 +96,19 @@ namespace NightSignal.Race
         /// <summary>CH09's published safety margin from barriers in the viaduct lane zones.</summary>
         public const float LaneMarginMetres = 0.5f;
 
-        readonly List<RouteGateDef> touches, lanes;
+        readonly List<RouteGateDef> touches, lanes, speeds;
 
-        GateJudge(List<RouteGateDef> touches, List<RouteGateDef> lanes)
+        GateJudge(List<RouteGateDef> touches, List<RouteGateDef> lanes, List<RouteGateDef> speeds)
         {
             this.touches = touches;
             this.lanes = lanes;
+            this.speeds = speeds;
         }
+
+        /// <summary>Exit-speed gates and braking zones with a challenge tag (their published references judge them).</summary>
+        public IReadOnlyList<RouteGateDef> SpeedGates => speeds;
+        /// <summary>A brake input above this counts as braking.</summary>
+        public const float BrakeThreshold = 0.2f;
 
         public IReadOnlyList<RouteGateDef> TouchGates => touches;
         public IReadOnlyList<RouteGateDef> LaneZones => lanes;
@@ -91,13 +120,18 @@ namespace NightSignal.Race
             List<RouteGateDef> t = track.Gates.Where(g => !string.IsNullOrEmpty(g.Challenge) && (g.Kind == "apex" || g.Kind == "precision"))
                 .OrderBy(g => g.StartMetres).ToList();
             List<RouteGateDef> l = track.Gates.Where(g => !string.IsNullOrEmpty(g.Challenge) && g.Kind == "lane").OrderBy(g => g.StartMetres).ToList();
-            return t.Count + l.Count == 0 ? null : new GateJudge(t, l);
+            List<RouteGateDef> s = track.Gates.Where(g => !string.IsNullOrEmpty(g.Challenge) && (g.Kind == "exit-speed" || g.Kind == "brake-zone"))
+                .OrderBy(g => g.StartMetres).ToList();
+            return t.Count + l.Count + s.Count == 0 ? null : new GateJudge(t, l, s);
         }
 
-        /// <summary>One fixed step for one entrant, after its simulation, progress and reset handling.</summary>
-        public void Step(RaceEntrant e, bool reset, IVehicleWorld world)
+        public void Step(RaceEntrant e, bool reset, IVehicleWorld world) => Step(e, DriverInput.Neutral, reset, world);
+
+        /// <summary>One fixed step for one entrant, after its simulation, progress and reset handling (<paramref name="input"/>: this step's).</summary>
+        public void Step(RaceEntrant e, DriverInput input, bool reset, IVehicleWorld world)
         {
-            GateRun r = e.GateRun ?? (e.GateRun = new GateRun(touches.Select(g => g.Challenge).ToArray(), lanes.Select(g => g.Challenge).ToArray()));
+            GateRun r = e.GateRun ?? (e.GateRun = new GateRun(touches.Select(g => g.Challenge).ToArray(), lanes.Select(g => g.Challenge).ToArray(),
+                speeds.Select(g => g.Id).ToArray()));
             if (e.Sim.Telemetry.WallContact) r.BarrierTouchSteps++;
             float d = e.Progress.Location.Distance;
             float last = r.LastDistance;
@@ -112,6 +146,13 @@ namespace NightSignal.Race
                         r.LaneInside[i] = false;
                         r.LaneMarginKept[i] = false;
                     }
+                // A reset inside a braking zone voids that pass and is counted against it.
+                for (int i = 0; i < speeds.Count; i++)
+                    if (r.SpeedInside[i])
+                    {
+                        r.SpeedInside[i] = false;
+                        if (reset) r.Speed[i].ResetsInside++;
+                    }
                 return;
             }
             bool Crossed(float m) => last < m && d >= m;
@@ -122,6 +163,53 @@ namespace NightSignal.Race
                     r.Passes[i]++;
                     if (Mathf.Abs(lateral - touches[i].LineOffset) <= touches[i].LineTolerance + halfWidth) r.Touches[i]++;
                 }
+            float kmh = e.State.SpeedKmh;
+            for (int i = 0; i < speeds.Count; i++)
+            {
+                RouteGateDef g = speeds[i];
+                if (g.Kind == "exit-speed")
+                {
+                    // Every pass must clear the floor: keep the slowest crossing.
+                    if (Crossed(g.StartMetres))
+                    {
+                        r.Speed[i].SpeedKmh = r.Speed[i].Crossed ? Mathf.Min(r.Speed[i].SpeedKmh, kmh) : kmh;
+                        r.Speed[i].Crossed = true;
+                    }
+                    continue;
+                }
+                if (Crossed(g.StartMetres))
+                {
+                    r.SpeedInside[i] = true;
+                    r.Braking[i] = false;
+                    r.Speed[i].EntryKmh = kmh;
+                    r.Speed[i].Braked = false;
+                    r.Speed[i].ReleaseMetres = -1f;
+                    r.Speed[i].BrakeOnMetres = -1f;
+                    r.WallsAtEntry[i] = e.Progress.WallIncidents;
+                    r.ContactsAtEntry[i] = e.Progress.VehicleContacts;
+                }
+                if (!r.SpeedInside[i]) continue;
+                if (input.Brake > BrakeThreshold)
+                {
+                    if (!r.Speed[i].Braked) r.Speed[i].BrakeOnMetres = d;
+                    r.Speed[i].Braked = true;
+                    r.Braking[i] = true;
+                    r.Speed[i].ReleaseMetres = -1f;
+                }
+                else if (r.Braking[i])
+                {
+                    r.Braking[i] = false;
+                    r.Speed[i].ReleaseMetres = d;
+                }
+                if (Crossed(g.EndMetres))
+                {
+                    r.SpeedInside[i] = false;
+                    r.Speed[i].Crossed = true;
+                    r.Speed[i].ExitKmh = kmh;
+                    r.Speed[i].WallsInside += e.Progress.WallIncidents - r.WallsAtEntry[i];
+                    r.Speed[i].ContactsInside += e.Progress.VehicleContacts - r.ContactsAtEntry[i];
+                }
+            }
             for (int i = 0; i < lanes.Count; i++)
             {
                 RouteGateDef z = lanes[i];

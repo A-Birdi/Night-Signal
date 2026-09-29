@@ -313,7 +313,7 @@ namespace NightSignal.Race
                 if (reset) e.StuckSeconds = e.OverturnedSeconds = 0f;
                 Drift.Step(e, reset, e.Progress.Finished);
                 Contracts?.Step(e, input, raceMicros, reset);
-                Gates?.Step(e, reset, gateWorld);
+                Gates?.Step(e, input, reset, gateWorld);
                 Racecraft?.Step(e, reset, raceMicros);
                 if (e.Progress.Finished)
                 {

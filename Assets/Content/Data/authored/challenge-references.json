@@ -1,0 +1,114 @@
+{
+  "schema": "night-signal/challenge-references@1",
+  "method": "Measured 2026-09-29 by ChallengeReferenceTests: starters V01/V02/V03 stock, solo, validator autopilot, each course's own conditions; exit floors 0.95 × the slowest; braking windows 0.85 × lowest … 1.15 × highest exit speed (CH08 braking begun 15 m past the latest brake-on point); CH10 Silver 1.10 × the slowest; drift Gold = the raw the V04 autopilot earned at drift skill 0.95; physics chassis-2026.09-contact1, scoring classify-2. Automation, not a human.",
+  "gates": [
+    {
+      "challenge": "CH04",
+      "course": "C02",
+      "gate": "C02-EXIT-1",
+      "kind": "exit-speed",
+      "minKmh": 74.4,
+      "maxKmh": 0.0,
+      "brakeByMetres": 0.0
+    },
+    {
+      "challenge": "CH04",
+      "course": "C02",
+      "gate": "C02-EXIT-2",
+      "kind": "exit-speed",
+      "minKmh": 72.8,
+      "maxKmh": 0.0,
+      "brakeByMetres": 0.0
+    },
+    {
+      "challenge": "CH04",
+      "course": "C02",
+      "gate": "C02-EXIT-3",
+      "kind": "exit-speed",
+      "minKmh": 75.6,
+      "maxKmh": 0.0,
+      "brakeByMetres": 0.0
+    },
+    {
+      "challenge": "CH08",
+      "course": "C08",
+      "gate": "C08-WETBRAKE-1",
+      "kind": "brake-zone",
+      "minKmh": 97.9,
+      "maxKmh": 133.3,
+      "brakeByMetres": 3616.0
+    },
+    {
+      "challenge": "CH08",
+      "course": "C08",
+      "gate": "C08-WETBRAKE-2",
+      "kind": "brake-zone",
+      "minKmh": 92.8,
+      "maxKmh": 126.9,
+      "brakeByMetres": 4714.0
+    },
+    {
+      "challenge": "CH12",
+      "course": "C20",
+      "gate": "C20-LATE-BRAKE-1",
+      "kind": "brake-zone",
+      "minKmh": 79.3,
+      "maxKmh": 109.4,
+      "brakeByMetres": 0.0
+    },
+    {
+      "challenge": "CH12",
+      "course": "C20",
+      "gate": "C20-LATE-BRAKE-2",
+      "kind": "brake-zone",
+      "minKmh": 74.7,
+      "maxKmh": 102.6,
+      "brakeByMetres": 0.0
+    },
+    {
+      "challenge": "CH12",
+      "course": "C20",
+      "gate": "C20-LATE-BRAKE-3",
+      "kind": "brake-zone",
+      "minKmh": 81.8,
+      "maxKmh": 112.0,
+      "brakeByMetres": 0.0
+    },
+    {
+      "challenge": "CH12",
+      "course": "C20",
+      "gate": "C20-LATE-BRAKE-4",
+      "kind": "brake-zone",
+      "minKmh": 76.6,
+      "maxKmh": 105.0,
+      "brakeByMetres": 0.0
+    }
+  ],
+  "times": [
+    {
+      "challenge": "CH10",
+      "course": "C11",
+      "tier": "silver",
+      "referenceMs": 233700,
+      "maxLapDifferenceMs": 2000
+    }
+  ],
+  "drift": [
+    {
+      "challenge": "CH26",
+      "course": "C12",
+      "surface": "wet",
+      "tier": "gold",
+      "raw": 6100,
+      "maxLostFraction": 0.0
+    },
+    {
+      "challenge": "CH29",
+      "course": "C24",
+      "surface": "",
+      "tier": "gold",
+      "raw": 3600,
+      "maxLostFraction": 0.05
+    }
+  ]
+}

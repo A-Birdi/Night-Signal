@@ -2336,3 +2336,33 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   skipped.
 - **Limits:** the trace is this client's prediction (corrections included as they happened), fine for a chart, not for
   timing; spectators get no chart.
+
+## V-113 — Published challenge references: CH04, CH08, CH10, CH12, CH26, CH29 (2026-09-29)
+- Revision: the work committed with this entry; editor measurement and player build of that tree.
+- **What changed:** the six challenges V-090 left waiting for published values now have them, as hashed content
+  (`authored/challenge-references.json`, night-signal/challenge-references@1, loaded by the catalogue: race content
+  `26709731…` → **`aff0ce06…`**). The explicit PlayMode `ChallengeReferenceTests` measures them like the benchmark
+  certification — the three starters (V01–V03 stock), solo, validator autopilot, each course's own conditions:
+  **CH04** (C02) exit floors = 0.95 × the slowest crossing (74.4 / 72.8 / 75.6 km/h); **CH08** (C08, wet) and **CH12**
+  (C20) braking-zone exit windows = 0.85 × lowest … 1.15 × highest (e.g. C08 zone 1 97.9–133.3 km/h); CH08's position
+  envelope is the brake-on point, 15 m past the latest starter's (3,616 m and 4,714 m) — the starters brake to the
+  zones' ends, so a release point could not be published; **CH10** (C11) Silver = 1.10 × the slowest two-lap time
+  (233.7 s), laps within 2.0 s (the spec); **CH26** (wet C12) and **CH29** (C24) Gold = the raw the autopilot earned
+  drifting at skill 0.95 in V04 (6,100 and 3,600; the wet run lost 3,462 raw to walls and a reset, so the published Gold
+  is its earned score, not its weak banked 2,673); CH29 allows 5 % of the earned raw lost. `Evidence/challenges/references.txt`.
+  `GateJudge` now measures exit-speed gates and braking zones (entry/exit speed, braking, brake-on and release points,
+  walls, contacts and resets inside); `EntrantProgress.LapMicros` keeps lap times; Core `ChallengeReferenceJudge` judges
+  them; the predicates run offline and on the game server alike.
+- **Tests:** Core `ChallengeReferencesTests` (the published file loads into the hashed catalogue; each judgement passes
+  and fails on its own condition; broken references refused) — Core 173; Services 356, Builds 232, Toys 92; EditMode 483
+  passed, 2 skipped.
+- **Built player** (`-nsReferenceTour`) **PASS**, every grant matching the measured facts computed apart from the
+  predicates: CH04 (C02 exits 78.3 / 76.6 / 79.6 km/h over their floors), CH08 (both wet zones inside their windows and
+  braked in time, no wall), CH12 (four late-braking zones inside their windows, clean) and CH29 (3,638 raw banked, none
+  lost) granted; CH10 withheld (the autopilot's laps differ by 5.8 s — the standing start; the challenge asks for
+  deliberate pacing) and CH26 withheld (2,673 banked of a 6,100 Gold, four walls). `Evidence/challenges/reference-tour.txt`.
+- **Control plane restarted** for the content change (tracked task; health ok, race content `aff0ce06…`).
+- **Limits:** the references come from the conservative validator autopilot and one drifting AI — a human pass over
+  their feel is still owed; CH04/CH08/CH12 references sit inside the reference drivers' own envelopes by construction;
+  offline Freeplay has no weather choice, so CH26 (wet C12) is reachable online (the Freeplay weather option) only.
+  37 challenges need the fixed challenge-trial format (loaners, fixed builds, cups, scripted AI) — 37 of 75 exist now.

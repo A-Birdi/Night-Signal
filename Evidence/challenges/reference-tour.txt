@@ -1,0 +1,14 @@
+# -nsReferenceTour (built player; validator autopilot, or the autopilot drifting in V04; automation)
+[NightSignal.ReferenceTour] C02 CH04: Finished; C02-EXIT-1 78.3 km/h (floor 74.4); C02-EXIT-2 76.6 km/h (floor 72.8); C02-EXIT-3 79.6 km/h (floor 75.6); race walls 0; granted [CH33, CH04]
+[NightSignal.ReferenceTour] C02: the facts earn CH04; the game granted it
+[NightSignal.ReferenceTour] C08 CH08: Finished; C08-WETBRAKE-1 out 115.2 km/h (window 97.9–133.3), braked True from 3597 m (by 3616), walls 0, contacts 0, resets 0; C08-WETBRAKE-2 out 109.1 km/h (window 92.8–126.9), braked True from 4699 m (by 4714), walls 0, contacts 0, resets 0; race walls 0; granted [CH33, CH08]
+[NightSignal.ReferenceTour] C08: the facts earn CH08; the game granted it
+[NightSignal.ReferenceTour] C20 CH12: Finished; C20-LATE-BRAKE-1 out 93.3 km/h (window 79.3–109.4), braked True from 1413 m, walls 0, contacts 0, resets 0; C20-LATE-BRAKE-2 out 87.9 km/h (window 74.7–102.6), braked True from 1914 m, walls 0, contacts 0, resets 0; C20-LATE-BRAKE-3 out 96.2 km/h (window 81.8–112), braked True from 2410 m, walls 0, contacts 0, resets 0; C20-LATE-BRAKE-4 out 90.1 km/h (window 76.6–105), braked True from 2963 m, walls 0, contacts 0, resets 0; race walls 1; granted [CH33, CH12]
+[NightSignal.ReferenceTour] C20: the facts earn CH12; the game granted it
+[NightSignal.ReferenceTour] C11 CH10: Finished; 210.648 s (Silver 233.7 s), laps 108.232 / 102.415 (allowed difference 2.0 s); granted [CH33]
+[NightSignal.ReferenceTour] C11: the facts do not earn CH10; the game withheld it
+[NightSignal.ReferenceTour] C24 CH29: Finished; banked 3638 raw (Gold 3,600), earned 3638, lost 0; walls 0, resets 0; surface dry; granted [CH33, CH29]
+[NightSignal.ReferenceTour] C24: the facts earn CH29; the game granted it
+[NightSignal.ReferenceTour] C12 CH26: Finished; banked 2673 raw (Gold 6,100), earned 6135, lost 3462; walls 4, resets 1; surface wet; granted [CH33]
+[NightSignal.ReferenceTour] C12: the facts do not earn CH26; the game withheld it
+[NightSignal.ReferenceTour] PASS (4 granted)

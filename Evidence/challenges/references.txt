@@ -1,0 +1,33 @@
+# Challenge references (Appendix E), measured by ChallengeReferenceTests (PlayMode, explicit): the three starters stock, solo,
+# validator autopilot, each course's own conditions; drift references by the autopilot drifting (skill 0.95) in V04. Automation.
+
+## CH04 on C02 (dry)
+C02-EXIT-1 (exit-speed, 1337–1349 m): V01 78.3 km/h; V02 82.3 km/h; V03 82.4 km/h → floor 74.4 km/h
+C02-EXIT-2 (exit-speed, 2239–2251 m): V01 76.6 km/h; V02 80.5 km/h; V03 81.0 km/h → floor 72.8 km/h
+C02-EXIT-3 (exit-speed, 3102–3114 m): V01 79.6 km/h; V02 90.7 km/h; V03 90.5 km/h → floor 75.6 km/h
+
+## CH08 on C08 (wet)
+C08-WETBRAKE-1 (brake-zone, 3559–3647 m): V01 in 141.0 out 115.2 km/h, brake on at 3597 m, braking to the end; V02 in 139.4 out 115.5 km/h, brake on at 3601 m, braking to the end; V03 in 140.3 out 115.9 km/h, brake on at 3598 m, braking to the end → window 97.9–133.3 km/h, brake on by 3616 m
+C08-WETBRAKE-2 (brake-zone, 4689–4791 m): V01 in 163.4 out 109.1 km/h, brake on at 4699 m, braking to the end; V02 in 163.5 out 110.0 km/h, brake on at 4699 m, braking to the end; V03 in 164.7 out 110.4 km/h, brake on at 4696 m, braking to the end → window 92.8–126.9 km/h, brake on by 4714 m
+
+## CH12 on C20 (damp)
+C20-LATE-BRAKE-1 (brake-zone, 1412–1457 m): V01 in 131.6 out 93.3 km/h, brake on at 1413 m, braking to the end; V02 in 132.1 out 94.4 km/h, brake on at 1413 m, braking to the end; V03 in 133.0 out 95.1 km/h, brake on at 1412 m, braking to the end → window 79.3–109.4 km/h
+C20-LATE-BRAKE-2 (brake-zone, 1914–1959 m): V01 in 126.2 out 87.9 km/h, brake on at 1914 m, braking to the end; V02 in 126.7 out 88.5 km/h, brake on at 1915 m, braking to the end; V03 in 127.4 out 89.2 km/h, brake on at 1915 m, braking to the end → window 74.7–102.6 km/h
+C20-LATE-BRAKE-3 (brake-zone, 2410–2455 m): V01 in 132.3 out 96.2 km/h, brake on at 2410 m, braking to the end; V02 in 132.6 out 96.9 km/h, brake on at 2410 m, braking to the end; V03 in 133.3 out 97.4 km/h, brake on at 2410 m, braking to the end → window 81.8–112 km/h
+C20-LATE-BRAKE-4 (brake-zone, 2963–3008 m): V01 in 128.4 out 90.1 km/h, brake on at 2963 m, braking to the end; V02 in 129.0 out 90.9 km/h, brake on at 2963 m, braking to the end; V03 in 129.8 out 91.3 km/h, brake on at 2963 m, braking to the end → window 76.6–105 km/h
+
+## CH10 on C11 (two laps)
+V01: 210.648 s, laps 108.232 / 102.415
+V02: 212.366 s, laps 108.866 / 103.499
+V03: 208.831 s, laps 106.831 / 102.000
+→ Silver 233.7 s (1.10 × the slowest), laps within 2.0 s
+
+## CH26 on C12 (wet): V04 drifting, skill 0.95
+banked 2673 raw, earned 6135, lost 3462; walls 4, resets 1, finished True
+→ Gold 6,100 raw
+
+## CH29 on C24: V04 drifting, skill 0.95
+banked 3638 raw, earned 3638, lost 0; walls 0, resets 0, finished True
+→ Gold 3,600 raw, at most 5 % of the earned raw lost
+
+# every reference measured

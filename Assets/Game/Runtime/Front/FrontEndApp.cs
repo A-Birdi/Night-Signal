@@ -150,6 +150,8 @@ namespace NightSignal.Front
                 StartCoroutine(FreeplayRivalTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsTutorialTour") >= 0)
                 StartCoroutine(TutorialTour());
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsReferenceTour") >= 0)
+                StartCoroutine(ReferenceTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsDriverCardTour") >= 0)
                 StartCoroutine(DriverCardTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsCanvasPadTour") >= 0)

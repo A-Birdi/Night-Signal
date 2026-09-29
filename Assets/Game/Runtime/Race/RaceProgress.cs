@@ -17,6 +17,9 @@ namespace NightSignal.Race
         public bool Finished;
         /// <summary>Race-clock finish time in microseconds, sub-tick interpolated at the finish gate.</summary>
         public long FinishTimeMicros;
+        /// <summary>Each completed lap's race-clock time (µs, sub-tick at the line, penalties excluded) — CH10 compares them.</summary>
+        public readonly List<long> LapMicros = new List<long>();
+        public long LapStartMicros;
         public float RaceDistance;
         public float LastSafeDistance;
         public int WallIncidents;
@@ -162,15 +165,17 @@ namespace NightSignal.Race
                 e.CheckpointsPassed++;
                 e.LastSafeDistance = gate;
                 bool lastOfLap = e.NextCheckpoint == track.CheckpointMetres.Length - 1;
+                long lineMicros = raceTimeMicros - (long)(dt * 1_000_000f) + (long)(Mathf.Clamp01(crossing) * (long)(dt * 1_000_000f));
                 if (lastOfLap && e.Lap == track.Laps - 1 && Mathf.Approximately(gate, finishMetres))
                 {
-                    float frac = Mathf.Clamp01(crossing);
-                    long tickMicros = (long)(dt * 1_000_000f);
-                    e.FinishTimeMicros = raceTimeMicros - tickMicros + (long)(frac * tickMicros) + e.PenaltyMicros;
+                    e.FinishTimeMicros = lineMicros + e.PenaltyMicros;
+                    e.LapMicros.Add(lineMicros - e.LapStartMicros);
                     e.Finished = true;
                 }
                 else if (lastOfLap)
                 {
+                    e.LapMicros.Add(lineMicros - e.LapStartMicros);
+                    e.LapStartMicros = lineMicros;
                     e.Lap++;
                     e.NextCheckpoint = 0;
                     e.Locator.Reset(gate);

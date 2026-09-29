@@ -23,7 +23,7 @@ namespace NightSignal.Core.Content
         /// </summary>
         public static readonly string[] AuthoredFiles =
             { "cars.tuning.json", "stages.opposition.json", "courses.addendum.json", "music.unlocks.json", "parts.json", "build-recipes.json", "stage-benchmarks.json",
-              "stage-conditions.json", "course-drift-zones.json" };
+              "stage-conditions.json", "course-drift-zones.json", "challenge-references.json" };
 
         /// <summary>
         /// Authored overlays that must be present: they carry Addendum 01 rules (live opposition, 29 courses, course
@@ -32,6 +32,8 @@ namespace NightSignal.Core.Content
         public static readonly string[] RequiredAuthoredFiles = { "stages.opposition.json", "courses.addendum.json" };
 
         public CourseAccessRules CourseAccess { get; private set; }
+        /// <summary>Published challenge references (gate speeds and windows, reference times, drift targets); empty when absent.</summary>
+        public NightSignal.Core.Rules.ChallengeReferencesFile ChallengeReferences { get; private set; } = new NightSignal.Core.Rules.ChallengeReferencesFile();
 
         /// <summary>Judged drift zones per course id (authored/course-drift-zones.json); empty when the file is absent.</summary>
         public IReadOnlyDictionary<string, int> DriftZones => driftZones;
@@ -193,6 +195,13 @@ namespace NightSignal.Core.Content
                     if (z.Zones < 0) throw new ContentLoadException($"course-drift-zones.json: {z.Id} has a negative zone count");
                     cat.driftZones[z.Id] = z.Zones;
                 }
+            }
+            if (documents.ContainsKey("challenge-references.json"))
+            {
+                var file = Parse<NightSignal.Core.Rules.ChallengeReferencesFile>("challenge-references.json", "night-signal/challenge-references@1");
+                List<string> problems = NightSignal.Core.Rules.ChallengeReferenceJudge.Problems(file, id => cat.courseById.ContainsKey(id), id => cat.TryChallenge(id, out _));
+                if (problems.Count > 0) throw new ContentLoadException("challenge-references.json: " + string.Join("; ", problems));
+                cat.ChallengeReferences = file;
             }
             cat.documentText = documents.ToDictionary(kv => kv.Key, kv => kv.Value, StringComparer.Ordinal);
             cat.ContentHash = Hash(documents);
