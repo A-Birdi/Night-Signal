@@ -55,6 +55,8 @@ public sealed record MatchAssignment
     public IReadOnlyList<GuestPass> GuestPasses { get; init; } = Array.Empty<GuestPass>();
     public IReadOnlyDictionary<string, IReadOnlyList<string>>? Sponsors { get; init; }
     public IReadOnlyList<string>? CupLegs { get; init; }
+    /// <summary>A challenge trial's id (docs/CHALLENGE_TRIALS.md): the game server judges each human with Core TrialJudge.</summary>
+    public string? ChallengeTrialId { get; init; }
     public TrialAssignment? Trial { get; init; }
     public AssignedBenchmark? Benchmark { get; init; }
     public bool PurePvP { get; init; }
@@ -126,7 +128,7 @@ public sealed class MatchAllocator(GameServerRegistry registry, IResultLedger le
             FreeplayMode = s.FreeplayMode, Weather = s.Weather, Collision = s.Collision, CarCapPi = s.CarCapPi,
             Entrants = plan.Entrants.Select(Entrant).ToList(),
             AiEntrants = plan.AiEntrants, Roster = plan.Roster, FeaturedRival = plan.FeaturedRival, GuestPasses = plan.GuestPasses,
-            Sponsors = plan.Sponsors.Count > 0 ? plan.Sponsors : null, CupLegs = s.CupLegs, Trial = trial, Benchmark = benchmark,
+            Sponsors = plan.Sponsors.Count > 0 ? plan.Sponsors : null, CupLegs = s.CupLegs, ChallengeTrialId = s.ChallengeTrialId, Trial = trial, Benchmark = benchmark,
             PurePvP = plan.PurePvP, GridNote = plan.GridNote, Build = plan.Version.Build, Protocol = plan.Version.Protocol,
             ContentHash = plan.Version.ContentHash, Seed = RandomNumberGenerator.GetInt32(int.MaxValue),
             ResultsUrl = $"/v1/matches/{matchId}/results", TicketIssuer = tickets.Issuer,

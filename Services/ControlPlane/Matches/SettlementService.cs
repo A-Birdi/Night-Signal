@@ -50,6 +50,10 @@ public sealed class EntrantFacts
     public bool? Started { get; set; }
     /// <summary>Challenge predicates the game server evaluated as met in this event (personal performance only).</summary>
     public List<string> ChallengesCompleted { get; set; } = new();
+    /// <summary>Challenge trials (humans only): the trial judged, whether Core TrialJudge passed this run, and its reasons.</summary>
+    public string? TrialId { get; set; }
+    public bool? TrialPassed { get; set; }
+    public string? TrialSummary { get; set; }
 }
 
 public sealed record SubmissionResult(int StatusCode, object Body);
@@ -171,7 +175,13 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
             if (NightSignal.Core.Story.DiaryChallenges.AllCrewsRead(await players.DiaryReadsAsync(e.EntrantId, ct), content.Crews))
                 diaryComplete.Add(e.EntrantId);
         }
-        (MatchSettlement? settlement, string? invalid) = Compute(config, submission, Hashing.Sha256Hex(body), finished, diaryComplete, ghostBeats, freeplayBefore);
+        // Challenge trials read each finishing human's settled trial passes (a grouped challenge needs every trial of its group).
+        var trialPassesBefore = new Dictionary<string, IReadOnlyCollection<string>>(StringComparer.Ordinal);
+        if (config.ChallengeTrialId is not null)
+            foreach (EntrantFacts e in submission.Entrants.Where(x => x.Human && x.Outcome == RunOutcome.Finished))
+                trialPassesBefore[e.EntrantId] = await ledger.TrialPassesAsync(e.EntrantId, ct);
+        (MatchSettlement? settlement, string? invalid) = Compute(config, submission, Hashing.Sha256Hex(body), finished, diaryComplete, ghostBeats, freeplayBefore,
+            trialPassesBefore);
         if (settlement is null) return Error(422, "invalid_results", invalid!);
 
         SettlementOutcome outcome = await ledger.SettleAsync(settlement, ct);
@@ -247,7 +257,8 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
     /// <summary>Validates the facts against the frozen allocation and computes every reward input with Core.</summary>
     internal (MatchSettlement? Settlement, string? Error) Compute(MatchAssignment config, ResultSubmission s, string bodySha256,
         IReadOnlyDictionary<string, IReadOnlyCollection<string>>? finishedBefore = null, IReadOnlySet<string>? diaryComplete = null,
-        IReadOnlySet<string>? ghostBeats = null, IReadOnlyDictionary<string, IReadOnlyList<ArchetypeRace>>? freeplayBefore = null)
+        IReadOnlySet<string>? ghostBeats = null, IReadOnlyDictionary<string, IReadOnlyList<ArchetypeRace>>? freeplayBefore = null,
+        IReadOnlyDictionary<string, IReadOnlyCollection<string>>? trialPassesBefore = null)
     {
         if (ProgressionDomain.ToyViolation(config) is { } toy) return (null, toy);
         var humans = config.Entrants.Select(e => e.AccountId).ToHashSet(StringComparer.Ordinal);
@@ -275,7 +286,13 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
             if (e.ChallengesCompleted.Distinct().Count() != e.ChallengesCompleted.Count ||
                 e.ChallengesCompleted.Any(id => !content.Catalogue.Challenges.Any(c => c.Id == id)))
                 return (null, $"{e.EntrantId}: unknown or duplicate challenge ID.");
+            bool trialFacts = e.TrialId is not null || e.TrialPassed is not null || e.TrialSummary is not null;
+            if (trialFacts && (config.ChallengeTrialId is null || !e.Human || e.TrialId != config.ChallengeTrialId))
+                return (null, $"{e.EntrantId}: challenge-trial facts that do not belong to this match.");
+            if (e.TrialSummary is { Length: > 600 }) return (null, $"{e.EntrantId}: trial summary too long.");
         }
+        if (config.ChallengeTrialId is not null && content.Catalogue.ChallengeTrials.Find(config.ChallengeTrialId) is null)
+            return (null, $"Unknown challenge trial {config.ChallengeTrialId}.");
         if (BrokenEventReason(config, s) is { } broken) return (null, broken);
 
         // Placement: recomputed with Core (drift formats rank by raw score) and cross-checked with the server's.
@@ -468,6 +485,21 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
                     };
                     foreach (string id in ArchetypeChallenges.Satisfied(ArchetypeChallenges.Replay(content.Catalogue, races)))
                         if (!ids.Contains(id)) ids.Add(id);
+                }
+                // Challenge trials: the game server's verdict for this run, the settled passes before it, then the trial's group.
+                if (e.Human && config.ChallengeTrialId is not null && content.Catalogue.ChallengeTrials.Find(config.ChallengeTrialId) is { } challengeTrial)
+                {
+                    var passed = new HashSet<string>(trialPassesBefore is not null && trialPassesBefore.TryGetValue(e.EntrantId, out var before)
+                        ? before : Array.Empty<string>(), StringComparer.Ordinal);
+                    if (e.TrialPassed == true) passed.Add(challengeTrial.Id);
+                    bool earned = e.TrialPassed == true && TrialJudge.ChallengeEarned(content.Catalogue.ChallengeTrials, challengeTrial.Challenge, passed);
+                    if (earned && !ids.Contains(challengeTrial.Challenge)) ids.Add(challengeTrial.Challenge);
+                    receipt.ChallengeTrial = new ChallengeTrialReceipt
+                    {
+                        TrialId = challengeTrial.Id, Challenge = challengeTrial.Challenge, Passed = e.TrialPassed == true, Summary = e.TrialSummary ?? "",
+                        GroupPassed = content.Catalogue.ChallengeTrials.ForChallenge(challengeTrial.Challenge).Count(t => passed.Contains(t.Id)),
+                        GroupSize = content.Catalogue.ChallengeTrials.ForChallenge(challengeTrial.Challenge).Count,
+                    };
                 }
                 if (e.Human)
                 {

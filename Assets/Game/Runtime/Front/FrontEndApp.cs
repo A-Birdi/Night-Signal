@@ -727,6 +727,15 @@ namespace NightSignal.Front
                         sb.Append($"<color={colour}>Team Trial {verdict?.ToUpperInvariant()}</color>  <size=85%>your team {mine}, opponents {Value(tt["opposingTeamValue"])}" +
                                   ((bool?)tt["provisional"] == true ? ", provisional targets" : "") + "</size>\n");
                     }
+                    if (r["challengeTrial"] is Newtonsoft.Json.Linq.JObject trialReceipt)
+                    {
+                        // The game server's verdict, in words (the game font has no check-mark glyphs).
+                        bool passedTrial = (bool?)trialReceipt["passed"] == true;
+                        int size = (int?)trialReceipt["groupSize"] ?? 1, got = (int?)trialReceipt["groupPassed"] ?? 0;
+                        sb.Append($"<color={(passedTrial ? "#3EC6D8" : "#F2A541")}>{(passedTrial ? "Challenge trial passed" : "Challenge trial not passed")}</color>" +
+                                  (size > 1 ? $"  <size=85%>({got} of {size} of {(string)trialReceipt["challenge"]}'s trials)</size>" : "") +
+                                  $"\n<size=80%>{(string)trialReceipt["summary"]}</size>\n");
+                    }
                     sb.Append($"Credits +{(long?)r["payout"]?["total"] ?? 0:N0}   ·   balance {(long?)r["balanceAfter"] ?? 0:N0} cr\n");
                     foreach (Newtonsoft.Json.Linq.JToken cue in (r["musicUnlocked"] as Newtonsoft.Json.Linq.JArray) ?? new Newtonsoft.Json.Linq.JArray())
                         sb.Append($"<color=#3EC6D8>+</color> Soundtrack {(string)cue}\n");
@@ -910,7 +919,10 @@ namespace NightSignal.Front
             if (intentArg >= 0 && intentArg + 1 < tourArgs.Length) Convoy.SelectIntent(int.Parse(tourArgs[intentArg + 1]));
             int trialArg = Array.IndexOf(tourArgs, "-nsUiTourTrial");
             string tourTrial = trialArg >= 0 && trialArg + 1 < tourArgs.Length ? tourArgs[trialArg + 1] : null;
-            if (tourTrial != null) Convoy.SelectIntent(5); // Challenges · Team Trial
+            if (tourTrial != null) Convoy.SelectIntent(5); // Challenges · Team or Challenge Trial
+            int challengeTrialArg = Array.IndexOf(tourArgs, "-nsUiTourChallengeTrial");
+            string tourChallengeTrial = challengeTrialArg >= 0 && challengeTrialArg + 1 < tourArgs.Length ? tourArgs[challengeTrialArg + 1] : null;
+            if (tourChallengeTrial != null) Convoy.SelectIntent(5);
             Click("ProposeIntent");
             yield return Until(() => State()?["intent"]?.Type == Newtonsoft.Json.Linq.JTokenType.Object, 20f, "intent set");
             yield return new WaitForSeconds(0.8f);
@@ -960,6 +972,12 @@ namespace NightSignal.Front
                     yield return Until(() => Convoy.SelectCourse(cupLegs[0]) && Convoy.SelectCupLegs(cupLegs[1], cupLegs[2]), 10f, "cup legs offered");
                     yield return new WaitForSeconds(0.8f);
                     Shot("05u-cup-schedule");
+                }
+                if (tourChallengeTrial != null)
+                {
+                    yield return Until(() => Convoy.SelectChallengeTrial(tourChallengeTrial), 10f, "challenge trial offered");
+                    yield return new WaitForSeconds(0.8f);
+                    Shot("05c-challenge-trial");
                 }
                 if (tourTrial != null)
                 {

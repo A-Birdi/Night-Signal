@@ -351,6 +351,25 @@ public abstract partial class SqlGameStore : IPlayerStore, IResultLedger, ISocia
             return races;
         }, ct);
 
+    public Task<IReadOnlyCollection<string>> TrialPassesAsync(string accountId, CancellationToken ct = default) =>
+        ReadAsync<IReadOnlyCollection<string>>(async (c, tx) =>
+        {
+            var passed = new SortedSet<string>(StringComparer.Ordinal);
+            var rows = await c.QueryAsync(tx,
+                "SELECT r.receipt_json FROM match_results r JOIN matches m ON m.match_id = r.match_id " +
+                "WHERE r.account_id = @a AND m.state = 'settled' AND r.receipt_json LIKE @t",
+                r => r.Str(0), ("@a", accountId), ("@t", "%\"challengeTrial\"%"));
+            foreach (string json in rows)
+            {
+                using JsonDocument receipt = JsonDocument.Parse(json);
+                if (receipt.RootElement.TryGetProperty("challengeTrial", out JsonElement t) && t.ValueKind == JsonValueKind.Object &&
+                    t.TryGetProperty("passed", out JsonElement p) && p.ValueKind == JsonValueKind.True &&
+                    t.TryGetProperty("trialId", out JsonElement id) && id.GetString() is { Length: > 0 } trialId)
+                    passed.Add(trialId);
+            }
+            return passed;
+        }, ct);
+
     public Task<bool> HasFinishedEventAsync(string accountId, CancellationToken ct = default) =>
         ReadAsync(async (c, tx) => await c.FirstOrDefaultAsync(tx,
             "SELECT 1 FROM match_results WHERE account_id = @a AND receipt_json LIKE @f", r => true,

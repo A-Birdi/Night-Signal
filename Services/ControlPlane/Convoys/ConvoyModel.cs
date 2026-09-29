@@ -218,7 +218,7 @@ public sealed record ClientVersion(string Build, int Protocol, string ContentHas
 /// </summary>
 public sealed record EventRequest(string? StageId, string? CourseId, string? FreeplayMode, string? Weather, int? AiCount,
     int? CarCapPi, string? Collision, IReadOnlyList<string>? CupLegs = null, string? TrialId = null, string? Difficulty = null,
-    IReadOnlyList<string>? AiRivals = null);
+    IReadOnlyList<string>? AiRivals = null, string? ChallengeTrialId = null);
 
 /// <summary>Freeplay options a leader prepares with a course vote; they are applied to the drawn/selected event.</summary>
 public sealed record BallotOptions(string? Weather, int AiCount, int? CarCapPi, IReadOnlyList<string>? AiRivals);
@@ -247,6 +247,11 @@ public sealed record EventSettings
     public IReadOnlyList<string>? CupLegs { get; init; }
     /// <summary>Custom Cup: the leg this event races (0-based; <see cref="CourseId"/> is <c>CupLegs[CupLeg]</c>).</summary>
     public int CupLeg { get; init; }
+    /// <summary>
+    /// A challenge trial (docs/CHALLENGE_TRIALS.md): raced as a non-contact Freeplay Time Attack on the trial's course in its
+    /// supplied loaner (every entrant; never a garage build); the game server judges it and settlement keeps the passes.
+    /// </summary>
+    public string? ChallengeTrialId { get; init; }
     public IReadOnlyList<string>? AiRivals { get; init; }
     public string? TrialId { get; init; }
     public string? Difficulty { get; init; }

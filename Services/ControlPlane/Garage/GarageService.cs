@@ -694,6 +694,26 @@ public sealed class GarageService(IGarageStore store, IPlayerStore players, Cont
         return first is null ? null : await MeetAppearanceAsync(account, first.InstanceId, ct);
     }
 
+    /// <summary>
+    /// A challenge trial's supplied loaner as a frozen build (docs/CHALLENGE_TRIALS.md): resolved with Core TrialLoaners from
+    /// this server's parts data exactly as a garage build is, so the game server re-resolves it to the same hash; null when the
+    /// trial is unknown or its loaner does not resolve.
+    /// </summary>
+    public EntrantBuild? TrialLoanerBuild(string trialId)
+    {
+        if (content.Catalogue.ChallengeTrials.Find(trialId) is not { } t || !content.Catalogue.TryCar(t.Loaner.Car, out CarDef car)) return null;
+        ResolveResult r = TrialLoaners.Resolve(t.Loaner, car, content.Catalogue.CarTunings[car.Id], garage.Parts, out PiEstimate? pi);
+        if (!r.Ok || pi is null) return null;
+        var build = new MechanicalSnapshot();
+        foreach (var kv in t.Loaner.Parts) build.Parts[kv.Key] = kv.Value;
+        var applied = new AppliedVehicleBuild
+        {
+            Revision = 0, Build = build, BuildHash = r.Spec.BuildHash, Pi = pi.Value, PiClass = pi.Class.ToString(),
+            HandlingModelVersion = r.Spec.HandlingModelVersion, PartsCatalogueRevision = r.Spec.PartsCatalogueRevision, Source = "trial-loaner",
+        };
+        return EntrantBuild.From("loaner:" + t.Id, car.Id, applied, r.Spec, pi, garage.Hash);
+    }
+
     /// <summary>Frozen builds of several entrants' selected instances (event.start); entrants without a valid build are omitted.</summary>
     public async Task<IReadOnlyDictionary<string, EntrantBuild>> FreezeSelectionsAsync(IEnumerable<string> accounts, CancellationToken ct)
     {

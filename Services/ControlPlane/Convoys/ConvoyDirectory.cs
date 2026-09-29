@@ -1763,6 +1763,26 @@ public sealed class ConvoyDirectory
                     CupLegs = mode == "cup" ? courses : null, AiRivals = r.AiRivals is { Count: > 0 } ? r.AiRivals.ToList() : null,
                 });
             }
+            case IntentKind.Challenges when r.ChallengeTrialId is not null:
+            {
+                if (intent.TrialId is not null)
+                    return ConvoyResult.Fail("invalid_request", "The convoy agreed to a Team Trial; change the intent first.");
+                if (Catalogue.ChallengeTrials.Find(r.ChallengeTrialId) is not { } challengeTrial)
+                    return ConvoyResult.Fail("unknown_trial", "Choose a challenge trial.");
+                if (!challengeTrial.Published)
+                    return ConvoyResult.Fail("trial_unpublished", $"{challengeTrial.Id}'s targets are not published yet.");
+                if (challengeTrial.Conditions != "course")
+                    return ConvoyResult.Fail("trial_unsupported", $"{challengeTrial.Id} sets its own conditions, which online trials do not support yet.");
+                if (r.AiCount is not null || r.AiRivals is not null || r.CarCapPi is not null || (r.Collision is not null && r.Collision != "non-contact"))
+                    return ConvoyResult.Fail("invalid_request", "A challenge trial's car, rules and field are fixed by the trial.");
+                // The trial supplies its course as it supplies its loaner (spec §11: every challenge without a purchase).
+                return ConvoyResult.Success(new EventSettings
+                {
+                    Kind = "freeplay", CourseId = challengeTrial.Course, FreeplayMode = "time-attack", Weather = weather, AiCount = 0,
+                    CarCapPi = challengeTrial.Loaner.PiCap > 0 ? challengeTrial.Loaner.PiCap : PerformanceIndex.Max,
+                    Collision = ConvoyRules.CollisionFor("time-attack"), ChallengeTrialId = challengeTrial.Id,
+                });
+            }
             case IntentKind.Challenges:
             {
                 string? trialId = r.TrialId ?? intent.TrialId;
@@ -1815,6 +1835,7 @@ public sealed class ConvoyDirectory
     /// <summary>Why an unstarted proposal is no longer valid for the current roster (campaign frontier, course sponsors).</summary>
     string? ProposalInvalidReason(Convoy convoy, EventSettings s)
     {
+        if (s.ChallengeTrialId is not null) return null; // the trial supplies its course and car
         if (s.Kind == "campaign")
         {
             CampaignMode mode = s.Mode == "hard" ? CampaignMode.Hard : CampaignMode.Normal;
@@ -1874,6 +1895,13 @@ public sealed class ConvoyDirectory
     // ================================================================== start and match lifecycle
 
     /// <summary>Active members, i.e. the entrants if the leader started now.</summary>
+    /// <summary>The challenge trial the leader's open proposal races, or null (the start resolves its loaner first).</summary>
+    public string? PendingChallengeTrial(string accountId)
+    {
+        lock (gate)
+            return ConvoyOf(accountId)?.EventProposal?.Settings.ChallengeTrialId;
+    }
+
     public IReadOnlyList<string> PendingEntrants(string accountId)
     {
         lock (gate)
@@ -1892,7 +1920,7 @@ public sealed class ConvoyDirectory
     /// against these server PIs and the builds are frozen into the plan.</param>
     public (ConvoyError? Error, MatchPlan? Plan) BeginStart(string accountId, long proposalRevision,
         IReadOnlyDictionary<string, MemberProgress> freshProgress, IReadOnlyDictionary<string, IReadOnlyCollection<string>>? freshCourses = null,
-        IReadOnlyDictionary<string, Garage.EntrantBuild>? frozenBuilds = null)
+        IReadOnlyDictionary<string, Garage.EntrantBuild>? frozenBuilds = null, Garage.EntrantBuild? trialLoaner = null)
     {
         lock (gate)
         {
@@ -1907,7 +1935,11 @@ public sealed class ConvoyDirectory
                 .Select(m => m.AccountId).ToArray();
             if (entrants.Count == 0 || notReady.Length > 0)
                 return (new ConvoyError("not_all_ready", $"Not ready: {string.Join(", ", notReady)}."), null);
-            if (frozenBuilds is not null)
+            bool challengeTrial = p.Settings.ChallengeTrialId is not null;
+            if (challengeTrial && (trialLoaner is null || trialLoaner.CarId != Catalogue.ChallengeTrials.Find(p.Settings.ChallengeTrialId)?.Loaner.Car))
+                return (new ConvoyError("trial_loaner", "The trial's loaner could not be built on this server."), null);
+            // A challenge trial races its supplied loaner: the members' garage builds and car caps do not enter it.
+            if (frozenBuilds is not null && !challengeTrial)
                 foreach (Member m in entrants.Where(m => m.Loadout!.InstanceId is not null))
                 {
                     if (!frozenBuilds.TryGetValue(m.AccountId, out Garage.EntrantBuild? frozen) || frozen.InstanceId != m.Loadout!.InstanceId)
@@ -1922,7 +1954,7 @@ public sealed class ConvoyDirectory
                         return (new ConvoyError("not_all_ready", $"{m.DisplayName}'s applied build changed; they must ready again."), null);
                     }
                 }
-            if (entrants.FirstOrDefault(m => !PerformanceIndex.IsLegalFor(m.Loadout!.CarPi, p.Settings.CarCapPi)) is { } illegal)
+            if (!challengeTrial && entrants.FirstOrDefault(m => !PerformanceIndex.IsLegalFor(m.Loadout!.CarPi, p.Settings.CarCapPi)) is { } illegal)
                 return (new ConvoyError("loadout_illegal", $"{illegal.AccountId}'s car is over the cap."), null);
 
             ClientVersion? version = entrants[0].Session.Version;
@@ -1982,7 +2014,7 @@ public sealed class ConvoyDirectory
             // event-scoped guest passes frozen into the plan (they survive the sponsor's later departure or DQ).
             var passes = new List<GuestPass>();
             var sponsors = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
-            if (settings.Kind != "campaign")
+            if (settings.Kind != "campaign" && settings.ChallengeTrialId is null)
             {
                 Dictionary<string, ICollection<string>> owned = Ownership(entrants);
                 foreach (string courseId in CoursesOf(settings))
@@ -2018,8 +2050,11 @@ public sealed class ConvoyDirectory
             {
                 PlanId = Hashing.RandomId("plan_", 8), ConvoyId = convoy.Id, ProposalRevision = p.Revision,
                 RosterRevision = convoy.RosterRevision, Settings = settings with { AiCount = ai.Count },
-                Entrants = entrants.Select(m => new PlannedEntrant(m.AccountId, m.DisplayName, m.Loadout!, m.LoadoutRevision,
-                    frozenBuilds is not null && frozenBuilds.TryGetValue(m.AccountId, out Garage.EntrantBuild? b) && b.InstanceId == m.Loadout!.InstanceId ? b : null)).ToList(),
+                Entrants = entrants.Select(m => challengeTrial
+                    ? new PlannedEntrant(m.AccountId, m.DisplayName, m.Loadout! with { CarId = trialLoaner!.CarId, CarPi = trialLoaner.Pi, PerformanceHash = trialLoaner.BuildHash },
+                        m.LoadoutRevision, trialLoaner)
+                    : new PlannedEntrant(m.AccountId, m.DisplayName, m.Loadout!, m.LoadoutRevision,
+                        frozenBuilds is not null && frozenBuilds.TryGetValue(m.AccountId, out Garage.EntrantBuild? b) && b.InstanceId == m.Loadout!.InstanceId ? b : null)).ToList(),
                 AiEntrants = ai, Roster = roster.Entries.Select(RosterSlot.From).ToList(), GuestPasses = passes, Sponsors = sponsors,
                 FeaturedRival = settings.Kind == "campaign" ? roster.FeaturedRival : null,
                 GridNote = note, PurePvP = purePvP, Version = version,
@@ -2393,6 +2428,13 @@ public sealed class ConvoyDirectory
                 : null,
             eventProposal = c.EventProposal is { } e ? EventProposalWire(c, e) : null,
             postEvent = PostEventWire(c),
+            challengeTrials = c.Intent is { Kind: IntentKind.Challenges }
+                ? Catalogue.ChallengeTrials.Trials.Where(t => t.Published && t.Conditions == "course").Select(t => new
+                {
+                    id = t.Id, challenge = t.Challenge, title = t.Title, tier = t.Tier, course = t.Course, car = t.Loaner.Car, piCap = t.Loaner.PiCap,
+                    kind = t.Kind, timeMs = t.Targets.TimeMs, driftRaw = t.Targets.DriftRaw, group = t.Group, brief = t.Brief,
+                }).ToList()
+                : null,
             cup = c.Cup is { } run ? new
             {
                 schedule = run.Table.Schedule, legsRaced = run.Table.LegsRaced, complete = run.Table.Complete,
@@ -2474,7 +2516,7 @@ public sealed class ConvoyDirectory
             ballotRevision = e.BallotRevision,
             settings = s,
             ready = e.Ready,
-            sponsors = s.Kind == "campaign"
+            sponsors = s.Kind == "campaign" || s.ChallengeTrialId is not null
                 ? new Dictionary<string, IReadOnlyList<string>>()
                 : CoursesOf(s).Distinct().ToDictionary(id => id, id => CourseAccess.Sponsors(Catalogue, id, owned)),
             rosterPreview = new { humans, friendlyAi = friendly, opposingAi = opposing, vehicles = humans + friendly + opposing, contact = s.Collision },

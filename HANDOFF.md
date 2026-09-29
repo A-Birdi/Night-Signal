@@ -169,6 +169,12 @@ Render Cockpit Sheets* renders the mounted views of every car.
 
 Pipeline in dependency order (items at one level do not wait for later ones; human checks are listed where they gate).
 
+0. **In progress — V-120, challenge trials online**: the control plane (Challenges intent → a trial as a non-contact Time
+   Attack on its course, no sponsor; every entrant frozen into the loaner; settlement grants from the game server's verdict and
+   the settled passes — Services `ChallengeTrialOnlineTests`), the game server's judging and the Convoy screen's Challenge
+   Trial row are written; the runtime compiled headlessly. Next: compile in the editor, build, then
+   `Tools/run/ui-tour-online.ps1 -Intent 5 -ChallengeTrial TR-CH55` and a grouped pair (CH54). `Assets/_Recovery/0.unity` is
+   Unity's crash-recovery copy of an unsaved scene from 2026-09-29 18:10 — left untouched for the owner.
 0. **After any AI tendency change**: rerun `-nsCrewTelemetryTour` and `CertifyListed` for the stages whose featured
    rival has that tendency (V-108; the crew telemetry was rerun on the V-109 build and passes).
 

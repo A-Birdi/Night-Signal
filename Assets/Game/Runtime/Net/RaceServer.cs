@@ -282,6 +282,18 @@ namespace NightSignal.Net
                 else Debug.Log($"[NightSignal.Server] {h.DisplayName}: no vehicleBuild in the assignment; racing the stock {h.CarId}");
                 humans.Add(slot);
             }
+            if (!string.IsNullOrEmpty(assignment.ChallengeTrialId))
+            {
+                // A challenge trial: the loaner resolved here too; a human counts as driving it only if the frozen build the
+                // control plane sent (verified above) is that loaner.
+                trialDef = lib.Catalogue.ChallengeTrials.Find(assignment.ChallengeTrialId)
+                           ?? throw new InvalidOperationException($"unknown challenge trial {assignment.ChallengeTrialId}");
+                Core.Content.CarDef loanerCar = lib.Catalogue.Car(trialDef.Loaner.Car);
+                Core.Builds.ResolveResult loaner = Core.Builds.TrialLoaners.Resolve(trialDef.Loaner, loanerCar, lib.Catalogue.CarTunings[loanerCar.Id], lib.Parts, out _);
+                trialLoanerHash = loaner.Ok ? loaner.Spec.BuildHash : null;
+                Debug.Log($"[NightSignal.Server] challenge trial {trialDef.Id} ({trialDef.Challenge}) on {trialDef.Course}: loaner {loanerCar.Id} " +
+                          $"{(trialLoanerHash != null ? Short(trialLoanerHash) : "does not resolve")}");
+            }
             var world = new PhysicsVehicleWorld(Physics.defaultPhysicsScene, GameLayers.DrivableMask, GameLayers.BarrierMask);
             // Team Trials (Addendum 01 §3): the frozen roster says which AI drive for the humans' team.
             List<string> opposing = assignment.AiEntrants, friendly = new List<string>();
@@ -550,6 +562,10 @@ namespace NightSignal.Net
             ReportOnce(results);
         }
 
+        /// <summary>A challenge trial's definition and its loaner's build hash as this server resolves it (null outside a trial).</summary>
+        Core.Rules.ChallengeTrialDef trialDef;
+        string trialLoanerHash;
+
         MatchResults BuildResults()
         {
             var results = new MatchResults { MatchId = assignment.MatchId, ContentHash = assignment.ContentHash };
@@ -573,6 +589,25 @@ namespace NightSignal.Net
                 if (c.ContractsPassed >= 0) Debug.Log($"[NightSignal.Server] {r.EntrantId} Four Signals {c.ContractsPassed}/4: {c.ContractDetail}");
                 if (c.Entrant.Human && c.Outcome == RunOutcome.Finished)
                     r.ChallengesCompleted.AddRange(ChallengePredicates.Evaluate(assignment, c.Entrant.Progress, c.Entrant.Drift, sim.Rules.Surface, c.Entrant.GateRun, c.Entrant.Racecraft));
+                if (c.Entrant.Human && trialDef != null)
+                {
+                    AssignmentEntrant a = assignment.Entrants.FirstOrDefault(x => x.AccountId == r.EntrantId);
+                    Core.Rules.TrialVerdict v = Core.Rules.TrialJudge.Judge(trialDef, new Core.Rules.TrialRunFacts
+                    {
+                        Finished = c.Outcome == RunOutcome.Finished,
+                        TimeMs = c.Outcome == RunOutcome.Finished ? c.FinishTimeMicros / 1000 : 0,
+                        Resets = c.Entrant.Progress.Resets, WallImpacts = c.Entrant.Progress.WallIncidents,
+                        HandbrakeSeconds = c.Entrant.Progress.HandbrakeSeconds,
+                        DriftRaw = (long)System.Math.Floor(c.Entrant.Drift.BankedRaw),
+                        ZonesBanked = c.Entrant.Drift.ZonesBanked.Count,
+                        ZonesTotal = lib.Catalogue.DriftZones.TryGetValue(trialDef.Course, out int zones) ? zones : 0,
+                        DroveLoaner = trialLoanerHash != null && a != null && a.CarId == trialDef.Loaner.Car && a.VehicleBuild?.BuildHash == trialLoanerHash,
+                    });
+                    r.TrialId = trialDef.Id;
+                    r.TrialPassed = v.Passed;
+                    r.TrialSummary = v.Summary;
+                    Debug.Log($"[NightSignal.Server] {r.EntrantId} challenge trial {trialDef.Id}: {(v.Passed ? "PASSED" : "not passed")} — {v.Summary}");
+                }
                 results.Entrants.Add(r);
             }
             return results;

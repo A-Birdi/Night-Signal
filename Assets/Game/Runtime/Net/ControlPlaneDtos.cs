@@ -81,6 +81,8 @@ namespace NightSignal.Net
         public bool PurePvP;
         public string GridNote, Build, ContentHash, ResultsUrl, TicketIssuer, TicketAudience, ResultsSecret;
         public long Seed;
+        /// <summary>A challenge trial (docs/CHALLENGE_TRIALS.md): every entrant races its loaner; the server judges each human.</summary>
+        public string ChallengeTrialId;
     }
 
     public sealed class AssignmentsResponse { public List<MatchAssignment> Assignments = new List<MatchAssignment>(); }
@@ -106,6 +108,10 @@ namespace NightSignal.Net
         public long RawDriftScore;
         public int ContractsPassed;
         public List<string> ChallengesCompleted = new List<string>();
+        /// <summary>Challenge trials (humans only): the trial judged, the Core TrialJudge verdict and its reasons.</summary>
+        public string TrialId;
+        public bool? TrialPassed;
+        public string TrialSummary;
     }
 
     public sealed class MatchResults

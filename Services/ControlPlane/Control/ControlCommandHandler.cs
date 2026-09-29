@@ -331,7 +331,9 @@ public sealed class ControlCommandHandler(ConvoyDirectory directory, IPlayerStor
         // The applied builds are read and resolved by the server now; the directory checks them against what everyone readied
         // with, checks the car caps with these server PIs and freezes them into the plan (assignment entrants[].vehicleBuild).
         IReadOnlyDictionary<string, EntrantBuild> builds = await garage.FreezeSelectionsAsync(entrants, ct);
-        (ConvoyError? error, MatchPlan? plan) = directory.BeginStart(a, proposalRevision, progress, courses, builds);
+        // A challenge trial: everyone races its supplied loaner, resolved here from this server's parts data.
+        EntrantBuild? loaner = directory.PendingChallengeTrial(a) is { } trialId ? garage.TrialLoanerBuild(trialId) : null;
+        (ConvoyError? error, MatchPlan? plan) = directory.BeginStart(a, proposalRevision, progress, courses, builds, loaner);
         if (error is not null) return new ConvoyResult(error);
         _ = Task.Run(() => AllocateAsync(plan!), CancellationToken.None);
         return ConvoyResult.Success(new

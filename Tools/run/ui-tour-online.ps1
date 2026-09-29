@@ -10,7 +10,7 @@
     races with the validator autopilot through normal inputs. Screenshots: Builds/Screenshots/tour-online. Raw logs stay
     under Builds/ (git-ignored: they contain local paths).
 #>
-param([int]$DevAccount = 0, [int]$Port = 7777, [int]$TimeoutSeconds = 600, [switch]$Freeplay, [switch]$Garage, [switch]$Appearance, [int]$Intent = -1, [string]$Trial = "", [string]$Course = "", [string]$CupLegs = "",
+param([int]$DevAccount = 0, [int]$Port = 7777, [int]$TimeoutSeconds = 600, [switch]$Freeplay, [switch]$Garage, [switch]$Appearance, [int]$Intent = -1, [string]$Trial = "", [string]$ChallengeTrial = "", [string]$Course = "", [string]$CupLegs = "",
     # Addendum 04: loopback unless a separately authorized LAN test passes -AllowLan with its addresses.
     [string]$BindHost = '127.0.0.1', [string]$PublicHost = '127.0.0.1', [switch]$AllowLan)
 
@@ -40,6 +40,7 @@ if ($Appearance) { $clientArgs += "-nsUiTourAppearance" } # online livery applie
 if ($Intent -ge 0) { $clientArgs += @('-nsUiTourIntent', "$Intent") } # 4 = Freeplay Time Attack (group, non-contact)
 if ($Course) { $clientArgs += @('-nsUiTourCourse', $Course) }       # freeplay course, e.g. C01 for Drift Attack
 if ($Trial) { $clientArgs += @('-nsUiTourTrial', $Trial) }          # Team Trial id, e.g. TT_BEST
+if ($ChallengeTrial) { $clientArgs += @('-nsUiTourChallengeTrial', $ChallengeTrial) } # challenge trial id, e.g. TR-CH55 (docs/CHALLENGE_TRIALS.md)
 if ($CupLegs) { $clientArgs += @('-nsUiTourCupLegs', $CupLegs) }    # Custom Cup legs "C01,C02,C03" with -Intent 7
 $client = Start-Process -FilePath $exe -PassThru -WorkingDirectory $repo -ArgumentList $clientArgs
 

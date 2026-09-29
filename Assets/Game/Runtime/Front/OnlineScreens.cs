@@ -29,7 +29,7 @@ namespace NightSignal.Front
             ("Freeplay · Sprint", new { kind = "freeplay", submode = "sprint" }, "freeplay", null, "sprint"),
             ("Freeplay · Circuit", new { kind = "freeplay", submode = "circuit" }, "freeplay", null, "circuit"),
             ("Freeplay · Time Attack", new { kind = "freeplay", submode = "time-attack" }, "freeplay", null, "time-attack"),
-            ("Challenges · Team Trial", new { kind = "challenges" }, "challenges", null, null),
+            ("Challenges · Team or Challenge Trial", new { kind = "challenges" }, "challenges", null, null),
             ("Freeplay · Drift Attack", new { kind = "freeplay", submode = "drift-attack" }, "freeplay", null, "drift-attack"),
             ("Freeplay · Custom Cup", new { kind = "freeplay", submode = "cup" }, "freeplay", null, "cup"),
         };
@@ -45,7 +45,9 @@ namespace NightSignal.Front
         float ballotDeadlineAt;
         long ballotSeenRevision = -1;
         TMP_InputField codeField;
-        Stepper starter, intent, stage, course, aiCount, trial, difficulty, leadRival, cupLeg2, cupLeg3;
+        Stepper starter, intent, stage, course, aiCount, trial, difficulty, challengeTrial, leadRival, cupLeg2, cupLeg3;
+        /// <summary>The challenge trials the snapshot offers under the Challenges intent (docs/CHALLENGE_TRIALS.md).</summary>
+        List<JObject> challengeTrialDefs = new List<JObject>();
         TextMeshProUGUI cupLine;
         readonly List<RivalDef> rivalChoices = new List<RivalDef>();
         TextMeshProUGUI archetypeLine, stageAccessLine;
@@ -141,6 +143,10 @@ namespace NightSignal.Front
             trial = new Stepper(col, "Team Trial", 1, i => i < trialDefs.Count ? TrialLabel(trialDefs[i]) : "—", 0, 1000);
             trial.Changed += _ => dirty = true;
             difficulty = new Stepper(col, "Difficulty", 1, i => DifficultyLabel(i), 0, 1000);
+            // A challenge trial instead of a Team Trial: the first choice keeps the Team Trial rows.
+            challengeTrial = new Stepper(col, "Challenge Trial", 1, i => i == 0 || i > challengeTrialDefs.Count ? "none: race a Team Trial"
+                : ChallengeTrialLabel(challengeTrialDefs[i - 1]), 0, 1000);
+            challengeTrial.Changed += _ => dirty = true;
             proposeEvent = UIFactory.Button("ProposeEvent", col, "Propose Event", ProposeEvent, 620, 56);
             // Freeplay vote (Addendum 01 §6): server deadline, one ticket per ballot, a server draw; the leader can still choose.
             votingToggle = UIFactory.Button("VotingToggle", col, "Voting: Off", ToggleVoting, 620, 48);
@@ -350,8 +356,16 @@ namespace NightSignal.Front
                 nextArchetypeFetch = Time.unscaledTime + 20f;
                 FetchArchetypes();
             }
-            trial.Root.SetActive(selecting && kind == "challenges");
-            difficulty.Root.SetActive(selecting && kind == "challenges");
+            List<JObject> offered = ((inConvoy ? c["challengeTrials"] : null) as JArray)?.OfType<JObject>().ToList() ?? new List<JObject>();
+            if (offered.Count != challengeTrialDefs.Count || offered.Where((d, i) => (string)d["id"] != (string)challengeTrialDefs[i]["id"]).Any())
+            {
+                challengeTrialDefs = offered;
+                challengeTrial.SetCount(offered.Count + 1);
+            }
+            bool trialPicked = challengeTrial.Index > 0 && challengeTrial.Index <= challengeTrialDefs.Count;
+            challengeTrial.Root.SetActive(selecting && kind == "challenges" && challengeTrialDefs.Count > 0);
+            trial.Root.SetActive(selecting && kind == "challenges" && !trialPicked);
+            difficulty.Root.SetActive(selecting && kind == "challenges" && !trialPicked);
             if (selecting && kind == "challenges")
             {
                 List<JObject> defs = ((c["teamTrials"] as JArray) ?? new JArray()).OfType<JObject>().ToList();
@@ -500,8 +514,11 @@ namespace NightSignal.Front
         {
             JObject s = p["settings"] as JObject;
             JObject r = p["rosterPreview"] as JObject;
+            string trialId = (string)s?["challengeTrialId"];
+            JObject trialDef = trialId == null ? null : challengeTrialDefs.FirstOrDefault(t => (string)t["id"] == trialId);
             string what = (string)s?["kind"] == "campaign"
                 ? $"{(string)s["stageId"]} · {StageName((int?)s["stageNumber"] ?? 0)} · {((string)s["mode"] ?? "normal").ToUpperInvariant()}"
+                : trialId != null ? $"Challenge trial {(trialDef != null ? ChallengeTrialLabel(trialDef) : trialId)}"
                 : $"{CourseName((string)s?["courseId"])} · {(string)s?["freeplayMode"]}";
             string target = (long?)s?["benchmarkTargetMs"] is long ms && ms > 0
                 ? $"   target {ResultsScreen.FormatRaceTime(ms * 1000)}{((bool?)s["benchmarkProvisional"] == true ? " (provisional)" : "")}" : "";
@@ -682,6 +699,19 @@ namespace NightSignal.Front
             return true;
         }
 
+        /// <summary>Selects a challenge trial in the event setup once the snapshot offers it (tours).</summary>
+        public bool SelectChallengeTrial(string trialId)
+        {
+            int i = challengeTrialDefs.FindIndex(t => (string)t["id"] == trialId);
+            if (i < 0) return false;
+            challengeTrial.Set(i + 1);
+            dirty = true;
+            return true;
+        }
+
+        static string ChallengeTrialLabel(JObject t) =>
+            $"{(string)t["challenge"]} {(string)t["title"]} · {(string)t["tier"]} · {(string)t["course"]} in a loaned {(string)t["car"]}";
+
         /// <summary>Selects a Team Trial (and its difficulty) in the event setup once the snapshot lists them (tours).</summary>
         public bool SelectTrial(string trialId, string difficultyId)
         {
@@ -778,6 +808,8 @@ namespace NightSignal.Front
         {
             string kind = (string)S.Convoy["intent"]?["kind"];
             if (kind == "campaign") Send("event.propose", new { stageId = CampaignProgress.StageLabel(stage.Index + 1) });
+            else if (kind == "challenges" && challengeTrial.Index > 0 && challengeTrialDefs.ElementAtOrDefault(challengeTrial.Index - 1) is JObject picked)
+                Send("event.propose", new { challengeTrialId = (string)picked["id"] });
             else if (kind == "challenges")
             {
                 JObject t = trialDefs.ElementAtOrDefault(trial.Index);

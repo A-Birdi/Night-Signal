@@ -259,6 +259,8 @@ public interface IResultLedger
     Task<IReadOnlyCollection<string>> FinishedCoursesAsync(string accountId, CancellationToken ct = default);
     /// <summary>The account's settled Freeplay races, oldest first, as the archetype challenges read them (CH38, CH73).</summary>
     Task<IReadOnlyList<ArchetypeRace>> FreeplayRacesAsync(string accountId, CancellationToken ct = default);
+    /// <summary>The challenge trials the account has passed in settled matches (from its receipts; docs/CHALLENGE_TRIALS.md).</summary>
+    Task<IReadOnlyCollection<string>> TrialPassesAsync(string accountId, CancellationToken ct = default);
     /// <summary>Ghosts (spec §8): the game server's recording for an entrant, held until settlement.</summary>
     Task StoreMatchGhostAsync(string matchId, string accountId, string json, CancellationToken ct = default);
     Task<string?> MatchGhostAsync(string matchId, string accountId, CancellationToken ct = default);
@@ -298,6 +300,7 @@ public sealed class Receipt
     /// <summary>Event-scoped guest access this entrant raced under (never permanent ownership).</summary>
     public GuestPassInfo? GuestPass { get; set; }
     public TeamTrialReceipt? TeamTrial { get; set; }
+    public ChallengeTrialReceipt? ChallengeTrial { get; set; }
     public int RankPointsBefore { get; set; }
     public int RankPointsAfter { get; set; }
     public string Rank { get; set; } = "";
@@ -308,6 +311,18 @@ public sealed class GuestPassInfo
 {
     public string CourseId { get; set; } = "";
     public string SponsorId { get; set; } = "";
+}
+
+/// <summary>A challenge trial's verdict on a receipt (docs/CHALLENGE_TRIALS.md): the game server's reasons, and the group's passes.</summary>
+public sealed class ChallengeTrialReceipt
+{
+    public string TrialId { get; set; } = "";
+    public string Challenge { get; set; } = "";
+    public bool Passed { get; set; }
+    public string Summary { get; set; } = "";
+    /// <summary>Trials of the challenge passed so far (this run included) and how many it needs (CH54: two layouts).</summary>
+    public int GroupPassed { get; set; }
+    public int GroupSize { get; set; }
 }
 
 /// <summary>Team Trial outcome on a receipt. Team values are TEAM records, never personal bests.</summary>
