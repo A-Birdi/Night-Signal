@@ -1,0 +1,154 @@
+{
+  "schema": "night-signal/tutorial-lessons@1",
+  "course": "T00",
+  "note": "Tutorial T00 lessons (spec §16): drive lessons on the Hinode Driving Grounds loop, judged from what the car does, each with a model demonstration and local retry; knowledge cards with one check question. Thresholds are design values for a first-time driver, checked against the demonstration runs; none is needed to start a race.",
+  "lessons": [
+    {
+      "id": "controls-camera",
+      "kind": "drive",
+      "title": "Controls and camera",
+      "goal": "Drive to the 300 m board and change the camera view at least once on the way.",
+      "help": "Throttle and brake are the triggers (W / S or the arrow keys), steering is the left stick (A / D). The camera button (C, or View on a pad) cycles close chase, far chase, hood, bumper and cockpit; hold look-back (B, or the right stick) to check behind. Settings keeps each view's comfort options.",
+      "keywords": ["controls", "camera", "view", "cockpit", "chase", "keyboard", "pad", "look back"],
+      "check": { "type": "reach", "endMetres": 300, "minCameraChanges": 1 }
+    },
+    {
+      "id": "braking",
+      "kind": "drive",
+      "title": "Braking",
+      "goal": "Arrive at the striped zone on the back straight above 70 km/h and shed at least 25 km/h inside it on the brake, without touching a wall.",
+      "help": "Brake in a straight line first and hardest at the start; ease off as the car slows so the front tyres can steer again (trail braking). Braking late but too hard only moves the problem into the corner.",
+      "keywords": ["brake", "braking", "trail", "stop", "slow", "zone"],
+      "check": { "type": "brake", "startMetres": 1512, "endMetres": 1627, "armSpeedKmh": 70, "dropKmh": 25 }
+    },
+    {
+      "id": "turn-in-exit",
+      "kind": "drive",
+      "title": "Turn-in and exits",
+      "goal": "Take the Demonstration Bend without touching a wall and leave it above 40 km/h.",
+      "help": "Turn in once, smoothly, when the car is settled; aim to be on the throttle as the bend opens. A slow, tidy entry gives a faster exit — exit speed is carried all the way down the next straight.",
+      "keywords": ["turn-in", "apex", "exit", "corner", "line", "bend"],
+      "check": { "type": "bend", "startMetres": 676, "endMetres": 900, "exitKmh": 40 }
+    },
+    {
+      "id": "grip-drift",
+      "kind": "drive",
+      "title": "Grip versus drift",
+      "goal": "Score a drift in the Demonstration Bend's judged zone (at least 300 raw points).",
+      "help": "Grip is the faster way round most corners; drifting is scored only in judged zones. Unsettle the rear with a flick or the handbrake (Space, or A on a pad) at speed, hold the angle with the throttle and catch it with opposite lock. Walls, spins and leaving the road lose the unbanked chain.",
+      "keywords": ["drift", "slide", "grip", "handbrake", "score", "zone", "raw"],
+      "check": { "type": "drift", "startMetres": 689, "endMetres": 888, "driftRaw": 300 },
+      "demonstration": { "driftSkill": 0.8 }
+    },
+    {
+      "id": "countersteer",
+      "kind": "drive",
+      "title": "Countersteering",
+      "goal": "Catch a slide: let the car slip past 12 degrees and bring it back straight without spinning or touching a wall.",
+      "help": "When the rear steps out, steer the way it is going (opposite lock) and ease the throttle; unwind the lock as the car straightens so it does not snap the other way.",
+      "keywords": ["countersteer", "opposite lock", "slide", "catch", "spin", "oversteer"],
+      "check": { "type": "catch", "startMetres": 620, "endMetres": 1000, "slipDeg": 12, "recoverDeg": 4 },
+      "demonstration": { "driftSkill": 0.8 }
+    },
+    {
+      "id": "exits-gearing",
+      "kind": "drive",
+      "title": "Exits and gearing",
+      "goal": "Run the timed straight from the acceleration board to the end board in under 20 seconds.",
+      "help": "A clean exit onto a straight is worth more than a late brake before it. With manual gears (E / Q, or the bumpers), shift up near the top of the rev bar and keep the engine in its band; automatic does this for you.",
+      "keywords": ["gear", "gearing", "shift", "acceleration", "straight", "exit", "revs"],
+      "check": { "type": "timed", "startMetres": 966, "endMetres": 1482, "seconds": 20 }
+    },
+    {
+      "id": "resets",
+      "kind": "drive",
+      "title": "Resets and checkpoints",
+      "goal": "Hold reset once, then drive on 100 m from where it puts you.",
+      "help": "Holding reset (R, or Y on a pad) for under a second returns the car to the last safe checkpoint behind it, adds 3.0 s and clears any drift chain; the car is briefly ghosted. It never moves you forward or skips a checkpoint. A car stuck or on its roof is offered recovery.",
+      "keywords": ["reset", "recovery", "checkpoint", "penalty", "stuck", "ghosted"],
+      "check": { "type": "reset", "afterMetres": 100 }
+    },
+    {
+      "id": "ghost-deltas",
+      "kind": "drive",
+      "title": "Ghost deltas",
+      "goal": "Finish a lap with the instructor's demonstration ghost on the road and read the checkpoint deltas.",
+      "help": "A ghost is a recorded run, not a car: it cannot touch you and occupies no grid slot. At each checkpoint the HUD shows how far ahead (−) or behind (+) you are; after the race the route chart shows where the time went.",
+      "keywords": ["ghost", "delta", "checkpoint", "time attack", "replay", "chart"],
+      "check": { "type": "lap" },
+      "ghost": "instructor"
+    },
+    {
+      "id": "parts-stats",
+      "kind": "read",
+      "title": "Parts and stats",
+      "goal": "Compare a part before you buy it.",
+      "help": "The Garage shows each part's effect on the car's stats and on its PI (performance index) before you buy; classes cap PI. The car you race is the build frozen when the event starts.",
+      "keywords": ["parts", "garage", "stats", "pi", "class", "upgrade", "compare"],
+      "question": "Which build races in an event?",
+      "choices": ["Whatever you change in the Garage during the race", "The build frozen when the event starts", "The fastest car you own"],
+      "answer": 1,
+      "explanation": "The build is frozen at the start, so nobody can change a car mid-event."
+    },
+    {
+      "id": "raw-showcase",
+      "kind": "read",
+      "title": "Raw versus showcase score",
+      "goal": "Know which drift number counts.",
+      "help": "Drift events rank by the raw score the server judged in the zones. A showcase number on your card is presentation — it never changes a result.",
+      "keywords": ["raw", "showcase", "score", "drift", "card", "ranking"],
+      "question": "Which score ranks a drift event?",
+      "choices": ["The raw score judged in the zones", "The showcase number on your card", "Your top speed"],
+      "answer": 0,
+      "explanation": "Only the judged raw score ranks; the showcase is for display."
+    },
+    {
+      "id": "convoy-ready",
+      "kind": "read",
+      "title": "Convoy readiness",
+      "goal": "Know how a convoy starts an event.",
+      "help": "The leader proposes a mode; everyone marks Mode Ready; the leader enters it and proposes an event; everyone marks Event Ready; then the leader starts. Your car and build are checked when you mark ready. A practice ready-check never needs a stranger.",
+      "keywords": ["convoy", "ready", "mode", "event", "leader", "invite"],
+      "question": "Who must be Event Ready before the leader can start?",
+      "choices": ["Only the leader", "Every racing member", "Any two members"],
+      "answer": 1,
+      "explanation": "Every racing member marks Event Ready; spectators do not."
+    },
+    {
+      "id": "public-meets",
+      "kind": "read",
+      "title": "Public meets",
+      "goal": "Know what a meet is for.",
+      "help": "The car meet is a social space: walk, park your car on display, chat and use the interaction spots. Nothing in a meet is ever required for rank, and you can leave at any time.",
+      "keywords": ["meet", "public", "social", "chat", "park", "walk"],
+      "question": "Does anything at a public meet decide your rank?",
+      "choices": ["Yes, likes from strangers", "No — it is social only", "Yes, the time you spend there"],
+      "answer": 1,
+      "explanation": "Meets are social; rank comes from sanctioned events and challenges."
+    },
+    {
+      "id": "connectivity-dq",
+      "kind": "read",
+      "title": "Race connectivity and disqualification",
+      "goal": "Know what happens if you drop out.",
+      "help": "Online races run on a server. If you disconnect you may rejoin your convoy; your entry in the race already running stays disqualified, but you can spectate it. Leaving after your accepted finish keeps your result.",
+      "keywords": ["disconnect", "rejoin", "dq", "disqualified", "spectate", "network", "connection"],
+      "question": "You disconnect mid-race and rejoin the convoy. What about that race?",
+      "choices": ["You continue driving it", "Your entry stays disqualified, but you can spectate", "The race restarts for everyone"],
+      "answer": 1,
+      "explanation": "A left race stays a disqualification; spectating is offered."
+    },
+    {
+      "id": "rewards-rank",
+      "kind": "read",
+      "title": "Rewards and rank",
+      "goal": "Know where credits and rank come from.",
+      "help": "Credits come from finishing events (more for placing and clean driving), first clears and challenges; rank points come from clears and challenges. Offline (Local) progress stays on this PC and never becomes online currency.",
+      "keywords": ["credits", "rank", "rewards", "money", "challenges", "offline", "local"],
+      "question": "Can offline progress be moved into your online wallet?",
+      "choices": ["Yes, once a day", "No — Local and Online stay separate", "Only credits, not rank"],
+      "answer": 1,
+      "explanation": "Local progress never becomes online currency, unlocks, rank or records."
+    }
+  ]
+}

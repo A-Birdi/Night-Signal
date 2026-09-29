@@ -61,6 +61,7 @@ namespace NightSignal.Front
         /// <summary>The first ghost on the road in the last Local race (the deltas are against it), or null.</summary>
         public string LastGhostLabel { get; private set; }
         public readonly DiaryScreen Diary = new DiaryScreen();
+        public readonly TutorialScreen Lessons = new TutorialScreen();
         /// <summary>Rich-text summary of the last online race (placing, time, settled receipt) for the convoy screen.</summary>
         public string LastOnlineResult { get; private set; }
         /// <summary>UI tours drive online races with the validator autopilot (automation, labelled as such).</summary>
@@ -144,6 +145,8 @@ namespace NightSignal.Front
                 StartCoroutine(CrewTelemetryTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsFreeplayRivalTour") >= 0)
                 StartCoroutine(FreeplayRivalTour());
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsTutorialTour") >= 0)
+                StartCoroutine(TutorialTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsDriverCardTour") >= 0)
                 StartCoroutine(DriverCardTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsCanvasPadTour") >= 0)
@@ -1287,6 +1290,8 @@ namespace NightSignal.Front
             activeRace.PlayerName = string.IsNullOrEmpty(DisplayName) ? "You" : DisplayName;
             activeRace.Rules = rules;
             activeRace.OpposingAi = opposingAi;
+            activeRace.AutopilotDriftSkill = pendingAutopilotDriftSkill;
+            pendingAutopilotDriftSkill = 0f;
             LastRunGhost = null;
             LastGhostDeltas.Clear();
             if (pendingGhostTemplate != null)

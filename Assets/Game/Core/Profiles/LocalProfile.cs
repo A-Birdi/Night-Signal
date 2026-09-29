@@ -142,6 +142,9 @@ namespace NightSignal.Core.Profiles
                 if (showcase.Count > LocalShowcase.MaxShowcase || showcase.Distinct(StringComparer.Ordinal).Count() != showcase.Count)
                     e.Add($"The card shows up to {LocalShowcase.MaxShowcase} different records.");
             }
+            List<string> lessons = Tutorial?.LessonsPassed ?? new List<string>();
+            if (lessons.Count > 64 || lessons.Distinct(StringComparer.Ordinal).Count() != lessons.Count || lessons.Any(x => string.IsNullOrEmpty(x) || x.Length > 64))
+                e.Add("The tutorial's passed lessons are malformed.");
             foreach (List<string> set in new[] { ArchetypesRaced ?? new List<string>(), ArchetypeWinStreak ?? new List<string>() })
                 if (set.Count > 32 || set.Distinct(StringComparer.Ordinal).Count() != set.Count || set.Any(x => string.IsNullOrEmpty(x) || x.Length > 64))
                 {
@@ -407,6 +410,11 @@ namespace NightSignal.Core.Profiles
     {
         public bool Completed { get; set; }
         public DateTime? CompletedUtc { get; set; }
+        /// <summary>T00 lessons passed (drive lessons judged, cards answered) — training progress, never a reward.</summary>
+        public List<string> LessonsPassed { get; set; } = new List<string>();
+
+        /// <summary>Written only once a lesson is passed, so older saves round-trip unchanged.</summary>
+        public bool ShouldSerializeLessonsPassed() => LessonsPassed != null && LessonsPassed.Count > 0;
     }
 
     /// <summary>One itemised Local wallet movement. Debits are negative.</summary>

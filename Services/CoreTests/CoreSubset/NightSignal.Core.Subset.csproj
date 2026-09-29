@@ -33,6 +33,8 @@
     <Compile Include="../../../Assets/Game/Core/Story/**/*.cs" Link="Core/Story/%(RecursiveDir)%(Filename)%(Extension)" />
     <!-- Ghosts (sampled replays, compatibility, CH68): presentation and records, never a simulation input. -->
     <Compile Include="../../../Assets/Game/Core/Ghosts/**/*.cs" Link="Core/Ghosts/%(RecursiveDir)%(Filename)%(Extension)" />
+    <!-- Tutorial (T00 lessons and their judge): training only, never a result. -->
+    <Compile Include="../../../Assets/Game/Core/Tutorial/**/*.cs" Link="Core/Tutorial/%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>

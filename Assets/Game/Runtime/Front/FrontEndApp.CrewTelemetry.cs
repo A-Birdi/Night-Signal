@@ -75,12 +75,16 @@ namespace NightSignal.Front
 
                 // The three sharpest corners (heading change over 30 m), 200 m apart, away from the start and finish.
                 var curvature = new List<(int D, float Turn)>();
-                for (int d = 200; d < length - 200; d += 5)
+                for (int d = 320 + Mathf.RoundToInt(track.StartMetres); d < length - 200; d += 5)
                     curvature.Add((d, Vector3.Angle(track.SampleAt(d - 15).Tangent, track.SampleAt(d + 15).Tangent)));
                 var corners = new List<int>();
                 foreach (var c in curvature.OrderByDescending(x => x.Turn))
                     if (corners.All(k => Mathf.Abs(k - c.D) >= 200)) { corners.Add(c.D); if (corners.Count == 3) break; }
                 corners.Sort();
+                // Traces are indexed by race distance (from the start line), the corners were found along the route: shift them
+                // into the race frame (V-111: V-106 measured 64 m past C01's apexes by missing this).
+                int startOffset = Mathf.RoundToInt(track.StartMetres);
+                corners = corners.Select(k => k - startOffset).ToList();
 
                 var rows = new List<(RivalDef R, float Brake, float Vmin, float Exit, float Throttle, float TurnIn, float Apex)>();
                 foreach (KeyValuePair<RaceEntrant, (float[] Speed, float[] Lateral, int Last)> kv in traces)
@@ -104,7 +108,7 @@ namespace NightSignal.Front
                     rows.Add((rival, brake / n, vmin / n, exit / n, thr / n, turn / n, apex / n));
                 }
                 report.AppendLine();
-                report.AppendLine($"## {crew.Key}: corners at {string.Join(", ", corners)} m of {length} m; {rows.Count} of {members.Count} members measured");
+                report.AppendLine($"## {crew.Key}: corners (apex) at {string.Join(", ", corners.Select(k => k + startOffset))} m along the route = {string.Join(", ", corners)} m of race distance; {rows.Count} of {members.Count} members measured");
                 report.AppendLine("rival  tendency                  brake m  vmin km/h  exit km/h  throttle m  turn-in m  apex m");
                 foreach (var r in rows.OrderBy(x => x.R.Id))
                     report.AppendLine($"{r.R.Id}    {r.R.Tendency,-24}  {r.Brake,7:F1}  {r.Vmin,9:F1}  {r.Exit,9:F1}  {r.Throttle,10:F1}  {r.TurnIn,9:F2}  {r.Apex,6:F2}");

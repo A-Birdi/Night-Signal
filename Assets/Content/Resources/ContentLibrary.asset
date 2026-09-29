@@ -46,3 +46,4 @@ MonoBehaviour:
   StoryRecords: {fileID: 4900000, guid: 810dbe7af5665a24e9069f6a121c542c, type: 3}
   RivalStory: {fileID: 4900000, guid: 183a335e5187b2644a01c69afc5ef1fd, type: 3}
   Endings: {fileID: 4900000, guid: 7902dff561712554fb53c737965859b8, type: 3}
+  TutorialLessonsDocument: {fileID: 4900000, guid: 038dd125d0cc3e44aaf9b07c98af104c, type: 3}

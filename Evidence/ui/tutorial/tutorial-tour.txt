@@ -1,0 +1,25 @@
+# -nsTutorialTour (built player, isolated profile; the validator autopilot drives the attempts — automation standing in for a player; the judge and overlay are the real ones)
+[NightSignal.TutorialTour] lessons listed: 14
+[NightSignal.TutorialTour] help index 'brake': controls-camera, braking, grip-drift, exits-gearing
+[NightSignal.Tutorial] attempt controls-camera: Passed — Reached the board and tried the camera views.
+[NightSignal.TutorialTour] attempt controls-camera: Passed — Reached the board and tried the camera views.
+[NightSignal.Tutorial] attempt braking: Passed — Shed 25 km/h from 152 km/h under braking.
+[NightSignal.TutorialTour] attempt braking: Passed — Shed 25 km/h from 152 km/h under braking.
+[NightSignal.Tutorial] attempt turn-in-exit: Passed — Clean through the bend, out at 93 km/h.
+[NightSignal.TutorialTour] attempt turn-in-exit: Passed — Clean through the bend, out at 93 km/h.
+[NightSignal.Tutorial] attempt exits-gearing: Passed — 12.7 s over the timed straight.
+[NightSignal.TutorialTour] attempt exits-gearing: Passed — 12.7 s over the timed straight.
+[NightSignal.Tutorial] attempt resets: Passed — Reset, took the +3.0 s penalty and drove on.
+[NightSignal.TutorialTour] attempt resets: Passed — Reset, took the +3.0 s penalty and drove on.
+[NightSignal.Tutorial] attempt ghost-deltas: Passed — Lap finished — the checkpoint deltas were on the HUD.
+[NightSignal.TutorialTour] attempt ghost-deltas: Passed — Lap finished — the checkpoint deltas were on the HUD.
+[NightSignal.Tutorial] demonstration grip-drift: Passed — Scored 323 raw in the zone.
+[NightSignal.TutorialTour] demonstration grip-drift: Passed — Scored 323 raw in the zone.
+[NightSignal.Tutorial] demonstration countersteer: Passed — Caught the slide and straightened the car.
+[NightSignal.TutorialTour] demonstration countersteer: Passed — Caught the slide and straightened the car.
+[NightSignal.Tutorial] card rewards-rank: chose 0 — not quite
+[NightSignal.TutorialTour] card, wrong answer: <color=#F2A541>Not quite. Local progress never becomes online currency, unlocks, rank or records.</color>
+[NightSignal.Tutorial] card rewards-rank: chose 1 — right
+[NightSignal.TutorialTour] card, right answer: <color=#3EC6D8>Right. Local progress never becomes online currency, unlocks, rank or records.</color>
+[NightSignal.TutorialTour] passed in the profile: controls-camera, braking, turn-in-exit, exits-gearing, resets, ghost-deltas, rewards-rank
+[NightSignal.TutorialTour] PASS

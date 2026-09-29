@@ -75,6 +75,46 @@ namespace NightSignal.Tests
             Assert.That(problems, Is.Empty, string.Join("; ", problems));
         }
 
+        /// <summary>
+        /// The instructor's demonstration lap of T00 for the ghost-deltas lesson (spec §16 "a model demonstration"): the
+        /// validator autopilot (the neutral line, no tendency) drives the loop alone under the lesson rules and its run is
+        /// written to Assets/Content/Resources/LessonGhosts/T00.json (format "lesson"). Automation.
+        /// </summary>
+        [UnityTest, Timeout(600000)]
+        public IEnumerator RecordInstructorLap()
+        {
+#if UNITY_EDITOR
+            yield return UnityEditor.SceneManagement.EditorSceneManager.LoadSceneAsyncInPlayMode("Assets/Content/Courses/T00/T00.unity",
+                new UnityEngine.SceneManagement.LoadSceneParameters(UnityEngine.SceneManagement.LoadSceneMode.Single));
+#else
+            Assert.Ignore("Editor-only scene loading");
+#endif
+            yield return null;
+            var go = new GameObject("InstructorLap");
+            var session = go.AddComponent<OfflineRaceSession>();
+            session.CarId = "V01";
+            session.Autopilot = true;
+            session.Headless = true;
+            session.SimulationSpeed = 30;
+            session.Rules = new RaceEventRules { Kind = "freeplay", Contact = ContactPolicy.NonContact, StageNumber = 1, CarCapPi = PerformanceIndex.Max };
+            session.OpposingAi = new List<string>();
+            session.GhostTemplate = new GhostHeader { Format = "lesson", CarModelId = "V01", Driver = "Instructor", Provenance = "instructor-demonstration" };
+            yield return null;
+            float start = Time.realtimeSinceStartup;
+            while (session.Results == null && Time.realtimeSinceStartup - start < 300f) yield return null;
+            GhostRecording lap = session.PlayerGhost;
+            UnityEngine.Object.Destroy(go);
+            Assert.That(lap, Is.Not.Null, "no recording");
+            Assert.That(lap.ValidPersonal, Is.True, "the instructor lap must be clean: " + string.Join("; ", lap.Problems()));
+            Directory.CreateDirectory("Assets/Content/Resources/LessonGhosts");
+            string json = lap.ToJson();
+            File.WriteAllText("Assets/Content/Resources/LessonGhosts/T00.json", json);
+            Debug.Log($"[NightSignal.RivalGhost] T00 instructor lap V01 {lap.Header.ResultMicros / 1e6:F3} s, {lap.Count} samples, {json.Length} bytes");
+            File.AppendAllText("Evidence/ghosts/rival-references.txt",
+                $"# T00 instructor lap (lesson ghost, validator autopilot, V01): {lap.Header.ResultMicros / 1e6:F3} s, {lap.Count} samples, resets {lap.Header.Resets}, {json.Length} bytes\n");
+            yield return null;
+        }
+
         static IEnumerator Record(CourseDef course, RivalDef rival, StageDef stage, Action<GhostRecording> done)
         {
             var go = new GameObject("RivalReference");

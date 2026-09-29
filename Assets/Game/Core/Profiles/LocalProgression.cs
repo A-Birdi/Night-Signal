@@ -168,6 +168,8 @@ namespace NightSignal.Core.Profiles
         CardChanged = 22,
         /// <summary>A race-diary entry read (CH70 counts crew introductions).</summary>
         DiaryRead = 23,
+        /// <summary>A T00 lesson passed (training progress only).</summary>
+        LessonPassed = 24,
     }
 
     /// <summary>One itemised line for the results screen: what changed and why.</summary>
@@ -1113,6 +1115,23 @@ namespace NightSignal.Core.Profiles
             if (profile.DiaryRead.Contains(entry)) return Already(result, "Already read.");
             profile.DiaryRead.Add(entry);
             Add(result, ProgressionChangeKind.DiaryRead, entry, 0, "Read in the race diary.");
+            result.Status = LocalOperationStatus.Applied;
+            return Finish(result, profile);
+        }
+
+        /// <summary>
+        /// Marks a T00 lesson passed (spec §16): training progress only — no money, rank or unlock, so a lesson is never a
+        /// gate before a first race. Unknown lessons are refused; a repeat pass changes nothing.
+        /// </summary>
+        public static LocalProgressionResult MarkLessonPassed(LocalProfile profile, Tutorial.TutorialLessons lessons, string lessonId)
+        {
+            LocalProgressionResult result = Begin(profile);
+            if (lessons?.Find(lessonId ?? "") == null) return Reject(result, "No such lesson.");
+            if (profile.Tutorial == null) profile.Tutorial = new TutorialState();
+            if (profile.Tutorial.LessonsPassed == null) profile.Tutorial.LessonsPassed = new List<string>();
+            if (profile.Tutorial.LessonsPassed.Contains(lessonId)) return Already(result, "Already passed.");
+            profile.Tutorial.LessonsPassed.Add(lessonId);
+            Add(result, ProgressionChangeKind.LessonPassed, lessonId, 0, "Lesson passed: " + lessons.Find(lessonId).Title + ".");
             result.Status = LocalOperationStatus.Applied;
             return Finish(result, profile);
         }

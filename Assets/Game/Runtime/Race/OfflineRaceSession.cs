@@ -98,6 +98,31 @@ namespace NightSignal.Race
         public Core.Ghosts.GhostHeader GhostTemplate;
         /// <summary>Automation only: called after every racing tick (telemetry tours read the entrants' states).</summary>
         public System.Action<RaceSimulation, int> TickObserver;
+        /// <summary>The player's input on the last tick (tutorial lessons read the brake).</summary>
+        public DriverInput LastPlayerInput { get; private set; }
+        /// <summary>Camera views the player cycled through this session (the camera button or <see cref="CycleCamera"/>).</summary>
+        public int CameraChanges { get; private set; }
+        int resetHoldTicks;
+
+        /// <summary>Cycles the driving camera as the camera button does (tours and lessons).</summary>
+        public void CycleCamera()
+        {
+            if (chase == null) return;
+            chase.Cycle();
+            CameraChanges++;
+        }
+
+        /// <summary>Holds reset for <paramref name="seconds"/> of race time, as holding the button does (automation).</summary>
+        public void HoldReset(float seconds) => resetHoldTicks = Mathf.CeilToInt(seconds * VehicleSimulation.TickRate);
+
+        /// <summary>Ends the session now, classified as it stands (a judged tutorial lesson; nothing is applied from it).</summary>
+        public void EndNow()
+        {
+            if (Phase == MatchPhase.Results || Sim == null) return;
+            if (recorder != null) PlayerGhost = recorder.Finish(Player.Progress);
+            Results = Sim.Classify();
+            Phase = MatchPhase.Results;
+        }
         public readonly List<Core.Ghosts.GhostRecording> GhostCandidates = new List<Core.Ghosts.GhostRecording>();
         public Core.Ghosts.GhostRecording PlayerGhost { get; private set; }
         public readonly List<GhostPlayback> Ghosts = new List<GhostPlayback>();
@@ -198,6 +223,18 @@ namespace NightSignal.Race
 
         DriverInput LocalInput(RaceEntrant e, int tick)
         {
+            DriverInput input = SampleInput(e, tick);
+            if (resetHoldTicks > 0)
+            {
+                resetHoldTicks--;
+                input = DriverInput.Quantize(input.Steer, input.Throttle, input.Brake, input.Buttons | InputButtons.ResetHeld);
+            }
+            LastPlayerInput = input;
+            return input;
+        }
+
+        DriverInput SampleInput(RaceEntrant e, int tick)
+        {
             if (Autopilot)
             {
                 if (tick < Sim.StartTick + (int)(AutopilotHoldSeconds * VehicleSimulation.TickRate)) return DriverInput.Quantize(0f, 0f, 1f, InputButtons.None);
@@ -223,7 +260,7 @@ namespace NightSignal.Race
             {
                 if (controls.ShiftUpPressedThisFrame) latchUp = true;
                 if (controls.ShiftDownPressedThisFrame) latchDown = true;
-                if (chase != null && controls.CameraPressed) chase.Cycle();
+                if (chase != null && controls.CameraPressed) CycleCamera();
                 if (chase != null) chase.LookBack = controls.LookBackHeld;
             }
             int speed = Mathf.Max(1, SimulationSpeed);

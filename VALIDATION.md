@@ -2280,3 +2280,45 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   fitter), covering the reward column; fixed before this run.
 - **Limits:** offline only — online results have no client recording of the player's run yet; sector colours need a
   reference ghost (without one the route is grey); braking points come from speed, not the brake input.
+
+## V-111 — The T00 Driving School (spec §16), and the crew telemetry measured at the true apexes (2026-09-28)
+- Revision: the work committed with this entry; player builds of that tree (the last one differs only in writing an empty
+  lesson list out of saves).
+- **What changed (R16.2 was "not started"):** `authored/tutorial/lessons.json` (night-signal/tutorial-lessons@1; loaded
+  by the content library, not part of the race content hash): **8 drive lessons** on the T00 loop — controls and camera,
+  braking, turn-in and exits, grip versus drift, countersteering, exits and gearing, resets and checkpoints, ghost deltas
+  — and **6 knowledge cards** — parts and stats, raw versus showcase score, convoy readiness, public meets, connectivity
+  and disqualification, rewards and rank — each with goal, help text and keywords (help text checked against the real
+  bindings). Core `TutorialLessons` (parse, validation, the searchable help index) and `LessonJudge` (engine-free: reach,
+  brake, bend, drift, catch, timed, reset, lap — from distance, speed, brake, slip, walls, resets, camera changes and
+  drift per tick, with a live feedback line and a Passed / Not yet verdict). The **Driving School** screen (offline hub):
+  every lesson with its state, a search box over the help index, "Try the lesson" and "Watch the demonstration" (the
+  autopilot drives it, marked "DEMONSTRATION … training aid"; drift lessons give it a drift skill; never counted),
+  card questions with feedback; a lesson runs alone and non-contact on T00 with a banner over the race, ends once
+  judged and returns to the school for a local retry. Passing is training progress in the Local profile
+  (`MarkLessonPassed`: no money, rank or unlock; nothing gates a race). The ghost-deltas lesson races the **instructor's
+  demonstration lap** (the validator autopilot's clean T00 lap, 128.858 s, recorded by `RecordInstructorLap` into
+  Resources/LessonGhosts). `OfflineRaceSession` gained the camera-change count, the last input, a reset hold (automation)
+  and `EndNow`.
+- **Found while building it:** race distance counts from the start line, while route features (gates, lesson stretches)
+  are in route metres — the lesson judge adds the course's start offset. **The V-106 crew telemetry had the same fault**:
+  its corners were found along the route but read from traces indexed by race distance, so every measurement sat 64 m
+  (C01's start offset) past the apex. Rerun at the true apexes (944, 1184, 2134 m): **PASS** — 4–5 distinct outcomes
+  per crew; the late braker observed 3/3 and **the exit specialist now observed 3/3** (1/3 before). The exit "gain" is
+  negative for every driver at these points (still slowing 60 m past the sharpest heading change on C01's long corners)
+  — a like-for-like comparison, stated as measured. `Evidence/ai/crew-telemetry.txt`.
+- **Tests:** Core `TutorialLessonsTests` (the document covers the spec topics and parses; the help index; broken
+  documents refused; each judge type passes and fails on its own condition; cards; progress once, without reward) —
+  Core 167; EditMode 483 passed, 2 skipped (two profile-migration tests first failed because the new list was written
+  into old saves' tutorial section — it is now written only when non-empty).
+- **Built player** (`-nsTutorialTour`, isolated profile) **PASS**: the help index for "brake" lists 4 lessons; attempts
+  (the validator autopilot standing in for a player — the judge and overlay are the real ones) pass controls and camera
+  (camera cycled through the button path), braking (25 km/h shed from 152 km/h), turn-in and exits (out at 93 km/h),
+  exits and gearing (12.7 s of 20 s), resets (+3.0 s, drove on), ghost deltas (a lap with the instructor's ghost); the
+  drift demonstration scores 323 raw in the zone and the countersteering demonstration catches a slide — neither is
+  recorded as a pass; a card answered wrong then right. `Evidence/ui/tutorial/`. The first build showed the drift
+  demonstration scoring 0 (the start-offset fault above) and the lesson banner over the HUD's drift counter; both fixed.
+- **Limits:** thresholds are design values for a first-time driver, checked only against the autopilot; the lessons
+  run offline — online accounts can open them only with a Local profile (no convoy tutorial session yet, spec §16 asks
+  for one with independent progress); the braking lane, skid pad and training bays off the loop are not used (the
+  route's progress and recovery cover the loop only); no human has taken the lessons.

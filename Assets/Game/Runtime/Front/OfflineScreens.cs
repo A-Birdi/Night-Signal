@@ -118,6 +118,7 @@ namespace NightSignal.Front
             UIFactory.Button("WhileWeWait", col, "While We Wait", () => App.Router.Show(App.WhileWeWait), 620, 52);
             UIFactory.Button("DriverCard", col, "Driver Card", () => App.Router.Show(App.PlayerCard), 620, 52);
             UIFactory.Button("RaceDiary", col, "Race Diary", () => App.Router.Show(App.Diary), 620, 52);
+            UIFactory.Button("DrivingSchool", col, "Driving School (T00 lessons)", () => App.Router.Show(App.Lessons), 620, 52);
             UIFactory.Button("Meet", col, "Car Meet: Cedar Lantern Terrace", () =>
             {
                 if (cars.Count > 0) App.StartOfflineMeet(cars[car.Index], this);

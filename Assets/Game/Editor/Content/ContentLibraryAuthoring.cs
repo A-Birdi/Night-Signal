@@ -48,6 +48,7 @@ namespace NightSignal.Editor.ContentTools
             lib.StoryRecords = Load("Assets/Content/Data/authored/story/radio-records.json");
             lib.RivalStory = Load("Assets/Content/Data/authored/story/rivals.story.json");
             lib.Endings = Load("Assets/Content/Data/authored/story/endings.json");
+            lib.TutorialLessonsDocument = Load("Assets/Content/Data/authored/tutorial/lessons.json");
             if (create) AssetDatabase.CreateAsset(lib, LibraryPath);
             EditorUtility.SetDirty(lib);
 

@@ -30,3 +30,4 @@ FP01    R08    Daigo Ibuki               V05    233.805     2340       0    yes 
 FP02    R16    Emi Takanashi             V08    151.746     1519       0    yes  100863
 FP03    R24    Jun Saegusa               V12    265.789     2659       0    yes  171468
 # every reference finished and is a well-formed ghost; "clean" = no reset and no corridor cut
+# T00 instructor lap (lesson ghost, validator autopilot, V01): 128.858 s, 1290 samples, resets 0, 82139 bytes

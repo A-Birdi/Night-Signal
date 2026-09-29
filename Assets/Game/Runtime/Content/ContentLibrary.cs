@@ -32,6 +32,13 @@ namespace NightSignal.Content
         public TextAsset MeetText;
         /// <summary>The campaign story (story/stages.story, crews.diary, radio-records, rivals.story): presentation text, not in the race hash.</summary>
         public TextAsset StageStory, CrewDiary, StoryRecords, RivalStory, Endings;
+        /// <summary>authored/tutorial/lessons.json — the T00 lessons (training, not part of the race content hash).</summary>
+        public TextAsset TutorialLessonsDocument;
+        Core.Tutorial.TutorialLessons tutorial;
+
+        /// <summary>The T00 lessons and help index (null when the document is missing from this build).</summary>
+        public Core.Tutorial.TutorialLessons Tutorial =>
+            tutorial ?? (TutorialLessonsDocument != null ? tutorial = Core.Tutorial.TutorialLessons.Parse(TutorialLessonsDocument.text) : null);
 
         Core.Story.StoryText story;
 
