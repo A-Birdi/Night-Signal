@@ -2485,3 +2485,23 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   database (two genuine first clears from these races).
 - **Limits:** two humans; Hard access across mixed progress stays covered by tests only (no dev account has the Normal
   finale); the spec's separate "leader inspecting" preview is not built (the leader's row is the selection).
+
+## V-118 — A bound test of every string the tours pass (Gate 4) (2026-09-29)
+- Revision: the audit at `931162d`; the player build of that tree (before the Challenge Trials button of V-119 existed).
+- **What was missing:** labels shrink to fit and never vanish (V-053), but nothing measured every string against its box —
+  Gate 4's "no bound test of every string".
+- **The audit** (`-nsBoundsAudit` beside any tour; `FrontEndApp.Bounds.cs`): after each screen change, at each tour
+  screenshot and every 5 s in a race, every visible label (TextMeshPro, not faded, non-empty) is laid out and its drawn
+  size compared with its box less margins. A label too big at its minimum size, or spilling more than 5 % past its box,
+  is a failure; fitting labels whose glyph edges reach a few pixels past the box (TMP fits by advance widths) are listed
+  with the spill; fixed-size live figures that overflow are listed apart; labels left at their minimum size are noted.
+  The report is written at quit; `-nsUiTour` fails on any failure. The first grading counted every 2–13 px glyph-edge
+  spill as a failure although those labels sat far above their minimum size; it was corrected before the runs below.
+- **Runs** (`Tools/run/bounds-audit.ps1`: one window at a time, seeded preferences and Local profiles under Builds/):
+  at 1280×720 with Text size 150 % / HUD size 130 % the UI, instrument (Settings), Driver Card, diary, Custom Cup,
+  Driving School, story and appearance tours; at 2560×1080 with the same sizes the UI and instrument tours; at 1920×1080
+  with the defaults the UI tour — **11 of 11 tours PASS; 0 failures, 0 labels at their minimum size, 0 fixed-size
+  overflows** across 287 (UI tour), 226, 184, 138, 117, 111, 95 and 55 distinct labels; edge spills of 1–12 per run
+  (e.g. the title "NIGHT SIGNAL" drawn 12 px wider than its 834 px box at 98.6 pt, minimum 63). `Evidence/ui/bounds/`.
+- **Limits:** only what the tours pass is measured (the online screens and the meet were not in these runs); English
+  only (no localisation exists); whether a label reads well is still a human check.

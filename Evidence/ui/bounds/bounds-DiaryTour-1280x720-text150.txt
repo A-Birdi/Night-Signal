@@ -1,0 +1,19 @@
+# String bounds audit — DiaryTour at 1280x720, text size 150 %, HUD size 130 %
+# 12 moments audited, 138 distinct labels, 232 measurements
+# moments: Title · Local profiles · New profile · Diary · Offline · Campaign · Story · race HUD · race / Campaign · Results
+
+## Labels too big at their minimum size, or spilling more than 5 % past their box (failures): 0
+
+## Fitting labels whose glyph edges reach a few pixels past the box (TMP fits by advance widths; within 5 %): 8
+- [Title] Body/Screens/Title/Shade/Title — "NIGHT SIGNAL" box 834x188, drawn 847x110 (spill 12 px), size 98.6 (min 63.0)
+- [New profile] Screens/New profile/Panel/Column/Heading — "NEW LOCAL PROFILE" box 640x90, drawn 645x60 (spill 5 px), size 53.8 (min 30.0)
+- [Diary] Diary/ListPanel/List/Diary-Entry1/Label — "STAGE · S13 · NOT A GOOD ACCIDENT" box 576x44, drawn 578x30 (spill 2 px), size 27.0 (min 16.5)
+- [Diary] Diary/ListPanel/List/Diary-Entry8/Label — "STAGE · S20 · HOW DOES IT FEEL" box 576x44, drawn 578x34 (spill 2 px), size 30.3 (min 16.5)
+- [Diary] Diary/ListPanel/List/Diary-Entry3/Label — "STAGE · S15 · HARBOUR VOICES" box 576x44, drawn 578x35 (spill 2 px), size 31.4 (min 16.5)
+- [Diary] Diary/ListPanel/List/Diary-Entry10/Label — "STAGE · S22 · SHE KNOWS THE SLIP" box 576x44, drawn 578x31 (spill 2 px), size 28.1 (min 16.5)
+- [Offline] Offline/Panel/Setup/DrivingSchool/Label — "DRIVING SCHOOL (T00 LESSONS)" box 596x52, drawn 598x36 (spill 2 px), size 31.8 (min 16.5)
+- [Campaign] Campaign/Header/Controls/FindNext/Label — "FIND NEXT STAGE" box 276x56, drawn 278x30 (spill 2 px), size 27.3 (min 16.5)
+
+## Fixed-size live figures drawn beyond their box (they never clip; inspect for collisions): 0
+
+## Labels that fit only at their minimum size (legible, but the smallest allowed): 0
