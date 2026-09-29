@@ -79,6 +79,9 @@ namespace NightSignal.Front
 
         void OnDestroy() => back?.Dispose();
 
+        /// <summary>Builds a screen that drives a flow before it is first shown (it needs its app and its widgets).</summary>
+        public void Prepare(UIScreen screen) => Ensure(screen);
+
         T Ensure<T>(T screen) where T : UIScreen
         {
             if (!built.Contains(screen))

@@ -1,0 +1,13 @@
+# -nsCupTour (built player, isolated profile; validator autopilot; automation)
+[NightSignal.CupTour] schedule chosen: C01 → C02 → C03
+[NightSignal.CupTour] setup: Custom Cup — three legs, one field · C01  Tea Lantern Road · C02  Mizuhana Switchback · C03  Canal Orchard Ring · 2 AI
+[NightSignal.Cup] schedule C01 → C02 → C03; field R12, R39
+[NightSignal.Cup] after leg 1: Cup Driver 10 (1) | Rui Takeda 8 (2) | Ayame Sugiura 6 (3)
+[NightSignal.CupTour] after leg 1: Cup Driver 10 pts (1) | Rui Takeda 8 pts (2) | Ayame Sugiura 6 pts (3)
+[NightSignal.Cup] after leg 2: Cup Driver 20 (1 1) | Rui Takeda 16 (2 2) | Ayame Sugiura 12 (3 3)
+[NightSignal.CupTour] after leg 2: Cup Driver 20 pts (1 1) | Rui Takeda 16 pts (2 2) | Ayame Sugiura 12 pts (3 3)
+[NightSignal.Cup] after leg 3: Cup Driver 30 (1 1 1) | Rui Takeda 22 (2 2 3) | Ayame Sugiura 20 (3 3 2)
+[NightSignal.CupTour] after leg 3: Cup Driver 30 pts (1 1 1) | Rui Takeda 22 pts (2 2 3) | Ayame Sugiura 20 pts (3 3 2)
+[NightSignal.CupTour] final: you are 1 of 3; wallet 12,000 -> 54,121 cr
+[NightSignal.CupTour] the same field raced every leg: R12,R39
+[NightSignal.CupTour] PASS

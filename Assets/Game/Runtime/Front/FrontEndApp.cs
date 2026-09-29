@@ -63,6 +63,9 @@ namespace NightSignal.Front
         public readonly DiaryScreen Diary = new DiaryScreen();
         public readonly TutorialScreen Lessons = new TutorialScreen();
         public readonly RouteChartScreen ChartScreen = new RouteChartScreen();
+        public readonly CupScreen Cup = new CupScreen();
+        /// <summary>The last Local race's classification (the Custom Cup table reads each leg).</summary>
+        public List<RaceEntrantResult> LastLocalResults { get; private set; }
         /// <summary>The last online race left a route chart (its trace had samples).</summary>
         public bool HasOnlineChart { get; private set; }
         /// <summary>Rich-text summary of the last online race (placing, time, settled receipt) for the convoy screen.</summary>
@@ -152,6 +155,8 @@ namespace NightSignal.Front
                 StartCoroutine(TutorialTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsReferenceTour") >= 0)
                 StartCoroutine(ReferenceTour());
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsCupTour") >= 0)
+                StartCoroutine(CupTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsDriverCardTour") >= 0)
                 StartCoroutine(DriverCardTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsCanvasPadTour") >= 0)
@@ -1110,6 +1115,7 @@ namespace NightSignal.Front
         /// </summary>
         public void StartLocalEvent(LocalEventPlan plan, UIScreen returnTo)
         {
+            LastLocalResults = null;
             StartCoroutine(RunLocalEvent(plan, returnTo));
         }
 
@@ -1193,6 +1199,7 @@ namespace NightSignal.Front
                 Debug.Log($"[NightSignal.Ghost] {plan.CourseId} {ghostFormat}: {LastRunGhost.Count} samples, result {LastRunGhost.Header.ResultMicros / 1e6:F3} s, " +
                           $"resets {LastRunGhost.Header.Resets}, valid {LastRunGhost.ValidPersonal}; raced ghost {(yesterday != null && plan.Kind == EventKind.FreeplayTimeTrial ? (yesterday.Header.ResultMicros / 1e6).ToString("F3") + " s" : "none")} — {ghostNote}");
             }
+            LastLocalResults = results;
             Results.Set(plan.CourseId, plan.Rules, results, applied, string.IsNullOrEmpty(ghostNote) ? saveNote : (saveNote.Length > 0 ? saveNote + " " : "") + "Ghost: " + ghostNote + ".", returnTo);
             Results.SetChart(LastRunGhost, LastGhostDeltas, LastGhostLabel);
             if (applied?.Stage != null && story != null)

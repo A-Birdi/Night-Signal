@@ -2383,3 +2383,21 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   recognised and pays nothing. SQLite only (no PostgreSQL here).
 - **Limits:** automation over loopback, not people; the crash is an in-process failure inside the transaction, not a
   killed process (SQLite's journal covers that case by its own design; not exercised).
+
+## V-115 — The Custom Cup offline (spec §8) (2026-09-29)
+- Revision: the work committed with this entry; player build of that tree.
+- **What changed:** the Custom Cup existed only in the control plane (proposals and allocation carry the legs; nothing
+  raced more than the first). Offline it is now playable: the Freeplay panel's third format, "Custom Cup — three legs,
+  one field", with Leg 2 and Leg 3 rows (sprint and circuit courses); the schedule is published before the start; one
+  field of authored rivals (the named lead, if any) races every leg; each leg is an ordinary Freeplay race — paid and
+  recorded as one, no stake; between legs the Cup page shows the table with "Next leg" or "Leave the cup" (the short,
+  cancelable results/ready area). Core `CupTable`: points 10-8-6-5-4-3 for places 1–6, nothing for a DNF or DQ, every
+  entrant keeps its line once raced (a missed leg is not regained), countback on wins, then second places, and so on.
+- **Tests:** Core `CupTableTests` (points and order; a DQ keeps its line without regaining the missed leg; countback) —
+  Core 176; EditMode 483 passed, 2 skipped.
+- **Built player** (`-nsCupTour`, isolated profile, validator autopilot) **PASS**: C01 → C02 → C03 with R12 and R39 in
+  every leg; after the legs the table read 10/8/6, 20/16/12 and 30/22/20 (Cup Driver 1-1-1, Rui Takeda 2-2-3, Ayame
+  Sugiura 3-3-2), every line's points equal to its placings; the legs paid 12,000 → 54,121 cr. The first run found the Cup
+  page starting a leg before the router had ever built it (no app yet); the hub now prepares it. `Evidence/ui/cup/`.
+- **Limits:** online the cup still races only its first leg — the game server has no multi-leg match (scene changes
+  inside one match, readiness per leg, one settlement); the fixed challenge cups (CH14, CH42, CH69, CH72) need that too.
