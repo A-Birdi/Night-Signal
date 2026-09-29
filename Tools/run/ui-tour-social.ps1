@@ -14,6 +14,9 @@ param([int]$HostAccount = 0, [int]$GuestAccount = 1, [int]$TimeoutSeconds = 420,
     [switch]$Race, [int]$Port = 7792,
     # Race Freeplay Time Attack on -Course instead; the guest chases the host's shared convoy ghost (spec §8).
     [switch]$GhostChase, [string]$Course = 'C07',
+    # Campaign across mixed progress (spec §5.1): the host proposes a stage alone, the newer guest joins and pulls the shared
+    # frontier back; they race the shared frontier stage together. Needs a host ahead of the guest in Normal.
+    [switch]$Mixed,
     # Addendum 04: loopback unless a separately authorized LAN test passes -AllowLan with its addresses.
     [string]$BindHost = '127.0.0.1', [string]$PublicHost = '127.0.0.1', [switch]$AllowLan)
 
@@ -35,10 +38,11 @@ function Start-Client([string]$role, [int]$account, [string]$peer) {
         '-logFile', "`"$logs\$role.log`"")
     if ($Race) { $a += '-nsUiTourSocialRace' }
     if ($GhostChase) { $a += @('-nsUiTourSocialGhost', '-nsUiTourCourse', $Course) }
+    if ($Mixed) { $a += '-nsUiTourSocialMixed' }
     Start-Process -FilePath $exe -PassThru -WorkingDirectory $repo -ArgumentList $a
 }
 $server = $null
-if ($GhostChase) { $Race = $true }
+if ($GhostChase -or $Mixed) { $Race = $true }
 if ($Race) {
     if ($TimeoutSeconds -lt 900) { $TimeoutSeconds = 900 }
     Import-Module (Join-Path $PSScriptRoot 'NetGuard.psm1') -Force

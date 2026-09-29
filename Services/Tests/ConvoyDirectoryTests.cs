@@ -318,7 +318,36 @@ public sealed class ConvoyDirectoryTests : ConvoyTestBase
         Assert.True(dir.ProposeEvent(Id(1), new EventRequest("S08", null, null, null, null, null, null)).Ok);
         JsonElement access = State(1).GetProperty("campaignAccess").GetProperty("normal");
         Assert.Equal(8, access.GetProperty("maxSelectableStage").GetInt32());
+        Assert.Equal(12, access.GetProperty("highestStage").GetInt32()); // S09–S12 listed as locked for this convoy
         Assert.Contains("S08", access.GetProperty("explanation").GetString());
+    }
+
+    [Fact]
+    public void ANewerMemberJoining_WithdrawsAStageBeyondTheNewSharedFrontier_WithANeutralExplanation()
+    {
+        dir.Connected(Id(1), V);
+        dir.Connected(Id(2), V);
+        dir.Create(Id(1), new MemberInfo("Veteran", Progress(Id(1), normalCleared: 12)), ConvoyPrivacy.InviteOnly); // frontier 13
+        EnterMode(Campaign());
+        clock.Advance(TimeSpan.FromSeconds(15));
+        Assert.True(dir.ProposeEvent(Id(1), new EventRequest("S10", null, null, null, null, null, null)).Ok);
+        Assert.Equal(13, State(1).GetProperty("campaignAccess").GetProperty("normal").GetProperty("maxSelectableStage").GetInt32());
+
+        dir.JoinByCode(Id(2), new MemberInfo("Newer", Progress(Id(2), normalCleared: 5)), Code(dir.CreateInvite(Id(1)))); // frontier 6
+        JsonElement s = State(1);
+        Assert.Equal("EventSelection", s.GetProperty("phase").GetString());
+        Assert.Equal(JsonValueKind.Null, s.GetProperty("eventProposal").ValueKind);
+        Assert.Equal("proposal_withdrawn", s.GetProperty("noticeCode").GetString());
+        Assert.Contains("S10 is no longer available", s.GetProperty("notice").GetString());
+        JsonElement access = s.GetProperty("campaignAccess").GetProperty("normal");
+        Assert.Equal(6, access.GetProperty("maxSelectableStage").GetInt32());
+        Assert.Equal(13, access.GetProperty("highestStage").GetInt32());
+        Assert.Equal("Next shared stage: S06 — one member has not cleared it.", access.GetProperty("explanation").GetString());
+        Assert.DoesNotContain("Newer", access.GetProperty("explanation").GetString()); // neutral: no names
+
+        clock.Advance(TimeSpan.FromSeconds(15));
+        Assert.Equal("stage_locked", dir.ProposeEvent(Id(1), new EventRequest("S08", null, null, null, null, null, null)).Error?.Code);
+        Assert.True(dir.ProposeEvent(Id(1), new EventRequest("S06", null, null, null, null, null, null)).Ok);
     }
 
     [Fact]

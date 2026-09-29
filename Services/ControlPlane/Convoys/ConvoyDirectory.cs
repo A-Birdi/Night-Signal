@@ -2330,9 +2330,16 @@ public sealed class ConvoyDirectory
             // A Dormant room has no present members (Addendum 02 D208) but is still snapshotted, e.g. when the watchdog
             // aborts its lost match. Nothing is selectable until someone rejoins.
             if (progress.Count == 0)
-                return new { allowed = false, maxSelectableStage = 0, explanation = "No members are present.", limitingPlayers = Array.Empty<string>() };
+                return new { allowed = false, maxSelectableStage = 0, highestStage = 0, explanation = "No members are present.", limitingPlayers = Array.Empty<string>() };
             ConvoyStageAccess a = CampaignProgress.Evaluate(mode, progress);
-            return new { allowed = a.ModeAllowed, maxSelectableStage = a.MaxSelectableStage, explanation = a.Explanation, limitingPlayers = a.LimitingPlayers };
+            // Spec §5.1: the stages between the shared frontier and the most-progressed member's are shown locked for this
+            // convoy (never selectable: the server refuses them on proposal, allocation and settlement).
+            int highest = a.ModeAllowed ? Math.Min(progress.Max(p => CampaignProgress.Frontier(p.Cleared(mode))), Limits.CampaignStages) : 0;
+            return new
+            {
+                allowed = a.ModeAllowed, maxSelectableStage = a.MaxSelectableStage, highestStage = Math.Max(highest, a.MaxSelectableStage),
+                explanation = a.Explanation, limitingPlayers = a.LimitingPlayers,
+            };
         }
         long cooldownMs = c.LastReadyRequest is { } last ? Math.Max(0, (long)(last + ConvoyRules.ReadyRequestCooldown - Now).TotalMilliseconds) : 0;
         int modeReadyCount = c.Members.Count(m => c.ModeReady.TryGetValue(m.AccountId, out long rev) && rev == c.ModeRevision && !m.Away);

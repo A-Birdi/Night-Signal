@@ -48,7 +48,9 @@ namespace NightSignal.Front
         Stepper starter, intent, stage, course, aiCount, trial, difficulty, leadRival, cupLeg2, cupLeg3;
         TextMeshProUGUI cupLine;
         readonly List<RivalDef> rivalChoices = new List<RivalDef>();
-        TextMeshProUGUI archetypeLine;
+        TextMeshProUGUI archetypeLine, stageAccessLine;
+        /// <summary>The shared frontier (spec §5.1): stages above it are listed but locked for this convoy.</summary>
+        int stageMax;
         float nextArchetypeFetch;
         // Time Attack: a chosen convoy member's shared ghost besides your own best (spec §8); each member picks for themself.
         Stepper ghostChoice;
@@ -120,7 +122,11 @@ namespace NightSignal.Front
             proposeIntent = UIFactory.Button("ProposeIntent", col, "Ask Everyone: Mode Ready?", ProposeIntent, 620, 56);
             modeReady = UIFactory.Button("ModeReady", col, "Mode Ready", ToggleModeReady, 620, 56);
             enterMode = UIFactory.Button("EnterMode", col, "Enter Mode", () => Send("mode.enter", new { modeRevision = (long)S.Convoy["modeRevision"] }), 620, 56);
-            stage = new Stepper(col, "Stage", 1, i => Limits.CampaignStages >= i + 1 ? CampaignProgress.StageLabel(i + 1) + "  " + StageName(i + 1) : "", 0, 1000);
+            stage = new Stepper(col, "Stage", 1, i => Limits.CampaignStages >= i + 1
+                ? CampaignProgress.StageLabel(i + 1) + "  " + StageName(i + 1) + (stageMax > 0 && i + 1 > stageMax ? "  · locked for this convoy" : "") : "", 0, 1000);
+            stage.Changed += _ => dirty = true;
+            // Whose frontier limits the convoy, said neutrally (spec §5.1): "Next shared stage: S08 — two members have not cleared it."
+            stageAccessLine = UIFactory.Row("StageAccess", col, "", SignalTheme.Small, SignalTheme.LabelDim, 1000, 28);
             course = new Stepper(col, "Course", 1, i => i < courseIds.Count ? CourseName(courseIds[i]) : "—", 0, 1000);
             // Custom Cup: the Course row is leg 1; legs 2 and 3 from the same offered courses (the schedule is published).
             cupLeg2 = new Stepper(col, "Leg 2", 1, i => i < courseIds.Count ? CourseName(courseIds[i]) : "—", 1, 1000);
@@ -361,12 +367,24 @@ namespace NightSignal.Front
             proposeEvent.gameObject.SetActive(selecting);
             proposeEvent.interactable = wait == 0;
             proposeEvent.GetComponentInChildren<TextMeshProUGUI>().text = "Propose Event" + suffix;
+            JToken access = inConvoy && kind == "campaign" ? c["campaignAccess"]?[(string)intentObj?["mode"] ?? "normal"] : null;
             if (selecting && kind == "campaign")
             {
-                string mode = (string)intentObj["mode"] ?? "normal";
-                int max = (int?)c["campaignAccess"]?[mode]?["maxSelectableStage"] ?? 1;
-                if (stage.Count != Mathf.Max(1, max)) { stage.SetCount(Mathf.Max(1, max)); stage.Set(max - 1); }
+                // The stages the most-progressed member could race stay listed, visibly locked; when the shared frontier
+                // moves (a member joins or leaves, a stage is cleared) the selection returns to it, a valid node.
+                int max = Mathf.Max(1, (int?)access?["maxSelectableStage"] ?? 1);
+                int shown = Mathf.Max(max, (int?)access?["highestStage"] ?? max);
+                if (max != stageMax || shown != stage.Count)
+                {
+                    stageMax = max;
+                    stage.SetCount(shown);
+                    stage.Set(max - 1);
+                }
+                if (stage.Index + 1 > stageMax) proposeEvent.interactable = false;
             }
+            bool showAccess = access != null && modeEntered && !matchOn && post == null;
+            stageAccessLine.gameObject.SetActive(showAccess);
+            if (showAccess) stageAccessLine.text = Esc((string)access["explanation"] ?? "");
             RenderBallot(c, leader, kind, modeEntered, proposal, post, matchOn);
             bool cupSetup = selecting && kind == "freeplay" && (string)intentObj?["submode"] == "cup";
             cupLeg2.Root.SetActive(cupSetup);
@@ -637,6 +655,22 @@ namespace NightSignal.Front
             dirty = true;
             return true;
         }
+
+        /// <summary>Puts a campaign stage (1-based, locked ones included) on the stage row once it is listed (tours).</summary>
+        public bool SelectStage(int number)
+        {
+            if (!stage.Root.activeInHierarchy || number < 1 || number > stage.Count) return false;
+            stage.Set(number - 1);
+            dirty = true;
+            return true;
+        }
+
+        /// <summary>The stage row as shown (tours): selected stage, stages listed, the shared frontier, the row's text.</summary>
+        public int SelectedStage => stage.Index + 1;
+        public int StagesListed => stage.Count;
+        public int SharedFrontier => stageMax;
+        public string StageText => stage.Value.text;
+        public string StageAccessText => stageAccessLine.gameObject.activeInHierarchy ? stageAccessLine.text : "";
 
         /// <summary>Selects a freeplay course in the event setup once the snapshot offers it (tours).</summary>
         public bool SelectCourse(string courseId)

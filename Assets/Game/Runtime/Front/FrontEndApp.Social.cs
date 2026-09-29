@@ -60,7 +60,8 @@ namespace NightSignal.Front
                 return -1;
             }
             bool ghostTour = Array.IndexOf(Environment.GetCommandLineArgs(), "-nsUiTourSocialGhost") >= 0;
-            bool raceTour = ghostTour || Array.IndexOf(Environment.GetCommandLineArgs(), "-nsUiTourSocialRace") >= 0;
+            bool mixedTour = Array.IndexOf(Environment.GetCommandLineArgs(), "-nsUiTourSocialMixed") >= 0;
+            bool raceTour = ghostTour || mixedTour || Array.IndexOf(Environment.GetCommandLineArgs(), "-nsUiTourSocialRace") >= 0;
             string ghostCourse = Arg("-nsUiTourCourse") ?? "C07";
             JObject State() => S()?.Convoy;
             bool Interactable(string name) => GameObject.Find(name)?.GetComponent<Button>()?.interactable == true;
@@ -339,6 +340,118 @@ namespace NightSignal.Front
                 Click("Continue");
                 yield return new WaitForSeconds(3f);
             }
+            // Campaign across mixed progress (spec §5.1, Gate 4): the host proposes a stage alone, a newer guest joins and pulls
+            // the shared frontier back — the proposal is withdrawn with the reason, the stages above stay listed and locked,
+            // the selection returns to the shared frontier; a locked stage cannot be proposed (and the server refuses it when
+            // asked directly); then they race the shared frontier stage together.
+            int aloneFrontier = 0, aloneStage = 0, racedStage = 0;
+            IEnumerator MixedAlone()
+            {
+                OnlineAutopilot = true;
+                Convoy.SelectIntent(0); // Campaign · Normal
+                Click("ProposeIntent");
+                yield return Until(() => State()?["intent"]?.Type == JTokenType.Object && Interactable("EnterMode"), 20f, "campaign intent set");
+                yield return new WaitForSeconds(0.8f);
+                Click("EnterMode");
+                yield return Until(() => (bool?)State()?["modeEntered"] == true, 10f, "mode entered");
+                yield return Until(() => Convoy.SharedFrontier > 0 && Interactable("ProposeEvent"), 30f, "stages listed");
+                aloneFrontier = Convoy.SharedFrontier;
+                aloneStage = Math.Max(1, aloneFrontier - 3);
+                Note($"alone: {Convoy.StagesListed} stages listed, shared frontier S{aloneFrontier:00}; '{Convoy.StageAccessText}'");
+                yield return Until(() => Convoy.SelectStage(aloneStage), 10f, "stage offered");
+                yield return new WaitForSeconds(0.8f);
+                Shot("05m-alone-stage");
+                Click("ProposeEvent");
+                yield return Until(() => (string)State()?["eventProposal"]?["settings"]?["stageId"] == $"S{aloneStage:00}", 20f, "the stage proposed alone");
+                Note($"proposed S{aloneStage:00} alone");
+            }
+
+            IEnumerator MixedTogether(bool isHost)
+            {
+                OnlineAutopilot = true;
+                if (Router.Current != Convoy) Router.Show(Convoy, false);
+                if (isHost)
+                {
+                    yield return Until(() => State()?["eventProposal"]?.Type != JTokenType.Object && (string)State()?["noticeCode"] == "proposal_withdrawn", 20f,
+                        "the out-of-reach proposal withdrawn");
+                    yield return Until(() => Convoy.SharedFrontier > 0 && Convoy.SharedFrontier < aloneFrontier, 20f, "the shared frontier moved back");
+                    yield return new WaitForSeconds(1f);
+                    int shared = Convoy.SharedFrontier;
+                    string notice = (string)State()?["notice"];
+                    Note($"after the join: notice '{notice}'; {Convoy.StagesListed} stages listed, shared frontier S{shared:00}, selected S{Convoy.SelectedStage:00}; '{Convoy.StageAccessText}'");
+                    Shot("06m-frontier-moved");
+                    if (notice == null || !notice.Contains($"S{aloneStage:00} is no longer available")) failures.Add("the withdrawal was not explained: " + notice);
+                    if (Convoy.SelectedStage != shared) failures.Add($"the selection did not return to the shared frontier (S{Convoy.SelectedStage:00})");
+                    if (Convoy.StagesListed != aloneFrontier) failures.Add($"the locked stages are not listed ({Convoy.StagesListed} listed; the host's frontier is S{aloneFrontier:00})");
+                    string guestName = ((State()?["members"] as JArray) ?? new JArray()).FirstOrDefault(m => (bool?)m["isLeader"] != true)?["displayName"]?.ToString();
+                    if (!Convoy.StageAccessText.StartsWith($"Next shared stage: S{shared:00}") || (guestName != null && Convoy.StageAccessText.Contains(guestName)))
+                        failures.Add("no neutral shared-frontier line: " + Convoy.StageAccessText);
+
+                    // A locked stage is on the list but cannot be proposed; asked directly, the server refuses it too.
+                    Convoy.SelectStage(shared + 1);
+                    yield return new WaitForSeconds(0.8f);
+                    Note($"stepped to '{Convoy.StageText}': propose {(Interactable("ProposeEvent") ? "available" : "unavailable")}");
+                    Shot("07m-locked-stage");
+                    if (!Convoy.StageText.Contains("locked for this convoy")) failures.Add("a stage above the shared frontier is not marked locked");
+                    if (Interactable("ProposeEvent")) failures.Add("a locked stage could be proposed from the screen");
+                    yield return Until(() => (long?)State()?["readyRequestCooldownMs"] == 0 || State()?["readyRequestCooldownMs"] == null, 20f, "readiness cooldown over");
+                    var direct = S().Request("event.propose", new { stageId = $"S{shared + 1:00}" });
+                    while (!direct.IsCompleted) yield return null;
+                    Note($"asked the server directly for S{shared + 1:00}: {(direct.Result == null ? "refused — " + S().LastError : "accepted")}");
+                    if (direct.Result != null || State()?["eventProposal"]?.Type == JTokenType.Object) failures.Add("the server accepted a stage beyond the shared frontier");
+
+                    Convoy.SelectStage(shared);
+                    yield return Until(() => Interactable("ProposeEvent"), 30f, "the shared frontier can be proposed");
+                    Click("ProposeEvent");
+                    yield return Until(() => (string)State()?["eventProposal"]?["settings"]?["stageId"] == $"S{shared:00}", 20f, "the shared frontier proposed");
+                    racedStage = shared;
+                    yield return new WaitForSeconds(0.8f);
+                    if ((bool?)S().MyMember?["eventReady"] != true) Click("EventReady");
+                    yield return Until(() => Interactable("StartEvent"), 120f, "everyone event ready");
+                    yield return new WaitForSeconds(0.8f);
+                    Shot("08m-both-ready");
+                    Click("StartEvent");
+                }
+                else
+                {
+                    yield return Until(() => Convoy.StageAccessText.StartsWith("Next shared stage"), 20f, "the shared frontier shown to the guest");
+                    Note($"joined at the shared frontier: '{Convoy.StageAccessText}'");
+                    Shot("05m-guest-frontier");
+                    yield return Until(() => State()?["eventProposal"]?.Type == JTokenType.Object && Interactable("EventReady"), 150f, "the host proposed the shared stage");
+                    yield return new WaitForSeconds(0.8f);
+                    string proposed = (string)State()?["eventProposal"]?["settings"]?["stageId"];
+                    Note($"the host proposed {proposed}");
+                    if (proposed != null && proposed.Length == 3) racedStage = int.Parse(proposed.Substring(1));
+                    Click("EventReady");
+                }
+                yield return Until(() => onlineRace != null, 90f, "match allocated");
+                yield return Until(() => onlineRace == null || onlineRace.Phase == NightSignal.Race.MatchPhase.Racing, 90f, "race started");
+                yield return new WaitForSeconds(12f);
+                Shot("09m-racing");
+                yield return Until(() => onlineRace == null && Router.Current == Convoy, 400f, "race over and back at the convoy");
+                yield return Until(() => (LastOnlineResult ?? "").Contains("Credits"), 25f, "settled receipt");
+                yield return Until(() => State()?["postEvent"]?.Type == JTokenType.Object, 20f, "post-event decision");
+                yield return new WaitForSeconds(1.5f);
+                Shot("10m-after-race");
+                string result = (LastOnlineResult ?? "").Replace("\n", " | ");
+                JToken access = State()?["campaignAccess"]?["normal"];
+                int after = (int?)access?["maxSelectableStage"] ?? 0;
+                Note($"last result: {result}");
+                Note($"after the race: shared frontier S{after:00}, highest S{(int?)access?["highestStage"] ?? 0:00}; '{(string)access?["explanation"]}'");
+                bool firstClear = result.Contains("first clear");
+                if (isHost && firstClear) failures.Add("the host was awarded a first clear again (spec §5.1: no duplicate first-clear for a completed player)");
+                if (!isHost)
+                {
+                    // The guest's own result decides where the shared frontier stands now: one stage on after its first clear.
+                    int raced = racedStage;
+                    int expected = firstClear ? raced + 1 : raced;
+                    Note($"the guest {(firstClear ? "cleared S" + raced.ToString("00") + " for the first time" : "did not clear S" + raced.ToString("00"))}; expected shared frontier S{expected:00}");
+                    if (after != expected) failures.Add($"after the race the shared frontier is S{after:00}, expected S{expected:00}");
+                }
+                yield return Until(() => Interactable("Continue"), 20f, "continue offered");
+                Click("Continue");
+                yield return new WaitForSeconds(3f);
+            }
             string myHandle = "nsdriver" + cfg.DevAccount;
             string peer = Arg("-nsPeerHandle") ?? (host ? "nsdriver1" : "nsdriver0");
 
@@ -390,6 +503,7 @@ namespace NightSignal.Front
                 Click("CreateConvoy");
                 yield return Until(() => S().InConvoy, 10f, "convoy created");
                 yield return new WaitForSeconds(1f);
+                if (mixedTour) yield return MixedAlone();
                 Click("OpenFriends");
                 yield return Until(() => Router.Current == Friends, 10f, "friends open");
                 yield return Until(() =>
@@ -408,7 +522,8 @@ namespace NightSignal.Front
                 yield return new WaitForSeconds(1.5f);
                 Shot("05-together");
                 Note("convoy members: " + string.Join(", ", ((JArray)S().Convoy["members"]).Select(m => (string)m["displayName"])));
-                if (raceTour) yield return RaceTogether(true);
+                if (mixedTour) yield return MixedTogether(true);
+                else if (raceTour) yield return RaceTogether(true);
                 else yield return SharedToys(true);
             }
             if (host && !raceTour)
@@ -463,7 +578,8 @@ namespace NightSignal.Front
                 yield return new WaitForSeconds(2f);
                 Shot("04-joined");
                 Note("joined " + (string)S().Convoy?["leaderName"] + "'s convoy");
-                if (raceTour) yield return RaceTogether(false);
+                if (mixedTour) yield return MixedTogether(false);
+                else if (raceTour) yield return RaceTogether(false);
                 else yield return SharedToys(false);
                 yield return new WaitForSeconds(3f);
             }
