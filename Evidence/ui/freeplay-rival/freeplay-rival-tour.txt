@@ -4,4 +4,5 @@
 [NightSignal.FreeplayRivalTour] hub line: Rival styles raced 1/12 · different lead styles beaten without quitting 1/3
 [NightSignal.FreeplayRivalTour] time attack overlays: Ghost · Sora Matsuda's reference 87.025 s
 [NightSignal.FreeplayRivalTour] time attack: 86.501 s; deltas vs the first overlay [-0.18, -0.15, -0.13, -0.13, -0.13, -0.15, -0.15, -0.17, -0.17, -0.15, -0.17, -0.17, -0.15, -0.17, -0.18, -0.17, -0.17, -0.15, -0.17, -0.30, -0.33, -0.43, -0.45, -0.47, -0.47, -0.50, -0.50, -0.50, -0.52, -0.52, -0.52]
+[NightSignal.FreeplayRivalTour] route chart: vs Sora Matsuda's reference 87.025 s: most lost in sector 2 (+0.03 s, 105–204 m); most gained in sector 1 (−0.18 s) · 4 braking points
 [NightSignal.FreeplayRivalTour] PASS

@@ -257,8 +257,18 @@ namespace NightSignal.Front
     public sealed class ResultsScreen : UIScreen
     {
         public override string ScreenName => "Results";
-        TextMeshProUGUI heading, table, summary, progress, reaction;
-        Button cont;
+        TextMeshProUGUI heading, table, summary, progress, reaction, chartLine;
+        Button cont, chartButton;
+        // The post-race route/elevation chart (spec §8), offered by a button when the run was recorded.
+        RawImage chartImage;
+        Texture2D chartTexture;
+        Core.Ghosts.RouteChart chart;
+        string chartReference;
+        bool showChart;
+
+        /// <summary>The chart is on screen (tours read it) and its one-line summary.</summary>
+        public bool ShowingChart => showChart && chart != null;
+        public string ChartSummary => chart?.Summary(chartReference ?? "the reference") ?? "";
         List<Core.Story.StoryLine> story = new List<Core.Story.StoryLine>();
         string storyPlayer = "";
 
@@ -303,7 +313,25 @@ namespace NightSignal.Front
             progress.textWrappingMode = TextWrappingModes.Normal;
             progress.overflowMode = TextOverflowModes.Overflow;
             progress.richText = true;
-            RectTransform actions = UIFactory.Column("Actions", panel.transform, new Vector2(0, 0), new Vector2(1, 0.12f), new Vector2(48, 8), new Vector2(-48, -8));
+            chartImage = new GameObject("RouteChart", typeof(RectTransform), typeof(RawImage)).GetComponent<RawImage>();
+            chartImage.transform.SetParent(panel.transform, false);
+            chartImage.rectTransform.anchorMin = new Vector2(0, 0.2f);
+            chartImage.rectTransform.anchorMax = new Vector2(0.6f, 0.76f);
+            chartImage.rectTransform.offsetMin = new Vector2(48, 0);
+            chartImage.rectTransform.offsetMax = new Vector2(-24, 0);
+            // The area has the texture's proportions (about 16:9 at the reference resolution): no fitter, which would size to the panel.
+            chartImage.gameObject.SetActive(false);
+            chartLine = UIFactory.Label("ChartLine", panel.transform, "", SignalTheme.Small, SignalTheme.Label, TextAlignmentOptions.TopLeft);
+            chartLine.rectTransform.anchorMin = new Vector2(0, 0.13f);
+            chartLine.rectTransform.anchorMax = new Vector2(0.6f, 0.2f);
+            chartLine.rectTransform.offsetMin = new Vector2(48, 0);
+            chartLine.rectTransform.offsetMax = new Vector2(-24, 0);
+            chartLine.textWrappingMode = TextWrappingModes.Normal;
+            chartLine.richText = false;
+            chartLine.gameObject.SetActive(false);
+            RectTransform chartActions = UIFactory.Column("ChartActions", panel.transform, new Vector2(0.62f, 0), new Vector2(1, 0.12f), new Vector2(0, 8), new Vector2(-48, -8));
+            chartButton = UIFactory.Button("RouteChart", chartActions, "Route Chart", () => { showChart = !showChart; Render(); }, 360, 60);
+            RectTransform actions = UIFactory.Column("Actions", panel.transform, new Vector2(0, 0), new Vector2(0.6f, 0.12f), new Vector2(48, 8), new Vector2(-24, -8));
             cont = UIFactory.Button("Continue", actions, "Continue", () =>
             {
                 Action ending = pendingEnding;
@@ -333,6 +361,20 @@ namespace NightSignal.Front
             returnTo = back;
             story = new List<Core.Story.StoryLine>();
             pendingEnding = null;
+            chart = null;
+            showChart = false;
+            if (heading != null) Render();
+        }
+
+        /// <summary>The run's route/elevation chart (after <see cref="Set"/>): the recording, the cumulative checkpoint deltas
+        /// against the first ghost on the road and that ghost's label (both null without one).</summary>
+        public void SetChart(Core.Ghosts.GhostRecording run, IReadOnlyList<long> deltas, string reference)
+        {
+            chart = run != null && run.Count > 1 ? Core.Ghosts.RouteChart.Build(run, deltas != null && deltas.Count > 0 ? deltas.ToList() : null) : null;
+            chartReference = string.IsNullOrEmpty(reference) ? null : reference.Replace("Ghost · ", "");
+            showChart = false;
+            if (chartTexture != null) UnityEngine.Object.Destroy(chartTexture);
+            chartTexture = null;
             if (heading != null) Render();
         }
 
@@ -351,6 +393,19 @@ namespace NightSignal.Front
             string courseId = pendingCourse;
             List<RaceEntrantResult> results = pendingResults;
             heading.text = $"RESULTS  ·  {courseId}";
+            bool charted = chart != null && chart.Metres.Count > 1;
+            chartButton.gameObject.SetActive(charted);
+            chartButton.GetComponentInChildren<TextMeshProUGUI>().text = showChart && charted ? "Classification" : "Route Chart";
+            chartImage.gameObject.SetActive(showChart && charted);
+            chartLine.gameObject.SetActive(showChart && charted);
+            table.gameObject.SetActive(!(showChart && charted));
+            reaction.gameObject.SetActive(!(showChart && charted));
+            if (showChart && charted)
+            {
+                if (chartTexture == null) chartTexture = UI.RouteChartTexture.Draw(chart);
+                chartImage.texture = chartTexture;
+                chartLine.text = ChartSummary + "   ·   route: red lost / cyan gained per sector, white = braking; below: elevation";
+            }
             ContentCatalogue storyCat = ContentLibrary.Load()?.Catalogue;
             reaction.text = string.Join("\n", story.Select(l => l.Speaker == "narration"
                 ? $"<i>{Escape(Core.Story.StoryText.Fill(l.Line, storyPlayer, ""))}</i>"

@@ -58,6 +58,8 @@ namespace NightSignal.Front
         /// <summary>The player's recorded run of the last offline race and its checkpoint deltas against the first ghost.</summary>
         public Core.Ghosts.GhostRecording LastRunGhost { get; private set; }
         public List<long> LastGhostDeltas { get; } = new List<long>();
+        /// <summary>The first ghost on the road in the last Local race (the deltas are against it), or null.</summary>
+        public string LastGhostLabel { get; private set; }
         public readonly DiaryScreen Diary = new DiaryScreen();
         /// <summary>Rich-text summary of the last online race (placing, time, settled receipt) for the convoy screen.</summary>
         public string LastOnlineResult { get; private set; }
@@ -1166,6 +1168,7 @@ namespace NightSignal.Front
                           $"resets {LastRunGhost.Header.Resets}, valid {LastRunGhost.ValidPersonal}; raced ghost {(yesterday != null && plan.Kind == EventKind.FreeplayTimeTrial ? (yesterday.Header.ResultMicros / 1e6).ToString("F3") + " s" : "none")} — {ghostNote}");
             }
             Results.Set(plan.CourseId, plan.Rules, results, applied, string.IsNullOrEmpty(ghostNote) ? saveNote : (saveNote.Length > 0 ? saveNote + " " : "") + "Ghost: " + ghostNote + ".", returnTo);
+            Results.SetChart(LastRunGhost, LastGhostDeltas, LastGhostLabel);
             if (applied?.Stage != null && story != null)
             {
                 // How the stage went, from the convoy's side (here: the one driver): the stage's reaction lines.
@@ -1309,6 +1312,7 @@ namespace NightSignal.Front
             {
                 LastRunGhost = activeRace.PlayerGhost;
                 LastGhostDeltas.AddRange(activeRace.GhostDeltasMicros);
+                LastGhostLabel = activeRace.Ghosts.Count > 0 ? activeRace.Ghosts[0].Label : null;
             }
             string revision = CourseRuntime.Active != null ? CourseRuntime.Active.SourceHash : "";
             if (activeRace != null) Destroy(activeRace.gameObject);
@@ -1316,6 +1320,7 @@ namespace NightSignal.Front
             onResults?.Invoke(results, revision);
             if (!showResults) yield break;
             Results.Set(courseId, rules, results, null, "", null);
+            Results.SetChart(LastRunGhost, LastGhostDeltas, LastGhostLabel);
             Canvas.gameObject.SetActive(true);
             yield return LoadBackdrop();
             Router.Show(Results, true);

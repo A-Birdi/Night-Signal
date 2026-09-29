@@ -114,6 +114,14 @@ namespace NightSignal.Front
                  string.Join(", ", LastGhostDeltas.Select(d => (d / 1e6).ToString("+0.00;-0.00"))) + "]");
             yield return new WaitForSeconds(1.5f);
             yield return Snap("05-time-attack-results");
+            // The post-race route/elevation chart (spec §8).
+            Click("RouteChart");
+            yield return new WaitForSeconds(0.8f);
+            Note("route chart: " + (Results.ShowingChart ? Results.ChartSummary : "not shown"));
+            if (!Results.ShowingChart || !Results.ChartSummary.Contains("reference")) Fail("the route chart against the reference is not shown");
+            yield return Snap("06-route-chart");
+            Click("RouteChart");
+            yield return new WaitForSeconds(0.3f);
             Click("Continue");
             Finish();
 

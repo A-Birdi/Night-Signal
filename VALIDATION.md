@@ -2261,3 +2261,22 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   the Core/Services tests; the convoy ghost is shared only while both ride in the same convoy (no friends' archive);
   the rival references are recorded AI runs (C23's includes a reset) and must be re-recorded after a physics, scoring or
   route change; no post-race route/elevation chart yet.
+
+## V-110 — The post-race route/elevation chart (spec §8), offline (2026-09-28)
+- Revision: the work committed with this entry; player build of that tree.
+- **What changed:** Core `RouteChart` from the run's own recording (the Local ghost every run records): the route in
+  plan, distance and elevation, braking points (a speed peak followed by a ≥ 4 m/s drop within 1.5 s, at least 60 m
+  apart) and, against the first ghost on the road, the time each sector (checkpoint to checkpoint) gained or lost from
+  the cumulative checkpoint deltas, with a one-line summary. The offline Results page offers it with a "Route Chart"
+  button (and "Classification" back): `RouteChartTexture` draws the route coloured per sector (red lost, cyan gained,
+  grey without a reference), white braking points, start and finish, and the elevation profile with sector lines and
+  braking ticks. Presentation only — never a record or a result.
+- **Tests:** Core `RouteChartTests` (distance/elevation/bounds, the braking point is the peak before the drop, sector
+  times from the cumulative deltas, the summary with and without a reference) — Core 160; EditMode 483 passed, 2
+  skipped.
+- **Built player:** `-nsFreeplayRivalTour` now opens the chart after its Time Attack — **PASS**: "vs Sora Matsuda's
+  reference 87.025 s: most lost in sector 2 (+0.03 s, 105–204 m); most gained in sector 1 (−0.18 s) · 4 braking points".
+  `Evidence/ui/freeplay-rival/06-route-chart.png`. The first build sized the chart to the whole panel (an aspect
+  fitter), covering the reward column; fixed before this run.
+- **Limits:** offline only — online results have no client recording of the player's run yet; sector colours need a
+  reference ghost (without one the route is grey); braking points come from speed, not the brake input.
