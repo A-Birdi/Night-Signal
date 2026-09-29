@@ -16,10 +16,13 @@ an event whose conditions are fixed by the content, not by the player's garage. 
   - `rules`: `noReset`, `maxWallImpacts`, `noHandbrakeAfterStart`, …;
   - `targets`: `timeMs` and/or `driftRaw` at the tier the predicate names;
   - `group`: trials that must all pass for one challenge (CH54: two drive layouts, each against its own target).
-- Targets are **measured, not guessed**: an explicit PlayMode run drives each loaner with the validator autopilot
-  (as `ChallengeReferenceTests` does for V-113) and writes the targets with the method stated in the file — Gold
-  1.02 ×, Silver 1.10 × (as CH10), Bronze 1.20 × the autopilot's time; drift targets from the autopilot's raw score
-  (Gold at drift skill 0.95, as V-113). Automation, not a human benchmark; rerun after physics or route changes.
+- Targets are **measured, not guessed**: the explicit PlayMode `ChallengeTrialReferenceTests` drives each loaner with the
+  validator autopilot and writes the targets with the method stated in the file — time: Gold 1.02 ×, Silver 1.10 ×
+  (as CH10), Bronze 1.20 × the autopilot's time; drift trials run at drift skills 0.95, 0.80 and 0.65 and use the
+  cleanest run (fewest resets, then the most scored), time and drift from that one run, drift targets from the raw it
+  scored in the zones (banked or earned, the larger — as V-113, so points lost to walls never soften a target): Gold ×
+  1.00, Silver × 0.85, Bronze × 0.70; the reference's drift skill is published so a replay can reproduce it. Automation,
+  not a human benchmark; rerun after physics, route, part or car changes (`Evidence/challenges/trials.txt`).
 - Judged by Core `TrialJudge` (engine-free) from the run's facts (finish, time, resets, meaningful wall impacts,
   banked raw drift, handbrake after the start), with the reason for each failed condition.
 
@@ -35,7 +38,7 @@ an event whose conditions are fixed by the content, not by the player's garage. 
 
 ## Slices
 
-1. **Fixed-loaner time and drift trials** (this slice): CH55 (C04, stock V01, Silver), CH11 (C12, class-capped loaner,
+1. **Fixed-loaner time and drift trials** (done offline, V-119; online next): CH55 (C04, stock V01, Silver), CH11 (C12, class-capped loaner,
    Gold, no reset, at most one meaningful wall impact), CH51 (C08, the supplied wet tune, Silver), CH54 (C09, two
    equal-PI drive layouts, Silver each), CH25 (C16 drift loaner, Silver drift, no handbrake after the start), CH28 (C23
    fixed build, time and raw drift targets in one run), CH30 (C25 drift route, raw target and a banked chain in every

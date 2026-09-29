@@ -1,14 +1,17 @@
 # String bounds audit — InstrumentTour at 1280x720, text size 150 %, HUD size 130 %
-# 15 moments audited, 226 distinct labels, 444 measurements
+# 15 moments audited, 227 distinct labels, 445 measurements
 # moments: Title · Settings · Controls · Local profiles · New profile · Offline · Campaign · Story · race HUD · race / Campaign
 
 ## Labels too big at their minimum size, or spilling more than 5 % past their box (failures): 0
 
-## Fitting labels whose glyph edges reach a few pixels past the box (TMP fits by advance widths; within 5 %): 6
+## Labels with a character the font lacks, drawn as a box (failures): 0
+
+## Fitting labels whose glyph edges reach a few pixels past the box (TMP fits by advance widths; within 5 %): 7
 - [Title] Body/Screens/Title/Shade/Title — "NIGHT SIGNAL" box 834x188, drawn 847x110 (spill 12 px), size 98.6 (min 63.0)
 - [Settings] Settings/CameraPanel/CameraOptions/Motion preset/Label — "MOTION PRESET" box 238x56, drawn 240x28 (spill 2 px), size 25.5 (min 12.8)
 - [Controls] Panel/Bindings/Buttons/ControlsMode/Label — "WALKING (MEET)" box 276x52, drawn 278x32 (spill 2 px), size 29.1 (min 16.5)
 - [New profile] Screens/New profile/Panel/Column/Heading — "NEW LOCAL PROFILE" box 640x90, drawn 645x60 (spill 5 px), size 53.8 (min 30.0)
+- [Offline] Offline/Panel/Setup/ChallengeTrials/Label — "CHALLENGE TRIALS (SUPPLIED LOANERS)" box 596x52, drawn 598x28 (spill 2 px), size 25.1 (min 16.5)
 - [Offline] Offline/Panel/Setup/DrivingSchool/Label — "DRIVING SCHOOL (T00 LESSONS)" box 596x52, drawn 598x36 (spill 2 px), size 31.8 (min 16.5)
 - [Campaign] Campaign/Header/Controls/FindNext/Label — "FIND NEXT STAGE" box 276x56, drawn 278x30 (spill 2 px), size 27.3 (min 16.5)
 

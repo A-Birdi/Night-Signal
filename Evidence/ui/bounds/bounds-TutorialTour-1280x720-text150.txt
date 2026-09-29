@@ -4,11 +4,13 @@
 
 ## Labels too big at their minimum size, or spilling more than 5 % past their box (failures): 0
 
+## Labels with a character the font lacks, drawn as a box (failures): 0
+
 ## Fitting labels whose glyph edges reach a few pixels past the box (TMP fits by advance widths; within 5 %): 4
 - [Title] Body/Screens/Title/Shade/Title — "NIGHT SIGNAL" box 834x188, drawn 847x110 (spill 12 px), size 98.6 (min 63.0)
 - [New profile] Screens/New profile/Panel/Column/Heading — "NEW LOCAL PROFILE" box 640x90, drawn 645x60 (spill 5 px), size 53.8 (min 30.0)
-- [DrivingSchool] DrivingSchool/ListPanel/List/Lesson0/Label — "DRIVE · CONTROLS AND CAMERA" box 576x42, drawn 578x34 (spill 2 px), size 30.8 (min 16.5)
 - [DrivingSchool] DrivingSchool/Lesson/LessonColumn/WatchDemonstration/Label — "WATCH THE DEMONSTRATION" box 496x52, drawn 498x33 (spill 2 px), size 29.6 (min 16.5)
+- [DrivingSchool] DrivingSchool/ListPanel/List/Lesson0/Label — "DRIVE · CONTROLS AND CAMERA" box 576x42, drawn 578x34 (spill 2 px), size 30.8 (min 16.5)
 
 ## Fixed-size live figures drawn beyond their box (they never clip; inspect for collisions): 0
 

@@ -2505,3 +2505,52 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   (e.g. the title "NIGHT SIGNAL" drawn 12 px wider than its 834 px box at 98.6 pt, minimum 63). `Evidence/ui/bounds/`.
 - **Limits:** only what the tours pass is measured (the online screens and the meet were not in these runs); English
   only (no localisation exists); whether a label reads well is still a human check.
+
+## V-119 — Challenge trials, first slice: supplied loaners and measured targets, offline (spec §11) (2026-09-29)
+- Revision: the code at `053b05b` and `ee3ef38` with the screen name and briefs tidied in the commit with this entry; the
+  player build of that tree. The control plane was restarted once for the new content (tracked task; health ok, race content `366c9322…`);
+  nothing online used it yet.
+- **The format** (`docs/CHALLENGE_TRIALS.md`): spec §11 requires every challenge to be achievable by one player "through
+  sanctioned races, ghosts, AI, the meet's built-in interaction spots, and fixed loaners"; 38 of the 75 name a supplied
+  car or build, a fixed reference, scripted AI, a fixed cup or a T00 drill. A challenge trial fixes the course, its
+  conditions, the loaner (a car and its parts, resolved exactly like a garage build — `Core.Builds.TrialLoaners`; never
+  the player's garage), the rules and the targets; trials that must all be passed for one challenge form a group (CH54's
+  two drive layouts).
+- **Core** (engine-free, so the game server can judge the same way): `ChallengeTrials` (definitions, `TrialJudge` with a
+  named reason for every condition, content problems) loaded and hashed from `authored/challenge-trials.json`; Local
+  facts carry the trial id and verdict, the profile keeps `TrialsPassed`, a challenge is granted once its trial (or whole
+  group) is passed, and a trial supplies its course as it supplies its loaner (no course purchase — spec §11). Race facts
+  added: seconds with the handbrake held, and the judged drift zones in which a chain was banked. The autopilot can start
+  slides by power instead of the handbrake (CH25 forbids it).
+- **Targets, measured** (explicit PlayMode `ChallengeTrialReferenceTests`, `Evidence/challenges/trials.txt`): each loaner
+  driven solo by the validator autopilot; time targets Gold 1.02 ×, Silver 1.10 × its time; drift trials at drift skills
+  0.95, 0.80 and 0.65, the cleanest run used (fewest resets, then most scored), drift targets from the raw it scored in
+  the zones (the larger of banked and earned, as V-113). Published: CH55 (stock V01, C04) Silver 2:30.4; CH11 (stock V12
+  under C12's PI 699 cap) Gold 3:14.3, no reset, at most one wall impact; CH51 (V07 on rain tyres, C08 wet) Silver 2:49.2;
+  CH54 (C09, PI cap 450) front drive V06 Silver 2:38.4 and rear drive V05 Silver 2:40.5; CH25 (V09 drift tyres, C16, no
+  handbrake) Silver 2,900 raw; CH28 (V15 drift tyres, C23) Gold 4:34.1 and 2,000 raw in one run; CH30 (V16 drift tyres,
+  C25) Gold 10,800 raw with a chain banked in every judged zone. **The first measurement was too soft and was redone:**
+  CH28's first loaner (V13 on sport tyres) reset six times, so its time and banked raw would have been easy targets; V15
+  and V16 on drift tyres were tried; every C23 run still resets two to four times (the drift controller runs out of
+  road — the open drift-controller item), so **CH28's Gold time includes two resets and is softer than a clean run's**.
+- **Tests:** Core `ChallengeTrialsTests` (9: the file, every loaner within its cap, the judge per condition, drift and
+  handbrake and every-zone rules, an unpublished trial never passes, groups, content problems, the Local grant once and
+  only with the trial's course and loaner) — Core 185, Services 360, Builds 232, Toys 92; EditMode 483 passed, 2 skipped.
+- **Built player** (`-nsTrialTour`, buttons only, isolated profile, run with the bounds audit at 1280×720 and Text size
+  150 %): **PASS** — every trial ran from its row and was judged, the profile kept exactly the passes, CH54 was earned only
+  after its second layout. The autopilot reached **7 of 8**: CH55 2:16.696, CH11 3:10.459 (one wall impact, no reset),
+  CH51 2:33.753, CH54 2:23.999 and 2:25.904, CH25 3,522 raw with no handbrake (at its reference's drift skill 0.80), CH30
+  11,002 raw with 6 of 6 zones banked (at skill 0.95 — at its reference's 0.65 it banked 10,168 in 5 zones, the target
+  being set from what that reference scored including the points its walls cost it). **CH28 was not reached at any skill**
+  (best: 4:28.657 inside the time, but 740 raw banked of the 2,000): that it can be done by a person is not demonstrated.
+  Challenges earned: CH55, CH11, CH51, CH54, CH25, CH30. `Evidence/challenges/trials-tour/`.
+- **Found by the built player:** the trial list's check mark and the verdict's ✓/✗ were drawn as boxes — the game font has
+  no such glyphs; they read "earned" / "1 of 2" and "ok:" / "MISSED:" now, and the bounds audit fails any label drawn with
+  the missing-glyph box.
+- **V-118 repeated with the glyph check** (the trial build; the eight offline tours plus the trial tour at 1280×720 with
+  Text 150 % / HUD 130 %, the UI and instrument tours at 2560×1080, the UI tour at 1080p): **12 of 12 PASS — 0 overflow,
+  0 missing glyphs**, 1–13 edge spills per run; one label at its minimum size (the race HUD's ghost row in a trial, which
+  fits). `Evidence/ui/bounds/` now holds these reports.
+- **Limits:** offline only — online trials (the Challenges intent, the loaner frozen into the plan, the game server judging,
+  settlement granting once) are the next step; the targets are the autopilot's, not a human benchmark; 31 challenges remain
+  for the later slices (geometry judges, scripted AI, fixed cups, T00 drills and workshop trials).

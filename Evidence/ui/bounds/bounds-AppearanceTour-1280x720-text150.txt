@@ -1,15 +1,18 @@
 # String bounds audit — AppearanceTour at 1280x720, text size 150 %, HUD size 130 %
-# 14 moments audited, 184 distinct labels, 375 measurements
+# 14 moments audited, 185 distinct labels, 377 measurements
 # moments: Title · Local profiles · New profile · Offline · Garage · Appearance · Campaign · Story · race HUD · race / Campaign
 
 ## Labels too big at their minimum size, or spilling more than 5 % past their box (failures): 0
 
-## Fitting labels whose glyph edges reach a few pixels past the box (TMP fits by advance widths; within 5 %): 6
+## Labels with a character the font lacks, drawn as a box (failures): 0
+
+## Fitting labels whose glyph edges reach a few pixels past the box (TMP fits by advance widths; within 5 %): 7
 - [Title] Body/Screens/Title/Shade/Title — "NIGHT SIGNAL" box 834x188, drawn 847x110 (spill 12 px), size 98.6 (min 63.0)
 - [New profile] Screens/New profile/Panel/Column/Heading — "NEW LOCAL PROFILE" box 640x90, drawn 645x60 (spill 5 px), size 53.8 (min 30.0)
+- [Offline] Offline/Panel/Setup/ChallengeTrials/Label — "CHALLENGE TRIALS (SUPPLIED LOANERS)" box 596x52, drawn 598x28 (spill 2 px), size 25.1 (min 16.5)
 - [Offline] Offline/Panel/Setup/DrivingSchool/Label — "DRIVING SCHOOL (T00 LESSONS)" box 596x52, drawn 598x36 (spill 2 px), size 31.8 (min 16.5)
-- [Appearance] Appearance/Controls/AppearanceColumn/Exhaust/Label — "EXHAUST" box 120x56, drawn 122x26 (spill 2 px), size 22.9 (min 12.8)
 - [Appearance] Appearance/Controls/AppearanceColumn/Back/Label — "BACK TO GARAGE" box 276x42, drawn 278x31 (spill 2 px), size 27.5 (min 16.5)
+- [Appearance] Appearance/Controls/AppearanceColumn/Exhaust/Label — "EXHAUST" box 120x56, drawn 122x26 (spill 2 px), size 22.9 (min 12.8)
 - [Campaign] Campaign/Header/Controls/FindNext/Label — "FIND NEXT STAGE" box 276x56, drawn 278x30 (spill 2 px), size 27.3 (min 16.5)
 
 ## Fixed-size live figures drawn beyond their box (they never clip; inspect for collisions): 0

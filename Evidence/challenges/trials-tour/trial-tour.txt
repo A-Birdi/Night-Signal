@@ -1,0 +1,45 @@
+# -nsTrialTour (built player, buttons only, isolated profile; validator autopilot; run with -nsBoundsAudit at 1280x720, Text 150 % / HUD 130 %; automation)
+[NightSignal.Trial] TR-CH55: V01 stock, PI 220, build c12c2bea1a67, on C04 (course)
+[NightSignal.Trial] TR-CH55: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 2:30.400 (2:16.696)
+[NightSignal.TrialTour] TR-CH55 (CH55 silver): PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 2:30.400 (2:16.696)
+[NightSignal.TrialTour] TR-CH55: profile keeps it: True; challenge earned: True
+[NightSignal.Trial] TR-CH11: V12 stock, PI 650, build c55be699c49d, on C12 (course)
+[NightSignal.Trial] TR-CH11: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 3:14.300 (3:10.459) · ok: no reset (0) · ok: at most 1 wall impact (1)
+[NightSignal.TrialTour] TR-CH11 (CH11 gold): PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 3:14.300 (3:10.459) · ok: no reset (0) · ok: at most 1 wall impact (1)
+[NightSignal.TrialTour] TR-CH11: profile keeps it: True; challenge earned: True
+[NightSignal.Trial] TR-CH51: V07 TYR-T3-RAINSPORT, PI 485, build a6b840083c8f, on C08 (course)
+[NightSignal.Trial] TR-CH51: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 2:49.200 (2:33.753)
+[NightSignal.TrialTour] TR-CH51 (CH51 silver): PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 2:49.200 (2:33.753)
+[NightSignal.TrialTour] TR-CH51: profile keeps it: True; challenge earned: True
+[NightSignal.Trial] TR-CH54-FWD: V06 stock, PI 405, build 249f587db6f0, on C09 (course)
+[NightSignal.Trial] TR-CH54-FWD: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 2:38.400 (2:23.999)
+[NightSignal.TrialTour] TR-CH54-FWD (CH54 silver): PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 2:38.400 (2:23.999)
+[NightSignal.TrialTour] TR-CH54-FWD: profile keeps it: True; challenge earned: False
+[NightSignal.Trial] TR-CH54-RWD: V05 stock, PI 380, build aa8ab98b0b40, on C09 (course)
+[NightSignal.Trial] TR-CH54-RWD: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 2:40.500 (2:25.904)
+[NightSignal.TrialTour] TR-CH54-RWD (CH54 silver): PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 2:40.500 (2:25.904)
+[NightSignal.TrialTour] TR-CH54-RWD: profile keeps it: True; challenge earned: True
+[NightSignal.Trial] TR-CH25: V09 TYR-T2-DRIFT, PI 537, build b3df8d69113d, on C16 (course)
+[NightSignal.Trial] TR-CH25: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: 2,900 raw drift banked (3,522) · ok: no handbrake after the start
+[NightSignal.TrialTour] TR-CH25 (CH25 silver) at drift skill 0.80 (the reference's): PASSED — ok: the supplied loaner · ok: a valid finish · ok: 2,900 raw drift banked (3,522) · ok: no handbrake after the start
+[NightSignal.TrialTour] TR-CH25: profile keeps it: True; challenge earned: True
+[NightSignal.Trial] TR-CH28: V15 TYR-T2-DRIFT, PI 766, build f9364468cfb9, on C23 (course)
+[NightSignal.Trial] TR-CH28: Trial not passed — ok: the supplied loaner · ok: a valid finish · ok: faster than 4:34.100 (4:28.657) · MISSED: 2,000 raw drift banked (740)
+[NightSignal.TrialTour] TR-CH28 (CH28 gold) at drift skill 0.65 (the reference's): not passed — ok: the supplied loaner · ok: a valid finish · ok: faster than 4:34.100 (4:28.657) · MISSED: 2,000 raw drift banked (740)
+[NightSignal.Trial] TR-CH28: V15 TYR-T2-DRIFT, PI 766, build f9364468cfb9, on C23 (course)
+[NightSignal.Trial] TR-CH28: Trial not passed — ok: the supplied loaner · ok: a valid finish · MISSED: faster than 4:34.100 (4:54.857) · MISSED: 2,000 raw drift banked (1,211)
+[NightSignal.TrialTour] TR-CH28 (CH28 gold) at drift skill 0.95: not passed — ok: the supplied loaner · ok: a valid finish · MISSED: faster than 4:34.100 (4:54.857) · MISSED: 2,000 raw drift banked (1,211)
+[NightSignal.Trial] TR-CH28: V15 TYR-T2-DRIFT, PI 766, build f9364468cfb9, on C23 (course)
+[NightSignal.Trial] TR-CH28: Trial not passed — ok: the supplied loaner · ok: a valid finish · MISSED: faster than 4:34.100 (4:40.040) · MISSED: 2,000 raw drift banked (1,211)
+[NightSignal.TrialTour] TR-CH28 (CH28 gold) at drift skill 0.80: not passed — ok: the supplied loaner · ok: a valid finish · MISSED: faster than 4:34.100 (4:40.040) · MISSED: 2,000 raw drift banked (1,211)
+[NightSignal.TrialTour] TR-CH28: profile keeps it: False; challenge earned: False
+[NightSignal.Trial] TR-CH30: V16 TYR-T2-DRIFT, PI 816, build 899923f5f410, on C25 (course)
+[NightSignal.Trial] TR-CH30: Trial not passed — ok: the supplied loaner · ok: a valid finish · MISSED: 10,800 raw drift banked (10,168) · MISSED: a chain banked in every judged zone (5/6)
+[NightSignal.TrialTour] TR-CH30 (CH30 gold) at drift skill 0.65 (the reference's): not passed — ok: the supplied loaner · ok: a valid finish · MISSED: 10,800 raw drift banked (10,168) · MISSED: a chain banked in every judged zone (5/6)
+[NightSignal.Trial] TR-CH30: V16 TYR-T2-DRIFT, PI 816, build 899923f5f410, on C25 (course)
+[NightSignal.Trial] TR-CH30: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: 10,800 raw drift banked (11,002) · ok: a chain banked in every judged zone (6/6)
+[NightSignal.TrialTour] TR-CH30 (CH30 gold) at drift skill 0.95: PASSED — ok: the supplied loaner · ok: a valid finish · ok: 10,800 raw drift banked (11,002) · ok: a chain banked in every judged zone (6/6)
+[NightSignal.TrialTour] TR-CH30: profile keeps it: True; challenge earned: True
+[NightSignal.TrialTour] 7 of 8 trials passed by the autopilot; challenges earned: CH55, CH11, CH51, CH54, CH25, CH30; wallet 226,621 cr
+[NightSignal.TrialTour] PASS
+[NightSignal.Bounds] bounds-TrialTour-1280x720-text150: 65 labels over 103 moments — 0 overflow, 0 missing glyph, 8 edge spill, 0 fixed-size overflow, 1 at minimum size

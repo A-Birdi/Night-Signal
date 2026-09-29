@@ -20,7 +20,7 @@ namespace NightSignal.Front
     /// </summary>
     public sealed class ChallengeTrialsScreen : UIScreen
     {
-        public override string ScreenName => "ChallengeTrials";
+        public override string ScreenName => "Challenge Trials";
         public const int Rows = 10;
         TextMeshProUGUI count, title, predicate, loaner, rules, targets, verdict;
         readonly List<Button> rows = new List<Button>();
