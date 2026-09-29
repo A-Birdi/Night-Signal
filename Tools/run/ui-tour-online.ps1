@@ -10,7 +10,7 @@
     races with the validator autopilot through normal inputs. Screenshots: Builds/Screenshots/tour-online. Raw logs stay
     under Builds/ (git-ignored: they contain local paths).
 #>
-param([int]$DevAccount = 0, [int]$Port = 7777, [int]$TimeoutSeconds = 600, [switch]$Freeplay, [switch]$Garage, [switch]$Appearance, [int]$Intent = -1, [string]$Trial = "", [string]$Course = "",
+param([int]$DevAccount = 0, [int]$Port = 7777, [int]$TimeoutSeconds = 600, [switch]$Freeplay, [switch]$Garage, [switch]$Appearance, [int]$Intent = -1, [string]$Trial = "", [string]$Course = "", [string]$CupLegs = "",
     # Addendum 04: loopback unless a separately authorized LAN test passes -AllowLan with its addresses.
     [string]$BindHost = '127.0.0.1', [string]$PublicHost = '127.0.0.1', [switch]$AllowLan)
 
@@ -27,8 +27,9 @@ New-Item -ItemType Directory -Force $logs | Out-Null
 Import-Module (Join-Path $PSScriptRoot 'NetGuard.psm1') -Force
 $endpoint = Resolve-ServerEndpoint -BindHost $BindHost -PublicHost $PublicHost -Port $Port -AllowLan:$AllowLan -Executable $exe
 Write-Output "server endpoint: bind $($endpoint.bindHost) advertise $($endpoint.publicHost) udp $($endpoint.port) ($($endpoint.classification))"
-$server = Start-Process -FilePath $exe -PassThru -WorkingDirectory $repo -ArgumentList (@(
-    '-batchmode', '-nographics', '-nsServer', '-nsExitAfterMatch',
+# A Custom Cup races several matches on the same game server: it stays up (and is stopped below) instead of exiting after one.
+$serverRole = if ($CupLegs) { @('-batchmode', '-nographics', '-nsServer') } else { @('-batchmode', '-nographics', '-nsServer', '-nsExitAfterMatch') }
+$server = Start-Process -FilePath $exe -PassThru -WorkingDirectory $repo -ArgumentList ($serverRole + @(
     '-nsEvidence', 'Builds/NetRuns/tour-online/evidence', '-logFile', "`"$logs\server.log`"") + (Get-ServerArgs $endpoint))
 Start-Sleep -Seconds 4
 $clientArgs = @('-nsUiTourOnline', '-nsDevAccount', "$DevAccount", '-screen-fullscreen', '0', '-screen-width', '1920', '-screen-height', '1080',
@@ -39,6 +40,7 @@ if ($Appearance) { $clientArgs += "-nsUiTourAppearance" } # online livery applie
 if ($Intent -ge 0) { $clientArgs += @('-nsUiTourIntent', "$Intent") } # 4 = Freeplay Time Attack (group, non-contact)
 if ($Course) { $clientArgs += @('-nsUiTourCourse', $Course) }       # freeplay course, e.g. C01 for Drift Attack
 if ($Trial) { $clientArgs += @('-nsUiTourTrial', $Trial) }          # Team Trial id, e.g. TT_BEST
+if ($CupLegs) { $clientArgs += @('-nsUiTourCupLegs', $CupLegs) }    # Custom Cup legs "C01,C02,C03" with -Intent 7
 $client = Start-Process -FilePath $exe -PassThru -WorkingDirectory $repo -ArgumentList $clientArgs
 
 $deadline = (Get-Date).AddSeconds($TimeoutSeconds)

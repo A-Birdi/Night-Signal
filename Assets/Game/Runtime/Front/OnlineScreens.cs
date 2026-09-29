@@ -31,6 +31,7 @@ namespace NightSignal.Front
             ("Freeplay · Time Attack", new { kind = "freeplay", submode = "time-attack" }, "freeplay", null, "time-attack"),
             ("Challenges · Team Trial", new { kind = "challenges" }, "challenges", null, null),
             ("Freeplay · Drift Attack", new { kind = "freeplay", submode = "drift-attack" }, "freeplay", null, "drift-attack"),
+            ("Freeplay · Custom Cup", new { kind = "freeplay", submode = "cup" }, "freeplay", null, "cup"),
         };
 
         TextMeshProUGUI heading, status, error, rosterText, lastResult, intentLine, proposalLine, postLine, inviteLine;
@@ -44,7 +45,8 @@ namespace NightSignal.Front
         float ballotDeadlineAt;
         long ballotSeenRevision = -1;
         TMP_InputField codeField;
-        Stepper starter, intent, stage, course, aiCount, trial, difficulty, leadRival;
+        Stepper starter, intent, stage, course, aiCount, trial, difficulty, leadRival, cupLeg2, cupLeg3;
+        TextMeshProUGUI cupLine;
         readonly List<RivalDef> rivalChoices = new List<RivalDef>();
         TextMeshProUGUI archetypeLine;
         float nextArchetypeFetch;
@@ -120,6 +122,9 @@ namespace NightSignal.Front
             enterMode = UIFactory.Button("EnterMode", col, "Enter Mode", () => Send("mode.enter", new { modeRevision = (long)S.Convoy["modeRevision"] }), 620, 56);
             stage = new Stepper(col, "Stage", 1, i => Limits.CampaignStages >= i + 1 ? CampaignProgress.StageLabel(i + 1) + "  " + StageName(i + 1) : "", 0, 1000);
             course = new Stepper(col, "Course", 1, i => i < courseIds.Count ? CourseName(courseIds[i]) : "—", 0, 1000);
+            // Custom Cup: the Course row is leg 1; legs 2 and 3 from the same offered courses (the schedule is published).
+            cupLeg2 = new Stepper(col, "Leg 2", 1, i => i < courseIds.Count ? CourseName(courseIds[i]) : "—", 1, 1000);
+            cupLeg3 = new Stepper(col, "Leg 3", 1, i => i < courseIds.Count ? CourseName(courseIds[i]) : "—", 2, 1000);
             aiCount = new Stepper(col, "Opponents", Limits.MaxRaceVehicles, i => i == 0 ? "none" : $"{i} AI", 3, 1000);
             if (cat != null) rivalChoices.AddRange(cat.Rivals.Where(r => FinalRivals.Allowed(r.Id, AiPlacementContext.FreeplayOpponent)).OrderBy(r => r.Id, System.StringComparer.Ordinal));
             leadRival = new Stepper(col, "Lead rival", rivalChoices.Count + 1,
@@ -140,6 +145,8 @@ namespace NightSignal.Front
             cancelVote = UIFactory.Button("CancelVote", col, "Cancel the Vote", () => Send("ballot.cancel", new { ballotRevision = (long?)(S.Convoy?["ballot"] as JObject)?["revision"] ?? 0 }), 620, 48);
             ballotLine = UIFactory.Row("Ballot", col, "", SignalTheme.Small, SignalTheme.Label, 1000, 110);
             ballotLine.richText = true;
+            cupLine = UIFactory.Row("CupTable", col, "", SignalTheme.Small, SignalTheme.Label, 1000, 110);
+            cupLine.richText = true;
             proposalLine = UIFactory.Row("Proposal", col, "", SignalTheme.Small, SignalTheme.Label, 1000, 84);
             proposalLine.richText = true;
             eventReady = UIFactory.Button("EventReady", col, "Event Ready", ToggleEventReady, 620, 56);
@@ -361,10 +368,25 @@ namespace NightSignal.Front
                 if (stage.Count != Mathf.Max(1, max)) { stage.SetCount(Mathf.Max(1, max)); stage.Set(max - 1); }
             }
             RenderBallot(c, leader, kind, modeEntered, proposal, post, matchOn);
+            bool cupSetup = selecting && kind == "freeplay" && (string)intentObj?["submode"] == "cup";
+            cupLeg2.Root.SetActive(cupSetup);
+            cupLeg3.Root.SetActive(cupSetup);
+            JObject cupState = inConvoy ? c["cup"] as JObject : null;
+            cupLine.gameObject.SetActive(cupState != null);
+            if (cupState != null) cupLine.text = CupText(cupState);
             if (selecting && kind == "freeplay")
             {
                 List<string> ids = ((c["freeplayAccess"] as JObject)?["courses"] as JArray)?.Select(x => (string)x["courseId"]).ToList() ?? new List<string>();
-                if (!ids.SequenceEqual(courseIds)) { courseIds = ids; course.SetCount(Mathf.Max(1, ids.Count)); course.Set(0); }
+                if (!ids.SequenceEqual(courseIds))
+                {
+                    courseIds = ids;
+                    course.SetCount(Mathf.Max(1, ids.Count));
+                    course.Set(0);
+                    cupLeg2.SetCount(Mathf.Max(1, ids.Count));
+                    cupLeg2.Set(Mathf.Min(1, ids.Count - 1));
+                    cupLeg3.SetCount(Mathf.Max(1, ids.Count));
+                    cupLeg3.Set(Mathf.Min(2, ids.Count - 1));
+                }
                 int humans = c["members"].Count();
                 aiCount.SetCount(Mathf.Max(1, Limits.MaxRaceVehicles - humans + 1));
             }
@@ -394,7 +416,9 @@ namespace NightSignal.Front
             eventReady.GetComponentInChildren<TextMeshProUGUI>().text = iAmEventReady ? "Event Ready: YES   (select to unready)" : "Event Ready";
             bool allEventReady = inConvoy && c["members"].Where(m => (bool?)m["spectator"] != true).All(m => (bool?)m["eventReady"] == true);
             start.gameObject.SetActive(readyOpen && leader);
-            start.interactable = allEventReady;
+            // Not while a request is still being answered: the screen takes one command at a time, and the Event Ready
+            // snapshot can arrive before the ready request's own reply (a start pressed then was silently dropped).
+            start.interactable = allEventReady && !busy;
             // Spec §4.4: a member who is not racing this event (disqualified, joined late) may watch it; never drive it.
             spectate.gameObject.SetActive(inConvoy && phase == "InMatch" && (bool?)me?["spectator"] == true && !App.InOnlineRace);
 
@@ -408,7 +432,7 @@ namespace NightSignal.Front
                 string mine = (string)post["choices"]?.FirstOrDefault(x => (string)x["accountId"] == S.AccountId)?["choice"] ?? "undecided";
                 postLine.text = $"Next: <b>{Esc((string)post["destination"]?["label"])}</b>" +
                                 $"\n<size=80%>Continue {(int?)post["continueCount"] ?? 0}  ·  Service Break {(int?)post["serviceBreakCount"] ?? 0}  ·  Undecided {(int?)post["undecidedCount"] ?? 0}   (you: {mine})</size>";
-                advance.interactable = (bool?)post["advanceEnabled"] == true;
+                advance.interactable = (bool?)post["advanceEnabled"] == true && !busy;
             }
 
             status.text = StatusText(inConvoy, leader, needStarter, phase, intentObj, modeEntered, proposal, post, allModeReady, allEventReady);
@@ -490,6 +514,7 @@ namespace NightSignal.Front
         {
             if (busy) return;
             busy = true;
+            dirty = true;
             try
             {
                 // A spectator ticket from the control plane (only convoy members of this match get one), then the same join
@@ -507,6 +532,7 @@ namespace NightSignal.Front
         {
             if (busy) return;
             busy = true;
+            dirty = true; // show the command-taking buttons as unavailable until the reply
             try
             {
                 JToken r = await S.Request(type, payload);
@@ -580,6 +606,35 @@ namespace NightSignal.Front
             int i = rivalChoices.FindIndex(r => r.Id == rivalId);
             if (i < 0) return false;
             leadRival.Set(i + 1);
+            return true;
+        }
+
+        /// <summary>The cup table as the server keeps it: the schedule with the legs raced, then the standings.</summary>
+        string CupText(JObject cup)
+        {
+            List<string> schedule = ((cup["schedule"] as JArray) ?? new JArray()).Select(x => (string)x).ToList();
+            int raced = (int?)cup["legsRaced"] ?? 0;
+            var sb = new System.Text.StringBuilder("<color=#9A968D>CUSTOM CUP</color>  ");
+            sb.Append(string.Join("  →  ", schedule.Select((cid, i) => (i < raced ? "done " : i == raced ? "next " : "") + cid))).Append('\n');
+            int pos = 0;
+            foreach (JToken e in (cup["standings"] as JArray) ?? new JArray())
+            {
+                pos++;
+                string places = string.Join(" ", ((e["places"] as JArray) ?? new JArray()).Select(p => p.Type == JTokenType.Null ? "–" : (string)p));
+                string line = $"{pos}. {Esc((string)e["name"])}  {(int?)e["points"] ?? 0} pts  ({places})";
+                sb.Append((string)e["id"] == S.AccountId ? $"<color=#D7263D>{line}</color>" : line).Append('\n');
+            }
+            return sb.ToString();
+        }
+
+        /// <summary>Automation hook (tours): the Custom Cup's legs 2 and 3 by course id (leg 1 is the Course row).</summary>
+        public bool SelectCupLegs(string second, string third)
+        {
+            int a = courseIds.IndexOf(second), b = courseIds.IndexOf(third);
+            if (a < 0 || b < 0) return false;
+            cupLeg2.Set(a);
+            cupLeg3.Set(b);
+            dirty = true;
             return true;
         }
 
@@ -700,7 +755,8 @@ namespace NightSignal.Front
                 string sub = (string)S.Convoy["intent"]?["submode"];
                 string[] named = sub != "time-attack" && aiCount.Index > 0 && leadRival.Index > 0 && leadRival.Index <= rivalChoices.Count
                     ? new[] { rivalChoices[leadRival.Index - 1].Id } : null;
-                Send("event.propose", new { courseId = courseIds[course.Index], freeplayMode = sub, aiCount = sub == "time-attack" ? 0 : aiCount.Index, aiRivals = named });
+                string[] legs = sub == "cup" ? new[] { courseIds[course.Index], courseIds[Mathf.Min(cupLeg2.Index, courseIds.Count - 1)], courseIds[Mathf.Min(cupLeg3.Index, courseIds.Count - 1)] } : null;
+                Send("event.propose", new { courseId = courseIds[course.Index], freeplayMode = sub, aiCount = sub == "time-attack" ? 0 : aiCount.Index, aiRivals = named, cupLegs = legs });
             }
         }
 

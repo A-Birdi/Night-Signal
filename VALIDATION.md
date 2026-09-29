@@ -2401,3 +2401,52 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   page starting a leg before the router had ever built it (no app yet); the hub now prepares it. `Evidence/ui/cup/`.
 - **Limits:** online the cup still races only its first leg — the game server has no multi-leg match (scene changes
   inside one match, readiness per leg, one settlement); the fixed challenge cups (CH14, CH42, CH69, CH72) need that too.
+
+## V-116 — The Custom Cup online (spec §8); rival drivers in Freeplay settlement; two built-player faults (2026-09-29)
+- Revision: the work committed with this entry; player build of that tree. The control plane was restarted once for this
+  server code (tracked task; health ok, race content `aff0ce06…`, customization `306dd38e…`) and served every run below.
+- **The cup across matches:** each leg is an ordinary match (readiness, allocation, settlement, ordinary race money, no
+  stake) — the game server needs no multi-leg match. The convoy keeps a cup run from the first leg's plan: the settings,
+  a Core `CupTable` (the V-115 rules), and the course access frozen then (Addendum 01 §5.2: a guest's passes for every leg
+  survive the sponsor leaving; a member who joins later needs a sponsor present). `EventSettings.CupLeg`; after a settled
+  leg the post-event step is "Next Leg — <course> (2 of 3)", which opens the next leg as a proposal (origin `cup-leg`),
+  and after the last "Cup complete — return to Event Setup"; any other new event ends the cup, and an aborted leg ends
+  it with a notice (a leg without results cannot be raced again inside the cup). Settlement hands the leg's placings to
+  the table (finishers by place; a DNF or DQ scores nothing and keeps its line); the snapshot carries `cup` (schedule,
+  legs raced, complete, standings). Event Setup offers Leg 2 / Leg 3 rows for the cup format; the Convoy screen shows
+  the schedule and the table.
+- **Fix — rival drivers in Freeplay settlement (a V-109 fault online):** online Freeplay AI race under slot ids
+  (`ai-1`…) with the authored rival as the roster's driver. Settlement read the entrant ids, so in real online Freeplay
+  matches the archetype facts (CH38/CH73), the CH70 "raced a crew member" check and rival names never matched a rival.
+  V-109's Services tests had built AI entrants from rival ids, which the allocator never does, so they passed; its
+  built-player proof of CH38/CH73 was offline only. Settlement and `SqlGameStore.FreeplayRacesAsync` now read the roster's
+  drivers (older configs without a roster fall back to the entrant ids); `ArchetypeSettlementTests` build rosters as the
+  allocator does. Because the store replays settled races, earlier online Freeplay races with a frozen roster now count
+  towards CH38/CH73; a CH70 missed in an earlier Freeplay race is not granted after the fact.
+- **Tests:** Services `CustomCupConvoyTests` (three legs as matches with the table; the first leg's passes carry a guest
+  after the only sponsor leaves; the departed sponsor keeps its line; cup complete returns to Event Setup; an aborted leg
+  ends the cup) — Services 359, Core 176, Builds 232, Toys 92; EditMode 483 passed, 2 skipped.
+- **Built player** (`ui-tour-online.ps1 -Intent 7 -CupLegs C01,C02,C03`: one dedicated game server process for all three
+  legs, one client driving the real menus, validator autopilot) **PASS**: legs C01 → C02 → C03 raced as three matches
+  with three AI each; the table after each leg: Tsubasa Muraoka 10 / Neri Takase 8 / Driver 1 6 / Michi Kagawa 5; then
+  18 / 18 / 11 / 11 (ties broken by the later leg); then Neri Takase 28 (2 1 1), Tsubasa Muraoka 26 (1 2 2), Michi Kagawa
+  17 (4 3 3), Driver 1 16 (3 4 4) — every line equal to its placings; after the last leg the step was "Cup complete" and
+  the cup closed. The Convoy screen showed the account's server-side archetype progress (rival styles raced 12/12, lead
+  styles beaten 3/3) from its settled Freeplay races after the driver fix. `Evidence/ui/online/cup/`.
+- **Two faults the built player found (both fixed before the passing run):**
+  - *A dedicated server kept every course it had hosted.* `RaceServer` loads the course scene additively and never
+    unloaded it; every earlier tour ran one match per server process (`-nsExitAfterMatch`), so a second match on another
+    course had not been run. On C02 after C01, all four cars stopped at ~600 m (checkpoint 5) with 50+ recoveries each
+    for 13 minutes — C01's collision stood across C02's road. A match now unloads any course scene left by the previous
+    one before it loads its own (the server log names it); the passing run unloaded C01 before C02 and C02 before C03,
+    and leg 3 (C03, two laps, 5,068 m) ran with no recoveries.
+  - *Start Event could be pressed while the screen was still waiting for a reply.* The Convoy screen takes one command at
+    a time and dropped a press made during a pending request without a word; the Event Ready snapshot can arrive before
+    the ready request's own reply, so a Start pressed at once did nothing (the first online cup run then sat until the
+    member went Away). Start Event and Advance are now unavailable while a request is pending, and the screen redraws
+    as soon as one is sent. The tour records any refused start as a failure (none in the passing run).
+- **Process note:** two failed tour runs were stopped (their own client and server, checked by name and start time); a
+  window capture of the running client was taken locally to read its state and not kept.
+- **Limits:** the fixed challenge cups (CH14, CH42, CH69, CH72) still need the challenge-trial format (loaners, fixed
+  builds, scripted AI); one human only in the built-player cup (the convoy rules for more are covered by the Services
+  tests).

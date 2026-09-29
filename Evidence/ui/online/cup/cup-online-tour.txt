@@ -1,0 +1,81 @@
+# ui-tour-online.ps1 -Intent 7 -CupLegs C01,C02,C03 (built player; one dedicated game server process, one client driving the real menus; validator autopilot; automation)
+## client
+[NightSignal.UiTourOnline] shared table: progress 7.14 -> 1005.60, still event ready True
+[NightSignal.UiTourOnline] online route chart: 3.02 km · climb 80 m · 6 braking points
+[NightSignal.UiTourOnline] cup after leg 1: legs raced 1, Tsubasa Muraoka 10 (1) | Neri Takase 8 (2) | Driver 1 6 (3) | Michi Kagawa 5 (4)
+[NightSignal.UiTourOnline] cup leg 2: C02
+[NightSignal.UiTourOnline] cup after leg 2: legs raced 2, Neri Takase 18 (2 1) | Tsubasa Muraoka 18 (1 2) | Michi Kagawa 11 (4 3) | Driver 1 11 (3 4)
+[NightSignal.UiTourOnline] cup leg 3: C03
+[NightSignal.UiTourOnline] cup after leg 3: legs raced 3, Neri Takase 28 (2 1 1) | Tsubasa Muraoka 26 (1 2 2) | Michi Kagawa 17 (4 3 3) | Driver 1 16 (3 4 4)
+[NightSignal.UiTourOnline] PASS; last result: <color=#9A968D>LAST RACE</color> | P4 of 4   03:01.997 | Credits +10,938   ·   balance 512,038 cr | 
+## game server (one process for all three legs)
+[NightSignal.Boot] role: dedicated game server
+[NightSignal.Server] network boundary: bind 127.0.0.1 (local), advertise 127.0.0.1, UDP 7777, LAN opt-in no
+[NightSignal.Server] registered as dev-local; build 0.1.0; content aff0ce06d96d; 1 ticket key(s)
+[NightSignal.Course] C01 generated (CollisionOnly) in 1.17 s — 3109 m, source ce78bdc3fdbb
+[NightSignal.Server] Driver 1 races the frozen build ab6c3d46f265 of ci_702e155f59e36e91f69dfc14 (applied revision 4, 1 part(s), PI 240) — hash verified
+[NightSignal.Server] listening UDP 127.0.0.1:7777 (local), advertised 127.0.0.1:7777, LAN opt-in no, pid 74512
+[NightSignal.Server] phase Loading at tick 0
+[NightSignal.Server] match m_31dca048cb0f7d363c1e52d6 on C01: 1 humans, 3 AI, contact light-contact, port 7777
+[NightSignal.Server] entrant 0 (Driver 1) connected as client 1
+[NightSignal.Server] phase Countdown at tick 75, start tick 315
+[NightSignal.Server] phase Racing at tick 315
+[NightSignal.Server] t=15s | #0 H Racing 435m 145km/h cp3 starved0 late0 lead3 | #1 AI Racing 438m 165km/h cp3 | #2 AI Racing 426m 155km/h cp3 | #3 AI Racing 419m 159km/h cp3
+[NightSignal.Server] t=30s | #0 H Racing 981m 43km/h cp9 starved0 late0 lead3 | #1 AI Racing 1117m 165km/h cp10 | #2 AI Racing 948m 25km/h cp8 | #3 AI Racing 1039m 155km/h cp9
+[NightSignal.Server] t=45s | #0 H Racing 1446m 135km/h cp13 starved0 late0 lead3 | #1 AI Racing 1764m 171km/h cp16 | #2 AI Racing 1479m 156km/h cp14 | #3 AI Racing 1696m 157km/h cp16
+[NightSignal.Server] t=60s | #0 H Racing 2047m 107km/h cp19 starved0 late0 lead3 | #1 AI Racing 2262m 129km/h cp21 | #2 AI Racing 2111m 63km/h cp20 | #3 AI Racing 2211m 113km/h cp21
+[NightSignal.Server] t=75s | #0 H Racing 2419m 132km/h cp23 starved0 late0 lead3 | #1 AI Racing 3036m 240km/h cp29 | #2 AI Racing 2645m 194km/h cp25 | #3 AI Racing 2507m 86km/h cp24 rec1
+[NightSignal.Server] first human finish; finish window closes at race time 179.8 s
+[NightSignal.Server] phase Results at tick 5705
+[NightSignal.Server] ghost for 00000000-0000-4000-8000-000000000001: 899 samples, 57 KB, result 89.827 s -> 200
+[NightSignal.Server] results for m_31dca048cb0f7d363c1e52d6: 200 {"status":"settled","receipts":[{"matchId":"m_31dca048cb0f7d363c1e52d6","accountId":"00000000-0000-4000-8000-000000000001","status":"settled","eventKind":"FreeplayCustomCup","mode":null,"stageId":null,"courseId":"C01","outcome":"Finished","placement":3,"tied":false,"finishTimeMs":89827,"stage":null,"payout":{"base":6460,"difficultyX100":100,"placementX100":110,"cleanlinessX100":100,"utilityX10…
+[NightSignal.Server] entrant 0 disconnected → Finished
+[NightSignal.Server] unloading the previous course scene C01
+[NightSignal.Course] C02 generated (CollisionOnly) in 1.15 s — 3794 m, source 017239a14ea9
+[NightSignal.Server] Driver 1 races the frozen build ab6c3d46f265 of ci_702e155f59e36e91f69dfc14 (applied revision 4, 1 part(s), PI 240) — hash verified
+[NightSignal.Server] listening UDP 127.0.0.1:7777 (local), advertised 127.0.0.1:7777, LAN opt-in no, pid 74512
+[NightSignal.Server] phase Loading at tick 0
+[NightSignal.Server] match m_58d9d4e23d227283275c3321 on C02: 1 humans, 3 AI, contact light-contact, port 7777
+[NightSignal.Server] entrant 0 (Driver 1) connected as client 2
+[NightSignal.Server] phase Countdown at tick 186, start tick 426
+[NightSignal.Server] phase Racing at tick 426
+[NightSignal.Server] t=15s | #0 H Racing 430m 141km/h cp3 starved0 late0 lead3 | #1 AI Racing 426m 132km/h cp3 | #2 AI Racing 406m 133km/h cp3 | #3 AI Racing 382m 120km/h cp3
+[NightSignal.Server] t=30s | #0 H Racing 899m 102km/h cp8 starved0 late0 lead3 | #1 AI Racing 918m 134km/h cp8 | #2 AI Racing 928m 134km/h cp8 | #3 AI Racing 892m 97km/h cp8
+[NightSignal.Server] t=45s | #0 H Racing 1249m 45km/h cp11 starved0 late0 lead3 | #1 AI Racing 1373m 116km/h cp13 | #2 AI Racing 1394m 132km/h cp13 | #3 AI Racing 1307m 87km/h cp12
+[NightSignal.Server] t=60s | #0 H Racing 1623m 54km/h cp15 starved0 late0 lead3 | #1 AI Racing 1811m 143km/h cp17 | #2 AI Racing 1798m 137km/h cp17 | #3 AI Racing 1735m 121km/h cp16
+[NightSignal.Server] t=75s | #0 H Racing 2000m 130km/h cp19 starved0 late0 lead3 | #1 AI Racing 2276m 115km/h cp22 | #2 AI Racing 2261m 114km/h cp21 | #3 AI Racing 2220m 90km/h cp21
+[NightSignal.Server] t=90s | #0 H Racing 2334m 109km/h cp22 starved0 late0 lead3 | #1 AI Racing 2679m 113km/h cp26 | #2 AI Racing 2665m 110km/h cp25 | #3 AI Racing 2629m 90km/h cp25
+[NightSignal.Server] t=105s | #0 H Racing 2665m 85km/h cp25 starved0 late0 lead2 | #1 AI Racing 3075m 74km/h cp30 | #2 AI Racing 3119m 122km/h cp30 | #3 AI Racing 3067m 75km/h cp29
+[NightSignal.Server] t=120s | #0 H Racing 3049m 62km/h cp29 starved0 late0 lead3 | #1 AI Racing 3538m 150km/h cp34 | #2 AI Racing 3624m 160km/h cp35 | #3 AI Racing 3529m 156km/h cp34
+[NightSignal.Server] t=135s | #0 H Racing 3428m 104km/h cp33 starved0 late0 lead3 | #1 AI Finished 3774m 187km/h cp38 | #2 AI Finished 3775m 190km/h cp38 | #3 AI Finished 3774m 183km/h cp38
+[NightSignal.Server] first human finish; finish window closes at race time 234.6 s
+[NightSignal.Server] phase Results at tick 9102
+[NightSignal.Server] ghost for 00000000-0000-4000-8000-000000000001: 1446 samples, 91 KB, result 144.585 s -> 200
+[NightSignal.Server] results for m_58d9d4e23d227283275c3321: 200 {"status":"settled","receipts":[{"matchId":"m_58d9d4e23d227283275c3321","accountId":"00000000-0000-4000-8000-000000000001","status":"settled","eventKind":"FreeplayCustomCup","mode":null,"stageId":null,"courseId":"C02","outcome":"Finished","placement":4,"tied":false,"finishTimeMs":144584,"stage":null,"payout":{"base":7230,"difficultyX100":100,"placementX100":100,"cleanlinessX100":100,"utilityX1…
+[NightSignal.Server] entrant 0 disconnected → Finished
+[NightSignal.Server] unloading the previous course scene C02
+[NightSignal.Course] C03 generated (CollisionOnly) in 1.39 s — 2534 m, source 758e9fe968be
+[NightSignal.Server] Driver 1 races the frozen build ab6c3d46f265 of ci_702e155f59e36e91f69dfc14 (applied revision 4, 1 part(s), PI 240) — hash verified
+[NightSignal.Server] listening UDP 127.0.0.1:7777 (local), advertised 127.0.0.1:7777, LAN opt-in no, pid 74512
+[NightSignal.Server] phase Loading at tick 0
+[NightSignal.Server] match m_309734a25260f51f597cf452 on C03: 1 humans, 3 AI, contact light-contact, port 7777
+[NightSignal.Server] entrant 0 (Driver 1) connected as client 3
+[NightSignal.Server] phase Countdown at tick 176, start tick 416
+[NightSignal.Server] phase Racing at tick 416
+[NightSignal.Server] t=15s | #0 H Racing 369m 149km/h cp3 starved0 late0 lead3 | #1 AI Racing 362m 149km/h cp3 | #2 AI Racing 442m 179km/h cp4 | #3 AI Racing 354m 150km/h cp3
+[NightSignal.Server] t=30s | #0 H Racing 799m 76km/h cp7 starved0 late0 lead3 | #1 AI Racing 825m 68km/h cp8 | #2 AI Racing 869m 63km/h cp8 | #3 AI Racing 726m 110km/h cp7
+[NightSignal.Server] t=45s | #0 H Racing 1096m 103km/h cp10 starved0 late0 lead3 | #1 AI Racing 1176m 87km/h cp11 | #2 AI Racing 1245m 125km/h cp12 | #3 AI Racing 1081m 119km/h cp10
+[NightSignal.Server] t=60s | #0 H Racing 1567m 147km/h cp15 starved0 late0 lead3 | #1 AI Racing 1719m 92km/h cp17 | #2 AI Racing 1798m 136km/h cp17 | #3 AI Racing 1636m 109km/h cp16
+[NightSignal.Server] t=75s | #0 H Racing 2021m 151km/h cp20 starved0 late0 lead3 | #1 AI Racing 2270m 93km/h cp22 | #2 AI Racing 2342m 116km/h cp23 | #3 AI Racing 2193m 96km/h cp21
+[NightSignal.Server] t=90s | #0 H Racing 2435m 79km/h cp24 starved0 late0 lead3 | #1 AI Racing 2834m 185km/h cp28 | #2 AI Racing 2946m 189km/h cp29 | #3 AI Racing 2692m 181km/h cp26
+[NightSignal.Server] t=105s | #0 H Racing 2970m 158km/h cp29 starved0 late0 lead3 | #1 AI Racing 3350m 64km/h cp33 | #2 AI Racing 3391m 76km/h cp33 | #3 AI Racing 3278m 114km/h cp32
+[NightSignal.Server] t=120s | #0 H Racing 3366m 65km/h cp33 starved0 late0 lead3 | #1 AI Racing 3697m 83km/h cp36 | #2 AI Racing 3760m 115km/h cp37 | #3 AI Racing 3639m 109km/h cp36
+[NightSignal.Server] t=135s | #0 H Racing 3675m 79km/h cp36 starved0 late0 lead2 | #1 AI Racing 4240m 82km/h cp42 | #2 AI Racing 4311m 128km/h cp42 | #3 AI Racing 4200m 79km/h cp41
+[NightSignal.Server] t=150s | #0 H Racing 4167m 104km/h cp41 starved0 late0 lead3 | #1 AI Racing 4790m 88km/h cp47 | #2 AI Racing 4858m 111km/h cp48 | #3 AI Racing 4749m 83km/h cp47
+[NightSignal.Server] t=165s | #0 H Racing 4632m 137km/h cp45 starved0 late0 lead2 | #1 AI Finished 5068m 131km/h cp50 | #2 AI Finished 5068m 131km/h cp50 | #3 AI Finished 5068m 127km/h cp50
+[NightSignal.Server] t=180s | #0 H Racing 5013m 93km/h cp49 starved0 late0 lead3 | #1 AI Finished 5068m 131km/h cp50 | #2 AI Finished 5068m 131km/h cp50 | #3 AI Finished 5068m 127km/h cp50
+[NightSignal.Server] first human finish; finish window closes at race time 272.0 s
+[NightSignal.Server] phase Results at tick 11336
+[NightSignal.Server] ghost for 00000000-0000-4000-8000-000000000001: 1821 samples, 116 KB, result 181.997 s -> 200
+[NightSignal.Server] results for m_309734a25260f51f597cf452: 200 {"status":"settled","receipts":[{"matchId":"m_309734a25260f51f597cf452","accountId":"00000000-0000-4000-8000-000000000001","status":"settled","eventKind":"FreeplayCustomCup","mode":null,"stageId":null,"courseId":"C03","outcome":"Finished","placement":4,"tied":false,"finishTimeMs":181997,"stage":null,"payout":{"base":7560,"difficultyX100":100,"placementX100":100,"cleanlinessX100":105,"utilityX1…
+[NightSignal.Server] entrant 0 disconnected → Finished

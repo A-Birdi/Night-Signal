@@ -1,0 +1,149 @@
+{
+  "role": "dedicated game server (separate process)",
+  "matchId": "m_58d9d4e23d227283275c3321",
+  "kind": "freeplay",
+  "stageId": null,
+  "courseId": "C02",
+  "humans": 1,
+  "ai": 3,
+  "build": "0.1.0",
+  "contentHash": "aff0ce06d96d64d217d2819f995d137449125754620c57cd38d11f1e40431acb",
+  "results": {
+    "MatchId": "m_58d9d4e23d227283275c3321",
+    "ContentHash": "aff0ce06d96d64d217d2819f995d137449125754620c57cd38d11f1e40431acb",
+    "AbortReason": null,
+    "Aborted": false,
+    "Entrants": [
+      {
+        "EntrantId": "00000000-0000-4000-8000-000000000001",
+        "Human": true,
+        "Outcome": "Finished",
+        "FinishTimeMicros": 144584758,
+        "Placement": 4,
+        "Clean": false,
+        "CheckpointFraction": 1.0,
+        "ActiveProgressVerified": true,
+        "ActivelyDroveLegalCourse": true,
+        "LegalProgressMetres": 3704.5,
+        "RawDriftScore": 0,
+        "ContractsPassed": 0,
+        "ChallengesCompleted": [
+          "CH33",
+          "CH04"
+        ]
+      },
+      {
+        "EntrantId": "ai-1",
+        "Human": false,
+        "Outcome": "Finished",
+        "FinishTimeMicros": 125114555,
+        "Placement": 2,
+        "Clean": false,
+        "CheckpointFraction": 1.0,
+        "ActiveProgressVerified": true,
+        "ActivelyDroveLegalCourse": true,
+        "LegalProgressMetres": 3704.109375,
+        "RawDriftScore": 0,
+        "ContractsPassed": 0,
+        "ChallengesCompleted": []
+      },
+      {
+        "EntrantId": "ai-2",
+        "Human": false,
+        "Outcome": "Finished",
+        "FinishTimeMicros": 123053657,
+        "Placement": 1,
+        "Clean": false,
+        "CheckpointFraction": 1.0,
+        "ActiveProgressVerified": true,
+        "ActivelyDroveLegalCourse": true,
+        "LegalProgressMetres": 3704.5,
+        "RawDriftScore": 0,
+        "ContractsPassed": 0,
+        "ChallengesCompleted": []
+      },
+      {
+        "EntrantId": "ai-3",
+        "Human": false,
+        "Outcome": "Finished",
+        "FinishTimeMicros": 125361278,
+        "Placement": 3,
+        "Clean": false,
+        "CheckpointFraction": 1.0,
+        "ActiveProgressVerified": true,
+        "ActivelyDroveLegalCourse": true,
+        "LegalProgressMetres": 3704.274169921875,
+        "RawDriftScore": 0,
+        "ContractsPassed": 0,
+        "ChallengesCompleted": []
+      }
+    ]
+  },
+  "transport": {
+    "entrants": [
+      {
+        "entrant": 0,
+        "human": true,
+        "team": "player",
+        "role": "driver",
+        "status": "Finished",
+        "starvedTicks": 0,
+        "lateInputs": 0,
+        "vehicleContacts": 3,
+        "wallIncidents": 1,
+        "resets": 0
+      },
+      {
+        "entrant": 1,
+        "human": false,
+        "team": "opposing",
+        "role": "opponent",
+        "status": "Finished",
+        "starvedTicks": 0,
+        "lateInputs": 0,
+        "vehicleContacts": 4,
+        "wallIncidents": 2,
+        "resets": 0
+      },
+      {
+        "entrant": 2,
+        "human": false,
+        "team": "opposing",
+        "role": "opponent",
+        "status": "Finished",
+        "starvedTicks": 0,
+        "lateInputs": 0,
+        "vehicleContacts": 6,
+        "wallIncidents": 1,
+        "resets": 0
+      },
+      {
+        "entrant": 3,
+        "human": false,
+        "team": "opposing",
+        "role": "opponent",
+        "status": "Finished",
+        "starvedTicks": 0,
+        "lateInputs": 0,
+        "vehicleContacts": 3,
+        "wallIncidents": 2,
+        "resets": 0
+      }
+    ],
+    "spectatorsServed": 0,
+    "ignoredInputsFromNonEntrants": 0,
+    "network": {
+      "executable": "NightSignal.exe",
+      "role": "dedicated-server",
+      "bindHost": "127.0.0.1",
+      "publicHost": "127.0.0.1",
+      "port": 7777,
+      "protocol": "udp",
+      "classification": "local",
+      "lanOptIn": false,
+      "pid": 74512
+    }
+  },
+  "controlPlaneResponse": "200 {\"status\":\"settled\",\"receipts\":[{\"matchId\":\"m_58d9d4e23d227283275c3321\",\"accountId\":\"00000000-0000-4000-8000-000000000001\",\"status\":\"settled\",\"eventKind\":\"FreeplayCustomCup\",\"mode\":null,\"stageId\":null,\"courseId\":\"C02\",\"outcome\":\"Finished\",\"placement\":4,\"tied\":false,\"finishTimeMs\":144584,\"stage\":null,\"payout\":{\"base\":7230,\"difficultyX100\":100,\"placementX100\":100,\"cleanlinessX100\":100,\"utilityX100\":100,\"pvPX100\":100,\"eventCredits\":7230,\"firstClearBonus\":0,\"challengeCash\":3000,\"total\":10230,\"note\":\"\"},\"credits\":[{\"type\":\"event\",\"requested\":7230,\"credited\":7230,\"clampedAway\":0},{\"type\":\"challenge:CH04\",\"requested\":3000,\"credited\":3000,\"clampedAway\":0}],\"balanceAfter\":501100,\"clampedAwayTotal\":0,\"firstClearAwarded\":false,\"challengesUnlocked\":[\"CH04\"],\"cosmeticsGranted\":[\"COS-CH04\"],\"coursesUnlocked\":[],\"musicUnlocked\":[],\"guestPass\":null,\"teamTrial\":null,\"rankPointsBefore\":1640,\"rankPointsAfter\":1680,\"rank\":\"Corner Scholar\",\"notes\":[\"CH33 was already completed; no repeat reward.\",\"CH38 was already completed; no repeat reward.\",\"CH73 was already completed; no repeat reward.\"]}]}",
+  "utc": "2026-09-29T04:36:29.6549647Z"
+}

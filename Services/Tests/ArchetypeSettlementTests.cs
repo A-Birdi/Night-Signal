@@ -1,5 +1,6 @@
 using System.Text.Json;
 using NightSignal.ControlPlane.Content;
+using NightSignal.ControlPlane.Convoys;
 using NightSignal.ControlPlane.Matches;
 using NightSignal.ControlPlane.Persistence;
 using NightSignal.Core.Rules;
@@ -16,11 +17,15 @@ public sealed class ArchetypeSettlementTests
         """{"schema":"night-signal/music-unlocks@1","cues":[{"cueId":"menu-main","source":{"kind":"baseline"}}]}""",
         TestData.Content.Catalogue, TeamTrialCatalog.Fixture(TestData.Content.Catalogue)));
 
+    /// <summary>As the allocator builds it: Freeplay AI race under slot ids ("ai-1"…) with the rival as the roster's driver.</summary>
     static MatchAssignment Sprint(string matchId, params string[] rivals) => new()
     {
         MatchId = matchId, ConvoyId = "cv", ServerId = "srv", Kind = "freeplay", CourseId = "C01", FreeplayMode = "sprint",
         Weather = "stage-default", Collision = "light-contact", CarCapPi = 999,
-        Entrants = new List<AssignedEntrant> { new(H(1), H(1), "racer", "V01", 220, "p", "c", 1) }, AiEntrants = rivals,
+        Entrants = new List<AssignedEntrant> { new(H(1), H(1), "racer", "V01", 220, "p", "c", 1) },
+        AiEntrants = rivals.Select((_, i) => $"ai-{i + 1}").ToList(),
+        Roster = new[] { new RosterSlot(H(1), "human", "player", "driver", H(1)) }
+            .Concat(rivals.Select((r, i) => new RosterSlot($"ai-{i + 1}", "ai", "opposing", "opposing-ai", r))).ToList(),
         Build = "b", Protocol = 1, ContentHash = "c", Seed = 1, ResultsUrl = "", TicketIssuer = "i", TicketAudience = "a",
     };
 
@@ -106,6 +111,6 @@ public sealed class ArchetypeSettlementTests
         IReadOnlyList<ArchetypeRace> races = await store.FreeplayRacesAsync(H(1));
         Assert.Equal(new[] { "R01|Finished|1", "R08|Quit|0", "R09|Finished|2" },
             races.Select(r => $"{r.AiRivals[0]}|{r.Outcome}|{r.Placement}"));
-        Assert.Equal(new[] { "R01", "R02" }, races[0].AiRivals);
+        Assert.Equal(new[] { "R01", "R02" }, races[0].AiRivals); // the rivals from the roster, not the "ai-N" slot ids
     }
 }

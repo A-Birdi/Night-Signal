@@ -186,7 +186,7 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
                     log.LogInformation("Ghost {Course} {Format} {Result:F3} s for {Account}: {Kept}", g.Header.CourseId, g.Header.Format,
                         g.Header.ResultMicros / 1e6, account, kept ? "kept" : "slower than the kept one");
                 }
-                await EndMatchAsync(config, ct);
+                await EndMatchAsync(config, ct, CupLeg(config, submission));
                 return new SubmissionResult(200, new { status = "settled", receipts = outcome.Receipts });
             case SettlementStatus.AlreadySettled:
                 return new SubmissionResult(200, new { status = "settled", replayed = true, receipts = outcome.Receipts });
@@ -209,13 +209,37 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
             : "A live opponent failed to start, so the event was aborted: no results, rank or progression; retry any time.";
     }
 
-    async Task EndMatchAsync(MatchAssignment config, CancellationToken ct)
+    /// <summary>
+    /// The opposing AI's drivers (authored rival ids) in roster order: Freeplay AI race under slot ids ("ai-1"…) with the
+    /// rival as the roster's driver, so rival rules (archetypes, crews) must read the roster, not the entrant ids.
+    /// </summary>
+    internal static IReadOnlyList<string> OpposingAiDrivers(MatchAssignment config) =>
+        config.Roster.Count > 0
+            ? config.Roster.Where(r => r.Kind == "ai" && r.Team == "opposing").Select(r => r.DriverId).ToList()
+            : config.AiEntrants;
+
+    static string DriverOf(MatchAssignment config, string entrantId) =>
+        config.Roster.FirstOrDefault(r => r.EntrantId == entrantId)?.DriverId ?? entrantId;
+
+    /// <summary>A Custom Cup leg's placings for the cup table (null outside a cup): finishers by place, everyone else none.</summary>
+    IReadOnlyList<CupLegResult>? CupLeg(MatchAssignment config, ResultSubmission s)
+    {
+        if (config.Kind != "freeplay" || config.FreeplayMode != "cup") return null;
+        return s.Entrants.Select(e => new CupLegResult
+        {
+            Id = e.EntrantId, Human = e.Human, Place = e.Outcome == RunOutcome.Finished && e.Placement > 0 ? e.Placement : null,
+            Name = e.Human ? config.Entrants.FirstOrDefault(x => x.AccountId == e.EntrantId)?.DisplayName ?? e.EntrantId
+                : content.Catalogue.TryRival(DriverOf(config, e.EntrantId), out RivalDef rival) ? rival.Name : e.EntrantId,
+        }).ToList();
+    }
+
+    async Task EndMatchAsync(MatchAssignment config, CancellationToken ct, IReadOnlyList<CupLegResult>? cupLeg = null)
     {
         registry.MatchFinished(config.ServerId);
         List<string> ids = config.Entrants.Select(e => e.AccountId).ToList();
         IReadOnlyDictionary<string, MemberProgress> progress = await players.GetProgressAsync(ids, ct);
         IReadOnlyDictionary<string, IReadOnlyCollection<string>> courses = await players.GetOwnedCoursesAsync(ids, content.Catalogue, ct);
-        convoys.MatchEnded(config.ConvoyId, config.MatchId, progress, courses);
+        convoys.MatchEnded(config.ConvoyId, config.MatchId, progress, courses, cupLeg);
     }
 
     static SubmissionResult Error(int status, string code, string message) => new(status, new { error = code, message });
@@ -429,7 +453,7 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
                 if (e.Human && finaleChallenge is not null && !ids.Contains(finaleChallenge)) ids.Add(finaleChallenge);
                 // CH70 The Other Side of the Card: every crew introduction read, then a legal race against a crew member.
                 if (e.Human && diaryComplete is not null && diaryComplete.Contains(e.EntrantId) &&
-                    NightSignal.Core.Story.DiaryChallenges.RacedCrewMember(config.AiEntrants, content.Catalogue, content.Crews) &&
+                    NightSignal.Core.Story.DiaryChallenges.RacedCrewMember(OpposingAiDrivers(config), content.Catalogue, content.Crews) &&
                     !ids.Contains(NightSignal.Core.Story.DiaryChallenges.OtherSideOfTheCard))
                     ids.Add(NightSignal.Core.Story.DiaryChallenges.OtherSideOfTheCard);
                 // CH68 Chasing Your Yesterday: the kept C07 ghost beaten by a second (the caller checked ghost and rules).
@@ -440,7 +464,7 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
                 {
                     var races = new List<ArchetypeRace>(freeplayBefore.TryGetValue(e.EntrantId, out var earlier) ? earlier : Array.Empty<ArchetypeRace>())
                     {
-                        new() { AiRivals = config.AiEntrants, Outcome = e.Outcome, Placement = placing.Place, Tied = placing.Tied },
+                        new() { AiRivals = OpposingAiDrivers(config), Outcome = e.Outcome, Placement = placing.Place, Tied = placing.Tied },
                     };
                     foreach (string id in ArchetypeChallenges.Satisfied(ArchetypeChallenges.Replay(content.Catalogue, races)))
                         if (!ids.Contains(id)) ids.Add(id);

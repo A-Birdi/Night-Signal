@@ -153,6 +153,17 @@ namespace NightSignal.Net
 
         System.Collections.IEnumerator LoadAndListen()
         {
+            // A long-lived server hosts one match after another in the same physics scene: the previous match's course
+            // (loaded additively, as this one is) goes first, or its collision stands across the new course's road.
+            Scene boot = SceneManager.GetActiveScene();
+            for (int i = SceneManager.sceneCount - 1; i >= 0; i--)
+            {
+                Scene left = SceneManager.GetSceneAt(i);
+                if (left == boot || !left.isLoaded) continue;
+                Debug.Log($"[NightSignal.Server] unloading the previous course scene {left.name}");
+                AsyncOperation unload = SceneManager.UnloadSceneAsync(left);
+                if (unload != null) yield return unload;
+            }
             AsyncOperation load = SceneManager.LoadSceneAsync(assignment.CourseId, LoadSceneMode.Additive);
             if (load == null)
             {

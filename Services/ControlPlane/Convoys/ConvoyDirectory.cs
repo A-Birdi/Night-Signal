@@ -154,9 +154,23 @@ public sealed class ConvoyDirectory
     enum Removal { Left, Disconnected, Kicked }
 
     /// <summary>Where Continue leads after a settled event (Addendum 02 §7): a real, server-validated destination.</summary>
-    sealed record PostEventDestination(string Kind, string Label, string? StageId, string? Mode, IReadOnlyList<string> Needs)
+    sealed record PostEventDestination(string Kind, string Label, string? StageId, string? Mode, IReadOnlyList<string> Needs, int CupLeg = -1)
     {
-        public bool Same(PostEventDestination other) => Kind == other.Kind && StageId == other.StageId && Mode == other.Mode;
+        public bool Same(PostEventDestination other) => Kind == other.Kind && StageId == other.StageId && Mode == other.Mode && CupLeg == other.CupLeg;
+    }
+
+    /// <summary>
+    /// A Custom Cup across several matches (spec §8): the published schedule raced leg by leg by the convoy, each leg an
+    /// ordinary match (readiness, allocation, settlement — ordinary race money, no stake); the table from each settled leg;
+    /// the course access frozen when the first leg was planned (Addendum 01 §5.2: granted cup-leg passes survive a sponsor's
+    /// departure for the remaining members).
+    /// </summary>
+    sealed class CupRun
+    {
+        public required EventSettings First;
+        public required CupTable Table;
+        public required List<GuestPass> Passes;
+        public required Dictionary<string, IReadOnlyList<string>> Sponsors;
     }
 
     /// <summary>Per-current-member Continue / ServiceBreak / Undecided for one settled result (Addendum 02 §7.1).</summary>
@@ -193,6 +207,8 @@ public sealed class ConvoyDirectory
         public long LeadershipEpoch = 1;
         public DateTimeOffset? LeaderUnavailableSince;
         public readonly List<Member> Members = new();
+        /// <summary>A Custom Cup in progress: its first leg's settings, the table, and the course access frozen for every leg.</summary>
+        public CupRun? Cup;
         public ConvoyPhase Phase = ConvoyPhase.Idle;
         public ConvoyIntent? Intent;
         public long ModeRevision;
@@ -1443,6 +1459,14 @@ public sealed class ConvoyDirectory
     /// </summary>
     PostEventDestination ComputeDestination(Convoy c, EventSettings s)
     {
+        if (s.Kind == "freeplay" && s.FreeplayMode == "cup" && s.CupLegs is { Count: > 0 } legs && c.Cup is not null)
+        {
+            int next = s.CupLeg + 1;
+            if (next < legs.Count)
+                return new PostEventDestination("next-cup-leg", $"Next Leg — {Catalogue.Course(legs[next]).Name} ({next + 1} of {legs.Count})", null, null,
+                    Array.Empty<string>(), next);
+            return new PostEventDestination("cup-complete", "Cup complete — return to Event Setup", null, null, Array.Empty<string>());
+        }
         if (s.Kind != "campaign")
             return new PostEventDestination("event-setup", s.Kind == "trial" ? "Return to Challenges" : "Return to Event Setup", null, null, Array.Empty<string>());
         CampaignMode mode = s.Mode == "hard" ? CampaignMode.Hard : CampaignMode.Normal;
@@ -1546,6 +1570,10 @@ public sealed class ConvoyDirectory
                 return ConvoyResult.Fail("not_all_continue", $"Advance needs everyone's Continue. Waiting for: {string.Join(", ", waiting)}.");
 
             EventSettings? briefing = null;
+            if (d.Destination.Kind == "next-cup-leg" && d.Source.CupLegs is { } cupLegs)
+                briefing = d.Source with { CupLeg = d.Destination.CupLeg, CourseId = cupLegs[d.Destination.CupLeg] };
+            else if (d.Destination.Kind == "cup-complete")
+                convoy.Cup = null;
             if (d.Destination.StageId is { } stageId)
             {
                 ConvoyResult built = BuildSettings(convoy, new EventRequest(stageId, null, null, d.Source.Weather, null, null, null));
@@ -1558,7 +1586,7 @@ public sealed class ConvoyDirectory
             convoy.NoticeCode = null;
             if (briefing is not null)
             {
-                OpenEventProposal(convoy, briefing, "post-event", null);
+                OpenEventProposal(convoy, briefing, d.Destination.Kind == "next-cup-leg" ? "cup-leg" : "post-event", null);
                 Changed(convoy);
                 Broadcast(convoy, "ready.requested", new { kind = "event", proposalRevision = convoy.EventProposal!.Revision });
                 return ConvoyResult.Success(new { destination = d.Destination.Kind, stageId = briefing.StageId, proposalRevision = convoy.EventProposal.Revision });
@@ -1642,6 +1670,7 @@ public sealed class ConvoyDirectory
 
     void OpenEventProposal(Convoy convoy, EventSettings settings, string origin, long? ballotRevision)
     {
+        if (origin != "cup-leg" && !(settings.FreeplayMode == "cup" && settings.CupLeg > 0)) convoy.Cup = null;
         convoy.EventProposal = new EventProposal
         {
             Revision = convoy.NextProposalRevision(), RosterRevision = convoy.RosterRevision, Settings = settings, OpenedAt = Now,
@@ -1959,6 +1988,20 @@ public sealed class ConvoyDirectory
                 foreach (string courseId in CoursesOf(settings))
                 {
                     IReadOnlyList<string> owners = CourseAccess.Sponsors(Catalogue, courseId, owned);
+                    if (settings.CupLeg > 0 && convoy.Cup is { } cupAccess && cupAccess.Sponsors.TryGetValue(courseId, out IReadOnlyList<string>? frozenOwners))
+                    {
+                        // A later Custom Cup leg: the passes frozen with the first leg still stand for the members they were
+                        // granted to (a new member needs a sponsor present now).
+                        var granted = cupAccess.Passes.Where(g => g.CourseId == courseId).ToDictionary(g => g.AccountId, StringComparer.Ordinal);
+                        Member? unauthorised = entrants.FirstOrDefault(m => !granted.ContainsKey(m.AccountId) && !frozenOwners.Contains(m.AccountId) && !owners.Contains(m.AccountId));
+                        if (unauthorised is not null && owners.Count == 0)
+                            return (new ConvoyError("course_locked", $"{Catalogue.Course(courseId).Name}: {unauthorised.DisplayName} joined after the cup's access was frozen and nobody here sponsors it."), null);
+                        sponsors[courseId] = frozenOwners.Concat(owners).Distinct(StringComparer.Ordinal).ToList();
+                        foreach (Member m in entrants)
+                            if (granted.TryGetValue(m.AccountId, out GuestPass? g)) passes.Add(g);
+                            else if (!frozenOwners.Contains(m.AccountId) && !owners.Contains(m.AccountId) && owners.Count > 0) passes.Add(new GuestPass(m.AccountId, courseId, owners[0]));
+                        continue;
+                    }
                     if (owners.Count == 0)
                         return (new ConvoyError("course_locked", $"{Catalogue.Course(courseId).Name} has no sponsor in the convoy any more."), null);
                     string primary = owners.Contains(convoy.LeaderId) ? convoy.LeaderId : owners[0];
@@ -1981,6 +2024,12 @@ public sealed class ConvoyDirectory
                 FeaturedRival = settings.Kind == "campaign" ? roster.FeaturedRival : null,
                 GridNote = note, PurePvP = purePvP, Version = version,
             };
+            if (settings.Kind == "freeplay" && settings.FreeplayMode == "cup" && settings.CupLeg == 0 && settings.CupLegs is { Count: > 0 } schedule)
+                convoy.Cup = new CupRun
+                {
+                    First = plan.Settings, Table = new CupTable(schedule), Passes = passes.ToList(),
+                    Sponsors = new Dictionary<string, IReadOnlyList<string>>(sponsors, StringComparer.Ordinal),
+                };
             convoy.Phase = ConvoyPhase.Allocating;
             convoy.PendingPlanId = plan.PlanId;
             convoy.RunningSettings = plan.Settings;
@@ -2065,7 +2114,7 @@ public sealed class ConvoyDirectory
 
     /// <summary>Settlement (or abort) finished: back to event selection in the same mode, with refreshed progress/courses.</summary>
     public void MatchEnded(string convoyId, string matchId, IReadOnlyDictionary<string, MemberProgress>? progress,
-        IReadOnlyDictionary<string, IReadOnlyCollection<string>>? courses = null)
+        IReadOnlyDictionary<string, IReadOnlyCollection<string>>? courses = null, IReadOnlyList<CupLegResult>? cupLeg = null)
     {
         lock (gate)
         {
@@ -2077,6 +2126,8 @@ public sealed class ConvoyDirectory
                     m.OwnedCourses = new HashSet<string>(owned, StringComparer.Ordinal);
             }
             EventSettings? ran = convoy.RunningSettings;
+            if (ran is { FreeplayMode: "cup" } && convoy.Cup is { } cup && ran.CupLeg == cup.Table.LegsRaced && !cup.Table.Complete)
+                cup.Table.AddLeg(cupLeg ?? Array.Empty<CupLegResult>());
             EndMatch(convoy);
             // Results are recorded: open the shared Continue / Service Break decision (Addendum 02 §7).
             if (ran is not null && convoy.Members.Count > 0 && !convoy.Dormant) OpenPostEvent(convoy, matchId, ran);
@@ -2110,6 +2161,11 @@ public sealed class ConvoyDirectory
         lock (gate)
         {
             if (!convoys.TryGetValue(convoyId, out Convoy? convoy) || convoy.Match?.MatchId != matchId) return;
+            if (convoy.Cup is not null)
+            {
+                convoy.Cup = null; // a leg without results cannot be raced again inside the cup
+                reason += " The Custom Cup ends here.";
+            }
             EndMatch(convoy);
             SetNotice(convoy, "match_aborted", reason);
             Changed(convoy);
@@ -2330,6 +2386,11 @@ public sealed class ConvoyDirectory
                 : null,
             eventProposal = c.EventProposal is { } e ? EventProposalWire(c, e) : null,
             postEvent = PostEventWire(c),
+            cup = c.Cup is { } run ? new
+            {
+                schedule = run.Table.Schedule, legsRaced = run.Table.LegsRaced, complete = run.Table.Complete,
+                standings = run.Table.Standings().Select(e => new { id = e.Id, name = e.Name, human = e.Human, points = e.Points, places = e.Places }).ToList(),
+            } : null,
             campaignAccess = new { normal = Access(CampaignMode.Normal), hard = Access(CampaignMode.Hard) },
             match = c.Match is { } am ? new { matchId = am.MatchId, entrants = am.Entrants, departed = c.DepartedEntrants.Order(StringComparer.Ordinal).ToList() } : null,
             readyRequestCooldownMs = cooldownMs,

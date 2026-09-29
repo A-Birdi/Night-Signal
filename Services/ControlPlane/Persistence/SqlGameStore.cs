@@ -332,11 +332,18 @@ public abstract partial class SqlGameStore : IPlayerStore, IResultLedger, ISocia
                 using JsonDocument receipt = JsonDocument.Parse(row.Receipt);
                 JsonElement cfg = config.RootElement, rc = receipt.RootElement;
                 if (!cfg.TryGetProperty("kind", out JsonElement kind) || kind.GetString() != "freeplay") continue;
-                if (!cfg.TryGetProperty("aiEntrants", out JsonElement ai) || ai.ValueKind != JsonValueKind.Array || ai.GetArrayLength() == 0) continue;
+                // The opposing AI's drivers from the frozen roster (Freeplay AI race under slot ids); older configs: the entrant ids.
+                List<string> drivers = cfg.TryGetProperty("roster", out JsonElement roster) && roster.ValueKind == JsonValueKind.Array && roster.GetArrayLength() > 0
+                    ? roster.EnumerateArray().Where(r => r.TryGetProperty("kind", out JsonElement k) && k.GetString() == "ai" &&
+                                                         r.TryGetProperty("team", out JsonElement t) && t.GetString() == "opposing")
+                        .Select(r => r.TryGetProperty("driverId", out JsonElement d) ? d.GetString() ?? "" : "").ToList()
+                    : cfg.TryGetProperty("aiEntrants", out JsonElement ai) && ai.ValueKind == JsonValueKind.Array
+                        ? ai.EnumerateArray().Select(x => x.GetString() ?? "").ToList() : new List<string>();
+                if (drivers.Count == 0) continue;
                 if (!rc.TryGetProperty("outcome", out JsonElement o) || !Enum.TryParse(o.GetString(), out RunOutcome outcome)) continue;
                 races.Add(new ArchetypeRace
                 {
-                    AiRivals = ai.EnumerateArray().Select(x => x.GetString() ?? "").ToList(), Outcome = outcome,
+                    AiRivals = drivers, Outcome = outcome,
                     Placement = rc.TryGetProperty("placement", out JsonElement p) && p.ValueKind == JsonValueKind.Number ? p.GetInt32() : 0,
                     Tied = rc.TryGetProperty("tied", out JsonElement t) && t.ValueKind == JsonValueKind.True,
                 });

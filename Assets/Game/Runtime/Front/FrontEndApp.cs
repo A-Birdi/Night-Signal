@@ -892,6 +892,9 @@ namespace NightSignal.Front
             yield return Until(() => OnlineSession.Current.InConvoy && OnlineSession.Current.MyMember?["carId"]?.Type == Newtonsoft.Json.Linq.JTokenType.String, 10f, "convoy created with a loadout");
             yield return new WaitForSeconds(0.8f);
             bool freeplayTour = Array.IndexOf(Environment.GetCommandLineArgs(), "-nsUiTourFreeplay") >= 0;
+            // Custom Cup (-nsUiTourCupLegs C01,C02,C03 with the cup intent): all three legs through the real screens.
+            int cupArg = Array.IndexOf(Environment.GetCommandLineArgs(), "-nsUiTourCupLegs");
+            string[] cupLegs = cupArg >= 0 && cupArg + 1 < Environment.GetCommandLineArgs().Length ? Environment.GetCommandLineArgs()[cupArg + 1].Split(',') : null;
             if (freeplayTour) Convoy.SelectIntent(2); // Freeplay · Sprint, decided by a course vote
             string[] tourArgs = Environment.GetCommandLineArgs();
             int intentArg = Array.IndexOf(tourArgs, "-nsUiTourIntent");
@@ -942,6 +945,12 @@ namespace NightSignal.Front
                     string tourCourse = tourArgs[courseArg + 1];
                     yield return Until(() => Convoy.SelectCourse(tourCourse), 10f, "course " + tourCourse + " offered");
                     yield return new WaitForSeconds(0.5f);
+                }
+                if (cupLegs != null)
+                {
+                    yield return Until(() => Convoy.SelectCourse(cupLegs[0]) && Convoy.SelectCupLegs(cupLegs[1], cupLegs[2]), 10f, "cup legs offered");
+                    yield return new WaitForSeconds(0.8f);
+                    Shot("05u-cup-schedule");
                 }
                 if (tourTrial != null)
                 {
@@ -1017,6 +1026,66 @@ namespace NightSignal.Front
             yield return Until(() => State()?["postEvent"]?.Type != Newtonsoft.Json.Linq.JTokenType.Object, 15f, "advanced");
             yield return new WaitForSeconds(1.5f);
             Shot("09-after-advance");
+            if (cupLegs != null)
+            {
+                string CupNow()
+                {
+                    Newtonsoft.Json.Linq.JObject cup = State()?["cup"] as Newtonsoft.Json.Linq.JObject;
+                    return cup == null ? "none" : $"legs raced {(int?)cup["legsRaced"]}, " + string.Join(" | ", ((Newtonsoft.Json.Linq.JArray)cup["standings"]).Select(e =>
+                        $"{(string)e["name"]} {(int?)e["points"]} ({string.Join(" ", ((Newtonsoft.Json.Linq.JArray)e["places"]).Select(p => p.Type == Newtonsoft.Json.Linq.JTokenType.Null ? "-" : (string)p))})"));
+                }
+                Note("cup after leg 1: " + CupNow());
+                string finalTable = "";
+                for (int leg = 2; leg <= 3; leg++)
+                {
+                    yield return Until(() => (string)State()?["eventProposal"]?["origin"] == "cup-leg", 20f, $"cup leg {leg} proposed");
+                    for (int attempt = 1; attempt <= 3 && onlineRace == null; attempt++)
+                    {
+                        yield return new WaitForSeconds(0.8f);
+                        if ((bool?)OnlineSession.Current.MyMember?["eventReady"] != true) Click("EventReady");
+                        yield return Until(() => (bool?)OnlineSession.Current.MyMember?["eventReady"] == true, 20f, $"leg {leg} event ready");
+                        yield return Until(() => GameObject.Find("StartEvent")?.GetComponent<Button>()?.interactable == true, 20f, $"leg {leg} startable");
+                        Click("StartEvent");
+                        // A refused start returns as the session's error, which a later menu request clears: read it at once.
+                        string refused = null;
+                        float answer = Time.realtimeSinceStartup + 10f;
+                        while (onlineRace == null && (string)State()?["phase"] == "ReadyCheck" && Time.realtimeSinceStartup < answer)
+                        {
+                            if (!string.IsNullOrEmpty(OnlineSession.Current.LastError)) { refused = OnlineSession.Current.LastError; break; }
+                            yield return null;
+                        }
+                        if (refused == null && onlineRace == null && (string)State()?["phase"] != "ReadyCheck")
+                        {
+                            // Allocating: the game server finishes its previous match before it takes the next.
+                            float allocated = Time.realtimeSinceStartup + 120f;
+                            while (onlineRace == null && (string)State()?["phase"] != "ReadyCheck" && Time.realtimeSinceStartup < allocated) yield return null;
+                            if (onlineRace == null) refused = "allocation: " + ((string)State()?["notice"] ?? "no match within 120 s");
+                        }
+                        else if (refused == null && onlineRace == null) refused = "no answer within 10 s";
+                        if (refused != null)
+                        {
+                            failures.Add($"leg {leg} start {attempt} refused: {refused}");
+                            Note($"leg {leg} start {attempt} refused: {refused} (phase {(string)State()?["phase"]}, ready {(bool?)OnlineSession.Current.MyMember?["eventReady"]}, away {(bool?)OnlineSession.Current.MyMember?["away"]})");
+                        }
+                    }
+                    if (onlineRace == null) failures.Add($"leg {leg} never started");
+                    yield return Until(() => onlineRace == null || onlineRace.Phase == MatchPhase.Racing, 90f, $"leg {leg} started");
+                    Note($"cup leg {leg}: {onlineRace?.Info?.CourseId}");
+                    yield return Until(() => onlineRace == null && Router.Current == Convoy, 400f, $"leg {leg} finished");
+                    yield return Until(() => ((int?)(State()?["cup"] as Newtonsoft.Json.Linq.JObject)?["legsRaced"] ?? 0) >= leg
+                                             && State()?["postEvent"]?.Type == Newtonsoft.Json.Linq.JTokenType.Object, 240f, $"leg {leg} settled");
+                    yield return new WaitForSeconds(1.2f);
+                    finalTable = CupNow();
+                    Note($"cup after leg {leg}: " + finalTable);
+                    Shot($"10-cup-after-leg{leg}");
+                    Click("Continue");
+                    yield return new WaitForSeconds(1.2f);
+                    Click("Advance");
+                    yield return Until(() => State()?["postEvent"]?.Type != Newtonsoft.Json.Linq.JTokenType.Object, 15f, $"advanced after leg {leg}");
+                }
+                if (!finalTable.StartsWith("legs raced 3")) failures.Add("the cup did not complete three legs: " + finalTable);
+                if (State()?["cup"]?.Type == Newtonsoft.Json.Linq.JTokenType.Object) failures.Add("the cup was still open after its last leg");
+            }
             string summary = failures.Count == 0 ? "PASS" : "FAILED: " + string.Join("; ", failures);
             Note($"{summary}; last result: {(LastOnlineResult ?? "").Replace("\n", " | ")}");
             yield return new WaitForSeconds(1f);

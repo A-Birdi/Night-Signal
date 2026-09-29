@@ -243,8 +243,10 @@ public sealed record EventSettings
     public bool BenchmarkProvisional { get; init; }
     public string? BenchmarkSource { get; init; }
     public bool RequiresBeatingFeaturedRival { get; init; }
-    /// <summary>Custom Cup legs in order (the first is <see cref="CourseId"/>); access is validated and frozen for every leg.</summary>
+    /// <summary>Custom Cup legs in order; access is validated and frozen for every leg up front.</summary>
     public IReadOnlyList<string>? CupLegs { get; init; }
+    /// <summary>Custom Cup: the leg this event races (0-based; <see cref="CourseId"/> is <c>CupLegs[CupLeg]</c>).</summary>
+    public int CupLeg { get; init; }
     public IReadOnlyList<string>? AiRivals { get; init; }
     public string? TrialId { get; init; }
     public string? Difficulty { get; init; }
