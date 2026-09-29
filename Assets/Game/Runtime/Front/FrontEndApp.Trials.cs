@@ -38,9 +38,9 @@ namespace NightSignal.Front
 
         /// <summary>
         /// Challenge trial evidence (<c>-nsTrialTour</c>), buttons only, isolated profile folder: the offline hub → Challenge
-        /// Trials; every trial started from its row with "Start Trial" and driven by the validator autopilot (drift trials
-        /// drifting at skill 0.95, CH25's without the handbrake — the settings its targets were measured with); the verdict
-        /// read back on the trials screen. Checks: every trial ran and was judged; the profile keeps exactly the passes the
+        /// Trials; every trial started from its row with "Start Trial" and driven by the validator autopilot (CH25's without the
+        /// handbrake); a drift trial first at its measured reference's drift skill, then at the other measured skills until
+        /// one run passes — whether its published targets can be reached at all; the verdict read back on the trials screen. Checks: every trial ran and was judged; the profile keeps exactly the passes the
         /// verdicts report; a grouped challenge (CH54) is earned only once both of its trials are passed. Whether the
         /// autopilot beats each target is reported as measured. Automation, not a person.
         /// </summary>
@@ -97,23 +97,38 @@ namespace NightSignal.Front
                 yield return new WaitForSeconds(0.6f);
                 yield return Snap($"02-{t.Id}-brief");
                 bool earnedBefore = s.Profile.HasCompletedChallenge(t.Challenge);
-                pendingAutopilotDriftSkill = t.JudgesDrift ? 0.95f : 0f;
-                pendingAutopilotNoHandbrake = t.Rules.NoHandbrake;
-                if (!Click("StartTrial")) continue;
-                yield return Until(() => activeRace != null, 60f);
-                if (activeRace == null) { Fail(t.Id + " did not start"); continue; }
-                activeRace.Autopilot = true; // before the start, as its targets were measured
-                activeRace.SimulationSpeed = 12;
-                yield return Until(() => Router.Current == Results, 900f);
-                yield return new WaitForSeconds(1.2f);
-                yield return Snap($"03-{t.Id}-result");
-                Click("Continue");
-                yield return Until(() => Router.Current == Trials, 15f);
-                yield return new WaitForSeconds(0.8f);
-                TrialVerdict v = LocalEvents.LastTrialVerdict;
-                if (v == null) { Fail(t.Id + " was not judged"); continue; }
+                // Drift trials: the reference's own drift skill first, then the other measured skills until one run passes
+                // (whether the published targets can be reached at all); time trials: one run.
+                float refSkill = t.Targets.ReferenceDriftSkill > 0f ? t.Targets.ReferenceDriftSkill : 0.95f;
+                float[] skills = t.JudgesDrift ? new[] { refSkill }.Concat(new[] { 0.95f, 0.8f, 0.65f }.Where(k => Math.Abs(k - refSkill) > 0.001f)).ToArray() : new[] { 0f };
+                TrialVerdict v = null;
+                foreach (float skill in skills)
+                {
+                    if (!Trials.SelectTrial(t.Id)) break;
+                    yield return new WaitForSeconds(0.4f);
+                    pendingAutopilotDriftSkill = skill;
+                    pendingAutopilotNoHandbrake = t.Rules.NoHandbrake;
+                    LocalEvents.LastTrialVerdict = null;
+                    if (!Click("StartTrial")) break;
+                    yield return Until(() => activeRace != null, 60f);
+                    if (activeRace == null) { Fail(t.Id + " did not start"); break; }
+                    activeRace.Autopilot = true; // before the start, as its targets were measured
+                    activeRace.SimulationSpeed = 12;
+                    yield return Until(() => Router.Current == Results, 900f);
+                    yield return new WaitForSeconds(1.2f);
+                    if (skill == skills[0]) yield return Snap($"03-{t.Id}-result");
+                    Click("Continue");
+                    yield return Until(() => Router.Current == Trials, 15f);
+                    yield return new WaitForSeconds(0.8f);
+                    v = LocalEvents.LastTrialVerdict;
+                    if (v == null) { Fail(t.Id + " was not judged"); break; }
+                    Note($"{t.Id} ({t.Challenge} {t.Tier}){(t.JudgesDrift ? $" at drift skill {skill:F2}{(skill == refSkill ? " (the reference's)" : "")}" : "")}: " +
+                         $"{(v.Passed ? "PASSED" : "not passed")} — {v.Summary}");
+                    if (v.Passed) break;
+                }
+                if (v == null) continue;
                 bool kept = s.Profile.TrialsPassed.Contains(t.Id);
-                Note($"{t.Id} ({t.Challenge} {t.Tier}): {(v.Passed ? "PASSED" : "not passed")} — {v.Summary}; profile keeps it: {kept}; challenge earned: {s.Profile.HasCompletedChallenge(t.Challenge)}");
+                Note($"{t.Id}: profile keeps it: {kept}; challenge earned: {s.Profile.HasCompletedChallenge(t.Challenge)}");
                 yield return Snap($"04-{t.Id}-verdict");
                 if (v.Passed) passedCount++;
                 if (kept != v.Passed) Fail($"{t.Id}: the profile does not keep the verdict (passed {v.Passed}, kept {kept})");

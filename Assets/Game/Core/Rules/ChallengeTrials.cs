@@ -32,6 +32,8 @@ namespace NightSignal.Core.Rules
         public long TimeMs;
         /// <summary>The banked raw drift score to reach.</summary>
         public long DriftRaw;
+        /// <summary>The autopilot drift skill of the measured reference run (drift trials; how a replay reproduces it).</summary>
+        public float ReferenceDriftSkill;
     }
 
     /// <summary>One challenge trial (docs/CHALLENGE_TRIALS.md): a fixed course, loaner, rules and targets for one challenge.</summary>
@@ -88,7 +90,8 @@ namespace NightSignal.Core.Rules
         public bool Passed;
         /// <summary>Each judged condition in order: (passed, what).</summary>
         public List<KeyValuePair<bool, string>> Checks = new List<KeyValuePair<bool, string>>();
-        public string Summary => string.Join(" · ", Checks.Select(c => (c.Key ? "✓ " : "✗ ") + c.Value));
+        /// <summary>Each check in words ("ok:" / "MISSED:") — the game font has no check-mark glyphs.</summary>
+        public string Summary => string.Join(" · ", Checks.Select(c => (c.Key ? "ok: " : "MISSED: ") + c.Value));
     }
 
     /// <summary>Judges trial runs and the challenges they complete. Engine-free: the game server and the Local race agree.</summary>

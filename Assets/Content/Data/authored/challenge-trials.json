@@ -24,7 +24,8 @@
       },
       "targets": {
         "timeMs": 150400,
-        "driftRaw": 0
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0
       },
       "group": "",
       "brief": "Stock Kogane Hachi RS (V01), no performance parts. Beat the published Silver time on C04.",
@@ -54,7 +55,8 @@
       },
       "targets": {
         "timeMs": 194300,
-        "driftRaw": 0
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0
       },
       "group": "",
       "brief": "Class-capped loaner: stock Shinmei Stormline 32 (V12, AWD) under the C12 stages' PI 699 cap. Beat the Gold time with no reset and at most one meaningful wall impact.",
@@ -86,7 +88,8 @@
       },
       "targets": {
         "timeMs": 169200,
-        "driftRaw": 0
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0
       },
       "group": "",
       "brief": "The supplied wet tune: Arata Shigure GT (V07, AWD) on rain-sport tyres, in C08's wet. Beat the Silver time.",
@@ -116,7 +119,8 @@
       },
       "targets": {
         "timeMs": 158400,
-        "driftRaw": 0
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0
       },
       "group": "CH54-LAYOUTS",
       "brief": "Front-drive layout: stock Mizuno Sparrow Type-S (V06, FWD), PI cap 450. Beat this layout's own Silver time; the challenge needs the rear-drive trial too.",
@@ -146,7 +150,8 @@
       },
       "targets": {
         "timeMs": 160500,
-        "driftRaw": 0
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0
       },
       "group": "CH54-LAYOUTS",
       "brief": "Rear-drive layout: stock Shinmei Linea 20 (V05, RWD), PI cap 450. Beat this layout's own Silver time; the challenge needs the front-drive trial too.",
@@ -178,7 +183,8 @@
       },
       "targets": {
         "timeMs": 0,
-        "driftRaw": 2900
+        "driftRaw": 2900,
+        "referenceDriftSkill": 0.8
       },
       "group": "",
       "brief": "The C16 drift loaner: Shinmei Crestline 26 (V09, RWD) on drift tyres. Bank the Silver drift score without touching the handbrake after the start, then finish.",
@@ -210,7 +216,8 @@
       },
       "targets": {
         "timeMs": 274100,
-        "driftRaw": 2000
+        "driftRaw": 2000,
+        "referenceDriftSkill": 0.65
       },
       "group": "",
       "brief": "The fixed C23 build: Kogane Halo T (V15, RWD) on drift tyres. Beat both the published time and the raw drift target in the same legal run.",
@@ -242,7 +249,8 @@
       },
       "targets": {
         "timeMs": 0,
-        "driftRaw": 10800
+        "driftRaw": 10800,
+        "referenceDriftSkill": 0.65
       },
       "group": "",
       "brief": "The C25 Gold drift route loaner: Mizuno Meridian X (V16, RWD) on drift tyres. Bank the Gold raw target, with a chain banked in every judged zone.",

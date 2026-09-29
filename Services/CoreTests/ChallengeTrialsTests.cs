@@ -68,7 +68,7 @@ public sealed class ChallengeTrialsTests
         Assert.False(TrialJudge.Judge(t, Run(resets: 1)).Passed);
         TrialVerdict walls = TrialJudge.Judge(t, Run(walls: 2));
         Assert.False(walls.Passed);
-        Assert.Contains("✗ at most 1 wall impact (2)", walls.Summary);
+        Assert.Contains("MISSED: at most 1 wall impact (2)", walls.Summary);
         Assert.False(TrialJudge.Judge(t, Run() with { Finished = false }).Passed);
         Assert.False(TrialJudge.Judge(t, Run() with { DroveLoaner = false }).Passed); // any other car or build fails the trial
     }

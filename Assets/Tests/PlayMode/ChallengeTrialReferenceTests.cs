@@ -130,6 +130,7 @@ namespace NightSignal.Tests
                     if (t.Rules.BankEveryZone && best.ZonesBanked < best.Zones)
                         problems.Add($"{t.Id}: the reference banked a chain in {best.ZonesBanked} of {best.Zones} zones (the rule stays; a person must do better)");
                     t.Targets.DriftRaw = (long)Math.Floor(DriftFactor(t.Tier) * basis / 100.0) * 100;
+                    t.Targets.ReferenceDriftSkill = best.Skill;
                 }
                 report.AppendLine("→ " + string.Join(", ", new[]
                 {

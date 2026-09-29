@@ -36,7 +36,7 @@ namespace NightSignal.Front
         int boundsMeasurements;
 
         /// <summary>Auto-sized labels that did not fit even at their minimum size (the tour's failure count).</summary>
-        public int BoundsAutoSizeOverflows => boundsFindings.Values.Count(f => f.Kind == "overflow");
+        public int BoundsAutoSizeOverflows => boundsFindings.Values.Count(f => f.Kind == "overflow" || f.Kind == "missing-glyph");
 
         IEnumerator BoundsAuditLoop()
         {
@@ -85,11 +85,13 @@ namespace NightSignal.Front
                 float spill = Mathf.Max(rendered.x - box.x, rendered.y - box.y);
                 float share = Mathf.Max((rendered.x - box.x) / Mathf.Max(1f, box.x), (rendered.y - box.y) / Mathf.Max(1f, box.y));
                 bool atMinimum = t.enableAutoSizing && t.fontSize <= t.fontSizeMin + 0.05f;
-                string kind = spill <= slack ? (atMinimum ? "minimum" : null)
+                string text = t.GetParsedText().Replace("\n", " / ");
+                // TMP draws a character the font lacks as its missing-glyph box (U+25A1): a string that cannot be read.
+                string kind = text.IndexOf('\u25A1') >= 0 ? "missing-glyph"
+                    : spill <= slack ? (atMinimum ? "minimum" : null)
                     : !t.enableAutoSizing ? "overflow-fixed"
                     : atMinimum || share > 0.05f ? "overflow" : "spill";
                 if (kind == null) continue;
-                string text = t.GetParsedText().Replace("\n", " ⏎ ");
                 string key = kind + "|" + path + "|" + text;
                 if (boundsFindings.ContainsKey(key)) continue;
                 boundsFindings[key] = new BoundsFinding
@@ -136,6 +138,7 @@ namespace NightSignal.Front
                 foreach (var group in new[]
                 {
                     new { Kind = "overflow", Title = "Labels too big at their minimum size, or spilling more than 5 % past their box (failures)" },
+                    new { Kind = "missing-glyph", Title = "Labels with a character the font lacks, drawn as a box (failures)" },
                     new { Kind = "spill", Title = "Fitting labels whose glyph edges reach a few pixels past the box (TMP fits by advance widths; within 5 %)" },
                     new { Kind = "overflow-fixed", Title = "Fixed-size live figures drawn beyond their box (they never clip; inspect for collisions)" },
                     new { Kind = "minimum", Title = "Labels that fit only at their minimum size (legible, but the smallest allowed)" },
@@ -150,7 +153,8 @@ namespace NightSignal.Front
                 }
                 System.IO.File.WriteAllText(System.IO.Path.Combine(dir, name + ".txt"), sb.ToString());
                 Debug.Log($"[NightSignal.Bounds] {name}: {boundsLabels.Count} labels over {boundsMoments.Count} moments — " +
-                          $"{BoundsAutoSizeOverflows} overflow, {boundsFindings.Values.Count(f => f.Kind == "spill")} edge spill, " +
+                          $"{boundsFindings.Values.Count(f => f.Kind == "overflow")} overflow, {boundsFindings.Values.Count(f => f.Kind == "missing-glyph")} missing glyph, " +
+                          $"{boundsFindings.Values.Count(f => f.Kind == "spill")} edge spill, " +
                           $"{boundsFindings.Values.Count(f => f.Kind == "overflow-fixed")} fixed-size overflow, " +
                           $"{boundsFindings.Values.Count(f => f.Kind == "minimum")} at minimum size");
             }

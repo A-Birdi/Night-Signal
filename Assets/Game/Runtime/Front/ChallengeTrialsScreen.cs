@@ -104,8 +104,12 @@ namespace NightSignal.Front
                 rows[i].gameObject.SetActive(on);
                 if (!on) continue;
                 ChallengeTrialDef t = All[i];
-                string mark = Earned(t.Challenge) ? "✓" : passed.Contains(t.Id) ? "½" : "·";
-                rows[i].GetComponentInChildren<TextMeshProUGUI>().text = $"{mark}  {t.Challenge}  {t.Title}";
+                // Words, as the Driving School marks its lessons (the game font has no check-mark glyph).
+                int group = string.IsNullOrEmpty(t.Group) ? 1 : All.Count(x => x.Group == t.Group);
+                int groupPassed = string.IsNullOrEmpty(t.Group) ? 0 : All.Count(x => x.Group == t.Group && passed.Contains(x.Id));
+                string state = Earned(t.Challenge) ? "  <color=#3EC6D8>earned</color>"
+                    : groupPassed > 0 ? $"  <color=#F2A541>{groupPassed} of {group}</color>" : "";
+                rows[i].GetComponentInChildren<TextMeshProUGUI>().text = $"{t.Challenge}  {t.Title}{state}";
             }
         }
 
