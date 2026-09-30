@@ -39,10 +39,10 @@ foreach ($r in $runs) { foreach ($tour in $r.Tours) {
     # Only the presentation sizes are seeded; everything else takes its defaults.
     @{ Schema = 1; TextScale = $r.Text; HudScale = $r.Hud } | ConvertTo-Json | Set-Content -Encoding utf8 (Join-Path $prefs 'driving.json')
     $log = Join-Path $root 'player.log'
-    $p = Start-Process -FilePath $exe -PassThru -WorkingDirectory $repo -ArgumentList @(
-        "-ns$tour", '-nsBoundsAudit', '-nsPrefsFolder', "`"$prefs`"", '-nsLocalProfiles', "`"$profiles`"",
-        '-screen-fullscreen', '0', '-screen-width', "$($r.Width)", '-screen-height', "$($r.Height)", '-logFile', "`"$log`"") +
-        $(if ($TrialOnly -and $tour -eq 'TrialTour') { @('-nsTrialOnly', $TrialOnly) } else { @() }) # a targeted TrialTour: "TR-A,TR-B"
+    $tourArgs = @("-ns$tour", '-nsBoundsAudit', '-nsPrefsFolder', "`"$prefs`"", '-nsLocalProfiles', "`"$profiles`"",
+        '-screen-fullscreen', '0', '-screen-width', "$($r.Width)", '-screen-height', "$($r.Height)", '-logFile', "`"$log`"")
+    if ($TrialOnly -and $tour -eq 'TrialTour') { $tourArgs += @('-nsTrialOnly', $TrialOnly) } # a targeted TrialTour: "TR-A,TR-B"
+    $p = Start-Process -FilePath $exe -PassThru -WorkingDirectory $repo -ArgumentList $tourArgs
     if (-not $p.WaitForExit($TimeoutSeconds * 1000)) { Stop-Process -Id $p.Id -Force; Write-Output "$($r.Name) $($tour): TIMEOUT (stopped)" }
     else { Write-Output "$($r.Name) $($tour): exit $($p.ExitCode)" }
     Select-String -Path $log -Pattern 'NightSignal.Bounds\]|Tour[A-Za-z]*\] (PASS|FAILED)' | ForEach-Object { $_.Line }

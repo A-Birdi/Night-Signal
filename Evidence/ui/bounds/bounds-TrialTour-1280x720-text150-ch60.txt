@@ -1,0 +1,41 @@
+# String bounds audit — TrialTour at 1280x720, text size 150 %, HUD size 130 %
+# 187 moments audited, 91 distinct labels, 3331 measurements
+# moments: Title · Local profiles · New profile · 01-trials · Challenge Trials · 01-trials-page2 · 02-TR-CH60-FINAL-brief · race HUD · Results · 03-TR-CH60-FINAL-result · 02-TR-CH60-FINAL-tune-supplied · Trial Tune · 02-TR-CH60-FINAL-tune-saved · 04-TR-CH60-FINAL-verdict · 02-TR-CH60-SPREAD-brief · 03-TR-CH60-SPREAD-result · 02-TR-CH60-SPREAD-tune-supplied · 02-TR-CH60-SPREAD-tune-saved · 04-TR-CH60-SPREAD-verdict · 02-TR-CH60-BIAS-brief · 03-TR-CH60-BIAS-result · 02-TR-CH60-BIAS-tune-supplied · 02-TR-CH60-BIAS-tune-saved · 04-TR-CH60-BIAS-verdict · 02-TR-CH60-DIFF-brief · 03-TR-CH60-DIFF-result · 02-TR-CH60-DIFF-tune-supplied · 02-TR-CH60-DIFF-tune-saved · 04-TR-CH60-DIFF-verdict · 02-TR-CH60-AWD-brief · 03-TR-CH60-AWD-result · 02-TR-CH60-AWD-tune-supplied · 02-TR-CH60-AWD-tune-saved · 04-TR-CH60-AWD-verdict · 02-TR-CH60-SPRING-brief · 03-TR-CH60-SPRING-result · 02-TR-CH60-SPRING-tune-supplied · 02-TR-CH60-SPRING-tune-saved · 04-TR-CH60-SPRING-verdict · 02-TR-CH60-DAMPER-brief · 03-TR-CH60-DAMPER-result · 02-TR-CH60-DAMPER-tune-supplied · 02-TR-CH60-DAMPER-tune-saved · 04-TR-CH60-DAMPER-verdict · 02-TR-CH60-ARB-brief · 03-TR-CH60-ARB-result · 02-TR-CH60-ARB-tune-supplied · 02-TR-CH60-ARB-tune-saved · 04-TR-CH60-ARB-verdict · 02-TR-CH60-HEIGHT-brief · 03-TR-CH60-HEIGHT-result · 02-TR-CH60-HEIGHT-tune-supplied · 02-TR-CH60-HEIGHT-tune-saved · 04-TR-CH60-HEIGHT-verdict · 02-TR-CH60-AERO-brief · 03-TR-CH60-AERO-result · 02-TR-CH60-AERO-tune-supplied · 02-TR-CH60-AERO-tune-saved · 04-TR-CH60-AERO-verdict · 05-trials-after
+
+## Labels too big at their minimum size, or spilling more than 5 % past their box (failures): 0
+
+## Labels with a character the font lacks, drawn as a box (failures): 0
+
+## Fitting labels whose glyph edges reach a few pixels past the box (TMP fits by advance widths; within 5 %): 16
+- [Title] Body/Screens/Title/Shade/Title — "NIGHT SIGNAL" box 834x188, drawn 847x110 (spill 12 px), size 98.6 (min 63.0)
+- [New profile] Screens/New profile/Panel/Column/Heading — "NEW LOCAL PROFILE" box 640x90, drawn 645x60 (spill 5 px), size 53.8 (min 30.0)
+- [01-trials] Screens/Challenge Trials/ListPanel/List/Heading — "CHALLENGE TRIALS" box 600x90, drawn 604x60 (spill 4 px), size 53.8 (min 30.0)
+- [01-trials] Challenge Trials/ListPanel/List/Trial0/Label — "CH13  NARROW WITHOUT FEAR" box 576x46, drawn 579x36 (spill 3 px), size 32.4 (min 16.5)
+- [01-trials-page2] Challenge Trials/ListPanel/List/Trial8/Label — "CH72  BEFORE THE FIRST TRAIN" box 576x46, drawn 578x35 (spill 2 px), size 31.5 (min 16.5)
+- [02-TR-CH60-FINAL-brief] Challenge Trials/ListPanel/List/Trial4/Label — "CH59  BUILD UNDER PRESSURE" box 576x46, drawn 578x36 (spill 2 px), size 32.2 (min 16.5)
+- [02-TR-CH60-FINAL-brief] Challenge Trials/ListPanel/List/Trial0/Label — "CH49  A PLACE FOR EVERY GEAR" box 576x46, drawn 578x34 (spill 2 px), size 30.7 (min 16.5)
+- [02-TR-CH60-FINAL-brief] Challenge Trials/ListPanel/List/Trial3/Label — "CH57  BALANCED, NOT MAXIMUM" box 576x46, drawn 578x35 (spill 2 px), size 31.0 (min 16.5)
+- [02-TR-CH60-SPREAD-brief] Screens/Challenge Trials/TrialPanel/TrialColumn/TrialTitle — "CH60 · THE COMPLETE NOTEBOOK — GEAR SPREAD" box 900x44, drawn 903x34 (spill 3 px), size 30.5 (min 19.5)
+- [02-TR-CH60-BIAS-brief] Screens/Challenge Trials/TrialPanel/TrialColumn/TrialTitle — "CH60 · THE COMPLETE NOTEBOOK — BRAKE BIAS" box 900x44, drawn 902x36 (spill 2 px), size 31.9 (min 19.5)
+- [02-TR-CH60-DIFF-brief] Screens/Challenge Trials/TrialPanel/TrialColumn/TrialTitle — "CH60 · THE COMPLETE NOTEBOOK — DIFF LOCK" box 900x44, drawn 902x37 (spill 2 px), size 32.8 (min 19.5)
+- [02-TR-CH60-AWD-brief] Screens/Challenge Trials/TrialPanel/TrialColumn/TrialTitle — "CH60 · THE COMPLETE NOTEBOOK — AWD SPLIT" box 900x44, drawn 902x37 (spill 2 px), size 32.7 (min 19.5)
+- [02-TR-CH60-SPRING-brief] Screens/Challenge Trials/TrialPanel/TrialColumn/TrialTitle — "CH60 · THE COMPLETE NOTEBOOK — SPRINGS" box 900x44, drawn 902x38 (spill 2 px), size 34.0 (min 19.5)
+- [02-TR-CH60-DAMPER-brief] Screens/Challenge Trials/TrialPanel/TrialColumn/TrialTitle — "CH60 · THE COMPLETE NOTEBOOK — DAMPERS" box 900x44, drawn 902x37 (spill 2 px), size 33.4 (min 19.5)
+- [02-TR-CH60-HEIGHT-brief] Screens/Challenge Trials/TrialPanel/TrialColumn/TrialTitle — "CH60 · THE COMPLETE NOTEBOOK — RIDE HEIGHT" box 900x44, drawn 902x35 (spill 2 px), size 31.3 (min 19.5)
+- [02-TR-CH60-AERO-brief] Screens/Challenge Trials/TrialPanel/TrialColumn/TrialTitle — "CH60 · THE COMPLETE NOTEBOOK — AERO BALANCE" box 900x44, drawn 903x33 (spill 3 px), size 29.9 (min 19.5)
+
+## Fixed-size live figures drawn beyond their box (they never clip; inspect for collisions): 0
+
+## Labels that fit only at their minimum size (legible, but the smallest allowed): 12
+- [race HUD] RaceHud/Standing1 — "—  Ghost · Trial Driver 128.858 s REPLAY" box 240x26, drawn 239x14 (spill 0 px), size 12.8 (min 12.8)
+- [race HUD] RaceHud/Standing1 — "—  Ghost · Trial Driver 129.610 s REPLAY" box 240x26, drawn 239x14 (spill 0 px), size 12.8 (min 12.8)
+- [02-TR-CH60-DIFF-brief] Challenge Trials/ListPanel/List/Trial6/Label — "CH60  THE COMPLETE NOTEBOOK — AERO BALANCE  3 OF 10" box 576x46, drawn 576x18 (spill 0 px), size 16.6 (min 16.5)
+- [race HUD] RaceHud/Standing1 — "—  Ghost · Trial Driver 131.993 s REPLAY" box 240x26, drawn 239x14 (spill 0 px), size 12.8 (min 12.8)
+- [02-TR-CH60-AWD-brief] Challenge Trials/ListPanel/List/Trial6/Label — "CH60  THE COMPLETE NOTEBOOK — AERO BALANCE  4 OF 10" box 576x46, drawn 576x18 (spill 0 px), size 16.6 (min 16.5)
+- [02-TR-CH60-SPRING-brief] Challenge Trials/ListPanel/List/Trial6/Label — "CH60  THE COMPLETE NOTEBOOK — AERO BALANCE  5 OF 10" box 576x46, drawn 576x18 (spill 0 px), size 16.6 (min 16.5)
+- [race HUD] RaceHud/Standing1 — "—  Ghost · Trial Driver 131.524 s REPLAY" box 240x26, drawn 239x14 (spill 0 px), size 12.8 (min 12.8)
+- [02-TR-CH60-DAMPER-brief] Challenge Trials/ListPanel/List/Trial6/Label — "CH60  THE COMPLETE NOTEBOOK — AERO BALANCE  6 OF 10" box 576x46, drawn 576x18 (spill 0 px), size 16.6 (min 16.5)
+- [02-TR-CH60-ARB-brief] Challenge Trials/ListPanel/List/Trial6/Label — "CH60  THE COMPLETE NOTEBOOK — AERO BALANCE  7 OF 10" box 576x46, drawn 576x18 (spill 0 px), size 16.6 (min 16.5)
+- [02-TR-CH60-HEIGHT-brief] Challenge Trials/ListPanel/List/Trial6/Label — "CH60  THE COMPLETE NOTEBOOK — AERO BALANCE  8 OF 10" box 576x46, drawn 576x18 (spill 0 px), size 16.6 (min 16.5)
+- [02-TR-CH60-AERO-brief] Challenge Trials/ListPanel/List/Trial6/Label — "CH60  THE COMPLETE NOTEBOOK — AERO BALANCE  9 OF 10" box 576x46, drawn 576x18 (spill 0 px), size 16.6 (min 16.5)
+- [race HUD] RaceHud/Standing1 — "—  Ghost · Trial Driver 133.982 s REPLAY" box 240x26, drawn 239x14 (spill 0 px), size 12.8 (min 12.8)

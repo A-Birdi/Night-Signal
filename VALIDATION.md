@@ -3076,3 +3076,21 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   client a fresh `local-data` folder (the second run's tour step had tripped over that stale setup; the trial itself passed —
   `online-TR-CH57-second.txt`).
 - **Limits:** TR-CH56 is offered online by the same path but was not run online here (only TR-CH57); one human per run.
+
+## V-143 — the 47-trial regression tour; EditMode; the CH60 list rows fitted at Text 150 % (2026-09-30)
+- Revision: the player build of `fa8fdfb` (code of `118d778`) for the regression; `1b10fcd` + the bounds-script fix for the
+  re-audit; documented with the commit of this entry.
+- **Regression (`bounds-audit.ps1 -Only 720p-large -Tours TrialTour`, all 47 trials, buttons only, Text 150 % / HUD 130 %):**
+  **PASS**, exit 0; 40 of 47 trials passed by the autopilot and the 26 challenges expected (CH02 … CH74) earned. Every verdict
+  line equals a line of an earlier run (V-127 and V-128 … V-142 — sorted and compared both ways); the only earlier lines not
+  reproduced are CH43/CH51/CH57's dry-surface results superseded by V-142. Not passed, as before: CH13, CH23, CH28, CH36,
+  CH40, CH41, CH43. `Evidence/challenges/trials-tour/trial-tour.txt`.
+- **Its bounds audit found 21 overflows** (109 labels over 663 moments; 0 missing glyphs): every one the same three CH60 rows
+  of the trial list ("CH60  THE COMPLETE NOTEBOOK — ALL-WHEEL-DRIVE SPLIT  3 OF 10" and two more, up to 84 px past their
+  576 px box while the group is in progress) — `Evidence/ui/bounds/bounds-TrialTour-1280x720-text150-47trials.txt`. **Fix:**
+  shorter demonstration names (Diff lock, AWD split, Roll bars, …). `bounds-audit.ps1` takes `-TrialOnly` for a targeted
+  TrialTour (a first attempt passed the extra arguments wrongly and did not start — fixed). **Re-audit of the ten CH60 trials:**
+  all ten PASSED again, CH60 earned; **0 overflow**, 0 missing glyph (91 labels over 187 moments; 16 edge spills and 12 at
+  minimum size, which are not failures). `Evidence/ui/bounds/bounds-TrialTour-1280x720-text150-ch60.txt`.
+- **EditMode (editor, code of `118d778`):** 494 passed, 0 failed, 2 skipped (the explicit V-087 contact experiments).
+  .NET at `118d778`: Core 209, Toys 92, Builds 232, Services 372.

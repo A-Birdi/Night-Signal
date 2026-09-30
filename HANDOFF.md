@@ -169,7 +169,7 @@ Render Cockpit Sheets* renders the mounted views of every car.
 
 Pipeline in dependency order (items at one level do not wait for later ones; human checks are listed where they gate).
 
-0. **Challenges: all 75 judged** (R11.3; `docs/CHALLENGE_TRIALS.md`); tunable trials online (V-142) — next: a full regression tour of all 47 trials. Done so far in the trial work:
+0. **Challenges: all 75 judged** (R11.3; `docs/CHALLENGE_TRIALS.md`); tunable trials online (V-142); the 47-trial regression tour passes with identical verdicts (V-143). Done so far in the trial work:
    slice 1 (V-119/V-120, online too), slice 2 (CH13 V-121, CH15 V-122, zone chains CH17/19/22/27 V-123), slice 3 (CH34 in
    ordinary races V-124; racecraft trials with a fixed AI field CH40/41 V-125, CH36/39 V-126), slice 4 (challenge cups
    CH14/42/69/72 V-127), CH43 (R32's own run, V-128), Driving School section trials CH52/58 (V-129), drills CH53 (V-130),
@@ -179,8 +179,9 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
    Not shown reachable by the autopilot: CH13, CH17, CH22, CH23, CH27, CH28, CH34, CH36, CH40, CH41, CH43 (see each entry).
    CH02 and CH47 as Driving School braking-lane lessons (V-140; kind "lane", `LocalProgression.ApplyLessonTrial`), CH60's
    ten tuning demonstrations (V-141); tunable trials online and trials racing their course's own surface offline (V-142:
-   CH51/CH57 re-measured). **Open:** the full regression tour of all 47 trials on the current build (`bounds-audit.ps1 -Only
-   720p-large -Tours TrialTour`); TR-CH56 online not yet run; Local Freeplay surface parity (a separate task). The control
+   CH51/CH57 re-measured); the 47-trial regression with its bounds audit (V-143: the CH60 list rows fitted). **Open:** TR-CH56
+   online not yet run; Local Freeplay surface parity and the intermittent Services test (separate tasks offered); the eleven
+   challenges not shown reachable by the autopilot. The control
    plane (a task started this session) serves `fa8fdfb`'s code and content — restart it after any trials JSON or Services
    change before an online run. The tour's setup of each tunable trial is `FrontEndApp.TourSetup`. Targeted built-player
    runs: `Tools/run/tour.ps1 -Tour TrialTour -TrialOnly <ids>`; online: `Tools/run/ui-tour-online.ps1 -Intent 5
