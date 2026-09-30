@@ -32,8 +32,11 @@ $serverRole = if ($CupLegs) { @('-batchmode', '-nographics', '-nsServer') } else
 $server = Start-Process -FilePath $exe -PassThru -WorkingDirectory $repo -ArgumentList ($serverRole + @(
     '-nsEvidence', 'Builds/NetRuns/tour-online/evidence', '-logFile', "`"$logs\server.log`"") + (Get-ServerArgs $endpoint))
 Start-Sleep -Seconds 4
+# Local data (Local profiles, online trial setups kept on this PC) in a fresh folder: an automated run never touches real saves.
+$localData = Join-Path $logs 'local-data'
+Remove-Item -Recurse -Force $localData -ErrorAction SilentlyContinue
 $clientArgs = @('-nsUiTourOnline', '-nsDevAccount', "$DevAccount", '-screen-fullscreen', '0', '-screen-width', '1920', '-screen-height', '1080',
-    '-logFile', "`"$logs\client.log`"")
+    '-logFile', "`"$logs\client.log`"", '-nsLocalProfiles', "`"$localData`"")
 if ($Freeplay) { $clientArgs += '-nsUiTourFreeplay' } # Freeplay sprint decided by a course vote
 if ($Garage) { $clientArgs += "-nsUiTourGarage" } # online Garage tyre change before the event
 if ($Appearance) { $clientArgs += "-nsUiTourAppearance" } # online livery applied before the event, checked on the race car

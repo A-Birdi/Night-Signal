@@ -1,0 +1,25 @@
+# ui-tour-online.ps1 -Intent 5 -ChallengeTrial TR-CH57, second run (built player of fa8fdfb; control plane restarted on fa8fdfb with the re-measured targets; bind/advertise 127.0.0.1). The trial PASSED online (2:26.909 against 2:31.500, the frozen tuned build 4fabc32160a0 verified by the game server) and CH57 was earned; the tour step itself failed ('TrialTuneSave' unavailable) because the first run's setup was still saved on this PC in the game's real Local data folder, and the tour's clicks toggled it into an illegal one — Event Ready still sent the saved legal setup. That file (written by the first run) was removed and the online tour now uses a fresh -nsLocalProfiles folder.
+## client
+[NightSignal.UiTourOnline] button not available: TrialTuneSave
+[NightSignal.UiTour] TR-CH57 online setup: NOT LEGAL, PI 556; kept on this PC: True
+[NightSignal.UiTourOnline] shared table: progress 7.14 -> 1005.60, still event ready True
+[NightSignal.UiTourOnline] challenge trial receipt: passed; challenge earned
+[NightSignal.UiTourOnline] online route chart: vs your best 146.909 s: most lost in sector 3 (+0.03 s, 205–307 m); most gained in sector 59 (−0.03 s) · 9 braking points
+[NightSignal.UiTourOnline] FAILED: button not available: TrialTuneSave; last result: <color=#9A968D>LAST RACE</color> | P1 of 1   02:26.909 | <color=#3EC6D8>Challenge trial passed</color> | <size=80%>ok: the supplied loaner · ok: your setup legal and within PI 530 (PI 522) · ok: neither front nor rear aero at its maximum (the wing level below its top, the balance inside its range) · ok: a valid finish · ok: faster than 2:31.500 (2:26.909)</size> | <color=#3EC6D8>Challenge earned</color>  CH57 Balanced, Not Maximum | Credits +26,466   ·   balance 632,564 cr | 
+## server
+[NightSignal.Server] network boundary: bind 127.0.0.1 (local), advertise 127.0.0.1, UDP 7777, LAN opt-in no
+[NightSignal.Server] registered as dev-local; build 0.1.0; content 13794b2ddf67; 1 ticket key(s)
+[NightSignal.Server] Driver 1 races the frozen build 4fabc32160a0 of loaner:TR-CH57 (applied revision 0, 2 part(s), PI 522) — hash verified
+[NightSignal.Server] challenge trial TR-CH57 (CH57) on C15: loaner V09 ac96835da22c
+[NightSignal.Server] listening UDP 127.0.0.1:7777 (local), advertised 127.0.0.1:7777, LAN opt-in no, pid 20544
+[NightSignal.Server] phase Loading at tick 0
+[NightSignal.Server] match m_3e3c7a3d8efea1b29bb5cdee on C15: 1 humans, 0 AI, contact non-contact, port 7777
+[NightSignal.Server] entrant 0 (Driver 1) connected as client 1
+[NightSignal.Server] phase Countdown at tick 203, start tick 443
+[NightSignal.Server] phase Racing at tick 443
+[NightSignal.Server] first human finish; finish window closes at race time 236.9 s
+[NightSignal.Server] phase Results at tick 9258
+[NightSignal.Server] 00000000-0000-4000-8000-000000000001 challenge trial TR-CH57: PASSED — ok: the supplied loaner · ok: your setup legal and within PI 530 (PI 522) · ok: neither front nor rear aero at its maximum (the wing level below its top, the balance inside its range) · ok: a valid finish · ok: faster than 2:31.500 (2:26.909)
+[NightSignal.Server] ghost for 00000000-0000-4000-8000-000000000001: 1470 samples, 99 KB, result 146.909 s -> 200
+[NightSignal.Server] results for m_3e3c7a3d8efea1b29bb5cdee: 200 {"status":"settled","receipts":[{"matchId":"m_3e3c7a3d8efea1b29bb5cdee","accountId":"00000000-0000-4000-8000-000000000001","status":"settled","eventKind":"FreeplayTimeTrial","mode":null,"stageId":null,"courseId":"C15","outcome":"Finished","placement":1,"tied":false,"finishTimeMs":146909,"stage":null,"payout":{"base":9100,"difficultyX100":100,"placementX100":120,"cleanlinessX100":105,"utilityX1…
+[NightSignal.Server] entrant 0 disconnected → Finished

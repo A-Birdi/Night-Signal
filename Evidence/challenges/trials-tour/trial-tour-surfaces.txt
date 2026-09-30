@@ -1,0 +1,30 @@
+# -nsTrialTour -nsTrialOnly TR-CH51,TR-CH57,TR-CH43 (built player of fa8fdfb: trials in "course" conditions now race their course's own surface offline — C08 wet, C15 and C20 damp; isolated profile; validator autopilot; 1280x720; automation).
+[NightSignal.TrialTour] page 2 of 5: its first row opens TR-CH30
+[NightSignal.TrialTour] only: TR-CH51, TR-CH57, TR-CH43
+[NightSignal.Trial] TR-CH43: V16 stock, PI 790, build 76a2a513eb49, on C20 (course)
+[NightSignal.Local] le-23b308fe12eb450ba3f1: V16 races build 76a2a513eb49 (PI ), livery stock
+[NightSignal.Local] FreeplayTimeTrial C20: Applied  wallet 12000 -> 43545; 9 change(s) Saved.
+[NightSignal.Trial] TR-CH43: Trial not passed — ok: the supplied loaner · ok: a valid finish · MISSED: faster than 2:47.220 (3:04.521) · ok: every marked defence gate inside the legal corridor (2 of them)
+[NightSignal.TrialTour] TR-CH43 (CH43 gold): not passed — ok: the supplied loaner · ok: a valid finish · MISSED: faster than 2:47.220 (3:04.521) · ok: every marked defence gate inside the legal corridor (2 of them)
+[NightSignal.TrialTour] TR-CH43: profile keeps it: False; challenge earned: False
+[NightSignal.Trial] TR-CH51: V07 TYR-T3-RAINSPORT, PI 485, build a6b840083c8f, on C08 (course)
+[NightSignal.Local] le-e46a86a38e1749b6bcd1: V07 races build a6b840083c8f (PI ), livery stock
+[NightSignal.Local] FreeplayTimeTrial C08: Applied  wallet 43545 -> 71011; 9 change(s) Saved.
+[NightSignal.Trial] TR-CH51: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 3:06.600 (2:49.615)
+[NightSignal.TrialTour] TR-CH51 (CH51 silver): PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 3:06.600 (2:49.615)
+[NightSignal.TrialTour] TR-CH51: profile keeps it: True; challenge earned: True
+[NightSignal.Trial] TR-CH57: V09 as supplied — parts aero=AER-T3-GTWING; tune ; PI 504
+[NightSignal.Local] le-9272c90a9e064f38b739: V09 races build ac96835da22c (PI ), livery stock
+[NightSignal.Local] FreeplayTimeTrial C15: Applied  wallet 71011 -> 97477; 5 change(s) Saved.
+[NightSignal.Trial] TR-CH57: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal and within PI 530 (PI 504) · ok: neither front nor rear aero at its maximum (the wing level below its top, the balance inside its range) · ok: a valid finish · ok: faster than 2:31.500 (2:28.456)
+[NightSignal.TrialTour] TR-CH57 (CH57 gold): PASSED — ok: the supplied loaner · ok: your setup legal and within PI 530 (PI 504) · ok: neither front nor rear aero at its maximum (the wing level below its top, the balance inside its range) · ok: a valid finish · ok: faster than 2:31.500 (2:28.456)
+[NightSignal.TrialTour] TR-CH57 tune: legal; parts aero=AER-T3-GTWING, tyres=TYR-T1-TOURING; tune AeroBalance=450, AeroLevel=900; PI 522; final drive changed False; aero at an end False
+[NightSignal.Trial] TR-CH57 setup saved (parts tyres=TYR-T1-TOURING; tune AeroBalance=450, AeroLevel=900)
+[NightSignal.Trial] TR-CH57: V09 with your setup — parts aero=AER-T3-GTWING, tyres=TYR-T1-TOURING; tune AeroBalance=450, AeroLevel=900; PI 522
+[NightSignal.Local] le-4fa914cb02444924ad57: V09 races build 4fabc32160a0 (PI ), livery stock
+[NightSignal.Local] FreeplayTimeTrial C15: Applied  wallet 97477 -> 108943; 1 change(s) Saved.
+[NightSignal.Trial] TR-CH57: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal and within PI 530 (PI 522) · ok: neither front nor rear aero at its maximum (the wing level below its top, the balance inside its range) · ok: a valid finish · ok: faster than 2:31.500 (2:26.892)
+[NightSignal.TrialTour] TR-CH57 (CH57 gold): PASSED — ok: the supplied loaner · ok: your setup legal and within PI 530 (PI 522) · ok: neither front nor rear aero at its maximum (the wing level below its top, the balance inside its range) · ok: a valid finish · ok: faster than 2:31.500 (2:26.892)
+[NightSignal.TrialTour] TR-CH57: profile keeps it: True; challenge earned: True
+[NightSignal.TrialTour] 2 of 47 trials passed by the autopilot; challenges earned: CH51, CH57; wallet 108,943 cr
+[NightSignal.TrialTour] PASS

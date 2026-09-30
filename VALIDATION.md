@@ -3036,3 +3036,43 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   passed again with the live "measured difference" line on the lesson panel (−2.5 m). Tour PASS.
   `Evidence/challenges/trials-tour/trial-tour-TR-CH60.txt`, `02-TR-CH60-HEIGHT-tune-saved.png`, `03-TR-CH47-lesson-live.png`.
 - **R11.3:** with CH60 every one of the 75 challenges is judged somewhere (V-084 … V-141).
+
+## V-142 — tunable trials online (CH56's "server validates all installed parameters"); trials race their course's own surface offline (2026-09-30)
+- Revision: `ea3e54b` (online code), `fa8fdfb` (surface fix, re-measured targets), documented with the commit of this entry.
+- **Online tunable trials:** `event.ready` may carry the player's `trialSetup` (parts by slot, tuning by control). The control
+  plane resolves it with Core `TrialLoaners.ResolveSetup` from its own parts data (`GarageService.TrialSetupBuild`) — every
+  installed part must be among the trial's, every setting valid for the installed parts, the PI inside the budget — and
+  refuses readiness otherwise (`trial_setup_invalid`; a setup for a trial supplied as it is: `trial_setup_unexpected`). The
+  validated setup is kept per member with the proposal (dropped on un-ready) and re-resolved at the start into that member's
+  own frozen loaner build (others race the supplied one). The game server re-resolves the frozen build (hash verified) and
+  fills the setup facts itself (legal, PI, final drive changed, aero at an end, changed controls); `DroveLoaner` accepts the
+  member's validated setup. The client keeps an online account's setups on this PC beside the Local profiles
+  (`OnlineTrialSetups`) and opens Tune the Loaner from the Convoy page ("Tune the Loaner" while a tunable trial is proposed).
+  Now offered online: tunable trials on ordinary courses — TR-CH56 (C23) and TR-CH57 (C15); racecraft (CH59), Driving School
+  (CH46, CH60) and lane lessons (CH02, CH47) stay offline. **Found and fixed on the way:** readying for a trial checked the
+  member's *own garage car* against the loaner's class cap (a member in a high-PI car could not ready for CH54 online) — a
+  trial races its loaner, so that check is skipped.
+- **Tests:** Services 372 (a tunable trial proposed; a member's setup kept at ready and frozen as that member's loaner, a
+  foreign-car build ignored; the member's own car cap ignored for a trial; un-ready drops the setup; `TrialSetupBuild` refuses
+  a part over the budget, a part not offered and an out-of-range setting, and resolves a legal setup to its own hash).
+- **Surface parity (found by the first online run):** an offline trial or cup leg in "course" conditions set a **null
+  surface, which meant dry grip** in the Local race and in `MeasureChallengeTrials` (whose report still printed the course's
+  surface), while the online server races the course's own surface. So C08 (wet), C15 and C20 (damp) trials had been
+  measured and toured dry: the first online TR-CH57 run (damp) was 2:26.909 against a dry-measured 2:24.300 — not passed
+  (`Evidence/challenges/trials-online/online-TR-CH57-first.txt`). Now a null surface resolves to the course's route surface
+  after the course loads, offline and in the measurement. Re-measured: **TR-CH51** (wet C08) 169.614 s → Silver **186.6 s**
+  (was 169.2); **TR-CH57** (damp C15) 148.456 s → Gold **151.5 s** (was 144.3) (`Evidence/challenges/trials-TR-CH51-TR-CH57.txt`).
+  TR-CH43 (damp C20) races R32's reference time, unchanged. No cup leg is on those courses. Local Freeplay (no weather choice)
+  still races dry on those courses while online Freeplay uses the course surface — flagged as a separate task, not changed here.
+- **Built players:** offline (`tour.ps1 -TrialOnly TR-CH51,TR-CH57,TR-CH43`, build of `fa8fdfb`): TR-CH51 **PASSED** in the
+  wet (2:49.615 < 3:06.6); TR-CH57 **PASSED** as supplied (2:28.45) and tuned (2:26.89 — the online time); TR-CH43 not reached
+  (3:04.521 damp). `Evidence/challenges/trials-tour/trial-tour-surfaces.txt`. Online (`ui-tour-online.ps1 -Intent 5
+  -ChallengeTrial TR-CH57`, control plane restarted for the new code and content, server bound and advertised 127.0.0.1):
+  Tune the Loaner from the Convoy page by buttons (touring tyres, AeroLevel 900, AeroBalance 450, PI 522), Event Ready with
+  the setup, the server raced the frozen tuned build `4fabc32160a0` (hash verified) — **PASSED** 2:26.909 < 2:31.500; CH57
+  earned online. `Evidence/challenges/trials-online/online-TR-CH57.txt`, `05u-online-tune-saved-TR-CH57.png`.
+- **Found on the way:** the online tour client had no `-nsLocalProfiles`, so the first run's online setup was written into
+  the game's real Local data folder (dev account 0's file, created by that run) — removed; `ui-tour-online.ps1` now gives the
+  client a fresh `local-data` folder (the second run's tour step had tripped over that stale setup; the trial itself passed —
+  `online-TR-CH57-second.txt`).
+- **Limits:** TR-CH56 is offered online by the same path but was not run online here (only TR-CH57); one human per run.
