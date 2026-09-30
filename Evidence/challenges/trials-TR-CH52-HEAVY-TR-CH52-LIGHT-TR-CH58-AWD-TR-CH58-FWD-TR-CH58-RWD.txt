@@ -1,0 +1,30 @@
+# Challenge trial targets, measured by ChallengeTrialReferenceTests (PlayMode, explicit): each trial's loaner resolved like a
+# garage build, solo, validator autopilot, the trial's course and conditions; drift trials: the cleanest of three drift skills. Automation.
+# this run measured only: TR-CH52-LIGHT, TR-CH52-HEAVY, TR-CH58-FWD, TR-CH58-RWD, TR-CH58-AWD
+
+## TR-CH52-LIGHT (CH52, silver) on T00 (dry): Arata Shigure GT WGT-T2-PANELS, PI 448
+time 117.006 s; banked 0 raw (earned 0) in 0/3 zones; walls 0, resets 0, handbrake 0.0 s, off the paved road 10.8 s
+section T00-CMP-A-START → T00-CMP-A-END: 13.183 s
+→ silver time 14.6 s (1.10 ×)
+
+## TR-CH52-HEAVY (CH52, silver) on T00 (dry): Arata Shigure GT, PI 430
+time 117.635 s; banked 0 raw (earned 0) in 0/3 zones; walls 0, resets 0, handbrake 0.0 s, off the paved road 10.2 s
+section T00-CMP-B-START → T00-CMP-B-END: 19.366 s
+→ silver time 21.4 s (1.10 ×)
+
+## TR-CH58-FWD (CH58, gold) on T00 (dry): Mizuno Sparrow Type-S, PI 405
+time 117.550 s; banked 0 raw (earned 0) in 0/3 zones; walls 0, resets 0, handbrake 0.0 s, off the paved road 10.3 s
+section T00-CFG1-START → T00-CFG1-END: 15.433 s
+→ gold time 15.8 s (1.02 ×)
+
+## TR-CH58-RWD (CH58, gold) on T00 (dry): Shinmei Linea 20, PI 380
+time 118.355 s; banked 0 raw (earned 0) in 0/3 zones; walls 0, resets 0, handbrake 0.0 s, off the paved road 9.5 s
+section T00-CFG2-START → T00-CFG2-END: 16.550 s
+→ gold time 16.9 s (1.02 ×)
+
+## TR-CH58-AWD (CH58, gold) on T00 (dry): Arata Shigure GT, PI 430
+time 117.635 s; banked 0 raw (earned 0) in 0/3 zones; walls 0, resets 0, handbrake 0.0 s, off the paved road 10.2 s
+section T00-CFG3-START → T00-CFG3-END: 19.516 s
+→ gold time 20.0 s (1.02 ×)
+
+# every trial measured

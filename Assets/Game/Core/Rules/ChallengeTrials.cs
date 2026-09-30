@@ -125,6 +125,12 @@ namespace NightSignal.Core.Rules
         /// </summary>
         public string ReferenceRival = "";
         public int ReferenceStage;
+        /// <summary>
+        /// A timed section instead of the whole run (slice 5: T00's comparison routes and configurations, CH52 and CH58): the
+        /// route gates that start and end it ("" = the finish time is judged). The time target is the section's.
+        /// </summary>
+        public string SectionStartGate = "", SectionEndGate = "";
+        public bool HasSection => !string.IsNullOrEmpty(SectionStartGate) && !string.IsNullOrEmpty(SectionEndGate);
         /// <summary>A racecraft trial's fixed AI field, in grid order (empty for time and drift trials, which run alone).</summary>
         public List<TrialFieldCar> Field = new List<TrialFieldCar>();
         /// <summary>The player starts from the last grid slot, behind the whole field (CH41 "from the last grid position").</summary>
@@ -202,6 +208,8 @@ namespace NightSignal.Core.Rules
         /// <summary>Every defence zone of the challenge driven inside the legal corridor, and how many there are.</summary>
         public bool DefenceZonesKept;
         public int DefenceZones;
+        /// <summary>A section trial: the first time the section was driven start to end without a reset (ms; 0 = never).</summary>
+        public long SectionMs;
     }
 
     public sealed class TrialVerdict
@@ -224,7 +232,10 @@ namespace NightSignal.Core.Rules
             Check(f.DroveLoaner, "the supplied loaner");
             if (t.IsCup) return JudgeCup(t, f, v);
             Check(f.Finished, "a valid finish");
-            if (t.Targets.TimeMs > 0)
+            if (t.Targets.TimeMs > 0 && t.HasSection)
+                Check(f.Finished && f.SectionMs > 0 && f.SectionMs < t.Targets.TimeMs,
+                    $"{t.SectionStartGate} to {t.SectionEndGate} faster than {Clock(t.Targets.TimeMs)} ({(f.SectionMs > 0 ? Clock(f.SectionMs) : "not driven")})");
+            else if (t.Targets.TimeMs > 0)
                 Check(f.Finished && f.TimeMs > 0 && f.TimeMs < t.Targets.TimeMs, $"faster than {Clock(t.Targets.TimeMs)} ({(f.TimeMs > 0 ? Clock(f.TimeMs) : "no time")})");
             if (t.Targets.DriftRaw > 0)
                 Check(f.DriftRaw >= t.Targets.DriftRaw, $"{t.Targets.DriftRaw:N0} raw drift banked ({f.DriftRaw:N0})");
@@ -329,6 +340,8 @@ namespace NightSignal.Core.Rules
                     if (t.Legs != null && t.Legs.Count > 0 && t.Course != t.Legs[0].Course) problems.Add($"{t.Id}: a cup's course is its first leg's");
                     if (t.LegFactor < 0) problems.Add($"{t.Id}: negative leg factor");
                 if (!string.IsNullOrEmpty(t.ReferenceRival) && !t.JudgesTime) problems.Add($"{t.Id}: a rival's reference is a time");
+                if (string.IsNullOrEmpty(t.SectionStartGate) != string.IsNullOrEmpty(t.SectionEndGate)) problems.Add($"{t.Id}: a section needs its start and end gates");
+                if (t.HasSection && !t.JudgesTime) problems.Add($"{t.Id}: a section is timed");
                 }
                 else if (t.Legs != null && t.Legs.Count > 0) problems.Add($"{t.Id}: only challenge cups have legs");
                 if (t.IsRace && (t.Field == null || t.Field.Count == 0)) problems.Add($"{t.Id}: a racecraft trial needs its fixed field");

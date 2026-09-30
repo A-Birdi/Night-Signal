@@ -44,6 +44,7 @@ namespace NightSignal.Tests
             public int Zones, ZonesBanked, Walls, Resets;
             public float OffPaved;
             public bool GatesTouched, DefenceKept;
+            public long SectionMs;
             public string OffPavedWhere = "";
             public string Surface;
             public NightSignal.Core.Ghosts.GhostRecording Ghost;
@@ -81,6 +82,7 @@ namespace NightSignal.Tests
                 Kind = "freeplay", Contact = ContactPolicy.NonContact, StageNumber = 10,
                 CarCapPi = t.Loaner.PiCap > 0 ? t.Loaner.PiCap : PerformanceIndex.Max,
                 Surface = t.Conditions == "course" ? null : t.Conditions, DriftRanking = t.JudgesDrift,
+                SectionStartGate = t.HasSection ? t.SectionStartGate : null, SectionEndGate = t.HasSection ? t.SectionEndGate : null,
             };
             session.OpposingAi = new System.Collections.Generic.List<string>();
             yield return null;
@@ -96,6 +98,7 @@ namespace NightSignal.Tests
                 Ghost = session.PlayerGhost,
                 GatesTouched = me.GateRun != null && me.GateRun.AllTouched(t.Challenge),
                 DefenceKept = me.GateRun != null && me.GateRun.DefenceKept(t.Challenge),
+                SectionMs = me.SectionMicros > 0 ? me.SectionMicros / 1000 : 0,
                 OffPavedWhere = string.Join(", ", me.Progress.OffPavedAt.Select(v => $"{v.x:F0} m lateral {v.y:F2} of {v.z * 0.5f:F2}")),
                 Surface = session.Rules.Surface ?? CourseRuntime.Active?.Route?.Surface ?? "dry",
             };
@@ -233,7 +236,10 @@ namespace NightSignal.Tests
                 if (best.Resets > 0) report.AppendLine($"(the cleanest reference still reset {best.Resets} time(s): its time includes them)");
                 // A rival's own practice reference is its time itself (to beat); otherwise the validator's time × the tier's factor.
                 t.Targets.TimeMs = !t.JudgesTime ? 0 : !string.IsNullOrEmpty(t.ReferenceRival) ? best.TimeMs
+                    : t.HasSection ? (best.SectionMs > 0 ? (long)Math.Ceiling(TimeFactor(t.Tier) * best.SectionMs / 100.0) * 100 : 0)
                     : (long)Math.Ceiling(TimeFactor(t.Tier) * best.TimeMs / 100.0) * 100;
+                if (t.HasSection) report.AppendLine($"section {t.SectionStartGate} → {t.SectionEndGate}: {(best.SectionMs > 0 ? $"{best.SectionMs / 1000.0:F3} s" : "NOT DRIVEN")}");
+                if (t.HasSection && best.SectionMs <= 0) problems.Add($"{t.Id}: the reference never drove its section");
                 if (!string.IsNullOrEmpty(t.ReferenceRival)) report.AppendLine($"(driven by {t.ReferenceRival}'s profile at stage {t.ReferenceStage}: its time is the target)");
                 if (t.Rules.AllDefenceZones) report.AppendLine($"marked defence gates inside the corridor: {best.DefenceKept}");
                 t.Targets.ReferenceEdgeMargin = best.Margin;

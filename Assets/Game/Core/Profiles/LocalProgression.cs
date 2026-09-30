@@ -897,7 +897,8 @@ namespace NightSignal.Core.Profiles
                     if (f.StageId != null || f.TeamTrial != null) return "A tutorial event has no stage or trial.";
                     break;
                 default:
-                    if (course.Kind == "tutorial") return "The tutorial course is not a Freeplay course.";
+                    // Challenge trials may time a Driving School section on the tutorial course (CH52, CH58); Freeplay may not race it.
+                    if (course.Kind == "tutorial" && string.IsNullOrEmpty(f.TrialId)) return "The tutorial course is not a Freeplay course.";
                     if (f.StageId != null) return "Only campaign events name a stage.";
                     if (f.TeamTrial != null)
                     {

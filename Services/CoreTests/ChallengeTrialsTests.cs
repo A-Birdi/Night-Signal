@@ -29,8 +29,8 @@ public sealed class ChallengeTrialsTests
     public void TheAuthoredTrials_LoadIntoTheHashedCatalogue_OnePerChallengeOrOneGroup()
     {
         Assert.Contains(ContentCatalogue.AuthoredFiles, f => f == "challenge-trials.json");
-        Assert.Equal(19, Trials.Trials.Count);
-        Assert.Equal(new[] { "CH11", "CH13", "CH14", "CH15", "CH25", "CH28", "CH30", "CH36", "CH39", "CH40", "CH41", "CH42", "CH43", "CH51", "CH54", "CH55", "CH69", "CH72" }, Trials.Trials.Select(t => t.Challenge).Distinct().OrderBy(c => c));
+        Assert.Equal(24, Trials.Trials.Count);
+        Assert.Equal(new[] { "CH11", "CH13", "CH14", "CH15", "CH25", "CH28", "CH30", "CH36", "CH39", "CH40", "CH41", "CH42", "CH43", "CH51", "CH52", "CH54", "CH55", "CH58", "CH69", "CH72" }, Trials.Trials.Select(t => t.Challenge).Distinct().OrderBy(c => c));
         ChallengeTrialDef ch36 = Trials.Find("TR-CH36")!;
         Assert.True(ch36.IsRace && ch36.Rules.ZonePassRole == "pacing" && ch36.Field.Single().Role == "pacing");
         // The racecraft trials: fixed fields in the loaner's class, the player starting last.
@@ -53,6 +53,14 @@ public sealed class ChallengeTrialsTests
         // CH43: R32's own practice run in R32's V16 is the Gold reference, with the defence gates.
         ChallengeTrialDef ch43 = Trials.Find("TR-CH43")!;
         Assert.True(ch43.ReferenceRival == "R32" && ch43.ReferenceStage == 28 && ch43.Loaner.Car == "V16" && ch43.Rules.AllDefenceZones && ch43.JudgesTime);
+        // CH52 and CH58: section trials on the Driving School's marked sections, in groups; each named gate is on T00's route.
+        using var t00 = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(TestContent.RepoRoot, "Assets", "Content", "Courses", "T00", "route.json")));
+        var t00Gates = t00.RootElement.GetProperty("gates").EnumerateArray().ToDictionary(g => g.GetProperty("id").GetString()!, g => g.TryGetProperty("challenge", out var c) ? c.GetString() : "");
+        List<ChallengeTrialDef> sections = Trials.Trials.Where(t => t.HasSection).ToList();
+        Assert.Equal(new[] { "TR-CH52-LIGHT", "TR-CH52-HEAVY", "TR-CH58-FWD", "TR-CH58-RWD", "TR-CH58-AWD" }, sections.Select(t => t.Id));
+        Assert.All(sections, t => Assert.True(t.Course == "T00" && t.Group == t.Challenge && t.JudgesTime
+            && t00Gates.TryGetValue(t.SectionStartGate, out string? a) && a == t.Challenge && t00Gates.TryGetValue(t.SectionEndGate, out string? b) && b == t.Challenge, t.Id));
+        Assert.Equal(new[] { "FWD", "RWD", "AWD" }, sections.Where(t => t.Challenge == "CH58").Select(t => Cat.Car(t.Loaner.Car).Drive));
         Assert.True(Trials.Find("TR-CH15")!.Rules.AllChallengeGates && Trials.Find("TR-CH15")!.Rules.NoReset);
         Assert.True(Trials.Find("TR-CH13")!.Ghost && Trials.Find("TR-CH13")!.Rules.AllTyresPaved); // the fixed Gold ghost, tyres on the paved road
         Assert.Equal(2, Trials.ForChallenge("CH54").Count);
@@ -156,6 +164,12 @@ public sealed class ChallengeTrialsTests
         Assert.False(TrialJudge.Judge(race, Run() with { PressureSectorMs = 30_500 }).Passed, "too slow");
         Assert.False(TrialJudge.Judge(race, Run()).Passed, "never held under pressure");
         race.Targets = new TrialTargets();
+
+        var timed = new ChallengeTrialDef { Id = "TR-S", Challenge = "CH58", Course = "T00", Kind = "time", Loaner = new TrialLoaner { Car = "V06" },
+            SectionStartGate = "T00-CFG1-START", SectionEndGate = "T00-CFG1-END", Targets = new TrialTargets { TimeMs = 30_000 } };
+        Assert.True(TrialJudge.Judge(timed, Run(timeMs: 200_000) with { SectionMs = 29_000 }).Passed, "the section's time, not the finish");
+        Assert.False(TrialJudge.Judge(timed, Run(timeMs: 20_000) with { SectionMs = 31_000 }).Passed);
+        Assert.Contains("T00-CFG1-START to T00-CFG1-END faster than 0:30.000 (not driven)", TrialJudge.Judge(timed, Run()).Summary);
 
         var defended = new ChallengeTrialDef { Id = "TR-G", Challenge = "CH43", Course = "C20", Kind = "time", Loaner = new TrialLoaner { Car = "V16" },
             Rules = new TrialRules { AllDefenceZones = true }, Targets = new TrialTargets { TimeMs = 100_000 } };

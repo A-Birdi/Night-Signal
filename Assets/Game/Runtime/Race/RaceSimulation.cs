@@ -47,6 +47,9 @@ namespace NightSignal.Race
         public RacecraftRun Racecraft;
         /// <summary>Challenge-zone chains and holds (courses with tagged transition, clip or demonstration zones; null elsewhere).</summary>
         public ZoneChainRun ZoneChains;
+        /// <summary>A timed section (section trials): when it was entered (−1 = not in it) and its first clean time (−1 = none yet).</summary>
+        public long SectionStartMicros = -1, SectionMicros = -1;
+        public float SectionLastDistance = -1f;
         public bool Collides => Status == EntrantStatus.Racing || Status == EntrantStatus.Finished;
     }
 
@@ -93,6 +96,8 @@ namespace NightSignal.Race
         public List<TrialFieldCar> TrialField;
         /// <summary>The humans start from the back of the grid, behind every AI car (CH41 "from the last grid position").</summary>
         public bool HumansStartLast;
+        /// <summary>A section to time for every entrant (a section trial): the route gates that start and end it (null = none).</summary>
+        public string SectionStartGate, SectionEndGate;
     }
 
     public sealed class HumanSlot
@@ -193,6 +198,13 @@ namespace NightSignal.Race
             sim.ZoneChains = ZoneChainJudge.ForTrack(track);
             sim.gateWorld = world;
             sim.Racecraft = RacecraftJudge.ForEvent(rules, sim.Entrants, track);
+            if (!string.IsNullOrEmpty(rules.SectionStartGate) && !string.IsNullOrEmpty(rules.SectionEndGate))
+            {
+                RouteGateDef from = track.Gates.FirstOrDefault(g => g.Id == rules.SectionStartGate), to = track.Gates.FirstOrDefault(g => g.Id == rules.SectionEndGate);
+                if (from == null || to == null) throw new InvalidOperationException($"the course has no gate {(from == null ? rules.SectionStartGate : rules.SectionEndGate)}");
+                sim.sectionStart = from.StartMetres;
+                sim.sectionEnd = to.StartMetres;
+            }
             int slot = 0, generic = 0;
             // Entrant order stays humans first (the local player is entrant 0); only where each car stands on the grid moves.
             int Grid(int order) => !rules.HumansStartLast ? order : order < humans.Count ? vehicles - humans.Count + order : order - humans.Count;
@@ -226,6 +238,25 @@ namespace NightSignal.Race
             if (role != "featured" || string.IsNullOrEmpty(Rules.StageId)) return 1f;
             if (Rules.FeaturedRivalPace > 0f) return Rules.FeaturedRivalPace;
             return cat.TryCertifiedBenchmark(Rules.StageId, Rules.Mode, out CertifiedBenchmark b) ? (float)b.FeaturedRivalPace : 1f;
+        }
+
+        float sectionStart = -1f, sectionEnd = -1f;
+
+        /// <summary>
+        /// A section trial's clock: started when the car drives over the start gate, stopped over the end gate (across a circuit's
+        /// seam too); a reset, a recovery or a jump in between voids that attempt; the first clean time is kept.
+        /// </summary>
+        void StepSection(RaceEntrant e, bool reset, long raceMicros)
+        {
+            float d = e.Progress.Location.Distance, last = e.SectionLastDistance;
+            e.SectionLastDistance = d;
+            if (e.SectionMicros >= 0) return;
+            if (reset || last < 0f) { e.SectionStartMicros = -1; return; }
+            bool wrapped = Track.ClosedLoop && last - d > Track.LengthMetres * 0.5f;
+            if (!wrapped && (d < last || d - last > 30f)) { e.SectionStartMicros = -1; return; }
+            bool Crossed(float m) => wrapped ? m > last || m <= d : last < m && d >= m;
+            if (e.SectionStartMicros < 0) { if (Crossed(sectionStart)) e.SectionStartMicros = raceMicros; }
+            else if (Crossed(sectionEnd)) e.SectionMicros = raceMicros - e.SectionStartMicros;
         }
 
         /// <summary>How far behind (s) a pressure car keeps beyond a car length — inside CH39's 1 s, clear of a hard-braking car ahead.</summary>
@@ -373,6 +404,7 @@ namespace NightSignal.Race
                     reset = true;
                 }
                 if (reset) e.StuckSeconds = e.OverturnedSeconds = 0f;
+                if (sectionEnd >= 0f) StepSection(e, reset, raceMicros);
                 Drift.Step(e, reset, e.Progress.Finished);
                 Contracts?.Step(e, input, raceMicros, reset);
                 Gates?.Step(e, input, reset, gateWorld);

@@ -13,6 +13,8 @@
       "legFactor": 0.0,
       "referenceRival": "",
       "referenceStage": 0,
+      "sectionStartGate": "",
+      "sectionEndGate": "",
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -51,6 +53,7 @@
       "judgesDrift": false,
       "isRace": false,
       "isCup": false,
+      "hasSection": false,
       "published": true
     },
     {
@@ -64,6 +67,8 @@
       "legFactor": 0.0,
       "referenceRival": "",
       "referenceStage": 0,
+      "sectionStartGate": "",
+      "sectionEndGate": "",
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -102,6 +107,7 @@
       "judgesDrift": false,
       "isRace": false,
       "isCup": false,
+      "hasSection": false,
       "published": true
     },
     {
@@ -115,6 +121,8 @@
       "legFactor": 0.0,
       "referenceRival": "R32",
       "referenceStage": 28,
+      "sectionStartGate": "",
+      "sectionEndGate": "",
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -153,6 +161,7 @@
       "judgesDrift": false,
       "isRace": false,
       "isCup": false,
+      "hasSection": false,
       "published": true
     },
     {
@@ -166,6 +175,8 @@
       "legFactor": 0.0,
       "referenceRival": "",
       "referenceStage": 0,
+      "sectionStartGate": "",
+      "sectionEndGate": "",
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -204,6 +215,7 @@
       "judgesDrift": false,
       "isRace": false,
       "isCup": false,
+      "hasSection": false,
       "published": true
     },
     {
@@ -217,6 +229,8 @@
       "legFactor": 0.0,
       "referenceRival": "",
       "referenceStage": 0,
+      "sectionStartGate": "",
+      "sectionEndGate": "",
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -255,6 +269,7 @@
       "judgesDrift": false,
       "isRace": false,
       "isCup": false,
+      "hasSection": false,
       "published": true
     },
     {
@@ -268,6 +283,8 @@
       "legFactor": 0.0,
       "referenceRival": "",
       "referenceStage": 0,
+      "sectionStartGate": "",
+      "sectionEndGate": "",
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -308,6 +325,7 @@
       "judgesDrift": false,
       "isRace": false,
       "isCup": false,
+      "hasSection": false,
       "published": true
     },
     {
@@ -321,6 +339,8 @@
       "legFactor": 0.0,
       "referenceRival": "",
       "referenceStage": 0,
+      "sectionStartGate": "",
+      "sectionEndGate": "",
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -359,6 +379,7 @@
       "judgesDrift": false,
       "isRace": false,
       "isCup": false,
+      "hasSection": false,
       "published": true
     },
     {
@@ -372,6 +393,8 @@
       "legFactor": 0.0,
       "referenceRival": "",
       "referenceStage": 0,
+      "sectionStartGate": "",
+      "sectionEndGate": "",
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -410,6 +433,7 @@
       "judgesDrift": false,
       "isRace": false,
       "isCup": false,
+      "hasSection": false,
       "published": true
     },
     {
@@ -423,6 +447,8 @@
       "legFactor": 0.0,
       "referenceRival": "",
       "referenceStage": 0,
+      "sectionStartGate": "",
+      "sectionEndGate": "",
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -463,6 +489,7 @@
       "judgesDrift": true,
       "isRace": false,
       "isCup": false,
+      "hasSection": false,
       "published": true
     },
     {
@@ -476,6 +503,8 @@
       "legFactor": 0.0,
       "referenceRival": "",
       "referenceStage": 0,
+      "sectionStartGate": "",
+      "sectionEndGate": "",
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -516,6 +545,7 @@
       "judgesDrift": true,
       "isRace": false,
       "isCup": false,
+      "hasSection": false,
       "published": true
     },
     {
@@ -529,6 +559,8 @@
       "legFactor": 0.0,
       "referenceRival": "",
       "referenceStage": 0,
+      "sectionStartGate": "",
+      "sectionEndGate": "",
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -569,6 +601,7 @@
       "judgesDrift": true,
       "isRace": false,
       "isCup": false,
+      "hasSection": false,
       "published": true
     },
     {
@@ -582,6 +615,8 @@
       "legFactor": 0.0,
       "referenceRival": "",
       "referenceStage": 0,
+      "sectionStartGate": "",
+      "sectionEndGate": "",
       "field": [
         {
           "car": "V05",
@@ -639,6 +674,7 @@
       "judgesDrift": false,
       "isRace": true,
       "isCup": false,
+      "hasSection": false,
       "published": true
     },
     {
@@ -652,6 +688,8 @@
       "legFactor": 0.0,
       "referenceRival": "",
       "referenceStage": 0,
+      "sectionStartGate": "",
+      "sectionEndGate": "",
       "field": [
         {
           "car": "V07",
@@ -721,6 +759,7 @@
       "judgesDrift": false,
       "isRace": true,
       "isCup": false,
+      "hasSection": false,
       "published": true
     },
     {
@@ -734,6 +773,8 @@
       "legFactor": 0.0,
       "referenceRival": "",
       "referenceStage": 0,
+      "sectionStartGate": "",
+      "sectionEndGate": "",
       "field": [
         {
           "car": "V06",
@@ -779,6 +820,7 @@
       "judgesDrift": false,
       "isRace": true,
       "isCup": false,
+      "hasSection": false,
       "published": true
     },
     {
@@ -792,6 +834,8 @@
       "legFactor": 0.0,
       "referenceRival": "",
       "referenceStage": 0,
+      "sectionStartGate": "",
+      "sectionEndGate": "",
       "field": [
         {
           "car": "V07",
@@ -837,6 +881,7 @@
       "judgesDrift": false,
       "isRace": true,
       "isCup": false,
+      "hasSection": false,
       "published": true
     },
     {
@@ -866,6 +911,8 @@
       "legFactor": 0.0,
       "referenceRival": "",
       "referenceStage": 0,
+      "sectionStartGate": "",
+      "sectionEndGate": "",
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -904,6 +951,7 @@
       "judgesDrift": false,
       "isRace": false,
       "isCup": true,
+      "hasSection": false,
       "published": true
     },
     {
@@ -933,6 +981,8 @@
       "legFactor": 1.02,
       "referenceRival": "",
       "referenceStage": 0,
+      "sectionStartGate": "",
+      "sectionEndGate": "",
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -971,6 +1021,7 @@
       "judgesDrift": false,
       "isRace": false,
       "isCup": true,
+      "hasSection": false,
       "published": true
     },
     {
@@ -1000,6 +1051,8 @@
       "legFactor": 1.35,
       "referenceRival": "",
       "referenceStage": 0,
+      "sectionStartGate": "",
+      "sectionEndGate": "",
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -1038,6 +1091,7 @@
       "judgesDrift": false,
       "isRace": false,
       "isCup": true,
+      "hasSection": false,
       "published": true
     },
     {
@@ -1067,6 +1121,8 @@
       "legFactor": 1.2,
       "referenceRival": "",
       "referenceStage": 0,
+      "sectionStartGate": "",
+      "sectionEndGate": "",
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -1105,6 +1161,279 @@
       "judgesDrift": false,
       "isRace": false,
       "isCup": true,
+      "hasSection": false,
+      "published": true
+    },
+    {
+      "id": "TR-CH52-LIGHT",
+      "challenge": "CH52",
+      "title": "Weight Is Not Free",
+      "course": "T00",
+      "tier": "silver",
+      "kind": "time",
+      "legs": [],
+      "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
+      "sectionStartGate": "T00-CMP-A-START",
+      "sectionEndGate": "T00-CMP-A-END",
+      "field": [],
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V07",
+        "parts": {
+          "weight-reduction": "WGT-T2-PANELS"
+        },
+        "piCap": 0
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": false,
+        "allDefenceZones": false
+      },
+      "targets": {
+        "timeMs": 14600,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0,
+        "sectorTimeMs": 0
+      },
+      "group": "CH52",
+      "brief": "Driving School comparison route A in the light variant (lightweight panels and glass): inside its reference envelope. Its pair is route B in the heavy variant.",
+      "ghost": false,
+      "judgesTime": true,
+      "judgesDrift": false,
+      "isRace": false,
+      "isCup": false,
+      "hasSection": true,
+      "published": true
+    },
+    {
+      "id": "TR-CH52-HEAVY",
+      "challenge": "CH52",
+      "title": "Weight Is Not Free",
+      "course": "T00",
+      "tier": "silver",
+      "kind": "time",
+      "legs": [],
+      "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
+      "sectionStartGate": "T00-CMP-B-START",
+      "sectionEndGate": "T00-CMP-B-END",
+      "field": [],
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V07",
+        "parts": {},
+        "piCap": 0
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": false,
+        "allDefenceZones": false
+      },
+      "targets": {
+        "timeMs": 21400,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0,
+        "sectorTimeMs": 0
+      },
+      "group": "CH52",
+      "brief": "Driving School comparison route B in the heavy variant (the stock car): inside its reference envelope. Its pair is route A in the light variant.",
+      "ghost": false,
+      "judgesTime": true,
+      "judgesDrift": false,
+      "isRace": false,
+      "isCup": false,
+      "hasSection": true,
+      "published": true
+    },
+    {
+      "id": "TR-CH58-FWD",
+      "challenge": "CH58",
+      "title": "Three Layouts, One Driver",
+      "course": "T00",
+      "tier": "gold",
+      "kind": "time",
+      "legs": [],
+      "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
+      "sectionStartGate": "T00-CFG1-START",
+      "sectionEndGate": "T00-CFG1-END",
+      "field": [],
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V06",
+        "parts": {},
+        "piCap": 0
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": false,
+        "allDefenceZones": false
+      },
+      "targets": {
+        "timeMs": 15800,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0,
+        "sectorTimeMs": 0
+      },
+      "group": "CH58",
+      "brief": "Configuration 1 of the Driving School in the supplied front-drive car, at the Gold short reference. One of three: RWD on configuration 2 and AWD on configuration 3.",
+      "ghost": false,
+      "judgesTime": true,
+      "judgesDrift": false,
+      "isRace": false,
+      "isCup": false,
+      "hasSection": true,
+      "published": true
+    },
+    {
+      "id": "TR-CH58-RWD",
+      "challenge": "CH58",
+      "title": "Three Layouts, One Driver",
+      "course": "T00",
+      "tier": "gold",
+      "kind": "time",
+      "legs": [],
+      "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
+      "sectionStartGate": "T00-CFG2-START",
+      "sectionEndGate": "T00-CFG2-END",
+      "field": [],
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V05",
+        "parts": {},
+        "piCap": 0
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": false,
+        "allDefenceZones": false
+      },
+      "targets": {
+        "timeMs": 16900,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0,
+        "sectorTimeMs": 0
+      },
+      "group": "CH58",
+      "brief": "Configuration 2 of the Driving School in the supplied rear-drive car, at the Gold short reference. One of three: FWD on configuration 1 and AWD on configuration 3.",
+      "ghost": false,
+      "judgesTime": true,
+      "judgesDrift": false,
+      "isRace": false,
+      "isCup": false,
+      "hasSection": true,
+      "published": true
+    },
+    {
+      "id": "TR-CH58-AWD",
+      "challenge": "CH58",
+      "title": "Three Layouts, One Driver",
+      "course": "T00",
+      "tier": "gold",
+      "kind": "time",
+      "legs": [],
+      "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
+      "sectionStartGate": "T00-CFG3-START",
+      "sectionEndGate": "T00-CFG3-END",
+      "field": [],
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V07",
+        "parts": {},
+        "piCap": 0
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": false,
+        "allDefenceZones": false
+      },
+      "targets": {
+        "timeMs": 20000,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0,
+        "sectorTimeMs": 0
+      },
+      "group": "CH58",
+      "brief": "Configuration 3 of the Driving School — it crosses the start line — in the supplied all-drive car, at the Gold short reference. One of three: FWD on configuration 1 and RWD on configuration 2.",
+      "ghost": false,
+      "judgesTime": true,
+      "judgesDrift": false,
+      "isRace": false,
+      "isCup": false,
+      "hasSection": true,
       "published": true
     }
   ]

@@ -170,6 +170,7 @@ namespace NightSignal.Front
                 Kind = "freeplay", Contact = ContactPolicy.NonContact, StageNumber = 10,
                 CarCapPi = trial.Loaner.PiCap > 0 ? trial.Loaner.PiCap : PerformanceIndex.Max,
                 Surface = trial.Conditions == "course" ? null : trial.Conditions, DriftRanking = trial.JudgesDrift,
+                SectionStartGate = trial.HasSection ? trial.SectionStartGate : null, SectionEndGate = trial.HasSection ? trial.SectionEndGate : null,
             },
         };
 
@@ -273,6 +274,7 @@ namespace NightSignal.Front
                     ChallengeGates = me.Entrant.GateRun?.Count(trial.Challenge) ?? 0,
                     DefenceZonesKept = me.Entrant.GateRun != null && me.Entrant.GateRun.DefenceKept(trial.Challenge),
                     DefenceZones = me.Entrant.GateRun?.DefenceCount(trial.Challenge) ?? 0,
+                    SectionMs = me.Entrant.SectionMicros > 0 ? me.Entrant.SectionMicros / 1000 : 0,
                     DriftRaw = (long)Math.Floor(me.Entrant.Drift.BankedRaw),
                     ZonesBanked = me.Entrant.Drift.ZonesBanked.Count,
                     ZonesTotal = s.Catalogue.DriftZones.TryGetValue(trial.Course, out int zones) ? zones : 0,
