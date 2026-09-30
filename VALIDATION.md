@@ -2624,3 +2624,18 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - **Limits:** CH13 and CH28 wait for a person (or a better autopilot line on narrow roads) to show them reachable; the other
   slice-2 challenges (CH15, CH17, CH19, CH22, CH27) need gates or drift zones authored into four routes — a change of
   those courses' revisions, so their reference ghosts must be re-recorded and their benchmarks checked with it.
+
+## V-122 — CH15: every marked gate touched, a Gold reference on C25 (spec §11) (2026-09-29)
+- Revision: `ea83dbb`, documented in the commit with this entry; the player build of that tree.
+- **What:** C25's route already carried CH15's three final-sector apex gates (`C25-FINAL-APEX-1..3`), and the gate judge of
+  V-090 already measures challenge apex gates. A trial rule now requires every gate tagged with the trial's challenge
+  (`allChallengeGates`; the facts carry the gate count, so a course without them never passes). TR-CH15: stock V17 (AWD, PI
+  810) on C25, no reset. The reference aims at the gates, as the V-090 gate tour does.
+- **Measured:** 268.259 s with no reset and all three apexes touched — a reference clean against every rule of the trial —
+  so the Gold time 273.7 s (1.02 ×) is shown reachable within its rules. `Evidence/challenges/trials.txt`.
+- **Tests:** Core `TheGateRule_NeedsEveryMarkedGate` and the file test (10 trials) — Core 187.
+- **Built player:** `-nsTrialTour` (with the bounds audit, 1280×720, Text 150 %) **PASS**, ten trials: TR-CH15 **PASSED**
+  (4:28.259 against 4:33.7, no reset, 3 of 3 gates) and CH15 earned; the autopilot reached 8 of 10 (CH13, CH28 not); bounds
+  0 failures, 0 missing glyphs. `Evidence/challenges/trials-tour/`.
+- **Limits:** CH15 online is not run in a built player (the online autopilot does not aim at gates; the game server's judging
+  path is the one CH55/CH54/CH13 exercised online).

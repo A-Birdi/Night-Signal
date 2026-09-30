@@ -4,6 +4,11 @@
 [NightSignal.Trial] TR-CH13: Trial not passed — ok: the supplied loaner · ok: a valid finish · MISSED: faster than 2:16.346 (2:16.346) · MISSED: all tyres on the paved road (off it 0.5 s)
 [NightSignal.TrialTour] TR-CH13 (CH13 gold): not passed — ok: the supplied loaner · ok: a valid finish · MISSED: faster than 2:16.346 (2:16.346) · MISSED: all tyres on the paved road (off it 0.5 s)
 [NightSignal.TrialTour] TR-CH13: profile keeps it: False; challenge earned: False
+[NightSignal.Trial] TR-CH15: V17 stock, PI 810, build b94725e31f3c, on C25 (course)
+[NightSignal.Ghost] C25 trial-TR-CH15: 2684 samples, result 268.260 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH15: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 4:33.700 (4:28.259) · ok: no reset (0) · ok: every marked gate touched (3 of them)
+[NightSignal.TrialTour] TR-CH15 (CH15 gold): PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 4:33.700 (4:28.259) · ok: no reset (0) · ok: every marked gate touched (3 of them)
+[NightSignal.TrialTour] TR-CH15: profile keeps it: True; challenge earned: True
 [NightSignal.Trial] TR-CH55: V01 stock, PI 220, build c12c2bea1a67, on C04 (course)
 [NightSignal.Ghost] C04 trial-TR-CH55: 1368 samples, result 136.697 s, resets 0, valid True; raced ghost none — your first ghost here
 [NightSignal.Trial] TR-CH55: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 2:30.400 (2:16.696)
@@ -56,6 +61,6 @@
 [NightSignal.Trial] TR-CH30: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: 10,800 raw drift banked (11,002) · ok: a chain banked in every judged zone (6/6)
 [NightSignal.TrialTour] TR-CH30 (CH30 gold) at drift skill 0.95: PASSED — ok: the supplied loaner · ok: a valid finish · ok: 10,800 raw drift banked (11,002) · ok: a chain banked in every judged zone (6/6)
 [NightSignal.TrialTour] TR-CH30: profile keeps it: True; challenge earned: True
-[NightSignal.TrialTour] 7 of 9 trials passed by the autopilot; challenges earned: CH55, CH11, CH51, CH54, CH25, CH30; wallet 238,780 cr
+[NightSignal.TrialTour] 8 of 10 trials passed by the autopilot; challenges earned: CH15, CH55, CH11, CH51, CH54, CH25, CH30; wallet 268,572 cr
 [NightSignal.TrialTour] PASS
-[NightSignal.Bounds] bounds-TrialTour-1280x720-text150: 66 labels over 111 moments — 0 overflow, 0 missing glyph, 9 edge spill, 0 fixed-size overflow, 2 at minimum size
+[NightSignal.Bounds] bounds-TrialTour-1280x720-text150: 67 labels over 122 moments — 0 overflow, 0 missing glyph, 9 edge spill, 0 fixed-size overflow, 2 at minimum size

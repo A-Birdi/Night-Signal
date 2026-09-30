@@ -170,9 +170,10 @@ Render Cockpit Sheets* renders the mounted views of every car.
 Pipeline in dependency order (items at one level do not wait for later ones; human checks are listed where they gate).
 
 0. **Next — the challenge-trial slices** (`docs/CHALLENGE_TRIALS.md`): the first slice is done offline (V-119) and online
-   (V-120); CH13's paved-road rule and fixed Gold ghost are done (V-121). Next in slice 2: final-sector apex gates for CH15
-   and drift zones authored for C03, C05, C09, C19 (CH17, CH19, CH22, CH27) — route changes, so re-record those courses'
-   reference ghosts and check their benchmarks in the same step; then scripted AI, fixed cups, T00 drills, workshop trials.
+   (V-120); CH13's paved-road rule and fixed Gold ghost (V-121) and CH15's marked apex gates (V-122) are done. Next in slice
+   2: CH17, CH19, CH22, CH27 — their zones are ALREADY in the routes (C03 link, C05 demo, C09 clip, C19 transition zones and
+   bank gate; no route change) but nothing judges those kinds yet: a Core chain judge linking zones in one drift chain and a
+   demo-zone angle hold. Then scripted AI, fixed cups, T00 drills, workshop trials.
    `Assets/_Recovery/0.unity` is Unity's crash-recovery copy of an unsaved scene from 2026-09-29 18:10 — left untouched for
    the owner.
 0. **After any AI tendency change**: rerun `-nsCrewTelemetryTour` and `CertifyListed` for the stages whose featured
