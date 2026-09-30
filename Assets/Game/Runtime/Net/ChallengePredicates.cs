@@ -46,6 +46,9 @@ namespace NightSignal.Net
             {
                 // CH31 Clean Pass: a live, moving car passed with no touch in the 2 s either side, the place kept 3 s.
                 if (racecraft.CleanPasses.Count > 0) yield return "CH31";
+                // CH34 Let the Corner End: a rival passed inside C02's marked hairpin exit zone (not its approach), the place
+                // held to the retain gate.
+                if (courseId == "C02" && racecraft.ZonePasses.Any(z => z.Challenge == "CH34")) yield return "CH34";
                 // CH32 Patient Mirror: on C05, 8 s behind the same moving car inside the 1–2 s interval, no touch.
                 if (courseId == "C05" && racecraft.FollowLongest >= 8f) yield return "CH32";
             }

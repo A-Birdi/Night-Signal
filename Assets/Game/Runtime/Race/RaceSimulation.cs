@@ -185,7 +185,7 @@ namespace NightSignal.Race
             sim.Gates = GateJudge.ForTrack(track);
             sim.ZoneChains = ZoneChainJudge.ForTrack(track);
             sim.gateWorld = world;
-            sim.Racecraft = RacecraftJudge.ForEvent(rules, sim.Entrants);
+            sim.Racecraft = RacecraftJudge.ForEvent(rules, sim.Entrants, track);
             int slot = 0, generic = 0;
             foreach (HumanSlot h in humans)
                 sim.Add(lib, world, slot++, h.EntrantId, h.DisplayName, true, h.CarId, "player", "driver", null, h.Spec, h.Build, h.Livery);

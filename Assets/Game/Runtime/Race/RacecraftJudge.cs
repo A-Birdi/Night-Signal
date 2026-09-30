@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using NightSignal.Core.Rules;
+using NightSignal.Track;
 using UnityEngine;
 
 namespace NightSignal.Race
@@ -65,7 +67,7 @@ namespace NightSignal.Race
         }
     }
 
-    /// <summary>One entrant's racecraft facts (CH31 Clean Pass, CH32 Patient Mirror).</summary>
+    /// <summary>One entrant's racecraft facts (CH31 Clean Pass, CH32 Patient Mirror, CH34 marked-zone passes).</summary>
     public sealed class RacecraftRun
     {
         public readonly DistanceHistory History = new DistanceHistory();
@@ -95,6 +97,14 @@ namespace NightSignal.Race
         public double FollowSince;
         public float FollowLongest;
         public int FollowLongestTarget = -1;
+
+        /// <summary>Passes made inside a challenge's marked overtake zone, waiting for its retain gate: the car passed, the challenge, when.</summary>
+        public readonly List<(int Passed, string Challenge, double Time)> ZonePending = new List<(int, string, double)>();
+        /// <summary>
+        /// Marked-zone passes whose place was still held at the challenge's retain gate: the car passed, the challenge, when,
+        /// and whether this car touched no car from 2 s before the pass until the gate.
+        /// </summary>
+        public readonly List<(int Passed, string Challenge, double Time, bool TouchFree)> ZonePasses = new List<(int, string, double, bool)>();
     }
 
     /// <summary>
@@ -106,6 +116,9 @@ namespace NightSignal.Race
     /// place for 3 s (or finished ahead first).</item>
     /// <item>A follow: the same live, moving car directly ahead, the interval to it inside the 1–2 s window, no touch and
     /// no recovery; the longest unbroken follow is kept.</item>
+    /// <item>A marked-zone pass (CH34): a pass of a live, moving car made inside a route overtake zone tagged with a challenge
+    /// — not on its approach — and the place still held when this car crosses that challenge's retain gate (a timing gate
+    /// with the same tag), neither car recovering in between.</item>
     /// </list>
     /// </summary>
     public sealed class RacecraftJudge
@@ -116,12 +129,33 @@ namespace NightSignal.Race
         public const float MovingMps = 5f;
 
         readonly List<RaceEntrant> entrants;
+        readonly TrackData track;
+        readonly List<RouteGateDef> passZones = new List<RouteGateDef>(), retainGates = new List<RouteGateDef>();
 
-        public RacecraftJudge(List<RaceEntrant> entrants) => this.entrants = entrants;
+        public RacecraftJudge(List<RaceEntrant> entrants, TrackData track = null)
+        {
+            this.entrants = entrants;
+            this.track = track;
+            if (track?.Gates == null) return;
+            passZones.AddRange(track.Gates.Where(g => g.Kind == "overtake-zone" && !string.IsNullOrEmpty(g.Challenge) && g.EndMetres > g.StartMetres));
+            retainGates.AddRange(track.Gates.Where(g => g.Kind == "timing" && !string.IsNullOrEmpty(g.Challenge) && passZones.Any(z => z.Challenge == g.Challenge)));
+        }
 
         /// <summary>Only races with live opponents are judged (a drift or non-contact event has no racecraft).</summary>
-        public static RacecraftJudge ForEvent(RaceEventRules rules, List<RaceEntrant> entrants) =>
-            rules.Contact == ContactPolicy.NonContact || rules.DriftRanking ? null : new RacecraftJudge(entrants);
+        public static RacecraftJudge ForEvent(RaceEventRules rules, List<RaceEntrant> entrants, TrackData track = null) =>
+            rules.Contact == ContactPolicy.NonContact || rules.DriftRanking ? null : new RacecraftJudge(entrants, track);
+
+        /// <summary>The route distance of a legal race distance (a circuit's laps count from its start line).</summary>
+        float RouteDistance(float raceDistance) =>
+            track != null && track.ClosedLoop ? Mathf.Repeat(raceDistance + track.StartMetres, track.LengthMetres) : raceDistance;
+
+        /// <summary>The challenge of the marked overtake zone at a route distance, or null.</summary>
+        string PassZoneAt(float routeDistance)
+        {
+            foreach (RouteGateDef z in passZones)
+                if (routeDistance >= z.StartMetres && routeDistance <= z.EndMetres) return z.Challenge;
+            return null;
+        }
 
         static RacecraftRun Run(RaceEntrant e) => e.Racecraft ?? (e.Racecraft = new RacecraftRun());
 
@@ -165,11 +199,18 @@ namespace NightSignal.Race
                         if (j == i || !Live(b) || float.IsNaN(rb.PreviousDistance) || now - rb.LastReset <= CleanWindowSeconds) continue;
                         bool passed = ra.PreviousDistance < rb.PreviousDistance && da >= b.Progress.RaceDistance;
                         if (!passed) continue;
+                        string zone = passZones.Count > 0 ? PassZoneAt(RouteDistance(da)) : null;
+                        if (zone != null && b.State.Velocity.magnitude >= MovingMps)
+                        {
+                            ra.ZonePending.Add((j, zone, now));
+                            ra.Log($"{now:F1} s: passed #{j} inside {zone}'s marked zone");
+                        }
                         if (b.State.Velocity.magnitude < MovingMps) ra.Log($"{now:F1} s: passed #{j} standing — not raced");
                         else if (now - ra.LastTouch <= CleanWindowSeconds) ra.Log($"{now:F1} s: passed #{j} {now - ra.LastTouch:F1} s after a touch — not clean");
                         else ra.Pending.Add((j, now));
                     }
                 Confirm(a, ra, now);
+                if (ra.ZonePending.Count > 0) ConfirmZonePasses(a, ra, now, da);
                 Follow(i, a, ra, now);
             }
             foreach (RaceEntrant e in entrants) Run(e).PreviousDistance = e.Progress.RaceDistance;
@@ -201,6 +242,34 @@ namespace NightSignal.Race
                     ra.Log($"{at:F1} s: passed #{j} — clean, the place kept");
                     ra.Pending.RemoveAt(k);
                 }
+            }
+        }
+
+        /// <summary>A marked-zone pass stands once this car crosses the challenge's retain gate still ahead (or, without a gate, after the 3 s hold).</summary>
+        void ConfirmZonePasses(RaceEntrant a, RacecraftRun ra, double now, float da)
+        {
+            float before = float.IsNaN(ra.PreviousDistance) ? da : RouteDistance(ra.PreviousDistance), here = RouteDistance(da);
+            for (int k = ra.ZonePending.Count - 1; k >= 0; k--)
+            {
+                (int j, string challenge, double at) = ra.ZonePending[k];
+                RaceEntrant b = entrants[j];
+                bool lost = ra.LastReset >= at || Run(b).LastReset >= at || b.Status == EntrantStatus.DqDisconnected ||
+                            (!a.Progress.Finished && b.Progress.RaceDistance > a.Progress.RaceDistance) ||
+                            (b.Progress.Finished && (!a.Progress.Finished || b.Progress.FinishTimeMicros < a.Progress.FinishTimeMicros));
+                if (lost)
+                {
+                    ra.Log($"{at:F1} s: {challenge} pass of #{j} — the place was not held to the gate");
+                    ra.ZonePending.RemoveAt(k);
+                    continue;
+                }
+                RouteGateDef gate = retainGates.FirstOrDefault(g => g.Challenge == challenge);
+                bool reached = gate == null ? now - at >= HoldSeconds
+                    : (before < gate.StartMetres && here >= gate.StartMetres && here - before < 30f) || a.Progress.Finished;
+                if (!reached) continue;
+                bool touchFree = ra.LastTouch < at - CleanWindowSeconds;
+                ra.ZonePasses.Add((j, challenge, at, touchFree));
+                ra.Log($"{at:F1} s: {challenge} pass of #{j} — held to {(gate != null ? gate.Id : "the hold")}{(touchFree ? ", no touch" : ", touched")}");
+                ra.ZonePending.RemoveAt(k);
             }
         }
 
