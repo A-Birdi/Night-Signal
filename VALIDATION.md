@@ -2846,3 +2846,22 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   `OnlineTrial`: no racecraft trials, cups, sections or tutorial-course trials online yet; found while writing this entry —
   the drill was not yet covered by the section refusal) — Services `ARacecraftTrial_IsRefusedOnline_ForNow` (+ TR-CH07), 369.
 - **Limits:** it runs as a challenge trial beside the Driving School's own braking lesson (which stays a lesson).
+
+## V-132 — CH23: four alternating recoveries in T00's countersteer zones — a drill (spec §11, slice 5) (2026-09-30)
+- Revision: `0d61db4`, documented with the commit of this entry; the player build of `0d61db4`.
+- **What:** the zone judge of V-123 now records **recoveries** in transition zones: a slide past 12° inside a zone caught back
+  to 5° or less inside it or within 20 m after it, with the slide's direction; a reset or a spin is kept in the sequence as a
+  break. The drill rule passes when every zone of the challenge is recovered in turn — one recovery per zone, consecutively,
+  in route order, alternating directions — with no break between them (a reset later in the run does not undo a finished
+  drill). **TR-CH23** (Silver): the Driving School's T00-COUNTER-1…4 slalom (264–584 m) in the rear-drive V04 Kestrel S; no
+  targets. The autopilot drives it by sliding each zone as a separate drift (`AutopilotSlidesZonesOf`, automation only) at the
+  drift skills 0.95 / 0.80 / 0.65 (the published reference skill: 0.65).
+- **Measured:** no run makes the four in turn — at 0.65 a reset or spin follows the COUNTER-1 recovery; at 0.95 / 0.80 the
+  controller re-flicks and recovers twice per zone, then spins. A trial of the zone tour's damped slides (V-123's knobs) on this
+  drill recovered in every zone but still twice per zone with a break — reverted. A first measurement without break markers
+  reported the four as made; it had missed the reset between them — corrected before publishing.
+  `Evidence/challenges/trials-TR-CH23.txt`.
+- **Tests:** Core `ZoneChainTests` (four alternating recoveries; the same way twice; a slide not caught in time; a spin or a
+  reset between them; a reset after the drill) — Core 204.
+- **Built player (`tour.ps1 -TrialOnly TR-CH23`):** judged at the three skills — **not passed** (10 / 19 / 11 recoveries, never
+  four in turn without a break). CH23 is judged, not shown reachable. `Evidence/challenges/trials-tour/trial-tour-TR-CH23.txt`.

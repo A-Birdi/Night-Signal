@@ -1,0 +1,15 @@
+# -nsTrialTour -nsTrialOnly TR-CH23 (built player of 0d61db4 via Tools/run/tour.ps1 -TrialOnly: isolated prefs and profile, 1280x720; validator autopilot sliding each COUNTER zone separately; automation)
+[NightSignal.TrialTour] page 2 of 3: its first row opens TR-CH30
+[NightSignal.TrialTour] only: TR-CH23
+[NightSignal.Trial] TR-CH23: V04 stock, PI 295, build 15d516f2dd27, on T00 (course)
+[NightSignal.Trial] TR-CH23: Trial not passed — ok: the supplied loaner · ok: a valid finish · MISSED: alternating recoveries, one in each marked zone in turn, no spin or reset between them (10 recoveries in the run)
+[NightSignal.TrialTour] TR-CH23 (CH23 silver) at drift skill 0.65 (the reference's): not passed — ok: the supplied loaner · ok: a valid finish · MISSED: alternating recoveries, one in each marked zone in turn, no spin or reset between them (10 recoveries in the run)
+[NightSignal.Trial] TR-CH23: V04 stock, PI 295, build 15d516f2dd27, on T00 (course)
+[NightSignal.Trial] TR-CH23: Trial not passed — ok: the supplied loaner · ok: a valid finish · MISSED: alternating recoveries, one in each marked zone in turn, no spin or reset between them (19 recoveries in the run)
+[NightSignal.TrialTour] TR-CH23 (CH23 silver) at drift skill 0.95: not passed — ok: the supplied loaner · ok: a valid finish · MISSED: alternating recoveries, one in each marked zone in turn, no spin or reset between them (19 recoveries in the run)
+[NightSignal.Trial] TR-CH23: V04 stock, PI 295, build 15d516f2dd27, on T00 (course)
+[NightSignal.Trial] TR-CH23: Trial not passed — ok: the supplied loaner · ok: a valid finish · MISSED: alternating recoveries, one in each marked zone in turn, no spin or reset between them (11 recoveries in the run)
+[NightSignal.TrialTour] TR-CH23 (CH23 silver) at drift skill 0.80: not passed — ok: the supplied loaner · ok: a valid finish · MISSED: alternating recoveries, one in each marked zone in turn, no spin or reset between them (11 recoveries in the run)
+[NightSignal.TrialTour] TR-CH23: profile keeps it: False; challenge earned: False
+[NightSignal.TrialTour] 0 of 28 trials passed by the autopilot; challenges earned: none; wallet 15,000 cr
+[NightSignal.TrialTour] PASS
