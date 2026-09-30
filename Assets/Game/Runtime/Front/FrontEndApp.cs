@@ -673,6 +673,7 @@ namespace NightSignal.Front
                 Debug.Log($"[NightSignal.Ghost] online shared ghosts of {name}: HTTP {shared.status}, {(shared.body?["ghosts"] as Newtonsoft.Json.Linq.JArray)?.Count ?? 0} kept");
             }
             if (reference != null) list.Add(new KeyValuePair<string, Core.Ghosts.GhostRecording>(RivalReferenceGhosts.Owner(reference), reference));
+            if (TrialGhosts.For(info.ChallengeTrialId) is Core.Ghosts.GhostRecording gold) list.Add(new KeyValuePair<string, Core.Ghosts.GhostRecording>(TrialGhosts.Label, gold));
             return list;
         }
 
@@ -1258,6 +1259,8 @@ namespace NightSignal.Front
             if (plan.Kind == EventKind.FreeplayTimeTrial && yesterday != null) pendingGhosts.Add(yesterday);
             if (plan.Kind == EventKind.FreeplayTimeTrial && plan.TrialId == null && RivalReferenceGhosts.For(plan.CourseId) is Core.Ghosts.GhostRecording reference)
                 pendingGhosts.Add(reference);
+            // A trial with a fixed Gold ghost (CH13) races it — its time is the target.
+            if (plan.TrialId != null && TrialGhosts.For(plan.TrialId) is Core.Ghosts.GhostRecording gold) pendingGhosts.Add(gold);
 
             // The stage's introductory scene (spec §5.3), shortened on a rematch; skippable.
             Core.Story.StoryText story = NightSignal.Content.ContentLibrary.Load()?.Story;
@@ -1444,8 +1447,10 @@ namespace NightSignal.Front
             activeRace.OpposingAi = opposingAi;
             activeRace.AutopilotDriftSkill = pendingAutopilotDriftSkill;
             activeRace.AutopilotNoHandbrake = pendingAutopilotNoHandbrake;
+            activeRace.AutopilotEdgeMargin = pendingAutopilotEdgeMargin;
             pendingAutopilotDriftSkill = 0f;
             pendingAutopilotNoHandbrake = false;
+            pendingAutopilotEdgeMargin = 0f;
             LastRunGhost = null;
             LastGhostDeltas.Clear();
             if (pendingGhostTemplate != null)

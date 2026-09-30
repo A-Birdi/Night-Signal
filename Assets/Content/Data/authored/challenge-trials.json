@@ -1,7 +1,41 @@
 {
   "schema": "night-signal/challenge-trials@1",
-  "method": "Measured 2026-09-29 by ChallengeTrialReferenceTests: each trial's loaner resolved like a garage build (hm-1), solo, validator autopilot, the trial's course and conditions; time targets Gold 1.02 ×, Silver 1.10 ×, Bronze 1.20 × its time; drift trials use the cleanest of drift skills 0.95/0.80/0.65 (fewest resets, then most scored; slides started by power where the handbrake is forbidden), time and drift from that one run, drift targets Gold = the raw it scored in the zones (banked or earned, the larger), Silver 0.85 ×, Bronze 0.70 ×; physics chassis-2026.09-contact1, scoring classify-2. Automation, not a human.",
+  "method": "Measured 2026-09-30 by ChallengeTrialReferenceTests: each trial's loaner resolved like a garage build (hm-1), solo, validator autopilot, the trial's course and conditions; time targets Gold 1.02 ×, Silver 1.10 ×, Bronze 1.20 × its time; drift trials use the cleanest of drift skills 0.95/0.80/0.65 (fewest resets, then most scored; slides started by power where the handbrake is forbidden), time and drift from that one run, drift targets Gold = the raw it scored in the zones (banked or earned, the larger), Silver 0.85 ×, Bronze 0.70 ×; physics chassis-2026.09-contact1, scoring classify-2. Automation, not a human.",
   "trials": [
+    {
+      "id": "TR-CH13",
+      "challenge": "CH13",
+      "title": "Narrow Without Fear",
+      "course": "C21",
+      "tier": "gold",
+      "kind": "time",
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V14",
+        "parts": {},
+        "piCap": 0
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": true
+      },
+      "targets": {
+        "timeMs": 136346,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0
+      },
+      "group": "",
+      "brief": "Race the fixed Gold ghost and finish ahead of it with all four tyres on the paved road the whole way; a shoulder touch fails the trial, not the race.",
+      "ghost": true,
+      "judgesTime": true,
+      "judgesDrift": false,
+      "published": true
+    },
     {
       "id": "TR-CH55",
       "challenge": "CH55",
@@ -20,15 +54,18 @@
         "noReset": false,
         "maxWallImpacts": -1,
         "noHandbrake": false,
-        "bankEveryZone": false
+        "bankEveryZone": false,
+        "allTyresPaved": false
       },
       "targets": {
         "timeMs": 150400,
         "driftRaw": 0,
-        "referenceDriftSkill": 0.0
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0
       },
       "group": "",
       "brief": "No performance parts: the stock starter against a Silver time.",
+      "ghost": false,
       "judgesTime": true,
       "judgesDrift": false,
       "published": true
@@ -51,15 +88,18 @@
         "noReset": true,
         "maxWallImpacts": 1,
         "noHandbrake": false,
-        "bankEveryZone": false
+        "bankEveryZone": false,
+        "allTyresPaved": false
       },
       "targets": {
         "timeMs": 194300,
         "driftRaw": 0,
-        "referenceDriftSkill": 0.0
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0
       },
       "group": "",
       "brief": "The loaner sits under the C12 stages' PI 699 cap. Gold time, no reset, and at most one meaningful wall impact.",
+      "ghost": false,
       "judgesTime": true,
       "judgesDrift": false,
       "published": true
@@ -84,15 +124,18 @@
         "noReset": false,
         "maxWallImpacts": -1,
         "noHandbrake": false,
-        "bankEveryZone": false
+        "bankEveryZone": false,
+        "allTyresPaved": false
       },
       "targets": {
         "timeMs": 169200,
         "driftRaw": 0,
-        "referenceDriftSkill": 0.0
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0
       },
       "group": "",
       "brief": "The supplied wet tune: rain-sport tyres in C08's wet. Beat the Silver time.",
+      "ghost": false,
       "judgesTime": true,
       "judgesDrift": false,
       "published": true
@@ -115,15 +158,18 @@
         "noReset": false,
         "maxWallImpacts": -1,
         "noHandbrake": false,
-        "bankEveryZone": false
+        "bankEveryZone": false,
+        "allTyresPaved": false
       },
       "targets": {
         "timeMs": 158400,
         "driftRaw": 0,
-        "referenceDriftSkill": 0.0
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0
       },
       "group": "CH54-LAYOUTS",
       "brief": "Front-drive layout under the shared PI 450 cap, with its own Silver time; the challenge also needs the rear-drive trial.",
+      "ghost": false,
       "judgesTime": true,
       "judgesDrift": false,
       "published": true
@@ -146,15 +192,18 @@
         "noReset": false,
         "maxWallImpacts": -1,
         "noHandbrake": false,
-        "bankEveryZone": false
+        "bankEveryZone": false,
+        "allTyresPaved": false
       },
       "targets": {
         "timeMs": 160500,
         "driftRaw": 0,
-        "referenceDriftSkill": 0.0
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0
       },
       "group": "CH54-LAYOUTS",
       "brief": "Rear-drive layout under the shared PI 450 cap, with its own Silver time; the challenge also needs the front-drive trial.",
+      "ghost": false,
       "judgesTime": true,
       "judgesDrift": false,
       "published": true
@@ -179,15 +228,18 @@
         "noReset": false,
         "maxWallImpacts": -1,
         "noHandbrake": true,
-        "bankEveryZone": false
+        "bankEveryZone": false,
+        "allTyresPaved": false
       },
       "targets": {
         "timeMs": 0,
         "driftRaw": 2900,
-        "referenceDriftSkill": 0.8
+        "referenceDriftSkill": 0.8,
+        "referenceEdgeMargin": 0.0
       },
       "group": "",
       "brief": "The drift loaner: bank the Silver drift score without touching the handbrake after the start, then finish.",
+      "ghost": false,
       "judgesTime": false,
       "judgesDrift": true,
       "published": true
@@ -212,15 +264,18 @@
         "noReset": false,
         "maxWallImpacts": -1,
         "noHandbrake": false,
-        "bankEveryZone": false
+        "bankEveryZone": false,
+        "allTyresPaved": false
       },
       "targets": {
         "timeMs": 274100,
         "driftRaw": 2000,
-        "referenceDriftSkill": 0.65
+        "referenceDriftSkill": 0.65,
+        "referenceEdgeMargin": 0.0
       },
       "group": "",
       "brief": "The fixed C23 build: beat both the published time and the raw drift target in the same legal run.",
+      "ghost": false,
       "judgesTime": true,
       "judgesDrift": true,
       "published": true
@@ -245,15 +300,18 @@
         "noReset": false,
         "maxWallImpacts": -1,
         "noHandbrake": false,
-        "bankEveryZone": true
+        "bankEveryZone": true,
+        "allTyresPaved": false
       },
       "targets": {
         "timeMs": 0,
         "driftRaw": 10800,
-        "referenceDriftSkill": 0.65
+        "referenceDriftSkill": 0.65,
+        "referenceEdgeMargin": 0.0
       },
       "group": "",
       "brief": "The Gold drift route: bank the Gold raw target, with a chain banked in every judged zone.",
+      "ghost": false,
       "judgesTime": false,
       "judgesDrift": true,
       "published": true

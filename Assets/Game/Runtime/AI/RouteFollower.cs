@@ -40,6 +40,8 @@ namespace NightSignal.AI
         public float ApexShift, EntryWidth, ThrottleBias, BrakeGain;
         /// <summary>Starts slides with power instead of the handbrake (measuring trials that forbid it: CH25).</summary>
         public bool NoHandbrake;
+        /// <summary>How far the line stays from the road's edge (m; 0 = 1.3, a car-width) — a trial that keeps every tyre paved.</summary>
+        public float EdgeMargin;
 
         /// <summary>The skill the drift controller was tuned at (the handling harness' drifter).</summary>
         public const float BaselineDriftSkill = 0.65f;
@@ -378,7 +380,7 @@ namespace NightSignal.AI
             TrackSample s = track.SampleAt(distance);
             // Move toward the inside of upcoming curvature; stay a car-width from the edge.
             float k = track.SampleAt(distance + 10f - Profile.ApexShift).Curvature;
-            float half = s.Width * 0.5f - 1.3f;
+            float half = s.Width * 0.5f - (Profile.EdgeMargin > 0f ? Profile.EdgeMargin : 1.3f);
             float lateral = Mathf.Clamp(k * 900f * Profile.LineAggression, -1f, 1f) * half;
             if (Profile.EntryWidth != 0f)
             {

@@ -23,6 +23,8 @@ namespace NightSignal.Core.Rules
         public bool NoHandbrake;
         /// <summary>Every judged drift zone of the course banked at least once (CH30: "a valid chain in every judged sector").</summary>
         public bool BankEveryZone;
+        /// <summary>All four tyres on the paved road the whole run (CH13): a shoulder touch fails the trial, not the race.</summary>
+        public bool AllTyresPaved;
     }
 
     /// <summary>Published targets (measured, see the file's method); 0 = not judged.</summary>
@@ -34,6 +36,12 @@ namespace NightSignal.Core.Rules
         public long DriftRaw;
         /// <summary>The autopilot drift skill of the measured reference run (drift trials; how a replay reproduces it).</summary>
         public float ReferenceDriftSkill;
+        /// <summary>
+        /// The margin the autopilot's line kept from the road's edge in the measured reference run (0 = the validator's own
+        /// 1.3 m): a trial whose rules the validator's line breaks (CH13 — it cuts two apexes onto the shoulder) is measured with
+        /// the fastest wider margin that keeps them, so the target is shown reachable within its own rules.
+        /// </summary>
+        public float ReferenceEdgeMargin;
     }
 
     /// <summary>One challenge trial (docs/CHALLENGE_TRIALS.md): a fixed course, loaner, rules and targets for one challenge.</summary>
@@ -55,6 +63,11 @@ namespace NightSignal.Core.Rules
         public string Group = "";
         /// <summary>What the player is told before the start (the loaner, the rules), beside the challenge's predicate.</summary>
         public string Brief = "";
+        /// <summary>
+        /// The trial races its fixed Gold ghost — the measured reference run, recorded with the targets (CH13): the time target
+        /// is the ghost's own time.
+        /// </summary>
+        public bool Ghost;
 
         /// <summary>Measured targets exist for everything this trial judges.</summary>
         public bool Published => (!JudgesTime || Targets.TimeMs > 0) && (!JudgesDrift || Targets.DriftRaw > 0);
@@ -79,6 +92,8 @@ namespace NightSignal.Core.Rules
         public int Resets, WallImpacts;
         /// <summary>Seconds with the handbrake held after the start.</summary>
         public float HandbrakeSeconds;
+        /// <summary>Seconds with a tyre beyond the paved road (on the shoulder or off it).</summary>
+        public float OffPavedSeconds;
         public long DriftRaw;
         public int ZonesBanked, ZonesTotal;
         /// <summary>The run drove this trial's loaner (the runtime resolved it; any other car or build fails the trial).</summary>
@@ -112,6 +127,8 @@ namespace NightSignal.Core.Rules
             if (t.Rules.MaxWallImpacts >= 0)
                 Check(f.WallImpacts <= t.Rules.MaxWallImpacts, t.Rules.MaxWallImpacts == 0 ? $"no wall impact ({f.WallImpacts})" : $"at most {t.Rules.MaxWallImpacts} wall impact{(t.Rules.MaxWallImpacts == 1 ? "" : "s")} ({f.WallImpacts})");
             if (t.Rules.NoHandbrake) Check(f.HandbrakeSeconds <= 0f, "no handbrake after the start" + (f.HandbrakeSeconds > 0f ? $" (held {f.HandbrakeSeconds:F1} s)" : ""));
+            if (t.Rules.AllTyresPaved)
+                Check(f.OffPavedSeconds <= 0f, "all tyres on the paved road" + (f.OffPavedSeconds > 0f ? $" (off it {f.OffPavedSeconds:F1} s)" : ""));
             if (t.Rules.BankEveryZone) Check(f.ZonesTotal > 0 && f.ZonesBanked >= f.ZonesTotal, $"a chain banked in every judged zone ({f.ZonesBanked}/{f.ZonesTotal})");
             v.Passed = t.Published && v.Checks.All(c => c.Key);
             if (!t.Published) v.Checks.Add(new KeyValuePair<bool, string>(false, "targets not published yet"));

@@ -42,7 +42,8 @@ public sealed class ChallengeTrialOnlineTests : ConvoyTestBase
         Assert.Equal("non-contact", s.GetProperty("collision").GetString());
         Assert.Equal(0, s.GetProperty("aiCount").GetInt32());
         Assert.Equal("TR-CH51", s.GetProperty("challengeTrialId").GetString());
-        Assert.Equal(8, State(1).GetProperty("challengeTrials").GetArrayLength());
+        Assert.Equal(TestData.Content.Catalogue.ChallengeTrials.Trials.Count(t => t.Published && t.Conditions == "course"),
+            State(1).GetProperty("challengeTrials").GetArrayLength());
 
         // A new member who owns nothing does not withdraw it (the trial supplies its course).
         Join(3);

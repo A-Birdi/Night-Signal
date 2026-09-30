@@ -38,14 +38,17 @@ namespace NightSignal.Tests
 
         sealed class RunFacts
         {
-            public float Skill, Handbrake;
+            public float Skill, Handbrake, Margin;
             public long TimeMs;
             public double Banked, Earned;
             public int Zones, ZonesBanked, Walls, Resets;
+            public float OffPaved;
+            public string OffPavedWhere = "";
             public string Surface;
+            public NightSignal.Core.Ghosts.GhostRecording Ghost;
         }
 
-        static IEnumerator Run(ChallengeTrialDef t, CarDef car, ResolvedCarSpec spec, float skill, Action<RunFacts> done)
+        static IEnumerator Run(ChallengeTrialDef t, CarDef car, ResolvedCarSpec spec, float skill, Action<RunFacts> done, float margin = 0f)
         {
 #if UNITY_EDITOR
             yield return UnityEditor.SceneManagement.EditorSceneManager.LoadSceneAsyncInPlayMode($"Assets/Content/Courses/{t.Course}/{t.Course}.unity",
@@ -63,6 +66,12 @@ namespace NightSignal.Tests
             session.SimulationSpeed = 30;
             session.AutopilotDriftSkill = skill;
             session.AutopilotNoHandbrake = t.Rules.NoHandbrake;
+            session.AutopilotEdgeMargin = margin;
+            if (t.Ghost)
+                session.GhostTemplate = new NightSignal.Core.Ghosts.GhostHeader
+                {
+                    Format = "trial-" + t.Id, CarModelId = car.Id, BuildHash = spec.BuildHash, Driver = "Gold reference", Provenance = TrialGhosts.Provenance,
+                };
             session.Rules = new RaceEventRules
             {
                 Kind = "freeplay", Contact = ContactPolicy.NonContact, StageNumber = 10,
@@ -77,9 +86,11 @@ namespace NightSignal.Tests
             RaceEntrantResult r = session.Results?.FirstOrDefault(x => x.Entrant.Human);
             var f = new RunFacts
             {
-                Skill = skill, TimeMs = r != null && r.Outcome == RunOutcome.Finished ? r.FinishTimeMicros / 1000 : 0,
+                Skill = skill, Margin = margin, TimeMs = r != null && r.Outcome == RunOutcome.Finished ? r.FinishTimeMicros / 1000 : 0,
                 Banked = me.Drift.BankedRaw, Earned = me.Drift.EarnedRaw, Zones = session.Sim.Drift.Zones.Count, ZonesBanked = me.Drift.ZonesBanked.Count,
-                Walls = me.Progress.WallIncidents, Resets = me.Progress.Resets, Handbrake = me.Progress.HandbrakeSeconds,
+                Walls = me.Progress.WallIncidents, Resets = me.Progress.Resets, Handbrake = me.Progress.HandbrakeSeconds, OffPaved = me.Progress.OffPavedSeconds,
+                Ghost = session.PlayerGhost,
+                OffPavedWhere = string.Join(", ", me.Progress.OffPavedAt.Select(v => $"{v.x:F0} m lateral {v.y:F2} of {v.z * 0.5f:F2}")),
                 Surface = session.Rules.Surface ?? CourseRuntime.Active?.Route?.Surface ?? "dry",
             };
             UnityEngine.Object.Destroy(go);
@@ -109,19 +120,41 @@ namespace NightSignal.Tests
                 var runs = new System.Collections.Generic.List<RunFacts>();
                 foreach (float skill in drift ? new[] { 0.95f, 0.8f, 0.65f } : new[] { 0f })
                     yield return Run(t, car, resolved.Spec, skill, f => runs.Add(f));
-                RunFacts best = runs.OrderByDescending(r => r.TimeMs > 0).ThenBy(r => r.Resets).ThenByDescending(r => Math.Max(r.Banked, r.Earned)).ThenBy(r => r.TimeMs).First();
+                // A trial that keeps every tyre on the paved road: if the validator's line cuts an apex onto the shoulder, the
+                // fastest wider edge margin that keeps the rule is the reference (so the Gold target is shown reachable within its
+                // rules). A narrower apex line was tried first and ran wide on the exits instead (V-121).
+                if (t.Rules.AllTyresPaved)
+                    foreach (float margin in new[] { 1.6f, 1.9f, 2.2f })
+                    {
+                        if (runs.Any(r => r.TimeMs > 0 && r.OffPaved <= 0f)) break;
+                        yield return Run(t, car, resolved.Spec, 0f, f => runs.Add(f), margin);
+                    }
+                RunFacts best = t.Rules.AllTyresPaved && runs.Any(r => r.TimeMs > 0 && r.OffPaved <= 0f)
+                    ? runs.Where(r => r.TimeMs > 0 && r.OffPaved <= 0f).OrderBy(r => r.TimeMs).First()
+                    : runs.OrderByDescending(r => r.TimeMs > 0).ThenBy(r => r.Resets).ThenByDescending(r => Math.Max(r.Banked, r.Earned)).ThenBy(r => r.TimeMs).First();
                 report.AppendLine().AppendLine($"## {t.Id} ({t.Challenge}, {t.Tier}) on {t.Course} ({best.Surface}): {car.Name} {string.Join(" + ", t.Loaner.Parts.Values)}".TrimEnd(' ', '+') +
                                                $", PI {pi.Value}{(t.Loaner.PiCap > 0 ? $" (cap {t.Loaner.PiCap})" : "")}");
                 foreach (RunFacts r in runs)
-                    report.AppendLine($"{(drift ? $"skill {r.Skill:F2}: " : "")}time {(r.TimeMs > 0 ? (r.TimeMs / 1000.0).ToString("F3") + " s" : "DNF")}; banked {r.Banked:F0} raw " +
-                                      $"(earned {r.Earned:F0}) in {r.ZonesBanked}/{r.Zones} zones; walls {r.Walls}, resets {r.Resets}, handbrake {r.Handbrake:F1} s" +
-                                      (runs.Count > 1 && r == best ? "  ← used" : ""));
+                    report.AppendLine($"{(drift ? $"skill {r.Skill:F2}: " : r.Margin > 0f ? $"edge margin {r.Margin:F1} m: " : "")}time {(r.TimeMs > 0 ? (r.TimeMs / 1000.0).ToString("F3") + " s" : "DNF")}; banked {r.Banked:F0} raw " +
+                                      $"(earned {r.Earned:F0}) in {r.ZonesBanked}/{r.Zones} zones; walls {r.Walls}, resets {r.Resets}, handbrake {r.Handbrake:F1} s, off the paved road {r.OffPaved:F1} s" +
+                                      (runs.Count > 1 && r == best ? "  ← used" : "") + (r.OffPaved > 0f && t.Rules.AllTyresPaved ? $"\n  off the paved road at: {r.OffPavedWhere}" : ""));
 
                 if (best.TimeMs <= 0) { problems.Add($"{t.Id}: the reference did not finish"); continue; }
                 if (t.Rules.NoHandbrake && best.Handbrake > 0f) { problems.Add($"{t.Id}: the reference used the handbrake"); continue; }
                 if (t.Loaner.PiCap > 0 && pi.Value > t.Loaner.PiCap) { problems.Add($"{t.Id}: PI {pi.Value} over the cap"); continue; }
                 if (best.Resets > 0) report.AppendLine($"(the cleanest reference still reset {best.Resets} time(s): its time includes them)");
                 t.Targets.TimeMs = t.JudgesTime ? (long)Math.Ceiling(TimeFactor(t.Tier) * best.TimeMs / 100.0) * 100 : 0;
+                t.Targets.ReferenceEdgeMargin = best.Margin;
+                if (t.Ghost)
+                {
+                    // The fixed Gold ghost is the reference run itself; beating it means finishing faster than its time.
+                    if (best.Ghost == null || best.Ghost.Count < 2) { problems.Add($"{t.Id}: the reference ghost was not recorded"); t.Targets.TimeMs = 0; continue; }
+                    if (t.Rules.AllTyresPaved && best.OffPaved > 0f)
+                        problems.Add($"{t.Id}: the reference left the paved road for {best.OffPaved:F1} s (the rule stays; a person must do better)");
+                    Directory.CreateDirectory("Assets/Content/Resources/" + TrialGhosts.Folder);
+                    File.WriteAllText($"Assets/Content/Resources/{TrialGhosts.Folder}/{t.Id}.json", best.Ghost.ToJson());
+                    t.Targets.TimeMs = best.TimeMs;
+                }
                 if (drift)
                 {
                     // As the V-113 drift references: what the reference scored in the zones, so points lost to walls never soften a target.
@@ -134,7 +167,8 @@ namespace NightSignal.Tests
                 }
                 report.AppendLine("→ " + string.Join(", ", new[]
                 {
-                    t.Targets.TimeMs > 0 ? $"{t.Tier} time {t.Targets.TimeMs / 1000.0:F1} s ({TimeFactor(t.Tier):F2} ×)" : null,
+                    t.Targets.TimeMs > 0 ? (t.Ghost ? $"beat the Gold ghost's {t.Targets.TimeMs / 1000.0:F3} s (the reference run itself, recorded)"
+                        : $"{t.Tier} time {t.Targets.TimeMs / 1000.0:F1} s ({TimeFactor(t.Tier):F2} ×)") : null,
                     t.Targets.DriftRaw > 0 ? $"{t.Tier} drift {t.Targets.DriftRaw:N0} raw ({DriftFactor(t.Tier):F2} × scored)" : null,
                 }.Where(x => x != null)));
             }

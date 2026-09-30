@@ -29,6 +29,10 @@ namespace NightSignal.Race
         public int Resets;
         /// <summary>Seconds with the handbrake held while racing (challenge trials: CH25).</summary>
         public float HandbrakeSeconds;
+        /// <summary>Seconds with a tyre beyond the paved road (challenge trials: CH13), and the tyres' outer reach from the car's centre (m).</summary>
+        public float OffPavedSeconds, TyreHalfSpan = 0.83f;
+        /// <summary>Where a tyre first left the paved road (route metres, lateral offset, paved width), at most 32 — for reports.</summary>
+        public readonly List<Vector3> OffPavedAt = new List<Vector3>();
         /// <summary>Time penalties (resets: 3 s each) added to the finish time.</summary>
         public long PenaltyMicros;
         public bool CorridorCut;
@@ -145,6 +149,13 @@ namespace NightSignal.Race
             e.Location = loc;
 
             if (!loc.InCorridor) e.OutOfCorridorSeconds += dt;
+            // A tyre past the paved edge (the car's centre offset plus half its track and half a tyre): shoulders do not count.
+            if (loc.OnLayer && Mathf.Abs(loc.Lateral) + e.TyreHalfSpan > track.Samples[loc.Index].Width * 0.5f)
+            {
+                if (e.OffPavedAt.Count < 32 && (e.OffPavedAt.Count == 0 || loc.Distance - e.OffPavedAt[e.OffPavedAt.Count - 1].x > 5f || loc.Distance < e.OffPavedAt[e.OffPavedAt.Count - 1].x))
+                    e.OffPavedAt.Add(new Vector3(loc.Distance, loc.Lateral, track.Samples[loc.Index].Width));
+                e.OffPavedSeconds += dt;
+            }
             e.OffRouteSeconds = OffRoute(loc) ? e.OffRouteSeconds + dt : 0f;
             bool moving = current.Velocity.sqrMagnitude > 4f;
             if (moving && Vector3.Dot(current.Velocity, track.Samples[loc.Index].Tangent) < 0f && loc.HeadingDot < -0.3f)

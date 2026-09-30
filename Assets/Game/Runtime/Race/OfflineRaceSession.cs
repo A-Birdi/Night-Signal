@@ -38,6 +38,8 @@ namespace NightSignal.Race
         public float AutopilotDriftSkill;
         /// <summary>The autopilot starts slides with power, never the handbrake (measuring CH25's trial).</summary>
         public bool AutopilotNoHandbrake;
+        /// <summary>The margin the autopilot's line keeps from the road's edge (0 = the validator's own; a trial that keeps every tyre paved).</summary>
+        public float AutopilotEdgeMargin;
         /// <summary>Automation only: the validator autopilot steers through the course's challenge touch gates (CH03, CH06).</summary>
         public static bool AutopilotAimsChallengeGates;
         /// <summary>Automation only: the autopilot holds the brakes this long after GO, so the field goes ahead (racecraft tour).</summary>
@@ -162,6 +164,7 @@ namespace NightSignal.Race
             DriverProfile pilotProfile = DriverProfile.Validator;
             pilotProfile.DriftSkill = AutopilotDriftSkill;
             pilotProfile.NoHandbrake = AutopilotNoHandbrake;
+            pilotProfile.EdgeMargin = AutopilotEdgeMargin;
             pilot = new RouteFollower(course.Track, Player.Params, pilotProfile)
             {
                 DriftZones = Sim.DriftZonesForAi, ApexGates = Sim.Contracts?.ApexGates ?? (AutopilotAimsChallengeGates ? Sim.Gates?.TouchGates : null),
@@ -198,12 +201,12 @@ namespace NightSignal.Race
                     if (Ghosts.Count >= MaxGhosts) break;
                     if (GhostTemplate == null || !g.CompatibleWith(GhostTemplate) || g.Count < 2 || !lib.Catalogue.TryCar(g.Header.CarModelId, out Core.Content.CarDef gc)) continue;
                     VehicleParams gp = lib.Params(gc.Id, AssistSettings.Default);
-                    bool reference = RivalReferenceGhosts.IsReference(g);
+                    bool reference = RivalReferenceGhosts.IsReference(g), gold = TrialGhosts.IsTrialGhost(g);
                     VehicleView gv = VehicleView.Create($"Ghost_{Ghosts.Count}_{gc.Id}", gp, lib.Body(gc.Id), mats,
-                        reference ? new Color(1f, 0.45f, 0.35f) : new Color(0.35f, 0.85f, 1f));
-                    string who = reference ? RivalReferenceGhosts.Owner(g) : string.IsNullOrEmpty(g.Header.Driver) ? "best" : g.Header.Driver;
+                        reference ? new Color(1f, 0.45f, 0.35f) : gold ? TrialGhosts.Tint : new Color(0.35f, 0.85f, 1f));
+                    string who = reference ? RivalReferenceGhosts.Owner(g) : gold ? TrialGhosts.Label : string.IsNullOrEmpty(g.Header.Driver) ? "best" : g.Header.Driver;
                     string label = $"Ghost · {who} {g.Header.ResultMicros / 1e6:F3} s";
-                    Ghosts.Add(new GhostPlayback(g, gv, label, reference ? RivalReferenceGhosts.Tint : (Color?)null));
+                    Ghosts.Add(new GhostPlayback(g, gv, label, reference ? RivalReferenceGhosts.Tint : gold ? TrialGhosts.Tint : (Color?)null));
                 }
                 var camGo = CameraRig.EnsureMain("RaceCamera").gameObject;
                 camGo.tag = "MainCamera";

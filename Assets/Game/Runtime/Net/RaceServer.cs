@@ -601,7 +601,7 @@ namespace NightSignal.Net
                         Finished = c.Outcome == RunOutcome.Finished,
                         TimeMs = c.Outcome == RunOutcome.Finished ? c.FinishTimeMicros / 1000 : 0,
                         Resets = c.Entrant.Progress.Resets, WallImpacts = c.Entrant.Progress.WallIncidents,
-                        HandbrakeSeconds = c.Entrant.Progress.HandbrakeSeconds,
+                        HandbrakeSeconds = c.Entrant.Progress.HandbrakeSeconds, OffPavedSeconds = c.Entrant.Progress.OffPavedSeconds,
                         DriftRaw = (long)System.Math.Floor(c.Entrant.Drift.BankedRaw),
                         ZonesBanked = c.Entrant.Drift.ZonesBanked.Count,
                         ZonesTotal = lib.Catalogue.DriftZones.TryGetValue(trialDef.Course, out int zones) ? zones : 0,

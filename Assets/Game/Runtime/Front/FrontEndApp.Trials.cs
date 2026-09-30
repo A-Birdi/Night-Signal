@@ -16,6 +16,8 @@ namespace NightSignal.Front
     {
         /// <summary>The autopilot starts slides by power in the next offline race (tours measuring or driving CH25's trial).</summary>
         bool pendingAutopilotNoHandbrake;
+        /// <summary>The autopilot's edge margin in the next offline race (0 = the validator's own; replaying a trial's reference).</summary>
+        float pendingAutopilotEdgeMargin;
 
         /// <summary>Starts a challenge trial (docs/CHALLENGE_TRIALS.md) in its supplied loaner; the result returns to <paramref name="returnTo"/>.</summary>
         public void StartTrial(ChallengeTrialDef trial, UIScreen returnTo) => StartLocalEvent(LocalEvents.Trial(trial), returnTo);
@@ -108,6 +110,7 @@ namespace NightSignal.Front
                     yield return new WaitForSeconds(0.4f);
                     pendingAutopilotDriftSkill = skill;
                     pendingAutopilotNoHandbrake = t.Rules.NoHandbrake;
+                    pendingAutopilotEdgeMargin = t.Targets.ReferenceEdgeMargin;
                     LocalEvents.LastTrialVerdict = null;
                     if (!Click("StartTrial")) break;
                     yield return Until(() => activeRace != null, 60f);

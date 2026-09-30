@@ -29,8 +29,9 @@ public sealed class ChallengeTrialsTests
     public void TheAuthoredTrials_LoadIntoTheHashedCatalogue_OnePerChallengeOrOneGroup()
     {
         Assert.Contains(ContentCatalogue.AuthoredFiles, f => f == "challenge-trials.json");
-        Assert.Equal(8, Trials.Trials.Count);
-        Assert.Equal(new[] { "CH11", "CH25", "CH28", "CH30", "CH51", "CH54", "CH55" }, Trials.Trials.Select(t => t.Challenge).Distinct().OrderBy(c => c));
+        Assert.Equal(9, Trials.Trials.Count);
+        Assert.Equal(new[] { "CH11", "CH13", "CH25", "CH28", "CH30", "CH51", "CH54", "CH55" }, Trials.Trials.Select(t => t.Challenge).Distinct().OrderBy(c => c));
+        Assert.True(Trials.Find("TR-CH13")!.Ghost && Trials.Find("TR-CH13")!.Rules.AllTyresPaved); // the fixed Gold ghost, tyres on the paved road
         Assert.Equal(2, Trials.ForChallenge("CH54").Count);
         Assert.All(Trials.ForChallenge("CH54"), t => Assert.Equal("CH54-LAYOUTS", t.Group));
         Assert.Equal(new[] { "TR-CH25", "TR-CH28", "TR-CH30" }, Trials.Trials.Where(t => t.JudgesDrift).Select(t => t.Id));
@@ -83,6 +84,16 @@ public sealed class ChallengeTrialsTests
         TrialVerdict hb = TrialJudge.Judge(t, Run(drift: 60_000, handbrake: 0.4f, banked: 4, zones: 4));
         Assert.False(hb.Passed);
         Assert.Contains("held 0.4 s", hb.Summary);
+    }
+
+    [Fact]
+    public void ThePavedRule_FailsTheTrial_OnAnyTimeOffThePavedRoad()
+    {
+        ChallengeTrialDef t = Trial(timeMs: 100_000, rules: new TrialRules { AllTyresPaved = true });
+        Assert.True(TrialJudge.Judge(t, Run(timeMs: 99_000)).Passed);
+        TrialVerdict shoulder = TrialJudge.Judge(t, Run(timeMs: 99_000) with { OffPavedSeconds = 0.3f });
+        Assert.False(shoulder.Passed);
+        Assert.Contains("MISSED: all tyres on the paved road (off it 0.3 s)", shoulder.Summary);
     }
 
     [Fact]

@@ -236,7 +236,7 @@ namespace NightSignal.Race
                 Params = p,
                 Sim = new VehicleSimulation(p, world) { SurfaceGripScale = CourseRuntime.SurfaceGrip(Rules.Surface) },
                 State = VehicleState.AtRest(g.Position, g.Rotation),
-                Progress = new EntrantProgress(Track),
+                Progress = new EntrantProgress(Track) { TyreHalfSpan = p.TrackM * 0.5f + 0.1f },
                 Status = human ? EntrantStatus.Reserved : EntrantStatus.Loaded,
                 Roster = new RosterEntry
                 {

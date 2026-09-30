@@ -377,7 +377,8 @@ namespace NightSignal.Net
                         if (!g.CompatibleWith(rules) || g.Count < 2 || !lib.Catalogue.TryCar(g.Header.CarModelId, out Core.Content.CarDef gc)) continue;
                         VehicleView gv = VehicleView.Create($"Ghost_{Ghosts.Count}_{gc.Id}", lib.Params(gc.Id, AssistSettings.Default), lib.Body(gc.Id),
                             Resources.Load<CarMaterialSet>("CarMaterialSet"), new Color(0.35f, 0.85f, 1f));
-                        Color? tint = RivalReferenceGhosts.IsReference(g) ? RivalReferenceGhosts.Tint : offer.Key == "your best" ? (Color?)null : MemberTint;
+                        Color? tint = RivalReferenceGhosts.IsReference(g) ? RivalReferenceGhosts.Tint : TrialGhosts.IsTrialGhost(g) ? TrialGhosts.Tint
+                            : offer.Key == "your best" ? (Color?)null : MemberTint;
                         Ghosts.Add(new GhostPlayback(g, gv, $"Ghost · {offer.Key} {g.Header.ResultMicros / 1e6:F3} s", tint));
                     }
                 Debug.Log($"[NightSignal.Ghost] online {Info.CourseId} {rules.Format}: {(fetch.Status == System.Threading.Tasks.TaskStatus.RanToCompletion ? fetch.Result.Count : 0)} offered, " +
