@@ -181,13 +181,13 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
    ten tuning demonstrations (V-141); tunable trials online and trials racing their course's own surface offline (V-142:
    CH51/CH57 re-measured). **Open:** the full regression tour of all 47 trials on the current build (`bounds-audit.ps1 -Only
    720p-large -Tours TrialTour`); TR-CH56 online not yet run; Local Freeplay surface parity (a separate task). The control
-   plane (task started this session) serves `fa8fdfb`'s code and content. **Also:** tunable trials online (CH56's "server validates all installed
-   parameters" — see V-138's limits). The tour's setup of each tunable trial is `FrontEndApp.TourSetup`. Targeted built-player runs: `Tools/run/tour.ps1 -Tour TrialTour -TrialOnly
-   <ids>`; a trial's measurement: `Builds/diag/measure-trials.txt` + `ChallengeTrialReferenceTests.MeasureChallengeTrials`.
-   Racecraft, cup, Driving School and story-gated trials are offline only (`ConvoyDirectory.OnlineTrial`). The control
-   plane (task b2kshjyh5) still serves the content of `0777df53…`; the trials JSON changed since — restart it before any
-   online run. `Assets/_Recovery/0.unity` is Unity's crash-recovery copy of an unsaved scene from 2026-09-29 18:10 — left
-   untouched for the owner.
+   plane (a task started this session) serves `fa8fdfb`'s code and content — restart it after any trials JSON or Services
+   change before an online run. The tour's setup of each tunable trial is `FrontEndApp.TourSetup`. Targeted built-player
+   runs: `Tools/run/tour.ps1 -Tour TrialTour -TrialOnly <ids>`; online: `Tools/run/ui-tour-online.ps1 -Intent 5
+   -ChallengeTrial <id>`; a trial's measurement: `Builds/diag/measure-trials.txt` (one id per line) +
+   `ChallengeTrialReferenceTests.MeasureChallengeTrials`. Racecraft, cup, Driving School, lane-lesson and story-gated
+   trials are offline only (`ConvoyDirectory.OnlineTrial`). `Assets/_Recovery/0.unity` is Unity's crash-recovery copy of
+   an unsaved scene from 2026-09-29 18:10 — left untouched for the owner.
 0. **After any AI tendency change**: rerun `-nsCrewTelemetryTour` and `CertifyListed` for the stages whose featured
    rival has that tendency (V-108; the crew telemetry was rerun on the V-109 build and passes).
 
@@ -195,12 +195,11 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
    run 5 on `7d9119d`); the steep dark terrain "cliffs" of the gorge/highland terrain styles (heightfield resolution)
    are untouched.
 2. **Card and meet follow-ups** (smaller): the card is done — look (V-077, offline V-091), style (V-092), showcase online
-   and offline (V-093, V-095); the meet under latency is done (V-094); the remaining challenge predicates (R11.3:
-   44 of 75 are judged: CH01, CH03–CH06, CH08–CH10, CH12, CH16, CH18, CH20, CH21, CH24, CH26, CH29, CH31–CH33, CH35, CH38, CH44, CH45, CH48, CH50, CH61–CH68, CH70, CH71, CH73, CH75,
-   and offline as challenge trials CH11, CH25, CH28, CH30, CH51, CH54, CH55 (V-119) — see REQUIREMENTS R11.3; the published references are
-   measured by `ChallengeReferenceTests` (V-113) and the trial targets by `ChallengeTrialReferenceTests` (V-119; rerun both after a physics,
-   route, part or car change). Next: challenge trials online, then the later slices of `docs/CHALLENGE_TRIALS.md` — geometry judges, scripted
-   AI, fixed cups, T00 drills and workshop trials; CH28 needs the drift controller to manage the road edge before its reference is clean).
+   and offline (V-093, V-095); the meet under latency is done (V-094). Challenges: all 75 are judged (R11.3; item 0) — the
+   published references are measured by `ChallengeReferenceTests` (V-113) and the trial targets by
+   `ChallengeTrialReferenceTests` (V-119 … V-142; rerun both after a physics, route, part, car or conditions change); eleven
+   are judged but not shown reachable by the autopilot (item 0), CH28 among them until the drift controller manages the road
+   edge; the reward assets are not built.
 3. **Gameplay backlog**: ghosts — personal (V-103, V-104), a convoy member's (V-107, V-109) and the authored rival
    reference (V-109) are raced offline and online; the route/elevation chart offline (V-110) and online (V-112); left: re-recording
    the references (`RivalReferenceGhostTests`) whenever physics, scoring or a route changes. The story is on screen offline and online (V-099, V-100); left: portraits or a
