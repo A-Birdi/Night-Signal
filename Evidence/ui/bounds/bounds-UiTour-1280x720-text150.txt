@@ -15,11 +15,11 @@
 - [Pocket Circuit] Screens/Pocket Circuit/Info/InfoColumn/Title — "POCKET CIRCUIT" box 480x90, drawn 484x56 (spill 4 px), size 50.2 (min 30.0)
 - [Greenlight] Body/Screens/Greenlight/Station/Prompt — "PRESS START, THEN REACT WITH SPACE / RIGHT TRIGGER / CLICK" box 1229x112, drawn 1231x36 (spill 2 px), size 32.6 (min 30.0)
 - [Pit-Crew] Screens/Pit-Crew/Info/InfoColumn/Title — "PIT-CREW PROJECT" box 580x90, drawn 584x58 (spill 4 px), size 51.8 (min 30.0)
-- [Convoy Canvas] Screens/Convoy Canvas/Tools/ToolColumn/Title — "CONVOY CANVAS" box 400x90, drawn 403x46 (spill 3 px), size 41.3 (min 30.0)
 - [Convoy Canvas] Convoy Canvas/Tools/ToolColumn/Sheet/Label — "SHEET" box 88x56, drawn 90x27 (spill 2 px), size 24.0 (min 12.8)
-- [Convoy Canvas] Convoy Canvas/Tools/ToolColumn/Back/Label — "LEAVE THE CANVAS" box 356x48, drawn 359x36 (spill 3 px), size 32.3 (min 16.5)
-- [Convoy Canvas] Convoy Canvas/Tools/ToolColumn/Width/Label — "WIDTH" box 88x56, drawn 90x27 (spill 2 px), size 24.0 (min 12.8)
 - [Convoy Canvas] Convoy Canvas/Tools/ToolColumn/Stamp/Label — "STAMP" box 88x56, drawn 90x27 (spill 2 px), size 23.8 (min 12.8)
+- [Convoy Canvas] Screens/Convoy Canvas/Tools/ToolColumn/Title — "CONVOY CANVAS" box 400x90, drawn 403x46 (spill 3 px), size 41.3 (min 30.0)
+- [Convoy Canvas] Convoy Canvas/Tools/ToolColumn/Width/Label — "WIDTH" box 88x56, drawn 90x27 (spill 2 px), size 24.0 (min 12.8)
+- [Convoy Canvas] Convoy Canvas/Tools/ToolColumn/Back/Label — "LEAVE THE CANVAS" box 356x48, drawn 359x36 (spill 3 px), size 32.3 (min 16.5)
 
 ## Fixed-size live figures drawn beyond their box (they never clip; inspect for collisions): 0
 

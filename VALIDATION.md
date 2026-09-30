@@ -3133,3 +3133,29 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - **Tests:** `SqliteStoreStressTests` keeps the probe (skipped unless `NS_SQLITE_STRESS=<rounds>`): **900 rounds, 0
   failures** with the fix. Full solution four times: Core 209, Builds 232, Toys 92, **Services 372 passed + 1 skipped**
   each time; the meet test class five times alone, all passing.
+
+## V-146 — Local Freeplay races the course's own conditions, as online (2026-09-30)
+- Revision: documented with the commit of this entry (the change is in it); the player build of `5732617` + this change.
+- **The gap:** a Local Freeplay plan kept `RaceEventRules.Surface` at its "dry" default and `RunOfflineRace` applies
+  `RaceConditions` only outside Freeplay, so every Local Freeplay race was dry — while online Freeplay races the course's
+  own surface (C08 wet; C11, C15, C20 damp). Lighting already followed the course's default time of day on both sides.
+- **What online actually offers:** the online client proposes no weather at all (no weather control on the Convoy page), so
+  every online Freeplay race uses the course's own conditions; the `Weather` presets exist only in the control-plane
+  protocol, and the game server honours only `wet-night` (a wet surface) — the other presets change neither surface nor
+  lighting. So parity is: Local Freeplay races the course's own conditions, with no offline-only weather option. (V-113's
+  note that CH26 — wet C12 — is reachable online "through the Freeplay weather option" holds for the protocol and
+  automation only, not for a player in the client.)
+- **Change:** `LocalEvents.Freeplay` leaves the surface to the course (null), resolved by `RunOfflineRace` once the course
+  is loaded (V-142's rule); Custom Cup legs likewise per leg. The Freeplay hub names the conditions ("Conditions: Early
+  night, damp."; a cup: each leg in its course's own conditions). Records and personal ghosts already key on the surface:
+  Local records made dry on C08/C11/C15/C20 before this stay in their own dry bucket (honest, no longer raceable offline —
+  as online); new runs land in the course's own bucket.
+- **Tests:** EditMode `LocalFreeplayFieldTests.Freeplay_RacesTheCoursesOwnConditions_AsOnline` (race and Time Attack on
+  C15, C08, C01 leave the surface to the course) — the class 3/3.
+- **Built player (`tour.ps1 -Tour FreeplayConditionsTour`, new, buttons only, isolated profile, C15 seeded as owned):**
+  Time Attack on C15 raced **damp** — the race, its personal ghost header and its Local record key all "damp" (159.429 s) —
+  and on C01 **dry** (86.501 s); the hub named "Early night, damp" and "Late afternoon, dry". **PASS.**
+  `Evidence/ui/conditions/freeplay-conditions-tour.txt`, `01-C15-hub.png`.
+- **Bounds (the hub note's longer text, Text 150 %):** UiTour and CupTour at 1280x720, Text 150 % / HUD 130 % (built player of `b6546b5`): both PASS, **0 overflow, 0 missing glyph** (UiTour 288 labels over 69 moments, including the Offline hub with the Freeplay note; CupTour 97 over 22, including the hub and the Custom Cup page — whether the cup variant of the note was on screen at an audited moment is not confirmed). `Evidence/ui/bounds/bounds-UiTour-1280x720-text150.txt`, `bounds-CupTour-1280x720-text150.txt`.
+- **Open (both sides, spec §8 "lighting/weather preset"):** neither client offers a weather or lighting preset, and the
+  server applies only a wet surface from the presets — a later feature for both domains together.
