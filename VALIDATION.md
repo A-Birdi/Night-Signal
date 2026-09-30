@@ -3094,3 +3094,15 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   minimum size, which are not failures). `Evidence/ui/bounds/bounds-TrialTour-1280x720-text150-ch60.txt`.
 - **EditMode (editor, code of `118d778`):** 494 passed, 0 failed, 2 skipped (the explicit V-087 contact experiments).
   .NET at `118d778`: Core 209, Toys 92, Builds 232, Services 372.
+
+## V-144 — CH56 online: a tuned setup inside the locked PI budget, validated by the control plane and the game server (2026-09-30)
+- Revision: the player build of `1b10fcd`; the control plane restarted on `674eba8` (the trials content changed since the
+  last start); documented with the commit of this entry.
+- **Built players (`ui-tour-online.ps1 -Intent 5 -ChallengeTrial TR-CH56`, server bound and advertised 127.0.0.1, dev
+  account 0, the client's Local data in a fresh folder):** Tune the Loaner from the Convoy page by buttons — the intake, the
+  final-drive kit, FinalDrive 1040, PI 613 of 615, legal — then Event Ready with the setup; the control plane validated it
+  and froze it; the game server raced the frozen build `9ba59ae601f9` (hash verified — the same build the offline run raced)
+  and judged it itself: **PASSED**, 3:40.805 < 3:44.700 (offline 3:39.516); the settled receipt holds CH56 earned.
+  `Evidence/challenges/trials-online/online-TR-CH56.txt`. With V-142's TR-CH57 run, both tunable trials offered online are
+  shown; CH56's "server validates all installed parameters" is met by the control plane (at readiness) and the game server
+  (at the finish).

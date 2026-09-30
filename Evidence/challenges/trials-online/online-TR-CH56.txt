@@ -1,0 +1,25 @@
+# ui-tour-online.ps1 -Intent 5 -ChallengeTrial TR-CH56 (built player of 1b10fcd; control plane restarted on 674eba8 for the current content; bind/advertise 127.0.0.1; dev account 0; client Local data in a fresh -nsLocalProfiles folder): Tune the Loaner from the Convoy page (intake, final-drive kit, FinalDrive 1040), the setup validated by the control plane and re-resolved by the game server — PASSED, CH56 earned online.
+## client
+[NightSignal.Trial] TR-CH56 online setup saved (parts engine=ENG-T1-INTAKE, gearbox=GBX-T1-FINAL; tune FinalDrive=1040)
+[NightSignal.UiTour] TR-CH56 online setup: legal, PI 613; kept on this PC: True
+[NightSignal.UiTourOnline] shared table: progress 7.14 -> 1005.60, still event ready True
+[NightSignal.UiTourOnline] challenge trial receipt: passed; challenge earned
+[NightSignal.UiTourOnline] online route chart: 7.18 km · climb 579 m · 17 braking points
+[NightSignal.UiTourOnline] PASS; last result: <color=#9A968D>LAST RACE</color> | P1 of 1   03:40.805 | <color=#3EC6D8>Challenge trial passed</color> | <size=80%>ok: the supplied loaner · ok: your setup legal and within PI 615 (PI 613) · ok: a valid finish · ok: faster than 3:44.700 (3:40.805)</size> | <color=#3EC6D8>Challenge earned</color>  CH56 A Tune for the Hill | Credits +29,238   ·   balance 673,268 cr | 
+## server
+[NightSignal.Server] network boundary: bind 127.0.0.1 (local), advertise 127.0.0.1, UDP 7777, LAN opt-in no
+[NightSignal.Server] registered as dev-local; build 0.1.0; content 09df08fd2163; 1 ticket key(s)
+[NightSignal.Server] Driver 1 races the frozen build 9ba59ae601f9 of loaner:TR-CH56 (applied revision 0, 2 part(s), PI 613) — hash verified
+[NightSignal.Server] challenge trial TR-CH56 (CH56) on C23: loaner V11 f063d5a4f3aa
+[NightSignal.Server] listening UDP 127.0.0.1:7777 (local), advertised 127.0.0.1:7777, LAN opt-in no, pid 31944
+[NightSignal.Server] phase Loading at tick 0
+[NightSignal.Server] match m_cecb5d156977c48523df66cf on C23: 1 humans, 0 AI, contact non-contact, port 7777
+[NightSignal.Server] entrant 0 (Driver 1) connected as client 1
+[NightSignal.Server] phase Countdown at tick 272, start tick 512
+[NightSignal.Server] phase Racing at tick 512
+[NightSignal.Server] first human finish; finish window closes at race time 310.8 s
+[NightSignal.Server] phase Results at tick 13761
+[NightSignal.Server] 00000000-0000-4000-8000-000000000001 challenge trial TR-CH56: PASSED — ok: the supplied loaner · ok: your setup legal and within PI 615 (PI 613) · ok: a valid finish · ok: faster than 3:44.700 (3:40.805)
+[NightSignal.Server] ghost for 00000000-0000-4000-8000-000000000001: 2209 samples, 147 KB, result 220.806 s -> 200
+[NightSignal.Server] results for m_cecb5d156977c48523df66cf: 200 {"status":"settled","receipts":[{"matchId":"m_cecb5d156977c48523df66cf","accountId":"00000000-0000-4000-8000-000000000001","status":"settled","eventKind":"FreeplayTimeTrial","mode":null,"stageId":null,"courseId":"C23","outcome":"Finished","placement":1,"tied":false,"finishTimeMs":220805,"stage":null,"payout":{"base":11300,"difficultyX100":100,"placementX100":120,"cleanlinessX100":105,"utilityX…
+[NightSignal.Server] entrant 0 disconnected → Finished

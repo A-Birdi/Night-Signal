@@ -179,8 +179,7 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
    Not shown reachable by the autopilot: CH13, CH17, CH22, CH23, CH27, CH28, CH34, CH36, CH40, CH41, CH43 (see each entry).
    CH02 and CH47 as Driving School braking-lane lessons (V-140; kind "lane", `LocalProgression.ApplyLessonTrial`), CH60's
    ten tuning demonstrations (V-141); tunable trials online and trials racing their course's own surface offline (V-142:
-   CH51/CH57 re-measured); the 47-trial regression with its bounds audit (V-143: the CH60 list rows fitted). **Open:** TR-CH56
-   online not yet run; Local Freeplay surface parity and the intermittent Services test (separate tasks offered); the eleven
+   CH51/CH57 re-measured); the 47-trial regression with its bounds audit (V-143: the CH60 list rows fitted). **Open:** Local Freeplay surface parity and the intermittent Services test (separate tasks offered); the eleven
    challenges not shown reachable by the autopilot. The control
    plane (a task started this session) serves `fa8fdfb`'s code and content — restart it after any trials JSON or Services
    change before an online run. The tour's setup of each tunable trial is `FrontEndApp.TourSetup`. Targeted built-player
