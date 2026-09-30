@@ -39,6 +39,9 @@ namespace NightSignal.Front
             instance = null;
         }
 
+        /// <summary>The folder Local data lives in on this PC (-nsLocalProfiles isolates automated runs from real saves).</summary>
+        public static string DataFolder => Path.GetFullPath(folderOverride ?? Arg("-nsLocalProfiles") ?? Path.Combine(Application.persistentDataPath, "LocalProfiles"));
+
         /// <summary>The PC's Local session (created on first use). Null only if the content library is missing.</summary>
         public static LocalSession Current
         {
@@ -48,8 +51,7 @@ namespace NightSignal.Front
                 ContentCatalogue cat = ContentLibrary.Load()?.Catalogue;
                 if (cat == null) return null;
                 // -nsLocalProfiles <dir> isolates automated runs (UI tours, tests) from a player's real saves.
-                string folder = folderOverride ?? Arg("-nsLocalProfiles") ?? Path.Combine(Application.persistentDataPath, "LocalProfiles");
-                instance = new LocalSession(Path.GetFullPath(folder), cat);
+                instance = new LocalSession(DataFolder, cat);
                 return instance;
             }
         }

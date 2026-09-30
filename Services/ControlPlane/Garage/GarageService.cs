@@ -714,6 +714,34 @@ public sealed class GarageService(IGarageStore store, IPlayerStore players, Cont
         return EntrantBuild.From("loaner:" + t.Id, car.Id, applied, r.Spec, pi, garage.Hash);
     }
 
+    /// <summary>
+    /// A player's own setup of a tunable challenge trial's loaner as a frozen build: resolved with Core
+    /// <see cref="TrialLoaners.ResolveSetup"/> from this server's parts data — parts only from the trial's choices, the tune
+    /// valid for the installed parts, inside the trial's PI budget — so the game server re-resolves it to the same hash;
+    /// null (with the reasons) when it is not legal.
+    /// </summary>
+    public EntrantBuild? TrialSetupBuild(string trialId, MechanicalSnapshot? setup, out string? problem)
+    {
+        problem = null;
+        if (content.Catalogue.ChallengeTrials.Find(trialId) is not { } t || !content.Catalogue.TryCar(t.Loaner.Car, out CarDef car))
+        {
+            problem = "Unknown challenge trial.";
+            return null;
+        }
+        TrialLoanerBuild b = TrialLoaners.ResolveSetup(t.Loaner, setup, car, content.Catalogue.CarTunings[car.Id], garage.Parts);
+        if (!b.Ok || b.Pi is null)
+        {
+            problem = "Not a legal setup: " + string.Join("; ", b.Problems.Distinct()) + ".";
+            return null;
+        }
+        var applied = new AppliedVehicleBuild
+        {
+            Revision = 0, Build = b.Build, BuildHash = b.Result.Spec.BuildHash, Pi = b.Pi.Value, PiClass = b.Pi.Class.ToString(),
+            HandlingModelVersion = b.Result.Spec.HandlingModelVersion, PartsCatalogueRevision = b.Result.Spec.PartsCatalogueRevision, Source = "trial-loaner-setup",
+        };
+        return EntrantBuild.From("loaner:" + t.Id, car.Id, applied, b.Result.Spec, b.Pi, garage.Hash);
+    }
+
     /// <summary>Frozen builds of several entrants' selected instances (event.start); entrants without a valid build are omitted.</summary>
     public async Task<IReadOnlyDictionary<string, EntrantBuild>> FreezeSelectionsAsync(IEnumerable<string> accounts, CancellationToken ct)
     {

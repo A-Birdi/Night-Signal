@@ -45,10 +45,25 @@ namespace NightSignal.Front
         public MechanicalSnapshot Setup => setup;
         public TrialLoanerBuild Current => current;
 
+        /// <summary>The online account whose setup this is (null: the Local profile's).</summary>
+        string onlineAccount;
+
+        /// <summary>Opens a tunable trial's workshop for an online event: the account's setup kept on this PC, sent with Event Ready.</summary>
+        public void OpenOnline(ChallengeTrialDef t, string account)
+        {
+            Open(t);
+            onlineAccount = account;
+            MechanicalSnapshot saved = OnlineTrialSetups.Get(account, t.Id);
+            setup = Clone(saved) ?? new MechanicalSnapshot();
+            Resolve();
+            pendingNote = saved != null ? "Your saved setup for this online event." : "The loaner as supplied — change it, then save; the server checks every part and setting.";
+        }
+
         /// <summary>Opens a tunable trial's workshop on the profile's saved setup (or the loaner as supplied).</summary>
         public void Open(ChallengeTrialDef t)
         {
             trial = t;
+            onlineAccount = null;
             MechanicalSnapshot saved = null;
             LocalSession.Current?.Profile?.TrialSetups?.TryGetValue(t.Id, out saved);
             setup = Clone(saved) ?? new MechanicalSnapshot();
@@ -162,6 +177,18 @@ namespace NightSignal.Front
 
         void Save()
         {
+            if (onlineAccount != null)
+            {
+                // Online: kept on this PC and sent with Event Ready; the control plane and the game server validate it.
+                string why = null;
+                bool ok = current != null && current.Ok && OnlineTrialSetups.Save(onlineAccount, trial.Id, Clone(setup), out why);
+                note.text = ok ? "Saved for this online event: it goes with your Event Ready, and the server checks every part and setting."
+                    : "Not saved: " + (why ?? string.Join("; ", current?.Problems ?? new List<string>()));
+                Debug.Log($"[NightSignal.Trial] {trial.Id} online setup {(ok ? "saved" : "not saved")} " +
+                          $"(parts {string.Join(", ", setup.Parts.Select(kv => kv.Key + "=" + kv.Value))}; tune {string.Join(", ", setup.Tuning.Values.Select(kv => kv.Key + "=" + kv.Value))})");
+                Render();
+                return;
+            }
             LocalSession s = LocalSession.Current;
             if (s?.Profile == null || trial == null) { note.text = "Open a Local profile to keep a setup."; return; }
             LocalProgressionResult r = LocalProgression.SaveTrialSetup(s.Profile, Lib.Catalogue, Lib.Parts, trial.Id, setup);

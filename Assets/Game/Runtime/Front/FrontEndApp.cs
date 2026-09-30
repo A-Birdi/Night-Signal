@@ -1001,6 +1001,33 @@ namespace NightSignal.Front
             }
             yield return Until(() => State()?["eventProposal"]?.Type == Newtonsoft.Json.Linq.JTokenType.Object, 25f, "event proposed");
             yield return new WaitForSeconds(0.8f);
+            // A tunable challenge trial (CH56, CH57): Tune the Loaner from the convoy page, buttons only, with the tour's own
+            // setup (the one the offline tour uses); it is kept on this PC and goes with Event Ready, where the server checks it.
+            NightSignal.Core.Rules.ChallengeTrialDef tunableTrial = tourChallengeTrial != null ? NightSignal.Content.ContentLibrary.Load()?.Catalogue?.ChallengeTrials.Find(tourChallengeTrial) : null;
+            if (tunableTrial != null && tunableTrial.Loaner.IsTunable)
+            {
+                Click("OnlineTuneLoaner");
+                yield return Until(() => Router.Current == TrialTune, 10f, "Tune the Loaner opened");
+                yield return new WaitForSeconds(0.6f);
+                TourSetup(tunableTrial.Id, out int[] slotClicks, out Dictionary<string, int> tuneSteps);
+                for (int i = 0; i < slotClicks.Length; i++)
+                    for (int k = 0; k < slotClicks[i]; k++) { Click("TuneSlot" + i); yield return null; }
+                foreach (KeyValuePair<string, int> step in tuneSteps)
+                {
+                    int row = TrialTune.Current.Controls.FindIndex(c => c.Key == step.Key);
+                    if (row < 0) { Debug.Log($"[NightSignal.UiTour] FAIL no {step.Key} control"); continue; }
+                    for (int turn = 0; turn < 8 && TrialTune.TunePage != row / TrialTuneScreen.TuneRows; turn++) { Click("TrialTunePage"); yield return null; }
+                    for (int k = 0; k < Math.Abs(step.Value); k++) { Click((step.Value > 0 ? "TrialTunePlus" : "TrialTuneMinus") + row % TrialTuneScreen.TuneRows); yield return null; }
+                }
+                Click("TrialTuneSave");
+                yield return new WaitForSeconds(0.8f);
+                Shot("05u-online-tune-saved");
+                Debug.Log($"[NightSignal.UiTour] {tunableTrial.Id} online setup: {(TrialTune.Current.Ok ? "legal" : "NOT LEGAL")}, PI {TrialTune.Current.Pi?.Value}; " +
+                          $"kept on this PC: {OnlineTrialSetups.Get(OnlineSession.Current.AccountId, tunableTrial.Id) != null}");
+                Click("TrialTuneBack");
+                yield return Until(() => Router.Current == Convoy, 10f, "back at the convoy");
+                yield return new WaitForSeconds(0.6f);
+            }
             if ((bool?)OnlineSession.Current.MyMember?["eventReady"] != true) Click("EventReady");
             yield return Until(() => (bool?)OnlineSession.Current.MyMember?["eventReady"] == true, 10f, "event ready");
             yield return new WaitForSeconds(0.8f);

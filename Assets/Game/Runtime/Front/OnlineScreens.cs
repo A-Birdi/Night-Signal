@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using NightSignal.Content;
+using NightSignal.Core.Builds;
 using NightSignal.Core.Content;
 using NightSignal.Core.Rules;
 using NightSignal.UI;
@@ -36,7 +37,7 @@ namespace NightSignal.Front
 
         TextMeshProUGUI heading, status, error, rosterText, lastResult, intentLine, proposalLine, postLine, inviteLine;
         Button create, createPrivate, joinCode, refresh, rejoin, notNow, chooseStarter, routeChart;
-        Button proposeIntent, modeReady, enterMode, proposeEvent, eventReady, start, cont, serviceBreak, advance, invite, leave, signOut, table, friendsButton, coursesButton, garageButton, spectate, returnToMeet, cardButton, diaryButton,
+        Button proposeIntent, modeReady, enterMode, proposeEvent, eventReady, tuneLoaner, start, cont, serviceBreak, advance, invite, leave, signOut, table, friendsButton, coursesButton, garageButton, spectate, returnToMeet, cardButton, diaryButton,
             meetPublic, meetConvoy;
         Button votingToggle, openVote, castVote, drawVote, cancelVote;
         List<string> ballotIds = new List<string>();
@@ -161,6 +162,11 @@ namespace NightSignal.Front
             cupLine.richText = true;
             proposalLine = UIFactory.Row("Proposal", col, "", SignalTheme.Small, SignalTheme.Label, 1000, 84);
             proposalLine.richText = true;
+            // A tunable challenge trial: the player's own setup of the loaner, kept on this PC and sent with Event Ready.
+            tuneLoaner = UIFactory.Button("OnlineTuneLoaner", col, "Tune the Loaner", () =>
+            {
+                if (ProposedTrial() is ChallengeTrialDef td && td.Loaner.IsTunable) { App.TrialTune.OpenOnline(td, S.AccountId); App.Router.Show(App.TrialTune); }
+            }, 620, 48);
             eventReady = UIFactory.Button("EventReady", col, "Event Ready", ToggleEventReady, 620, 56);
             start = UIFactory.Button("StartEvent", col, "Start Event", () => Send("event.start", new { proposalRevision = (long)S.Convoy["eventProposal"]["revision"] }), 620, 60);
             spectate = UIFactory.Button("Spectate", col, "Spectate the Race", Spectate, 620, 56);
@@ -444,6 +450,7 @@ namespace NightSignal.Front
             proposalLine.text = proposal != null ? ProposalText(proposal) : "";
             bool readyOpen = proposal != null && !matchOn && post == null;
             eventReady.gameObject.SetActive(readyOpen);
+            tuneLoaner.gameObject.SetActive(readyOpen && ProposedTrial() is ChallengeTrialDef tunable && tunable.Loaner.IsTunable && (bool?)S.MyMember?["eventReady"] != true);
             bool iAmEventReady = (bool?)me?["eventReady"] == true;
             eventReady.GetComponentInChildren<TextMeshProUGUI>().text = iAmEventReady ? "Event Ready: YES   (select to unready)" : "Event Ready";
             bool allEventReady = inConvoy && c["members"].Where(m => (bool?)m["spectator"] != true).All(m => (bool?)m["eventReady"] == true);
@@ -831,7 +838,18 @@ namespace NightSignal.Front
             await EnsureLoadout();
             JToken me = S.MyMember;
             bool ready = (bool?)me?["eventReady"] == true;
-            Send("event.ready", new { proposalRevision = (long)S.Convoy["eventProposal"]["revision"], loadoutRevision = (long?)me?["loadoutRevision"] ?? 0, ready = !ready });
+            // A tunable challenge trial: the saved setup goes with readiness (none = the loaner as supplied).
+            ChallengeTrialDef td = ProposedTrial();
+            MechanicalSnapshot mine = !ready && td != null && td.Loaner.IsTunable ? OnlineTrialSetups.Get(S.AccountId, td.Id) : null;
+            object trialSetup = mine == null ? null : new { parts = mine.Parts, tuning = mine.Tuning.Values };
+            Send("event.ready", new { proposalRevision = (long)S.Convoy["eventProposal"]["revision"], loadoutRevision = (long?)me?["loadoutRevision"] ?? 0, ready = !ready, trialSetup });
+        }
+
+        /// <summary>The challenge trial the open proposal races, from this client's catalogue (null otherwise).</summary>
+        ChallengeTrialDef ProposedTrial()
+        {
+            string id = (string)S.Convoy?["eventProposal"]?["settings"]?["challengeTrialId"];
+            return string.IsNullOrEmpty(id) ? null : ContentLibrary.Load()?.Catalogue?.ChallengeTrials.Find(id);
         }
 
         void ChoosePost(string choice) => Send("postevent.choose", new { destinationRevision = (long)S.Convoy["postEvent"]["destinationRevision"], choice });

@@ -3014,3 +3014,25 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   `Evidence/challenges/trials-tour/trial-tour-TR-CH02-CH47.txt`, `03-TR-CH02-lesson.png`, `03-TR-CH47-lesson.png`.
 - **Limits:** "server verifies speed before each start" is done by the Local judge from the simulation; online there is no
   lane lesson yet. The automation drives straight lines; a human's steering is not exercised.
+
+## V-141 — CH60: the ten named tuning demonstrations, each with a driving check — the last challenge (spec §11) (2026-09-30)
+- Revision: `b733f38` (content, rule, tour setups), documented with the commit of this entry; the player build of `b733f38`.
+- **What:** a CH60 **group of ten trials** ("The Complete Notebook — …"), each a tunable T00 loaner supplied with the part
+  that exposes one system's control, a rule `changedControls` (the saved setup changes that control from its default; the
+  setup's changed keys are a fact, Core `TrialLoanerBuild.ChangedKeys`) and a **driving check** on a marked Driving School
+  section. The ten, pairwise distinct controls over five slots: final drive (V01 + GBX-T1-FINAL, acceleration lane), gear
+  spread (V01 + six-speed conversion GBX-T2-SIX — the close-ratio box does not fit a 5-speed; configuration 2), brake bias
+  (V01 + BRK-T2-KIT, configuration 1 — its configuration-3 reference reset outside the section, so it moved), differential
+  lock (V01 + DIF-T2-RWD-ADJ, comparison B), all-wheel-drive split (V07 + DIF-T2-AWD-CENTRE, comparison A), spring rates,
+  dampers, anti-roll bars, ride height (V01 + SUS-T2-SPORT; configuration 1, comparison A, comparison B, configuration 2) and
+  aero balance (V01 + AER-T4-FULL, configuration 3). CH60 is earned when all ten pass (the group rule). The checks are
+  **1.10 ×** each section's measured time with the part at its defaults (`Evidence/challenges/trials-TR-CH60.txt`; the file's
+  method records this CH60 factor — a clean run after a tune, not a medal).
+- **Tests:** Core (ten in one group; no control shared; ≥ 5 slots; each loaner resolves with its named controls; a changed
+  control passes the rule and an unchanged setup does not) — Core 209.
+- **Built player (`tour.ps1 -TrialOnly TR-CH47,TR-CH60-*`):** every demonstration as supplied was refused ("MISSED: your tune
+  changes … (nothing changed)"), then tuned on Tune the Loaner by buttons — including **More Controls** for the ride height
+  (the seventh suspension control, page 2 of 2) — saved and raced: **all ten PASSED**; CH60 earned with the tenth. TR-CH47
+  passed again with the live "measured difference" line on the lesson panel (−2.5 m). Tour PASS.
+  `Evidence/challenges/trials-tour/trial-tour-TR-CH60.txt`, `02-TR-CH60-HEIGHT-tune-saved.png`, `03-TR-CH47-lesson-live.png`.
+- **R11.3:** with CH60 every one of the 75 challenges is judged somewhere (V-084 … V-141).

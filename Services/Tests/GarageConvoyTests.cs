@@ -363,4 +363,26 @@ public sealed class GarageConvoyTests : ConvoyTestBase, IAsyncLifetime
         BuildContext ctx = BuildContext.Create(TestData.Content.Catalogue, GarageTestKit.Content.Parts, "V01", new PartInventory(), 4);
         Assert.Equal(b.BuildHash, BuildResolver.Resolve(ctx.Car, ctx.Tuning, ctx.Parts, back.VehicleBuild.Snapshot()).Spec.BuildHash);
     }
+
+    [Fact]
+    public void ATrialSetup_IsResolvedFromTheServersPartsData_OnlyWhenLegal()
+    {
+        // CH56: every installed part and setting of a player's loaner setup is checked here before the event may start.
+        Assert.Null(garage.TrialSetupBuild("TR-CH56", new NightSignal.Core.Builds.MechanicalSnapshot { Parts = { ["engine"] = "ENG-T1-EXHAUST" } }, out string? why));
+        Assert.Contains("over the budget of 615", why);
+        Assert.Null(garage.TrialSetupBuild("TR-CH56", new NightSignal.Core.Builds.MechanicalSnapshot { Parts = { ["engine"] = "ENG-T2-STREET" } }, out why));
+        Assert.Contains("is not one of this trial's parts", why);
+        var wild = new NightSignal.Core.Builds.MechanicalSnapshot { Parts = { ["gearbox"] = "GBX-T1-FINAL" } };
+        wild.Tuning.Values["FinalDrive"] = 5000;
+        Assert.Null(garage.TrialSetupBuild("TR-CH56", wild, out why));
+
+        var hill = new NightSignal.Core.Builds.MechanicalSnapshot { Parts = { ["engine"] = "ENG-T1-INTAKE", ["gearbox"] = "GBX-T1-FINAL" } };
+        hill.Tuning.Values["FinalDrive"] = 1040;
+        EntrantBuild? b = garage.TrialSetupBuild("TR-CH56", hill, out why);
+        Assert.True(b is not null, why);
+        Assert.Equal(("V11", "loaner:TR-CH56"), (b!.CarId, b.InstanceId));
+        Assert.Equal(1040, b.Snapshot().Tuning.Values["FinalDrive"]);
+        Assert.NotEqual(garage.TrialLoanerBuild("TR-CH56")!.BuildHash, b.BuildHash);
+        Assert.Null(garage.TrialSetupBuild("TR-NONE", hill, out _));
+    }
 }

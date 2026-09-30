@@ -597,6 +597,12 @@ namespace NightSignal.Net
                 if (c.Entrant.Human && trialDef != null)
                 {
                     AssignmentEntrant a = assignment.Entrants.FirstOrDefault(x => x.AccountId == r.EntrantId);
+                    // A tunable trial: the player's own setup as this server resolves it from the frozen build — every installed
+                    // part and setting checked against the trial's choices, the tune rules and its PI budget (CH56).
+                    Core.Builds.TrialLoanerBuild setup = trialDef.Loaner.IsTunable && a?.VehicleBuild != null
+                        ? Core.Builds.TrialLoaners.ResolveSetup(trialDef.Loaner, a.VehicleBuild.Snapshot(), lib.Catalogue.Car(trialDef.Loaner.Car),
+                            lib.Catalogue.CarTunings[trialDef.Loaner.Car], lib.Parts)
+                        : null;
                     Core.Rules.TrialVerdict v = Core.Rules.TrialJudge.Judge(trialDef, new Core.Rules.TrialRunFacts
                     {
                         Finished = c.Outcome == RunOutcome.Finished,
@@ -629,7 +635,13 @@ namespace NightSignal.Net
                         DriftRaw = (long)System.Math.Floor(c.Entrant.Drift.BankedRaw),
                         ZonesBanked = c.Entrant.Drift.ZonesBanked.Count,
                         ZonesTotal = lib.Catalogue.DriftZones.TryGetValue(trialDef.Course, out int zones) ? zones : 0,
-                        DroveLoaner = trialLoanerHash != null && a != null && a.CarId == trialDef.Loaner.Car && a.VehicleBuild?.BuildHash == trialLoanerHash,
+                        DroveLoaner = trialLoanerHash != null && a != null && a.CarId == trialDef.Loaner.Car
+                                      && (a.VehicleBuild?.BuildHash == trialLoanerHash || (setup != null && setup.Ok && setup.Result.Spec.BuildHash == a.VehicleBuild?.BuildHash)),
+                        SetupLegal = setup == null || setup.Ok,
+                        SetupPi = setup?.Pi?.Value ?? 0,
+                        FinalDriveChanged = setup != null && setup.FinalDriveChanged,
+                        AeroAtExtreme = setup != null && setup.AeroAtExtreme,
+                        ChangedKeys = setup?.ChangedKeys?.ToArray(),
                     });
                     r.TrialId = trialDef.Id;
                     r.TrialPassed = v.Passed;

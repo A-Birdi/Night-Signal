@@ -7,6 +7,7 @@ using NightSignal.ControlPlane.Matches;
 using NightSignal.ControlPlane.Persistence;
 using NightSignal.ControlPlane.Security;
 using NightSignal.ControlPlane.Toys;
+using NightSignal.Core.Builds;
 using NightSignal.Core.Content;
 using NightSignal.Core.Rules;
 
@@ -55,7 +56,9 @@ public sealed class ControlCommandHandler(ConvoyDirectory directory, IPlayerStor
     sealed record VotePayload(long BallotRevision, string? CourseId);
     sealed record BallotRevisionPayload(long BallotRevision);
     sealed record RevisionPayload(long ProposalRevision);
-    sealed record ReadyPayload(long ProposalRevision, long LoadoutRevision, bool Ready = true);
+    sealed record ReadyPayload(long ProposalRevision, long LoadoutRevision, bool Ready = true, TrialSetupPayload? TrialSetup = null);
+    /// <summary>A player's own setup of a tunable challenge trial's loaner: parts by slot and tuning values by control.</summary>
+    sealed record TrialSetupPayload(Dictionary<string, string>? Parts, Dictionary<string, int>? Tuning);
     sealed record TicketPayload(string? Role);
     sealed record DismissPayload(bool Forget = false);
     sealed record DiversionPayload(string? Toy);
@@ -250,9 +253,23 @@ public sealed class ControlCommandHandler(ConvoyDirectory directory, IPlayerStor
             {
                 ReadyPayload p = Read<ReadyPayload>(payload);
                 if (!p.Ready) return directory.SetReady(a, p.ProposalRevision, p.LoadoutRevision, false);
+                // A tunable challenge trial (CH56: "server validates all installed parameters"): the player's own setup of the
+                // loaner is resolved here with Core TrialLoaners from this server's parts data — every part and every setting —
+                // and readiness is refused for an illegal one. A trial supplied as it is takes no setup.
+                MechanicalSnapshot? trialSetup = null;
+                if (p.TrialSetup is not null)
+                {
+                    if (directory.PendingChallengeTrial(a) is not { } setupTrial || content.Catalogue.ChallengeTrials.Find(setupTrial) is not { } setupDef || !setupDef.Loaner.IsTunable)
+                        return ConvoyResult.Fail("trial_setup_unexpected", "This event's loaner is supplied as it is.");
+                    trialSetup = new MechanicalSnapshot();
+                    foreach (var kv in p.TrialSetup.Parts ?? new Dictionary<string, string>()) trialSetup.Parts[kv.Key] = kv.Value;
+                    foreach (var kv in p.TrialSetup.Tuning ?? new Dictionary<string, int>()) trialSetup.Tuning.Values[kv.Key] = kv.Value;
+                    if (garage.TrialSetupBuild(setupTrial, trialSetup, out string? why) is null)
+                        return ConvoyResult.Fail("trial_setup_invalid", why ?? "Not a legal setup.");
+                }
                 // Readiness is always against the SERVER's current applied build of the selected car (Addendum 02 §9–10).
                 (LoadoutInfo? fresh, ConvoyError? invalid) = await garage.FreshSelectionAsync(a, ct);
-                return invalid is not null ? new ConvoyResult(invalid) : directory.SetReady(a, p.ProposalRevision, p.LoadoutRevision, true, fresh);
+                return invalid is not null ? new ConvoyResult(invalid) : directory.SetReady(a, p.ProposalRevision, p.LoadoutRevision, true, fresh, trialSetup);
             }
             case "event.start":
                 return await StartAsync(a, Read<RevisionPayload>(payload).ProposalRevision, ct);
@@ -331,9 +348,18 @@ public sealed class ControlCommandHandler(ConvoyDirectory directory, IPlayerStor
         // The applied builds are read and resolved by the server now; the directory checks them against what everyone readied
         // with, checks the car caps with these server PIs and freezes them into the plan (assignment entrants[].vehicleBuild).
         IReadOnlyDictionary<string, EntrantBuild> builds = await garage.FreezeSelectionsAsync(entrants, ct);
-        // A challenge trial: everyone races its supplied loaner, resolved here from this server's parts data.
-        EntrantBuild? loaner = directory.PendingChallengeTrial(a) is { } trialId ? garage.TrialLoanerBuild(trialId) : null;
-        (ConvoyError? error, MatchPlan? plan) = directory.BeginStart(a, proposalRevision, progress, courses, builds, loaner);
+        // A challenge trial: everyone races its supplied loaner, resolved here from this server's parts data — or, for a
+        // tunable one, their own setup validated when they readied, resolved again now and frozen into the plan.
+        string? trialId = directory.PendingChallengeTrial(a);
+        EntrantBuild? loaner = trialId is not null ? garage.TrialLoanerBuild(trialId) : null;
+        Dictionary<string, EntrantBuild>? ownLoaners = null;
+        if (trialId is not null && content.Catalogue.ChallengeTrials.Find(trialId) is { Loaner.IsTunable: true })
+        {
+            ownLoaners = new Dictionary<string, EntrantBuild>(StringComparer.Ordinal);
+            foreach (var kv in directory.PendingTrialSetups(a))
+                if (garage.TrialSetupBuild(trialId, kv.Value, out _) is { } own) ownLoaners[kv.Key] = own;
+        }
+        (ConvoyError? error, MatchPlan? plan) = directory.BeginStart(a, proposalRevision, progress, courses, builds, loaner, ownLoaners);
         if (error is not null) return new ConvoyResult(error);
         _ = Task.Run(() => AllocateAsync(plan!), CancellationToken.None);
         return ConvoyResult.Success(new

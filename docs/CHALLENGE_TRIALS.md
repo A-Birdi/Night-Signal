@@ -68,7 +68,8 @@ an event whose conditions are fixed by the content, not by the player's garage. 
    (V-131), CH23 (V-132, not reached), CH74 (V-133), CH49 with a manual gearbox (V-135), CH46 (V-136), CH57 (V-137), CH56
    (V-138). CH59 is a racecraft trial with a tunable loaner (V-139). CH02 and CH47 are braking-lane lessons (kind "lane",
    V-140): T00's braking lane with the Test Yard's lane measurement, judged from every start and kept without an event —
-   the Test Yard itself grants nothing (Addendum 02 §10.1).
+   the Test Yard itself grants nothing (Addendum 02 §10.1). CH60 is a group of ten tunable T00 trials, one per system,
+   each with `changedControls` and a marked-section driving check at 1.10 × (V-141).
 
 ### Tunable loaners (V-136)
 

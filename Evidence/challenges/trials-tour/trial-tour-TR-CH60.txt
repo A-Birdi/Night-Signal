@@ -1,0 +1,102 @@
+# -nsTrialTour -nsTrialOnly TR-CH47 + the ten TR-CH60-* (built player of 5975210 + CH60 of b733f38; buttons only — Tune the Loaner by its part, -/+ and More Controls buttons; isolated profile; validator autopilot; 1280x720; automation). Each demonstration: as supplied first (refused: nothing changed), then tuned, saved and raced.
+[NightSignal.TrialTour] page 2 of 5: its first row opens TR-CH30
+[NightSignal.TrialTour] only: TR-CH47, TR-CH60-FINAL, TR-CH60-SPREAD, TR-CH60-BIAS, TR-CH60-DIFF, TR-CH60-AWD, TR-CH60-SPRING, TR-CH60-DAMPER, TR-CH60-ARB, TR-CH60-HEIGHT, TR-CH60-AERO
+[NightSignal.TrialTour] TR-CH47 start (A): 109.4 km/h at the speed gate, stopped at 236.9 m (52.3 m from 117 km/h) inside
+[NightSignal.TrialTour] TR-CH47 start (B): 110.6 km/h at the speed gate, stopped at 236.3 m (49.8 m from 118 km/h) inside
+[NightSignal.Trial] TR-CH47 start 1 (A): 109.4 km/h at T00-BRAKE-SPEED, stopped at 236.9 m (52.3 m from 117 km/h), inside T00-BRAKE-COMPARE
+[NightSignal.Trial] TR-CH47 start 2 (B): 110.6 km/h at T00-BRAKE-SPEED, stopped at 236.3 m (49.8 m from 118 km/h), inside T00-BRAKE-COMPARE
+[NightSignal.Trial] TR-CH47: TRIAL PASSED — ok: the supplied loaner · ok: the lesson finished (2 starts) · ok: a stop on the supplied tyres and on the loaned package from 100 km/h inside T00-BRAKE-COMPARE (supplied 52.3 m, loaned 49.8 m: -2.5 m)
+[NightSignal.TrialTour] TR-CH47 (CH47 bronze): PASSED — ok: the supplied loaner · ok: the lesson finished (2 starts) · ok: a stop on the supplied tyres and on the loaned package from 100 km/h inside T00-BRAKE-COMPARE (supplied 52.3 m, loaned 49.8 m: -2.5 m)
+[NightSignal.TrialTour] TR-CH47: profile keeps it: True; challenge earned: True
+[NightSignal.Trial] TR-CH60-FINAL: V01 as supplied — parts gearbox=GBX-T1-FINAL; tune ; PI 220
+[NightSignal.Trial] TR-CH60-FINAL: Trial not passed — ok: the supplied loaner · ok: your setup legal (PI 220) · MISSED: your tune changes FinalDrive (nothing changed) · ok: a valid finish · ok: T00-ACCEL-START to T00-ACCEL-END faster than 0:14.000 (0:12.700)
+[NightSignal.TrialTour] TR-CH60-FINAL (CH60 gold): not passed — ok: the supplied loaner · ok: your setup legal (PI 220) · MISSED: your tune changes FinalDrive (nothing changed) · ok: a valid finish · ok: T00-ACCEL-START to T00-ACCEL-END faster than 0:14.000 (0:12.700)
+[NightSignal.TrialTour] TR-CH60-FINAL tune: legal; parts gearbox=GBX-T1-FINAL; tune FinalDrive=1040; PI 225; final drive changed True; aero at an end False
+[NightSignal.Trial] TR-CH60-FINAL setup saved (parts ; tune FinalDrive=1040)
+[NightSignal.Trial] TR-CH60-FINAL: V01 with your setup — parts gearbox=GBX-T1-FINAL; tune FinalDrive=1040; PI 225
+[NightSignal.Trial] TR-CH60-FINAL: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal (PI 225) · ok: your tune changes FinalDrive (changed: FinalDrive) · ok: a valid finish · ok: T00-ACCEL-START to T00-ACCEL-END faster than 0:14.000 (0:12.650)
+[NightSignal.TrialTour] TR-CH60-FINAL (CH60 gold): PASSED — ok: the supplied loaner · ok: your setup legal (PI 225) · ok: your tune changes FinalDrive (changed: FinalDrive) · ok: a valid finish · ok: T00-ACCEL-START to T00-ACCEL-END faster than 0:14.000 (0:12.650)
+[NightSignal.TrialTour] TR-CH60-FINAL: profile keeps it: True; challenge earned: False
+[NightSignal.Trial] TR-CH60-SPREAD: V01 as supplied — parts gearbox=GBX-T2-SIX; tune ; PI 223
+[NightSignal.Trial] TR-CH60-SPREAD: Trial not passed — ok: the supplied loaner · ok: your setup legal (PI 223) · MISSED: your tune changes GearSpread (nothing changed) · ok: a valid finish · ok: T00-CFG2-START to T00-CFG2-END faster than 0:19.000 (0:17.216)
+[NightSignal.TrialTour] TR-CH60-SPREAD (CH60 gold): not passed — ok: the supplied loaner · ok: your setup legal (PI 223) · MISSED: your tune changes GearSpread (nothing changed) · ok: a valid finish · ok: T00-CFG2-START to T00-CFG2-END faster than 0:19.000 (0:17.216)
+[NightSignal.TrialTour] TR-CH60-SPREAD tune: legal; parts gearbox=GBX-T2-SIX; tune GearSpread=980; PI 223; final drive changed False; aero at an end False
+[NightSignal.Trial] TR-CH60-SPREAD setup saved (parts ; tune GearSpread=980)
+[NightSignal.Trial] TR-CH60-SPREAD: V01 with your setup — parts gearbox=GBX-T2-SIX; tune GearSpread=980; PI 223
+[NightSignal.Trial] TR-CH60-SPREAD: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal (PI 223) · ok: your tune changes GearSpread (changed: GearSpread) · ok: a valid finish · ok: T00-CFG2-START to T00-CFG2-END faster than 0:19.000 (0:17.233)
+[NightSignal.TrialTour] TR-CH60-SPREAD (CH60 gold): PASSED — ok: the supplied loaner · ok: your setup legal (PI 223) · ok: your tune changes GearSpread (changed: GearSpread) · ok: a valid finish · ok: T00-CFG2-START to T00-CFG2-END faster than 0:19.000 (0:17.233)
+[NightSignal.TrialTour] TR-CH60-SPREAD: profile keeps it: True; challenge earned: False
+[NightSignal.Trial] TR-CH60-BIAS: V01 as supplied — parts brakes=BRK-T2-KIT; tune ; PI 218
+[NightSignal.Trial] TR-CH60-BIAS: Trial not passed — ok: the supplied loaner · ok: your setup legal (PI 218) · MISSED: your tune changes BrakeBias (nothing changed) · ok: a valid finish · ok: T00-CFG1-START to T00-CFG1-END faster than 0:17.900 (0:16.233)
+[NightSignal.TrialTour] TR-CH60-BIAS (CH60 gold): not passed — ok: the supplied loaner · ok: your setup legal (PI 218) · MISSED: your tune changes BrakeBias (nothing changed) · ok: a valid finish · ok: T00-CFG1-START to T00-CFG1-END faster than 0:17.900 (0:16.233)
+[NightSignal.TrialTour] TR-CH60-BIAS tune: legal; parts brakes=BRK-T2-KIT; tune BrakeBias=610; PI 218; final drive changed False; aero at an end False
+[NightSignal.Trial] TR-CH60-BIAS setup saved (parts ; tune BrakeBias=610)
+[NightSignal.Trial] TR-CH60-BIAS: V01 with your setup — parts brakes=BRK-T2-KIT; tune BrakeBias=610; PI 218
+[NightSignal.Trial] TR-CH60-BIAS: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal (PI 218) · ok: your tune changes BrakeBias (changed: BrakeBias) · ok: a valid finish · ok: T00-CFG1-START to T00-CFG1-END faster than 0:17.900 (0:16.233)
+[NightSignal.TrialTour] TR-CH60-BIAS (CH60 gold): PASSED — ok: the supplied loaner · ok: your setup legal (PI 218) · ok: your tune changes BrakeBias (changed: BrakeBias) · ok: a valid finish · ok: T00-CFG1-START to T00-CFG1-END faster than 0:17.900 (0:16.233)
+[NightSignal.TrialTour] TR-CH60-BIAS: profile keeps it: True; challenge earned: False
+[NightSignal.Trial] TR-CH60-DIFF: V01 as supplied — parts differential=DIF-T2-RWD-ADJ; tune ; PI 220
+[NightSignal.Trial] TR-CH60-DIFF: Trial not passed — ok: the supplied loaner · ok: your setup legal (PI 220) · MISSED: your tune changes DiffLock (nothing changed) · ok: a valid finish · ok: T00-CMP-B-START to T00-CMP-B-END faster than 0:22.500 (0:20.383)
+[NightSignal.TrialTour] TR-CH60-DIFF (CH60 gold): not passed — ok: the supplied loaner · ok: your setup legal (PI 220) · MISSED: your tune changes DiffLock (nothing changed) · ok: a valid finish · ok: T00-CMP-B-START to T00-CMP-B-END faster than 0:22.500 (0:20.383)
+[NightSignal.TrialTour] TR-CH60-DIFF tune: legal; parts differential=DIF-T2-RWD-ADJ; tune DiffLock=60; PI 220; final drive changed False; aero at an end False
+[NightSignal.Trial] TR-CH60-DIFF setup saved (parts ; tune DiffLock=60)
+[NightSignal.Trial] TR-CH60-DIFF: V01 with your setup — parts differential=DIF-T2-RWD-ADJ; tune DiffLock=60; PI 220
+[NightSignal.Trial] TR-CH60-DIFF: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal (PI 220) · ok: your tune changes DiffLock (changed: DiffLock) · ok: a valid finish · ok: T00-CMP-B-START to T00-CMP-B-END faster than 0:22.500 (0:20.383)
+[NightSignal.TrialTour] TR-CH60-DIFF (CH60 gold): PASSED — ok: the supplied loaner · ok: your setup legal (PI 220) · ok: your tune changes DiffLock (changed: DiffLock) · ok: a valid finish · ok: T00-CMP-B-START to T00-CMP-B-END faster than 0:22.500 (0:20.383)
+[NightSignal.TrialTour] TR-CH60-DIFF: profile keeps it: True; challenge earned: False
+[NightSignal.Trial] TR-CH60-AWD: V07 as supplied — parts differential=DIF-T2-AWD-CENTRE; tune ; PI 430
+[NightSignal.Trial] TR-CH60-AWD: Trial not passed — ok: the supplied loaner · ok: your setup legal (PI 430) · MISSED: your tune changes AwdFrontShare (nothing changed) · ok: a valid finish · ok: T00-CMP-A-START to T00-CMP-A-END faster than 0:14.600 (0:13.200)
+[NightSignal.TrialTour] TR-CH60-AWD (CH60 gold): not passed — ok: the supplied loaner · ok: your setup legal (PI 430) · MISSED: your tune changes AwdFrontShare (nothing changed) · ok: a valid finish · ok: T00-CMP-A-START to T00-CMP-A-END faster than 0:14.600 (0:13.200)
+[NightSignal.TrialTour] TR-CH60-AWD tune: legal; parts differential=DIF-T2-AWD-CENTRE; tune AwdFrontShare=440; PI 430; final drive changed False; aero at an end False
+[NightSignal.Trial] TR-CH60-AWD setup saved (parts ; tune AwdFrontShare=440)
+[NightSignal.Trial] TR-CH60-AWD: V07 with your setup — parts differential=DIF-T2-AWD-CENTRE; tune AwdFrontShare=440; PI 430
+[NightSignal.Trial] TR-CH60-AWD: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal (PI 430) · ok: your tune changes AwdFrontShare (changed: AwdFrontShare) · ok: a valid finish · ok: T00-CMP-A-START to T00-CMP-A-END faster than 0:14.600 (0:13.216)
+[NightSignal.TrialTour] TR-CH60-AWD (CH60 gold): PASSED — ok: the supplied loaner · ok: your setup legal (PI 430) · ok: your tune changes AwdFrontShare (changed: AwdFrontShare) · ok: a valid finish · ok: T00-CMP-A-START to T00-CMP-A-END faster than 0:14.600 (0:13.216)
+[NightSignal.TrialTour] TR-CH60-AWD: profile keeps it: True; challenge earned: False
+[NightSignal.Trial] TR-CH60-SPRING: V01 as supplied — parts suspension=SUS-T2-SPORT; tune ; PI 225
+[NightSignal.Trial] TR-CH60-SPRING: Trial not passed — ok: the supplied loaner · ok: your setup legal (PI 225) · MISSED: your tune changes SpringFront or SpringRear (nothing changed) · ok: a valid finish · ok: T00-CFG1-START to T00-CFG1-END faster than 0:17.900 (0:16.233)
+[NightSignal.TrialTour] TR-CH60-SPRING (CH60 gold): not passed — ok: the supplied loaner · ok: your setup legal (PI 225) · MISSED: your tune changes SpringFront or SpringRear (nothing changed) · ok: a valid finish · ok: T00-CFG1-START to T00-CFG1-END faster than 0:17.900 (0:16.233)
+[NightSignal.TrialTour] TR-CH60-SPRING tune: legal; parts suspension=SUS-T2-SPORT; tune SpringFront=1170; PI 225; final drive changed False; aero at an end False
+[NightSignal.Trial] TR-CH60-SPRING setup saved (parts ; tune SpringFront=1170)
+[NightSignal.Trial] TR-CH60-SPRING: V01 with your setup — parts suspension=SUS-T2-SPORT; tune SpringFront=1170; PI 225
+[NightSignal.Trial] TR-CH60-SPRING: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal (PI 225) · ok: your tune changes SpringFront or SpringRear (changed: SpringFront) · ok: a valid finish · ok: T00-CFG1-START to T00-CFG1-END faster than 0:17.900 (0:16.216)
+[NightSignal.TrialTour] TR-CH60-SPRING (CH60 gold): PASSED — ok: the supplied loaner · ok: your setup legal (PI 225) · ok: your tune changes SpringFront or SpringRear (changed: SpringFront) · ok: a valid finish · ok: T00-CFG1-START to T00-CFG1-END faster than 0:17.900 (0:16.216)
+[NightSignal.TrialTour] TR-CH60-SPRING: profile keeps it: True; challenge earned: False
+[NightSignal.Trial] TR-CH60-DAMPER: V01 as supplied — parts suspension=SUS-T2-SPORT; tune ; PI 225
+[NightSignal.Trial] TR-CH60-DAMPER: Trial not passed — ok: the supplied loaner · ok: your setup legal (PI 225) · MISSED: your tune changes DamperFront or DamperRear (nothing changed) · ok: a valid finish · ok: T00-CMP-A-START to T00-CMP-A-END faster than 0:15.100 (0:13.666)
+[NightSignal.TrialTour] TR-CH60-DAMPER (CH60 gold): not passed — ok: the supplied loaner · ok: your setup legal (PI 225) · MISSED: your tune changes DamperFront or DamperRear (nothing changed) · ok: a valid finish · ok: T00-CMP-A-START to T00-CMP-A-END faster than 0:15.100 (0:13.666)
+[NightSignal.TrialTour] TR-CH60-DAMPER tune: legal; parts suspension=SUS-T2-SPORT; tune DamperRear=1120; PI 225; final drive changed False; aero at an end False
+[NightSignal.Trial] TR-CH60-DAMPER setup saved (parts ; tune DamperRear=1120)
+[NightSignal.Trial] TR-CH60-DAMPER: V01 with your setup — parts suspension=SUS-T2-SPORT; tune DamperRear=1120; PI 225
+[NightSignal.Trial] TR-CH60-DAMPER: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal (PI 225) · ok: your tune changes DamperFront or DamperRear (changed: DamperRear) · ok: a valid finish · ok: T00-CMP-A-START to T00-CMP-A-END faster than 0:15.100 (0:13.666)
+[NightSignal.TrialTour] TR-CH60-DAMPER (CH60 gold): PASSED — ok: the supplied loaner · ok: your setup legal (PI 225) · ok: your tune changes DamperFront or DamperRear (changed: DamperRear) · ok: a valid finish · ok: T00-CMP-A-START to T00-CMP-A-END faster than 0:15.100 (0:13.666)
+[NightSignal.TrialTour] TR-CH60-DAMPER: profile keeps it: True; challenge earned: False
+[NightSignal.Trial] TR-CH60-ARB: V01 as supplied — parts suspension=SUS-T2-SPORT; tune ; PI 225
+[NightSignal.Trial] TR-CH60-ARB: Trial not passed — ok: the supplied loaner · ok: your setup legal (PI 225) · MISSED: your tune changes AntiRollFront or AntiRollRear (nothing changed) · ok: a valid finish · ok: T00-CMP-B-START to T00-CMP-B-END faster than 0:22.500 (0:20.383)
+[NightSignal.TrialTour] TR-CH60-ARB (CH60 gold): not passed — ok: the supplied loaner · ok: your setup legal (PI 225) · MISSED: your tune changes AntiRollFront or AntiRollRear (nothing changed) · ok: a valid finish · ok: T00-CMP-B-START to T00-CMP-B-END faster than 0:22.500 (0:20.383)
+[NightSignal.TrialTour] TR-CH60-ARB tune: legal; parts suspension=SUS-T2-SPORT; tune AntiRollRear=1080; PI 225; final drive changed False; aero at an end False
+[NightSignal.Trial] TR-CH60-ARB setup saved (parts ; tune AntiRollRear=1080)
+[NightSignal.Trial] TR-CH60-ARB: V01 with your setup — parts suspension=SUS-T2-SPORT; tune AntiRollRear=1080; PI 225
+[NightSignal.Trial] TR-CH60-ARB: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal (PI 225) · ok: your tune changes AntiRollFront or AntiRollRear (changed: AntiRollRear) · ok: a valid finish · ok: T00-CMP-B-START to T00-CMP-B-END faster than 0:22.500 (0:20.383)
+[NightSignal.TrialTour] TR-CH60-ARB (CH60 gold): PASSED — ok: the supplied loaner · ok: your setup legal (PI 225) · ok: your tune changes AntiRollFront or AntiRollRear (changed: AntiRollRear) · ok: a valid finish · ok: T00-CMP-B-START to T00-CMP-B-END faster than 0:22.500 (0:20.383)
+[NightSignal.TrialTour] TR-CH60-ARB: profile keeps it: True; challenge earned: False
+[NightSignal.Trial] TR-CH60-HEIGHT: V01 as supplied — parts suspension=SUS-T2-SPORT; tune ; PI 225
+[NightSignal.Trial] TR-CH60-HEIGHT: Trial not passed — ok: the supplied loaner · ok: your setup legal (PI 225) · MISSED: your tune changes RideHeight (nothing changed) · ok: a valid finish · ok: T00-CFG2-START to T00-CFG2-END faster than 0:19.200 (0:17.433)
+[NightSignal.TrialTour] TR-CH60-HEIGHT (CH60 gold): not passed — ok: the supplied loaner · ok: your setup legal (PI 225) · MISSED: your tune changes RideHeight (nothing changed) · ok: a valid finish · ok: T00-CFG2-START to T00-CFG2-END faster than 0:19.200 (0:17.433)
+[NightSignal.TrialTour] TR-CH60-HEIGHT tune: legal; parts suspension=SUS-T2-SPORT; tune RideHeight=-25; PI 227; final drive changed False; aero at an end False
+[NightSignal.Trial] TR-CH60-HEIGHT setup saved (parts ; tune RideHeight=-25)
+[NightSignal.Trial] TR-CH60-HEIGHT: V01 with your setup — parts suspension=SUS-T2-SPORT; tune RideHeight=-25; PI 227
+[NightSignal.Trial] TR-CH60-HEIGHT: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal (PI 227) · ok: your tune changes RideHeight (changed: RideHeight) · ok: a valid finish · ok: T00-CFG2-START to T00-CFG2-END faster than 0:19.200 (0:17.416)
+[NightSignal.TrialTour] TR-CH60-HEIGHT (CH60 gold): PASSED — ok: the supplied loaner · ok: your setup legal (PI 227) · ok: your tune changes RideHeight (changed: RideHeight) · ok: a valid finish · ok: T00-CFG2-START to T00-CFG2-END faster than 0:19.200 (0:17.416)
+[NightSignal.TrialTour] TR-CH60-HEIGHT: profile keeps it: True; challenge earned: False
+[NightSignal.Trial] TR-CH60-AERO: V01 as supplied — parts aero=AER-T4-FULL; tune ; PI 217
+[NightSignal.Trial] TR-CH60-AERO: Trial not passed — ok: the supplied loaner · ok: your setup legal (PI 217) · MISSED: your tune changes AeroBalance (nothing changed) · ok: a valid finish · ok: T00-CFG3-START to T00-CFG3-END faster than 0:27.700 (0:25.166)
+[NightSignal.TrialTour] TR-CH60-AERO (CH60 gold): not passed — ok: the supplied loaner · ok: your setup legal (PI 217) · MISSED: your tune changes AeroBalance (nothing changed) · ok: a valid finish · ok: T00-CFG3-START to T00-CFG3-END faster than 0:27.700 (0:25.166)
+[NightSignal.TrialTour] TR-CH60-AERO tune: legal; parts aero=AER-T4-FULL; tune AeroBalance=460; PI 217; final drive changed False; aero at an end False
+[NightSignal.Trial] TR-CH60-AERO setup saved (parts ; tune AeroBalance=460)
+[NightSignal.Trial] TR-CH60-AERO: V01 with your setup — parts aero=AER-T4-FULL; tune AeroBalance=460; PI 217
+[NightSignal.Trial] TR-CH60-AERO: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal (PI 217) · ok: your tune changes AeroBalance (changed: AeroBalance) · ok: a valid finish · ok: T00-CFG3-START to T00-CFG3-END faster than 0:27.700 (0:25.183)
+[NightSignal.TrialTour] TR-CH60-AERO (CH60 gold): PASSED — ok: the supplied loaner · ok: your setup legal (PI 217) · ok: your tune changes AeroBalance (changed: AeroBalance) · ok: a valid finish · ok: T00-CFG3-START to T00-CFG3-END faster than 0:27.700 (0:25.183)
+[NightSignal.TrialTour] TR-CH60-AERO: profile keeps it: True; challenge earned: True
+[NightSignal.TrialTour] 11 of 47 trials passed by the autopilot; challenges earned: CH47, CH60; wallet 36,000 cr
+[NightSignal.TrialTour] PASS

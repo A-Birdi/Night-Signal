@@ -4,6 +4,7 @@ using NightSignal.ControlPlane.Convoys;
 using NightSignal.ControlPlane.Garage;
 using NightSignal.ControlPlane.Matches;
 using NightSignal.ControlPlane.Persistence;
+using NightSignal.Core.Builds;
 using NightSignal.Core.Rules;
 using NightSignal.Services.Tests.Infrastructure;
 
@@ -42,7 +43,7 @@ public sealed class ChallengeTrialOnlineTests : ConvoyTestBase
         Assert.Equal("non-contact", s.GetProperty("collision").GetString());
         Assert.Equal(0, s.GetProperty("aiCount").GetInt32());
         Assert.Equal("TR-CH51", s.GetProperty("challengeTrialId").GetString());
-        Assert.Equal(TestData.Content.Catalogue.ChallengeTrials.Trials.Count(t => t.Published && t.Conditions == "course" && !t.IsRace && !t.IsCup && !t.HasSection && t.RequiredStoryRecords == 0 && !t.Loaner.IsTunable && t.Course != "T00"), // racecraft, cup, Driving School and story-gated trials are offline-only
+        Assert.Equal(TestData.Content.Catalogue.ChallengeTrials.Trials.Count(t => t.Published && t.Conditions == "course" && !t.IsRace && !t.IsCup && !t.HasSection && !t.IsLane && t.RequiredStoryRecords == 0 && t.Course != "T00"), // racecraft, cup, Driving School and story-gated trials are offline-only
             State(1).GetProperty("challengeTrials").GetArrayLength());
 
         // A new member who owns nothing does not withdraw it (the trial supplies its course).
@@ -105,6 +106,49 @@ public sealed class ChallengeTrialOnlineTests : ConvoyTestBase
             Assert.Equal("V07", a.CarId);
             Assert.Equal("loaner-hash", a.VehicleBuild!.BuildHash);
         });
+    }
+
+    [Fact]
+    public void ATunableTrial_IsOffered_AndEachEntrantRacesTheirOwnValidatedSetup()
+    {
+        // CH56 online: the handler validates a member's setup at Event Ready (GarageService.TrialSetupBuild); the directory keeps
+        // it with the proposal and the start freezes that member's own loaner build, the others racing the supplied one.
+        Convoy(2);
+        EnterMode(Challenges());
+        long rev = ProposeTrial("TR-CH56");
+        ReadyAll(rev);
+        var setup = new MechanicalSnapshot { Parts = { ["engine"] = "ENG-T1-INTAKE" } };
+        long loadout = MemberState(1, 1).GetProperty("loadoutRevision").GetInt64();
+        Assert.True(dir.SetReady(Id(1), rev, loadout, true, null, setup).Ok);
+        Assert.Same(setup, dir.PendingTrialSetups(Id(1))[Id(1)]);
+        Assert.False(dir.PendingTrialSetups(Id(1)).ContainsKey(Id(2)));
+
+        var own = new EntrantBuild { InstanceId = "loaner:TR-CH56", CarId = "V11", BuildHash = "own-hash", Pi = 608 };
+        var foreign = new EntrantBuild { InstanceId = "loaner:TR-CH56", CarId = "V07", BuildHash = "other-car", Pi = 430 };
+        (ConvoyError? error, MatchPlan? plan) = dir.BeginStart(Id(1), rev, Fresh(2), null, null, Loaner("V11"),
+            new Dictionary<string, EntrantBuild> { [Id(1)] = own, [Id(2)] = foreign });
+        Assert.True(plan is not null, error?.Message);
+        Assert.Equal("own-hash", MatchAllocator.Entrant(plan!.Entrants.Single(e => e.AccountId == Id(1))).VehicleBuild!.BuildHash);
+        Assert.Equal("loaner-hash", MatchAllocator.Entrant(plan.Entrants.Single(e => e.AccountId == Id(2))).VehicleBuild!.BuildHash); // not the trial's car: the supplied loaner
+    }
+
+    [Fact]
+    public void ATrial_IgnoresTheMembersOwnCarCap_AndUnreadyingDropsTheSetup()
+    {
+        // A trial races its loaner: a member's garage car over the loaner's class cap may still ready (CH54's cap is 450).
+        Convoy(1);
+        Assert.True(dir.UpdateLoadout(Id(1), Car(car: "V17", pi: 810)).Ok);
+        EnterMode(Challenges());
+        long rev = ProposeTrial("TR-CH54-FWD");
+        ReadyAll(rev);
+        Assert.True(Ready(1));
+        clock.Advance(TimeSpan.FromSeconds(15));
+        Assert.True(dir.ProposeEvent(Id(1), TrialRequest("TR-CH56")).Ok);
+        long rev56 = State(1).GetProperty("eventProposal").GetProperty("revision").GetInt64();
+        long loadout = MemberState(1, 1).GetProperty("loadoutRevision").GetInt64();
+        Assert.True(dir.SetReady(Id(1), rev56, loadout, true, null, new MechanicalSnapshot()).Ok);
+        Assert.True(dir.SetReady(Id(1), rev56, loadout, false).Ok);
+        Assert.Empty(dir.PendingTrialSetups(Id(1)));
     }
 
     // ---------------- settlement

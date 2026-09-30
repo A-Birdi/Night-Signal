@@ -47,7 +47,11 @@ public sealed class ConvoyDirectory
     /// A challenge trial the game server can run online today: a solo trial on an online course — not a racecraft trial (fixed AI
     /// field), a cup, a Driving School section or anything on the tutorial course (offline only for now).
     /// </summary>
-    bool OnlineTrial(ChallengeTrialDef t) => !t.IsRace && !t.IsCup && !t.HasSection && t.RequiredStoryRecords == 0 && !t.Loaner.IsTunable && Catalogue.Course(t.Course)?.Kind != "tutorial";
+    bool OnlineTrial(ChallengeTrialDef t) => !t.IsRace && !t.IsCup && !t.HasSection && !t.IsLane && t.RequiredStoryRecords == 0 && Catalogue.Course(t.Course)?.Kind != "tutorial";
+
+    /// <summary>A challenge trial's entrant: the loaner it races (the supplied one, or the member's own validated setup of it).</summary>
+    static PlannedEntrant TrialEntrant(Member m, Garage.EntrantBuild loaner) =>
+        new(m.AccountId, m.DisplayName, m.Loadout! with { CarId = loaner.CarId, CarPi = loaner.Pi, PerformanceHash = loaner.BuildHash }, m.LoadoutRevision, loaner);
 
     readonly TimeProvider clock;
     readonly ContentService content;
@@ -118,6 +122,8 @@ public sealed class ConvoyDirectory
         public string Origin = "leader";          // leader | draw
         public long? BallotRevision;
         public readonly Dictionary<string, long> Ready = new(); // account -> loadout revision readied with
+        /// <summary>A tunable challenge trial: each member's own setup of the loaner, validated when they readied.</summary>
+        public readonly Dictionary<string, NightSignal.Core.Builds.MechanicalSnapshot> TrialSetups = new(StringComparer.Ordinal);
     }
 
     enum BallotState { Open, Frozen, Resolved }
@@ -1868,7 +1874,8 @@ public sealed class ConvoyDirectory
     /// found here (the Garage applied something else) bumps the loadout revision and answers <c>stale_revision</c>; the car
     /// cap is checked against the server PI.
     /// </summary>
-    public ConvoyResult SetReady(string accountId, long proposalRevision, long loadoutRevision, bool ready, LoadoutInfo? fresh = null)
+    public ConvoyResult SetReady(string accountId, long proposalRevision, long loadoutRevision, bool ready, LoadoutInfo? fresh = null,
+        NightSignal.Core.Builds.MechanicalSnapshot? trialSetup = null)
     {
         lock (gate)
         {
@@ -1884,6 +1891,7 @@ public sealed class ConvoyDirectory
             if (!ready)
             {
                 p.Ready.Remove(accountId);
+                p.TrialSetups.Remove(accountId);
                 Changed(convoy);
                 return ConvoyResult.Success();
             }
@@ -1896,9 +1904,12 @@ public sealed class ConvoyDirectory
             }
             if (loadoutRevision != m.LoadoutRevision)
                 return ConvoyResult.Fail("stale_revision", "Your loadout changed; ready again with the current one.");
-            if (!PerformanceIndex.IsLegalFor(m.Loadout.CarPi, p.Settings.CarCapPi))
+            // A challenge trial races its loaner: the member's own car and its PI do not enter it.
+            if (p.Settings.ChallengeTrialId is null && !PerformanceIndex.IsLegalFor(m.Loadout.CarPi, p.Settings.CarCapPi))
                 return ConvoyResult.Fail("loadout_illegal", $"Your car (PI {m.Loadout.CarPi}) is over this event's cap of {p.Settings.CarCapPi}.");
             p.Ready[accountId] = loadoutRevision;
+            if (trialSetup is not null) p.TrialSetups[accountId] = trialSetup;
+            else p.TrialSetups.Remove(accountId);
             Changed(convoy);
             return ConvoyResult.Success();
         }
@@ -1907,6 +1918,15 @@ public sealed class ConvoyDirectory
     // ================================================================== start and match lifecycle
 
     /// <summary>Active members, i.e. the entrants if the leader started now.</summary>
+    /// <summary>The members' own setups of a tunable challenge trial's loaner, as validated when they readied.</summary>
+    public IReadOnlyDictionary<string, NightSignal.Core.Builds.MechanicalSnapshot> PendingTrialSetups(string accountId)
+    {
+        lock (gate)
+            return ConvoyOf(accountId)?.EventProposal is { } p
+                ? new Dictionary<string, NightSignal.Core.Builds.MechanicalSnapshot>(p.TrialSetups, StringComparer.Ordinal)
+                : new Dictionary<string, NightSignal.Core.Builds.MechanicalSnapshot>();
+    }
+
     /// <summary>The challenge trial the leader's open proposal races, or null (the start resolves its loaner first).</summary>
     public string? PendingChallengeTrial(string accountId)
     {
@@ -1932,7 +1952,8 @@ public sealed class ConvoyDirectory
     /// against these server PIs and the builds are frozen into the plan.</param>
     public (ConvoyError? Error, MatchPlan? Plan) BeginStart(string accountId, long proposalRevision,
         IReadOnlyDictionary<string, MemberProgress> freshProgress, IReadOnlyDictionary<string, IReadOnlyCollection<string>>? freshCourses = null,
-        IReadOnlyDictionary<string, Garage.EntrantBuild>? frozenBuilds = null, Garage.EntrantBuild? trialLoaner = null)
+        IReadOnlyDictionary<string, Garage.EntrantBuild>? frozenBuilds = null, Garage.EntrantBuild? trialLoaner = null,
+        IReadOnlyDictionary<string, Garage.EntrantBuild>? ownTrialLoaners = null)
     {
         lock (gate)
         {
@@ -2063,8 +2084,7 @@ public sealed class ConvoyDirectory
                 PlanId = Hashing.RandomId("plan_", 8), ConvoyId = convoy.Id, ProposalRevision = p.Revision,
                 RosterRevision = convoy.RosterRevision, Settings = settings with { AiCount = ai.Count },
                 Entrants = entrants.Select(m => challengeTrial
-                    ? new PlannedEntrant(m.AccountId, m.DisplayName, m.Loadout! with { CarId = trialLoaner!.CarId, CarPi = trialLoaner.Pi, PerformanceHash = trialLoaner.BuildHash },
-                        m.LoadoutRevision, trialLoaner)
+                    ? TrialEntrant(m, ownTrialLoaners != null && ownTrialLoaners.TryGetValue(m.AccountId, out Garage.EntrantBuild? own) && own.CarId == trialLoaner!.CarId ? own : trialLoaner!)
                     : new PlannedEntrant(m.AccountId, m.DisplayName, m.Loadout!, m.LoadoutRevision,
                         frozenBuilds is not null && frozenBuilds.TryGetValue(m.AccountId, out Garage.EntrantBuild? b) && b.InstanceId == m.Loadout!.InstanceId ? b : null)).ToList(),
                 AiEntrants = ai, Roster = roster.Entries.Select(RosterSlot.From).ToList(), GuestPasses = passes, Sponsors = sponsors,
