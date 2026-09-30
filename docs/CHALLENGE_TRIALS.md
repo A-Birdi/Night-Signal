@@ -60,6 +60,8 @@ an event whose conditions are fixed by the content, not by the player's garage. 
    fixed race) and CH41 (six identical V07s on C18, from last) — done offline as racecraft trials (V-125); CH36 (a pacing
    rival that keeps C10's outside lane open) and CH39 (a pressure car within 1 s through C14's second sector at a measured
    Silver pace) — V-126. The merge role (CH37) has no behaviour yet.
-4. Fixed cups on the Custom Cup table (CH14, CH42, CH69, CH72).
+4. Fixed cups (CH14, CH42, CH69, CH72) — done offline (V-127): the "cup" kind — three legs in the loaner, one continuous
+   session through the Custom Cup page, judged as a whole (every leg finished in order, each inside its measured time ×
+   the cup's published factor, walls and resets summed); leaving ends the cup.
 5. T00 challenge drills and workshop trials (CH02, CH07, CH23, CH46, CH47, CH49, CH52, CH53, CH56, CH57, CH58, CH60),
    and CH74 (the six story records, then the C24 reference trial).

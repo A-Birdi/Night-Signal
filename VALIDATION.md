@@ -2746,3 +2746,28 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   sector pace published) — EditMode 492 passed, 2 skipped (explicit), 0 failed.
 - **Built player:** the full trial tour (`-nsTrialTour`, 1280×720, Text 150 %, with the bounds audit) **PASS**, fourteen trials: **TR-CH39 PASSED** — both laps' C14-PRESSURE sectors in 26.08 / 26.10 s with the pressure car within 1 s throughout, no contact, P1 — against 28.7 s, and CH39 earned; TR-CH36 not passed — the autopilot followed the pacing car and made no pass in the marked lane (one car contact, P2); the twelve earlier trials judged exactly as in V-125 (every verdict line identical); 9 of 14 passed; bounds 0 overflow, 0 missing glyphs. `Evidence/challenges/trials-tour/`.
 - **Limits:** CH36 is not reached by the autopilot (it makes no pass in the lane); both trials are offline only.
+
+## V-127 — Challenge cups: CH14, CH42, CH69, CH72 offline (spec §8, §11) (2026-09-30)
+- Revision: `0fc513f` (the cup kind, its judge, flow, content, measured leg times) and `527601e` (the cup page's per-leg
+  lines and title, the targeted-run evidence); the player build of `527601e`.
+- **What:** challenge trials gain the **"cup"** kind — three fixed legs run in order in the trial's loaner, each solo and
+  non-contact, through the Custom Cup page (Next Leg between legs), in **one continuous session**: a leg not finished ends
+  the cup, and leaving before the last leg ends it unpassed. Core `TrialJudge` judges the cup as a whole from every leg's
+  facts: all legs finished in order, each inside its time, wall impacts and resets summed across the legs; between legs the
+  page shows each leg's own checks. Leg times are measured, not guessed — the loaner's autopilot time on each leg × the
+  cup's published factor (the measurement now takes a list of trials; this run touched only the three timed cups,
+  `Evidence/challenges/trials-TR-CH42-TR-CH69-TR-CH72.txt`): **TR-CH14** (Gold) — C17 → C18 → C19 in the V07, untimed, not
+  one meaningful wall impact across the legs; **TR-CH42** (Gold) — C06 → C13 → C21 in the V12, each leg ahead of its
+  designated benchmark (1.02 ×: 2:23.1, 2:11.9, 2:22.0); **TR-CH69** (Silver) — the quiet touring cup C01 → C05 → C09 in
+  the starter V01, within generous limits (1.35 ×: 1:56.8, 3:06.8, 3:26.5) and no quit; **TR-CH72** (Gold) — C21 → C22 → C23
+  in the V12 at a generous Silver pace (1.20 ×: 2:47.1, 3:22.6, 4:26.8) with no reset in any leg. The legs race each
+  course's own lighting (C23's is pre-dawn; C21 night, C22 dawn — CH72's "pre-dawn" is not applied to all three).
+- **Online:** refused for now and kept off the online trial list (`trial_unsupported`), as the racecraft trials.
+- **Tests:** Core `AChallengeCup_IsJudgedAsAWhole` (all legs in order; two of three; out of order; one slow leg; a reset or
+  a wall impact in any leg; a leg not finished; untimed cups published; a leg never passes alone) and the content checks —
+  Core 202, Services 369 (the online refusal), Builds 232, Toys 92; EditMode 492 passed, 2 skipped (explicit), 0 failed.
+- **Built player:** the four cups alone first (`tour.ps1 -TrialOnly`, build of `0fc513f`): **all four PASSED**, each leg
+  driven through the cup page by its buttons, the leg times equal to the measurement to the millisecond, the profile keeping
+  each pass (`Evidence/challenges/cups-tour/`). Then the full trial tour: **PASS**, eighteen trials (`-nsTrialTour`, 1280×720, Text 150 %, with the bounds audit, build of `527601e`): all four cups PASSED again through the cup page with the same leg times, CH14 CH42 CH69 CH72 earned; the fourteen earlier trials judged exactly as in V-126 (every verdict line identical); 13 of 18 passed; bounds 0 overflow, 0 missing glyphs (79 labels over 269 moments, the cup page included). `Evidence/challenges/trials-tour/`.
+- **Limits:** a cup is solo (no AI field — none of the four predicates asks for one); the autopilot reaching all four shows
+  the targets reachable, not that they are hard.

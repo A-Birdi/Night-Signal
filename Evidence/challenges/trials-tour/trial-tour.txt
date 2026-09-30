@@ -1,4 +1,4 @@
-# -nsTrialTour (built player of 04b724c, buttons only, isolated profile; validator autopilot — marked overtakes and lanes by following and attacking only in the zone; run with -nsBoundsAudit at 1280x720, Text 150 % / HUD 130 %; automation)
+# -nsTrialTour (built player of 527601e, buttons only, isolated profile; validator autopilot; cups through the cup page; run with -nsBoundsAudit at 1280x720, Text 150 % / HUD 130 %; automation)
 [NightSignal.TrialTour] page 2 of 2: its first row opens TR-CH40
 [NightSignal.Trial] TR-CH13: V14 stock, PI 680, build 53f0713d354f, on C21 (course)
 [NightSignal.Ghost] C21 trial-TR-CH13: 1365 samples, result 136.347 s, resets 0, valid True; raced ghost none — your first ghost here; against the ghost: −0.00 s at the first checkpoint, −0.00 s at the finish
@@ -89,6 +89,90 @@
 [NightSignal.TrialTour] TR-CH39:   158.5 s: C14-PRESSURE in 26.10 s, pressure held throughout
 [NightSignal.TrialTour] TR-CH39:   car contacts 0, walls 0, resets 0, marshal recoveries 0, placement P1
 [NightSignal.TrialTour] TR-CH39: profile keeps it: True; challenge earned: True
-[NightSignal.TrialTour] 9 of 14 trials passed by the autopilot; challenges earned: CH15, CH55, CH11, CH51, CH54, CH25, CH30, CH39; wallet 317,895 cr
+[NightSignal.Cup] challenge cup TR-CH14: C17 → C18 → C19 in the V07
+[NightSignal.Trial] TR-CH14: V07 stock, PI 430, build 235cbbb3bffd, on C17 (course)
+[NightSignal.Ghost] C17 trial-TR-CH14: 1665 samples, result 166.325 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH14: Cup leg 1 of 3 — ok: leg 1 of 3 (C17) finished · ok: no wall impact (0)
+[NightSignal.Cup] after leg 1: Trial Driver 10 (1)
+[NightSignal.Cup] TR-CH14 leg 1: ok: leg 1 of 3 (C17) finished · ok: no wall impact (0)
+[NightSignal.TrialTour] TR-CH14 leg 1: ok: leg 1 of 3 (C17) finished · ok: no wall impact (0)
+[NightSignal.Trial] TR-CH14: V07 stock, PI 430, build 235cbbb3bffd, on C17 (course)
+[NightSignal.Ghost] C18 trial-TR-CH14: 2132 samples, result 213.095 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH14: Cup leg 2 of 3 — ok: leg 2 of 3 (C18) finished · ok: no wall impact (0)
+[NightSignal.Cup] after leg 2: Trial Driver 20 (1 1)
+[NightSignal.Cup] TR-CH14 leg 2: ok: leg 2 of 3 (C18) finished · ok: no wall impact (0)
+[NightSignal.TrialTour] TR-CH14 leg 2: ok: leg 2 of 3 (C18) finished · ok: no wall impact (0)
+[NightSignal.Trial] TR-CH14: V07 stock, PI 430, build 235cbbb3bffd, on C17 (course)
+[NightSignal.Ghost] C19 trial-TR-CH14: 2075 samples, result 207.352 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH14: TRIAL PASSED — ok: the supplied loaner · ok: all 3 legs finished in one session (3 of 3) · ok: no wall impact in any leg (0)
+[NightSignal.Cup] after leg 3: Trial Driver 30 (1 1 1)
+[NightSignal.Cup] TR-CH14 leg 3: ok: leg 3 of 3 (C19) finished · ok: no wall impact (0)
+[NightSignal.TrialTour] TR-CH14 leg 3: ok: the supplied loaner · ok: all 3 legs finished in one session (3 of 3) · ok: no wall impact in any leg (0)
+[NightSignal.TrialTour] TR-CH14 (CH14 gold): PASSED — ok: the supplied loaner · ok: all 3 legs finished in one session (3 of 3) · ok: no wall impact in any leg (0)
+[NightSignal.TrialTour] TR-CH14: profile keeps it: True; challenge earned: True
+[NightSignal.Cup] challenge cup TR-CH42: C06 → C13 → C21 in the V12
+[NightSignal.Trial] TR-CH42: V12 stock, PI 650, build c55be699c49d, on C06 (course)
+[NightSignal.Ghost] C06 trial-TR-CH42: 1404 samples, result 140.247 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH42: Cup leg 1 of 3 — ok: leg 1 of 3 (C06) finished · ok: faster than 2:23.100 (2:20.247)
+[NightSignal.Cup] after leg 1: Trial Driver 10 (1)
+[NightSignal.Cup] TR-CH42 leg 1: ok: leg 1 of 3 (C06) finished · ok: faster than 2:23.100 (2:20.247)
+[NightSignal.TrialTour] TR-CH42 leg 1: ok: leg 1 of 3 (C06) finished · ok: faster than 2:23.100 (2:20.247)
+[NightSignal.Trial] TR-CH42: V12 stock, PI 650, build c55be699c49d, on C06 (course)
+[NightSignal.Ghost] C13 trial-TR-CH42: 1294 samples, result 129.279 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH42: Cup leg 2 of 3 — ok: leg 2 of 3 (C13) finished · ok: faster than 2:11.900 (2:09.278)
+[NightSignal.Cup] after leg 2: Trial Driver 20 (1 1)
+[NightSignal.Cup] TR-CH42 leg 2: ok: leg 2 of 3 (C13) finished · ok: faster than 2:11.900 (2:09.278)
+[NightSignal.TrialTour] TR-CH42 leg 2: ok: leg 2 of 3 (C13) finished · ok: faster than 2:11.900 (2:09.278)
+[NightSignal.Trial] TR-CH42: V12 stock, PI 650, build c55be699c49d, on C06 (course)
+[NightSignal.Ghost] C21 trial-TR-CH42: 1393 samples, result 139.195 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH42: TRIAL PASSED — ok: the supplied loaner · ok: all 3 legs finished in one session (3 of 3) · ok: C06 faster than 2:23.100 (2:20.247) · ok: C13 faster than 2:11.900 (2:09.278) · ok: C21 faster than 2:22.000 (2:19.195)
+[NightSignal.Cup] after leg 3: Trial Driver 30 (1 1 1)
+[NightSignal.Cup] TR-CH42 leg 3: ok: leg 3 of 3 (C21) finished · ok: faster than 2:22.000 (2:19.195)
+[NightSignal.TrialTour] TR-CH42 leg 3: ok: the supplied loaner · ok: all 3 legs finished in one session (3 of 3) · ok: C06 faster than 2:23.100 (2:20.247) · ok: C13 faster than 2:11.900 (2:09.278) · ok: C21 faster than 2:22.000 (2:19.195)
+[NightSignal.TrialTour] TR-CH42 (CH42 gold): PASSED — ok: the supplied loaner · ok: all 3 legs finished in one session (3 of 3) · ok: C06 faster than 2:23.100 (2:20.247) · ok: C13 faster than 2:11.900 (2:09.278) · ok: C21 faster than 2:22.000 (2:19.195)
+[NightSignal.TrialTour] TR-CH42: profile keeps it: True; challenge earned: True
+[NightSignal.Cup] challenge cup TR-CH69: C01 → C05 → C09 in the V01
+[NightSignal.Trial] TR-CH69: V01 stock, PI 220, build c12c2bea1a67, on C01 (course)
+[NightSignal.Ghost] C01 trial-TR-CH69: 867 samples, result 86.501 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH69: Cup leg 1 of 3 — ok: leg 1 of 3 (C01) finished · ok: faster than 1:56.800 (1:26.500)
+[NightSignal.Cup] after leg 1: Trial Driver 10 (1)
+[NightSignal.Cup] TR-CH69 leg 1: ok: leg 1 of 3 (C01) finished · ok: faster than 1:56.800 (1:26.500)
+[NightSignal.TrialTour] TR-CH69 leg 1: ok: leg 1 of 3 (C01) finished · ok: faster than 1:56.800 (1:26.500)
+[NightSignal.Trial] TR-CH69: V01 stock, PI 220, build c12c2bea1a67, on C01 (course)
+[NightSignal.Ghost] C05 trial-TR-CH69: 1385 samples, result 138.322 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH69: Cup leg 2 of 3 — ok: leg 2 of 3 (C05) finished · ok: faster than 3:06.800 (2:18.321)
+[NightSignal.Cup] after leg 2: Trial Driver 20 (1 1)
+[NightSignal.Cup] TR-CH69 leg 2: ok: leg 2 of 3 (C05) finished · ok: faster than 3:06.800 (2:18.321)
+[NightSignal.TrialTour] TR-CH69 leg 2: ok: leg 2 of 3 (C05) finished · ok: faster than 3:06.800 (2:18.321)
+[NightSignal.Trial] TR-CH69: V01 stock, PI 220, build c12c2bea1a67, on C01 (course)
+[NightSignal.Ghost] C09 trial-TR-CH69: 1531 samples, result 152.954 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH69: TRIAL PASSED — ok: the supplied loaner · ok: all 3 legs finished in one session (3 of 3) · ok: C01 faster than 1:56.800 (1:26.500) · ok: C05 faster than 3:06.800 (2:18.321) · ok: C09 faster than 3:26.500 (2:32.954)
+[NightSignal.Cup] after leg 3: Trial Driver 30 (1 1 1)
+[NightSignal.Cup] TR-CH69 leg 3: ok: leg 3 of 3 (C09) finished · ok: faster than 3:26.500 (2:32.954)
+[NightSignal.TrialTour] TR-CH69 leg 3: ok: the supplied loaner · ok: all 3 legs finished in one session (3 of 3) · ok: C01 faster than 1:56.800 (1:26.500) · ok: C05 faster than 3:06.800 (2:18.321) · ok: C09 faster than 3:26.500 (2:32.954)
+[NightSignal.TrialTour] TR-CH69 (CH69 silver): PASSED — ok: the supplied loaner · ok: all 3 legs finished in one session (3 of 3) · ok: C01 faster than 1:56.800 (1:26.500) · ok: C05 faster than 3:06.800 (2:18.321) · ok: C09 faster than 3:26.500 (2:32.954)
+[NightSignal.TrialTour] TR-CH69: profile keeps it: True; challenge earned: True
+[NightSignal.Cup] challenge cup TR-CH72: C21 → C22 → C23 in the V12
+[NightSignal.Trial] TR-CH72: V12 stock, PI 650, build c55be699c49d, on C21 (course)
+[NightSignal.Ghost] C21 trial-TR-CH72: 1393 samples, result 139.195 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH72: Cup leg 1 of 3 — ok: leg 1 of 3 (C21) finished · ok: faster than 2:47.100 (2:19.195) · ok: no reset (0)
+[NightSignal.Cup] after leg 1: Trial Driver 10 (1)
+[NightSignal.Cup] TR-CH72 leg 1: ok: leg 1 of 3 (C21) finished · ok: faster than 2:47.100 (2:19.195) · ok: no reset (0)
+[NightSignal.TrialTour] TR-CH72 leg 1: ok: leg 1 of 3 (C21) finished · ok: faster than 2:47.100 (2:19.195) · ok: no reset (0)
+[NightSignal.Trial] TR-CH72: V12 stock, PI 650, build c55be699c49d, on C21 (course)
+[NightSignal.Ghost] C22 trial-TR-CH72: 1689 samples, result 168.791 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH72: Cup leg 2 of 3 — ok: leg 2 of 3 (C22) finished · ok: faster than 3:22.600 (2:48.790) · ok: no reset (0)
+[NightSignal.Cup] after leg 2: Trial Driver 20 (1 1)
+[NightSignal.Cup] TR-CH72 leg 2: ok: leg 2 of 3 (C22) finished · ok: faster than 3:22.600 (2:48.790) · ok: no reset (0)
+[NightSignal.TrialTour] TR-CH72 leg 2: ok: leg 2 of 3 (C22) finished · ok: faster than 3:22.600 (2:48.790) · ok: no reset (0)
+[NightSignal.Trial] TR-CH72: V12 stock, PI 650, build c55be699c49d, on C21 (course)
+[NightSignal.Ghost] C23 trial-TR-CH72: 2224 samples, result 222.288 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH72: TRIAL PASSED — ok: the supplied loaner · ok: all 3 legs finished in one session (3 of 3) · ok: C21 faster than 2:47.100 (2:19.195) · ok: C22 faster than 3:22.600 (2:48.790) · ok: C23 faster than 4:26.800 (3:42.287) · ok: no reset in any leg (0)
+[NightSignal.Cup] after leg 3: Trial Driver 30 (1 1 1)
+[NightSignal.Cup] TR-CH72 leg 3: ok: leg 3 of 3 (C23) finished · ok: faster than 4:26.800 (3:42.287) · ok: no reset (0)
+[NightSignal.TrialTour] TR-CH72 leg 3: ok: the supplied loaner · ok: all 3 legs finished in one session (3 of 3) · ok: C21 faster than 2:47.100 (2:19.195) · ok: C22 faster than 3:22.600 (2:48.790) · ok: C23 faster than 4:26.800 (3:42.287) · ok: no reset in any leg (0)
+[NightSignal.TrialTour] TR-CH72 (CH72 gold): PASSED — ok: the supplied loaner · ok: all 3 legs finished in one session (3 of 3) · ok: C21 faster than 2:47.100 (2:19.195) · ok: C22 faster than 3:22.600 (2:48.790) · ok: C23 faster than 4:26.800 (3:42.287) · ok: no reset in any leg (0)
+[NightSignal.TrialTour] TR-CH72: profile keeps it: True; challenge earned: True
+[NightSignal.TrialTour] 13 of 18 trials passed by the autopilot; challenges earned: CH15, CH55, CH11, CH51, CH54, CH25, CH30, CH39, CH14, CH42, CH69, CH72; wallet 517,367 cr
 [NightSignal.TrialTour] PASS
-[NightSignal.Bounds] bounds-TrialTour-1280x720-text150: 73 labels over 161 moments — 0 overflow, 0 missing glyph, 9 edge spill, 0 fixed-size overflow, 2 at minimum size
+[NightSignal.Bounds] bounds-TrialTour-1280x720-text150: 79 labels over 269 moments — 0 overflow, 0 missing glyph, 13 edge spill, 0 fixed-size overflow, 2 at minimum size
