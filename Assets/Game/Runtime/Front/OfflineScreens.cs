@@ -254,8 +254,9 @@ namespace NightSignal.Front
             }
             start.interactable = ok;
             start.GetComponentInChildren<TextMeshProUGUI>().text = Cup ? "Start the Cup" : "Start Freeplay Race";
-            note.text = ok ? (Cup ? $"Custom Cup: {string.Join(" → ", legs)} — each leg pays race money; the cup table has no stake."
-                               : "Freeplay pays race money and keeps Local personal records.")
+            // Conditions: the course's own, as an online Freeplay race has them.
+            note.text = ok ? (Cup ? $"Custom Cup: {string.Join(" → ", legs)} — each leg pays race money; the cup table has no stake. Each leg in its course's own conditions."
+                               : $"Freeplay pays race money and keeps Local personal records. Conditions: {s.Catalogue.Course(legs[0])?.DefaultConditions ?? "the course's own"}.")
                 : reason + (blocked != null ? " " + LocalProgression.AccessHint(s.Catalogue, blocked) : "");
         }
 

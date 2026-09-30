@@ -76,6 +76,8 @@ namespace NightSignal.Front
         /// <summary>
         /// A Freeplay event. Opponents are authored rivals, as online (spec §13): <paramref name="namedRival"/> first when the
         /// player picked one (the lead — CH38/CH73 read its archetype), then a shuffled pool without the finale-only rivals.
+        /// It races the course's own conditions, as online (the convoy proposes no weather, so the server uses the course's):
+        /// the surface is left to the course and resolved once it is loaded — Local Freeplay once raced every course dry.
         /// </summary>
         public static LocalEventPlan Freeplay(ContentCatalogue catalogue, CourseDef course, bool timeAttack, int opponents, int carCapPi, LocalCarChoice car,
             string namedRival = null, Random random = null)
@@ -93,6 +95,7 @@ namespace NightSignal.Front
                     Contact = timeAttack ? ContactPolicy.NonContact : ContactPolicy.LightContact,
                     StageNumber = 10,
                     CarCapPi = carCapPi,
+                    Surface = null, // the course's own (C08 wet; C11, C15, C20 damp) — see RunOfflineRace
                 },
             };
             int count = timeAttack ? 0 : Math.Max(0, Math.Min(opponents, Limits.MaxRaceVehicles - 1));

@@ -46,5 +46,18 @@ namespace NightSignal.Tests.Vehicle
             Assert.IsFalse(named.OpposingAi.Any(FinalRivals.IsFinaleOnly));
             Assert.IsEmpty(LocalEvents.Freeplay(cat, course, true, 5, 999, Car, "R08").OpposingAi);
         }
+
+        [Test]
+        public void Freeplay_RacesTheCoursesOwnConditions_AsOnline()
+        {
+            // The surface is left to the course (resolved when it loads: C08 wet, C11/C15/C20 damp), as an online Freeplay
+            // race has it — never a fixed "dry" (the RaceEventRules default).
+            ContentCatalogue cat = Cat;
+            foreach (string id in new[] { "C15", "C08", "C01" })
+            {
+                Assert.IsNull(LocalEvents.Freeplay(cat, cat.Course(id), false, 3, 999, Car).Rules.Surface, id + " race");
+                Assert.IsNull(LocalEvents.Freeplay(cat, cat.Course(id), true, 0, 999, Car).Rules.Surface, id + " time attack");
+            }
+        }
     }
 }

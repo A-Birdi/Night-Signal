@@ -1,0 +1,13 @@
+# -nsFreeplayConditionsTour (built player of 5732617 + the Local Freeplay conditions change of the next commit; buttons only, isolated profile; validator autopilot; 1280x720; automation).
+[NightSignal.FreeplayConditionsTour] seeded: C15 marked owned on the tour's profile
+[NightSignal.FreeplayConditionsTour] C15 hub: C15  Tide Lantern Coast · Time Attack — no contact, no AI — "Freeplay pays race money and keeps Local personal records. Conditions: Early night, damp."
+[NightSignal.Local] le-6ed39beab3d64b4c8ff8: V01 races build c12c2bea1a67 (PI 220), livery stock
+[NightSignal.Local] FreeplayTimeTrial C15: Applied  wallet 12000 -> 26466; 6 change(s) Saved.
+[NightSignal.Ghost] C15 time-attack: 1596 samples, result 159.429 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.FreeplayConditionsTour] C15: raced surface damp; ghost surface damp (159.429 s); Local record C15/time-attack conditions damp
+[NightSignal.FreeplayConditionsTour] C01 hub: C01  Tea Lantern Road · Time Attack — no contact, no AI — "Freeplay pays race money and keeps Local personal records. Conditions: Late afternoon, dry."
+[NightSignal.Local] le-6492bc22553641f892dc: V01 races build c12c2bea1a67 (PI 220), livery stock
+[NightSignal.Local] FreeplayTimeTrial C01: Applied  wallet 26466 -> 37605; 6 change(s) Saved.
+[NightSignal.Ghost] C01 time-attack: 867 samples, result 86.501 s, resets 0, valid True; raced ghost none — your first ghost here; against the ghost: −0.18 s at the first checkpoint, −0.52 s at the finish
+[NightSignal.FreeplayConditionsTour] C01: raced surface dry; ghost surface dry (86.501 s); Local record C01/time-attack conditions dry
+[NightSignal.FreeplayConditionsTour] PASS
