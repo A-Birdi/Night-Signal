@@ -2771,3 +2771,20 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   each pass (`Evidence/challenges/cups-tour/`). Then the full trial tour: **PASS**, eighteen trials (`-nsTrialTour`, 1280×720, Text 150 %, with the bounds audit, build of `527601e`): all four cups PASSED again through the cup page with the same leg times, CH14 CH42 CH69 CH72 earned; the fourteen earlier trials judged exactly as in V-126 (every verdict line identical); 13 of 18 passed; bounds 0 overflow, 0 missing glyphs (79 labels over 269 moments, the cup page included). `Evidence/challenges/trials-tour/`.
 - **Limits:** a cup is solo (no AI field — none of the four predicates asks for one); the autopilot reaching all four shows
   the targets reachable, not that they are hard.
+
+## V-128 — CH43: beat R32's own C20 practice run, both defence gates inside the corridor (spec §11) (2026-09-30)
+- Revision: `9e70b37`, documented with the commit of this entry; the player build of `9e70b37`.
+- **What:** the gate judge keeps **defence zones** (a challenge-tagged `defence` gate driven start to end without leaving the
+  legal corridor, on every pass; a reset or recovery inside breaks it) — it runs in every event, Time Attack included. A
+  time trial may take a **rival's own practice run** as its target (`referenceRival`, `referenceStage`): the measurement
+  drives the loaner with that rival's driver profile instead of the validator's, and the target is that time itself (no
+  factor). **TR-CH43** (Gold): C20 in R32's own stock V16 (PI 790), C20's damp conditions; beat Mako Hoshino's (R32,
+  rotation specialist, stage 28) practice run — **167.220 s**, both C20 defence/exit gates inside the corridor on that run
+  (`Evidence/challenges/trials-TR-CH43.txt`, measured twice with the same result) — while driving both gates inside the
+  legal corridor. No blocking or contact rule (the predicate says there is none).
+- **Tests:** Core (the defence-gate rule, the file: 19 trials, TR-CH43's rival reference) — Core 202.
+- **Built player (`tour.ps1 -TrialOnly TR-CH43`):** judged — **not passed**: the validator autopilot drove both defence gates
+  inside the corridor but finished in 2:55.140, 7.9 s slower than R32's own run in the same car. CH43 is judged, not shown
+  reachable by automation (R32's profile out-drives the validator on damp C20). `Evidence/challenges/trials-tour/trial-tour-TR-CH43.txt`.
+- **Limits:** offline trial (online trials of this kind work like the others once published — its conditions are the
+  course's own — but no online run was made).

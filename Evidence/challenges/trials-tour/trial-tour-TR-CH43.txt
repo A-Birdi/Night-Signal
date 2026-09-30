@@ -1,0 +1,10 @@
+# -nsTrialTour -nsTrialOnly TR-CH43 (built player of 9e70b37 via Tools/run/tour.ps1 -TrialOnly: isolated prefs and profile, 1280x720; validator autopilot; automation)
+[NightSignal.TrialTour] page 2 of 2: its first row opens TR-CH30
+[NightSignal.TrialTour] only: TR-CH43
+[NightSignal.Trial] TR-CH43: V16 stock, PI 790, build 76a2a513eb49, on C20 (course)
+[NightSignal.Ghost] C20 trial-TR-CH43: 1753 samples, result 175.140 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH43: Trial not passed — ok: the supplied loaner · ok: a valid finish · MISSED: faster than 2:47.220 (2:55.140) · ok: every marked defence gate inside the legal corridor (2 of them)
+[NightSignal.TrialTour] TR-CH43 (CH43 gold): not passed — ok: the supplied loaner · ok: a valid finish · MISSED: faster than 2:47.220 (2:55.140) · ok: every marked defence gate inside the legal corridor (2 of them)
+[NightSignal.TrialTour] TR-CH43: profile keeps it: False; challenge earned: False
+[NightSignal.TrialTour] 0 of 19 trials passed by the autopilot; challenges earned: none; wallet 43,545 cr
+[NightSignal.TrialTour] PASS

@@ -177,7 +177,7 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
    CH34 is judged in ordinary C02 races (V-124, marked-zone passes in the racecraft judge); racecraft trials (a fixed AI
    field, the player's grid slot; offline only — the control plane refuses them online) carry CH40 and CH41 (V-125) and,
    with the pacing and pressure roles, CH36 and CH39 (V-126; CH39 reached). Slice 4 is done: challenge cups CH14, CH42,
-   CH69, CH72 (V-127, three legs in one session, all four reached). Next: CH37 (T00 merge beside a pace car in the
+   CH69, CH72 (V-127, three legs in one session, all four reached); CH43 against R32's own practice run (V-128). Next: CH37 (T00 merge beside a pace car in the
    two MERGE lanes — T00 is the tutorial course, which Local validation keeps out of Freeplay), CH43 (C20 against R32's
    Gold practice reference with the defence gates — the judge already times defence zones), CH59 (a tunable loaner within
    a parts budget); then fixed cups, T00 drills, workshop trials. Targeted built-player runs: `Tools/run/tour.ps1 -Tour
