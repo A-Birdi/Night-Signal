@@ -192,6 +192,10 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
 0. **After any AI tendency change**: rerun `-nsCrewTelemetryTour` and `CertifyListed` for the stages whose featured
    rival has that tendency (V-108; the crew telemetry was rerun on the V-109 build and passes).
 
+0. **UI polish research (owner request, 2026-09-30)**: `docs/UI_REFERENCE_RESEARCH.md` — what shipped racing menus do
+   (RR4, Forza Horizon 5, GT7, NFS Unbound, Mario Kart World, Wipeout), an honest list of our "functional AI-UI" tells, and
+   eight hypotheses in the Signal/Sector motif. Research only: no restyling until the owner has given feedback and their own
+   references; then a polished vertical slice first (§15).
 1. **Course scenery follow-ups** (small): a human look per region (the built-player tour with the regional kits passed,
    run 5 on `7d9119d`); the steep dark terrain "cliffs" of the gorge/highland terrain styles (heightfield resolution)
    are untouched.
