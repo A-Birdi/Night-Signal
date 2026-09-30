@@ -38,7 +38,8 @@
         "zonePassRole": "",
         "pressureSector": false,
         "allDefenceZones": false,
-        "challengeExits": false
+        "challengeExits": false,
+        "brakeEnvelope": false
       },
       "targets": {
         "timeMs": 136346,
@@ -47,7 +48,8 @@
         "referenceEdgeMargin": 0.0,
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
-        "exitFloors": []
+        "exitFloors": [],
+        "brakes": []
       },
       "group": "",
       "brief": "Race the fixed Gold ghost and finish ahead of it with all four tyres on the paved road the whole way; a shoulder touch fails the trial, not the race.",
@@ -96,7 +98,8 @@
         "zonePassRole": "",
         "pressureSector": false,
         "allDefenceZones": false,
-        "challengeExits": false
+        "challengeExits": false,
+        "brakeEnvelope": false
       },
       "targets": {
         "timeMs": 273700,
@@ -105,7 +108,8 @@
         "referenceEdgeMargin": 0.0,
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
-        "exitFloors": []
+        "exitFloors": [],
+        "brakes": []
       },
       "group": "",
       "brief": "The fixed challenge reference on C25: beat its Gold time, touch all three final-sector apex gates, and never reset.",
@@ -154,7 +158,8 @@
         "zonePassRole": "",
         "pressureSector": false,
         "allDefenceZones": true,
-        "challengeExits": false
+        "challengeExits": false,
+        "brakeEnvelope": false
       },
       "targets": {
         "timeMs": 167220,
@@ -163,7 +168,8 @@
         "referenceEdgeMargin": 0.0,
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
-        "exitFloors": []
+        "exitFloors": [],
+        "brakes": []
       },
       "group": "",
       "brief": "Mako Hoshino's C20 practice run, in Mako's own V16 as the Gold reference: beat its time in the same car, driving both marked defence/exit gates inside the legal corridor. No blocking or contact rule — it is a clean practice run.",
@@ -212,7 +218,8 @@
         "zonePassRole": "",
         "pressureSector": false,
         "allDefenceZones": false,
-        "challengeExits": false
+        "challengeExits": false,
+        "brakeEnvelope": false
       },
       "targets": {
         "timeMs": 150400,
@@ -221,7 +228,8 @@
         "referenceEdgeMargin": 0.0,
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
-        "exitFloors": []
+        "exitFloors": [],
+        "brakes": []
       },
       "group": "",
       "brief": "No performance parts: the stock starter against a Silver time.",
@@ -270,7 +278,8 @@
         "zonePassRole": "",
         "pressureSector": false,
         "allDefenceZones": false,
-        "challengeExits": false
+        "challengeExits": false,
+        "brakeEnvelope": false
       },
       "targets": {
         "timeMs": 194300,
@@ -279,7 +288,8 @@
         "referenceEdgeMargin": 0.0,
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
-        "exitFloors": []
+        "exitFloors": [],
+        "brakes": []
       },
       "group": "",
       "brief": "The loaner sits under the C12 stages' PI 699 cap. Gold time, no reset, and at most one meaningful wall impact.",
@@ -330,7 +340,8 @@
         "zonePassRole": "",
         "pressureSector": false,
         "allDefenceZones": false,
-        "challengeExits": false
+        "challengeExits": false,
+        "brakeEnvelope": false
       },
       "targets": {
         "timeMs": 169200,
@@ -339,7 +350,8 @@
         "referenceEdgeMargin": 0.0,
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
-        "exitFloors": []
+        "exitFloors": [],
+        "brakes": []
       },
       "group": "",
       "brief": "The supplied wet tune: rain-sport tyres in C08's wet. Beat the Silver time.",
@@ -388,7 +400,8 @@
         "zonePassRole": "",
         "pressureSector": false,
         "allDefenceZones": false,
-        "challengeExits": false
+        "challengeExits": false,
+        "brakeEnvelope": false
       },
       "targets": {
         "timeMs": 158400,
@@ -397,7 +410,8 @@
         "referenceEdgeMargin": 0.0,
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
-        "exitFloors": []
+        "exitFloors": [],
+        "brakes": []
       },
       "group": "CH54-LAYOUTS",
       "brief": "Front-drive layout under the shared PI 450 cap, with its own Silver time; the challenge also needs the rear-drive trial.",
@@ -446,7 +460,8 @@
         "zonePassRole": "",
         "pressureSector": false,
         "allDefenceZones": false,
-        "challengeExits": false
+        "challengeExits": false,
+        "brakeEnvelope": false
       },
       "targets": {
         "timeMs": 160500,
@@ -455,7 +470,8 @@
         "referenceEdgeMargin": 0.0,
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
-        "exitFloors": []
+        "exitFloors": [],
+        "brakes": []
       },
       "group": "CH54-LAYOUTS",
       "brief": "Rear-drive layout under the shared PI 450 cap, with its own Silver time; the challenge also needs the front-drive trial.",
@@ -506,7 +522,8 @@
         "zonePassRole": "",
         "pressureSector": false,
         "allDefenceZones": false,
-        "challengeExits": false
+        "challengeExits": false,
+        "brakeEnvelope": false
       },
       "targets": {
         "timeMs": 0,
@@ -515,7 +532,8 @@
         "referenceEdgeMargin": 0.0,
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
-        "exitFloors": []
+        "exitFloors": [],
+        "brakes": []
       },
       "group": "",
       "brief": "The drift loaner: bank the Silver drift score without touching the handbrake after the start, then finish.",
@@ -566,7 +584,8 @@
         "zonePassRole": "",
         "pressureSector": false,
         "allDefenceZones": false,
-        "challengeExits": false
+        "challengeExits": false,
+        "brakeEnvelope": false
       },
       "targets": {
         "timeMs": 274100,
@@ -575,7 +594,8 @@
         "referenceEdgeMargin": 0.0,
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
-        "exitFloors": []
+        "exitFloors": [],
+        "brakes": []
       },
       "group": "",
       "brief": "The fixed C23 build: beat both the published time and the raw drift target in the same legal run.",
@@ -626,7 +646,8 @@
         "zonePassRole": "",
         "pressureSector": false,
         "allDefenceZones": false,
-        "challengeExits": false
+        "challengeExits": false,
+        "brakeEnvelope": false
       },
       "targets": {
         "timeMs": 0,
@@ -635,7 +656,8 @@
         "referenceEdgeMargin": 0.0,
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
-        "exitFloors": []
+        "exitFloors": [],
+        "brakes": []
       },
       "group": "",
       "brief": "The Gold drift route: bank the Gold raw target, with a chain banked in every judged zone.",
@@ -703,7 +725,8 @@
         "zonePassRole": "",
         "pressureSector": false,
         "allDefenceZones": false,
-        "challengeExits": false
+        "challengeExits": false,
+        "brakeEnvelope": false
       },
       "targets": {
         "timeMs": 0,
@@ -712,7 +735,8 @@
         "referenceEdgeMargin": 0.0,
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
-        "exitFloors": []
+        "exitFloors": [],
+        "brakes": []
       },
       "group": "",
       "brief": "C17's fixed challenge race: three class-C cars ahead of you on the grid. Make the marked overtake in the braking zone about 2.8 km in — clean, no touch — keep the place, never touch another car or cut a checkpoint, and finish.",
@@ -792,7 +816,8 @@
         "zonePassRole": "",
         "pressureSector": false,
         "allDefenceZones": false,
-        "challengeExits": false
+        "challengeExits": false,
+        "brakeEnvelope": false
       },
       "targets": {
         "timeMs": 0,
@@ -801,7 +826,8 @@
         "referenceEdgeMargin": 0.0,
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
-        "exitFloors": []
+        "exitFloors": [],
+        "brakes": []
       },
       "group": "",
       "brief": "Class-equalized: six identical stock V07s on the Kilnlight Ring, and you start sixth. Win with no reset and no car-to-car contact.",
@@ -857,7 +883,8 @@
         "zonePassRole": "pacing",
         "pressureSector": false,
         "allDefenceZones": false,
-        "challengeExits": false
+        "challengeExits": false,
+        "brakeEnvelope": false
       },
       "targets": {
         "timeMs": 0,
@@ -866,7 +893,8 @@
         "referenceEdgeMargin": 0.0,
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
-        "exitFloors": []
+        "exitFloors": [],
+        "brakes": []
       },
       "group": "",
       "brief": "C10's racecraft trial: a pacing rival starts ahead and keeps to the inside through the marked outside lane (about 2.7 km in). Pass it there, in the outside lane, and hold the gain through the next straight to the marked gate; then finish.",
@@ -922,7 +950,8 @@
         "zonePassRole": "",
         "pressureSector": true,
         "allDefenceZones": false,
-        "challengeExits": false
+        "challengeExits": false,
+        "brakeEnvelope": false
       },
       "targets": {
         "timeMs": 0,
@@ -931,7 +960,8 @@
         "referenceEdgeMargin": 0.0,
         "referencePaceScale": 0.0,
         "sectorTimeMs": 28700,
-        "exitFloors": []
+        "exitFloors": [],
+        "brakes": []
       },
       "group": "",
       "brief": "C14's pressure trial: you start on pole and a quicker car starts behind you, closing up but never passing. Drive the marked second sector at the published pace with it within a second of you all the way and no barrier touched; then finish.",
@@ -996,7 +1026,8 @@
         "zonePassRole": "",
         "pressureSector": false,
         "allDefenceZones": false,
-        "challengeExits": false
+        "challengeExits": false,
+        "brakeEnvelope": false
       },
       "targets": {
         "timeMs": 0,
@@ -1005,7 +1036,8 @@
         "referenceEdgeMargin": 0.0,
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
-        "exitFloors": []
+        "exitFloors": [],
+        "brakes": []
       },
       "group": "",
       "brief": "Three legs back to back — C17, C18, C19 — in one session with not a single meaningful wall impact across them. A leg cannot be retried: leave or fail a leg and the cup starts over.",
@@ -1070,7 +1102,8 @@
         "zonePassRole": "",
         "pressureSector": false,
         "allDefenceZones": false,
-        "challengeExits": false
+        "challengeExits": false,
+        "brakeEnvelope": false
       },
       "targets": {
         "timeMs": 0,
@@ -1079,7 +1112,8 @@
         "referenceEdgeMargin": 0.0,
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
-        "exitFloors": []
+        "exitFloors": [],
+        "brakes": []
       },
       "group": "",
       "brief": "Three legs — C06, C13, C21 — each against its designated benchmark (the loaner's measured time, Gold 1.02 ×); a valid finish every time, no other driver needed.",
@@ -1144,7 +1178,8 @@
         "zonePassRole": "",
         "pressureSector": false,
         "allDefenceZones": false,
-        "challengeExits": false
+        "challengeExits": false,
+        "brakeEnvelope": false
       },
       "targets": {
         "timeMs": 0,
@@ -1153,7 +1188,8 @@
         "referenceEdgeMargin": 0.0,
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
-        "exitFloors": []
+        "exitFloors": [],
+        "brakes": []
       },
       "group": "",
       "brief": "A quiet touring cup — C01, C05, C09 — in the starter car: finish each leg inside a generous time limit (1.35 × the loaner's measured time) and do not quit.",
@@ -1218,7 +1254,8 @@
         "zonePassRole": "",
         "pressureSector": false,
         "allDefenceZones": false,
-        "challengeExits": false
+        "challengeExits": false,
+        "brakeEnvelope": false
       },
       "targets": {
         "timeMs": 0,
@@ -1227,7 +1264,8 @@
         "referenceEdgeMargin": 0.0,
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
-        "exitFloors": []
+        "exitFloors": [],
+        "brakes": []
       },
       "group": "",
       "brief": "Before the first train — C21, C22, C23 in one session, each at a generous Silver pace (1.20 × the loaner's measured time), with no reset in any leg.",
@@ -1278,7 +1316,8 @@
         "zonePassRole": "",
         "pressureSector": false,
         "allDefenceZones": false,
-        "challengeExits": false
+        "challengeExits": false,
+        "brakeEnvelope": false
       },
       "targets": {
         "timeMs": 14600,
@@ -1287,7 +1326,8 @@
         "referenceEdgeMargin": 0.0,
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
-        "exitFloors": []
+        "exitFloors": [],
+        "brakes": []
       },
       "group": "CH52",
       "brief": "Driving School comparison route A in the light variant (lightweight panels and glass): inside its reference envelope. Its pair is route B in the heavy variant.",
@@ -1336,7 +1376,8 @@
         "zonePassRole": "",
         "pressureSector": false,
         "allDefenceZones": false,
-        "challengeExits": false
+        "challengeExits": false,
+        "brakeEnvelope": false
       },
       "targets": {
         "timeMs": 21400,
@@ -1345,7 +1386,8 @@
         "referenceEdgeMargin": 0.0,
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
-        "exitFloors": []
+        "exitFloors": [],
+        "brakes": []
       },
       "group": "CH52",
       "brief": "Driving School comparison route B in the heavy variant (the stock car): inside its reference envelope. Its pair is route A in the light variant.",
@@ -1394,7 +1436,8 @@
         "zonePassRole": "",
         "pressureSector": false,
         "allDefenceZones": false,
-        "challengeExits": false
+        "challengeExits": false,
+        "brakeEnvelope": false
       },
       "targets": {
         "timeMs": 15800,
@@ -1403,7 +1446,8 @@
         "referenceEdgeMargin": 0.0,
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
-        "exitFloors": []
+        "exitFloors": [],
+        "brakes": []
       },
       "group": "CH58",
       "brief": "Configuration 1 of the Driving School in the supplied front-drive car, at the Gold short reference. One of three: RWD on configuration 2 and AWD on configuration 3.",
@@ -1452,7 +1496,8 @@
         "zonePassRole": "",
         "pressureSector": false,
         "allDefenceZones": false,
-        "challengeExits": false
+        "challengeExits": false,
+        "brakeEnvelope": false
       },
       "targets": {
         "timeMs": 16900,
@@ -1461,7 +1506,8 @@
         "referenceEdgeMargin": 0.0,
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
-        "exitFloors": []
+        "exitFloors": [],
+        "brakes": []
       },
       "group": "CH58",
       "brief": "Configuration 2 of the Driving School in the supplied rear-drive car, at the Gold short reference. One of three: FWD on configuration 1 and AWD on configuration 3.",
@@ -1510,7 +1556,8 @@
         "zonePassRole": "",
         "pressureSector": false,
         "allDefenceZones": false,
-        "challengeExits": false
+        "challengeExits": false,
+        "brakeEnvelope": false
       },
       "targets": {
         "timeMs": 20000,
@@ -1519,7 +1566,8 @@
         "referenceEdgeMargin": 0.0,
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
-        "exitFloors": []
+        "exitFloors": [],
+        "brakes": []
       },
       "group": "CH58",
       "brief": "Configuration 3 of the Driving School — it crosses the start line — in the supplied all-drive car, at the Gold short reference. One of three: FWD on configuration 1 and RWD on configuration 2.",
@@ -1568,7 +1616,8 @@
         "zonePassRole": "",
         "pressureSector": false,
         "allDefenceZones": false,
-        "challengeExits": true
+        "challengeExits": true,
+        "brakeEnvelope": false
       },
       "targets": {
         "timeMs": 0,
@@ -1586,7 +1635,8 @@
             "gate": "C03-DIFF-EXIT-2",
             "kmh": 96.9
           }
-        ]
+        ],
+        "brakes": []
       },
       "group": "CH53",
       "brief": "C03's guided two-corner challenge in the supplied Linea 20 with its stock open differential: touch both marked turn-in apexes and clear both marked exits at their declared floors, on every lap. Its pair is the race differential.",
@@ -1637,7 +1687,8 @@
         "zonePassRole": "",
         "pressureSector": false,
         "allDefenceZones": false,
-        "challengeExits": true
+        "challengeExits": true,
+        "brakeEnvelope": false
       },
       "targets": {
         "timeMs": 0,
@@ -1655,10 +1706,79 @@
             "gate": "C03-DIFF-EXIT-2",
             "kmh": 96.9
           }
-        ]
+        ],
+        "brakes": []
       },
       "group": "CH53",
       "brief": "C03's guided two-corner challenge in the supplied Linea 20 with the race differential: touch both marked turn-in apexes and clear both marked exits at their declared floors (this setup's own), on every lap. Its pair is the open differential.",
+      "ghost": false,
+      "judgesTime": false,
+      "judgesDrift": false,
+      "isRace": false,
+      "isDrill": true,
+      "isCup": false,
+      "hasSection": false,
+      "published": true
+    },
+    {
+      "id": "TR-CH07",
+      "challenge": "CH07",
+      "title": "One Release",
+      "course": "T00",
+      "tier": "silver",
+      "kind": "drill",
+      "legs": [],
+      "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
+      "sectionStartGate": "",
+      "sectionEndGate": "",
+      "field": [],
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V01",
+        "parts": {},
+        "piCap": 0
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": true,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": false,
+        "allDefenceZones": false,
+        "challengeExits": false,
+        "brakeEnvelope": true
+      },
+      "targets": {
+        "timeMs": 0,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0,
+        "referencePaceScale": 0.0,
+        "sectorTimeMs": 0,
+        "exitFloors": [],
+        "brakes": [
+          {
+            "gate": "T00-TRAIL-BRAKE",
+            "brakeByMetres": 1528.0,
+            "releaseAfterMetres": 1608.0,
+            "minExitKmh": 52.0,
+            "maxExitKmh": 71.0
+          }
+        ]
+      },
+      "group": "",
+      "brief": "The Driving School's braking lesson in its fixed loaner, the starter Hachi RS: brake for the test bend in the marked zone and trail the brake into the turn — begin by the marked point, keep some brake on until late in the zone, and leave at the published speed. No handbrake.",
       "ghost": false,
       "judgesTime": false,
       "judgesDrift": false,

@@ -1,0 +1,10 @@
+# Challenge trial targets, measured by ChallengeTrialReferenceTests (PlayMode, explicit): each trial's loaner resolved like a
+# garage build, solo, validator autopilot, the trial's course and conditions; drift trials: the cleanest of three drift skills. Automation.
+# this run measured only: TR-CH07
+
+## TR-CH07 (CH07, silver) on T00 (dry): Kogane Hachi RS, PI 220
+time 128.857 s; banked 4804 raw (earned 4804) in 1/3 zones; walls 0, resets 0, handbrake 0.0 s, off the paved road 11.9 s
+T00-TRAIL-BRAKE: entry 151.9, brake on at 1512.3 m, released at 1623.7 m, exit 61.6 km/h → on by 1528, held to 1608, exit 52–71
+→ 
+
+# every trial measured

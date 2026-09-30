@@ -79,6 +79,18 @@ namespace NightSignal.Core.Rules
         public bool AllDefenceZones;
         /// <summary>Every exit-speed gate tagged with the challenge cleared at its measured floor on every pass (CH53's exit criteria).</summary>
         public bool ChallengeExits;
+        /// <summary>Every braking zone tagged with the challenge driven inside its measured trail-brake envelope (CH07).</summary>
+        public bool BrakeEnvelope;
+    }
+
+    /// <summary>
+    /// A measured trail-brake envelope at one braking zone (CH07): braking begun by <see cref="BrakeByMetres"/>, the brake still
+    /// held (trailed into the bend) until at least <see cref="ReleaseAfterMetres"/>, and the exit speed inside the window.
+    /// </summary>
+    public sealed class TrialBrakeEnvelope
+    {
+        public string Gate = "";
+        public float BrakeByMetres, ReleaseAfterMetres, MinExitKmh, MaxExitKmh;
     }
 
     /// <summary>A measured exit-speed floor at one route gate (a drill's exit criterion).</summary>
@@ -113,6 +125,8 @@ namespace NightSignal.Core.Rules
         public long SectorTimeMs;
         /// <summary>Exit-speed floors at the challenge's exit gates (a drill's exit criteria; measured: 0.95 × the loaner's slowest exit there).</summary>
         public List<TrialExitFloor> ExitFloors = new List<TrialExitFloor>();
+        /// <summary>Trail-brake envelopes at the challenge's braking zones (measured from the loaner's reference trace).</summary>
+        public List<TrialBrakeEnvelope> Brakes = new List<TrialBrakeEnvelope>();
     }
 
     /// <summary>One challenge trial (docs/CHALLENGE_TRIALS.md): a fixed course, loaner, rules and targets for one challenge.</summary>
@@ -174,7 +188,8 @@ namespace NightSignal.Core.Rules
         /// <summary>Measured targets exist for everything this trial judges.</summary>
         public bool Published => (!JudgesTime || Targets.TimeMs > 0) && (!JudgesDrift || Targets.DriftRaw > 0) && (!Rules.PressureSector || Targets.SectorTimeMs > 0) &&
                                  (!IsCup || LegFactor <= 0 || Legs.All(l => l.TimeMs > 0)) &&
-                                 (!Rules.ChallengeExits || (Targets.ExitFloors.Count > 0 && Targets.ExitFloors.All(x => x.Kmh > 0f)));
+                                 (!Rules.ChallengeExits || (Targets.ExitFloors.Count > 0 && Targets.ExitFloors.All(x => x.Kmh > 0f))) &&
+                                 (!Rules.BrakeEnvelope || (Targets.Brakes.Count > 0 && Targets.Brakes.All(x => x.BrakeByMetres > 0f && x.MaxExitKmh > 0f)));
     }
 
     public sealed class ChallengeTrialsFile
@@ -233,6 +248,9 @@ namespace NightSignal.Core.Rules
         /// <summary>The slowest exit over each of the challenge's exit gates (km/h; a gate never crossed is absent).</summary>
         public string[] ExitGates;
         public float[] ExitKmh;
+        /// <summary>What the car did at each of the challenge's braking zones (the gate judge's facts; a zone never crossed is absent).</summary>
+        public string[] BrakeGates;
+        public GateSpeedFact[] BrakeFacts;
     }
 
     public sealed class TrialVerdict
@@ -272,6 +290,19 @@ namespace NightSignal.Core.Rules
                 Check(f.OffPavedSeconds <= 0f, "all tyres on the paved road" + (f.OffPavedSeconds > 0f ? $" (off it {f.OffPavedSeconds:F1} s)" : ""));
             if (t.Rules.BankEveryZone) Check(f.ZonesTotal > 0 && f.ZonesBanked >= f.ZonesTotal, $"a chain banked in every judged zone ({f.ZonesBanked}/{f.ZonesTotal})");
             if (t.Rules.AllDefenceZones) Check(f.DefenceZones > 0 && f.DefenceZonesKept, $"every marked defence gate inside the legal corridor ({f.DefenceZones} of them)");
+            if (t.Rules.BrakeEnvelope)
+                foreach (TrialBrakeEnvelope env in t.Targets.Brakes)
+                {
+                    int i = f.BrakeGates == null ? -1 : Array.IndexOf(f.BrakeGates, env.Gate);
+                    GateSpeedFact b = i >= 0 && f.BrakeFacts != null && i < f.BrakeFacts.Length ? f.BrakeFacts[i] : default;
+                    bool on = b.Braked && b.BrakeOnMetres >= 0f && b.BrakeOnMetres <= env.BrakeByMetres;
+                    bool trailed = b.Braked && (b.ReleaseMetres < 0f || b.ReleaseMetres >= env.ReleaseAfterMetres);
+                    bool exit = b.ExitKmh >= env.MinExitKmh && b.ExitKmh <= env.MaxExitKmh;
+                    Check(i >= 0 && b.Crossed && on && trailed && exit && b.ResetsInside == 0,
+                        $"the trail-brake envelope at {env.Gate}: on by {env.BrakeByMetres:F0} m ({(b.Braked ? b.BrakeOnMetres.ToString("F0") : "never")}), " +
+                        $"held to {env.ReleaseAfterMetres:F0} m ({(!b.Braked ? "–" : b.ReleaseMetres < 0f ? "to the end" : b.ReleaseMetres.ToString("F0"))}), " +
+                        $"exit {env.MinExitKmh:F0}–{env.MaxExitKmh:F0} km/h ({(i >= 0 && b.Crossed ? b.ExitKmh.ToString("F0") : "not crossed")})");
+                }
             if (t.Rules.ChallengeExits)
                 foreach (TrialExitFloor floor in t.Targets.ExitFloors)
                 {
@@ -359,7 +390,7 @@ namespace NightSignal.Core.Rules
                 if (t.Targets == null || t.Targets.TimeMs < 0 || t.Targets.DriftRaw < 0) problems.Add($"{t.Id}: negative target");
                 if (t.Rules != null && t.Rules.MaxWallImpacts < -1) problems.Add($"{t.Id}: invalid wall allowance");
                 if (!t.JudgesTime && !t.JudgesDrift && !t.IsRace && !t.IsCup && !t.IsDrill) problems.Add($"{t.Id}: unknown kind {t.Kind}");
-                if (t.IsDrill && t.Rules != null && !(t.Rules.AllChallengeGates || t.Rules.ChallengeExits || t.Rules.AllDefenceZones))
+                if (t.IsDrill && t.Rules != null && !(t.Rules.AllChallengeGates || t.Rules.ChallengeExits || t.Rules.AllDefenceZones || t.Rules.BrakeEnvelope))
                     problems.Add($"{t.Id}: a drill judges nothing");
                 if (t.IsCup)
                 {

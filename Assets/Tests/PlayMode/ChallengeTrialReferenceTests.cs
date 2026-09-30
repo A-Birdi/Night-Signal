@@ -50,6 +50,7 @@ namespace NightSignal.Tests
             public string GateLog = "";
             public long SectionMs;
             public System.Collections.Generic.Dictionary<string, float> Exits = new System.Collections.Generic.Dictionary<string, float>();
+            public System.Collections.Generic.Dictionary<string, GateSpeedFact> Brakes = new System.Collections.Generic.Dictionary<string, GateSpeedFact>();
             public string OffPavedWhere = "";
             public string Surface;
             public NightSignal.Core.Ghosts.GhostRecording Ghost;
@@ -108,6 +109,8 @@ namespace NightSignal.Tests
                     .Select(x => $"{x.g.Id} touched {me.GateRun.Touches[x.i]}/{me.GateRun.Passes[x.i]} (last at {me.GateRun.LastLateral[x.i]:F2} m for {x.g.LineOffset:F1} ± {x.g.LineTolerance:F1})")),
                 DefenceKept = me.GateRun != null && me.GateRun.DefenceKept(t.Challenge),
                 SectionMs = me.SectionMicros > 0 ? me.SectionMicros / 1000 : 0,
+                Brakes = me.GateRun == null ? new System.Collections.Generic.Dictionary<string, GateSpeedFact>()
+                    : me.GateRun.SpeedGateIds.Where(g => me.GateRun.SpeedFact(g)?.Crossed == true).ToDictionary(g => g, g => me.GateRun.SpeedFact(g).Value),
                 Exits = me.GateRun == null ? new System.Collections.Generic.Dictionary<string, float>()
                     : me.GateRun.SpeedGateIds.Where(g => me.GateRun.SpeedFact(g)?.Crossed == true).ToDictionary(g => g, g => me.GateRun.SpeedFact(g).Value.SpeedKmh),
                 OffPavedWhere = string.Join(", ", me.Progress.OffPavedAt.Select(v => $"{v.x:F0} m lateral {v.y:F2} of {v.z * 0.5f:F2}")),
@@ -273,6 +276,25 @@ namespace NightSignal.Tests
                     : (long)Math.Ceiling(TimeFactor(t.Tier) * best.TimeMs / 100.0) * 100;
                 if (t.HasSection) report.AppendLine($"section {t.SectionStartGate} → {t.SectionEndGate}: {(best.SectionMs > 0 ? $"{best.SectionMs / 1000.0:F3} s" : "NOT DRIVEN")}");
                 if (t.HasSection && best.SectionMs <= 0) problems.Add($"{t.Id}: the reference never drove its section");
+                if (t.Rules.BrakeEnvelope)
+                    foreach (TrialBrakeEnvelope env in t.Targets.Brakes)
+                    {
+                        // The trail-brake envelope from the reference's own trace: braking begun by its brake-on point + 15 m, the
+                        // brake held until its release point − 15 m, the exit 0.85–1.15 × its exit speed (as CH08's windows).
+                        if (!best.Brakes.TryGetValue(env.Gate, out GateSpeedFact b) || !b.Braked || b.BrakeOnMetres < 0f)
+                        {
+                            env.BrakeByMetres = 0f;
+                            problems.Add($"{t.Id}: the reference did not brake in {env.Gate}");
+                            report.AppendLine($"{env.Gate}: NOT BRAKED");
+                            continue;
+                        }
+                        env.BrakeByMetres = (float)Math.Ceiling(b.BrakeOnMetres + 15f);
+                        env.ReleaseAfterMetres = b.ReleaseMetres < 0f ? env.BrakeByMetres : (float)Math.Floor(Math.Max(b.BrakeOnMetres, b.ReleaseMetres - 15f));
+                        env.MinExitKmh = (float)Math.Floor(b.ExitKmh * 0.85);
+                        env.MaxExitKmh = (float)Math.Ceiling(b.ExitKmh * 1.15);
+                        report.AppendLine($"{env.Gate}: entry {b.EntryKmh:F1}, brake on at {b.BrakeOnMetres:F1} m, released at {(b.ReleaseMetres < 0f ? "the end" : b.ReleaseMetres.ToString("F1") + " m")}, " +
+                                          $"exit {b.ExitKmh:F1} km/h → on by {env.BrakeByMetres:F0}, held to {env.ReleaseAfterMetres:F0}, exit {env.MinExitKmh:F0}–{env.MaxExitKmh:F0}");
+                    }
                 if (t.Rules.ChallengeExits)
                     foreach (TrialExitFloor floor in t.Targets.ExitFloors)
                     {
