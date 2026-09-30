@@ -40,7 +40,8 @@
         "allDefenceZones": false,
         "challengeExits": false,
         "brakeEnvelope": false,
-        "alternatingRecoveries": false
+        "alternatingRecoveries": false,
+        "cleanMerge": false
       },
       "targets": {
         "timeMs": 136346,
@@ -103,7 +104,8 @@
         "allDefenceZones": false,
         "challengeExits": false,
         "brakeEnvelope": false,
-        "alternatingRecoveries": false
+        "alternatingRecoveries": false,
+        "cleanMerge": false
       },
       "targets": {
         "timeMs": 273700,
@@ -166,7 +168,8 @@
         "allDefenceZones": true,
         "challengeExits": false,
         "brakeEnvelope": false,
-        "alternatingRecoveries": false
+        "alternatingRecoveries": false,
+        "cleanMerge": false
       },
       "targets": {
         "timeMs": 167220,
@@ -229,7 +232,8 @@
         "allDefenceZones": false,
         "challengeExits": false,
         "brakeEnvelope": false,
-        "alternatingRecoveries": false
+        "alternatingRecoveries": false,
+        "cleanMerge": false
       },
       "targets": {
         "timeMs": 150400,
@@ -292,7 +296,8 @@
         "allDefenceZones": false,
         "challengeExits": false,
         "brakeEnvelope": false,
-        "alternatingRecoveries": false
+        "alternatingRecoveries": false,
+        "cleanMerge": false
       },
       "targets": {
         "timeMs": 194300,
@@ -357,7 +362,8 @@
         "allDefenceZones": false,
         "challengeExits": false,
         "brakeEnvelope": false,
-        "alternatingRecoveries": false
+        "alternatingRecoveries": false,
+        "cleanMerge": false
       },
       "targets": {
         "timeMs": 169200,
@@ -420,7 +426,8 @@
         "allDefenceZones": false,
         "challengeExits": false,
         "brakeEnvelope": false,
-        "alternatingRecoveries": false
+        "alternatingRecoveries": false,
+        "cleanMerge": false
       },
       "targets": {
         "timeMs": 158400,
@@ -483,7 +490,8 @@
         "allDefenceZones": false,
         "challengeExits": false,
         "brakeEnvelope": false,
-        "alternatingRecoveries": false
+        "alternatingRecoveries": false,
+        "cleanMerge": false
       },
       "targets": {
         "timeMs": 160500,
@@ -548,7 +556,8 @@
         "allDefenceZones": false,
         "challengeExits": false,
         "brakeEnvelope": false,
-        "alternatingRecoveries": false
+        "alternatingRecoveries": false,
+        "cleanMerge": false
       },
       "targets": {
         "timeMs": 0,
@@ -613,7 +622,8 @@
         "allDefenceZones": false,
         "challengeExits": false,
         "brakeEnvelope": false,
-        "alternatingRecoveries": false
+        "alternatingRecoveries": false,
+        "cleanMerge": false
       },
       "targets": {
         "timeMs": 274100,
@@ -678,7 +688,8 @@
         "allDefenceZones": false,
         "challengeExits": false,
         "brakeEnvelope": false,
-        "alternatingRecoveries": false
+        "alternatingRecoveries": false,
+        "cleanMerge": false
       },
       "targets": {
         "timeMs": 0,
@@ -760,7 +771,8 @@
         "allDefenceZones": false,
         "challengeExits": false,
         "brakeEnvelope": false,
-        "alternatingRecoveries": false
+        "alternatingRecoveries": false,
+        "cleanMerge": false
       },
       "targets": {
         "timeMs": 0,
@@ -854,7 +866,8 @@
         "allDefenceZones": false,
         "challengeExits": false,
         "brakeEnvelope": false,
-        "alternatingRecoveries": false
+        "alternatingRecoveries": false,
+        "cleanMerge": false
       },
       "targets": {
         "timeMs": 0,
@@ -924,7 +937,8 @@
         "allDefenceZones": false,
         "challengeExits": false,
         "brakeEnvelope": false,
-        "alternatingRecoveries": false
+        "alternatingRecoveries": false,
+        "cleanMerge": false
       },
       "targets": {
         "timeMs": 0,
@@ -994,7 +1008,8 @@
         "allDefenceZones": false,
         "challengeExits": false,
         "brakeEnvelope": false,
-        "alternatingRecoveries": false
+        "alternatingRecoveries": false,
+        "cleanMerge": false
       },
       "targets": {
         "timeMs": 0,
@@ -1073,7 +1088,8 @@
         "allDefenceZones": false,
         "challengeExits": false,
         "brakeEnvelope": false,
-        "alternatingRecoveries": false
+        "alternatingRecoveries": false,
+        "cleanMerge": false
       },
       "targets": {
         "timeMs": 0,
@@ -1152,7 +1168,8 @@
         "allDefenceZones": false,
         "challengeExits": false,
         "brakeEnvelope": false,
-        "alternatingRecoveries": false
+        "alternatingRecoveries": false,
+        "cleanMerge": false
       },
       "targets": {
         "timeMs": 0,
@@ -1231,7 +1248,8 @@
         "allDefenceZones": false,
         "challengeExits": false,
         "brakeEnvelope": false,
-        "alternatingRecoveries": false
+        "alternatingRecoveries": false,
+        "cleanMerge": false
       },
       "targets": {
         "timeMs": 0,
@@ -1310,7 +1328,8 @@
         "allDefenceZones": false,
         "challengeExits": false,
         "brakeEnvelope": false,
-        "alternatingRecoveries": false
+        "alternatingRecoveries": false,
+        "cleanMerge": false
       },
       "targets": {
         "timeMs": 0,
@@ -1375,7 +1394,8 @@
         "allDefenceZones": false,
         "challengeExits": false,
         "brakeEnvelope": false,
-        "alternatingRecoveries": false
+        "alternatingRecoveries": false,
+        "cleanMerge": false
       },
       "targets": {
         "timeMs": 14600,
@@ -1438,7 +1458,8 @@
         "allDefenceZones": false,
         "challengeExits": false,
         "brakeEnvelope": false,
-        "alternatingRecoveries": false
+        "alternatingRecoveries": false,
+        "cleanMerge": false
       },
       "targets": {
         "timeMs": 21400,
@@ -1501,7 +1522,8 @@
         "allDefenceZones": false,
         "challengeExits": false,
         "brakeEnvelope": false,
-        "alternatingRecoveries": false
+        "alternatingRecoveries": false,
+        "cleanMerge": false
       },
       "targets": {
         "timeMs": 15800,
@@ -1564,7 +1586,8 @@
         "allDefenceZones": false,
         "challengeExits": false,
         "brakeEnvelope": false,
-        "alternatingRecoveries": false
+        "alternatingRecoveries": false,
+        "cleanMerge": false
       },
       "targets": {
         "timeMs": 16900,
@@ -1627,7 +1650,8 @@
         "allDefenceZones": false,
         "challengeExits": false,
         "brakeEnvelope": false,
-        "alternatingRecoveries": false
+        "alternatingRecoveries": false,
+        "cleanMerge": false
       },
       "targets": {
         "timeMs": 20000,
@@ -1690,7 +1714,8 @@
         "allDefenceZones": false,
         "challengeExits": true,
         "brakeEnvelope": false,
-        "alternatingRecoveries": false
+        "alternatingRecoveries": false,
+        "cleanMerge": false
       },
       "targets": {
         "timeMs": 0,
@@ -1764,7 +1789,8 @@
         "allDefenceZones": false,
         "challengeExits": true,
         "brakeEnvelope": false,
-        "alternatingRecoveries": false
+        "alternatingRecoveries": false,
+        "cleanMerge": false
       },
       "targets": {
         "timeMs": 0,
@@ -1836,7 +1862,8 @@
         "allDefenceZones": false,
         "challengeExits": false,
         "brakeEnvelope": true,
-        "alternatingRecoveries": false
+        "alternatingRecoveries": false,
+        "cleanMerge": false
       },
       "targets": {
         "timeMs": 0,
@@ -1907,7 +1934,8 @@
         "allDefenceZones": false,
         "challengeExits": false,
         "brakeEnvelope": false,
-        "alternatingRecoveries": true
+        "alternatingRecoveries": true,
+        "cleanMerge": false
       },
       "targets": {
         "timeMs": 0,
@@ -1970,7 +1998,8 @@
         "allDefenceZones": false,
         "challengeExits": false,
         "brakeEnvelope": false,
-        "alternatingRecoveries": false
+        "alternatingRecoveries": false,
+        "cleanMerge": false
       },
       "targets": {
         "timeMs": 240846,
@@ -1987,6 +2016,70 @@
       "ghost": false,
       "requiredStoryRecords": 6,
       "raceRivalReference": true
+    },
+    {
+      "id": "TR-CH37",
+      "challenge": "CH37",
+      "title": "Keep the Door Open",
+      "course": "T00",
+      "tier": "silver",
+      "kind": "race",
+      "legs": [],
+      "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
+      "sectionStartGate": "",
+      "sectionEndGate": "",
+      "field": [
+        {
+          "car": "V01",
+          "rival": "",
+          "role": "merge",
+          "pace": 1.0
+        }
+      ],
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V01",
+        "parts": {},
+        "piCap": 0
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": false,
+        "allDefenceZones": false,
+        "challengeExits": false,
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false,
+        "cleanMerge": true
+      },
+      "targets": {
+        "timeMs": 0,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0,
+        "referencePaceScale": 0.0,
+        "sectorTimeMs": 0,
+        "exitFloors": [],
+        "brakes": []
+      },
+      "group": "",
+      "brief": "The Driving School's merge lesson: an instructor's pace car in the same starter car keeps the right-hand merge lane from the start line. Take the left-hand lane and drive the whole marked merge beside it — each car inside its own lane, no contact.",
+      "ghost": false,
+      "requiredStoryRecords": 0,
+      "raceRivalReference": false
     }
   ]
 }

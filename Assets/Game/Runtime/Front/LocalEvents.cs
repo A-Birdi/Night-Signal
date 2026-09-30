@@ -276,6 +276,7 @@ namespace NightSignal.Front
                     DefenceZones = me.Entrant.GateRun?.DefenceCount(trial.Challenge) ?? 0,
                     SectionMs = me.Entrant.SectionMicros > 0 ? me.Entrant.SectionMicros / 1000 : 0,
                     StoryRecords = trial.RequiredStoryRecords > 0 ? DiaryScreen.Build(s.Profile, NightSignal.Content.ContentLibrary.Load()).Count(e => e.Kind == "record") : 0,
+                    MergeKept = me.Entrant.Racecraft != null && me.Entrant.Racecraft.Merges.Any(m => m.Challenge == trial.Challenge && m.Kept),
                     RecoveriesAlternating = me.Entrant.ZoneChains != null && me.Entrant.ZoneChains.AlternatingRecoveries(trial.Challenge),
                     Spun = me.Entrant.ZoneChains != null && me.Entrant.ZoneChains.Spun,
                     Recoveries = me.Entrant.ZoneChains?.Recoveries.Count ?? 0,

@@ -29,8 +29,8 @@ public sealed class ChallengeTrialsTests
     public void TheAuthoredTrials_LoadIntoTheHashedCatalogue_OnePerChallengeOrOneGroup()
     {
         Assert.Contains(ContentCatalogue.AuthoredFiles, f => f == "challenge-trials.json");
-        Assert.Equal(29, Trials.Trials.Count);
-        Assert.Equal(new[] { "CH07", "CH11", "CH13", "CH14", "CH15", "CH23", "CH25", "CH28", "CH30", "CH36", "CH39", "CH40", "CH41", "CH42", "CH43", "CH51", "CH52", "CH53", "CH54", "CH55", "CH58", "CH69", "CH72", "CH74" }, Trials.Trials.Select(t => t.Challenge).Distinct().OrderBy(c => c));
+        Assert.Equal(30, Trials.Trials.Count);
+        Assert.Equal(new[] { "CH07", "CH11", "CH13", "CH14", "CH15", "CH23", "CH25", "CH28", "CH30", "CH36", "CH37", "CH39", "CH40", "CH41", "CH42", "CH43", "CH51", "CH52", "CH53", "CH54", "CH55", "CH58", "CH69", "CH72", "CH74" }, Trials.Trials.Select(t => t.Challenge).Distinct().OrderBy(c => c));
         ChallengeTrialDef ch36 = Trials.Find("TR-CH36")!;
         Assert.True(ch36.IsRace && ch36.Rules.ZonePassRole == "pacing" && ch36.Field.Single().Role == "pacing");
         // The racecraft trials: fixed fields in the loaner's class, the player starting last.
@@ -74,6 +74,8 @@ public sealed class ChallengeTrialsTests
         Assert.True(ch74.RequiredStoryRecords == 6 && ch74.RaceRivalReference && ch74.Course == "C24");
         Assert.Equal(h.GetProperty("resultMicros").GetInt64() / 1000, ch74.Targets.TimeMs);
         Assert.Equal(h.GetProperty("carModelId").GetString(), ch74.Loaner.Car);
+        ChallengeTrialDef ch37 = Trials.Find("TR-CH37")!;
+        Assert.True(ch37.IsRace && ch37.Course == "T00" && ch37.Rules.CleanMerge && ch37.Field.Single().Role == "merge" && !ch37.PlayerStartsLast);
         ChallengeTrialDef ch23 = Trials.Find("TR-CH23")!;
         Assert.True(ch23.IsDrill && ch23.Course == "T00" && ch23.Rules.AlternatingRecoveries && Cat.Car(ch23.Loaner.Car).Drive == "RWD");
         ChallengeTrialDef ch07 = Trials.Find("TR-CH07")!;
@@ -169,6 +171,10 @@ public sealed class ChallengeTrialsTests
         Assert.Contains("MISSED: first across the line (P2)", second.Summary);
         Assert.False(TrialJudge.Judge(race, Run() with { Placement = 1, CarContacts = 1 }).Passed);
         Assert.False(TrialJudge.Judge(race, Run(resets: 1) with { Placement = 1 }).Passed);
+
+        race.Rules = new TrialRules { CleanMerge = true };
+        Assert.True(TrialJudge.Judge(race, Run() with { MergeKept = true }).Passed);
+        Assert.False(TrialJudge.Judge(race, Run()).Passed, "the merge not kept");
 
         race.Rules = new TrialRules { ZonePassRole = "pacing" };
         Assert.True(TrialJudge.Judge(race, Run() with { ZonePassRoles = new[] { "field", "pacing" } }).Passed);

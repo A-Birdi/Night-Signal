@@ -196,7 +196,8 @@ namespace NightSignal.Race
                     : AutopilotDrivesChallengeZones && Sim.ZoneChains != null ? Sim.ZoneChains.AutopilotSpans() : Sim.DriftZonesForAi,
                 ApexGates = Sim.Contracts?.ApexGates ?? (AutopilotAimsChallengeGates ? Sim.Gates?.TouchGates : null),
                 LineZones = AutopilotDrivesChallengeZones ? Sim.ZoneChains?.AutopilotLines(ZoneSlideClipInset)
-                    : AutopilotHoldsMarkedLanes ? course.Track.Gates.Where(g => g.Kind == "lane" && !string.IsNullOrEmpty(g.Challenge)).ToList() : null,
+                    : AutopilotHoldsMarkedLanes ? course.Track.Gates.Where(g => g.Kind == "lane" && !string.IsNullOrEmpty(g.Challenge)
+                        && !(g.LineOffset > 0f && course.Track.Gates.Any(o => o != g && o.Kind == "lane" && o.Challenge == g.Challenge))).ToList() : null,
                 ResetWhenStuck = true, SurfaceGrip = CourseRuntime.SurfaceGrip(Rules.Surface),
             };
             pilot.ApexHoldMetres = AutopilotApexHoldMetres;

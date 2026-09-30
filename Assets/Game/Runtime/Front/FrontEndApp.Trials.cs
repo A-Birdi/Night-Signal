@@ -153,7 +153,7 @@ namespace NightSignal.Front
                     bool zonePass = t.Rules.CleanZonePass || !string.IsNullOrEmpty(t.Rules.ZonePassRole);
                     OfflineRaceSession.AutopilotFollowSeconds = zonePass ? 0.5f : 0f;
                     OfflineRaceSession.AutopilotAttacksMarkedZones = zonePass;
-                    OfflineRaceSession.AutopilotHoldsMarkedLanes = !string.IsNullOrEmpty(t.Rules.ZonePassRole);
+                    OfflineRaceSession.AutopilotHoldsMarkedLanes = !string.IsNullOrEmpty(t.Rules.ZonePassRole) || t.Rules.CleanMerge;
                     LocalEvents.LastTrialVerdict = null;
                     OfflineRaceSession previousRace = activeRace;
                     if (!Click("StartTrial")) break;

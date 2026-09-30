@@ -282,6 +282,9 @@ namespace NightSignal.Race
             if (fc.Pace > 0f) profile.PaceScale = fc.Pace;
             RaceEntrant e = Add(lib, world, slot, id, name, false, fc.Car, "opposing", string.IsNullOrEmpty(fc.Role) ? "field" : fc.Role, null, grid: grid);
             e.Ai = new RouteFollower(Track, e.Params, profile) { DriftZones = DriftZonesForAi, SurfaceGrip = CourseRuntime.SurfaceGrip(Rules.Surface), Seed = slot };
+            // A merge pace car holds the right-hand lane of each marked pair, on its line (CH37: the player takes the other).
+            if (fc.Role == "merge")
+                e.Ai.LineZones = Track.Gates.Where(g => g.Kind == "lane" && !string.IsNullOrEmpty(g.Challenge) && g.LineOffset > 0f).ToList();
             // A pressure car closes up and follows, never passing (CH39).
             if (fc.Role == "pressure")
             {

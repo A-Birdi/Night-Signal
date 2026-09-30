@@ -83,6 +83,8 @@ namespace NightSignal.Core.Rules
         public bool BrakeEnvelope;
         /// <summary>CH23: every transition zone of the challenge recovered in turn, alternating directions, no spin.</summary>
         public bool AlternatingRecoveries;
+        /// <summary>CH37: the challenge's merge span driven side by side with the "merge" pace car, each in its own lane, no contact.</summary>
+        public bool CleanMerge;
     }
 
     /// <summary>
@@ -264,6 +266,8 @@ namespace NightSignal.Core.Rules
         public GateSpeedFact[] BrakeFacts;
         /// <summary>CH23: the challenge's zones recovered in turn with alternating directions and no spin; the recoveries made, and a spin.</summary>
         public bool RecoveriesAlternating, Spun;
+        /// <summary>CH37: a merge span kept (see <see cref="TrialRules.CleanMerge"/>).</summary>
+        public bool MergeKept;
         public int Recoveries;
     }
 
@@ -307,6 +311,7 @@ namespace NightSignal.Core.Rules
                 Check(f.OffPavedSeconds <= 0f, "all tyres on the paved road" + (f.OffPavedSeconds > 0f ? $" (off it {f.OffPavedSeconds:F1} s)" : ""));
             if (t.Rules.BankEveryZone) Check(f.ZonesTotal > 0 && f.ZonesBanked >= f.ZonesTotal, $"a chain banked in every judged zone ({f.ZonesBanked}/{f.ZonesTotal})");
             if (t.Rules.AllDefenceZones) Check(f.DefenceZones > 0 && f.DefenceZonesKept, $"every marked defence gate inside the legal corridor ({f.DefenceZones} of them)");
+            if (t.Rules.CleanMerge) Check(f.MergeKept, "the merge beside the pace car, both in their lanes, no contact");
             if (t.Rules.AlternatingRecoveries)
                 Check(f.RecoveriesAlternating, $"alternating recoveries, one in each marked zone in turn, no spin or reset between them ({f.Recoveries} recoveries in the run)");
             if (t.Rules.BrakeEnvelope)
@@ -430,10 +435,12 @@ namespace NightSignal.Core.Rules
                 else if (t.Legs != null && t.Legs.Count > 0) problems.Add($"{t.Id}: only challenge cups have legs");
                 if (t.IsRace && (t.Field == null || t.Field.Count == 0)) problems.Add($"{t.Id}: a racecraft trial needs its fixed field");
                 if (!t.IsRace && t.Field != null && t.Field.Count > 0) problems.Add($"{t.Id}: only racecraft trials have a field");
-                if (t.IsRace && t.Rules != null && !(t.Rules.Win || t.Rules.CleanZonePass || t.Rules.PressureSector || !string.IsNullOrEmpty(t.Rules.ZonePassRole)))
+                if (t.IsRace && t.Rules != null && !(t.Rules.Win || t.Rules.CleanZonePass || t.Rules.PressureSector || t.Rules.CleanMerge || !string.IsNullOrEmpty(t.Rules.ZonePassRole)))
                     problems.Add($"{t.Id}: a racecraft trial judges nothing of the race");
                 if (!string.IsNullOrEmpty(t.Rules?.ZonePassRole) && (t.Field == null || !t.Field.Any(c => c.Role == t.Rules.ZonePassRole)))
                     problems.Add($"{t.Id}: no {t.Rules.ZonePassRole} car in the field to pass");
+                if (t.Rules != null && t.Rules.CleanMerge && (t.Field == null || !t.Field.Any(c => c.Role == "merge")))
+                    problems.Add($"{t.Id}: no merge car in the field");
                 if (t.Rules != null && t.Rules.PressureSector && (t.Field == null || !t.Field.Any(c => c.Role == "pressure")))
                     problems.Add($"{t.Id}: no pressure car in the field");
                 if (t.Targets != null && t.Targets.SectorTimeMs < 0) problems.Add($"{t.Id}: negative target");

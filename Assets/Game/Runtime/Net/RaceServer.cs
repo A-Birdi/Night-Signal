@@ -608,6 +608,7 @@ namespace NightSignal.Net
                         DefenceZonesKept = c.Entrant.GateRun != null && c.Entrant.GateRun.DefenceKept(trialDef.Challenge),
                         DefenceZones = c.Entrant.GateRun?.DefenceCount(trialDef.Challenge) ?? 0,
                         SectionMs = c.Entrant.SectionMicros > 0 ? c.Entrant.SectionMicros / 1000 : 0,
+                        MergeKept = c.Entrant.Racecraft != null && c.Entrant.Racecraft.Merges.Any(m => m.Challenge == trialDef.Challenge && m.Kept),
                         RecoveriesAlternating = c.Entrant.ZoneChains != null && c.Entrant.ZoneChains.AlternatingRecoveries(trialDef.Challenge),
                         Spun = c.Entrant.ZoneChains != null && c.Entrant.ZoneChains.Spun,
                         Recoveries = c.Entrant.ZoneChains?.Recoveries.Count ?? 0,

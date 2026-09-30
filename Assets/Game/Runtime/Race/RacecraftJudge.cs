@@ -111,6 +111,15 @@ namespace NightSignal.Race
         /// "pressure" role stayed within 1 s behind for all of it, and whether this car touched a barrier in it.
         /// </summary>
         public readonly List<(string Challenge, double Seconds, bool PressureHeld, bool WallTouched)> DefenceRuns = new List<(string, double, bool, bool)>();
+        /// <summary>
+        /// Every merge span driven (CH37: two marked lanes of one challenge side by side): the challenge, and whether this car
+        /// stayed in its lane with the "merge" pace car in the other, both inside the span together, and no car touched.
+        /// </summary>
+        public readonly List<(string Challenge, bool Kept)> Merges = new List<(string, bool)>();
+        internal int MergePair = -1;
+        internal RouteGateDef MergeMine, MergeTheirs;
+        internal bool MergeOk;
+        internal double MergeEntry;
         internal int DefenceZone = -1;
         internal double DefenceEntry;
         internal bool DefenceHeld, DefenceTouched;
@@ -141,6 +150,10 @@ namespace NightSignal.Race
         readonly List<RaceEntrant> entrants;
         readonly TrackData track;
         readonly List<RouteGateDef> passZones = new List<RouteGateDef>(), retainGates = new List<RouteGateDef>(), defenceZones = new List<RouteGateDef>();
+        /// <summary>Two marked lanes of one challenge over the same span (CH37's T00-MERGE-L / -R).</summary>
+        readonly List<(RouteGateDef A, RouteGateDef B)> mergePairs = new List<(RouteGateDef, RouteGateDef)>();
+        /// <summary>How far apart along the road (m) the merge pace car may be and still be beside the car (CH37).</summary>
+        public const float MergeBesideMetres = 15f;
         /// <summary>The interval (s) within which a pressure car counts as following (CH39 "follows within 1 second").</summary>
         public const float PressureSeconds = 1f;
 
@@ -152,6 +165,12 @@ namespace NightSignal.Race
             passZones.AddRange(track.Gates.Where(g => (g.Kind == "overtake-zone" || g.Kind == "lane") && !string.IsNullOrEmpty(g.Challenge) && g.EndMetres > g.StartMetres));
             retainGates.AddRange(track.Gates.Where(g => g.Kind == "timing" && !string.IsNullOrEmpty(g.Challenge) && passZones.Any(z => z.Challenge == g.Challenge)));
             defenceZones.AddRange(track.Gates.Where(g => g.Kind == "defence" && !string.IsNullOrEmpty(g.Challenge) && g.EndMetres > g.StartMetres));
+            foreach (IGrouping<string, RouteGateDef> lanes in passZones.Where(z => z.Kind == "lane").GroupBy(z => z.Challenge))
+            {
+                List<RouteGateDef> l = lanes.OrderBy(z => z.LineOffset).ToList();
+                if (l.Count == 2 && Mathf.Approximately(l[0].StartMetres, l[1].StartMetres) && Mathf.Approximately(l[0].EndMetres, l[1].EndMetres))
+                    mergePairs.Add((l[0], l[1]));
+            }
         }
 
         /// <summary>Only races with live opponents are judged (a drift or non-contact event has no racecraft).</summary>
@@ -231,6 +250,7 @@ namespace NightSignal.Race
                 Confirm(a, ra, now);
                 if (ra.ZonePending.Count > 0) ConfirmZonePasses(a, ra, now, da);
                 if (defenceZones.Count > 0) Defence(a, ra, now, da);
+                if (mergePairs.Count > 0) Merge(a, ra, now, da);
                 Follow(i, a, ra, now);
             }
             foreach (RaceEntrant e in entrants) Run(e).PreviousDistance = e.Progress.RaceDistance;
@@ -343,6 +363,66 @@ namespace NightSignal.Race
                     ra.DefenceHeld = true;
                     ra.DefenceTouched = a.Sim != null && a.Sim.Telemetry.WallContact;
                 }
+        }
+
+        static bool InLane(RaceEntrant e, RouteGateDef lane) => Mathf.Abs(e.Progress.Location.Lateral - lane.LineOffset) <= Mathf.Max(0.5f, lane.LineTolerance);
+
+        /// <summary>
+        /// A merge span (CH37): entered over its start in the lane nearer the car, then every step until its end the car in that
+        /// lane, a live "merge" pace car inside the span in the other lane, and no touch; a recovery or a jump voids the pass.
+        /// </summary>
+        void Merge(RaceEntrant a, RacecraftRun ra, double now, float da)
+        {
+            if (float.IsNaN(ra.PreviousDistance) || a.Roster.Role == "merge") return;
+            float before = RouteDistance(ra.PreviousDistance), here = RouteDistance(da);
+            bool stepped = here >= before && here - before < 30f;
+            if (ra.MergePair < 0)
+            {
+                if (!stepped) return;
+                for (int k = 0; k < mergePairs.Count; k++)
+                    if (before < mergePairs[k].A.StartMetres && here >= mergePairs[k].A.StartMetres)
+                    {
+                        float lat = a.Progress.Location.Lateral;
+                        bool nearA = Mathf.Abs(lat - mergePairs[k].A.LineOffset) <= Mathf.Abs(lat - mergePairs[k].B.LineOffset);
+                        ra.MergePair = k;
+                        ra.MergeMine = nearA ? mergePairs[k].A : mergePairs[k].B;
+                        ra.MergeTheirs = nearA ? mergePairs[k].B : mergePairs[k].A;
+                        ra.MergeOk = true;
+                        ra.MergeEntry = now;
+                    }
+                return;
+            }
+            RouteGateDef mine = ra.MergeMine, theirs = ra.MergeTheirs;
+            if (!stepped || ra.LastReset >= ra.MergeEntry || !Live(a))
+            {
+                ra.Log($"{now:F1} s: {mine.Challenge} merge void at {here:F0} m — a recovery or a jump");
+                ra.Merges.Add((mine.Challenge, false));
+                ra.MergePair = -1;
+                return;
+            }
+            if (ra.MergeOk)
+            {
+                RaceEntrant pace = entrants.FirstOrDefault(b => b.Roster.Role == "merge" && Live(b));
+                float paceRoute = pace == null ? -1f : RouteDistance(pace.Progress.RaceDistance);
+                // Beside: the pace car within MergeBesideMetres along the road; its lane is judged while it is inside the span.
+                bool inSpan = paceRoute >= theirs.StartMetres && paceRoute <= theirs.EndMetres;
+                string why = !InLane(a, mine) ? $"out of {mine.Id} ({a.Progress.Location.Lateral:F1} m)"
+                    : pace == null ? "no pace car racing"
+                    : Mathf.Abs(paceRoute - here) > MergeBesideMetres ? $"the pace car not beside it ({paceRoute - here:F0} m apart)"
+                    : inSpan && !InLane(pace, theirs) ? $"the pace car out of {theirs.Id} ({pace.Progress.Location.Lateral:F1} m)"
+                    : ra.LastTouch >= ra.MergeEntry ? "a car touched" : null;
+                if (why != null)
+                {
+                    ra.MergeOk = false;
+                    ra.Log($"{now:F1} s: {mine.Challenge} merge broken at {here:F0} m — {why}");
+                }
+            }
+            if (before < mine.EndMetres && here >= mine.EndMetres)
+            {
+                ra.Merges.Add((mine.Challenge, ra.MergeOk));
+                ra.Log($"{now:F1} s: {mine.Challenge} merge {(ra.MergeOk ? "kept, both cars in their lanes, no touch" : "not kept")}");
+                ra.MergePair = -1;
+            }
         }
 
         void Follow(int i, RaceEntrant a, RacecraftRun ra, double now)
