@@ -3548,7 +3548,7 @@
     {
       "id": "TR-CH60-DIFF",
       "challenge": "CH60",
-      "title": "The Complete Notebook — Differential lock",
+      "title": "The Complete Notebook — Diff lock",
       "course": "T00",
       "tier": "gold",
       "kind": "time",
@@ -3634,7 +3634,7 @@
     {
       "id": "TR-CH60-AWD",
       "challenge": "CH60",
-      "title": "The Complete Notebook — All-wheel-drive split",
+      "title": "The Complete Notebook — AWD split",
       "course": "T00",
       "tier": "gold",
       "kind": "time",
@@ -3720,7 +3720,7 @@
     {
       "id": "TR-CH60-SPRING",
       "challenge": "CH60",
-      "title": "The Complete Notebook — Spring rates",
+      "title": "The Complete Notebook — Springs",
       "course": "T00",
       "tier": "gold",
       "kind": "time",
@@ -3894,7 +3894,7 @@
     {
       "id": "TR-CH60-ARB",
       "challenge": "CH60",
-      "title": "The Complete Notebook — Anti-roll bars",
+      "title": "The Complete Notebook — Roll bars",
       "course": "T00",
       "tier": "gold",
       "kind": "time",

@@ -10,7 +10,7 @@
     Automation, not a human check. Each run has its own preferences and Local profile folders under Builds/BoundsRuns
     (git-ignored), never the player's own settings. Runs one window at a time. Raw logs stay under Builds/.
 #>
-param([int]$TimeoutSeconds = 900, [string[]]$Only, [string[]]$Tours)
+param([int]$TimeoutSeconds = 900, [string[]]$Only, [string[]]$Tours, [string]$TrialOnly = "")
 
 $ErrorActionPreference = 'Stop'
 $repo = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
@@ -41,7 +41,8 @@ foreach ($r in $runs) { foreach ($tour in $r.Tours) {
     $log = Join-Path $root 'player.log'
     $p = Start-Process -FilePath $exe -PassThru -WorkingDirectory $repo -ArgumentList @(
         "-ns$tour", '-nsBoundsAudit', '-nsPrefsFolder', "`"$prefs`"", '-nsLocalProfiles', "`"$profiles`"",
-        '-screen-fullscreen', '0', '-screen-width', "$($r.Width)", '-screen-height', "$($r.Height)", '-logFile', "`"$log`"")
+        '-screen-fullscreen', '0', '-screen-width', "$($r.Width)", '-screen-height', "$($r.Height)", '-logFile', "`"$log`"") +
+        $(if ($TrialOnly -and $tour -eq 'TrialTour') { @('-nsTrialOnly', $TrialOnly) } else { @() }) # a targeted TrialTour: "TR-A,TR-B"
     if (-not $p.WaitForExit($TimeoutSeconds * 1000)) { Stop-Process -Id $p.Id -Force; Write-Output "$($r.Name) $($tour): TIMEOUT (stopped)" }
     else { Write-Output "$($r.Name) $($tour): exit $($p.ExitCode)" }
     Select-String -Path $log -Pattern 'NightSignal.Bounds\]|Tour[A-Za-z]*\] (PASS|FAILED)' | ForEach-Object { $_.Line }

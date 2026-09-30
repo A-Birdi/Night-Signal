@@ -1,5 +1,5 @@
-# -nsTrialTour (built player of ac6429d, all 29 trials, buttons only, isolated profile; validator autopilot; cups through the cup page; run with -nsBoundsAudit at 1280x720, Text 150 % / HUD 130 %; automation). Every verdict line equals V-127's full tour and the targeted runs since (V-128–V-133).
-[NightSignal.TrialTour] page 2 of 3: its first row opens TR-CH30
+# -nsTrialTour, all 47 trials (built player of fa8fdfb — the code of 118d778; buttons only, isolated profile; validator autopilot; cups through the cup page; tunable trials tuned on Tune the Loaner; lane lessons scripted; run with -nsBoundsAudit at 1280x720, Text 150 % / HUD 130 %; automation). Every verdict line equals one of the earlier runs (V-127 and V-128 … V-142); the only earlier lines not reproduced are CH43/CH51/CH57's dry-surface results superseded in V-142. 40 of 47 passed; bounds: 21 overflows, all CH60 list rows (fixed and re-audited in V-143).
+[NightSignal.TrialTour] page 2 of 5: its first row opens TR-CH30
 [NightSignal.Trial] TR-CH13: V14 stock, PI 680, build 53f0713d354f, on C21 (course)
 [NightSignal.Ghost] C21 trial-TR-CH13: 1365 samples, result 136.347 s, resets 0, valid True; raced ghost none — your first ghost here; against the ghost: −0.00 s at the first checkpoint, −0.00 s at the finish
 [NightSignal.Trial] TR-CH13: Trial not passed — ok: the supplied loaner · ok: a valid finish · MISSED: faster than 2:16.346 (2:16.346) · MISSED: all tyres on the paved road (off it 0.5 s)
@@ -11,9 +11,9 @@
 [NightSignal.TrialTour] TR-CH15 (CH15 gold): PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 4:33.700 (4:28.259) · ok: no reset (0) · ok: every marked gate touched (3 of them)
 [NightSignal.TrialTour] TR-CH15: profile keeps it: True; challenge earned: True
 [NightSignal.Trial] TR-CH43: V16 stock, PI 790, build 76a2a513eb49, on C20 (course)
-[NightSignal.Ghost] C20 trial-TR-CH43: 1753 samples, result 175.140 s, resets 0, valid True; raced ghost none — your first ghost here
-[NightSignal.Trial] TR-CH43: Trial not passed — ok: the supplied loaner · ok: a valid finish · MISSED: faster than 2:47.220 (2:55.140) · ok: every marked defence gate inside the legal corridor (2 of them)
-[NightSignal.TrialTour] TR-CH43 (CH43 gold): not passed — ok: the supplied loaner · ok: a valid finish · MISSED: faster than 2:47.220 (2:55.140) · ok: every marked defence gate inside the legal corridor (2 of them)
+[NightSignal.Ghost] C20 trial-TR-CH43: 1847 samples, result 184.522 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH43: Trial not passed — ok: the supplied loaner · ok: a valid finish · MISSED: faster than 2:47.220 (3:04.521) · ok: every marked defence gate inside the legal corridor (2 of them)
+[NightSignal.TrialTour] TR-CH43 (CH43 gold): not passed — ok: the supplied loaner · ok: a valid finish · MISSED: faster than 2:47.220 (3:04.521) · ok: every marked defence gate inside the legal corridor (2 of them)
 [NightSignal.TrialTour] TR-CH43: profile keeps it: False; challenge earned: False
 [NightSignal.Trial] TR-CH55: V01 stock, PI 220, build c12c2bea1a67, on C04 (course)
 [NightSignal.Ghost] C04 trial-TR-CH55: 1368 samples, result 136.697 s, resets 0, valid True; raced ghost none — your first ghost here
@@ -26,9 +26,9 @@
 [NightSignal.TrialTour] TR-CH11 (CH11 gold): PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 3:14.300 (3:10.459) · ok: no reset (0) · ok: at most 1 wall impact (1)
 [NightSignal.TrialTour] TR-CH11: profile keeps it: True; challenge earned: True
 [NightSignal.Trial] TR-CH51: V07 TYR-T3-RAINSPORT, PI 485, build a6b840083c8f, on C08 (course)
-[NightSignal.Ghost] C08 trial-TR-CH51: 1539 samples, result 153.754 s, resets 0, valid True; raced ghost none — your first ghost here
-[NightSignal.Trial] TR-CH51: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 2:49.200 (2:33.753)
-[NightSignal.TrialTour] TR-CH51 (CH51 silver): PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 2:49.200 (2:33.753)
+[NightSignal.Ghost] C08 trial-TR-CH51: 1698 samples, result 169.615 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH51: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 3:06.600 (2:49.615)
+[NightSignal.TrialTour] TR-CH51 (CH51 silver): PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 3:06.600 (2:49.615)
 [NightSignal.TrialTour] TR-CH51: profile keeps it: True; challenge earned: True
 [NightSignal.Trial] TR-CH54-FWD: V06 stock, PI 405, build 249f587db6f0, on C09 (course)
 [NightSignal.Ghost] C09 trial-TR-CH54-FWD: 1441 samples, result 143.999 s, resets 0, valid True; raced ghost none — your first ghost here
@@ -241,6 +241,192 @@
 [NightSignal.Trial] TR-CH74: TRIAL PASSED — ok: the supplied loaner · ok: the 6 story records collected through Normal progression (6 of 6) · ok: a valid finish · ok: faster than 4:00.846 (3:56.838)
 [NightSignal.TrialTour] TR-CH74 (CH74 gold): PASSED — ok: the supplied loaner · ok: the 6 story records collected through Normal progression (6 of 6) · ok: a valid finish · ok: faster than 4:00.846 (3:56.838)
 [NightSignal.TrialTour] TR-CH74: profile keeps it: True; challenge earned: True
-[NightSignal.TrialTour] 22 of 29 trials passed by the autopilot; challenges earned: CH15, CH55, CH11, CH51, CH54, CH25, CH30, CH39, CH14, CH42, CH69, CH72, CH52, CH58, CH53, CH07, CH74; wallet 651,546 cr
+[NightSignal.Trial] TR-CH37: V01 stock, PI 220, build c12c2bea1a67, on T00 (course)
+[NightSignal.Ghost] T00 trial-TR-CH37: 1294 samples, result 129.224 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH37: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: the merge beside the pace car, both in their lanes, no contact
+[NightSignal.TrialTour] TR-CH37 (CH37 silver): PASSED — ok: the supplied loaner · ok: a valid finish · ok: the merge beside the pace car, both in their lanes, no contact
+[NightSignal.TrialTour] TR-CH37:   9.7 s: CH37 merge kept, both cars in their lanes, no touch
+[NightSignal.TrialTour] TR-CH37:   65.7 s: CH37 merge broken at 77 m — the pace car not beside it (-19 m apart)
+[NightSignal.TrialTour] TR-CH37:   70.4 s: CH37 merge not kept
+[NightSignal.TrialTour] TR-CH37:   car contacts 2, walls 0, resets 0, marshal recoveries 0, placement P2
+[NightSignal.TrialTour] TR-CH37: profile keeps it: True; challenge earned: True
+[NightSignal.Trial] TR-CH49: V01 stock, PI 220, build c12c2bea1a67, on T00 (course)
+[NightSignal.Ghost] T00 trial-TR-CH49: 1378 samples, result 137.642 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH49: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: an upshift at each marked board, 25 m before to 10 m after it, on one lap (3 of 3: -4 m, -4 m, -4 m)
+[NightSignal.TrialTour] TR-CH49 (CH49 bronze): PASSED — ok: the supplied loaner · ok: a valid finish · ok: an upshift at each marked board, 25 m before to 10 m after it, on one lap (3 of 3: -4 m, -4 m, -4 m)
+[NightSignal.TrialTour] TR-CH49: profile keeps it: True; challenge earned: True
+[NightSignal.Trial] TR-CH46: V01 as supplied — parts ; tune ; PI 220
+[NightSignal.Ghost] T00 trial-TR-CH46: 1290 samples, result 128.858 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH46: Trial not passed — ok: the supplied loaner · ok: your setup legal (PI 220) · MISSED: your tune changes the final drive · ok: a valid finish · ok: T00-ACCEL-START to T00-ACCEL-END faster than 0:20.000 (0:12.700)
+[NightSignal.TrialTour] TR-CH46 (CH46 bronze): not passed — ok: the supplied loaner · ok: your setup legal (PI 220) · MISSED: your tune changes the final drive · ok: a valid finish · ok: T00-ACCEL-START to T00-ACCEL-END faster than 0:20.000 (0:12.700)
+[NightSignal.TrialTour] TR-CH46 tune: legal; parts gearbox=GBX-T1-FINAL; tune FinalDrive=1060; PI 219; final drive changed True; aero at an end False
+[NightSignal.Trial] TR-CH46 setup saved (parts gearbox=GBX-T1-FINAL; tune FinalDrive=1060)
+[NightSignal.Trial] TR-CH46: V01 with your setup — parts gearbox=GBX-T1-FINAL; tune FinalDrive=1060; PI 219
+[NightSignal.Ghost] T00 trial-TR-CH46: 1316 samples, result 131.489 s, resets 0, valid True; raced ghost 128.858 s — your ghost stays the 128.858 s run; against the ghost: −0.02 s at the first checkpoint, +2.63 s at the finish
+[NightSignal.Trial] TR-CH46: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal (PI 219) · ok: your tune changes the final drive · ok: a valid finish · ok: T00-ACCEL-START to T00-ACCEL-END faster than 0:20.000 (0:12.633)
+[NightSignal.TrialTour] TR-CH46 (CH46 bronze): PASSED — ok: the supplied loaner · ok: your setup legal (PI 219) · ok: your tune changes the final drive · ok: a valid finish · ok: T00-ACCEL-START to T00-ACCEL-END faster than 0:20.000 (0:12.633)
+[NightSignal.TrialTour] TR-CH46: profile keeps it: True; challenge earned: True
+[NightSignal.Trial] TR-CH56: V11 as supplied — parts ; tune ; PI 590
+[NightSignal.Ghost] C23 trial-TR-CH56: 2204 samples, result 220.232 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH56: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal and within PI 615 (PI 590) · ok: a valid finish · ok: faster than 3:44.700 (3:40.232)
+[NightSignal.TrialTour] TR-CH56 (CH56 gold): PASSED — ok: the supplied loaner · ok: your setup legal and within PI 615 (PI 590) · ok: a valid finish · ok: faster than 3:44.700 (3:40.232)
+[NightSignal.TrialTour] TR-CH56 tune: legal; parts engine=ENG-T1-INTAKE, gearbox=GBX-T1-FINAL; tune FinalDrive=1040; PI 613; final drive changed True; aero at an end False
+[NightSignal.Trial] TR-CH56 setup saved (parts engine=ENG-T1-INTAKE, gearbox=GBX-T1-FINAL; tune FinalDrive=1040)
+[NightSignal.Trial] TR-CH56: V11 with your setup — parts engine=ENG-T1-INTAKE, gearbox=GBX-T1-FINAL; tune FinalDrive=1040; PI 613
+[NightSignal.Ghost] C23 trial-TR-CH56: 2197 samples, result 219.517 s, resets 0, valid True; raced ghost 220.232 s — new ghost, 0.715 s faster; against the ghost: −0.03 s at the first checkpoint, −0.72 s at the finish
+[NightSignal.Trial] TR-CH56: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal and within PI 615 (PI 613) · ok: a valid finish · ok: faster than 3:44.700 (3:39.516)
+[NightSignal.TrialTour] TR-CH56 (CH56 gold): PASSED — ok: the supplied loaner · ok: your setup legal and within PI 615 (PI 613) · ok: a valid finish · ok: faster than 3:44.700 (3:39.516)
+[NightSignal.TrialTour] TR-CH56: profile keeps it: True; challenge earned: True
+[NightSignal.Trial] TR-CH57: V09 as supplied — parts aero=AER-T3-GTWING; tune ; PI 504
+[NightSignal.Ghost] C15 trial-TR-CH57: 1486 samples, result 148.457 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH57: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal and within PI 530 (PI 504) · ok: neither front nor rear aero at its maximum (the wing level below its top, the balance inside its range) · ok: a valid finish · ok: faster than 2:31.500 (2:28.456)
+[NightSignal.TrialTour] TR-CH57 (CH57 gold): PASSED — ok: the supplied loaner · ok: your setup legal and within PI 530 (PI 504) · ok: neither front nor rear aero at its maximum (the wing level below its top, the balance inside its range) · ok: a valid finish · ok: faster than 2:31.500 (2:28.456)
+[NightSignal.TrialTour] TR-CH57 tune: legal; parts aero=AER-T3-GTWING, tyres=TYR-T1-TOURING; tune AeroBalance=450, AeroLevel=900; PI 522; final drive changed False; aero at an end False
+[NightSignal.Trial] TR-CH57 setup saved (parts tyres=TYR-T1-TOURING; tune AeroBalance=450, AeroLevel=900)
+[NightSignal.Trial] TR-CH57: V09 with your setup — parts aero=AER-T3-GTWING, tyres=TYR-T1-TOURING; tune AeroBalance=450, AeroLevel=900; PI 522
+[NightSignal.Ghost] C15 trial-TR-CH57: 1470 samples, result 146.892 s, resets 0, valid True; raced ghost 148.457 s — new ghost, 1.564 s faster; against the ghost: −0.08 s at the first checkpoint, −1.56 s at the finish
+[NightSignal.Trial] TR-CH57: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal and within PI 530 (PI 522) · ok: neither front nor rear aero at its maximum (the wing level below its top, the balance inside its range) · ok: a valid finish · ok: faster than 2:31.500 (2:26.892)
+[NightSignal.TrialTour] TR-CH57 (CH57 gold): PASSED — ok: the supplied loaner · ok: your setup legal and within PI 530 (PI 522) · ok: neither front nor rear aero at its maximum (the wing level below its top, the balance inside its range) · ok: a valid finish · ok: faster than 2:31.500 (2:26.892)
+[NightSignal.TrialTour] TR-CH57: profile keeps it: True; challenge earned: True
+[NightSignal.Trial] TR-CH59: V10 as supplied — parts ; tune ; PI 580
+[NightSignal.Ghost] C19 trial-TR-CH59: 1958 samples, result 195.664 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH59: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal and within PI 580 (PI 580) · ok: a valid finish · ok: first across the line (P1)
+[NightSignal.TrialTour] TR-CH59 (CH59 gold): PASSED — ok: the supplied loaner · ok: your setup legal and within PI 580 (PI 580) · ok: a valid finish · ok: first across the line (P1)
+[NightSignal.TrialTour] TR-CH59:   car contacts 0, walls 0, resets 0, marshal recoveries 0, placement P1
+[NightSignal.TrialTour] TR-CH59 tune: legal; parts differential=DIF-T2-RWD-ADJ, gearbox=GBX-T1-FINAL; tune FinalDrive=1060; PI 580; final drive changed True; aero at an end False
+[NightSignal.Trial] TR-CH59 setup saved (parts differential=DIF-T2-RWD-ADJ, gearbox=GBX-T1-FINAL; tune FinalDrive=1060)
+[NightSignal.Trial] TR-CH59: V10 with your setup — parts differential=DIF-T2-RWD-ADJ, gearbox=GBX-T1-FINAL; tune FinalDrive=1060; PI 580
+[NightSignal.Ghost] C19 trial-TR-CH59: 1975 samples, result 197.378 s, resets 0, valid True; raced ghost none — your ghost stays the 195.664 s run
+[NightSignal.Trial] TR-CH59: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal and within PI 580 (PI 580) · ok: a valid finish · ok: first across the line (P1)
+[NightSignal.TrialTour] TR-CH59 (CH59 gold): PASSED — ok: the supplied loaner · ok: your setup legal and within PI 580 (PI 580) · ok: a valid finish · ok: first across the line (P1)
+[NightSignal.TrialTour] TR-CH59:   car contacts 0, walls 0, resets 0, marshal recoveries 0, placement P1
+[NightSignal.TrialTour] TR-CH59: profile keeps it: True; challenge earned: True
+[NightSignal.TrialTour] TR-CH02 start (A): 109.4 km/h at the speed gate, stopped at 233.0 m (51.7 m from 116 km/h) inside
+[NightSignal.TrialTour] TR-CH02 start (A): 109.4 km/h at the speed gate, stopped at 236.3 m (52.2 m from 117 km/h) inside
+[NightSignal.TrialTour] TR-CH02 start (A): 109.4 km/h at the speed gate, stopped at 236.3 m (52.2 m from 117 km/h) inside
+[NightSignal.Trial] TR-CH02 start 1 (A): 109.4 km/h at T00-BRAKE-SPEED, stopped at 233.0 m (51.7 m from 116 km/h), inside T00-BRAKE-BOX
+[NightSignal.Trial] TR-CH02 start 2 (A): 109.4 km/h at T00-BRAKE-SPEED, stopped at 236.3 m (52.2 m from 117 km/h), inside T00-BRAKE-BOX
+[NightSignal.Trial] TR-CH02 start 3 (A): 109.4 km/h at T00-BRAKE-SPEED, stopped at 236.3 m (52.2 m from 117 km/h), inside T00-BRAKE-BOX
+[NightSignal.Trial] TR-CH02: TRIAL PASSED — ok: the supplied loaner · ok: the lesson finished (3 starts) · ok: 3 distinct starts past T00-BRAKE-SPEED at 100 km/h or more, each stopped inside T00-BRAKE-BOX (3 of 3: 109 km/h, stopped in (51.7 m); 109 km/h, stopped in (52.2 m); 109 km/h, stopped in (52.2 m))
+[NightSignal.TrialTour] TR-CH02 (CH02 bronze): PASSED — ok: the supplied loaner · ok: the lesson finished (3 starts) · ok: 3 distinct starts past T00-BRAKE-SPEED at 100 km/h or more, each stopped inside T00-BRAKE-BOX (3 of 3: 109 km/h, stopped in (51.7 m); 109 km/h, stopped in (52.2 m); 109 km/h, stopped in (52.2 m))
+[NightSignal.TrialTour] TR-CH02: profile keeps it: True; challenge earned: True
+[NightSignal.TrialTour] TR-CH47 start (A): 109.4 km/h at the speed gate, stopped at 236.9 m (52.3 m from 117 km/h) inside
+[NightSignal.TrialTour] TR-CH47 start (B): 110.6 km/h at the speed gate, stopped at 236.3 m (49.8 m from 118 km/h) inside
+[NightSignal.Trial] TR-CH47 start 1 (A): 109.4 km/h at T00-BRAKE-SPEED, stopped at 236.9 m (52.3 m from 117 km/h), inside T00-BRAKE-COMPARE
+[NightSignal.Trial] TR-CH47 start 2 (B): 110.6 km/h at T00-BRAKE-SPEED, stopped at 236.3 m (49.8 m from 118 km/h), inside T00-BRAKE-COMPARE
+[NightSignal.Trial] TR-CH47: TRIAL PASSED — ok: the supplied loaner · ok: the lesson finished (2 starts) · ok: a stop on the supplied tyres and on the loaned package from 100 km/h inside T00-BRAKE-COMPARE (supplied 52.3 m, loaned 49.8 m: -2.5 m)
+[NightSignal.TrialTour] TR-CH47 (CH47 bronze): PASSED — ok: the supplied loaner · ok: the lesson finished (2 starts) · ok: a stop on the supplied tyres and on the loaned package from 100 km/h inside T00-BRAKE-COMPARE (supplied 52.3 m, loaned 49.8 m: -2.5 m)
+[NightSignal.TrialTour] TR-CH47: profile keeps it: True; challenge earned: True
+[NightSignal.Trial] TR-CH60-FINAL: V01 as supplied — parts gearbox=GBX-T1-FINAL; tune ; PI 220
+[NightSignal.Ghost] T00 trial-TR-CH60-FINAL: 1290 samples, result 128.858 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH60-FINAL: Trial not passed — ok: the supplied loaner · ok: your setup legal (PI 220) · MISSED: your tune changes FinalDrive (nothing changed) · ok: a valid finish · ok: T00-ACCEL-START to T00-ACCEL-END faster than 0:14.000 (0:12.700)
+[NightSignal.TrialTour] TR-CH60-FINAL (CH60 gold): not passed — ok: the supplied loaner · ok: your setup legal (PI 220) · MISSED: your tune changes FinalDrive (nothing changed) · ok: a valid finish · ok: T00-ACCEL-START to T00-ACCEL-END faster than 0:14.000 (0:12.700)
+[NightSignal.TrialTour] TR-CH60-FINAL tune: legal; parts gearbox=GBX-T1-FINAL; tune FinalDrive=1040; PI 225; final drive changed True; aero at an end False
+[NightSignal.Trial] TR-CH60-FINAL setup saved (parts ; tune FinalDrive=1040)
+[NightSignal.Trial] TR-CH60-FINAL: V01 with your setup — parts gearbox=GBX-T1-FINAL; tune FinalDrive=1040; PI 225
+[NightSignal.Ghost] T00 trial-TR-CH60-FINAL: 1318 samples, result 131.626 s, resets 0, valid True; raced ghost 128.858 s — your ghost stays the 128.858 s run; against the ghost: −0.00 s at the first checkpoint, +2.77 s at the finish
+[NightSignal.Trial] TR-CH60-FINAL: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal (PI 225) · ok: your tune changes FinalDrive (changed: FinalDrive) · ok: a valid finish · ok: T00-ACCEL-START to T00-ACCEL-END faster than 0:14.000 (0:12.650)
+[NightSignal.TrialTour] TR-CH60-FINAL (CH60 gold): PASSED — ok: the supplied loaner · ok: your setup legal (PI 225) · ok: your tune changes FinalDrive (changed: FinalDrive) · ok: a valid finish · ok: T00-ACCEL-START to T00-ACCEL-END faster than 0:14.000 (0:12.650)
+[NightSignal.TrialTour] TR-CH60-FINAL: profile keeps it: True; challenge earned: False
+[NightSignal.Trial] TR-CH60-SPREAD: V01 as supplied — parts gearbox=GBX-T2-SIX; tune ; PI 223
+[NightSignal.Ghost] T00 trial-TR-CH60-SPREAD: 1298 samples, result 129.610 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH60-SPREAD: Trial not passed — ok: the supplied loaner · ok: your setup legal (PI 223) · MISSED: your tune changes GearSpread (nothing changed) · ok: a valid finish · ok: T00-CFG2-START to T00-CFG2-END faster than 0:19.000 (0:17.216)
+[NightSignal.TrialTour] TR-CH60-SPREAD (CH60 gold): not passed — ok: the supplied loaner · ok: your setup legal (PI 223) · MISSED: your tune changes GearSpread (nothing changed) · ok: a valid finish · ok: T00-CFG2-START to T00-CFG2-END faster than 0:19.000 (0:17.216)
+[NightSignal.TrialTour] TR-CH60-SPREAD tune: legal; parts gearbox=GBX-T2-SIX; tune GearSpread=980; PI 223; final drive changed False; aero at an end False
+[NightSignal.Trial] TR-CH60-SPREAD setup saved (parts ; tune GearSpread=980)
+[NightSignal.Trial] TR-CH60-SPREAD: V01 with your setup — parts gearbox=GBX-T2-SIX; tune GearSpread=980; PI 223
+[NightSignal.Ghost] T00 trial-TR-CH60-SPREAD: 1301 samples, result 129.936 s, resets 0, valid True; raced ghost 129.610 s — your ghost stays the 129.610 s run; against the ghost: −0.00 s at the first checkpoint, +0.33 s at the finish
+[NightSignal.Trial] TR-CH60-SPREAD: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal (PI 223) · ok: your tune changes GearSpread (changed: GearSpread) · ok: a valid finish · ok: T00-CFG2-START to T00-CFG2-END faster than 0:19.000 (0:17.233)
+[NightSignal.TrialTour] TR-CH60-SPREAD (CH60 gold): PASSED — ok: the supplied loaner · ok: your setup legal (PI 223) · ok: your tune changes GearSpread (changed: GearSpread) · ok: a valid finish · ok: T00-CFG2-START to T00-CFG2-END faster than 0:19.000 (0:17.233)
+[NightSignal.TrialTour] TR-CH60-SPREAD: profile keeps it: True; challenge earned: False
+[NightSignal.Trial] TR-CH60-BIAS: V01 as supplied — parts brakes=BRK-T2-KIT; tune ; PI 218
+[NightSignal.Ghost] T00 trial-TR-CH60-BIAS: 1390 samples, result 141.879 s, resets 1, valid False; raced ghost none — a reset run is never a ghost target
+[NightSignal.Trial] TR-CH60-BIAS: Trial not passed — ok: the supplied loaner · ok: your setup legal (PI 218) · MISSED: your tune changes BrakeBias (nothing changed) · ok: a valid finish · ok: T00-CFG1-START to T00-CFG1-END faster than 0:17.900 (0:16.233)
+[NightSignal.TrialTour] TR-CH60-BIAS (CH60 gold): not passed — ok: the supplied loaner · ok: your setup legal (PI 218) · MISSED: your tune changes BrakeBias (nothing changed) · ok: a valid finish · ok: T00-CFG1-START to T00-CFG1-END faster than 0:17.900 (0:16.233)
+[NightSignal.TrialTour] TR-CH60-BIAS tune: legal; parts brakes=BRK-T2-KIT; tune BrakeBias=610; PI 218; final drive changed False; aero at an end False
+[NightSignal.Trial] TR-CH60-BIAS setup saved (parts ; tune BrakeBias=610)
+[NightSignal.Trial] TR-CH60-BIAS: V01 with your setup — parts brakes=BRK-T2-KIT; tune BrakeBias=610; PI 218
+[NightSignal.Ghost] T00 trial-TR-CH60-BIAS: 1263 samples, result 126.124 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH60-BIAS: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal (PI 218) · ok: your tune changes BrakeBias (changed: BrakeBias) · ok: a valid finish · ok: T00-CFG1-START to T00-CFG1-END faster than 0:17.900 (0:16.233)
+[NightSignal.TrialTour] TR-CH60-BIAS (CH60 gold): PASSED — ok: the supplied loaner · ok: your setup legal (PI 218) · ok: your tune changes BrakeBias (changed: BrakeBias) · ok: a valid finish · ok: T00-CFG1-START to T00-CFG1-END faster than 0:17.900 (0:16.233)
+[NightSignal.TrialTour] TR-CH60-BIAS: profile keeps it: True; challenge earned: False
+[NightSignal.Trial] TR-CH60-DIFF: V01 as supplied — parts differential=DIF-T2-RWD-ADJ; tune ; PI 220
+[NightSignal.Ghost] T00 trial-TR-CH60-DIFF: 1321 samples, result 131.993 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH60-DIFF: Trial not passed — ok: the supplied loaner · ok: your setup legal (PI 220) · MISSED: your tune changes DiffLock (nothing changed) · ok: a valid finish · ok: T00-CMP-B-START to T00-CMP-B-END faster than 0:22.500 (0:20.383)
+[NightSignal.TrialTour] TR-CH60-DIFF (CH60 gold): not passed — ok: the supplied loaner · ok: your setup legal (PI 220) · MISSED: your tune changes DiffLock (nothing changed) · ok: a valid finish · ok: T00-CMP-B-START to T00-CMP-B-END faster than 0:22.500 (0:20.383)
+[NightSignal.TrialTour] TR-CH60-DIFF tune: legal; parts differential=DIF-T2-RWD-ADJ; tune DiffLock=60; PI 220; final drive changed False; aero at an end False
+[NightSignal.Trial] TR-CH60-DIFF setup saved (parts ; tune DiffLock=60)
+[NightSignal.Trial] TR-CH60-DIFF: V01 with your setup — parts differential=DIF-T2-RWD-ADJ; tune DiffLock=60; PI 220
+[NightSignal.Ghost] T00 trial-TR-CH60-DIFF: 1326 samples, result 132.439 s, resets 0, valid True; raced ghost 131.993 s — your ghost stays the 131.993 s run; against the ghost: −0.00 s at the first checkpoint, +0.45 s at the finish
+[NightSignal.Trial] TR-CH60-DIFF: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal (PI 220) · ok: your tune changes DiffLock (changed: DiffLock) · ok: a valid finish · ok: T00-CMP-B-START to T00-CMP-B-END faster than 0:22.500 (0:20.383)
+[NightSignal.TrialTour] TR-CH60-DIFF (CH60 gold): PASSED — ok: the supplied loaner · ok: your setup legal (PI 220) · ok: your tune changes DiffLock (changed: DiffLock) · ok: a valid finish · ok: T00-CMP-B-START to T00-CMP-B-END faster than 0:22.500 (0:20.383)
+[NightSignal.TrialTour] TR-CH60-DIFF: profile keeps it: True; challenge earned: False
+[NightSignal.Trial] TR-CH60-AWD: V07 as supplied — parts differential=DIF-T2-AWD-CENTRE; tune ; PI 430
+[NightSignal.Ghost] T00 trial-TR-CH60-AWD: 1178 samples, result 117.628 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH60-AWD: Trial not passed — ok: the supplied loaner · ok: your setup legal (PI 430) · MISSED: your tune changes AwdFrontShare (nothing changed) · ok: a valid finish · ok: T00-CMP-A-START to T00-CMP-A-END faster than 0:14.600 (0:13.200)
+[NightSignal.TrialTour] TR-CH60-AWD (CH60 gold): not passed — ok: the supplied loaner · ok: your setup legal (PI 430) · MISSED: your tune changes AwdFrontShare (nothing changed) · ok: a valid finish · ok: T00-CMP-A-START to T00-CMP-A-END faster than 0:14.600 (0:13.200)
+[NightSignal.TrialTour] TR-CH60-AWD tune: legal; parts differential=DIF-T2-AWD-CENTRE; tune AwdFrontShare=440; PI 430; final drive changed False; aero at an end False
+[NightSignal.Trial] TR-CH60-AWD setup saved (parts ; tune AwdFrontShare=440)
+[NightSignal.Trial] TR-CH60-AWD: V07 with your setup — parts differential=DIF-T2-AWD-CENTRE; tune AwdFrontShare=440; PI 430
+[NightSignal.Ghost] T00 trial-TR-CH60-AWD: 1178 samples, result 117.626 s, resets 0, valid True; raced ghost 117.628 s — new ghost, 0.002 s faster; against the ghost: −0.00 s at the first checkpoint, −0.00 s at the finish
+[NightSignal.Trial] TR-CH60-AWD: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal (PI 430) · ok: your tune changes AwdFrontShare (changed: AwdFrontShare) · ok: a valid finish · ok: T00-CMP-A-START to T00-CMP-A-END faster than 0:14.600 (0:13.216)
+[NightSignal.TrialTour] TR-CH60-AWD (CH60 gold): PASSED — ok: the supplied loaner · ok: your setup legal (PI 430) · ok: your tune changes AwdFrontShare (changed: AwdFrontShare) · ok: a valid finish · ok: T00-CMP-A-START to T00-CMP-A-END faster than 0:14.600 (0:13.216)
+[NightSignal.TrialTour] TR-CH60-AWD: profile keeps it: True; challenge earned: False
+[NightSignal.Trial] TR-CH60-SPRING: V01 as supplied — parts suspension=SUS-T2-SPORT; tune ; PI 225
+[NightSignal.Ghost] T00 trial-TR-CH60-SPRING: 1317 samples, result 131.524 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH60-SPRING: Trial not passed — ok: the supplied loaner · ok: your setup legal (PI 225) · MISSED: your tune changes SpringFront or SpringRear (nothing changed) · ok: a valid finish · ok: T00-CFG1-START to T00-CFG1-END faster than 0:17.900 (0:16.233)
+[NightSignal.TrialTour] TR-CH60-SPRING (CH60 gold): not passed — ok: the supplied loaner · ok: your setup legal (PI 225) · MISSED: your tune changes SpringFront or SpringRear (nothing changed) · ok: a valid finish · ok: T00-CFG1-START to T00-CFG1-END faster than 0:17.900 (0:16.233)
+[NightSignal.TrialTour] TR-CH60-SPRING tune: legal; parts suspension=SUS-T2-SPORT; tune SpringFront=1170; PI 225; final drive changed False; aero at an end False
+[NightSignal.Trial] TR-CH60-SPRING setup saved (parts ; tune SpringFront=1170)
+[NightSignal.Trial] TR-CH60-SPRING: V01 with your setup — parts suspension=SUS-T2-SPORT; tune SpringFront=1170; PI 225
+[NightSignal.Ghost] T00 trial-TR-CH60-SPRING: 1320 samples, result 131.810 s, resets 0, valid True; raced ghost 131.524 s — your ghost stays the 131.524 s run; against the ghost: −0.00 s at the first checkpoint, +0.29 s at the finish
+[NightSignal.Trial] TR-CH60-SPRING: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal (PI 225) · ok: your tune changes SpringFront or SpringRear (changed: SpringFront) · ok: a valid finish · ok: T00-CFG1-START to T00-CFG1-END faster than 0:17.900 (0:16.216)
+[NightSignal.TrialTour] TR-CH60-SPRING (CH60 gold): PASSED — ok: the supplied loaner · ok: your setup legal (PI 225) · ok: your tune changes SpringFront or SpringRear (changed: SpringFront) · ok: a valid finish · ok: T00-CFG1-START to T00-CFG1-END faster than 0:17.900 (0:16.216)
+[NightSignal.TrialTour] TR-CH60-SPRING: profile keeps it: True; challenge earned: False
+[NightSignal.Trial] TR-CH60-DAMPER: V01 as supplied — parts suspension=SUS-T2-SPORT; tune ; PI 225
+[NightSignal.Ghost] T00 trial-TR-CH60-DAMPER: 1317 samples, result 131.524 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH60-DAMPER: Trial not passed — ok: the supplied loaner · ok: your setup legal (PI 225) · MISSED: your tune changes DamperFront or DamperRear (nothing changed) · ok: a valid finish · ok: T00-CMP-A-START to T00-CMP-A-END faster than 0:15.100 (0:13.666)
+[NightSignal.TrialTour] TR-CH60-DAMPER (CH60 gold): not passed — ok: the supplied loaner · ok: your setup legal (PI 225) · MISSED: your tune changes DamperFront or DamperRear (nothing changed) · ok: a valid finish · ok: T00-CMP-A-START to T00-CMP-A-END faster than 0:15.100 (0:13.666)
+[NightSignal.TrialTour] TR-CH60-DAMPER tune: legal; parts suspension=SUS-T2-SPORT; tune DamperRear=1120; PI 225; final drive changed False; aero at an end False
+[NightSignal.Trial] TR-CH60-DAMPER setup saved (parts ; tune DamperRear=1120)
+[NightSignal.Trial] TR-CH60-DAMPER: V01 with your setup — parts suspension=SUS-T2-SPORT; tune DamperRear=1120; PI 225
+[NightSignal.Ghost] T00 trial-TR-CH60-DAMPER: 1292 samples, result 129.066 s, resets 0, valid True; raced ghost 131.524 s — new ghost, 2.458 s faster; against the ghost: −0.00 s at the first checkpoint, −2.46 s at the finish
+[NightSignal.Trial] TR-CH60-DAMPER: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal (PI 225) · ok: your tune changes DamperFront or DamperRear (changed: DamperRear) · ok: a valid finish · ok: T00-CMP-A-START to T00-CMP-A-END faster than 0:15.100 (0:13.666)
+[NightSignal.TrialTour] TR-CH60-DAMPER (CH60 gold): PASSED — ok: the supplied loaner · ok: your setup legal (PI 225) · ok: your tune changes DamperFront or DamperRear (changed: DamperRear) · ok: a valid finish · ok: T00-CMP-A-START to T00-CMP-A-END faster than 0:15.100 (0:13.666)
+[NightSignal.TrialTour] TR-CH60-DAMPER: profile keeps it: True; challenge earned: False
+[NightSignal.Trial] TR-CH60-ARB: V01 as supplied — parts suspension=SUS-T2-SPORT; tune ; PI 225
+[NightSignal.Ghost] T00 trial-TR-CH60-ARB: 1317 samples, result 131.524 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH60-ARB: Trial not passed — ok: the supplied loaner · ok: your setup legal (PI 225) · MISSED: your tune changes AntiRollFront or AntiRollRear (nothing changed) · ok: a valid finish · ok: T00-CMP-B-START to T00-CMP-B-END faster than 0:22.500 (0:20.383)
+[NightSignal.TrialTour] TR-CH60-ARB (CH60 gold): not passed — ok: the supplied loaner · ok: your setup legal (PI 225) · MISSED: your tune changes AntiRollFront or AntiRollRear (nothing changed) · ok: a valid finish · ok: T00-CMP-B-START to T00-CMP-B-END faster than 0:22.500 (0:20.383)
+[NightSignal.TrialTour] TR-CH60-ARB tune: legal; parts suspension=SUS-T2-SPORT; tune AntiRollRear=1080; PI 225; final drive changed False; aero at an end False
+[NightSignal.Trial] TR-CH60-ARB setup saved (parts ; tune AntiRollRear=1080)
+[NightSignal.Trial] TR-CH60-ARB: V01 with your setup — parts suspension=SUS-T2-SPORT; tune AntiRollRear=1080; PI 225
+[NightSignal.Ghost] T00 trial-TR-CH60-ARB: 1326 samples, result 132.425 s, resets 0, valid True; raced ghost 131.524 s — your ghost stays the 131.524 s run; against the ghost: −0.00 s at the first checkpoint, +0.90 s at the finish
+[NightSignal.Trial] TR-CH60-ARB: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal (PI 225) · ok: your tune changes AntiRollFront or AntiRollRear (changed: AntiRollRear) · ok: a valid finish · ok: T00-CMP-B-START to T00-CMP-B-END faster than 0:22.500 (0:20.383)
+[NightSignal.TrialTour] TR-CH60-ARB (CH60 gold): PASSED — ok: the supplied loaner · ok: your setup legal (PI 225) · ok: your tune changes AntiRollFront or AntiRollRear (changed: AntiRollRear) · ok: a valid finish · ok: T00-CMP-B-START to T00-CMP-B-END faster than 0:22.500 (0:20.383)
+[NightSignal.TrialTour] TR-CH60-ARB: profile keeps it: True; challenge earned: False
+[NightSignal.Trial] TR-CH60-HEIGHT: V01 as supplied — parts suspension=SUS-T2-SPORT; tune ; PI 225
+[NightSignal.Ghost] T00 trial-TR-CH60-HEIGHT: 1317 samples, result 131.524 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH60-HEIGHT: Trial not passed — ok: the supplied loaner · ok: your setup legal (PI 225) · MISSED: your tune changes RideHeight (nothing changed) · ok: a valid finish · ok: T00-CFG2-START to T00-CFG2-END faster than 0:19.200 (0:17.433)
+[NightSignal.TrialTour] TR-CH60-HEIGHT (CH60 gold): not passed — ok: the supplied loaner · ok: your setup legal (PI 225) · MISSED: your tune changes RideHeight (nothing changed) · ok: a valid finish · ok: T00-CFG2-START to T00-CFG2-END faster than 0:19.200 (0:17.433)
+[NightSignal.TrialTour] TR-CH60-HEIGHT tune: legal; parts suspension=SUS-T2-SPORT; tune RideHeight=-25; PI 227; final drive changed False; aero at an end False
+[NightSignal.Trial] TR-CH60-HEIGHT setup saved (parts ; tune RideHeight=-25)
+[NightSignal.Trial] TR-CH60-HEIGHT: V01 with your setup — parts suspension=SUS-T2-SPORT; tune RideHeight=-25; PI 227
+[NightSignal.Ghost] T00 trial-TR-CH60-HEIGHT: 1326 samples, result 132.496 s, resets 0, valid True; raced ghost 131.524 s — your ghost stays the 131.524 s run; against the ghost: +0.02 s at the first checkpoint, +0.97 s at the finish
+[NightSignal.Trial] TR-CH60-HEIGHT: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal (PI 227) · ok: your tune changes RideHeight (changed: RideHeight) · ok: a valid finish · ok: T00-CFG2-START to T00-CFG2-END faster than 0:19.200 (0:17.416)
+[NightSignal.TrialTour] TR-CH60-HEIGHT (CH60 gold): PASSED — ok: the supplied loaner · ok: your setup legal (PI 227) · ok: your tune changes RideHeight (changed: RideHeight) · ok: a valid finish · ok: T00-CFG2-START to T00-CFG2-END faster than 0:19.200 (0:17.416)
+[NightSignal.TrialTour] TR-CH60-HEIGHT: profile keeps it: True; challenge earned: False
+[NightSignal.Trial] TR-CH60-AERO: V01 as supplied — parts aero=AER-T4-FULL; tune ; PI 217
+[NightSignal.Ghost] T00 trial-TR-CH60-AERO: 1341 samples, result 133.982 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH60-AERO: Trial not passed — ok: the supplied loaner · ok: your setup legal (PI 217) · MISSED: your tune changes AeroBalance (nothing changed) · ok: a valid finish · ok: T00-CFG3-START to T00-CFG3-END faster than 0:27.700 (0:25.166)
+[NightSignal.TrialTour] TR-CH60-AERO (CH60 gold): not passed — ok: the supplied loaner · ok: your setup legal (PI 217) · MISSED: your tune changes AeroBalance (nothing changed) · ok: a valid finish · ok: T00-CFG3-START to T00-CFG3-END faster than 0:27.700 (0:25.166)
+[NightSignal.TrialTour] TR-CH60-AERO tune: legal; parts aero=AER-T4-FULL; tune AeroBalance=460; PI 217; final drive changed False; aero at an end False
+[NightSignal.Trial] TR-CH60-AERO setup saved (parts ; tune AeroBalance=460)
+[NightSignal.Trial] TR-CH60-AERO: V01 with your setup — parts aero=AER-T4-FULL; tune AeroBalance=460; PI 217
+[NightSignal.Ghost] T00 trial-TR-CH60-AERO: 1334 samples, result 133.266 s, resets 0, valid True; raced ghost 133.982 s — new ghost, 0.716 s faster; against the ghost: −0.00 s at the first checkpoint, −0.72 s at the finish
+[NightSignal.Trial] TR-CH60-AERO: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal (PI 217) · ok: your tune changes AeroBalance (changed: AeroBalance) · ok: a valid finish · ok: T00-CFG3-START to T00-CFG3-END faster than 0:27.700 (0:25.183)
+[NightSignal.TrialTour] TR-CH60-AERO (CH60 gold): PASSED — ok: the supplied loaner · ok: your setup legal (PI 217) · ok: your tune changes AeroBalance (changed: AeroBalance) · ok: a valid finish · ok: T00-CFG3-START to T00-CFG3-END faster than 0:27.700 (0:25.183)
+[NightSignal.TrialTour] TR-CH60-AERO: profile keeps it: True; challenge earned: True
+[NightSignal.TrialTour] 40 of 47 trials passed by the autopilot; challenges earned: CH15, CH55, CH11, CH51, CH54, CH25, CH30, CH39, CH14, CH42, CH69, CH72, CH52, CH58, CH53, CH07, CH74, CH37, CH49, CH46, CH56, CH57, CH59, CH02, CH47, CH60; wallet 811,870 cr
 [NightSignal.TrialTour] PASS
-[NightSignal.Bounds] bounds-TrialTour-1280x720-text150: 79 labels over 382 moments — 0 overflow, 0 missing glyph, 20 edge spill, 0 fixed-size overflow, 3 at minimum size
+[NightSignal.Bounds] bounds-TrialTour-1280x720-text150: 109 labels over 663 moments — 21 overflow, 0 missing glyph, 32 edge spill, 0 fixed-size overflow, 17 at minimum size
