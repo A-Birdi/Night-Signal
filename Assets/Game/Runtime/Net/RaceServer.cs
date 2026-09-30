@@ -22,6 +22,8 @@ namespace NightSignal.Net
         public string MatchId, CourseId, Kind, Mode, StageId, Weather, GridNote, Contact;
         /// <summary>sprint | circuit | drift-attack | time-attack … (drift-attack: the HUD and autopilot drift the judged zones).</summary>
         public string FreeplayMode;
+        /// <summary>A challenge trial's id (docs/CHALLENGE_TRIALS.md): its ghosts are kept apart, and no rival reference is raced.</summary>
+        public string ChallengeTrialId;
         /// <summary>The surface the server simulates (dry | damp | wet): the client predicts its own car with the same grip.</summary>
         public string Surface = "dry";
         /// <summary>The time of day the event is lit for (the stage side's conditions, else the course's).</summary>
@@ -68,7 +70,9 @@ namespace NightSignal.Net
         Dictionary<RaceEntrant, GhostRecorder> recorders;
 
         /// <summary>The format a ghost is kept under (as the Local ghosts are): the campaign stage and mode, else the Freeplay mode.</summary>
-        public static string GhostFormat(string kind, string stageId, string mode, string freeplayMode) =>
+        /// <summary>The ghost format of an event: a campaign stage side, a challenge trial ("trial-&lt;id&gt;", as offline), else the Freeplay format.</summary>
+        public static string GhostFormat(string kind, string stageId, string mode, string freeplayMode, string challengeTrialId = null) =>
+            !string.IsNullOrEmpty(challengeTrialId) ? "trial-" + challengeTrialId :
             kind == "campaign" ? $"{stageId}-{(string.Equals(mode, "hard", StringComparison.OrdinalIgnoreCase) ? "hard" : "normal")}" : string.IsNullOrEmpty(freeplayMode) ? "race" : freeplayMode;
 
         void RecordGhosts(int tick)
@@ -82,7 +86,7 @@ namespace NightSignal.Net
                     recorders[e] = new GhostRecorder(new Core.Ghosts.GhostHeader
                     {
                         CourseId = assignment.CourseId, CourseRevision = CourseRuntime.Active != null ? CourseRuntime.Active.SourceHash ?? "" : "",
-                        Format = GhostFormat(assignment.Kind, assignment.StageId, assignment.Mode, assignment.FreeplayMode),
+                        Format = GhostFormat(assignment.Kind, assignment.StageId, assignment.Mode, assignment.FreeplayMode, assignment.ChallengeTrialId),
                         Surface = string.IsNullOrEmpty(sim.Rules.Surface) ? "dry" : sim.Rules.Surface,
                         PhysicsVersion = RaceSimulation.PhysicsVersion, ScoringVersion = RaceSimulation.ScoringVersion, GameVersion = Application.version,
                         CarModelId = e.Roster.CarId, BuildHash = a?.VehicleBuild?.BuildHash ?? a?.PerformanceHash ?? "", Pi = a?.CarPi ?? 0,
@@ -356,7 +360,7 @@ namespace NightSignal.Net
                 var watch = new MatchInfo
                 {
                     MatchId = assignment.MatchId, CourseId = assignment.CourseId, Kind = assignment.Kind, Mode = assignment.Mode,
-                    StageId = assignment.StageId, Weather = assignment.Weather, Contact = assignment.Collision, FreeplayMode = assignment.FreeplayMode, Surface = sim?.Rules.Surface ?? "dry", TimeOfDay = EventTimeOfDay(),
+                    StageId = assignment.StageId, Weather = assignment.Weather, Contact = assignment.Collision, FreeplayMode = assignment.FreeplayMode, ChallengeTrialId = assignment.ChallengeTrialId, Surface = sim?.Rules.Surface ?? "dry", TimeOfDay = EventTimeOfDay(),
                     GridNote = assignment.GridNote, YourIndex = -1, Roster = Entrants.Select(x => x.Roster).ToList(),
                 };
                 FastBufferWriter sw = Wire.JsonWriter(JsonConvert.SerializeObject(watch));
@@ -374,7 +378,7 @@ namespace NightSignal.Net
             var info = new MatchInfo
             {
                 MatchId = assignment.MatchId, CourseId = assignment.CourseId, Kind = assignment.Kind, Mode = assignment.Mode,
-                StageId = assignment.StageId, Weather = assignment.Weather, Contact = assignment.Collision, FreeplayMode = assignment.FreeplayMode, Surface = sim?.Rules.Surface ?? "dry", TimeOfDay = EventTimeOfDay(),
+                StageId = assignment.StageId, Weather = assignment.Weather, Contact = assignment.Collision, FreeplayMode = assignment.FreeplayMode, ChallengeTrialId = assignment.ChallengeTrialId, Surface = sim?.Rules.Surface ?? "dry", TimeOfDay = EventTimeOfDay(),
                 GridNote = assignment.GridNote, YourIndex = l.Entrant.Roster.Index, Roster = Entrants.Select(x => x.Roster).ToList(),
             };
             FastBufferWriter w = Wire.JsonWriter(JsonConvert.SerializeObject(info));

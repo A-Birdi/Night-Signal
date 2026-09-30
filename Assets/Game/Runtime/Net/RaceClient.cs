@@ -365,7 +365,7 @@ namespace NightSignal.Net
                 var rules = new Core.Ghosts.GhostHeader
                 {
                     CourseId = Info.CourseId, CourseRevision = CourseRuntime.Active != null ? CourseRuntime.Active.SourceHash ?? "" : "",
-                    Format = RaceServer.GhostFormat(Info.Kind, Info.StageId, Info.Mode, Info.FreeplayMode),
+                    Format = RaceServer.GhostFormat(Info.Kind, Info.StageId, Info.Mode, Info.FreeplayMode, Info.ChallengeTrialId),
                     Surface = string.IsNullOrEmpty(Info.Surface) ? "dry" : Info.Surface,
                     PhysicsVersion = RaceSimulation.PhysicsVersion, ScoringVersion = RaceSimulation.ScoringVersion,
                 };

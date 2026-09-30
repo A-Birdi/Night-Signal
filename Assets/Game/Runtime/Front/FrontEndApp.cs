@@ -652,9 +652,10 @@ namespace NightSignal.Front
             var list = new List<KeyValuePair<string, Core.Ghosts.GhostRecording>>();
             OnlineSession s = OnlineSession.Current;
             if (s == null) return list;
-            Core.Ghosts.GhostRecording reference = RivalReferenceGhosts.For(info.CourseId);
+            // A challenge trial races its own loaner against its own targets: no rival reference (as offline).
+            Core.Ghosts.GhostRecording reference = string.IsNullOrEmpty(info.ChallengeTrialId) ? RivalReferenceGhosts.For(info.CourseId) : null;
             string course = Uri.EscapeDataString(info.CourseId);
-            string format = Uri.EscapeDataString(Net.RaceServer.GhostFormat(info.Kind, info.StageId, info.Mode, info.FreeplayMode));
+            string format = Uri.EscapeDataString(Net.RaceServer.GhostFormat(info.Kind, info.StageId, info.Mode, info.FreeplayMode, info.ChallengeTrialId));
             void Add(Newtonsoft.Json.Linq.JObject r, string label)
             {
                 foreach (Newtonsoft.Json.Linq.JToken g in (r?["ghosts"] as Newtonsoft.Json.Linq.JArray) ?? new Newtonsoft.Json.Linq.JArray())
@@ -735,6 +736,13 @@ namespace NightSignal.Front
                         sb.Append($"<color={(passedTrial ? "#3EC6D8" : "#F2A541")}>{(passedTrial ? "Challenge trial passed" : "Challenge trial not passed")}</color>" +
                                   (size > 1 ? $"  <size=85%>({got} of {size} of {(string)trialReceipt["challenge"]}'s trials)</size>" : "") +
                                   $"\n<size=80%>{(string)trialReceipt["summary"]}</size>\n");
+                    }
+                    Core.Content.ContentCatalogue receiptCatalogue = NightSignal.Content.ContentLibrary.Load()?.Catalogue;
+                    foreach (Newtonsoft.Json.Linq.JToken earned in (r["challengesUnlocked"] as Newtonsoft.Json.Linq.JArray) ?? new Newtonsoft.Json.Linq.JArray())
+                    {
+                        string cid = (string)earned;
+                        string cname = receiptCatalogue != null && receiptCatalogue.TryChallenge(cid, out Core.Content.ChallengeDef cdef) ? cdef.Name : "";
+                        sb.Append($"<color=#3EC6D8>Challenge earned</color>  {cid} {cname.Replace("<", "(").Replace(">", ")")}\n");
                     }
                     sb.Append($"Credits +{(long?)r["payout"]?["total"] ?? 0:N0}   ·   balance {(long?)r["balanceAfter"] ?? 0:N0} cr\n");
                     foreach (Newtonsoft.Json.Linq.JToken cue in (r["musicUnlocked"] as Newtonsoft.Json.Linq.JArray) ?? new Newtonsoft.Json.Linq.JArray())
@@ -1032,6 +1040,14 @@ namespace NightSignal.Front
             }
             yield return Until(() => onlineRace == null && Router.Current == Convoy, 400f, "race finished and back at the convoy");
             yield return Until(() => (LastOnlineResult ?? "").Contains("Credits"), 25f, "settled receipt");
+            if (tourChallengeTrial != null)
+            {
+                // A challenge trial's receipt carries the game server's verdict (pass or not: the autopilot may miss a target).
+                string receiptText = LastOnlineResult ?? "";
+                Note("challenge trial receipt: " + (receiptText.Contains("Challenge trial passed") ? "passed" : receiptText.Contains("Challenge trial not passed") ? "not passed" : "missing") +
+                     (receiptText.Contains("Challenge earned") ? "; challenge earned" : ""));
+                if (!receiptText.Contains("Challenge trial")) failures.Add("the receipt has no challenge-trial verdict");
+            }
             // The post-race route/elevation chart online (spec §8), from this client's own trace.
             yield return Until(() => GameObject.Find("OnlineRouteChart") != null, 5f, "route chart offered");
             if (Click("OnlineRouteChart"))
