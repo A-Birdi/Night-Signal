@@ -16,6 +16,9 @@ an event whose conditions are fixed by the content, not by the player's garage. 
   - `rules`: `noReset`, `maxWallImpacts`, `noHandbrakeAfterStart`, …;
   - `targets`: `timeMs` and/or `driftRaw` at the tier the predicate names;
   - `group`: trials that must all pass for one challenge (CH54: two drive layouts, each against its own target).
+  - racecraft trials (`kind: "race"`, V-125): a fixed AI `field` (each car's stock model, an optional rival identity, a
+    role — field / pacing / pressure / merge — and a pace), `playerStartsLast`, and the rules `win`, `noCarContact`,
+    `noCheckpointCut`, `cleanZonePass` (the course's overtake zone tagged with the challenge); no targets.
 - Targets are **measured, not guessed**: the explicit PlayMode `ChallengeTrialReferenceTests` drives each loaner with the
   validator autopilot and writes the targets with the method stated in the file — time: Gold 1.02 ×, Silver 1.10 ×
   (as CH10), Bronze 1.20 × the autopilot's time; drift trials run at drift skills 0.95, 0.80 and 0.65 and use the
@@ -53,7 +56,9 @@ an event whose conditions are fixed by the content, not by the player's garage. 
    `ZoneChainRun` (the routes' link, demonstration, clip and transition zones linked by one continuous slide, a bank gate,
    a 20–35° hold); the autopilot reaches CH19, not yet CH17, CH22, CH27.
 3. Scripted AI: pacing, pressure and merge cars (CH36, CH37, CH39, CH40, CH41, CH43, CH59). CH34 needs no fixed field —
-   done in ordinary C02 races (V-124): a pass inside the marked hairpin exit zone, held to the retain gate.
+   done in ordinary C02 races (V-124): a pass inside the marked hairpin exit zone, held to the retain gate. CH40 (C17's
+   fixed race) and CH41 (six identical V07s on C18, from last) — done offline as racecraft trials (V-125); the other roles
+   (pacing, pressure, merge) have no behaviour yet.
 4. Fixed cups on the Custom Cup table (CH14, CH42, CH69, CH72).
 5. T00 challenge drills and workshop trials (CH02, CH07, CH23, CH46, CH47, CH49, CH52, CH53, CH56, CH57, CH58, CH60),
    and CH74 (the six story records, then the C24 reference trial).

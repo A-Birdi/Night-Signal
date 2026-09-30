@@ -2697,3 +2697,28 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   withheld, as the judge's facts say. The two C05 runs reproduced V-096 exactly (P6 in 147.3 s, 7 car contacts; the follow
   run P2 in 133.8 s, CH32). CH34's positive case rests on the EditMode judge tests, as CH31's does.
   `Evidence/courses/racecraft/racecraft-tour-ch34.txt`.
+
+## V-125 — Racecraft trials: a fixed AI field, CH40 and CH41 offline (spec §11) (2026-09-30)
+- Revision: `3d3b7ac` (the trial model, runtime, content, tests) and `3c3570c` (the list's pages, placement tests); the
+  player build of `3c3570c`.
+- **What:** challenge trials gain the **"race"** kind — a race against a fixed AI field instead of a solo run: each field
+  car is its own stock car (not one chosen by the cap), an optional rival identity, a role (field, pacing, pressure,
+  merge — only "field" is used so far) and a pace; `playerStartsLast` puts the human behind every AI car on the grid while
+  the local player stays entrant 0 (`RaceEventRules.TrialField` / `HumansStartLast`; the grid slot is now separate from
+  the entrant order). New rules: **win**, **no car-to-car contact**, **no checkpoint cut**, and **the marked clean
+  overtake** (a touch-free pass inside the course's overtake zone tagged with the trial's challenge, the place held — the
+  V-124 marked-zone pass). Race trials have no targets to measure (the measurement skips them). **TR-CH40** — C17's fixed
+  challenge race: the V07 loaner (class C, cap 499) behind three class-C cars (V05, V06, V05 at pace 0.95); the marked
+  overtake in the C17 braking zone, no contact, no checkpoint cut, finish. **TR-CH41** — class-equalized: six identical
+  stock V07s on C18 (two laps), the player sixth on the grid; win with no reset and no car contact. The Challenge Trials
+  list now pages ("More trials"): twelve trials had outgrown its ten rows, so the two new trials could not be reached by
+  the buttons (found in the first run's screenshot, where the tour had opened them by id).
+- **Online:** refused for now (`trial_unsupported`: the control plane cannot place a fixed AI field yet) — Services
+  `ARacecraftTrial_IsRefusedOnline_ForNow`.
+- **Tests:** Core `ARacecraftTrial_IsJudgedByItsRules`, `RacecraftTrialContent_IsChecked` and the file test (12 trials,
+  each field inside its loaner's class) — Core 201; Services 369 (+1), Builds 232, Toys 92; EditMode `RacecraftTrialTests`
+  (the offline plan's field placed with its own cars, roles and paces; the player sixth on C18's grid behind every AI car,
+  still entrant 0; an ordinary race unchanged) — EditMode 488 passed, 2 skipped (explicit), 0 failed, plus the 2 new.
+- **Built player (`-nsTrialTour`, 1280×720, Text 150 %, with the bounds audit):** **PASS** — the list's page button shows page 2 and its first row opens TR-CH40 (by the buttons); TR-CH40 ran against its three class-C cars with the player last: not passed — no marked overtake, one car contact, no checkpoint cut; TR-CH41 ran six V07s from sixth: not passed — P5, two car contacts, no reset; both verdicts kept by the profile as judged, neither challenge granted. The ten earlier trials judged exactly as in V-122 (every verdict line identical); 8 of 12 passed; bounds 0 overflow, 0 missing glyphs (73 labels). A first run on `3d3b7ac` judged the two race trials identically and exposed the ten-row list. `Evidence/challenges/trials-tour/` (`01-trials-page2.png`, `02-TR-CH41-brief.png`).
+- **Limits:** neither race trial is reached by the autopilot (a poor overtaker that touches cars, V-096); the roles other
+  than "field" have no behaviour yet (CH36's pacing rival, CH39's pressure car, CH37's merge car are next).

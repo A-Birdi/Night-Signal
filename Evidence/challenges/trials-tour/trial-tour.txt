@@ -1,4 +1,5 @@
-# -nsTrialTour (built player of 3d3b7ac, buttons only, isolated profile; validator autopilot — CH40 following at 0.5 s and attacking only in the marked zone; run with -nsBoundsAudit at 1280x720, Text 150 % / HUD 130 %; automation)
+# -nsTrialTour (built player of 3c3570c, buttons only, isolated profile; validator autopilot — CH40 following at 0.5 s and attacking only in the marked zone; run with -nsBoundsAudit at 1280x720, Text 150 % / HUD 130 %; automation)
+[NightSignal.TrialTour] page 2 of 2: its first row opens TR-CH40
 [NightSignal.Trial] TR-CH13: V14 stock, PI 680, build 53f0713d354f, on C21 (course)
 [NightSignal.Ghost] C21 trial-TR-CH13: 1365 samples, result 136.347 s, resets 0, valid True; raced ghost none — your first ghost here; against the ghost: −0.00 s at the first checkpoint, −0.00 s at the finish
 [NightSignal.Trial] TR-CH13: Trial not passed — ok: the supplied loaner · ok: a valid finish · MISSED: faster than 2:16.346 (2:16.346) · MISSED: all tyres on the paved road (off it 0.5 s)
@@ -73,4 +74,4 @@
 [NightSignal.TrialTour] TR-CH41: profile keeps it: False; challenge earned: False
 [NightSignal.TrialTour] 8 of 12 trials passed by the autopilot; challenges earned: CH15, CH55, CH11, CH51, CH54, CH25, CH30; wallet 287,216 cr
 [NightSignal.TrialTour] PASS
-[NightSignal.Bounds] bounds-TrialTour-1280x720-text150: 72 labels over 141 moments — 0 overflow, 0 missing glyph, 9 edge spill, 0 fixed-size overflow, 2 at minimum size
+[NightSignal.Bounds] bounds-TrialTour-1280x720-text150: 73 labels over 142 moments — 0 overflow, 0 missing glyph, 9 edge spill, 0 fixed-size overflow, 2 at minimum size

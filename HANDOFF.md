@@ -174,10 +174,13 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
    chains CH17, CH19, CH22, CH27 (V-123, judged in ordinary races — no loaner needed) are done: slice 2 is complete. CH19 is
    reached by the autopilot; CH17, CH22, CH27 are not (the drift controller runs out of road on long slides — the zone
    tour's knobs in `OfflineRaceSession.ZoneSlide*` are where a better sustained-slide controller would start). Slice 3:
-   CH34 is judged in ordinary C02 races (V-124, marked-zone passes in the racecraft judge). Next: racecraft trials — a
-   challenge trial with a fixed AI field (roles, grid slots, the player's slot) — for CH40 (C17 fixed race, clean
-   braking-zone overtake), CH41 (C18 six-entrant class-equalized, from last), CH36 (C10 pacing rival, outside lane), CH39
-   (C14 pressure car), CH37 (T00 merge), CH43, CH59; then fixed cups, T00 drills, workshop trials.
+   CH34 is judged in ordinary C02 races (V-124, marked-zone passes in the racecraft judge); racecraft trials (a fixed AI
+   field, the player's grid slot; offline only — the control plane refuses them online) carry CH40 and CH41 (V-125). Next:
+   give the field roles behaviour — CH36 (C10 pacing rival, pass through the outside lane gate, hold to C10-HOLD-GAIN),
+   CH39 (C14 pressure car within 1 s through C14-PRESSURE at a measured Silver pace), CH37 (T00 merge beside a pace car in
+   the two MERGE lanes); then CH43 (C20 against R32's Gold practice reference with the defence gates), CH59 (a tunable
+   loaner within a parts budget); then fixed cups, T00 drills, workshop trials. The control plane (task b2kshjyh5) still
+   serves the content of `0777df53…`; trials JSON changed since — restart it before any online run.
    `Assets/_Recovery/0.unity` is Unity's crash-recovery copy of an unsaved scene from 2026-09-29 18:10 — left untouched for
    the owner.
 0. **After any AI tendency change**: rerun `-nsCrewTelemetryTour` and `CertifyListed` for the stages whose featured
