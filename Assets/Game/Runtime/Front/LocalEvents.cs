@@ -171,6 +171,7 @@ namespace NightSignal.Front
                 CarCapPi = trial.Loaner.PiCap > 0 ? trial.Loaner.PiCap : PerformanceIndex.Max,
                 Surface = trial.Conditions == "course" ? null : trial.Conditions, DriftRanking = trial.JudgesDrift,
                 SectionStartGate = trial.HasSection ? trial.SectionStartGate : null, SectionEndGate = trial.HasSection ? trial.SectionEndGate : null,
+                ManualGearbox = trial.ManualGearbox,
             },
         };
 
@@ -277,6 +278,8 @@ namespace NightSignal.Front
                     SectionMs = me.Entrant.SectionMicros > 0 ? me.Entrant.SectionMicros / 1000 : 0,
                     StoryRecords = trial.RequiredStoryRecords > 0 ? DiaryScreen.Build(s.Profile, NightSignal.Content.ContentLibrary.Load()).Count(e => e.Kind == "record") : 0,
                     MergeKept = me.Entrant.Racecraft != null && me.Entrant.Racecraft.Merges.Any(m => m.Challenge == trial.Challenge && m.Kept),
+                    ShiftOffsets = trial.ShiftGates.Count == 0 ? null : ShiftWindowJudge.Offsets(
+                        trial.ShiftGates.Select(g => NightSignal.Track.CourseRuntime.Active?.Track?.Gates.FirstOrDefault(x => x.Id == g)?.StartMetres ?? -1e6f).ToList(), me.Entrant.Upshifts),
                     RecoveriesAlternating = me.Entrant.ZoneChains != null && me.Entrant.ZoneChains.AlternatingRecoveries(trial.Challenge),
                     Spun = me.Entrant.ZoneChains != null && me.Entrant.ZoneChains.Spun,
                     Recoveries = me.Entrant.ZoneChains?.Recoveries.Count ?? 0,

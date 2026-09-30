@@ -69,6 +69,13 @@ namespace NightSignal.Race
         public static float AutopilotApexHoldMetres;
         /// <summary>Automation only: the autopilot slides each zone of this challenge as a separate drift and catches it (CH23; null = off).</summary>
         public static string AutopilotSlidesZonesOf;
+        /// <summary>
+        /// Automation only (CH49): with a manual gearbox, the autopilot shifts up 5 m before each of these route gates and makes
+        /// no other shift from 150 m before the first to 20 m after the last; elsewhere it shifts by rpm as the automatic does.
+        /// </summary>
+        public static string[] AutopilotShiftAtGates;
+        float[] shiftBoards;
+        float autopilotLastDistance = -1f;
         public int CountdownTicks = 60 * 3;
 
         public RaceSimulation Sim { get; private set; }
@@ -281,12 +288,38 @@ namespace NightSignal.Race
             return input;
         }
 
+        /// <summary>The autopilot's hand on a manual gearbox (see <see cref="AutopilotShiftAtGates"/>).</summary>
+        DriverInput AutopilotShift(RaceEntrant e, DriverInput d)
+        {
+            float here = e.Progress.Location.Distance, last = autopilotLastDistance;
+            autopilotLastDistance = here;
+            if (e.State.ShiftTimer > 0f || e.State.Gear < 1) return d;
+            bool up = false, down = false;
+            if (shiftBoards == null && AutopilotShiftAtGates != null)
+                shiftBoards = AutopilotShiftAtGates.Select(id => Sim.Track.Gates.FirstOrDefault(g => g.Id == id)?.StartMetres ?? -1e6f).ToArray();
+            float[] boards = shiftBoards;
+            bool guided = boards != null && boards.Length > 0 && here >= boards.Min() - 150f && here <= boards.Max() + 20f;
+            if (guided)
+            {
+                foreach (float m in boards)
+                    if (last >= 0f && last < m - 5f && here >= m - 5f) up = true;
+            }
+            else
+            {
+                up = e.State.EngineRpm > e.Params.RedlineRpm * 0.95f && e.State.Gear < e.Params.TopGear;
+                down = e.State.Gear > 1 && e.State.EngineRpm < e.Params.RedlineRpm * 0.42f;
+            }
+            if (!up && !down) return d;
+            return DriverInput.Quantize(d.Steer, d.Throttle, d.Brake, d.Buttons | (up ? InputButtons.ShiftUp : InputButtons.ShiftDown));
+        }
+
         DriverInput SampleInput(RaceEntrant e, int tick)
         {
             if (Autopilot)
             {
                 if (tick < Sim.StartTick + (int)(AutopilotHoldSeconds * VehicleSimulation.TickRate)) return DriverInput.Quantize(0f, 0f, 1f, InputButtons.None);
                 DriverInput d = pilot.Drive(e.State, Sim.TrafficFor(e));
+                if (!e.Params.Assists.AutomaticGearbox) d = AutopilotShift(e, d);
                 RacecraftRun rc = e.Racecraft;
                 bool attack = AutopilotAttacksMarkedZones && Sim.Racecraft != null && Sim.Racecraft.InPassZone(e.Progress.RaceDistance);
                 if (!attack && AutopilotFollowSeconds > 0f && rc != null && rc.Ahead >= 0 && rc.Interval >= 0f && rc.Interval < AutopilotFollowSeconds)

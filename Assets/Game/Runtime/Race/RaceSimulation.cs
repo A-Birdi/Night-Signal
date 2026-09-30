@@ -50,6 +50,9 @@ namespace NightSignal.Race
         /// <summary>A timed section (section trials): when it was entered (−1 = not in it) and its first clean time (−1 = none yet).</summary>
         public long SectionStartMicros = -1, SectionMicros = -1;
         public float SectionLastDistance = -1f;
+        /// <summary>Every upshift: the lap and the route metres where the gear went up (CH49's shift windows).</summary>
+        public readonly List<(int Lap, float Metres)> Upshifts = new List<(int, float)>();
+        public int LastGear;
         public bool Collides => Status == EntrantStatus.Racing || Status == EntrantStatus.Finished;
     }
 
@@ -98,6 +101,8 @@ namespace NightSignal.Race
         public bool HumansStartLast;
         /// <summary>A section to time for every entrant (a section trial): the route gates that start and end it (null = none).</summary>
         public string SectionStartGate, SectionEndGate;
+        /// <summary>The humans drive a manual gearbox (CH49's gearing lesson: shift at the marked boards); the AI stays automatic.</summary>
+        public bool ManualGearbox;
     }
 
     public sealed class HumanSlot
@@ -323,7 +328,9 @@ namespace NightSignal.Race
             Core.Builds.ResolvedCarSpec spec = null, Core.Builds.MechanicalSnapshot build = null, string livery = null, int grid = -1)
         {
             if (spec != null && spec.CarModelId != carId) throw new InvalidOperationException($"build for {spec.CarModelId} used on {carId}");
-            VehicleParams p = spec != null ? VehicleFactory.Build(spec, AssistSettings.Default, lib.Body(carId).WheelRadius) : lib.Params(carId, AssistSettings.Default);
+            AssistSettings assists = AssistSettings.Default;
+            if (human && Rules.ManualGearbox) assists.AutomaticGearbox = false;
+            VehicleParams p = spec != null ? VehicleFactory.Build(spec, assists, lib.Body(carId).WheelRadius) : lib.Params(carId, assists);
             if (grid < 0) grid = slot;
             GridSlot g = Track.Grid[grid];
             var e = new RaceEntrant
@@ -407,6 +414,8 @@ namespace NightSignal.Race
                     reset = true;
                 }
                 if (reset) e.StuckSeconds = e.OverturnedSeconds = 0f;
+                if (e.State.Gear > e.LastGear && e.LastGear >= 1 && !reset) e.Upshifts.Add((e.Progress.Lap, e.Progress.Location.Distance));
+                e.LastGear = e.State.Gear;
                 if (sectionEnd >= 0f) StepSection(e, reset, raceMicros);
                 Drift.Step(e, reset, e.Progress.Finished);
                 Contracts?.Step(e, input, raceMicros, reset);

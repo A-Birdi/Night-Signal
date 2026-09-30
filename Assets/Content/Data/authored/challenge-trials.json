@@ -41,7 +41,8 @@
         "challengeExits": false,
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
-        "cleanMerge": false
+        "cleanMerge": false,
+        "shiftWindows": false
       },
       "targets": {
         "timeMs": 136346,
@@ -64,7 +65,9 @@
       "hasSection": false,
       "published": true,
       "requiredStoryRecords": 0,
-      "raceRivalReference": false
+      "raceRivalReference": false,
+      "manualGearbox": false,
+      "shiftGates": []
     },
     {
       "id": "TR-CH15",
@@ -105,7 +108,8 @@
         "challengeExits": false,
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
-        "cleanMerge": false
+        "cleanMerge": false,
+        "shiftWindows": false
       },
       "targets": {
         "timeMs": 273700,
@@ -128,7 +132,9 @@
       "hasSection": false,
       "published": true,
       "requiredStoryRecords": 0,
-      "raceRivalReference": false
+      "raceRivalReference": false,
+      "manualGearbox": false,
+      "shiftGates": []
     },
     {
       "id": "TR-CH43",
@@ -169,7 +175,8 @@
         "challengeExits": false,
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
-        "cleanMerge": false
+        "cleanMerge": false,
+        "shiftWindows": false
       },
       "targets": {
         "timeMs": 167220,
@@ -192,7 +199,9 @@
       "hasSection": false,
       "published": true,
       "requiredStoryRecords": 0,
-      "raceRivalReference": false
+      "raceRivalReference": false,
+      "manualGearbox": false,
+      "shiftGates": []
     },
     {
       "id": "TR-CH55",
@@ -233,7 +242,8 @@
         "challengeExits": false,
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
-        "cleanMerge": false
+        "cleanMerge": false,
+        "shiftWindows": false
       },
       "targets": {
         "timeMs": 150400,
@@ -256,7 +266,9 @@
       "hasSection": false,
       "published": true,
       "requiredStoryRecords": 0,
-      "raceRivalReference": false
+      "raceRivalReference": false,
+      "manualGearbox": false,
+      "shiftGates": []
     },
     {
       "id": "TR-CH11",
@@ -297,7 +309,8 @@
         "challengeExits": false,
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
-        "cleanMerge": false
+        "cleanMerge": false,
+        "shiftWindows": false
       },
       "targets": {
         "timeMs": 194300,
@@ -320,7 +333,9 @@
       "hasSection": false,
       "published": true,
       "requiredStoryRecords": 0,
-      "raceRivalReference": false
+      "raceRivalReference": false,
+      "manualGearbox": false,
+      "shiftGates": []
     },
     {
       "id": "TR-CH51",
@@ -363,7 +378,8 @@
         "challengeExits": false,
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
-        "cleanMerge": false
+        "cleanMerge": false,
+        "shiftWindows": false
       },
       "targets": {
         "timeMs": 169200,
@@ -386,7 +402,9 @@
       "hasSection": false,
       "published": true,
       "requiredStoryRecords": 0,
-      "raceRivalReference": false
+      "raceRivalReference": false,
+      "manualGearbox": false,
+      "shiftGates": []
     },
     {
       "id": "TR-CH54-FWD",
@@ -427,7 +445,8 @@
         "challengeExits": false,
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
-        "cleanMerge": false
+        "cleanMerge": false,
+        "shiftWindows": false
       },
       "targets": {
         "timeMs": 158400,
@@ -450,7 +469,9 @@
       "hasSection": false,
       "published": true,
       "requiredStoryRecords": 0,
-      "raceRivalReference": false
+      "raceRivalReference": false,
+      "manualGearbox": false,
+      "shiftGates": []
     },
     {
       "id": "TR-CH54-RWD",
@@ -491,7 +512,8 @@
         "challengeExits": false,
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
-        "cleanMerge": false
+        "cleanMerge": false,
+        "shiftWindows": false
       },
       "targets": {
         "timeMs": 160500,
@@ -514,7 +536,9 @@
       "hasSection": false,
       "published": true,
       "requiredStoryRecords": 0,
-      "raceRivalReference": false
+      "raceRivalReference": false,
+      "manualGearbox": false,
+      "shiftGates": []
     },
     {
       "id": "TR-CH25",
@@ -557,7 +581,8 @@
         "challengeExits": false,
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
-        "cleanMerge": false
+        "cleanMerge": false,
+        "shiftWindows": false
       },
       "targets": {
         "timeMs": 0,
@@ -580,7 +605,9 @@
       "hasSection": false,
       "published": true,
       "requiredStoryRecords": 0,
-      "raceRivalReference": false
+      "raceRivalReference": false,
+      "manualGearbox": false,
+      "shiftGates": []
     },
     {
       "id": "TR-CH28",
@@ -623,7 +650,8 @@
         "challengeExits": false,
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
-        "cleanMerge": false
+        "cleanMerge": false,
+        "shiftWindows": false
       },
       "targets": {
         "timeMs": 274100,
@@ -646,7 +674,9 @@
       "hasSection": false,
       "published": true,
       "requiredStoryRecords": 0,
-      "raceRivalReference": false
+      "raceRivalReference": false,
+      "manualGearbox": false,
+      "shiftGates": []
     },
     {
       "id": "TR-CH30",
@@ -689,7 +719,8 @@
         "challengeExits": false,
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
-        "cleanMerge": false
+        "cleanMerge": false,
+        "shiftWindows": false
       },
       "targets": {
         "timeMs": 0,
@@ -712,7 +743,9 @@
       "hasSection": false,
       "published": true,
       "requiredStoryRecords": 0,
-      "raceRivalReference": false
+      "raceRivalReference": false,
+      "manualGearbox": false,
+      "shiftGates": []
     },
     {
       "id": "TR-CH40",
@@ -772,7 +805,8 @@
         "challengeExits": false,
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
-        "cleanMerge": false
+        "cleanMerge": false,
+        "shiftWindows": false
       },
       "targets": {
         "timeMs": 0,
@@ -795,7 +829,9 @@
       "hasSection": false,
       "published": true,
       "requiredStoryRecords": 0,
-      "raceRivalReference": false
+      "raceRivalReference": false,
+      "manualGearbox": false,
+      "shiftGates": []
     },
     {
       "id": "TR-CH41",
@@ -867,7 +903,8 @@
         "challengeExits": false,
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
-        "cleanMerge": false
+        "cleanMerge": false,
+        "shiftWindows": false
       },
       "targets": {
         "timeMs": 0,
@@ -890,7 +927,9 @@
       "hasSection": false,
       "published": true,
       "requiredStoryRecords": 0,
-      "raceRivalReference": false
+      "raceRivalReference": false,
+      "manualGearbox": false,
+      "shiftGates": []
     },
     {
       "id": "TR-CH36",
@@ -938,7 +977,8 @@
         "challengeExits": false,
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
-        "cleanMerge": false
+        "cleanMerge": false,
+        "shiftWindows": false
       },
       "targets": {
         "timeMs": 0,
@@ -961,7 +1001,9 @@
       "hasSection": false,
       "published": true,
       "requiredStoryRecords": 0,
-      "raceRivalReference": false
+      "raceRivalReference": false,
+      "manualGearbox": false,
+      "shiftGates": []
     },
     {
       "id": "TR-CH39",
@@ -1009,7 +1051,8 @@
         "challengeExits": false,
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
-        "cleanMerge": false
+        "cleanMerge": false,
+        "shiftWindows": false
       },
       "targets": {
         "timeMs": 0,
@@ -1032,7 +1075,9 @@
       "hasSection": false,
       "published": true,
       "requiredStoryRecords": 0,
-      "raceRivalReference": false
+      "raceRivalReference": false,
+      "manualGearbox": false,
+      "shiftGates": []
     },
     {
       "id": "TR-CH14",
@@ -1089,7 +1134,8 @@
         "challengeExits": false,
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
-        "cleanMerge": false
+        "cleanMerge": false,
+        "shiftWindows": false
       },
       "targets": {
         "timeMs": 0,
@@ -1112,7 +1158,9 @@
       "hasSection": false,
       "published": true,
       "requiredStoryRecords": 0,
-      "raceRivalReference": false
+      "raceRivalReference": false,
+      "manualGearbox": false,
+      "shiftGates": []
     },
     {
       "id": "TR-CH42",
@@ -1169,7 +1217,8 @@
         "challengeExits": false,
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
-        "cleanMerge": false
+        "cleanMerge": false,
+        "shiftWindows": false
       },
       "targets": {
         "timeMs": 0,
@@ -1192,7 +1241,9 @@
       "hasSection": false,
       "published": true,
       "requiredStoryRecords": 0,
-      "raceRivalReference": false
+      "raceRivalReference": false,
+      "manualGearbox": false,
+      "shiftGates": []
     },
     {
       "id": "TR-CH69",
@@ -1249,7 +1300,8 @@
         "challengeExits": false,
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
-        "cleanMerge": false
+        "cleanMerge": false,
+        "shiftWindows": false
       },
       "targets": {
         "timeMs": 0,
@@ -1272,7 +1324,9 @@
       "hasSection": false,
       "published": true,
       "requiredStoryRecords": 0,
-      "raceRivalReference": false
+      "raceRivalReference": false,
+      "manualGearbox": false,
+      "shiftGates": []
     },
     {
       "id": "TR-CH72",
@@ -1329,7 +1383,8 @@
         "challengeExits": false,
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
-        "cleanMerge": false
+        "cleanMerge": false,
+        "shiftWindows": false
       },
       "targets": {
         "timeMs": 0,
@@ -1352,7 +1407,9 @@
       "hasSection": false,
       "published": true,
       "requiredStoryRecords": 0,
-      "raceRivalReference": false
+      "raceRivalReference": false,
+      "manualGearbox": false,
+      "shiftGates": []
     },
     {
       "id": "TR-CH52-LIGHT",
@@ -1395,7 +1452,8 @@
         "challengeExits": false,
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
-        "cleanMerge": false
+        "cleanMerge": false,
+        "shiftWindows": false
       },
       "targets": {
         "timeMs": 14600,
@@ -1418,7 +1476,9 @@
       "hasSection": true,
       "published": true,
       "requiredStoryRecords": 0,
-      "raceRivalReference": false
+      "raceRivalReference": false,
+      "manualGearbox": false,
+      "shiftGates": []
     },
     {
       "id": "TR-CH52-HEAVY",
@@ -1459,7 +1519,8 @@
         "challengeExits": false,
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
-        "cleanMerge": false
+        "cleanMerge": false,
+        "shiftWindows": false
       },
       "targets": {
         "timeMs": 21400,
@@ -1482,7 +1543,9 @@
       "hasSection": true,
       "published": true,
       "requiredStoryRecords": 0,
-      "raceRivalReference": false
+      "raceRivalReference": false,
+      "manualGearbox": false,
+      "shiftGates": []
     },
     {
       "id": "TR-CH58-FWD",
@@ -1523,7 +1586,8 @@
         "challengeExits": false,
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
-        "cleanMerge": false
+        "cleanMerge": false,
+        "shiftWindows": false
       },
       "targets": {
         "timeMs": 15800,
@@ -1546,7 +1610,9 @@
       "hasSection": true,
       "published": true,
       "requiredStoryRecords": 0,
-      "raceRivalReference": false
+      "raceRivalReference": false,
+      "manualGearbox": false,
+      "shiftGates": []
     },
     {
       "id": "TR-CH58-RWD",
@@ -1587,7 +1653,8 @@
         "challengeExits": false,
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
-        "cleanMerge": false
+        "cleanMerge": false,
+        "shiftWindows": false
       },
       "targets": {
         "timeMs": 16900,
@@ -1610,7 +1677,9 @@
       "hasSection": true,
       "published": true,
       "requiredStoryRecords": 0,
-      "raceRivalReference": false
+      "raceRivalReference": false,
+      "manualGearbox": false,
+      "shiftGates": []
     },
     {
       "id": "TR-CH58-AWD",
@@ -1651,7 +1720,8 @@
         "challengeExits": false,
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
-        "cleanMerge": false
+        "cleanMerge": false,
+        "shiftWindows": false
       },
       "targets": {
         "timeMs": 20000,
@@ -1674,7 +1744,9 @@
       "hasSection": true,
       "published": true,
       "requiredStoryRecords": 0,
-      "raceRivalReference": false
+      "raceRivalReference": false,
+      "manualGearbox": false,
+      "shiftGates": []
     },
     {
       "id": "TR-CH53-OPEN",
@@ -1715,7 +1787,8 @@
         "challengeExits": true,
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
-        "cleanMerge": false
+        "cleanMerge": false,
+        "shiftWindows": false
       },
       "targets": {
         "timeMs": 0,
@@ -1747,7 +1820,9 @@
       "hasSection": false,
       "published": true,
       "requiredStoryRecords": 0,
-      "raceRivalReference": false
+      "raceRivalReference": false,
+      "manualGearbox": false,
+      "shiftGates": []
     },
     {
       "id": "TR-CH53-RACE",
@@ -1790,7 +1865,8 @@
         "challengeExits": true,
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
-        "cleanMerge": false
+        "cleanMerge": false,
+        "shiftWindows": false
       },
       "targets": {
         "timeMs": 0,
@@ -1822,7 +1898,9 @@
       "hasSection": false,
       "published": true,
       "requiredStoryRecords": 0,
-      "raceRivalReference": false
+      "raceRivalReference": false,
+      "manualGearbox": false,
+      "shiftGates": []
     },
     {
       "id": "TR-CH07",
@@ -1863,7 +1941,8 @@
         "challengeExits": false,
         "brakeEnvelope": true,
         "alternatingRecoveries": false,
-        "cleanMerge": false
+        "cleanMerge": false,
+        "shiftWindows": false
       },
       "targets": {
         "timeMs": 0,
@@ -1894,7 +1973,9 @@
       "hasSection": false,
       "published": true,
       "requiredStoryRecords": 0,
-      "raceRivalReference": false
+      "raceRivalReference": false,
+      "manualGearbox": false,
+      "shiftGates": []
     },
     {
       "id": "TR-CH23",
@@ -1935,7 +2016,8 @@
         "challengeExits": false,
         "brakeEnvelope": false,
         "alternatingRecoveries": true,
-        "cleanMerge": false
+        "cleanMerge": false,
+        "shiftWindows": false
       },
       "targets": {
         "timeMs": 0,
@@ -1958,7 +2040,9 @@
       "hasSection": false,
       "published": true,
       "requiredStoryRecords": 0,
-      "raceRivalReference": false
+      "raceRivalReference": false,
+      "manualGearbox": false,
+      "shiftGates": []
     },
     {
       "id": "TR-CH74",
@@ -1999,7 +2083,8 @@
         "challengeExits": false,
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
-        "cleanMerge": false
+        "cleanMerge": false,
+        "shiftWindows": false
       },
       "targets": {
         "timeMs": 240846,
@@ -2015,7 +2100,9 @@
       "brief": "After the story: collect all six radio and timing-slip records through Normal progression, then beat the C24 reference — Satoshi Mibe's run in the V14, on the road beside you as a ghost — in the same car.",
       "ghost": false,
       "requiredStoryRecords": 6,
-      "raceRivalReference": true
+      "raceRivalReference": true,
+      "manualGearbox": false,
+      "shiftGates": []
     },
     {
       "id": "TR-CH37",
@@ -2063,7 +2150,8 @@
         "challengeExits": false,
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
-        "cleanMerge": true
+        "cleanMerge": true,
+        "shiftWindows": false
       },
       "targets": {
         "timeMs": 0,
@@ -2079,7 +2167,73 @@
       "brief": "The Driving School's merge lesson: an instructor's pace car in the same starter car keeps the right-hand merge lane from the start line. Take the left-hand lane and drive the whole marked merge beside it — each car inside its own lane, no contact.",
       "ghost": false,
       "requiredStoryRecords": 0,
-      "raceRivalReference": false
+      "raceRivalReference": false,
+      "manualGearbox": false,
+      "shiftGates": []
+    },
+    {
+      "id": "TR-CH49",
+      "challenge": "CH49",
+      "title": "A Place for Every Gear",
+      "course": "T00",
+      "tier": "bronze",
+      "kind": "drill",
+      "legs": [],
+      "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
+      "sectionStartGate": "",
+      "sectionEndGate": "",
+      "field": [],
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V01",
+        "parts": {},
+        "piCap": 0
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": false,
+        "allDefenceZones": false,
+        "challengeExits": false,
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false,
+        "cleanMerge": false,
+        "shiftWindows": true
+      },
+      "targets": {
+        "timeMs": 0,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0,
+        "referencePaceScale": 0.0,
+        "sectorTimeMs": 0,
+        "exitFloors": [],
+        "brakes": []
+      },
+      "group": "",
+      "brief": "The Driving School's guided gearing lesson in the supplied starter Hachi RS with a manual gearbox: up the acceleration lane, shift up once at each of the three marked boards — within 25 m before to 10 m after it — on one lap. Nothing to buy.",
+      "ghost": false,
+      "requiredStoryRecords": 0,
+      "raceRivalReference": false,
+      "manualGearbox": true,
+      "shiftGates": [
+        "T00-GEAR-1",
+        "T00-GEAR-2",
+        "T00-GEAR-3"
+      ]
     }
   ]
 }

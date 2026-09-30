@@ -85,6 +85,8 @@ namespace NightSignal.Core.Rules
         public bool AlternatingRecoveries;
         /// <summary>CH37: the challenge's merge span driven side by side with the "merge" pace car, each in its own lane, no contact.</summary>
         public bool CleanMerge;
+        /// <summary>CH49: an upshift inside the window at each of the trial's shift boards, on one lap, with a manual gearbox.</summary>
+        public bool ShiftWindows;
     }
 
     /// <summary>
@@ -172,6 +174,12 @@ namespace NightSignal.Core.Rules
         /// records; 0 = none). Judged from the profile's campaign clears, as the race diary shows them.
         /// </summary>
         public int RequiredStoryRecords;
+        /// <summary>The player drives a manual gearbox (CH49; the default is the automatic).</summary>
+        public bool ManualGearbox;
+        /// <summary>CH49's shift boards, in order (route gate ids): an upshift is wanted at each.</summary>
+        public List<string> ShiftGates = new List<string>();
+        /// <summary>An upshift counts for a board from this far before it to this far after it (m).</summary>
+        public const float ShiftWindowBefore = 25f, ShiftWindowAfter = 10f;
         /// <summary>The trial races its course's authored rival reference ghost, whose time is its target (CH74's C24 reference).</summary>
         public bool RaceRivalReference;
         public bool HasSection => !string.IsNullOrEmpty(SectionStartGate) && !string.IsNullOrEmpty(SectionEndGate);
@@ -268,6 +276,8 @@ namespace NightSignal.Core.Rules
         public bool RecoveriesAlternating, Spun;
         /// <summary>CH37: a merge span kept (see <see cref="TrialRules.CleanMerge"/>).</summary>
         public bool MergeKept;
+        /// <summary>CH49: the best lap's upshift offset at each shift board (m past it; NaN = no upshift in its window), in board order.</summary>
+        public float[] ShiftOffsets;
         public int Recoveries;
     }
 
@@ -278,6 +288,38 @@ namespace NightSignal.Core.Rules
         public List<KeyValuePair<bool, string>> Checks = new List<KeyValuePair<bool, string>>();
         /// <summary>Each check in words ("ok:" / "MISSED:") — the game font has no check-mark glyphs.</summary>
         public string Summary => string.Join(" · ", Checks.Select(c => (c.Key ? "ok: " : "MISSED: ") + c.Value));
+    }
+
+    /// <summary>CH49's shift windows from a run's upshifts (Core, so the game server and the Local race agree).</summary>
+    public static class ShiftWindowJudge
+    {
+        /// <summary>
+        /// For the lap with the most boards hit (the earliest on a tie): per board, the offset of the upshift nearest to it inside
+        /// its window (m past the board), or NaN.
+        /// </summary>
+        public static float[] Offsets(IReadOnlyList<float> boardMetres, IEnumerable<(int Lap, float Metres)> upshifts)
+        {
+            var result = Enumerable.Repeat(float.NaN, boardMetres.Count).ToArray();
+            int bestHits = -1;
+            foreach (IGrouping<int, (int Lap, float Metres)> lap in (upshifts ?? Enumerable.Empty<(int, float)>()).GroupBy(u => u.Lap).OrderBy(g => g.Key))
+            {
+                var offsets = new float[boardMetres.Count];
+                int hits = 0;
+                for (int i = 0; i < boardMetres.Count; i++)
+                {
+                    float best = float.NaN;
+                    foreach ((int _, float m) in lap)
+                    {
+                        float o = m - boardMetres[i];
+                        if (o >= -ChallengeTrialDef.ShiftWindowBefore && o <= ChallengeTrialDef.ShiftWindowAfter && (float.IsNaN(best) || Math.Abs(o) < Math.Abs(best))) best = o;
+                    }
+                    offsets[i] = best;
+                    if (!float.IsNaN(best)) hits++;
+                }
+                if (hits > bestHits) { bestHits = hits; result = offsets; }
+            }
+            return result;
+        }
     }
 
     /// <summary>Judges trial runs and the challenges they complete. Engine-free: the game server and the Local race agree.</summary>
@@ -312,6 +354,13 @@ namespace NightSignal.Core.Rules
             if (t.Rules.BankEveryZone) Check(f.ZonesTotal > 0 && f.ZonesBanked >= f.ZonesTotal, $"a chain banked in every judged zone ({f.ZonesBanked}/{f.ZonesTotal})");
             if (t.Rules.AllDefenceZones) Check(f.DefenceZones > 0 && f.DefenceZonesKept, $"every marked defence gate inside the legal corridor ({f.DefenceZones} of them)");
             if (t.Rules.CleanMerge) Check(f.MergeKept, "the merge beside the pace car, both in their lanes, no contact");
+            if (t.Rules.ShiftWindows)
+            {
+                int hit = f.ShiftOffsets == null ? 0 : f.ShiftOffsets.Count(o => !float.IsNaN(o));
+                Check(t.ShiftGates.Count > 0 && hit == t.ShiftGates.Count,
+                    $"an upshift at each marked board, {ChallengeTrialDef.ShiftWindowBefore:F0} m before to {ChallengeTrialDef.ShiftWindowAfter:F0} m after it, on one lap " +
+                    $"({hit} of {t.ShiftGates.Count}{(f.ShiftOffsets == null ? "" : ": " + string.Join(", ", f.ShiftOffsets.Select(o => float.IsNaN(o) ? "missed" : (o >= 0f ? "+" : "") + o.ToString("F0") + " m")))})");
+            }
             if (t.Rules.AlternatingRecoveries)
                 Check(f.RecoveriesAlternating, $"alternating recoveries, one in each marked zone in turn, no spin or reset between them ({f.Recoveries} recoveries in the run)");
             if (t.Rules.BrakeEnvelope)
@@ -414,7 +463,7 @@ namespace NightSignal.Core.Rules
                 if (t.Targets == null || t.Targets.TimeMs < 0 || t.Targets.DriftRaw < 0) problems.Add($"{t.Id}: negative target");
                 if (t.Rules != null && t.Rules.MaxWallImpacts < -1) problems.Add($"{t.Id}: invalid wall allowance");
                 if (!t.JudgesTime && !t.JudgesDrift && !t.IsRace && !t.IsCup && !t.IsDrill) problems.Add($"{t.Id}: unknown kind {t.Kind}");
-                if (t.IsDrill && t.Rules != null && !(t.Rules.AllChallengeGates || t.Rules.ChallengeExits || t.Rules.AllDefenceZones || t.Rules.BrakeEnvelope || t.Rules.AlternatingRecoveries))
+                if (t.IsDrill && t.Rules != null && !(t.Rules.AllChallengeGates || t.Rules.ChallengeExits || t.Rules.AllDefenceZones || t.Rules.BrakeEnvelope || t.Rules.AlternatingRecoveries || t.Rules.ShiftWindows))
                     problems.Add($"{t.Id}: a drill judges nothing");
                 if (t.IsCup)
                 {
@@ -430,6 +479,8 @@ namespace NightSignal.Core.Rules
                 if (string.IsNullOrEmpty(t.SectionStartGate) != string.IsNullOrEmpty(t.SectionEndGate)) problems.Add($"{t.Id}: a section needs its start and end gates");
                 if (t.HasSection && !t.JudgesTime) problems.Add($"{t.Id}: a section is timed");
                 if (t.RequiredStoryRecords < 0) problems.Add($"{t.Id}: negative story records");
+                if (t.Rules != null && t.Rules.ShiftWindows && (t.ShiftGates == null || t.ShiftGates.Count == 0 || !t.ManualGearbox))
+                    problems.Add($"{t.Id}: shift windows need their boards and a manual gearbox");
                 if (t.RaceRivalReference && !t.JudgesTime) problems.Add($"{t.Id}: a rival reference is raced against its time");
                 }
                 else if (t.Legs != null && t.Legs.Count > 0) problems.Add($"{t.Id}: only challenge cups have legs");
