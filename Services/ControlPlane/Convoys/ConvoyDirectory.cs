@@ -47,7 +47,7 @@ public sealed class ConvoyDirectory
     /// A challenge trial the game server can run online today: a solo trial on an online course — not a racecraft trial (fixed AI
     /// field), a cup, a Driving School section or anything on the tutorial course (offline only for now).
     /// </summary>
-    bool OnlineTrial(ChallengeTrialDef t) => !t.IsRace && !t.IsCup && !t.HasSection && t.RequiredStoryRecords == 0 && Catalogue.Course(t.Course)?.Kind != "tutorial";
+    bool OnlineTrial(ChallengeTrialDef t) => !t.IsRace && !t.IsCup && !t.HasSection && t.RequiredStoryRecords == 0 && !t.Loaner.IsTunable && Catalogue.Course(t.Course)?.Kind != "tutorial";
 
     readonly TimeProvider clock;
     readonly ContentService content;

@@ -296,6 +296,65 @@ public sealed class ChallengeTrialsTests
         Assert.Contains("ok: leg 1 of 3 (C21) finished", leg1.Summary);
     }
 
+    static TrialLoanerBuild Setup(TrialLoaner loaner, MechanicalSnapshot? setup) =>
+        TrialLoaners.ResolveSetup(loaner, setup, Cat.Car(loaner.Car), Cat.CarTunings[loaner.Car], parts.Value);
+
+    [Fact]
+    public void ATunableLoaner_TakesThePlayersParts_AndTune_WithinItsRules()
+    {
+        var loaner = new TrialLoaner { Car = "V01", Tunable = true, Choices = { ["gearbox"] = new List<string> { "GBX-T1-FINAL" } } };
+        TrialLoanerBuild asSupplied = Setup(loaner, null);
+        Assert.True(asSupplied.Ok);
+        Assert.False(asSupplied.FinalDriveChanged, "the stock car has no final-drive control");
+
+        var withGearbox = new MechanicalSnapshot { Parts = { ["gearbox"] = "GBX-T1-FINAL" } };
+        TrialLoanerBuild installed = Setup(loaner, withGearbox);
+        Assert.True(installed.Ok, string.Join("; ", installed.Problems));
+        TuningControlInfo fd = installed.Controls.Single(c => c.Key == TuningKeys.FinalDrive);
+        Assert.False(installed.FinalDriveChanged, "the default final drive");
+
+        withGearbox.Tuning.Values[TuningKeys.FinalDrive] = fd.Default + fd.Step;
+        TrialLoanerBuild tuned = Setup(loaner, withGearbox);
+        Assert.True(tuned.Ok && tuned.FinalDriveChanged);
+        Assert.Equal(fd.Default + fd.Step, tuned.Value(TuningKeys.FinalDrive));
+
+        withGearbox.Tuning.Values[TuningKeys.FinalDrive] = fd.Max + fd.Step;
+        Assert.False(Setup(loaner, withGearbox).Ok, "outside the control's range");
+
+        Assert.Contains("gearbox: GBX-T4-DOG is not one of this trial's parts",
+            Setup(loaner, new MechanicalSnapshot { Parts = { ["gearbox"] = "GBX-T4-DOG" } }).Problems);
+        var fixedTune = new TrialLoaner { Car = "V01", Choices = { ["gearbox"] = new List<string> { "GBX-T1-FINAL" } } };
+        var tunedFixed = new MechanicalSnapshot { Parts = { ["gearbox"] = "GBX-T1-FINAL" } };
+        tunedFixed.Tuning.Values[TuningKeys.FinalDrive] = fd.Default + fd.Step;
+        Assert.Contains("this loaner's tuning is fixed", Setup(fixedTune, tunedFixed).Problems);
+    }
+
+    [Fact]
+    public void ATunableLoaner_KeepsItsBudget_AndReportsTheAeroEnds()
+    {
+        var loaner = new TrialLoaner { Car = "V07", Tunable = true, Choices = { ["aero"] = new List<string> { "AER-T4-FULL" } } };
+        var aero = new MechanicalSnapshot { Parts = { ["aero"] = "AER-T4-FULL" } };
+        TrialLoanerBuild b = Setup(loaner, aero);
+        Assert.True(b.Ok, string.Join("; ", b.Problems));
+        TuningControlInfo bal = b.Controls.Single(c => c.Key == TuningKeys.AeroBalance);
+        Assert.False(b.AeroAtExtreme);
+        aero.Tuning.Values[TuningKeys.AeroBalance] = bal.Max;
+        Assert.True(Setup(loaner, aero).AeroAtExtreme, "front aero at its maximum");
+        aero.Tuning.Values[TuningKeys.AeroBalance] = bal.Min;
+        Assert.True(Setup(loaner, aero).AeroAtExtreme, "rear aero at its maximum");
+
+        int pi = b.Pi.Value;
+        loaner.PiBudget = pi - 1;
+        aero.Tuning.Values.Remove(TuningKeys.AeroBalance);
+        Assert.Contains($"PI {pi} is over the budget of {pi - 1}", Setup(loaner, aero).Problems);
+
+        var t = new ChallengeTrialDef { Id = "TR-T", Challenge = "CH57", Course = "C15", Kind = "time", Loaner = loaner,
+            Rules = new TrialRules { AeroNotAtExtreme = true }, Targets = new TrialTargets { TimeMs = 100_000 } };
+        Assert.True(TrialJudge.Judge(t, Run(timeMs: 99_000) with { SetupLegal = true }).Passed);
+        Assert.False(TrialJudge.Judge(t, Run(timeMs: 99_000) with { SetupLegal = true, AeroAtExtreme = true }).Passed);
+        Assert.False(TrialJudge.Judge(t, Run(timeMs: 99_000) with { SetupLegal = false }).Passed, "an illegal setup");
+    }
+
     [Fact]
     public void RacecraftTrialContent_IsChecked()
     {

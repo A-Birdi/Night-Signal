@@ -33,6 +33,8 @@ namespace NightSignal.Front
         public string TrialId, TrialBuildHash;
         /// <summary>A challenge cup's leg (0-based; -1 for every other event).</summary>
         public int TrialLeg = -1;
+        /// <summary>A tunable trial: the player's saved setup as resolved at the start (null otherwise).</summary>
+        public NightSignal.Core.Builds.TrialLoanerBuild TrialSetup;
     }
 
     /// <summary>
@@ -276,6 +278,10 @@ namespace NightSignal.Front
                     DefenceZonesKept = me.Entrant.GateRun != null && me.Entrant.GateRun.DefenceKept(trial.Challenge),
                     DefenceZones = me.Entrant.GateRun?.DefenceCount(trial.Challenge) ?? 0,
                     SectionMs = me.Entrant.SectionMicros > 0 ? me.Entrant.SectionMicros / 1000 : 0,
+                    SetupLegal = plan.TrialSetup != null && plan.TrialSetup.Ok,
+                    SetupPi = plan.TrialSetup?.Pi?.Value ?? 0,
+                    FinalDriveChanged = plan.TrialSetup != null && plan.TrialSetup.FinalDriveChanged,
+                    AeroAtExtreme = plan.TrialSetup != null && plan.TrialSetup.AeroAtExtreme,
                     StoryRecords = trial.RequiredStoryRecords > 0 ? DiaryScreen.Build(s.Profile, NightSignal.Content.ContentLibrary.Load()).Count(e => e.Kind == "record") : 0,
                     MergeKept = me.Entrant.Racecraft != null && me.Entrant.Racecraft.Merges.Any(m => m.Challenge == trial.Challenge && m.Kept),
                     ShiftOffsets = trial.ShiftGates.Count == 0 ? null : ShiftWindowJudge.Offsets(

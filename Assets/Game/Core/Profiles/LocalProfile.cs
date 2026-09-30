@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using NightSignal.Core.Builds;
 using NightSignal.Core.Content;
 using NightSignal.Core.Rules;
 using Newtonsoft.Json;
@@ -58,6 +59,12 @@ namespace NightSignal.Core.Profiles
         /// <summary>Challenge trials passed (docs/CHALLENGE_TRIALS.md), sorted: a grouped challenge (CH54) needs every trial of its group.</summary>
         public List<string> TrialsPassed { get; set; } = new List<string>();
         public bool ShouldSerializeTrialsPassed() => TrialsPassed != null && TrialsPassed.Count > 0;
+        /// <summary>
+        /// The player's own setup of each tunable trial loaner (parts chosen from the trial's free choices, and the tune), by trial
+        /// id — CH46's saved tune preset; raced by every run of that trial.
+        /// </summary>
+        public Dictionary<string, MechanicalSnapshot> TrialSetups { get; set; } = new Dictionary<string, MechanicalSnapshot>();
+        public bool ShouldSerializeTrialSetups() => TrialSetups != null && TrialSetups.Count > 0;
         public DateTime CreatedUtc { get; set; }
         public DateTime UpdatedUtc { get; set; }
         /// <summary>Incremented by every successful save; used for stale-copy conflict checks.</summary>
@@ -148,6 +155,9 @@ namespace NightSignal.Core.Profiles
             List<string> lessons = Tutorial?.LessonsPassed ?? new List<string>();
             if (lessons.Count > 64 || lessons.Distinct(StringComparer.Ordinal).Count() != lessons.Count || lessons.Any(x => string.IsNullOrEmpty(x) || x.Length > 64))
                 e.Add("The tutorial's passed lessons are malformed.");
+            Dictionary<string, MechanicalSnapshot> setups = TrialSetups ?? new Dictionary<string, MechanicalSnapshot>();
+            if (setups.Count > 64 || setups.Any(kv => string.IsNullOrEmpty(kv.Key) || kv.Key.Length > 64 || kv.Value == null || (kv.Value.Parts?.Count ?? 0) > 16))
+                e.Add("The saved trial setups are malformed.");
             List<string> trials = TrialsPassed ?? new List<string>();
             if (trials.Count > 128 || trials.Distinct(StringComparer.Ordinal).Count() != trials.Count || trials.Any(x => string.IsNullOrEmpty(x) || x.Length > 64))
                 e.Add("The passed challenge trials are malformed.");

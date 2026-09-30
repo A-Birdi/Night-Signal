@@ -65,6 +65,7 @@ namespace NightSignal.Front
         public readonly RouteChartScreen ChartScreen = new RouteChartScreen();
         public readonly CupScreen Cup = new CupScreen();
         public readonly ChallengeTrialsScreen Trials = new ChallengeTrialsScreen();
+        public readonly TrialTuneScreen TrialTune = new TrialTuneScreen();
         /// <summary>The last Local race's classification (the Custom Cup table reads each leg).</summary>
         public List<RaceEntrantResult> LastLocalResults { get; private set; }
         /// <summary>The last online race left a route chart (its trace had samples).</summary>

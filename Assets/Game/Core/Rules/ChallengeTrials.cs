@@ -11,6 +11,15 @@ namespace NightSignal.Core.Rules
         public Dictionary<string, string> Parts = new Dictionary<string, string>();
         /// <summary>The class cap the predicate names (0 = none): the resolved loaner must be within it.</summary>
         public int PiCap;
+        /// <summary>
+        /// A tunable loaner (CH46, CH56, CH57, CH59): free alternative parts the player may install, by slot id (the supplied
+        /// part is always allowed); whether the installed parts' tuning is the player's to set; and a locked PI budget the
+        /// player's setup must stay within (0 = none). The setup is the player's own, saved with the profile.
+        /// </summary>
+        public Dictionary<string, List<string>> Choices = new Dictionary<string, List<string>>();
+        public bool Tunable;
+        public int PiBudget;
+        public bool IsTunable => Tunable || (Choices != null && Choices.Count > 0);
     }
 
     /// <summary>
@@ -87,6 +96,10 @@ namespace NightSignal.Core.Rules
         public bool CleanMerge;
         /// <summary>CH49: an upshift inside the window at each of the trial's shift boards, on one lap, with a manual gearbox.</summary>
         public bool ShiftWindows;
+        /// <summary>CH46: the player's setup changes the final drive from its default.</summary>
+        public bool FinalDriveChanged;
+        /// <summary>CH57: the aero balance is at neither end of its range (neither front nor rear aero at its maximum).</summary>
+        public bool AeroNotAtExtreme;
     }
 
     /// <summary>
@@ -278,6 +291,9 @@ namespace NightSignal.Core.Rules
         public bool MergeKept;
         /// <summary>CH49: the best lap's upshift offset at each shift board (m past it; NaN = no upshift in its window), in board order.</summary>
         public float[] ShiftOffsets;
+        /// <summary>A tunable loaner: the player's setup was legal (its parts among the trial's, a valid tune, within the PI budget), its PI, and what it set.</summary>
+        public bool SetupLegal, FinalDriveChanged, AeroAtExtreme;
+        public int SetupPi;
         public int Recoveries;
     }
 
@@ -331,6 +347,10 @@ namespace NightSignal.Core.Rules
             var v = new TrialVerdict();
             void Check(bool ok, string what) => v.Checks.Add(new KeyValuePair<bool, string>(ok, what));
             Check(f.DroveLoaner, "the supplied loaner");
+            if (t.Loaner != null && t.Loaner.IsTunable)
+                Check(f.SetupLegal, t.Loaner.PiBudget > 0 ? $"your setup legal and within PI {t.Loaner.PiBudget} (PI {f.SetupPi})" : $"your setup legal (PI {f.SetupPi})");
+            if (t.Rules.FinalDriveChanged) Check(f.FinalDriveChanged, "your tune changes the final drive");
+            if (t.Rules.AeroNotAtExtreme) Check(!f.AeroAtExtreme, "neither front nor rear aero at its maximum");
             if (t.RequiredStoryRecords > 0)
                 Check(f.StoryRecords >= t.RequiredStoryRecords,
                     $"the {t.RequiredStoryRecords} story records collected through Normal progression ({f.StoryRecords} of {t.RequiredStoryRecords})");
@@ -463,7 +483,8 @@ namespace NightSignal.Core.Rules
                 if (t.Targets == null || t.Targets.TimeMs < 0 || t.Targets.DriftRaw < 0) problems.Add($"{t.Id}: negative target");
                 if (t.Rules != null && t.Rules.MaxWallImpacts < -1) problems.Add($"{t.Id}: invalid wall allowance");
                 if (!t.JudgesTime && !t.JudgesDrift && !t.IsRace && !t.IsCup && !t.IsDrill) problems.Add($"{t.Id}: unknown kind {t.Kind}");
-                if (t.IsDrill && t.Rules != null && !(t.Rules.AllChallengeGates || t.Rules.ChallengeExits || t.Rules.AllDefenceZones || t.Rules.BrakeEnvelope || t.Rules.AlternatingRecoveries || t.Rules.ShiftWindows))
+                if (t.IsDrill && t.Rules != null && !(t.Rules.AllChallengeGates || t.Rules.ChallengeExits || t.Rules.AllDefenceZones || t.Rules.BrakeEnvelope || t.Rules.AlternatingRecoveries || t.Rules.ShiftWindows
+                    || t.HasSection || t.Rules.FinalDriveChanged))
                     problems.Add($"{t.Id}: a drill judges nothing");
                 if (t.IsCup)
                 {
@@ -479,6 +500,9 @@ namespace NightSignal.Core.Rules
                 if (string.IsNullOrEmpty(t.SectionStartGate) != string.IsNullOrEmpty(t.SectionEndGate)) problems.Add($"{t.Id}: a section needs its start and end gates");
                 if (t.HasSection && !t.JudgesTime) problems.Add($"{t.Id}: a section is timed");
                 if (t.RequiredStoryRecords < 0) problems.Add($"{t.Id}: negative story records");
+                if (t.Rules != null && (t.Rules.FinalDriveChanged || t.Rules.AeroNotAtExtreme) && (t.Loaner == null || !t.Loaner.Tunable))
+                    problems.Add($"{t.Id}: a tuning rule needs a tunable loaner");
+                if (t.Loaner != null && t.Loaner.PiBudget < 0) problems.Add($"{t.Id}: negative PI budget");
                 if (t.Rules != null && t.Rules.ShiftWindows && (t.ShiftGates == null || t.ShiftGates.Count == 0 || !t.ManualGearbox))
                     problems.Add($"{t.Id}: shift windows need their boards and a manual gearbox");
                 if (t.RaceRivalReference && !t.JudgesTime) problems.Add($"{t.Id}: a rival reference is raced against its time");

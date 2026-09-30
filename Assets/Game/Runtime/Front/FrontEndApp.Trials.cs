@@ -42,6 +42,20 @@ namespace NightSignal.Front
             ChallengeTrialDef t = lib.Catalogue.ChallengeTrials.Find(plan.TrialId);
             if (t == null) { problem = "unknown challenge trial " + plan.TrialId; return null; }
             CarDef car = lib.Catalogue.Car(t.Loaner.Car);
+            if (t.Loaner.IsTunable)
+            {
+                // The player's saved setup (the loaner as supplied without one); an illegal setup races as supplied and fails the trial.
+                MechanicalSnapshot saved = null;
+                LocalSession.Current?.Profile?.TrialSetups?.TryGetValue(t.Id, out saved);
+                TrialLoanerBuild b = TrialLoaners.ResolveSetup(t.Loaner, saved, car, lib.Catalogue.CarTunings[car.Id], lib.Parts);
+                plan.TrialSetup = b;
+                if (!b.Ok) b = TrialLoaners.ResolveSetup(t.Loaner, null, car, lib.Catalogue.CarTunings[car.Id], lib.Parts);
+                if (!b.Result.Ok) { problem = $"{t.Id}: the loaner does not resolve"; return null; }
+                plan.TrialBuildHash = b.Result.Spec.BuildHash;
+                Debug.Log($"[NightSignal.Trial] {t.Id}: {car.Id} {(saved == null ? "as supplied" : "with your setup")} — parts {string.Join(", ", b.Build.Parts.Select(kv => kv.Key + "=" + kv.Value))}; " +
+                          $"tune {string.Join(", ", b.Build.Tuning.Values.Select(kv => kv.Key + "=" + kv.Value))}; PI {b.Pi?.Value}{(plan.TrialSetup.Ok ? "" : "; NOT LEGAL: " + string.Join("; ", plan.TrialSetup.Problems))}");
+                return b.Result.Spec;
+            }
             ResolveResult r = TrialLoaners.Resolve(t.Loaner, car, lib.Catalogue.CarTunings[car.Id], lib.Parts, out PiEstimate pi);
             if (!r.Ok) { problem = $"{t.Id}: the loaner does not resolve ({string.Join("; ", r.Issues)})"; return null; }
             plan.TrialBuildHash = r.Spec.BuildHash;

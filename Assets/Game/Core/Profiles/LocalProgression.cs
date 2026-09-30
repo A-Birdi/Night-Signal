@@ -174,6 +174,8 @@ namespace NightSignal.Core.Profiles
         DiaryRead = 23,
         /// <summary>A T00 lesson passed (training progress only).</summary>
         LessonPassed = 24,
+        /// <summary>A tunable challenge trial's setup saved (no money).</summary>
+        TrialSetupSaved = 25,
     }
 
     /// <summary>One itemised line for the results screen: what changed and why.</summary>
@@ -1161,6 +1163,30 @@ namespace NightSignal.Core.Profiles
             if (profile.Tutorial.LessonsPassed.Contains(lessonId)) return Already(result, "Already passed.");
             profile.Tutorial.LessonsPassed.Add(lessonId);
             Add(result, ProgressionChangeKind.LessonPassed, lessonId, 0, "Lesson passed: " + lessons.Find(lessonId).Title + ".");
+            result.Status = LocalOperationStatus.Applied;
+            return Finish(result, profile);
+        }
+
+        /// <summary>
+        /// Keeps the player's setup of a tunable trial loaner (CH46's "legal personalized tune preset"): only a trial whose loaner
+        /// is tunable, and only a legal setup — its parts among the trial's, a valid tune, within the PI budget. No money.
+        /// </summary>
+        public static LocalProgressionResult SaveTrialSetup(LocalProfile profile, ContentCatalogue catalogue, Builds.PartsCatalogue parts, string trialId, Builds.MechanicalSnapshot setup)
+        {
+            LocalProgressionResult result = Begin(profile);
+            ChallengeTrialDef trial = catalogue?.ChallengeTrials?.Find(trialId ?? "");
+            if (trial == null) return Reject(result, "No such challenge trial.");
+            if (!trial.Loaner.IsTunable) return Reject(result, $"{trial.Id}'s loaner is supplied as it is.");
+            CarDef car = catalogue.Car(trial.Loaner.Car);
+            Builds.TrialLoanerBuild b = Builds.TrialLoaners.ResolveSetup(trial.Loaner, setup, car, catalogue.CarTunings[car.Id], parts);
+            if (!b.Ok) return Reject(result, "Not a legal setup: " + string.Join("; ", b.Problems.Distinct()) + ".");
+            if (profile.TrialSetups == null) profile.TrialSetups = new Dictionary<string, Builds.MechanicalSnapshot>();
+            profile.TrialSetups[trial.Id] = new Builds.MechanicalSnapshot
+            {
+                Parts = new SortedDictionary<string, string>(setup.Parts ?? new SortedDictionary<string, string>(), StringComparer.Ordinal),
+                Tuning = setup.Tuning?.Clone() ?? new Builds.TuningSetup(),
+            };
+            Add(result, ProgressionChangeKind.TrialSetupSaved, trial.Id, 0, $"Setup saved for {trial.Id} (PI {b.Pi?.Value}).");
             result.Status = LocalOperationStatus.Applied;
             return Finish(result, profile);
         }

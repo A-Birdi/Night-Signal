@@ -24,7 +24,7 @@ namespace NightSignal.Front
         public const int Rows = 10;
         TextMeshProUGUI count, title, predicate, loaner, rules, targets, verdict;
         readonly List<Button> rows = new List<Button>();
-        Button start, back, more;
+        Button start, back, more, tune;
         ChallengeTrialDef open;
         int page;
         int Pages => Math.Max(1, (All.Count + Rows - 1) / Rows);
@@ -60,6 +60,7 @@ namespace NightSignal.Front
             loaner = Wrapped("TrialLoaner", dcol, SignalTheme.Body, SignalTheme.Label, 110);
             rules = Wrapped("TrialRules", dcol, SignalTheme.Small, SignalTheme.LabelDim, 60);
             targets = Wrapped("TrialTargets", dcol, SignalTheme.Body, SignalTheme.Label, 50);
+            tune = UIFactory.Button("TuneLoaner", dcol, "Tune the Loaner", () => { if (open != null) { App.TrialTune.Open(open); App.Router.Show(App.TrialTune); } }, 520, 48);
             start = UIFactory.Button("StartTrial", dcol, "Start Trial", () => { if (open != null) App.StartTrial(open, this); }, 520, 56);
             verdict = Wrapped("TrialVerdict", dcol, SignalTheme.Body, SignalTheme.Label, 120);
             verdict.richText = false;
@@ -205,6 +206,7 @@ namespace NightSignal.Front
             verdict.text = lastVerdict.TryGetValue(t.Id, out string v) ? v
                 : done ? "Challenge earned." : PassedTrials.Contains(t.Id) ? "This trial is passed; its pair is still open." : "";
             start.interactable = r.Ok;
+            tune.gameObject.SetActive(t.Loaner.IsTunable);
             start.GetComponentInChildren<TextMeshProUGUI>().text = done || PassedTrials.Contains(t.Id) ? "Run Again" : "Start Trial";
         }
     }
