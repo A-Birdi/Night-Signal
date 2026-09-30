@@ -61,6 +61,16 @@ public sealed class ChallengeTrialOnlineTests : ConvoyTestBase
     }
 
     [Fact]
+    public void ARacecraftTrial_IsRefusedOnline_ForNow()
+    {
+        // Its fixed AI field (roles, grid, paces) is offline-only until the control plane can place it.
+        Convoy(1);
+        EnterMode(Challenges());
+        clock.Advance(TimeSpan.FromSeconds(15));
+        Assert.Equal("trial_unsupported", dir.ProposeEvent(Id(1), TrialRequest("TR-CH41")).Error?.Code);
+    }
+
+    [Fact]
     public void ATrial_IsRefused_WhenTheConvoyAgreedToATeamTrial()
     {
         Convoy(1);

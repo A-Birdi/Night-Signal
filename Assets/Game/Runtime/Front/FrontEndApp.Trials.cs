@@ -20,7 +20,8 @@ namespace NightSignal.Front
         float pendingAutopilotEdgeMargin;
 
         /// <summary>Starts a challenge trial (docs/CHALLENGE_TRIALS.md) in its supplied loaner; the result returns to <paramref name="returnTo"/>.</summary>
-        public void StartTrial(ChallengeTrialDef trial, UIScreen returnTo) => StartLocalEvent(LocalEvents.Trial(trial), returnTo);
+        public void StartTrial(ChallengeTrialDef trial, UIScreen returnTo) =>
+            StartLocalEvent(LocalEvents.Trial(trial, ContentLibrary.Load()?.Catalogue?.Course(trial.Course)?.Format ?? "sprint"), returnTo);
 
         /// <summary>The trial's loaner resolved like a garage build; the plan records the build hash driven (null = not driven).</summary>
         ResolvedCarSpec TrialLoanerSpec(LocalEventPlan plan, out string problem)
@@ -112,6 +113,9 @@ namespace NightSignal.Front
                     pendingAutopilotNoHandbrake = t.Rules.NoHandbrake;
                     pendingAutopilotEdgeMargin = t.Targets.ReferenceEdgeMargin;
                     OfflineRaceSession.AutopilotAimsChallengeGates = t.Rules.AllChallengeGates;
+                    // A marked overtake (CH40): follow the car ahead and attack only inside the marked zone, as the racecraft tour does.
+                    OfflineRaceSession.AutopilotFollowSeconds = t.Rules.CleanZonePass ? 0.5f : 0f;
+                    OfflineRaceSession.AutopilotAttacksMarkedZones = t.Rules.CleanZonePass;
                     LocalEvents.LastTrialVerdict = null;
                     if (!Click("StartTrial")) break;
                     yield return Until(() => activeRace != null, 60f);
@@ -125,6 +129,8 @@ namespace NightSignal.Front
                     yield return Until(() => Router.Current == Trials, 15f);
                     yield return new WaitForSeconds(0.8f);
                     OfflineRaceSession.AutopilotAimsChallengeGates = false;
+                    OfflineRaceSession.AutopilotFollowSeconds = 0f;
+                    OfflineRaceSession.AutopilotAttacksMarkedZones = false;
                     v = LocalEvents.LastTrialVerdict;
                     if (v == null) { Fail(t.Id + " was not judged"); break; }
                     Note($"{t.Id} ({t.Challenge} {t.Tier}){(t.JudgesDrift ? $" at drift skill {skill:F2}{(skill == refSkill ? " (the reference's)" : "")}" : "")}: " +

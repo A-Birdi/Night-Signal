@@ -86,6 +86,13 @@ namespace NightSignal.Race
         public string Surface = "dry";
         /// <summary>Drift Attack (freeplay, or a drift Team Trial): finishers rank by banked raw drift score, not time.</summary>
         public bool DriftRanking;
+        /// <summary>
+        /// A racecraft challenge trial's fixed field: the opposing AI, in order, are these cars (stock, not chosen by the cap),
+        /// identities, roles and paces; null for every other event.
+        /// </summary>
+        public List<TrialFieldCar> TrialField;
+        /// <summary>The humans start from the back of the grid, behind every AI car (CH41 "from the last grid position").</summary>
+        public bool HumansStartLast;
     }
 
     public sealed class HumanSlot
@@ -187,16 +194,28 @@ namespace NightSignal.Race
             sim.gateWorld = world;
             sim.Racecraft = RacecraftJudge.ForEvent(rules, sim.Entrants, track);
             int slot = 0, generic = 0;
+            // Entrant order stays humans first (the local player is entrant 0); only where each car stands on the grid moves.
+            int Grid(int order) => !rules.HumansStartLast ? order : order < humans.Count ? vehicles - humans.Count + order : order - humans.Count;
             foreach (HumanSlot h in humans)
-                sim.Add(lib, world, slot++, h.EntrantId, h.DisplayName, true, h.CarId, "player", "driver", null, h.Spec, h.Build, h.Livery);
+            {
+                sim.Add(lib, world, slot, h.EntrantId, h.DisplayName, true, h.CarId, "player", "driver", null, h.Spec, h.Build, h.Livery, Grid(slot));
+                slot++;
+            }
             foreach (string id in friendlyAi)
-                sim.AddAi(cat, lib, world, slot++, id, "player", "friendly", AiPlacementContext.FriendlyAi, ref generic);
+            {
+                sim.AddAi(cat, lib, world, slot, id, "player", "friendly", AiPlacementContext.FriendlyAi, ref generic, Grid(slot));
+                slot++;
+            }
             for (int i = 0; i < opposingAi.Count; i++)
             {
                 AiPlacementContext ctx = rules.Kind == "campaign" ? AiPlacementContext.CampaignEncounter
                     : rules.Kind == "trial" ? AiPlacementContext.TeamTrial : AiPlacementContext.FreeplayOpponent;
                 string role = rules.Kind == "campaign" ? (i == 0 ? "featured" : "support") : "opponent";
-                sim.AddAi(cat, lib, world, slot++, opposingAi[i], "opposing", role, ctx, ref generic);
+                if (rules.TrialField != null && i < rules.TrialField.Count)
+                    sim.AddFieldCar(cat, lib, world, slot, opposingAi[i], rules.TrialField[i], ref generic, Grid(slot));
+                else
+                    sim.AddAi(cat, lib, world, slot, opposingAi[i], "opposing", role, ctx, ref generic, Grid(slot));
+                slot++;
             }
             return sim;
         }
@@ -209,13 +228,36 @@ namespace NightSignal.Race
             return cat.TryCertifiedBenchmark(Rules.StageId, Rules.Mode, out CertifiedBenchmark b) ? (float)b.FeaturedRivalPace : 1f;
         }
 
-        void AddAi(ContentCatalogue cat, ContentLibrary lib, IVehicleWorld world, int slot, string id, string team, string role, AiPlacementContext ctx, ref int generic)
+        /// <summary>A racecraft trial's scripted car: its own stock car, identity, role and pace (never chosen by the cap).</summary>
+        void AddFieldCar(ContentCatalogue cat, ContentLibrary lib, IVehicleWorld world, int slot, string id, TrialFieldCar fc, ref int generic, int grid)
+        {
+            DriverProfile profile;
+            string name;
+            if (!string.IsNullOrEmpty(fc.Rival) && cat.TryRival(fc.Rival, out RivalDef rival))
+            {
+                FinalRivals.Require(rival.Id, AiPlacementContext.FreeplayOpponent, Rules.StageId, Rules.Mode);
+                profile = AiProfiles.For(rival, Rules.StageNumber);
+                name = rival.Name;
+                id = rival.Id;
+            }
+            else
+            {
+                profile = AiProfiles.Generic(generic++);
+                name = $"Driver {id.ToUpperInvariant()}";
+            }
+            if (fc.Pace > 0f) profile.PaceScale = fc.Pace;
+            RaceEntrant e = Add(lib, world, slot, id, name, false, fc.Car, "opposing", string.IsNullOrEmpty(fc.Role) ? "field" : fc.Role, null, grid: grid);
+            e.Ai = new RouteFollower(Track, e.Params, profile) { DriftZones = DriftZonesForAi, SurfaceGrip = CourseRuntime.SurfaceGrip(Rules.Surface), Seed = slot };
+        }
+
+        void AddAi(ContentCatalogue cat, ContentLibrary lib, IVehicleWorld world, int slot, string id, string team, string role, AiPlacementContext ctx, ref int generic,
+            int grid = -1)
         {
             RaceEntrant e;
             if (cat.TryRival(id, out RivalDef rival))
             {
                 FinalRivals.Require(rival.Id, ctx, Rules.StageId, Rules.Mode);
-                e = Add(lib, world, slot, rival.Id, rival.Name, false, Rules.CalibrationCarId ?? LegalCarFor(cat, rival.PrimaryCar, Rules.CarCapPi), team, role, null);
+                e = Add(lib, world, slot, rival.Id, rival.Name, false, Rules.CalibrationCarId ?? LegalCarFor(cat, rival.PrimaryCar, Rules.CarCapPi), team, role, null, grid: grid);
                 e.Ai = new RouteFollower(Track, e.Params, AiProfiles.For(rival, Rules.StageNumber, FeaturedPace(cat, role))) { DriftZones = DriftZonesForAi, SurfaceGrip = CourseRuntime.SurfaceGrip(Rules.Surface), Seed = slot };
             }
             else
@@ -223,17 +265,18 @@ namespace NightSignal.Race
                 // Freeplay opponents without a rival identity: a legal car under the cap and a neutral profile.
                 CarDef car = cat.Cars.Where(c => Rules.CarCapPi <= 0 || c.BasePI <= Rules.CarCapPi)
                     .OrderByDescending(c => c.BasePI).Skip(generic % 3).FirstOrDefault() ?? cat.Cars.OrderBy(c => c.BasePI).First();
-                e = Add(lib, world, slot, id, $"Driver {id.ToUpperInvariant()}", false, car.Id, team, role, null);
+                e = Add(lib, world, slot, id, $"Driver {id.ToUpperInvariant()}", false, car.Id, team, role, null, grid: grid);
                 e.Ai = new RouteFollower(Track, e.Params, AiProfiles.Generic(generic++)) { DriftZones = DriftZonesForAi, SurfaceGrip = CourseRuntime.SurfaceGrip(Rules.Surface), Seed = slot };
             }
         }
 
         RaceEntrant Add(ContentLibrary lib, IVehicleWorld world, int slot, string id, string name, bool human, string carId, string team, string role, float[] paint,
-            Core.Builds.ResolvedCarSpec spec = null, Core.Builds.MechanicalSnapshot build = null, string livery = null)
+            Core.Builds.ResolvedCarSpec spec = null, Core.Builds.MechanicalSnapshot build = null, string livery = null, int grid = -1)
         {
             if (spec != null && spec.CarModelId != carId) throw new InvalidOperationException($"build for {spec.CarModelId} used on {carId}");
             VehicleParams p = spec != null ? VehicleFactory.Build(spec, AssistSettings.Default, lib.Body(carId).WheelRadius) : lib.Params(carId, AssistSettings.Default);
-            GridSlot g = Track.Grid[slot];
+            if (grid < 0) grid = slot;
+            GridSlot g = Track.Grid[grid];
             var e = new RaceEntrant
             {
                 Params = p,
@@ -243,7 +286,7 @@ namespace NightSignal.Race
                 Status = human ? EntrantStatus.Reserved : EntrantStatus.Loaded,
                 Roster = new RosterEntry
                 {
-                    Index = slot, EntrantId = id, DisplayName = name, Human = human, CarId = carId, GridSlot = slot,
+                    Index = slot, EntrantId = id, DisplayName = name, Human = human, CarId = carId, GridSlot = grid,
                     Paint = paint ?? Palette(slot, human, team), Team = team, Role = role,
                     Build = spec != null ? build : null, BuildHash = spec?.BuildHash ?? "", Livery = livery ?? "",
                 },

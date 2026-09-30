@@ -22,7 +22,11 @@
         "noHandbrake": false,
         "bankEveryZone": false,
         "allTyresPaved": true,
-        "allChallengeGates": false
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false
       },
       "targets": {
         "timeMs": 136346,
@@ -35,7 +39,9 @@
       "ghost": true,
       "judgesTime": true,
       "judgesDrift": false,
-      "published": true
+      "published": true,
+      "field": [],
+      "playerStartsLast": false
     },
     {
       "id": "TR-CH15",
@@ -57,7 +63,11 @@
         "noHandbrake": false,
         "bankEveryZone": false,
         "allTyresPaved": false,
-        "allChallengeGates": true
+        "allChallengeGates": true,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false
       },
       "targets": {
         "timeMs": 273700,
@@ -70,7 +80,9 @@
       "ghost": false,
       "judgesTime": true,
       "judgesDrift": false,
-      "published": true
+      "published": true,
+      "field": [],
+      "playerStartsLast": false
     },
     {
       "id": "TR-CH55",
@@ -92,7 +104,11 @@
         "noHandbrake": false,
         "bankEveryZone": false,
         "allTyresPaved": false,
-        "allChallengeGates": false
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false
       },
       "targets": {
         "timeMs": 150400,
@@ -105,7 +121,9 @@
       "ghost": false,
       "judgesTime": true,
       "judgesDrift": false,
-      "published": true
+      "published": true,
+      "field": [],
+      "playerStartsLast": false
     },
     {
       "id": "TR-CH11",
@@ -127,7 +145,11 @@
         "noHandbrake": false,
         "bankEveryZone": false,
         "allTyresPaved": false,
-        "allChallengeGates": false
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false
       },
       "targets": {
         "timeMs": 194300,
@@ -140,7 +162,9 @@
       "ghost": false,
       "judgesTime": true,
       "judgesDrift": false,
-      "published": true
+      "published": true,
+      "field": [],
+      "playerStartsLast": false
     },
     {
       "id": "TR-CH51",
@@ -164,7 +188,11 @@
         "noHandbrake": false,
         "bankEveryZone": false,
         "allTyresPaved": false,
-        "allChallengeGates": false
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false
       },
       "targets": {
         "timeMs": 169200,
@@ -177,7 +205,9 @@
       "ghost": false,
       "judgesTime": true,
       "judgesDrift": false,
-      "published": true
+      "published": true,
+      "field": [],
+      "playerStartsLast": false
     },
     {
       "id": "TR-CH54-FWD",
@@ -199,7 +229,11 @@
         "noHandbrake": false,
         "bankEveryZone": false,
         "allTyresPaved": false,
-        "allChallengeGates": false
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false
       },
       "targets": {
         "timeMs": 158400,
@@ -212,7 +246,9 @@
       "ghost": false,
       "judgesTime": true,
       "judgesDrift": false,
-      "published": true
+      "published": true,
+      "field": [],
+      "playerStartsLast": false
     },
     {
       "id": "TR-CH54-RWD",
@@ -234,7 +270,11 @@
         "noHandbrake": false,
         "bankEveryZone": false,
         "allTyresPaved": false,
-        "allChallengeGates": false
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false
       },
       "targets": {
         "timeMs": 160500,
@@ -247,7 +287,9 @@
       "ghost": false,
       "judgesTime": true,
       "judgesDrift": false,
-      "published": true
+      "published": true,
+      "field": [],
+      "playerStartsLast": false
     },
     {
       "id": "TR-CH25",
@@ -271,7 +313,11 @@
         "noHandbrake": true,
         "bankEveryZone": false,
         "allTyresPaved": false,
-        "allChallengeGates": false
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false
       },
       "targets": {
         "timeMs": 0,
@@ -284,7 +330,9 @@
       "ghost": false,
       "judgesTime": false,
       "judgesDrift": true,
-      "published": true
+      "published": true,
+      "field": [],
+      "playerStartsLast": false
     },
     {
       "id": "TR-CH28",
@@ -308,7 +356,11 @@
         "noHandbrake": false,
         "bankEveryZone": false,
         "allTyresPaved": false,
-        "allChallengeGates": false
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false
       },
       "targets": {
         "timeMs": 274100,
@@ -321,7 +373,9 @@
       "ghost": false,
       "judgesTime": true,
       "judgesDrift": true,
-      "published": true
+      "published": true,
+      "field": [],
+      "playerStartsLast": false
     },
     {
       "id": "TR-CH30",
@@ -345,7 +399,11 @@
         "noHandbrake": false,
         "bankEveryZone": true,
         "allTyresPaved": false,
-        "allChallengeGates": false
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false
       },
       "targets": {
         "timeMs": 0,
@@ -358,7 +416,135 @@
       "ghost": false,
       "judgesTime": false,
       "judgesDrift": true,
-      "published": true
+      "published": true,
+      "field": [],
+      "playerStartsLast": false
+    },
+    {
+      "id": "TR-CH40",
+      "challenge": "CH40",
+      "title": "Late, Not Dirty",
+      "course": "C17",
+      "tier": "silver",
+      "kind": "race",
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V07",
+        "parts": {},
+        "piCap": 499
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": true,
+        "noCheckpointCut": true,
+        "cleanZonePass": true
+      },
+      "targets": {
+        "timeMs": 0,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0
+      },
+      "group": "",
+      "ghost": false,
+      "field": [
+        {
+          "car": "V05",
+          "rival": "",
+          "role": "field",
+          "pace": 0.95
+        },
+        {
+          "car": "V06",
+          "rival": "",
+          "role": "field",
+          "pace": 0.95
+        },
+        {
+          "car": "V05",
+          "rival": "",
+          "role": "field",
+          "pace": 0.95
+        }
+      ],
+      "playerStartsLast": true,
+      "brief": "C17's fixed challenge race: three class-C cars ahead of you on the grid. Make the marked overtake in the braking zone about 2.8 km in — clean, no touch — keep the place, never touch another car or cut a checkpoint, and finish."
+    },
+    {
+      "id": "TR-CH41",
+      "challenge": "CH41",
+      "title": "From Sixth",
+      "course": "C18",
+      "tier": "gold",
+      "kind": "race",
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V07",
+        "parts": {},
+        "piCap": 499
+      },
+      "rules": {
+        "noReset": true,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": true,
+        "noCarContact": true,
+        "noCheckpointCut": false,
+        "cleanZonePass": false
+      },
+      "targets": {
+        "timeMs": 0,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0
+      },
+      "group": "",
+      "ghost": false,
+      "field": [
+        {
+          "car": "V07",
+          "rival": "",
+          "role": "field",
+          "pace": 0.0
+        },
+        {
+          "car": "V07",
+          "rival": "",
+          "role": "field",
+          "pace": 0.0
+        },
+        {
+          "car": "V07",
+          "rival": "",
+          "role": "field",
+          "pace": 0.0
+        },
+        {
+          "car": "V07",
+          "rival": "",
+          "role": "field",
+          "pace": 0.0
+        },
+        {
+          "car": "V07",
+          "rival": "",
+          "role": "field",
+          "pace": 0.0
+        }
+      ],
+      "playerStartsLast": true,
+      "brief": "Class-equalized: six identical stock V07s on the Kilnlight Ring, and you start sixth. Win with no reset and no car-to-car contact."
     }
   ]
 }

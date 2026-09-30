@@ -115,6 +115,12 @@ namespace NightSignal.Tests
 
             foreach (ChallengeTrialDef t in file.Trials)
             {
+                if (t.IsRace)
+                {
+                    // Racecraft trials have no targets: they are judged by their rules against their fixed field.
+                    report.AppendLine().AppendLine($"## {t.Id} ({t.Challenge}, {t.Tier}) on {t.Course}: a race against its fixed field — no targets to measure");
+                    continue;
+                }
                 CarDef car = cat.Car(t.Loaner.Car);
                 ResolveResult resolved = TrialLoaners.Resolve(t.Loaner, car, cat.CarTunings[car.Id], lib.Parts, out PiEstimate pi);
                 if (!resolved.Ok) { problems.Add($"{t.Id}: the loaner does not resolve"); continue; }

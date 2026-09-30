@@ -13,6 +13,22 @@ namespace NightSignal.Core.Rules
         public int PiCap;
     }
 
+    /// <summary>
+    /// One scripted car in a racecraft trial's fixed field (slice 3: CH40's fixed C17 race, CH41's six-entrant C18 race): its
+    /// car (stock), an optional rival identity (name and tendencies; "" = a generic driver), what the challenge asks of it,
+    /// and its pace against the tuned AI (0 = the default).
+    /// </summary>
+    public sealed class TrialFieldCar
+    {
+        public string Car = "";
+        public string Rival = "";
+        /// <summary>field | pacing | pressure | merge.</summary>
+        public string Role = "field";
+        public float Pace;
+
+        public static readonly string[] Roles = { "field", "pacing", "pressure", "merge" };
+    }
+
     /// <summary>Conditions of a legal trial run beyond finishing.</summary>
     public sealed class TrialRules
     {
@@ -27,6 +43,17 @@ namespace NightSignal.Core.Rules
         public bool AllTyresPaved;
         /// <summary>Every route gate tagged with the trial's challenge touched (CH15: the three final-sector apex gates on C25).</summary>
         public bool AllChallengeGates;
+        /// <summary>Racecraft trials: first across the line (CH41).</summary>
+        public bool Win;
+        /// <summary>Racecraft trials: no car-to-car contact at all (CH40, CH41).</summary>
+        public bool NoCarContact;
+        /// <summary>No checkpoint cut (CH40).</summary>
+        public bool NoCheckpointCut;
+        /// <summary>
+        /// A pass inside the course's overtake zone tagged with the trial's challenge, the place held to its retain gate (or
+        /// 3 s), with no car touched from 2 s before the pass (CH40's marked clean braking-zone overtake).
+        /// </summary>
+        public bool CleanZonePass;
     }
 
     /// <summary>Published targets (measured, see the file's method); 0 = not judged.</summary>
@@ -50,10 +77,18 @@ namespace NightSignal.Core.Rules
     public sealed class ChallengeTrialDef
     {
         public string Id = "", Challenge = "", Title = "", Course = "", Tier = "";
-        /// <summary>What is judged against measured targets: "time", "drift" or "time+drift".</summary>
+        /// <summary>
+        /// What is judged: against measured targets "time", "drift" or "time+drift"; or "race" — a racecraft trial against
+        /// its fixed <see cref="Field"/>, judged by its rules alone (no targets).
+        /// </summary>
         public string Kind = "time";
         public bool JudgesTime => Kind == "time" || Kind == "time+drift";
         public bool JudgesDrift => Kind == "drift" || Kind == "time+drift";
+        public bool IsRace => Kind == "race";
+        /// <summary>A racecraft trial's fixed AI field, in grid order (empty for time and drift trials, which run alone).</summary>
+        public List<TrialFieldCar> Field = new List<TrialFieldCar>();
+        /// <summary>The player starts from the last grid slot, behind the whole field (CH41 "from the last grid position").</summary>
+        public bool PlayerStartsLast;
         /// <summary>"course" = the course's own conditions; otherwise a surface (e.g. "wet").</summary>
         public string Conditions = "course";
         /// <summary>Laps for a circuit (0 = the course's own format).</summary>
@@ -103,6 +138,11 @@ namespace NightSignal.Core.Rules
         public int ZonesBanked, ZonesTotal;
         /// <summary>The run drove this trial's loaner (the runtime resolved it; any other car or build fails the trial).</summary>
         public bool DroveLoaner;
+        /// <summary>Racecraft trials: the finishing position (1 = won; 0 = not classified), car-to-car contacts, a checkpoint cut.</summary>
+        public int Placement, CarContacts;
+        public bool CheckpointCut;
+        /// <summary>A touch-free pass inside the challenge's marked overtake zone, the place held (see <see cref="TrialRules.CleanZonePass"/>).</summary>
+        public bool CleanZonePass;
     }
 
     public sealed class TrialVerdict
@@ -137,6 +177,10 @@ namespace NightSignal.Core.Rules
             if (t.Rules.AllTyresPaved)
                 Check(f.OffPavedSeconds <= 0f, "all tyres on the paved road" + (f.OffPavedSeconds > 0f ? $" (off it {f.OffPavedSeconds:F1} s)" : ""));
             if (t.Rules.BankEveryZone) Check(f.ZonesTotal > 0 && f.ZonesBanked >= f.ZonesTotal, $"a chain banked in every judged zone ({f.ZonesBanked}/{f.ZonesTotal})");
+            if (t.Rules.CleanZonePass) Check(f.CleanZonePass, "the marked overtake, clean and held");
+            if (t.Rules.NoCarContact) Check(f.CarContacts == 0, $"no car-to-car contact ({f.CarContacts})");
+            if (t.Rules.NoCheckpointCut) Check(!f.CheckpointCut, "no checkpoint cut");
+            if (t.Rules.Win) Check(f.Finished && f.Placement == 1, $"first across the line ({(f.Placement > 0 ? "P" + f.Placement : "not classified")})");
             v.Passed = t.Published && v.Checks.All(c => c.Key);
             if (!t.Published) v.Checks.Add(new KeyValuePair<bool, string>(false, "targets not published yet"));
             return v;
@@ -167,7 +211,16 @@ namespace NightSignal.Core.Rules
                 if (!carExists(t.Loaner?.Car ?? "")) problems.Add($"{t.Id}: unknown loaner car {t.Loaner?.Car}");
                 if (t.Targets == null || t.Targets.TimeMs < 0 || t.Targets.DriftRaw < 0) problems.Add($"{t.Id}: negative target");
                 if (t.Rules != null && t.Rules.MaxWallImpacts < -1) problems.Add($"{t.Id}: invalid wall allowance");
-                if (!t.JudgesTime && !t.JudgesDrift) problems.Add($"{t.Id}: unknown kind {t.Kind}");
+                if (!t.JudgesTime && !t.JudgesDrift && !t.IsRace) problems.Add($"{t.Id}: unknown kind {t.Kind}");
+                if (t.IsRace && (t.Field == null || t.Field.Count == 0)) problems.Add($"{t.Id}: a racecraft trial needs its fixed field");
+                if (!t.IsRace && t.Field != null && t.Field.Count > 0) problems.Add($"{t.Id}: only racecraft trials have a field");
+                if (t.IsRace && t.Rules != null && !(t.Rules.Win || t.Rules.CleanZonePass)) problems.Add($"{t.Id}: a racecraft trial judges nothing of the race");
+                foreach (TrialFieldCar c in t.Field ?? new List<TrialFieldCar>())
+                {
+                    if (!carExists(c.Car ?? "")) problems.Add($"{t.Id}: unknown field car {c.Car}");
+                    if (Array.IndexOf(TrialFieldCar.Roles, c.Role ?? "") < 0) problems.Add($"{t.Id}: unknown field role {c.Role}");
+                    if (c.Pace < 0f || c.Pace > 1.5f) problems.Add($"{t.Id}: field pace {c.Pace} out of range");
+                }
             }
             foreach (IGrouping<string, ChallengeTrialDef> g in file.Trials.Where(t => !string.IsNullOrEmpty(t.Group)).GroupBy(t => t.Group))
                 if (g.Select(t => t.Challenge).Distinct().Count() > 1) problems.Add($"group {g.Key} spans several challenges");

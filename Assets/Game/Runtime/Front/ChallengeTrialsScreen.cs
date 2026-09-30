@@ -133,8 +133,18 @@ namespace NightSignal.Front
             else if (t.Rules.MaxWallImpacts > 0) said.Add($"at most {t.Rules.MaxWallImpacts} meaningful wall impact{(t.Rules.MaxWallImpacts == 1 ? "" : "s")}");
             if (t.Rules.NoHandbrake) said.Add("no handbrake after the start");
             if (t.Rules.BankEveryZone) said.Add("a chain banked in every judged zone");
-            rules.text = "Solo, non-contact; your garage and upgrades are not used" + (said.Count > 0 ? "; " + string.Join(", ", said) : "") + ".";
+            if (t.Rules.AllTyresPaved) said.Add("all four tyres on the paved road");
+            if (t.Rules.AllChallengeGates) said.Add("every marked gate touched");
+            if (t.Rules.NoCarContact) said.Add("no car-to-car contact");
+            if (t.Rules.NoCheckpointCut) said.Add("no checkpoint cut");
+            string field = t.IsRace
+                ? $"A race against a fixed field of {t.Field.Count}: {string.Join(", ", t.Field.GroupBy(c => c.Car).Select(g => $"{g.Count()} × {cat.Car(g.Key).Name}"))}" +
+                  (t.PlayerStartsLast ? "; you start last" : "")
+                : "Solo, non-contact";
+            rules.text = field + "; your garage and upgrades are not used" + (said.Count > 0 ? "; " + string.Join(", ", said) : "") + ".";
             var goals = new List<string>();
+            if (t.Rules.Win) goals.Add("win");
+            if (t.Rules.CleanZonePass) goals.Add("make the marked overtake cleanly and keep the place");
             if (t.JudgesTime) goals.Add(t.Targets.TimeMs > 0 ? $"beat {t.Targets.TimeMs / 60000}:{t.Targets.TimeMs / 1000 % 60:00}.{t.Targets.TimeMs % 1000 / 100}" : "time target not published yet");
             if (t.JudgesDrift) goals.Add(t.Targets.DriftRaw > 0 ? $"bank {t.Targets.DriftRaw:N0} raw drift" : "drift target not published yet");
             targets.text = $"{(ch?.Tier ?? t.Tier)} target: {string.Join(" and ", goals)}" + (string.IsNullOrEmpty(t.Group) ? "" : "  (one of a pair: both earn the challenge)");

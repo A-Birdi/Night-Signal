@@ -109,8 +109,24 @@ namespace NightSignal.Front
             return plan;
         }
 
-        /// <summary>A challenge trial: solo, non-contact, on the trial's course and conditions in its supplied loaner (never a garage car).</summary>
-        public static LocalEventPlan Trial(ChallengeTrialDef trial) => new LocalEventPlan
+        /// <summary>
+        /// A challenge trial on the trial's course and conditions in its supplied loaner (never a garage car): solo and
+        /// non-contact, or — a racecraft trial — a race against its fixed field (<paramref name="courseFormat"/>: the course's
+        /// sprint / circuit format).
+        /// </summary>
+        public static LocalEventPlan Trial(ChallengeTrialDef trial, string courseFormat = "sprint")
+        {
+            LocalEventPlan plan = SoloTrial(trial);
+            if (!trial.IsRace) return plan;
+            plan.Kind = courseFormat == "circuit" ? EventKind.FreeplayCircuit : EventKind.FreeplaySprint;
+            plan.Rules.Contact = ContactPolicy.LightContact;
+            plan.Rules.TrialField = trial.Field;
+            plan.Rules.HumansStartLast = trial.PlayerStartsLast;
+            plan.OpposingAi.AddRange(trial.Field.Select((c, i) => string.IsNullOrEmpty(c.Rival) ? $"ai-{i + 1}" : c.Rival));
+            return plan;
+        }
+
+        static LocalEventPlan SoloTrial(ChallengeTrialDef trial) => new LocalEventPlan
         {
             EventId = NewEventId(),
             Kind = EventKind.FreeplayTimeTrial,
@@ -202,6 +218,10 @@ namespace NightSignal.Front
                     ZonesBanked = me.Entrant.Drift.ZonesBanked.Count,
                     ZonesTotal = s.Catalogue.DriftZones.TryGetValue(trial.Course, out int zones) ? zones : 0,
                     DroveLoaner = !string.IsNullOrEmpty(plan.TrialBuildHash) && plan.Car.Loaner && plan.Car.ModelId == trial.Loaner.Car,
+                    Placement = me.Outcome == RunOutcome.Finished ? me.Placement : 0,
+                    CarContacts = me.Entrant.Progress.VehicleContacts,
+                    CheckpointCut = me.Entrant.Progress.CorridorCut,
+                    CleanZonePass = me.Entrant.Racecraft != null && me.Entrant.Racecraft.ZonePasses.Any(z => z.Challenge == trial.Challenge && z.TouchFree),
                 });
                 facts.TrialId = trial.Id;
                 facts.TrialPassed = LastTrialVerdict.Passed;
