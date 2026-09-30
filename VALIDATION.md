@@ -2593,3 +2593,34 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   database.
 - **Limits:** trials whose conditions differ from their course's are refused online for now (none of the eight does); one
   human per run here (the proposal and start rules for more are in the tests); CH28 is still not shown reachable (V-119).
+
+## V-121 — CH13: the paved-road rule and a fixed Gold ghost, offline and online (spec §11) (2026-09-29)
+- Revision: `0d98da7`, documented in the commit with this entry; the player build of that tree. The control plane was
+  restarted once for the new content (TR-CH13 changes the hashed trials file; tracked task; health ok, race content
+  `0777df53…`) — the first online CH13 run, against the previous content, could not be offered the trial and failed, as it
+  should have.
+- **What:** CH13 "beat the fixed C21 Gold ghost while keeping all tyres in the paved corridor". Race facts gain seconds
+  with a tyre past the paved edge (the car's centre offset plus half its track and half a tyre against the paved
+  half-width; shoulders are not paved) and where it happened; a trial rule `allTyresPaved`; a trial can race a **fixed
+  Gold ghost** — its measured reference run, recorded by `ChallengeTrialReferenceTests` into
+  `Resources/TrialGhosts/<trial>.json` (provenance `trial-reference`), raced in gold offline and online (the match info's
+  trial id), and its time is the target ("faster than" the ghost). TR-CH13: stock V14 (FWD, PI 680) on C21.
+- **Measured — and why the ghost does not keep its own rule:** the validator's run (136.346 s) puts a tyre off the paved
+  road for 0.5 s at two corners (≈4,620 m and ≈4,830 m; centre 3.4–3.55 m from the axis on a 4.25 m paved half-width —
+  up to 0.13 m over): it cuts the apex. Three ways to a clean reference were measured and all were worse — a slower pace
+  (0.97–0.88 ×: 0.7–0.9 s off), a narrower apex line (line 0.30/0.15/0.05: 6–16 s off, running wide on the exits of the
+  narrow 500 m corner), a wider edge margin (1.6/1.9/2.2 m: 1.2–6 s off). So the Gold ghost is the validator's run and
+  **CH13 is not shown reachable within its rule by the autopilot** (as CH28). The harness keeps these searches (it tries a
+  wider edge margin for paved-only trials and publishes the one it used, so a replay reproduces it).
+- **Tests:** Core `ThePavedRule_FailsTheTrial_OnAnyTimeOffThePavedRoad` and the file test (9 trials) — Core 186, Services
+  368, Builds 232, Toys 92.
+- **Built players:** `-nsTrialTour` (with the bounds audit, 1280×720, Text 150 %) **PASS** — nine trials ran and were judged;
+  the Gold ghost raced on the road ("Ghost · Gold ghost 136.347 s"); TR-CH13 not passed (tied the ghost to the
+  millisecond, 0.5 s off the paved road); the autopilot reached 7 of 9 (CH13 and CH28 not); bounds 0 failures, 0 missing
+  glyphs (the ghost's HUD row fits only at its minimum size — noted). Online `ui-tour-online.ps1 -Intent 5 -ChallengeTrial
+  TR-CH13` **PASS** — the client raced the Gold ghost online, the game server raced the frozen V14 loaner (`53f0713d354f`,
+  verified) and judged 2:17.196, 0.6 s off the paved road: not passed; the receipt carries the verdict.
+  `Evidence/challenges/trials-tour/`, `Evidence/challenges/trials-online/`, `Evidence/challenges/trials.txt`.
+- **Limits:** CH13 and CH28 wait for a person (or a better autopilot line on narrow roads) to show them reachable; the other
+  slice-2 challenges (CH15, CH17, CH19, CH22, CH27) need gates or drift zones authored into four routes — a change of
+  those courses' revisions, so their reference ghosts must be re-recorded and their benchmarks checked with it.

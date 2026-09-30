@@ -1,22 +1,24 @@
 # String bounds audit — TrialTour at 1280x720, text size 150 %, HUD size 130 %
-# 103 moments audited, 65 distinct labels, 1830 measurements
-# moments: Title · Local profiles · New profile · 01-trials · Challenge Trials · 02-TR-CH55-brief · race HUD · Results · 03-TR-CH55-result · 04-TR-CH55-verdict · 02-TR-CH11-brief · 03-TR-CH11-result · 04-TR-CH11-verdict · 02-TR-CH51-brief · 03-TR-CH51-result · 04-TR-CH51-verdict · 02-TR-CH54-FWD-brief · 03-TR-CH54-FWD-result · 04-TR-CH54-FWD-verdict · 02-TR-CH54-RWD-brief · 03-TR-CH54-RWD-result · 04-TR-CH54-RWD-verdict · 02-TR-CH25-brief · 03-TR-CH25-result · 04-TR-CH25-verdict · 02-TR-CH28-brief · 03-TR-CH28-result · 04-TR-CH28-verdict · 02-TR-CH30-brief · 03-TR-CH30-result · 04-TR-CH30-verdict · 05-trials-after
+# 111 moments audited, 66 distinct labels, 2003 measurements
+# moments: Title · Local profiles · New profile · 01-trials · Challenge Trials · 02-TR-CH13-brief · race HUD · Results · 03-TR-CH13-result · 04-TR-CH13-verdict · 02-TR-CH55-brief · 03-TR-CH55-result · 04-TR-CH55-verdict · 02-TR-CH11-brief · 03-TR-CH11-result · 04-TR-CH11-verdict · 02-TR-CH51-brief · 03-TR-CH51-result · 04-TR-CH51-verdict · 02-TR-CH54-FWD-brief · 03-TR-CH54-FWD-result · 04-TR-CH54-FWD-verdict · 02-TR-CH54-RWD-brief · 03-TR-CH54-RWD-result · 04-TR-CH54-RWD-verdict · 02-TR-CH25-brief · 03-TR-CH25-result · 04-TR-CH25-verdict · 02-TR-CH28-brief · 03-TR-CH28-result · 04-TR-CH28-verdict · 02-TR-CH30-brief · 03-TR-CH30-result · 04-TR-CH30-verdict · 05-trials-after
 
 ## Labels too big at their minimum size, or spilling more than 5 % past their box (failures): 0
 
 ## Labels with a character the font lacks, drawn as a box (failures): 0
 
-## Fitting labels whose glyph edges reach a few pixels past the box (TMP fits by advance widths; within 5 %): 8
+## Fitting labels whose glyph edges reach a few pixels past the box (TMP fits by advance widths; within 5 %): 9
 - [Title] Body/Screens/Title/Shade/Title — "NIGHT SIGNAL" box 834x188, drawn 847x110 (spill 12 px), size 98.6 (min 63.0)
 - [New profile] Screens/New profile/Panel/Column/Heading — "NEW LOCAL PROFILE" box 640x90, drawn 645x60 (spill 5 px), size 53.8 (min 30.0)
 - [01-trials] Screens/Challenge Trials/ListPanel/List/Heading — "CHALLENGE TRIALS" box 600x90, drawn 604x60 (spill 4 px), size 53.8 (min 30.0)
-- [04-TR-CH55-verdict] Challenge Trials/ListPanel/List/Trial0/Label — "CH55  NO POWER PURCHASE  EARNED" box 576x46, drawn 578x29 (spill 2 px), size 26.3 (min 16.5)
-- [04-TR-CH51-verdict] Challenge Trials/ListPanel/List/Trial2/Label — "CH51  RAIN HAS A SETUP  EARNED" box 576x46, drawn 578x33 (spill 2 px), size 29.5 (min 16.5)
+- [01-trials] Challenge Trials/ListPanel/List/Trial0/Label — "CH13  NARROW WITHOUT FEAR" box 576x46, drawn 579x36 (spill 3 px), size 32.4 (min 16.5)
+- [04-TR-CH55-verdict] Challenge Trials/ListPanel/List/Trial1/Label — "CH55  NO POWER PURCHASE  EARNED" box 576x46, drawn 578x29 (spill 2 px), size 26.3 (min 16.5)
+- [04-TR-CH51-verdict] Challenge Trials/ListPanel/List/Trial3/Label — "CH51  RAIN HAS A SETUP  EARNED" box 576x46, drawn 578x33 (spill 2 px), size 29.5 (min 16.5)
 - [02-TR-CH54-FWD-brief] Screens/Challenge Trials/TrialPanel/TrialColumn/TrialTitle — "CH54 · TWO LAYOUTS, ONE CAP — FRONT DRIVE" box 900x44, drawn 902x36 (spill 2 px), size 32.6 (min 19.5)
 - [02-TR-CH54-RWD-brief] Screens/Challenge Trials/TrialPanel/TrialColumn/TrialTitle — "CH54 · TWO LAYOUTS, ONE CAP — REAR DRIVE" box 900x44, drawn 902x37 (spill 2 px), size 33.5 (min 19.5)
-- [04-TR-CH25-verdict] Challenge Trials/ListPanel/List/Trial5/Label — "CH25  BOTH HANDS LIGHT  EARNED" box 576x46, drawn 579x32 (spill 3 px), size 28.6 (min 16.5)
+- [04-TR-CH25-verdict] Challenge Trials/ListPanel/List/Trial6/Label — "CH25  BOTH HANDS LIGHT  EARNED" box 576x46, drawn 579x32 (spill 3 px), size 28.6 (min 16.5)
 
 ## Fixed-size live figures drawn beyond their box (they never clip; inspect for collisions): 0
 
-## Labels that fit only at their minimum size (legible, but the smallest allowed): 1
+## Labels that fit only at their minimum size (legible, but the smallest allowed): 2
+- [race HUD] RaceHud/Standing1 — "—  Ghost · Gold ghost 136.347 s REPLAY" box 240x26, drawn 240x14 (spill 0 px), size 12.8 (min 12.8)
 - [race HUD] RaceHud/Standing1 — "—  Ghost · Trial Driver 279.570 s REPLAY" box 240x26, drawn 239x14 (spill 0 px), size 12.8 (min 12.8)

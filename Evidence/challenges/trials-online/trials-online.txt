@@ -23,3 +23,12 @@
 [NightSignal.Server] match m_bbbc58dd1f9333a8632298da on C09: 1 humans, 0 AI, contact non-contact, port 7777
 [NightSignal.Server] 00000000-0000-4000-8000-000000000001 challenge trial TR-CH54-RWD: PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 2:40.500 (2:25.921)
 [NightSignal.Server] results for m_bbbc58dd1f9333a8632298da: 200 {"status":"settled","receipts":[{"matchId":"m_bbbc58dd1f9333a8632298da","accountId":"00000000-0000-4000-8000-000000000001","status":"settled","eventKind":"FreeplayTimeTrial","mode":null,"stageId":null,"courseId":"C09","outcome":"Finished","placement":1,"tied":false,"finishTimeMs":145921,"stage":null,"payout":{"base":8330,"difficultyX100":100,"placementX100":120,"cleanlinessX100":105,"utilityX1…
+## TR-CH13 (after the control-plane restart for the new content)
+[NightSignal.UiTourOnline] shared table: progress 7.14 -> 1005.60, still event ready True
+[NightSignal.Ghost] online C21 trial-TR-CH13: 1 offered, 1 racing: Ghost · Gold ghost 136.347 s
+[NightSignal.UiTourOnline] challenge trial receipt: not passed
+[NightSignal.UiTourOnline] online route chart: vs Gold ghost 136.347 s: most lost in sector 1 (+0.85 s, 0–108 m); most gained in sector 3 (−0.03 s) · 12 braking points
+[NightSignal.UiTourOnline] PASS; last result: <color=#9A968D>LAST RACE</color> | P1 of 1   02:17.196 | <color=#F2A541>Challenge trial not passed</color> | <size=80%>ok: the supplied loaner · ok: a valid finish · MISSED: faster than 2:16.346 (2:17.196) · MISSED: all tyres on the paved road (off it 0.6 s)</size> | Credits +12,159   ·   balance 594,632 cr | 
+[NightSignal.Server] Driver 1 races the frozen build 53f0713d354f of loaner:TR-CH13 (applied revision 0, 0 part(s), PI 680) — hash verified
+[NightSignal.Server] challenge trial TR-CH13 (CH13) on C21: loaner V14 53f0713d354f
+[NightSignal.Server] 00000000-0000-4000-8000-000000000001 challenge trial TR-CH13: not passed — ok: the supplied loaner · ok: a valid finish · MISSED: faster than 2:16.346 (2:17.196) · MISSED: all tyres on the paved road (off it 0.6 s)

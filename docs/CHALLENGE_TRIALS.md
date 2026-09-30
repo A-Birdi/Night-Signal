@@ -46,8 +46,10 @@ an event whose conditions are fixed by the content, not by the player's garage. 
    equal-PI drive layouts, Silver each), CH25 (C16 drift loaner, Silver drift, no handbrake after the start), CH28 (C23
    fixed build, time and raw drift targets in one run), CH30 (C25 drift route, raw target and a banked chain in every
    judged sector).
-2. Geometry judges: a paved-corridor judge (CH13, with C21's Gold ghost), final-sector apex gates on C25 (CH15), drift
-   zones authored for C03, C05, C09 and C19 (CH17, CH19, CH22, CH27).
+2. Geometry judges: the paved-road rule and a fixed Gold ghost (CH13 — done, V-121: a trial may race its reference run as a
+   gold ghost from `Resources/TrialGhosts`; the validator's C21 run cuts two apexes by up to 0.13 m, so CH13 is not yet
+   shown reachable within its rule); final-sector apex gates on C25 (CH15); drift zones authored for C03, C05, C09 and C19
+   (CH17, CH19, CH22, CH27) — route changes: re-record those courses' reference ghosts and check their benchmarks with them.
 3. Scripted AI: pacing, pressure and merge cars (CH34, CH36, CH37, CH39, CH40, CH41, CH43, CH59).
 4. Fixed cups on the Custom Cup table (CH14, CH42, CH69, CH72).
 5. T00 challenge drills and workshop trials (CH02, CH07, CH23, CH46, CH47, CH49, CH52, CH53, CH56, CH57, CH58, CH60),
