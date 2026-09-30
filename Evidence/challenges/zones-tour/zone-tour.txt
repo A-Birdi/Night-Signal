@@ -1,0 +1,12 @@
+# -nsZoneTour (built player of d3293e0, isolated profile, offline freeplay, no AI; validator autopilot in zone-slide mode; run with -nsBoundsAudit at 1280x720, Text 150 % / HUD 130 %; automation)
+[NightSignal.ZoneTour] Shinmei Crestline 26 on T2 drift tyres, PI 537
+[NightSignal.ZoneTour] C03: Finished in 171.1 s at skill 0.80; walls 0, resets 0; chains [C03-LINK-1, C03-LINK-2] 4.5 s banked (Banked); [C03-LINK-2] 1.4 s banked (Banked); lost 0; challenges granted: CH33
+[NightSignal.ZoneTour] C03: the facts do not earn CH17; the game withheld it
+[NightSignal.ZoneTour] C05: Finished in 126.3 s at skill 0.95; walls 0, resets 0; chains [C05-DEMO] 7.9 s banked (Banked); lost 0; longest 20–35° holds C05-DEMO 5.55 s; challenges granted: CH33, CH06, CH19
+[NightSignal.ZoneTour] C05: the facts earn CH19; the game granted it
+[NightSignal.ZoneTour] C09: Finished in 146.1 s at skill 0.80; walls 1, resets 0; chains [C09-CLIP-1] 2.7 s lost (LostWall) touched; lost 1; challenges granted: CH33
+[NightSignal.ZoneTour] C09: the facts do not earn CH22; the game withheld it
+[NightSignal.ZoneTour] C19: Finished in 205.9 s at skill 0.80; walls 1, resets 0; chains [C19-TRANS-1] 5.0 s lost (LostWall) touched; [C19-TRANS-1] 1.3 s banked (Banked); lost 1; challenges granted: CH33
+[NightSignal.ZoneTour] C19: the facts do not earn CH27; the game withheld it
+[NightSignal.ZoneTour] PASS (1 of 4 granted)
+[NightSignal.Bounds] bounds-ZoneTour-1280x720-text150: 20 labels over 138 moments — 0 overflow, 0 missing glyph, 1 edge spill, 0 fixed-size overflow, 0 at minimum size

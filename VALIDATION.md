@@ -2639,3 +2639,41 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   0 failures, 0 missing glyphs. `Evidence/challenges/trials-tour/`.
 - **Limits:** CH15 online is not run in a built player (the online autopilot does not aim at gates; the game server's judging
   path is the one CH55/CH54/CH13 exercised online).
+
+## V-123 — Challenge-zone chains: CH17, CH19, CH22, CH27 judged (spec §7, §11) (2026-09-30)
+- Revision: `01ddf48` (judge, predicates, tests) and `d3293e0` (the autopilot's zone slides and `-nsZoneTour`), documented
+  with `the commit with this entry`; the player build of `d3293e0`.
+- **What:** C03's link corners (CH17), C05's demonstration zone (CH19), C09's outer clip zones (CH22) and C19's transition
+  zones with their bank gate (CH27) were already tagged in the routes, but nothing judged those zone kinds (the raw drift
+  scorer and Drift Attack read only `drift-zone` gates, and none of these courses has one). Core `ZoneChainRun` judges them:
+  a chain is one continuous legal slide (≥35 km/h, forward in the legal direction, on the road, 10–80° slip) that links
+  each challenge zone it slides through — a clip zone only with the car within the clip's tolerance of its marked line —
+  and survives the spec's 1.0 s straightening interval; it banks when the slide straightens for longer, at a sector end,
+  at the finish or at its challenge's bank gate (a timing gate with the same tag), and it is lost on a meaningful wall
+  impact, leaving the road, a reset or a spin, with any barrier touch recorded. A demonstration zone keeps the longest
+  continuous legal 20–35° hold. The runtime `ZoneChainJudge` feeds it next to the drift judge for every entrant, offline
+  and in the game server's simulation; `ChallengePredicates` grants, after a finish: **CH17** three C03 link corners in
+  one banked chain; **CH19** a 3 s hold in C05's zone; **CH22** all three C09 clips, each on its line, in one banked chain
+  with no barrier touch; **CH27** all six C19 transition zones in forward order in one chain banked at the final gate.
+- **Interpretation (recorded here):** the chain follows the slide, not the zones — a slide held between zones keeps it.
+  The raw scorer only scores inside drift zones and banks after 1.0 s without scoring; applied to C09 and C19, whose zones
+  are 90–140 m apart, that would make "one chain" through them impossible, so the challenge judge reads the spec's
+  "1.0-second straightening interval between linked zones" literally. The raw scorer is unchanged.
+- **Tests:** Core `ZoneChainTests` (12: linking, loss by wall / off-road / reset / spin, the 1.0 s interval, a slide held
+  between zones, the bank gate, forward order, clip lines and touches, the demo hold, no scoring behind the high-water
+  mark, the four routes' tags with no sector boundary inside a chain) — Core 199; EditMode `ZoneChallengeTests` (each
+  predicate on its own course only, and only after a finish) — EditMode 484 passed, 2 skipped (explicit), 0 failed.
+- **Autopilot (explicit PlayMode `ZoneChallengeMeasureTests`, `Evidence/challenges/zones.txt`):** the validator's tuned
+  drift controller ended every slide within 1–3 s at the road edge (best 20–35° hold 0.4 s). Diagnosed with a per-step
+  trace: it entered on the racing line's apex side and at 19 m/s — too slow for C05's 50–65 m sweeper, so the slide
+  curved inside the road — and overshot the slip past the steering lock. Automation-only knobs, **off by default** in
+  `RouteFollower` (every new term is multiplied by zero, so the AI, drift references and trial targets keep the tuned
+  controller): hold the zones' marked lines (clip lines 0.8 m inside the clip), enter at 25 m/s, target 28° with
+  slip-rate damping, and a 1 s grace to swing through a transition. With them, in V09 on T2 drift tyres (CH25's loaner):
+  **CH19 reached** — a 5.55 s legal hold, granted; CH17 links LINK-1 and LINK-2 in one banked chain but runs out of road
+  before LINK-3; CH22's slide meets the barrier at the first clip; CH27's slide ends in the first transition zone. Those
+  three are **not shown reachable** by automation; a sustained-drift controller is the open work.
+- **Built player (`-nsZoneTour`, 1280×720, Text 150 %, with the bounds audit):** **PASS (1 of 4 granted)** — C05: finished 126.3 s at skill 0.95, one 7.9 s banked chain, a 5.55 s legal 20–35° hold → **CH19 granted**; C03: the LINK-1 + LINK-2 chain banked (4.5 s), not LINK-3 → CH17 withheld; C09: the chain was lost against the barrier at CLIP-1 → CH22 withheld; C19: lost in TRANS-1 → CH27 withheld — every grant and withhold matching the raw chain facts (read independently of the predicates' helpers), the same chains and times as the PlayMode measurement. Bounds: 0 overflow, 0 missing glyphs. `Evidence/challenges/zones-tour/zone-tour.txt`.
+- **Regression:** the knobs are off by default, and the built-player trial tour on the same build reproduced V-122 exactly — every one of the ten verdict lines identical (times, drift banked, zones), 8 of 10, PASS (`Evidence/challenges/zones-tour/trial-tour-regression.txt`).
+- **Limits:** no online run of these four (the online autopilot does not drive zone slides; the game server runs the same
+  `RaceSimulation` step and predicates as offline).

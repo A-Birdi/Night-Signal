@@ -1,0 +1,17 @@
+# Regression: -nsTrialTour on the same build (d3293e0); every verdict line below is identical to Evidence/challenges/trials-tour/trial-tour.txt (V-122, build of ea83dbb)
+[NightSignal.TrialTour] TR-CH13 (CH13 gold): not passed — ok: the supplied loaner · ok: a valid finish · MISSED: faster than 2:16.346 (2:16.346) · MISSED: all tyres on the paved road (off it 0.5 s)
+[NightSignal.TrialTour] TR-CH15 (CH15 gold): PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 4:33.700 (4:28.259) · ok: no reset (0) · ok: every marked gate touched (3 of them)
+[NightSignal.TrialTour] TR-CH55 (CH55 silver): PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 2:30.400 (2:16.696)
+[NightSignal.TrialTour] TR-CH11 (CH11 gold): PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 3:14.300 (3:10.459) · ok: no reset (0) · ok: at most 1 wall impact (1)
+[NightSignal.TrialTour] TR-CH51 (CH51 silver): PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 2:49.200 (2:33.753)
+[NightSignal.TrialTour] TR-CH54-FWD (CH54 silver): PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 2:38.400 (2:23.999)
+[NightSignal.TrialTour] TR-CH54-RWD (CH54 silver): PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 2:40.500 (2:25.904)
+[NightSignal.TrialTour] TR-CH25 (CH25 silver) at drift skill 0.80 (the reference's): PASSED — ok: the supplied loaner · ok: a valid finish · ok: 2,900 raw drift banked (3,522) · ok: no handbrake after the start
+[NightSignal.TrialTour] TR-CH28 (CH28 gold) at drift skill 0.65 (the reference's): not passed — ok: the supplied loaner · ok: a valid finish · ok: faster than 4:34.100 (4:28.657) · MISSED: 2,000 raw drift banked (740)
+[NightSignal.TrialTour] TR-CH28 (CH28 gold) at drift skill 0.95: not passed — ok: the supplied loaner · ok: a valid finish · MISSED: faster than 4:34.100 (4:54.857) · MISSED: 2,000 raw drift banked (1,211)
+[NightSignal.TrialTour] TR-CH28 (CH28 gold) at drift skill 0.80: not passed — ok: the supplied loaner · ok: a valid finish · MISSED: faster than 4:34.100 (4:40.040) · MISSED: 2,000 raw drift banked (1,211)
+[NightSignal.TrialTour] TR-CH30 (CH30 gold) at drift skill 0.65 (the reference's): not passed — ok: the supplied loaner · ok: a valid finish · MISSED: 10,800 raw drift banked (10,168) · MISSED: a chain banked in every judged zone (5/6)
+[NightSignal.TrialTour] TR-CH30 (CH30 gold) at drift skill 0.95: PASSED — ok: the supplied loaner · ok: a valid finish · ok: 10,800 raw drift banked (11,002) · ok: a chain banked in every judged zone (6/6)
+[NightSignal.TrialTour] 8 of 10 trials passed by the autopilot; challenges earned: CH15, CH55, CH11, CH51, CH54, CH25, CH30; wallet 268,572 cr
+[NightSignal.TrialTour] PASS
+[NightSignal.Bounds] bounds-TrialTour-1280x720-text150: 67 labels over 122 moments — 0 overflow, 0 missing glyph, 9 edge spill, 0 fixed-size overflow, 2 at minimum size

@@ -49,8 +49,9 @@ an event whose conditions are fixed by the content, not by the player's garage. 
 2. Geometry judges: the paved-road rule and a fixed Gold ghost (CH13 — done, V-121: a trial may race its reference run as a
    gold ghost from `Resources/TrialGhosts`; the validator's C21 run cuts two apexes by up to 0.13 m, so CH13 is not yet
    shown reachable within its rule); final-sector apex gates on C25 (CH15 — done, V-122: the gates were already in the route and judged); CH17, CH19, CH22 and
-   CH27 — their zones are already in the routes (C03 link, C05 demo, C09 clip, C19 transition zones and a bank gate), so no
-   route changes: they need a chain judge (zones linked in one drift chain) and a demo-zone angle hold.
+   CH27 — done, V-123, and **not as trials**: none names a loaner, so they are judged in any race on their course by Core
+   `ZoneChainRun` (the routes' link, demonstration, clip and transition zones linked by one continuous slide, a bank gate,
+   a 20–35° hold); the autopilot reaches CH19, not yet CH17, CH22, CH27.
 3. Scripted AI: pacing, pressure and merge cars (CH34, CH36, CH37, CH39, CH40, CH41, CH43, CH59).
 4. Fixed cups on the Custom Cup table (CH14, CH42, CH69, CH72).
 5. T00 challenge drills and workshop trials (CH02, CH07, CH23, CH46, CH47, CH49, CH52, CH53, CH56, CH57, CH58, CH60),
