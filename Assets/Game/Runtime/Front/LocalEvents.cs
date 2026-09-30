@@ -144,6 +144,8 @@ namespace NightSignal.Front
 
         /// <summary>The verdict of the last challenge trial run (shown on its screen and the results).</summary>
         public static TrialVerdict LastTrialVerdict;
+        /// <summary>The player's racecraft log of the last racecraft trial (passes, marked zones, pressure sectors — tours print it).</summary>
+        public static List<string> LastTrialRacecraftLog = new List<string>();
 
         /// <summary>The Hinode Campus tutorial drive: no opponents; the first completion pays once.</summary>
         public static LocalEventPlan Tutorial(CourseDef course, LocalCarChoice car) => new LocalEventPlan
@@ -229,6 +231,9 @@ namespace NightSignal.Front
                 });
                 facts.TrialId = trial.Id;
                 facts.TrialPassed = LastTrialVerdict.Passed;
+                LastTrialRacecraftLog = me.Entrant.Racecraft?.PassLog.ToList() ?? new List<string>();
+                LastTrialRacecraftLog.Add($"car contacts {me.Entrant.Progress.VehicleContacts}, walls {me.Entrant.Progress.WallIncidents}, resets {me.Entrant.Progress.Resets}, " +
+                                          $"marshal recoveries {me.Entrant.AutoRecoveries}, placement P{me.Placement}");
             }
             IReadOnlyList<Core.Story.CrewIntroduction> crews = NightSignal.Content.ContentLibrary.Load()?.Story?.Crews;
             if (me.Outcome == RunOutcome.Finished && crews != null && Core.Story.DiaryChallenges.AllCrewsRead(s.Profile.DiaryRead, crews) &&

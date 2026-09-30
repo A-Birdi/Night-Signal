@@ -122,6 +122,10 @@ namespace NightSignal.AI
         public float TransitionGraceSeconds;
         /// <summary>Never starts a passing move: closes up behind a slower car and stays there (a racecraft trial's pressure car).</summary>
         public bool NoPassing;
+        /// <summary>Treats every car ahead as in its lane (it never drives past one on another line) — with <see cref="NoPassing"/>, a car that only follows.</summary>
+        public bool FollowAnyLane;
+        /// <summary>An extra following gap (seconds at the car's speed) behind a car ahead (0 = the tuned car length + 2.5 m) — a pressure car close, not touching.</summary>
+        public float FollowGapSeconds;
         int reversedTicks;
         float lastAbsSlip;
 
@@ -210,9 +214,9 @@ namespace NightSignal.AI
                     if (ahead <= 0.5f || ahead > lookAhead) continue;
                     TrackSample at = track.SampleAt(here.Distance + ahead);
                     float otherLateral = Vector3.Dot(traffic[i].Position - at.Position, at.Right);
-                    if (Mathf.Abs(otherLateral - myLateral) > p.WidthM + 0.7f) continue; // not in our lane
+                    if (!FollowAnyLane && Mathf.Abs(otherLateral - myLateral) > p.WidthM + 0.7f) continue; // not in our lane
                     float otherSpeed = Vector3.Dot(traffic[i].Velocity, at.Tangent);
-                    float safeGap = p.LengthM + 2.5f;
+                    float safeGap = p.LengthM + 2.5f + speed * FollowGapSeconds;
                     followLimit = Mathf.Min(followLimit, Mathf.Max(0f, otherSpeed + (ahead - safeGap) * 0.8f));
                     if (otherSpeed < speed - 0.5f) wantSide = otherLateral <= 0f ? 1 : -1; // pass on the side with more room
                 }

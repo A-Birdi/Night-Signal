@@ -228,6 +228,9 @@ namespace NightSignal.Race
             return cat.TryCertifiedBenchmark(Rules.StageId, Rules.Mode, out CertifiedBenchmark b) ? (float)b.FeaturedRivalPace : 1f;
         }
 
+        /// <summary>How far behind (s) a pressure car keeps beyond a car length — inside CH39's 1 s, clear of a hard-braking car ahead.</summary>
+        public const float PressureGapSeconds = 0.25f;
+
         /// <summary>A racecraft trial's scripted car: its own stock car, identity, role and pace (never chosen by the cap).</summary>
         void AddFieldCar(ContentCatalogue cat, ContentLibrary lib, IVehicleWorld world, int slot, string id, TrialFieldCar fc, ref int generic, int grid)
         {
@@ -249,7 +252,11 @@ namespace NightSignal.Race
             RaceEntrant e = Add(lib, world, slot, id, name, false, fc.Car, "opposing", string.IsNullOrEmpty(fc.Role) ? "field" : fc.Role, null, grid: grid);
             e.Ai = new RouteFollower(Track, e.Params, profile) { DriftZones = DriftZonesForAi, SurfaceGrip = CourseRuntime.SurfaceGrip(Rules.Surface), Seed = slot };
             // A pressure car closes up and follows, never passing (CH39).
-            if (fc.Role == "pressure") e.Ai.NoPassing = true;
+            if (fc.Role == "pressure")
+            {
+                e.Ai.NoPassing = e.Ai.FollowAnyLane = true;
+                e.Ai.FollowGapSeconds = PressureGapSeconds;
+            }
             // A pacing rival keeps to the far side of each marked lane (CH36's outside lane gate), so the lane stays open for a pass.
             if (fc.Role == "pacing")
                 e.Ai.LineZones = Track.Gates.Where(g => g.Kind == "lane" && !string.IsNullOrEmpty(g.Challenge))

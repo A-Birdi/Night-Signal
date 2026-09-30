@@ -67,6 +67,23 @@ namespace NightSignal.Tests.Track
         }
 
         [Test]
+        public void APressureCar_Follows_AndNeverPasses()
+        {
+            ContentLibrary lib = ContentLibrary.Load();
+            ChallengeTrialDef trial = lib.Catalogue.ChallengeTrials.Find("TR-CH39");
+            LocalEventPlan plan = LocalEvents.Trial(trial, lib.Catalogue.Course(trial.Course).Format);
+            var humans = new List<HumanSlot> { new HumanSlot { EntrantId = "local", DisplayName = "You", CarId = trial.Loaner.Car } };
+            RaceSimulation sim = RaceSimulation.Build(Track(trial.Course), lib, plan.Rules, humans, plan.OpposingAi, PlaneVehicleWorld.Flat);
+            RaceEntrant pressure = sim.Entrants[1];
+            Assert.That(pressure.Roster.Role, Is.EqualTo("pressure"));
+            Assert.That(pressure.Ai.NoPassing && pressure.Ai.FollowAnyLane, Is.True);
+            Assert.That(pressure.Ai.FollowGapSeconds, Is.EqualTo(RaceSimulation.PressureGapSeconds));
+            Assert.That(pressure.Ai.Profile.PaceScale, Is.EqualTo(1.08f));
+            Assert.That(sim.Entrants[0].Roster.GridSlot, Is.EqualTo(0), "the player starts ahead of it");
+            Assert.That(trial.Published, Is.True, "its sector pace is measured");
+        }
+
+        [Test]
         public void AFieldCarsPace_AndRole_AreItsOwn()
         {
             ContentLibrary lib = ContentLibrary.Load();

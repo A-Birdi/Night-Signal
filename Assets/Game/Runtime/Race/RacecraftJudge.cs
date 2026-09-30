@@ -306,12 +306,24 @@ namespace NightSignal.Race
             if (ra.DefenceZone >= 0)
             {
                 RouteGateDef z = defenceZones[ra.DefenceZone];
-                if (!stepped || ra.LastReset >= ra.DefenceEntry || !Live(a)) { ra.DefenceZone = -1; return; }
+                if (!stepped || ra.LastReset >= ra.DefenceEntry || !Live(a))
+                {
+                    ra.Log($"{now:F1} s: {z.Id} run void at {here:F0} m — {(ra.LastReset >= ra.DefenceEntry ? "a recovery" : !Live(a) ? "not racing" : "a jump in progress")}");
+                    ra.DefenceZone = -1;
+                    return;
+                }
                 bool pressed = false;
+                string why = "no pressure car racing";
                 foreach (RaceEntrant b in entrants)
-                    if (b != a && b.Roster.Role == "pressure" && Live(b) && b.Progress.RaceDistance < da &&
-                        ra.History.IntervalBehind(b.Progress.RaceDistance, now, out float gap) && gap <= PressureSeconds)
-                        pressed = true;
+                {
+                    if (b == a || b.Roster.Role != "pressure") continue;
+                    if (!Live(b)) { why = "the pressure car is not racing"; continue; }
+                    if (b.Progress.RaceDistance >= da) { why = "the pressure car is ahead"; continue; }
+                    if (!ra.History.IntervalBehind(b.Progress.RaceDistance, now, out float gap)) { why = "the gap is not measurable"; continue; }
+                    if (gap <= PressureSeconds) pressed = true;
+                    else why = $"the pressure car is {gap:F2} s behind";
+                }
+                if (!pressed && ra.DefenceHeld) ra.Log($"{now:F1} s: {z.Id} pressure lost at {here:F0} m — {why}");
                 ra.DefenceHeld &= pressed;
                 ra.DefenceTouched |= a.Sim != null && a.Sim.Telemetry.WallContact;
                 if (before < z.EndMetres && here >= z.EndMetres)

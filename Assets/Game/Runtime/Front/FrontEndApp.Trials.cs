@@ -157,6 +157,8 @@ namespace NightSignal.Front
                     if (v == null) { Fail(t.Id + " was not judged"); break; }
                     Note($"{t.Id} ({t.Challenge} {t.Tier}){(t.JudgesDrift ? $" at drift skill {skill:F2}{(skill == refSkill ? " (the reference's)" : "")}" : "")}: " +
                          $"{(v.Passed ? "PASSED" : "not passed")} — {v.Summary}");
+                    if (t.IsRace)
+                        foreach (string line in LocalEvents.LastTrialRacecraftLog) Note($"{t.Id}:   {line}");
                     if (v.Passed) break;
                 }
                 if (v == null) continue;
