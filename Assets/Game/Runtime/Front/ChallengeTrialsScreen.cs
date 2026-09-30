@@ -158,6 +158,7 @@ namespace NightSignal.Front
             if (t.Rules.AllChallengeGates) said.Add("every marked gate touched");
             if (t.Rules.NoCarContact) said.Add("no car-to-car contact");
             if (t.Rules.NoCheckpointCut) said.Add("no checkpoint cut");
+            if (t.Rules.AllDefenceZones) said.Add("every marked defence gate inside the legal corridor");
             string field = t.IsRace
                 ? $"A race against a fixed field of {t.Field.Count}: {string.Join(", ", t.Field.GroupBy(c => c.Car).Select(g => $"{g.Count()} × {cat.Car(g.Key).Name}"))}" +
                   (t.PlayerStartsLast ? "; you start last" : "")

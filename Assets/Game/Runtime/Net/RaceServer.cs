@@ -605,6 +605,8 @@ namespace NightSignal.Net
                         HandbrakeSeconds = c.Entrant.Progress.HandbrakeSeconds, OffPavedSeconds = c.Entrant.Progress.OffPavedSeconds,
                         ChallengeGatesTouched = c.Entrant.GateRun != null && c.Entrant.GateRun.AllTouched(trialDef.Challenge),
                         ChallengeGates = c.Entrant.GateRun?.Count(trialDef.Challenge) ?? 0,
+                        DefenceZonesKept = c.Entrant.GateRun != null && c.Entrant.GateRun.DefenceKept(trialDef.Challenge),
+                        DefenceZones = c.Entrant.GateRun?.DefenceCount(trialDef.Challenge) ?? 0,
                         Placement = c.Outcome == RunOutcome.Finished ? c.Placement : 0,
                         CarContacts = c.Entrant.Progress.VehicleContacts,
                         CheckpointCut = c.Entrant.Progress.CorridorCut,

@@ -25,6 +25,34 @@ namespace NightSignal.Race
         public readonly GateSpeedFact[] Speed = new GateSpeedFact[0];
         internal bool[] SpeedInside = new bool[0], Braking = new bool[0];
         internal int[] WallsAtEntry = new int[0], ContactsAtEntry = new int[0];
+        /// <summary>Per defence zone (CH43's defence/exit gates): inside now, passes completed over its end, and the legal corridor kept on every pass.</summary>
+        public readonly bool[] DefenceInside = new bool[0], DefenceCorridorKept = new bool[0];
+        public readonly int[] DefencePasses = new int[0];
+        readonly string[] defenceChallenges = new string[0];
+
+        public GateRun(string[] touchChallenges, string[] laneChallenges, string[] speedGateIds, string[] defenceChallenges) : this(touchChallenges, laneChallenges, speedGateIds)
+        {
+            this.defenceChallenges = defenceChallenges;
+            DefenceInside = new bool[defenceChallenges.Length];
+            DefencePasses = new int[defenceChallenges.Length];
+            DefenceCorridorKept = Enumerable.Repeat(true, defenceChallenges.Length).ToArray();
+        }
+
+        /// <summary>How many defence zones serve <paramref name="challenge"/> on this course.</summary>
+        public int DefenceCount(string challenge) => defenceChallenges.Count(c => c == challenge);
+
+        /// <summary>Every defence zone serving <paramref name="challenge"/> driven start to end inside the legal corridor, on every pass (false when none).</summary>
+        public bool DefenceKept(string challenge)
+        {
+            bool any = false;
+            for (int i = 0; i < defenceChallenges.Length; i++)
+            {
+                if (defenceChallenges[i] != challenge) continue;
+                any = true;
+                if (DefencePasses[i] == 0 || !DefenceCorridorKept[i]) return false;
+            }
+            return any;
+        }
 
         public GateRun(string[] touchChallenges, string[] laneChallenges, string[] speedGateIds) : this(touchChallenges, laneChallenges)
         {
@@ -105,14 +133,18 @@ namespace NightSignal.Race
         /// <summary>CH09's published safety margin from barriers in the viaduct lane zones.</summary>
         public const float LaneMarginMetres = 0.5f;
 
-        readonly List<RouteGateDef> touches, lanes, speeds;
+        readonly List<RouteGateDef> touches, lanes, speeds, defences;
 
-        GateJudge(List<RouteGateDef> touches, List<RouteGateDef> lanes, List<RouteGateDef> speeds)
+        GateJudge(List<RouteGateDef> touches, List<RouteGateDef> lanes, List<RouteGateDef> speeds, List<RouteGateDef> defences)
         {
             this.touches = touches;
             this.lanes = lanes;
             this.speeds = speeds;
+            this.defences = defences;
         }
+
+        /// <summary>Defence zones with a challenge tag (CH43's defence/exit gates; C14's pressure sector is timed by the racecraft judge).</summary>
+        public IReadOnlyList<RouteGateDef> DefenceZones => defences;
 
         /// <summary>Exit-speed gates and braking zones with a challenge tag (their published references judge them).</summary>
         public IReadOnlyList<RouteGateDef> SpeedGates => speeds;
@@ -131,7 +163,9 @@ namespace NightSignal.Race
             List<RouteGateDef> l = track.Gates.Where(g => !string.IsNullOrEmpty(g.Challenge) && g.Kind == "lane").OrderBy(g => g.StartMetres).ToList();
             List<RouteGateDef> s = track.Gates.Where(g => !string.IsNullOrEmpty(g.Challenge) && (g.Kind == "exit-speed" || g.Kind == "brake-zone"))
                 .OrderBy(g => g.StartMetres).ToList();
-            return t.Count + l.Count + s.Count == 0 ? null : new GateJudge(t, l, s);
+            List<RouteGateDef> dz = track.Gates.Where(g => !string.IsNullOrEmpty(g.Challenge) && g.Kind == "defence" && g.EndMetres > g.StartMetres)
+                .OrderBy(g => g.StartMetres).ToList();
+            return t.Count + l.Count + s.Count + dz.Count == 0 ? null : new GateJudge(t, l, s, dz);
         }
 
         public void Step(RaceEntrant e, bool reset, IVehicleWorld world) => Step(e, DriverInput.Neutral, reset, world);
@@ -140,7 +174,7 @@ namespace NightSignal.Race
         public void Step(RaceEntrant e, DriverInput input, bool reset, IVehicleWorld world)
         {
             GateRun r = e.GateRun ?? (e.GateRun = new GateRun(touches.Select(g => g.Challenge).ToArray(), lanes.Select(g => g.Challenge).ToArray(),
-                speeds.Select(g => g.Id).ToArray()));
+                speeds.Select(g => g.Id).ToArray(), defences.Select(g => g.Challenge).ToArray()));
             if (e.Sim.Telemetry.WallContact) r.BarrierTouchSteps++;
             float d = e.Progress.Location.Distance;
             float last = r.LastDistance;
@@ -154,6 +188,12 @@ namespace NightSignal.Race
                     {
                         r.LaneInside[i] = false;
                         r.LaneMarginKept[i] = false;
+                    }
+                for (int i = 0; i < defences.Count; i++)
+                    if (r.DefenceInside[i])
+                    {
+                        r.DefenceInside[i] = false;
+                        r.DefenceCorridorKept[i] = false;
                     }
                 // A reset inside a braking zone voids that pass and is counted against it.
                 for (int i = 0; i < speeds.Count; i++)
@@ -233,6 +273,17 @@ namespace NightSignal.Race
                 {
                     r.LaneInside[i] = false;
                     r.LanePasses[i]++;
+                }
+            }
+            for (int i = 0; i < defences.Count; i++)
+            {
+                RouteGateDef z = defences[i];
+                if (Crossed(z.StartMetres)) r.DefenceInside[i] = true;
+                if (r.DefenceInside[i] && !e.Progress.Location.InCorridor) r.DefenceCorridorKept[i] = false;
+                if (r.DefenceInside[i] && Crossed(z.EndMetres))
+                {
+                    r.DefenceInside[i] = false;
+                    r.DefencePasses[i]++;
                 }
             }
         }

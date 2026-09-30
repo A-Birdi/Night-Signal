@@ -75,6 +75,8 @@ namespace NightSignal.Core.Rules
         /// whole way, no barrier touched in it, at the published sector pace (<see cref="TrialTargets.SectorTimeMs"/>).
         /// </summary>
         public bool PressureSector;
+        /// <summary>Every defence zone tagged with the challenge driven start to end inside the legal corridor (CH43's defence/exit gates).</summary>
+        public bool AllDefenceZones;
     }
 
     /// <summary>Published targets (measured, see the file's method); 0 = not judged.</summary>
@@ -117,6 +119,12 @@ namespace NightSignal.Core.Rules
         /// CH69's generous limits; 0 = the legs are not timed, CH14).
         /// </summary>
         public double LegFactor;
+        /// <summary>
+        /// The time target is this rival's own practice run in the loaner (its driver profile at <see cref="ReferenceStage"/>; the time
+        /// itself, no factor) instead of the validator's — CH43 "beat R32's C20 Gold practice reference"; "" = the validator's.
+        /// </summary>
+        public string ReferenceRival = "";
+        public int ReferenceStage;
         /// <summary>A racecraft trial's fixed AI field, in grid order (empty for time and drift trials, which run alone).</summary>
         public List<TrialFieldCar> Field = new List<TrialFieldCar>();
         /// <summary>The player starts from the last grid slot, behind the whole field (CH41 "from the last grid position").</summary>
@@ -191,6 +199,9 @@ namespace NightSignal.Core.Rules
         public long PressureSectorMs;
         /// <summary>A challenge cup: every leg run so far in this session, in order (the verdict needs all of them).</summary>
         public TrialCupLegFacts[] CupLegs;
+        /// <summary>Every defence zone of the challenge driven inside the legal corridor, and how many there are.</summary>
+        public bool DefenceZonesKept;
+        public int DefenceZones;
     }
 
     public sealed class TrialVerdict
@@ -226,6 +237,7 @@ namespace NightSignal.Core.Rules
             if (t.Rules.AllTyresPaved)
                 Check(f.OffPavedSeconds <= 0f, "all tyres on the paved road" + (f.OffPavedSeconds > 0f ? $" (off it {f.OffPavedSeconds:F1} s)" : ""));
             if (t.Rules.BankEveryZone) Check(f.ZonesTotal > 0 && f.ZonesBanked >= f.ZonesTotal, $"a chain banked in every judged zone ({f.ZonesBanked}/{f.ZonesTotal})");
+            if (t.Rules.AllDefenceZones) Check(f.DefenceZones > 0 && f.DefenceZonesKept, $"every marked defence gate inside the legal corridor ({f.DefenceZones} of them)");
             if (t.Rules.CleanZonePass) Check(f.CleanZonePass, "the marked overtake, clean and held");
             if (t.Rules.PressureSector)
                 Check(f.PressureSectorMs > 0 && t.Targets.SectorTimeMs > 0 && f.PressureSectorMs <= t.Targets.SectorTimeMs,
@@ -316,6 +328,7 @@ namespace NightSignal.Core.Rules
                     }
                     if (t.Legs != null && t.Legs.Count > 0 && t.Course != t.Legs[0].Course) problems.Add($"{t.Id}: a cup's course is its first leg's");
                     if (t.LegFactor < 0) problems.Add($"{t.Id}: negative leg factor");
+                if (!string.IsNullOrEmpty(t.ReferenceRival) && !t.JudgesTime) problems.Add($"{t.Id}: a rival's reference is a time");
                 }
                 else if (t.Legs != null && t.Legs.Count > 0) problems.Add($"{t.Id}: only challenge cups have legs");
                 if (t.IsRace && (t.Field == null || t.Field.Count == 0)) problems.Add($"{t.Id}: a racecraft trial needs its fixed field");

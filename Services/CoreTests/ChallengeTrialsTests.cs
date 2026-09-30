@@ -29,8 +29,8 @@ public sealed class ChallengeTrialsTests
     public void TheAuthoredTrials_LoadIntoTheHashedCatalogue_OnePerChallengeOrOneGroup()
     {
         Assert.Contains(ContentCatalogue.AuthoredFiles, f => f == "challenge-trials.json");
-        Assert.Equal(18, Trials.Trials.Count);
-        Assert.Equal(new[] { "CH11", "CH13", "CH14", "CH15", "CH25", "CH28", "CH30", "CH36", "CH39", "CH40", "CH41", "CH42", "CH51", "CH54", "CH55", "CH69", "CH72" }, Trials.Trials.Select(t => t.Challenge).Distinct().OrderBy(c => c));
+        Assert.Equal(19, Trials.Trials.Count);
+        Assert.Equal(new[] { "CH11", "CH13", "CH14", "CH15", "CH25", "CH28", "CH30", "CH36", "CH39", "CH40", "CH41", "CH42", "CH43", "CH51", "CH54", "CH55", "CH69", "CH72" }, Trials.Trials.Select(t => t.Challenge).Distinct().OrderBy(c => c));
         ChallengeTrialDef ch36 = Trials.Find("TR-CH36")!;
         Assert.True(ch36.IsRace && ch36.Rules.ZonePassRole == "pacing" && ch36.Field.Single().Role == "pacing");
         // The racecraft trials: fixed fields in the loaner's class, the player starting last.
@@ -50,6 +50,9 @@ public sealed class ChallengeTrialsTests
         Assert.True(Trials.Find("TR-CH14")!.Rules.MaxWallImpacts == 0 && Trials.Find("TR-CH14")!.LegFactor == 0 && Trials.Find("TR-CH14")!.Published);
         Assert.True(Trials.Find("TR-CH72")!.Rules.NoReset && Trials.Find("TR-CH72")!.LegFactor == 1.20);
         Assert.Equal(new[] { "C06", "C13", "C21" }, Trials.Find("TR-CH42")!.Legs.Select(l => l.Course));
+        // CH43: R32's own practice run in R32's V16 is the Gold reference, with the defence gates.
+        ChallengeTrialDef ch43 = Trials.Find("TR-CH43")!;
+        Assert.True(ch43.ReferenceRival == "R32" && ch43.ReferenceStage == 28 && ch43.Loaner.Car == "V16" && ch43.Rules.AllDefenceZones && ch43.JudgesTime);
         Assert.True(Trials.Find("TR-CH15")!.Rules.AllChallengeGates && Trials.Find("TR-CH15")!.Rules.NoReset);
         Assert.True(Trials.Find("TR-CH13")!.Ghost && Trials.Find("TR-CH13")!.Rules.AllTyresPaved); // the fixed Gold ghost, tyres on the paved road
         Assert.Equal(2, Trials.ForChallenge("CH54").Count);
@@ -153,6 +156,12 @@ public sealed class ChallengeTrialsTests
         Assert.False(TrialJudge.Judge(race, Run() with { PressureSectorMs = 30_500 }).Passed, "too slow");
         Assert.False(TrialJudge.Judge(race, Run()).Passed, "never held under pressure");
         race.Targets = new TrialTargets();
+
+        var defended = new ChallengeTrialDef { Id = "TR-G", Challenge = "CH43", Course = "C20", Kind = "time", Loaner = new TrialLoaner { Car = "V16" },
+            Rules = new TrialRules { AllDefenceZones = true }, Targets = new TrialTargets { TimeMs = 100_000 } };
+        Assert.True(TrialJudge.Judge(defended, Run(timeMs: 99_000) with { DefenceZones = 2, DefenceZonesKept = true }).Passed);
+        Assert.False(TrialJudge.Judge(defended, Run(timeMs: 99_000) with { DefenceZones = 2, DefenceZonesKept = false }).Passed, "out of the corridor in a gate");
+        Assert.False(TrialJudge.Judge(defended, Run(timeMs: 99_000) with { DefenceZones = 0, DefenceZonesKept = true }).Passed, "a course without them");
 
         race.Rules = new TrialRules { CleanZonePass = true, NoCheckpointCut = true };
         Assert.True(TrialJudge.Judge(race, Run() with { Placement = 3, CleanZonePass = true }).Passed);

@@ -11,6 +11,8 @@
       "kind": "time",
       "legs": [],
       "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -32,7 +34,8 @@
         "noCheckpointCut": false,
         "cleanZonePass": false,
         "zonePassRole": "",
-        "pressureSector": false
+        "pressureSector": false,
+        "allDefenceZones": false
       },
       "targets": {
         "timeMs": 136346,
@@ -59,6 +62,8 @@
       "kind": "time",
       "legs": [],
       "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -80,7 +85,8 @@
         "noCheckpointCut": false,
         "cleanZonePass": false,
         "zonePassRole": "",
-        "pressureSector": false
+        "pressureSector": false,
+        "allDefenceZones": false
       },
       "targets": {
         "timeMs": 273700,
@@ -99,6 +105,57 @@
       "published": true
     },
     {
+      "id": "TR-CH43",
+      "challenge": "CH43",
+      "title": "Leave No Opening",
+      "course": "C20",
+      "tier": "gold",
+      "kind": "time",
+      "legs": [],
+      "legFactor": 0.0,
+      "referenceRival": "R32",
+      "referenceStage": 28,
+      "field": [],
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V16",
+        "parts": {},
+        "piCap": 0
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": false,
+        "allDefenceZones": true
+      },
+      "targets": {
+        "timeMs": 167220,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0,
+        "sectorTimeMs": 0
+      },
+      "group": "",
+      "brief": "Mako Hoshino's C20 practice run, in Mako's own V16 as the Gold reference: beat its time in the same car, driving both marked defence/exit gates inside the legal corridor. No blocking or contact rule — it is a clean practice run.",
+      "ghost": false,
+      "judgesTime": true,
+      "judgesDrift": false,
+      "isRace": false,
+      "isCup": false,
+      "published": true
+    },
+    {
       "id": "TR-CH55",
       "challenge": "CH55",
       "title": "No Power Purchase",
@@ -107,6 +164,8 @@
       "kind": "time",
       "legs": [],
       "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -128,7 +187,8 @@
         "noCheckpointCut": false,
         "cleanZonePass": false,
         "zonePassRole": "",
-        "pressureSector": false
+        "pressureSector": false,
+        "allDefenceZones": false
       },
       "targets": {
         "timeMs": 150400,
@@ -155,6 +215,8 @@
       "kind": "time",
       "legs": [],
       "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -176,7 +238,8 @@
         "noCheckpointCut": false,
         "cleanZonePass": false,
         "zonePassRole": "",
-        "pressureSector": false
+        "pressureSector": false,
+        "allDefenceZones": false
       },
       "targets": {
         "timeMs": 194300,
@@ -203,6 +266,8 @@
       "kind": "time",
       "legs": [],
       "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -226,7 +291,8 @@
         "noCheckpointCut": false,
         "cleanZonePass": false,
         "zonePassRole": "",
-        "pressureSector": false
+        "pressureSector": false,
+        "allDefenceZones": false
       },
       "targets": {
         "timeMs": 169200,
@@ -253,6 +319,8 @@
       "kind": "time",
       "legs": [],
       "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -274,7 +342,8 @@
         "noCheckpointCut": false,
         "cleanZonePass": false,
         "zonePassRole": "",
-        "pressureSector": false
+        "pressureSector": false,
+        "allDefenceZones": false
       },
       "targets": {
         "timeMs": 158400,
@@ -301,6 +370,8 @@
       "kind": "time",
       "legs": [],
       "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -322,7 +393,8 @@
         "noCheckpointCut": false,
         "cleanZonePass": false,
         "zonePassRole": "",
-        "pressureSector": false
+        "pressureSector": false,
+        "allDefenceZones": false
       },
       "targets": {
         "timeMs": 160500,
@@ -349,6 +421,8 @@
       "kind": "drift",
       "legs": [],
       "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -372,7 +446,8 @@
         "noCheckpointCut": false,
         "cleanZonePass": false,
         "zonePassRole": "",
-        "pressureSector": false
+        "pressureSector": false,
+        "allDefenceZones": false
       },
       "targets": {
         "timeMs": 0,
@@ -399,6 +474,8 @@
       "kind": "time+drift",
       "legs": [],
       "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -422,7 +499,8 @@
         "noCheckpointCut": false,
         "cleanZonePass": false,
         "zonePassRole": "",
-        "pressureSector": false
+        "pressureSector": false,
+        "allDefenceZones": false
       },
       "targets": {
         "timeMs": 274100,
@@ -449,6 +527,8 @@
       "kind": "drift",
       "legs": [],
       "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -472,7 +552,8 @@
         "noCheckpointCut": false,
         "cleanZonePass": false,
         "zonePassRole": "",
-        "pressureSector": false
+        "pressureSector": false,
+        "allDefenceZones": false
       },
       "targets": {
         "timeMs": 0,
@@ -499,6 +580,8 @@
       "kind": "race",
       "legs": [],
       "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
       "field": [
         {
           "car": "V05",
@@ -539,7 +622,8 @@
         "noCheckpointCut": true,
         "cleanZonePass": true,
         "zonePassRole": "",
-        "pressureSector": false
+        "pressureSector": false,
+        "allDefenceZones": false
       },
       "targets": {
         "timeMs": 0,
@@ -566,6 +650,8 @@
       "kind": "race",
       "legs": [],
       "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
       "field": [
         {
           "car": "V07",
@@ -618,7 +704,8 @@
         "noCheckpointCut": false,
         "cleanZonePass": false,
         "zonePassRole": "",
-        "pressureSector": false
+        "pressureSector": false,
+        "allDefenceZones": false
       },
       "targets": {
         "timeMs": 0,
@@ -645,6 +732,8 @@
       "kind": "race",
       "legs": [],
       "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
       "field": [
         {
           "car": "V06",
@@ -673,7 +762,8 @@
         "noCheckpointCut": false,
         "cleanZonePass": false,
         "zonePassRole": "pacing",
-        "pressureSector": false
+        "pressureSector": false,
+        "allDefenceZones": false
       },
       "targets": {
         "timeMs": 0,
@@ -700,6 +790,8 @@
       "kind": "race",
       "legs": [],
       "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
       "field": [
         {
           "car": "V07",
@@ -728,7 +820,8 @@
         "noCheckpointCut": false,
         "cleanZonePass": false,
         "zonePassRole": "",
-        "pressureSector": true
+        "pressureSector": true,
+        "allDefenceZones": false
       },
       "targets": {
         "timeMs": 0,
@@ -771,6 +864,8 @@
         }
       ],
       "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -792,7 +887,8 @@
         "noCheckpointCut": false,
         "cleanZonePass": false,
         "zonePassRole": "",
-        "pressureSector": false
+        "pressureSector": false,
+        "allDefenceZones": false
       },
       "targets": {
         "timeMs": 0,
@@ -835,6 +931,8 @@
         }
       ],
       "legFactor": 1.02,
+      "referenceRival": "",
+      "referenceStage": 0,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -856,7 +954,8 @@
         "noCheckpointCut": false,
         "cleanZonePass": false,
         "zonePassRole": "",
-        "pressureSector": false
+        "pressureSector": false,
+        "allDefenceZones": false
       },
       "targets": {
         "timeMs": 0,
@@ -899,6 +998,8 @@
         }
       ],
       "legFactor": 1.35,
+      "referenceRival": "",
+      "referenceStage": 0,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -920,7 +1021,8 @@
         "noCheckpointCut": false,
         "cleanZonePass": false,
         "zonePassRole": "",
-        "pressureSector": false
+        "pressureSector": false,
+        "allDefenceZones": false
       },
       "targets": {
         "timeMs": 0,
@@ -963,6 +1065,8 @@
         }
       ],
       "legFactor": 1.2,
+      "referenceRival": "",
+      "referenceStage": 0,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -984,7 +1088,8 @@
         "noCheckpointCut": false,
         "cleanZonePass": false,
         "zonePassRole": "",
-        "pressureSector": false
+        "pressureSector": false,
+        "allDefenceZones": false
       },
       "targets": {
         "timeMs": 0,

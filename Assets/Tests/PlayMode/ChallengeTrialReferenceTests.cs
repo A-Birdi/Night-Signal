@@ -43,7 +43,7 @@ namespace NightSignal.Tests
             public double Banked, Earned;
             public int Zones, ZonesBanked, Walls, Resets;
             public float OffPaved;
-            public bool GatesTouched;
+            public bool GatesTouched, DefenceKept;
             public string OffPavedWhere = "";
             public string Surface;
             public NightSignal.Core.Ghosts.GhostRecording Ghost;
@@ -68,6 +68,8 @@ namespace NightSignal.Tests
             session.AutopilotDriftSkill = skill;
             session.AutopilotNoHandbrake = t.Rules.NoHandbrake;
             session.AutopilotEdgeMargin = margin;
+            session.AutopilotRival = string.IsNullOrEmpty(t.ReferenceRival) ? null : t.ReferenceRival;
+            session.AutopilotRivalStage = t.ReferenceStage > 0 ? t.ReferenceStage : 1;
             OfflineRaceSession.AutopilotAimsChallengeGates = t.Rules.AllChallengeGates;
             if (t.Ghost)
                 session.GhostTemplate = new NightSignal.Core.Ghosts.GhostHeader
@@ -93,6 +95,7 @@ namespace NightSignal.Tests
                 Walls = me.Progress.WallIncidents, Resets = me.Progress.Resets, Handbrake = me.Progress.HandbrakeSeconds, OffPaved = me.Progress.OffPavedSeconds,
                 Ghost = session.PlayerGhost,
                 GatesTouched = me.GateRun != null && me.GateRun.AllTouched(t.Challenge),
+                DefenceKept = me.GateRun != null && me.GateRun.DefenceKept(t.Challenge),
                 OffPavedWhere = string.Join(", ", me.Progress.OffPavedAt.Select(v => $"{v.x:F0} m lateral {v.y:F2} of {v.z * 0.5f:F2}")),
                 Surface = session.Rules.Surface ?? CourseRuntime.Active?.Route?.Surface ?? "dry",
             };
@@ -228,7 +231,11 @@ namespace NightSignal.Tests
                 if (t.Rules.AllChallengeGates && !best.GatesTouched) problems.Add($"{t.Id}: the reference missed a marked gate (the rule stays; a person must do better)");
                 if (t.Rules.NoReset && best.Resets > 0) problems.Add($"{t.Id}: the reference reset (the rule stays; a person must do better)");
                 if (best.Resets > 0) report.AppendLine($"(the cleanest reference still reset {best.Resets} time(s): its time includes them)");
-                t.Targets.TimeMs = t.JudgesTime ? (long)Math.Ceiling(TimeFactor(t.Tier) * best.TimeMs / 100.0) * 100 : 0;
+                // A rival's own practice reference is its time itself (to beat); otherwise the validator's time × the tier's factor.
+                t.Targets.TimeMs = !t.JudgesTime ? 0 : !string.IsNullOrEmpty(t.ReferenceRival) ? best.TimeMs
+                    : (long)Math.Ceiling(TimeFactor(t.Tier) * best.TimeMs / 100.0) * 100;
+                if (!string.IsNullOrEmpty(t.ReferenceRival)) report.AppendLine($"(driven by {t.ReferenceRival}'s profile at stage {t.ReferenceStage}: its time is the target)");
+                if (t.Rules.AllDefenceZones) report.AppendLine($"marked defence gates inside the corridor: {best.DefenceKept}");
                 t.Targets.ReferenceEdgeMargin = best.Margin;
                 if (t.Ghost)
                 {
@@ -253,6 +260,7 @@ namespace NightSignal.Tests
                 report.AppendLine("→ " + string.Join(", ", new[]
                 {
                     t.Targets.TimeMs > 0 ? (t.Ghost ? $"beat the Gold ghost's {t.Targets.TimeMs / 1000.0:F3} s (the reference run itself, recorded)"
+                        : !string.IsNullOrEmpty(t.ReferenceRival) ? $"beat {t.ReferenceRival}'s {t.Targets.TimeMs / 1000.0:F3} s (its practice run itself)"
                         : $"{t.Tier} time {t.Targets.TimeMs / 1000.0:F1} s ({TimeFactor(t.Tier):F2} ×)") : null,
                     t.Targets.DriftRaw > 0 ? $"{t.Tier} drift {t.Targets.DriftRaw:N0} raw ({DriftFactor(t.Tier):F2} × scored)" : null,
                 }.Where(x => x != null)));

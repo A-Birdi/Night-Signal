@@ -5,6 +5,7 @@ using NightSignal.AI;
 using NightSignal.Art;
 using NightSignal.Cameras;
 using NightSignal.Content;
+using NightSignal.Core.Content;
 using NightSignal.Core.Rules;
 using NightSignal.InputBindings;
 using NightSignal.Track;
@@ -39,6 +40,9 @@ namespace NightSignal.Race
         public float AutopilotDriftSkill;
         /// <summary>The autopilot starts slides with power, never the handbrake (measuring CH25's trial).</summary>
         public bool AutopilotNoHandbrake;
+        /// <summary>Measurement only: the autopilot drives as this rival (its profile at <see cref="AutopilotRivalStage"/>) instead of the validator.</summary>
+        public string AutopilotRival;
+        public int AutopilotRivalStage = 1;
         /// <summary>The margin the autopilot's line keeps from the road's edge (0 = the validator's own; a trial that keeps every tyre paved).</summary>
         public float AutopilotEdgeMargin;
         /// <summary>Automation only: the validator autopilot steers through the course's challenge touch gates (CH03, CH06).</summary>
@@ -174,7 +178,8 @@ namespace NightSignal.Race
             Player.Status = EntrantStatus.Loaded;
             Sim.HumanInput = LocalInput;
             Sim.StartTick = CountdownTicks;
-            DriverProfile pilotProfile = DriverProfile.Validator;
+            DriverProfile pilotProfile = !string.IsNullOrEmpty(AutopilotRival) && lib.Catalogue.TryRival(AutopilotRival, out RivalDef asRival)
+                ? AiProfiles.For(asRival, AutopilotRivalStage) : DriverProfile.Validator;
             pilotProfile.DriftSkill = AutopilotDriftSkill;
             pilotProfile.NoHandbrake = AutopilotNoHandbrake;
             pilotProfile.EdgeMargin = AutopilotEdgeMargin;

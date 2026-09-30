@@ -1,0 +1,11 @@
+# Challenge trial targets, measured by ChallengeTrialReferenceTests (PlayMode, explicit): each trial's loaner resolved like a
+# garage build, solo, validator autopilot, the trial's course and conditions; drift trials: the cleanest of three drift skills. Automation.
+# this run measured only: TR-CH43
+
+## TR-CH43 (CH43, gold) on C20 (damp): Mizuno Meridian X, PI 790
+time 167.220 s; banked 0 raw (earned 0) in 0/0 zones; walls 1, resets 0, handbrake 0.0 s, off the paved road 8.7 s
+(driven by R32's profile at stage 28: its time is the target)
+marked defence gates inside the corridor: True
+→ beat R32's 167.220 s (its practice run itself)
+
+# every trial measured
