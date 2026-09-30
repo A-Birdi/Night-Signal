@@ -1,6 +1,6 @@
 {
   "schema": "night-signal/challenge-trials@1",
-  "method": "Measured 2026-09-30 by ChallengeTrialReferenceTests: each trial's loaner resolved like a garage build (hm-1), solo, validator autopilot, the trial's course and conditions; time targets Gold 1.02 ×, Silver 1.10 ×, Bronze 1.20 × its time; drift trials use the cleanest of drift skills 0.95/0.80/0.65 (fewest resets, then most scored; slides started by power where the handbrake is forbidden), time and drift from that one run, drift targets Gold = the raw it scored in the zones (banked or earned, the larger), Silver 0.85 ×, Bronze 0.70 ×; racecraft trials have no targets except a pressure trial's sector pace (the loaner alone through the marked sector under contact rules, the fastest pass × the time factor); challenge cups: the loaner alone on each leg × the cup's published leg factor; physics chassis-2026.09-contact1, scoring classify-2. Automation, not a human.",
+  "method": "Measured 2026-09-30 by ChallengeTrialReferenceTests: each trial's loaner resolved like a garage build (hm-1), solo, validator autopilot, the trial's course and conditions; time targets Gold 1.02 ×, Silver 1.10 ×, Bronze 1.20 × its time; drift trials use the cleanest of drift skills 0.95/0.80/0.65 (fewest resets, then most scored; slides started by power where the handbrake is forbidden), time and drift from that one run, drift targets Gold = the raw it scored in the zones (banked or earned, the larger), Silver 0.85 ×, Bronze 0.70 ×; racecraft trials have no targets except a pressure trial's sector pace (the loaner alone through the marked sector under contact rules, the fastest pass × the time factor); challenge cups: the loaner alone on each leg × the cup's published leg factor; physics chassis-2026.09-contact1, scoring classify-2. Automation, not a human. CH60's ten tuning demonstrations: the supplied loaner (its part at default settings) through its marked Driving School section, the check 1.10 × that section time — a clean run after a tune, not a medal.",
   "trials": [
     {
       "id": "TR-CH13",
@@ -18,6 +18,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
@@ -51,8 +55,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 136346,
@@ -62,7 +69,8 @@
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
         "exitFloors": [],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "",
       "brief": "Race the fixed Gold ghost and finish ahead of it with all four tyres on the paved road the whole way; a shoulder touch fails the trial, not the race.",
@@ -72,6 +80,7 @@
       "isRace": false,
       "isDrill": false,
       "isCup": false,
+      "isLane": false,
       "hasSection": false,
       "published": true
     },
@@ -91,6 +100,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
@@ -124,8 +137,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 273700,
@@ -135,7 +151,8 @@
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
         "exitFloors": [],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "",
       "brief": "The fixed challenge reference on C25: beat its Gold time, touch all three final-sector apex gates, and never reset.",
@@ -145,6 +162,7 @@
       "isRace": false,
       "isDrill": false,
       "isCup": false,
+      "isLane": false,
       "hasSection": false,
       "published": true
     },
@@ -164,6 +182,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
@@ -197,8 +219,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 167220,
@@ -208,7 +233,8 @@
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
         "exitFloors": [],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "",
       "brief": "Mako Hoshino's C20 practice run, in Mako's own V16 as the Gold reference: beat its time in the same car, driving both marked defence/exit gates inside the legal corridor. No blocking or contact rule — it is a clean practice run.",
@@ -218,6 +244,7 @@
       "isRace": false,
       "isDrill": false,
       "isCup": false,
+      "isLane": false,
       "hasSection": false,
       "published": true
     },
@@ -237,6 +264,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
@@ -270,8 +301,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 150400,
@@ -281,7 +315,8 @@
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
         "exitFloors": [],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "",
       "brief": "No performance parts: the stock starter against a Silver time.",
@@ -291,6 +326,7 @@
       "isRace": false,
       "isDrill": false,
       "isCup": false,
+      "isLane": false,
       "hasSection": false,
       "published": true
     },
@@ -310,6 +346,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
@@ -343,8 +383,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 194300,
@@ -354,7 +397,8 @@
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
         "exitFloors": [],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "",
       "brief": "The loaner sits under the C12 stages' PI 699 cap. Gold time, no reset, and at most one meaningful wall impact.",
@@ -364,6 +408,7 @@
       "isRace": false,
       "isDrill": false,
       "isCup": false,
+      "isLane": false,
       "hasSection": false,
       "published": true
     },
@@ -383,6 +428,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
@@ -418,8 +467,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 169200,
@@ -429,7 +481,8 @@
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
         "exitFloors": [],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "",
       "brief": "The supplied wet tune: rain-sport tyres in C08's wet. Beat the Silver time.",
@@ -439,6 +492,7 @@
       "isRace": false,
       "isDrill": false,
       "isCup": false,
+      "isLane": false,
       "hasSection": false,
       "published": true
     },
@@ -458,6 +512,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
@@ -491,8 +549,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 158400,
@@ -502,7 +563,8 @@
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
         "exitFloors": [],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "CH54-LAYOUTS",
       "brief": "Front-drive layout under the shared PI 450 cap, with its own Silver time; the challenge also needs the rear-drive trial.",
@@ -512,6 +574,7 @@
       "isRace": false,
       "isDrill": false,
       "isCup": false,
+      "isLane": false,
       "hasSection": false,
       "published": true
     },
@@ -531,6 +594,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
@@ -564,8 +631,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 160500,
@@ -575,7 +645,8 @@
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
         "exitFloors": [],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "CH54-LAYOUTS",
       "brief": "Rear-drive layout under the shared PI 450 cap, with its own Silver time; the challenge also needs the front-drive trial.",
@@ -585,6 +656,7 @@
       "isRace": false,
       "isDrill": false,
       "isCup": false,
+      "isLane": false,
       "hasSection": false,
       "published": true
     },
@@ -604,6 +676,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
@@ -639,8 +715,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 0,
@@ -650,7 +729,8 @@
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
         "exitFloors": [],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "",
       "brief": "The drift loaner: bank the Silver drift score without touching the handbrake after the start, then finish.",
@@ -660,6 +740,7 @@
       "isRace": false,
       "isDrill": false,
       "isCup": false,
+      "isLane": false,
       "hasSection": false,
       "published": true
     },
@@ -679,6 +760,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
@@ -714,8 +799,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 274100,
@@ -725,7 +813,8 @@
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
         "exitFloors": [],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "",
       "brief": "The fixed C23 build: beat both the published time and the raw drift target in the same legal run.",
@@ -735,6 +824,7 @@
       "isRace": false,
       "isDrill": false,
       "isCup": false,
+      "isLane": false,
       "hasSection": false,
       "published": true
     },
@@ -754,6 +844,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
@@ -789,8 +883,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 0,
@@ -800,7 +897,8 @@
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
         "exitFloors": [],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "",
       "brief": "The Gold drift route: bank the Gold raw target, with a chain banked in every judged zone.",
@@ -810,6 +908,7 @@
       "isRace": false,
       "isDrill": false,
       "isCup": false,
+      "isLane": false,
       "hasSection": false,
       "published": true
     },
@@ -829,6 +928,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [
         {
@@ -881,8 +984,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 0,
@@ -892,7 +998,8 @@
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
         "exitFloors": [],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "",
       "brief": "C17's fixed challenge race: three class-C cars ahead of you on the grid. Make the marked overtake in the braking zone about 2.8 km in — clean, no touch — keep the place, never touch another car or cut a checkpoint, and finish.",
@@ -902,6 +1009,7 @@
       "isRace": true,
       "isDrill": false,
       "isCup": false,
+      "isLane": false,
       "hasSection": false,
       "published": true
     },
@@ -921,6 +1029,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [
         {
@@ -985,8 +1097,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 0,
@@ -996,7 +1111,8 @@
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
         "exitFloors": [],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "",
       "brief": "Class-equalized: six identical stock V07s on the Kilnlight Ring, and you start sixth. Win with no reset and no car-to-car contact.",
@@ -1006,6 +1122,7 @@
       "isRace": true,
       "isDrill": false,
       "isCup": false,
+      "isLane": false,
       "hasSection": false,
       "published": true
     },
@@ -1025,6 +1142,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [
         {
@@ -1065,8 +1186,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 0,
@@ -1076,7 +1200,8 @@
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
         "exitFloors": [],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "",
       "brief": "C10's racecraft trial: a pacing rival starts ahead and keeps to the inside through the marked outside lane (about 2.7 km in). Pass it there, in the outside lane, and hold the gain through the next straight to the marked gate; then finish.",
@@ -1086,6 +1211,7 @@
       "isRace": true,
       "isDrill": false,
       "isCup": false,
+      "isLane": false,
       "hasSection": false,
       "published": true
     },
@@ -1105,6 +1231,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [
         {
@@ -1145,8 +1275,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 0,
@@ -1156,7 +1289,8 @@
         "referencePaceScale": 0.0,
         "sectorTimeMs": 28700,
         "exitFloors": [],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "",
       "brief": "C14's pressure trial: you start on pole and a quicker car starts behind you, closing up but never passing. Drive the marked second sector at the published pace with it within a second of you all the way and no barrier touched; then finish.",
@@ -1166,6 +1300,7 @@
       "isRace": true,
       "isDrill": false,
       "isCup": false,
+      "isLane": false,
       "hasSection": false,
       "published": true
     },
@@ -1201,6 +1336,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
@@ -1234,8 +1373,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 0,
@@ -1245,7 +1387,8 @@
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
         "exitFloors": [],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "",
       "brief": "Three legs back to back — C17, C18, C19 — in one session with not a single meaningful wall impact across them. A leg cannot be retried: leave or fail a leg and the cup starts over.",
@@ -1255,6 +1398,7 @@
       "isRace": false,
       "isDrill": false,
       "isCup": true,
+      "isLane": false,
       "hasSection": false,
       "published": true
     },
@@ -1290,6 +1434,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
@@ -1323,8 +1471,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 0,
@@ -1334,7 +1485,8 @@
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
         "exitFloors": [],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "",
       "brief": "Three legs — C06, C13, C21 — each against its designated benchmark (the loaner's measured time, Gold 1.02 ×); a valid finish every time, no other driver needed.",
@@ -1344,6 +1496,7 @@
       "isRace": false,
       "isDrill": false,
       "isCup": true,
+      "isLane": false,
       "hasSection": false,
       "published": true
     },
@@ -1379,6 +1532,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
@@ -1412,8 +1569,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 0,
@@ -1423,7 +1583,8 @@
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
         "exitFloors": [],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "",
       "brief": "A quiet touring cup — C01, C05, C09 — in the starter car: finish each leg inside a generous time limit (1.35 × the loaner's measured time) and do not quit.",
@@ -1433,6 +1594,7 @@
       "isRace": false,
       "isDrill": false,
       "isCup": true,
+      "isLane": false,
       "hasSection": false,
       "published": true
     },
@@ -1468,6 +1630,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
@@ -1501,8 +1667,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 0,
@@ -1512,7 +1681,8 @@
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
         "exitFloors": [],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "",
       "brief": "Before the first train — C21, C22, C23 in one session, each at a generous Silver pace (1.20 × the loaner's measured time), with no reset in any leg.",
@@ -1522,6 +1692,7 @@
       "isRace": false,
       "isDrill": false,
       "isCup": true,
+      "isLane": false,
       "hasSection": false,
       "published": true
     },
@@ -1541,6 +1712,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
@@ -1576,8 +1751,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 14600,
@@ -1587,7 +1765,8 @@
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
         "exitFloors": [],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "CH52",
       "brief": "Driving School comparison route A in the light variant (lightweight panels and glass): inside its reference envelope. Its pair is route B in the heavy variant.",
@@ -1597,6 +1776,7 @@
       "isRace": false,
       "isDrill": false,
       "isCup": false,
+      "isLane": false,
       "hasSection": true,
       "published": true
     },
@@ -1616,6 +1796,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
@@ -1649,8 +1833,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 21400,
@@ -1660,7 +1847,8 @@
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
         "exitFloors": [],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "CH52",
       "brief": "Driving School comparison route B in the heavy variant (the stock car): inside its reference envelope. Its pair is route A in the light variant.",
@@ -1670,6 +1858,7 @@
       "isRace": false,
       "isDrill": false,
       "isCup": false,
+      "isLane": false,
       "hasSection": true,
       "published": true
     },
@@ -1689,6 +1878,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
@@ -1722,8 +1915,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 15800,
@@ -1733,7 +1929,8 @@
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
         "exitFloors": [],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "CH58",
       "brief": "Configuration 1 of the Driving School in the supplied front-drive car, at the Gold short reference. One of three: RWD on configuration 2 and AWD on configuration 3.",
@@ -1743,6 +1940,7 @@
       "isRace": false,
       "isDrill": false,
       "isCup": false,
+      "isLane": false,
       "hasSection": true,
       "published": true
     },
@@ -1762,6 +1960,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
@@ -1795,8 +1997,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 16900,
@@ -1806,7 +2011,8 @@
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
         "exitFloors": [],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "CH58",
       "brief": "Configuration 2 of the Driving School in the supplied rear-drive car, at the Gold short reference. One of three: FWD on configuration 1 and AWD on configuration 3.",
@@ -1816,6 +2022,7 @@
       "isRace": false,
       "isDrill": false,
       "isCup": false,
+      "isLane": false,
       "hasSection": true,
       "published": true
     },
@@ -1835,6 +2042,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
@@ -1868,8 +2079,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 20000,
@@ -1879,7 +2093,8 @@
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
         "exitFloors": [],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "CH58",
       "brief": "Configuration 3 of the Driving School — it crosses the start line — in the supplied all-drive car, at the Gold short reference. One of three: FWD on configuration 1 and RWD on configuration 2.",
@@ -1889,6 +2104,7 @@
       "isRace": false,
       "isDrill": false,
       "isCup": false,
+      "isLane": false,
       "hasSection": true,
       "published": true
     },
@@ -1908,6 +2124,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
@@ -1941,8 +2161,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 0,
@@ -1961,7 +2184,8 @@
             "kmh": 96.9
           }
         ],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "CH53",
       "brief": "C03's guided two-corner challenge in the supplied Linea 20 with its stock open differential: touch both marked turn-in apexes and clear both marked exits at their declared floors, on every lap. Its pair is the race differential.",
@@ -1971,6 +2195,7 @@
       "isRace": false,
       "isDrill": true,
       "isCup": false,
+      "isLane": false,
       "hasSection": false,
       "published": true
     },
@@ -1990,6 +2215,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
@@ -2025,8 +2254,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 0,
@@ -2045,7 +2277,8 @@
             "kmh": 96.9
           }
         ],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "CH53",
       "brief": "C03's guided two-corner challenge in the supplied Linea 20 with the race differential: touch both marked turn-in apexes and clear both marked exits at their declared floors (this setup's own), on every lap. Its pair is the open differential.",
@@ -2055,6 +2288,7 @@
       "isRace": false,
       "isDrill": true,
       "isCup": false,
+      "isLane": false,
       "hasSection": false,
       "published": true
     },
@@ -2074,6 +2308,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
@@ -2107,8 +2345,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 0,
@@ -2126,7 +2367,8 @@
             "minExitKmh": 52.0,
             "maxExitKmh": 71.0
           }
-        ]
+        ],
+        "laneEntryKmh": 0.0
       },
       "group": "",
       "brief": "The Driving School's braking lesson in its fixed loaner, the starter Hachi RS: brake for the test bend in the marked zone and trail the brake into the turn — begin by the marked point, keep some brake on until late in the zone, and leave at the published speed. No handbrake.",
@@ -2136,6 +2378,7 @@
       "isRace": false,
       "isDrill": true,
       "isCup": false,
+      "isLane": false,
       "hasSection": false,
       "published": true
     },
@@ -2155,6 +2398,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
@@ -2188,8 +2435,11 @@
         "alternatingRecoveries": true,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 0,
@@ -2199,7 +2449,8 @@
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
         "exitFloors": [],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "",
       "brief": "The Driving School's advanced countersteer drill in the rear-drive Kestrel S: in each of the four marked slalom zones in turn, let the car slide and catch it before the next arc — left and right alternately — with no spin and no reset between the recoveries.",
@@ -2209,6 +2460,7 @@
       "isRace": false,
       "isDrill": true,
       "isCup": false,
+      "isLane": false,
       "hasSection": false,
       "published": true
     },
@@ -2228,6 +2480,10 @@
       "requiredStoryRecords": 6,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": true,
       "field": [],
       "playerStartsLast": false,
@@ -2261,8 +2517,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 240846,
@@ -2272,7 +2531,8 @@
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
         "exitFloors": [],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "",
       "brief": "After the story: collect all six radio and timing-slip records through Normal progression, then beat the C24 reference — Satoshi Mibe's run in the V14, on the road beside you as a ghost — in the same car.",
@@ -2282,6 +2542,7 @@
       "isRace": false,
       "isDrill": false,
       "isCup": false,
+      "isLane": false,
       "hasSection": false,
       "published": true
     },
@@ -2301,6 +2562,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [
         {
@@ -2341,8 +2606,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": true,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 0,
@@ -2352,7 +2620,8 @@
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
         "exitFloors": [],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "",
       "brief": "The Driving School's merge lesson: an instructor's pace car in the same starter car keeps the right-hand merge lane from the start line. Take the left-hand lane and drive the whole marked merge beside it — each car inside its own lane, no contact.",
@@ -2362,6 +2631,7 @@
       "isRace": true,
       "isDrill": false,
       "isCup": false,
+      "isLane": false,
       "hasSection": false,
       "published": true
     },
@@ -2385,6 +2655,10 @@
         "T00-GEAR-2",
         "T00-GEAR-3"
       ],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
@@ -2418,8 +2692,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": true,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 0,
@@ -2429,7 +2706,8 @@
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
         "exitFloors": [],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "",
       "brief": "The Driving School's guided gearing lesson in the supplied starter Hachi RS with a manual gearbox: up the acceleration lane, shift up once at each of the three marked boards — within 25 m before to 10 m after it — on one lap. Nothing to buy.",
@@ -2439,6 +2717,7 @@
       "isRace": false,
       "isDrill": true,
       "isCup": false,
+      "isLane": false,
       "hasSection": false,
       "published": true
     },
@@ -2458,6 +2737,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
@@ -2495,8 +2778,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": true,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 20000,
@@ -2506,7 +2792,8 @@
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
         "exitFloors": [],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "",
       "brief": "The Driving School workshop in the starter Hachi RS: fit the free final-drive kit on Tune the Loaner, change the final drive, save it, then run the acceleration lane inside the gearing lesson's 20 seconds.",
@@ -2516,6 +2803,7 @@
       "isRace": false,
       "isDrill": false,
       "isCup": false,
+      "isLane": false,
       "hasSection": true,
       "published": true
     },
@@ -2535,6 +2823,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
@@ -2583,8 +2875,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 224700,
@@ -2594,7 +2889,8 @@
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
         "exitFloors": [],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "",
       "brief": "Signal Tower Climb in the supplied Vector MR: choose from the free challenge parts and tune them inside a locked PI 615 — every installed part and setting is checked — then beat the Gold time up the hill.",
@@ -2604,6 +2900,7 @@
       "isRace": false,
       "isDrill": false,
       "isCup": false,
+      "isLane": false,
       "hasSection": false,
       "published": true
     },
@@ -2623,6 +2920,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
@@ -2666,8 +2967,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": true
+        "aeroNotAtExtreme": true,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 144300,
@@ -2677,7 +2981,8 @@
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
         "exitFloors": [],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "",
       "brief": "Tide Lantern Coast, damp, in the supplied Crestline 26 with an adjustable GT wing: tune it and choose from the free tyres and coilovers inside PI 530, then beat the Gold time with the wing below its top and the balance inside its range.",
@@ -2687,6 +2992,7 @@
       "isRace": false,
       "isDrill": false,
       "isCup": false,
+      "isLane": false,
       "hasSection": false,
       "published": true
     },
@@ -2706,6 +3012,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [
         {
@@ -2762,7 +3072,8 @@
           ]
         },
         "tunable": true,
-        "piBudget": 580
+        "piBudget": 580,
+        "isTunable": true
       },
       "rules": {
         "noReset": false,
@@ -2783,8 +3094,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
         "finalDriveChanged": false,
-        "aeroNotAtExtreme": false
+        "aeroNotAtExtreme": false,
+        "changedControls": []
       },
       "targets": {
         "timeMs": 0,
@@ -2794,7 +3108,8 @@
         "referencePaceScale": 0.0,
         "sectorTimeMs": 0,
         "exitFloors": [],
-        "brakes": []
+        "brakes": [],
+        "laneEntryKmh": 0.0
       },
       "group": "",
       "brief": "Switchyard Skyline against five stock Spiral RXs at one PI: tune yours from the provided parts — final drive or close gears, an adjustable diff, a brake kit, a lip — inside PI 580, the field's own, then win.",
@@ -2804,6 +3119,7 @@
       "isRace": true,
       "isDrill": false,
       "isCup": false,
+      "isLane": false,
       "hasSection": false,
       "published": true
     },
@@ -2823,6 +3139,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "T00-BRAKE-SPEED",
+      "stopGate": "T00-BRAKE-BOX",
+      "laneStarts": 3,
+      "comparePart": "",
       "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
@@ -2856,10 +3176,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": true,
+        "compareStops": false,
         "finalDriveChanged": false,
         "aeroNotAtExtreme": false,
-        "boxStops": true,
-        "compareStops": false
+        "changedControls": []
       },
       "targets": {
         "timeMs": 0,
@@ -2878,14 +3199,11 @@
       "judgesTime": false,
       "judgesDrift": false,
       "isRace": false,
-      "isDrill": true,
+      "isDrill": false,
       "isCup": false,
+      "isLane": true,
       "hasSection": false,
-      "published": true,
-      "speedGate": "T00-BRAKE-SPEED",
-      "stopGate": "T00-BRAKE-BOX",
-      "laneStarts": 3,
-      "comparePart": ""
+      "published": true
     },
     {
       "id": "TR-CH47",
@@ -2903,6 +3221,10 @@
       "requiredStoryRecords": 0,
       "manualGearbox": false,
       "shiftGates": [],
+      "speedGate": "T00-BRAKE-SPEED",
+      "stopGate": "T00-BRAKE-COMPARE",
+      "laneStarts": 0,
+      "comparePart": "TYR-T2-SPORT",
       "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
@@ -2936,10 +3258,11 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": true,
         "finalDriveChanged": false,
         "aeroNotAtExtreme": false,
-        "boxStops": false,
-        "compareStops": true
+        "changedControls": []
       },
       "targets": {
         "timeMs": 0,
@@ -2958,14 +3281,874 @@
       "judgesTime": false,
       "judgesDrift": false,
       "isRace": false,
-      "isDrill": true,
+      "isDrill": false,
       "isCup": false,
+      "isLane": true,
       "hasSection": false,
-      "published": true,
-      "speedGate": "T00-BRAKE-SPEED",
-      "stopGate": "T00-BRAKE-COMPARE",
+      "published": true
+    },
+    {
+      "id": "TR-CH60-FINAL",
+      "challenge": "CH60",
+      "title": "The Complete Notebook — Final drive",
+      "course": "T00",
+      "tier": "gold",
+      "kind": "time",
+      "legs": [],
+      "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
+      "sectionStartGate": "T00-ACCEL-START",
+      "sectionEndGate": "T00-ACCEL-END",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
       "laneStarts": 0,
-      "comparePart": "TYR-T2-SPORT"
+      "comparePart": "",
+      "raceRivalReference": false,
+      "field": [],
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V01",
+        "parts": {
+          "gearbox": "GBX-T1-FINAL"
+        },
+        "piCap": 0,
+        "choices": {},
+        "tunable": true,
+        "piBudget": 0,
+        "isTunable": true
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": false,
+        "allDefenceZones": false,
+        "challengeExits": false,
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false,
+        "cleanMerge": false,
+        "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false,
+        "changedControls": [
+          "FinalDrive"
+        ]
+      },
+      "targets": {
+        "timeMs": 14000,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0,
+        "referencePaceScale": 0.0,
+        "sectorTimeMs": 0,
+        "exitFloors": [],
+        "brakes": [],
+        "laneEntryKmh": 0.0
+      },
+      "group": "CH60",
+      "brief": "Tuning demonstration: Gearing, final drive: shorten or lengthen the Hachi RS's final drive, then run the acceleration lane. A clean run inside the reference is the driving check.",
+      "ghost": false,
+      "judgesTime": true,
+      "judgesDrift": false,
+      "isRace": false,
+      "isDrill": false,
+      "isCup": false,
+      "isLane": false,
+      "hasSection": true,
+      "published": true
+    },
+    {
+      "id": "TR-CH60-SPREAD",
+      "challenge": "CH60",
+      "title": "The Complete Notebook — Gear spread",
+      "course": "T00",
+      "tier": "gold",
+      "kind": "time",
+      "legs": [],
+      "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
+      "sectionStartGate": "T00-CFG2-START",
+      "sectionEndGate": "T00-CFG2-END",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
+      "raceRivalReference": false,
+      "field": [],
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V01",
+        "parts": {
+          "gearbox": "GBX-T2-SIX"
+        },
+        "piCap": 0,
+        "choices": {},
+        "tunable": true,
+        "piBudget": 0,
+        "isTunable": true
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": false,
+        "allDefenceZones": false,
+        "challengeExits": false,
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false,
+        "cleanMerge": false,
+        "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false,
+        "changedControls": [
+          "GearSpread"
+        ]
+      },
+      "targets": {
+        "timeMs": 19000,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0,
+        "referencePaceScale": 0.0,
+        "sectorTimeMs": 0,
+        "exitFloors": [],
+        "brakes": [],
+        "laneEntryKmh": 0.0
+      },
+      "group": "CH60",
+      "brief": "Tuning demonstration: Gearing, ratios: close or open the six-speed conversion's ratio spread, then run configuration 2 through the Demonstration Bend. A clean run inside the reference is the driving check.",
+      "ghost": false,
+      "judgesTime": true,
+      "judgesDrift": false,
+      "isRace": false,
+      "isDrill": false,
+      "isCup": false,
+      "isLane": false,
+      "hasSection": true,
+      "published": true
+    },
+    {
+      "id": "TR-CH60-BIAS",
+      "challenge": "CH60",
+      "title": "The Complete Notebook — Brake bias",
+      "course": "T00",
+      "tier": "gold",
+      "kind": "time",
+      "legs": [],
+      "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
+      "sectionStartGate": "T00-CFG1-START",
+      "sectionEndGate": "T00-CFG1-END",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
+      "raceRivalReference": false,
+      "field": [],
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V01",
+        "parts": {
+          "brakes": "BRK-T2-KIT"
+        },
+        "piCap": 0,
+        "choices": {},
+        "tunable": true,
+        "piBudget": 0,
+        "isTunable": true
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": false,
+        "allDefenceZones": false,
+        "challengeExits": false,
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false,
+        "cleanMerge": false,
+        "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false,
+        "changedControls": [
+          "BrakeBias"
+        ]
+      },
+      "targets": {
+        "timeMs": 17900,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0,
+        "referencePaceScale": 0.0,
+        "sectorTimeMs": 0,
+        "exitFloors": [],
+        "brakes": [],
+        "laneEntryKmh": 0.0
+      },
+      "group": "CH60",
+      "brief": "Tuning demonstration: Brakes, balance: move the brake bias front or rear, then run configuration 1 into the countersteer slalom. A clean run inside the reference is the driving check.",
+      "ghost": false,
+      "judgesTime": true,
+      "judgesDrift": false,
+      "isRace": false,
+      "isDrill": false,
+      "isCup": false,
+      "isLane": false,
+      "hasSection": true,
+      "published": true
+    },
+    {
+      "id": "TR-CH60-DIFF",
+      "challenge": "CH60",
+      "title": "The Complete Notebook — Differential lock",
+      "course": "T00",
+      "tier": "gold",
+      "kind": "time",
+      "legs": [],
+      "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
+      "sectionStartGate": "T00-CMP-B-START",
+      "sectionEndGate": "T00-CMP-B-END",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
+      "raceRivalReference": false,
+      "field": [],
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V01",
+        "parts": {
+          "differential": "DIF-T2-RWD-ADJ"
+        },
+        "piCap": 0,
+        "choices": {},
+        "tunable": true,
+        "piBudget": 0,
+        "isTunable": true
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": false,
+        "allDefenceZones": false,
+        "challengeExits": false,
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false,
+        "cleanMerge": false,
+        "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false,
+        "changedControls": [
+          "DiffLock"
+        ]
+      },
+      "targets": {
+        "timeMs": 22500,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0,
+        "referencePaceScale": 0.0,
+        "sectorTimeMs": 0,
+        "exitFloors": [],
+        "brakes": [],
+        "laneEntryKmh": 0.0
+      },
+      "group": "CH60",
+      "brief": "Tuning demonstration: Differential: set the adjustable limited-slip's lock, then run comparison route B out of the Demonstration Bend. A clean run inside the reference is the driving check.",
+      "ghost": false,
+      "judgesTime": true,
+      "judgesDrift": false,
+      "isRace": false,
+      "isDrill": false,
+      "isCup": false,
+      "isLane": false,
+      "hasSection": true,
+      "published": true
+    },
+    {
+      "id": "TR-CH60-AWD",
+      "challenge": "CH60",
+      "title": "The Complete Notebook — All-wheel-drive split",
+      "course": "T00",
+      "tier": "gold",
+      "kind": "time",
+      "legs": [],
+      "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
+      "sectionStartGate": "T00-CMP-A-START",
+      "sectionEndGate": "T00-CMP-A-END",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
+      "raceRivalReference": false,
+      "field": [],
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V07",
+        "parts": {
+          "differential": "DIF-T2-AWD-CENTRE"
+        },
+        "piCap": 0,
+        "choices": {},
+        "tunable": true,
+        "piBudget": 0,
+        "isTunable": true
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": false,
+        "allDefenceZones": false,
+        "challengeExits": false,
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false,
+        "cleanMerge": false,
+        "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false,
+        "changedControls": [
+          "AwdFrontShare"
+        ]
+      },
+      "targets": {
+        "timeMs": 14600,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0,
+        "referencePaceScale": 0.0,
+        "sectorTimeMs": 0,
+        "exitFloors": [],
+        "brakes": [],
+        "laneEntryKmh": 0.0
+      },
+      "group": "CH60",
+      "brief": "Tuning demonstration: All-wheel drive: move the Shigure GT's centre split front or rear, then run comparison route A through the slalom. A clean run inside the reference is the driving check.",
+      "ghost": false,
+      "judgesTime": true,
+      "judgesDrift": false,
+      "isRace": false,
+      "isDrill": false,
+      "isCup": false,
+      "isLane": false,
+      "hasSection": true,
+      "published": true
+    },
+    {
+      "id": "TR-CH60-SPRING",
+      "challenge": "CH60",
+      "title": "The Complete Notebook — Spring rates",
+      "course": "T00",
+      "tier": "gold",
+      "kind": "time",
+      "legs": [],
+      "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
+      "sectionStartGate": "T00-CFG1-START",
+      "sectionEndGate": "T00-CFG1-END",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
+      "raceRivalReference": false,
+      "field": [],
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V01",
+        "parts": {
+          "suspension": "SUS-T2-SPORT"
+        },
+        "piCap": 0,
+        "choices": {},
+        "tunable": true,
+        "piBudget": 0,
+        "isTunable": true
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": false,
+        "allDefenceZones": false,
+        "challengeExits": false,
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false,
+        "cleanMerge": false,
+        "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false,
+        "changedControls": [
+          "SpringFront",
+          "SpringRear"
+        ]
+      },
+      "targets": {
+        "timeMs": 17900,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0,
+        "referencePaceScale": 0.0,
+        "sectorTimeMs": 0,
+        "exitFloors": [],
+        "brakes": [],
+        "laneEntryKmh": 0.0
+      },
+      "group": "CH60",
+      "brief": "Tuning demonstration: Suspension, springs: change a spring rate on the sport suspension, then run configuration 1. A clean run inside the reference is the driving check.",
+      "ghost": false,
+      "judgesTime": true,
+      "judgesDrift": false,
+      "isRace": false,
+      "isDrill": false,
+      "isCup": false,
+      "isLane": false,
+      "hasSection": true,
+      "published": true
+    },
+    {
+      "id": "TR-CH60-DAMPER",
+      "challenge": "CH60",
+      "title": "The Complete Notebook — Dampers",
+      "course": "T00",
+      "tier": "gold",
+      "kind": "time",
+      "legs": [],
+      "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
+      "sectionStartGate": "T00-CMP-A-START",
+      "sectionEndGate": "T00-CMP-A-END",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
+      "raceRivalReference": false,
+      "field": [],
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V01",
+        "parts": {
+          "suspension": "SUS-T2-SPORT"
+        },
+        "piCap": 0,
+        "choices": {},
+        "tunable": true,
+        "piBudget": 0,
+        "isTunable": true
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": false,
+        "allDefenceZones": false,
+        "challengeExits": false,
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false,
+        "cleanMerge": false,
+        "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false,
+        "changedControls": [
+          "DamperFront",
+          "DamperRear"
+        ]
+      },
+      "targets": {
+        "timeMs": 15100,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0,
+        "referencePaceScale": 0.0,
+        "sectorTimeMs": 0,
+        "exitFloors": [],
+        "brakes": [],
+        "laneEntryKmh": 0.0
+      },
+      "group": "CH60",
+      "brief": "Tuning demonstration: Suspension, dampers: change a damper setting, then run comparison route A through the slalom. A clean run inside the reference is the driving check.",
+      "ghost": false,
+      "judgesTime": true,
+      "judgesDrift": false,
+      "isRace": false,
+      "isDrill": false,
+      "isCup": false,
+      "isLane": false,
+      "hasSection": true,
+      "published": true
+    },
+    {
+      "id": "TR-CH60-ARB",
+      "challenge": "CH60",
+      "title": "The Complete Notebook — Anti-roll bars",
+      "course": "T00",
+      "tier": "gold",
+      "kind": "time",
+      "legs": [],
+      "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
+      "sectionStartGate": "T00-CMP-B-START",
+      "sectionEndGate": "T00-CMP-B-END",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
+      "raceRivalReference": false,
+      "field": [],
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V01",
+        "parts": {
+          "suspension": "SUS-T2-SPORT"
+        },
+        "piCap": 0,
+        "choices": {},
+        "tunable": true,
+        "piBudget": 0,
+        "isTunable": true
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": false,
+        "allDefenceZones": false,
+        "challengeExits": false,
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false,
+        "cleanMerge": false,
+        "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false,
+        "changedControls": [
+          "AntiRollFront",
+          "AntiRollRear"
+        ]
+      },
+      "targets": {
+        "timeMs": 22500,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0,
+        "referencePaceScale": 0.0,
+        "sectorTimeMs": 0,
+        "exitFloors": [],
+        "brakes": [],
+        "laneEntryKmh": 0.0
+      },
+      "group": "CH60",
+      "brief": "Tuning demonstration: Suspension, anti-roll bars: stiffen or soften a bar, then run comparison route B through the Demonstration Bend. A clean run inside the reference is the driving check.",
+      "ghost": false,
+      "judgesTime": true,
+      "judgesDrift": false,
+      "isRace": false,
+      "isDrill": false,
+      "isCup": false,
+      "isLane": false,
+      "hasSection": true,
+      "published": true
+    },
+    {
+      "id": "TR-CH60-HEIGHT",
+      "challenge": "CH60",
+      "title": "The Complete Notebook — Ride height",
+      "course": "T00",
+      "tier": "gold",
+      "kind": "time",
+      "legs": [],
+      "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
+      "sectionStartGate": "T00-CFG2-START",
+      "sectionEndGate": "T00-CFG2-END",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
+      "raceRivalReference": false,
+      "field": [],
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V01",
+        "parts": {
+          "suspension": "SUS-T2-SPORT"
+        },
+        "piCap": 0,
+        "choices": {},
+        "tunable": true,
+        "piBudget": 0,
+        "isTunable": true
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": false,
+        "allDefenceZones": false,
+        "challengeExits": false,
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false,
+        "cleanMerge": false,
+        "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false,
+        "changedControls": [
+          "RideHeight"
+        ]
+      },
+      "targets": {
+        "timeMs": 19200,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0,
+        "referencePaceScale": 0.0,
+        "sectorTimeMs": 0,
+        "exitFloors": [],
+        "brakes": [],
+        "laneEntryKmh": 0.0
+      },
+      "group": "CH60",
+      "brief": "Tuning demonstration: Suspension, ride height: raise or lower the car, then run configuration 2. A clean run inside the reference is the driving check.",
+      "ghost": false,
+      "judgesTime": true,
+      "judgesDrift": false,
+      "isRace": false,
+      "isDrill": false,
+      "isCup": false,
+      "isLane": false,
+      "hasSection": true,
+      "published": true
+    },
+    {
+      "id": "TR-CH60-AERO",
+      "challenge": "CH60",
+      "title": "The Complete Notebook — Aero balance",
+      "course": "T00",
+      "tier": "gold",
+      "kind": "time",
+      "legs": [],
+      "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
+      "sectionStartGate": "T00-CFG3-START",
+      "sectionEndGate": "T00-CFG3-END",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "speedGate": "",
+      "stopGate": "",
+      "laneStarts": 0,
+      "comparePart": "",
+      "raceRivalReference": false,
+      "field": [],
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V01",
+        "parts": {
+          "aero": "AER-T4-FULL"
+        },
+        "piCap": 0,
+        "choices": {},
+        "tunable": true,
+        "piBudget": 0,
+        "isTunable": true
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": false,
+        "allDefenceZones": false,
+        "challengeExits": false,
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false,
+        "cleanMerge": false,
+        "shiftWindows": false,
+        "boxStops": false,
+        "compareStops": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false,
+        "changedControls": [
+          "AeroBalance"
+        ]
+      },
+      "targets": {
+        "timeMs": 27700,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0,
+        "referencePaceScale": 0.0,
+        "sectorTimeMs": 0,
+        "exitFloors": [],
+        "brakes": [],
+        "laneEntryKmh": 0.0
+      },
+      "group": "CH60",
+      "brief": "Tuning demonstration: Aero: move the full aero package's balance front or rear, then run configuration 3. A clean run inside the reference is the driving check.",
+      "ghost": false,
+      "judgesTime": true,
+      "judgesDrift": false,
+      "isRace": false,
+      "isDrill": false,
+      "isCup": false,
+      "isLane": false,
+      "hasSection": true,
+      "published": true
     }
   ]
 }

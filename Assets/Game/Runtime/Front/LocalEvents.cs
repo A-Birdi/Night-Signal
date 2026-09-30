@@ -282,6 +282,7 @@ namespace NightSignal.Front
                     SetupPi = plan.TrialSetup?.Pi?.Value ?? 0,
                     FinalDriveChanged = plan.TrialSetup != null && plan.TrialSetup.FinalDriveChanged,
                     AeroAtExtreme = plan.TrialSetup != null && plan.TrialSetup.AeroAtExtreme,
+                    ChangedKeys = plan.TrialSetup?.ChangedKeys?.ToArray(),
                     StoryRecords = trial.RequiredStoryRecords > 0 ? DiaryScreen.Build(s.Profile, NightSignal.Content.ContentLibrary.Load()).Count(e => e.Kind == "record") : 0,
                     MergeKept = me.Entrant.Racecraft != null && me.Entrant.Racecraft.Merges.Any(m => m.Challenge == trial.Challenge && m.Kept),
                     ShiftOffsets = trial.ShiftGates.Count == 0 ? null : ShiftWindowJudge.Offsets(

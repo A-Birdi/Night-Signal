@@ -111,6 +111,11 @@ namespace NightSignal.Core.Rules
         public bool FinalDriveChanged;
         /// <summary>CH57: the aero balance is at neither end of its range (neither front nor rear aero at its maximum).</summary>
         public bool AeroNotAtExtreme;
+        /// <summary>
+        /// CH60's tuning demonstrations: the player's setup changes at least one of these tuning controls from its default
+        /// (one system each — e.g. both spring rates for "springs"). Empty: no such rule.
+        /// </summary>
+        public List<string> ChangedControls = new List<string>();
     }
 
     /// <summary>
@@ -336,6 +341,8 @@ namespace NightSignal.Core.Rules
         /// <summary>A tunable loaner: the player's setup was legal (its parts among the trial's, a valid tune, within the PI budget), its PI, and what it set.</summary>
         public bool SetupLegal, FinalDriveChanged, AeroAtExtreme;
         public int SetupPi;
+        /// <summary>The tuning controls the player's setup changes from their defaults (CH60).</summary>
+        public string[] ChangedKeys;
         public int Recoveries;
     }
 
@@ -393,6 +400,10 @@ namespace NightSignal.Core.Rules
                 Check(f.SetupLegal, t.Loaner.PiBudget > 0 ? $"your setup legal and within PI {t.Loaner.PiBudget} (PI {f.SetupPi})" : $"your setup legal (PI {f.SetupPi})");
             if (t.Rules.FinalDriveChanged) Check(f.FinalDriveChanged, "your tune changes the final drive");
             if (t.Rules.AeroNotAtExtreme) Check(!f.AeroAtExtreme, "neither front nor rear aero at its maximum (the wing level below its top, the balance inside its range)");
+            if (t.Rules.ChangedControls != null && t.Rules.ChangedControls.Count > 0)
+                Check(f.ChangedKeys != null && t.Rules.ChangedControls.Any(k => f.ChangedKeys.Contains(k)),
+                    $"your tune changes {string.Join(" or ", t.Rules.ChangedControls)}" +
+                    (f.ChangedKeys != null && f.ChangedKeys.Length > 0 ? $" (changed: {string.Join(", ", f.ChangedKeys)})" : " (nothing changed)"));
             if (t.RequiredStoryRecords > 0)
                 Check(f.StoryRecords >= t.RequiredStoryRecords,
                     $"the {t.RequiredStoryRecords} story records collected through Normal progression ({f.StoryRecords} of {t.RequiredStoryRecords})");
@@ -583,8 +594,10 @@ namespace NightSignal.Core.Rules
                 if (string.IsNullOrEmpty(t.SectionStartGate) != string.IsNullOrEmpty(t.SectionEndGate)) problems.Add($"{t.Id}: a section needs its start and end gates");
                 if (t.HasSection && !t.JudgesTime) problems.Add($"{t.Id}: a section is timed");
                 if (t.RequiredStoryRecords < 0) problems.Add($"{t.Id}: negative story records");
-                if (t.Rules != null && (t.Rules.FinalDriveChanged || t.Rules.AeroNotAtExtreme) && (t.Loaner == null || !t.Loaner.Tunable))
+                if (t.Rules != null && (t.Rules.FinalDriveChanged || t.Rules.AeroNotAtExtreme || (t.Rules.ChangedControls?.Count ?? 0) > 0) && (t.Loaner == null || !t.Loaner.Tunable))
                     problems.Add($"{t.Id}: a tuning rule needs a tunable loaner");
+                foreach (string key in t.Rules?.ChangedControls ?? new List<string>())
+                    if (!Builds.TuningKeys.TrySlotOf(key, out _)) problems.Add($"{t.Id}: unknown tuning control {key}");
                 if (t.Loaner != null && t.Loaner.PiBudget < 0) problems.Add($"{t.Id}: negative PI budget");
                 if (t.Rules != null && t.Rules.ShiftWindows && (t.ShiftGates == null || t.ShiftGates.Count == 0 || !t.ManualGearbox))
                     problems.Add($"{t.Id}: shift windows need their boards and a manual gearbox");

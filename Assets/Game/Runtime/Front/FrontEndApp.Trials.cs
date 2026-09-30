@@ -186,7 +186,21 @@ namespace NightSignal.Front
                     return;
                 default:
                     slotClicks = new int[0];
-                    steps = new Dictionary<string, int>();
+                    // CH60's tuning demonstrations: two or so steps of the named control, as a player trying it would.
+                    var demo = new Dictionary<string, Dictionary<string, int>>
+                    {
+                        ["TR-CH60-FINAL"] = new Dictionary<string, int> { [TuningKeys.FinalDrive] = 4 },
+                        ["TR-CH60-SPREAD"] = new Dictionary<string, int> { [TuningKeys.GearSpread] = 2 },
+                        ["TR-CH60-BIAS"] = new Dictionary<string, int> { [TuningKeys.BrakeBias] = -2 },
+                        ["TR-CH60-DIFF"] = new Dictionary<string, int> { [TuningKeys.DiffLock] = 2 },
+                        ["TR-CH60-AWD"] = new Dictionary<string, int> { [TuningKeys.AwdFrontShare] = -2 },
+                        ["TR-CH60-SPRING"] = new Dictionary<string, int> { [TuningKeys.SpringFront] = 2 },
+                        ["TR-CH60-DAMPER"] = new Dictionary<string, int> { [TuningKeys.DamperRear] = 2 },
+                        ["TR-CH60-ARB"] = new Dictionary<string, int> { [TuningKeys.AntiRollRear] = -2 },
+                        ["TR-CH60-HEIGHT"] = new Dictionary<string, int> { [TuningKeys.RideHeight] = -2 },
+                        ["TR-CH60-AERO"] = new Dictionary<string, int> { [TuningKeys.AeroBalance] = 2 },
+                    };
+                    steps = demo.TryGetValue(trialId, out Dictionary<string, int> d) ? d : new Dictionary<string, int>();
                     return;
             }
         }
@@ -413,8 +427,8 @@ namespace NightSignal.Front
                          $"{(v.Passed ? "PASSED" : "not passed")} — {v.Summary}");
                     if (t.IsRace)
                         foreach (string line in LocalEvents.LastTrialRacecraftLog) Note($"{t.Id}:   {line}");
-                    if (t.Loaner.IsTunable && !tuned && t.Rules.FinalDriveChanged && !v.Summary.Contains("MISSED: your tune changes the final drive"))
-                        Fail($"{t.Id}: the loaner as supplied was not held to its final-drive rule");
+                    if (t.Loaner.IsTunable && !tuned && (t.Rules.FinalDriveChanged || t.Rules.ChangedControls.Count > 0) && !v.Summary.Contains("MISSED: your tune changes"))
+                        Fail($"{t.Id}: the loaner as supplied was not held to its tuning rule");
                     if (v.Passed && (!t.Loaner.IsTunable || tuned)) break;
                     if (t.RequiredStoryRecords > 0 && !seededRecords)
                     {

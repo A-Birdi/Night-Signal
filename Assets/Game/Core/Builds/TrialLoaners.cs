@@ -15,6 +15,8 @@ namespace NightSignal.Core.Builds
         /// <summary>The tuning controls of the installed parts, with the values raced.</summary>
         public List<TuningControlInfo> Controls = new List<TuningControlInfo>();
         public bool FinalDriveChanged, AeroAtExtreme;
+        /// <summary>The controls whose raced value differs from their default, in control order (CH60).</summary>
+        public List<string> ChangedKeys = new List<string>();
         public bool Ok => Result != null && Result.Ok && Problems.Count == 0;
         public int Value(string key) => Controls.Where(c => c.Key == key).Select(c => TuningModel.ValueOrDefault(Build.Tuning, c)).DefaultIfEmpty(0).First();
     }
@@ -50,6 +52,7 @@ namespace NightSignal.Core.Builds
             if (loaner.PiBudget > 0 && result.Pi != null && result.Pi.Value > loaner.PiBudget) result.Problems.Add($"PI {result.Pi.Value} is over the budget of {loaner.PiBudget}");
             var installed = result.Build.Parts.Values.Select(id => parts.TryPart(id, out PartDef p) ? p : null).Where(p => p != null && p.SlotValue != PartSlot.Utility);
             result.Controls = TuningModel.Controls(installed, stock.Get);
+            result.ChangedKeys = result.Controls.Where(c => TuningModel.ValueOrDefault(result.Build.Tuning, c) != c.Default).Select(c => c.Key).Distinct().ToList();
             TuningControlInfo fd = result.Controls.FirstOrDefault(c => c.Key == TuningKeys.FinalDrive);
             result.FinalDriveChanged = fd != null && TuningModel.ValueOrDefault(result.Build.Tuning, fd) != fd.Default;
             // CH57 "Balanced, Not Maximum": aero is at an end when the wing level is at its top (front and rear downforce both at

@@ -29,8 +29,8 @@ public sealed class ChallengeTrialsTests
     public void TheAuthoredTrials_LoadIntoTheHashedCatalogue_OnePerChallengeOrOneGroup()
     {
         Assert.Contains(ContentCatalogue.AuthoredFiles, f => f == "challenge-trials.json");
-        Assert.Equal(37, Trials.Trials.Count);
-        Assert.Equal(new[] { "CH02", "CH07", "CH11", "CH13", "CH14", "CH15", "CH23", "CH25", "CH28", "CH30", "CH36", "CH37", "CH39", "CH40", "CH41", "CH42", "CH43", "CH46", "CH47", "CH49", "CH51", "CH52", "CH53", "CH54", "CH55", "CH56", "CH57", "CH58", "CH59", "CH69", "CH72", "CH74" }, Trials.Trials.Select(t => t.Challenge).Distinct().OrderBy(c => c));
+        Assert.Equal(47, Trials.Trials.Count);
+        Assert.Equal(new[] { "CH02", "CH07", "CH11", "CH13", "CH14", "CH15", "CH23", "CH25", "CH28", "CH30", "CH36", "CH37", "CH39", "CH40", "CH41", "CH42", "CH43", "CH46", "CH47", "CH49", "CH51", "CH52", "CH53", "CH54", "CH55", "CH56", "CH57", "CH58", "CH59", "CH60", "CH69", "CH72", "CH74" }, Trials.Trials.Select(t => t.Challenge).Distinct().OrderBy(c => c));
         ChallengeTrialDef ch36 = Trials.Find("TR-CH36")!;
         Assert.True(ch36.IsRace && ch36.Rules.ZonePassRole == "pacing" && ch36.Field.Single().Role == "pacing");
         // The racecraft trials: fixed fields in the loaner's class, the player starting last.
@@ -57,9 +57,11 @@ public sealed class ChallengeTrialsTests
         using var t00 = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(TestContent.RepoRoot, "Assets", "Content", "Courses", "T00", "route.json")));
         var t00Gates = t00.RootElement.GetProperty("gates").EnumerateArray().ToDictionary(g => g.GetProperty("id").GetString()!, g => g.TryGetProperty("challenge", out var c) ? c.GetString() : "");
         List<ChallengeTrialDef> sections = Trials.Trials.Where(t => t.HasSection).ToList();
-        Assert.Equal(new[] { "TR-CH52-LIGHT", "TR-CH52-HEAVY", "TR-CH58-FWD", "TR-CH58-RWD", "TR-CH58-AWD", "TR-CH46" }, sections.Select(t => t.Id));
+        Assert.Equal(new[] { "TR-CH52-LIGHT", "TR-CH52-HEAVY", "TR-CH58-FWD", "TR-CH58-RWD", "TR-CH58-AWD", "TR-CH46" }, sections.Where(t => t.Challenge != "CH60").Select(t => t.Id));
         Assert.All(sections, t => Assert.True(t.Course == "T00" && (t.Group == t.Challenge || Trials.Trials.Count(x => x.Challenge == t.Challenge) == 1) && t.JudgesTime
-            && t00Gates.TryGetValue(t.SectionStartGate, out string? a) && a == t.Challenge && t00Gates.TryGetValue(t.SectionEndGate, out string? b) && b == t.Challenge, t.Id));
+            && t00Gates.ContainsKey(t.SectionStartGate) && t00Gates.ContainsKey(t.SectionEndGate), t.Id));
+        // A section is marked for its own challenge — CH60's demonstrations drive the Driving School's existing marked sections.
+        Assert.All(sections.Where(t => t.Challenge != "CH60"), t => Assert.True(t00Gates[t.SectionStartGate] == t.Challenge && t00Gates[t.SectionEndGate] == t.Challenge, t.Id));
         Assert.Equal(new[] { "FWD", "RWD", "AWD" }, sections.Where(t => t.Challenge == "CH58").Select(t => Cat.Car(t.Loaner.Car).Drive));
         // CH53: two diff setups of one car, each a drill on C03's marked apexes and exits.
         List<ChallengeTrialDef> diffs = Trials.Trials.Where(t => t.Challenge == "CH53").ToList();
@@ -86,6 +88,27 @@ public sealed class ChallengeTrialsTests
         using var lessons = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(TestContent.RepoRoot, "Assets", "Content", "Data", "authored", "tutorial", "lessons.json")));
         System.Text.Json.JsonElement gearing = lessons.RootElement.GetProperty("lessons").EnumerateArray().Single(l => l.GetProperty("id").GetString() == "exits-gearing").GetProperty("check");
         Assert.Equal(gearing.GetProperty("seconds").GetInt32() * 1000L, ch46.Targets.TimeMs);
+        // CH60: ten named tuning demonstrations in one group, each a distinct system (no control shared), each loaner exposing
+        // its named control, each a Driving School section as its driving check.
+        List<ChallengeTrialDef> notebook = Trials.Trials.Where(t => t.Challenge == "CH60").ToList();
+        Assert.Equal(10, notebook.Count);
+        Assert.All(notebook, t => Assert.True(t.Group == "CH60" && t.Loaner.Tunable && t.HasSection && t.Rules.ChangedControls.Count > 0 && t.Published, t.Id));
+        Assert.Equal(notebook.Sum(t => t.Rules.ChangedControls.Count), notebook.SelectMany(t => t.Rules.ChangedControls).Distinct().Count());
+        Assert.True(notebook.Select(t => TuningKeys.TrySlotOf(t.Rules.ChangedControls[0], out PartSlot slot) ? slot : PartSlot.Utility).Distinct().Count() >= 5, "gearbox, brakes, differential, suspension, aero");
+        foreach (ChallengeTrialDef t in notebook)
+        {
+            TrialLoanerBuild b0 = Setup(t.Loaner, null);
+            Assert.True(b0.Ok && b0.ChangedKeys.Count == 0, t.Id + ": " + string.Join("; ", b0.Problems));
+            Assert.All(t.Rules.ChangedControls, k => Assert.Contains(b0.Controls, c => c.Key == k));
+            TuningControlInfo c = b0.Controls.First(x => x.Key == t.Rules.ChangedControls[0]);
+            var tuned = new MechanicalSnapshot();
+            tuned.Tuning.Values[c.Key] = c.Default + (c.Default + c.Step <= c.Max ? c.Step : -c.Step);
+            TrialLoanerBuild b1 = Setup(t.Loaner, tuned);
+            Assert.True(b1.Ok && b1.ChangedKeys.SequenceEqual(new[] { c.Key }), t.Id);
+            TrialRunFacts run = Run() with { SetupLegal = true, SectionMs = 1, ChangedKeys = b1.ChangedKeys.ToArray() };
+            Assert.DoesNotContain("MISSED: your tune changes", TrialJudge.Judge(t, run).Summary);
+            Assert.Contains("MISSED: your tune changes", TrialJudge.Judge(t, run with { ChangedKeys = Array.Empty<string>() }).Summary);
+        }
         // CH56: C23 with free challenge parts inside a locked PI 615 — the exhaust alone, or the intake with street tyres, go over it.
         ChallengeTrialDef ch56 = Trials.Find("TR-CH56")!;
         Assert.True(ch56.Course == "C23" && ch56.Loaner.Tunable && ch56.Loaner.PiBudget == 615 && ch56.Loaner.Parts.Count == 0 && ch56.Published);

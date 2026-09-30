@@ -1,0 +1,64 @@
+# Challenge trial targets, measured by ChallengeTrialReferenceTests (PlayMode, explicit): each trial's loaner resolved like a
+# garage build, solo, validator autopilot, the trial's course and conditions; drift trials: the cleanest of three drift skills. Automation.
+# this run measured only: TR-CH60-FINAL, TR-CH60-SPREAD, TR-CH60-BIAS, TR-CH60-DIFF, TR-CH60-AWD, TR-CH60-SPRING, TR-CH60-DAMPER, TR-CH60-ARB, TR-CH60-HEIGHT, TR-CH60-AERO
+
+## TR-CH60-FINAL (CH60, gold) on T00 (dry): Kogane Hachi RS GBX-T1-FINAL, PI 220
+time 128.857 s; banked 4804 raw (earned 4804) in 1/3 zones; walls 0, resets 0, handbrake 0.0 s, off the paved road 11.9 s
+section T00-ACCEL-START → T00-ACCEL-END: 12.700 s
+→ gold time 13.0 s (1.02 ×)
+
+## TR-CH60-SPREAD (CH60, gold) on T00 (dry): Kogane Hachi RS GBX-T2-SIX, PI 223
+time 129.610 s; banked 4993 raw (earned 4993) in 1/3 zones; walls 0, resets 0, handbrake 0.0 s, off the paved road 12.7 s
+section T00-CFG2-START → T00-CFG2-END: 17.216 s
+→ gold time 17.6 s (1.02 ×)
+
+## TR-CH60-BIAS (CH60, gold) on T00 (dry): Kogane Hachi RS BRK-T2-KIT, PI 218
+time 141.878 s; banked 6299 raw (earned 6299) in 1/3 zones; walls 1, resets 1, handbrake 0.0 s, off the paved road 14.3 s
+(the cleanest reference still reset 1 time(s): its time includes them)
+section T00-CFG3-START → T00-CFG3-END: NOT DRIVEN
+→ 
+
+## TR-CH60-DIFF (CH60, gold) on T00 (dry): Kogane Hachi RS DIF-T2-RWD-ADJ, PI 220
+time 131.992 s; banked 4706 raw (earned 4706) in 1/3 zones; walls 0, resets 0, handbrake 0.0 s, off the paved road 13.6 s
+section T00-CMP-B-START → T00-CMP-B-END: 20.383 s
+→ gold time 20.8 s (1.02 ×)
+
+## TR-CH60-AWD (CH60, gold) on T00 (dry): Arata Shigure GT DIF-T2-AWD-CENTRE, PI 430
+time 117.628 s; banked 0 raw (earned 0) in 0/3 zones; walls 0, resets 0, handbrake 0.0 s, off the paved road 10.3 s
+section T00-CMP-A-START → T00-CMP-A-END: 13.200 s
+→ gold time 13.5 s (1.02 ×)
+
+## TR-CH60-SPRING (CH60, gold) on T00 (dry): Kogane Hachi RS SUS-T2-SPORT, PI 225
+time 131.524 s; banked 4778 raw (earned 4778) in 1/3 zones; walls 0, resets 0, handbrake 0.0 s, off the paved road 13.5 s
+section T00-CFG1-START → T00-CFG1-END: 16.233 s
+→ gold time 16.6 s (1.02 ×)
+
+## TR-CH60-DAMPER (CH60, gold) on T00 (dry): Kogane Hachi RS SUS-T2-SPORT, PI 225
+time 131.524 s; banked 4778 raw (earned 4778) in 1/3 zones; walls 0, resets 0, handbrake 0.0 s, off the paved road 13.5 s
+section T00-CMP-A-START → T00-CMP-A-END: 13.666 s
+→ gold time 14.0 s (1.02 ×)
+
+## TR-CH60-ARB (CH60, gold) on T00 (dry): Kogane Hachi RS SUS-T2-SPORT, PI 225
+time 131.524 s; banked 4778 raw (earned 4778) in 1/3 zones; walls 0, resets 0, handbrake 0.0 s, off the paved road 13.5 s
+section T00-CMP-B-START → T00-CMP-B-END: 20.383 s
+→ gold time 20.8 s (1.02 ×)
+
+## TR-CH60-HEIGHT (CH60, gold) on T00 (dry): Kogane Hachi RS SUS-T2-SPORT, PI 225
+time 131.524 s; banked 4778 raw (earned 4778) in 1/3 zones; walls 0, resets 0, handbrake 0.0 s, off the paved road 13.5 s
+section T00-CFG2-START → T00-CFG2-END: 17.433 s
+→ gold time 17.8 s (1.02 ×)
+
+## TR-CH60-AERO (CH60, gold) on T00 (dry): Kogane Hachi RS AER-T4-FULL, PI 217
+time 133.981 s; banked 5238 raw (earned 5238) in 1/3 zones; walls 0, resets 0, handbrake 0.0 s, off the paved road 14.4 s
+section T00-CFG3-START → T00-CFG3-END: 25.166 s
+→ gold time 25.7 s (1.02 ×)
+
+# problems: TR-CH60-BIAS: the reference never drove its section
+
+# TR-CH60-BIAS re-measured on configuration 1 (T00-CFG1) after its configuration-3 reference reset outside the section:
+
+## TR-CH60-BIAS (CH60, gold) on T00 (dry): Kogane Hachi RS BRK-T2-KIT, PI 218
+time 141.878 s; banked 6299 raw (earned 6299) in 1/3 zones; walls 1, resets 1, handbrake 0.0 s, off the paved road 14.3 s
+(the cleanest reference still reset 1 time(s): its time includes them)
+section T00-CFG1-START → T00-CFG1-END: 16.233 s
+# published: every CH60 check is 1.10 x its section time (the file's method).
