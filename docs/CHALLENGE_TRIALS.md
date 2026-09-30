@@ -32,13 +32,16 @@ an event whose conditions are fixed by the content, not by the player's garage. 
   not) → Start: a solo, non-contact run on the trial's course with the loaner's spec and conditions; the result names
   each condition passed or failed; a pass grants the challenge in the Local profile through the ordinary Local event
   facts (`ChallengesCompleted`), once.
-- **Online** (next): the Challenges intent lists the trials beside the Team Trials; the plan freezes the trial's loaner
-  (no garage build), the game server judges with the same `TrialJudge`, settlement grants once — the existing
-  one-time challenge ledger.
+- **Online** (V-120): the Challenges intent offers the trials beside the Team Trials (`event.propose {challengeTrialId}`);
+  a trial is a non-contact, AI-free Time Attack on its course that needs no sponsor; the start freezes the loaner into
+  every entrant (resolved by the control plane like a garage build, re-resolved and verified by the game server); the game
+  server judges each human with the same `TrialJudge`; settlement writes the verdict on the receipt, replays the account's
+  settled passes and grants the challenge once — the existing one-time challenge ledger. Trials with their own conditions
+  are refused online until the server supports them.
 
 ## Slices
 
-1. **Fixed-loaner time and drift trials** (done offline, V-119; online next): CH55 (C04, stock V01, Silver), CH11 (C12, class-capped loaner,
+1. **Fixed-loaner time and drift trials** (done offline, V-119, and online, V-120): CH55 (C04, stock V01, Silver), CH11 (C12, class-capped loaner,
    Gold, no reset, at most one meaningful wall impact), CH51 (C08, the supplied wet tune, Silver), CH54 (C09, two
    equal-PI drive layouts, Silver each), CH25 (C16 drift loaner, Silver drift, no handbrake after the start), CH28 (C23
    fixed build, time and raw drift targets in one run), CH30 (C25 drift route, raw target and a banked chain in every

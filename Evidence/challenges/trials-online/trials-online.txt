@@ -1,0 +1,25 @@
+# ui-tour-online.ps1 -Intent 5 -ChallengeTrial <id> (built player: one loopback game server bound to 127.0.0.1, one client on the real menus; dev account 0; validator autopilot; automation)
+## TR-CH55 (client lines; that run's server log was overwritten by the next runs - its server lines were read at the time: 'races the frozen build c12c2bea1a67 of loaner:TR-CH55 ... hash verified', 'challenge trial TR-CH55: PASSED')
+[NightSignal.UiTourOnline] shared table: progress 7.14 -> 1005.60, still event ready True
+[NightSignal.UiTourOnline] online route chart: vs Toma Fujii's reference 134.342 s: most lost in sector 40 (+0.18 s, 3871-3970 m); most gained in sector 22 (-0.03 s) � 13 braking points
+[NightSignal.UiTourOnline] PASS; last result: <color=#9A968D>LAST RACE</color> | P1 of 1   02:16.713 | <color=#3EC6D8>Challenge trial passed</color> | <size=80%>ok: the supplied loaner � ok: a valid finish � ok: faster than 2:30.400 (2:16.713)</size> | Credits +18,357   �   balance 553,483 cr | 
+## TR-CH54-FWD
+[NightSignal.UiTourOnline] shared table: progress 7.14 -> 1005.60, still event ready True
+[NightSignal.UiTourOnline] challenge trial receipt: passed
+[NightSignal.UiTourOnline] online route chart: 4.94 km · climb 169 m · 15 braking points
+[NightSignal.UiTourOnline] PASS; last result: <color=#9A968D>LAST RACE</color> | P1 of 1   02:24.027 | <color=#3EC6D8>Challenge trial passed</color>  <size=85%>(1 of 2 of CH54's trials)</size> | <size=80%>ok: the supplied loaner · ok: a valid finish · ok: faster than 2:38.400 (2:24.027)</size> | Credits +10,495   ·   balance 563,978 cr | 
+[NightSignal.Server] Driver 1 races the frozen build 249f587db6f0 of loaner:TR-CH54-FWD (applied revision 0, 0 part(s), PI 405) — hash verified
+[NightSignal.Server] challenge trial TR-CH54-FWD (CH54) on C09: loaner V06 249f587db6f0
+[NightSignal.Server] match m_89320732b33b7f5c8f8f5ab5 on C09: 1 humans, 0 AI, contact non-contact, port 7777
+[NightSignal.Server] 00000000-0000-4000-8000-000000000001 challenge trial TR-CH54-FWD: PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 2:38.400 (2:24.027)
+[NightSignal.Server] results for m_89320732b33b7f5c8f8f5ab5: 200 {"status":"settled","receipts":[{"matchId":"m_89320732b33b7f5c8f8f5ab5","accountId":"00000000-0000-4000-8000-000000000001","status":"settled","eventKind":"FreeplayTimeTrial","mode":null,"stageId":null,"courseId":"C09","outcome":"Finished","placement":1,"tied":false,"finishTimeMs":144027,"stage":null,"payout":{"base":8330,"difficultyX100":100,"placementX100":120,"cleanlinessX100":105,"utilityX1…
+## TR-CH54-RWD
+[NightSignal.UiTourOnline] shared table: progress 7.14 -> 1005.60, still event ready True
+[NightSignal.UiTourOnline] challenge trial receipt: passed; challenge earned
+[NightSignal.UiTourOnline] online route chart: 4.94 km · climb 169 m · 15 braking points
+[NightSignal.UiTourOnline] PASS; last result: <color=#9A968D>LAST RACE</color> | P1 of 1   02:25.921 | <color=#3EC6D8>Challenge trial passed</color>  <size=85%>(2 of 2 of CH54's trials)</size> | <size=80%>ok: the supplied loaner · ok: a valid finish · ok: faster than 2:40.500 (2:25.921)</size> | <color=#3EC6D8>Challenge earned</color>  CH54 One Index, Two Cars | Credits +18,495   ·   balance 582,473 cr | 
+[NightSignal.Server] Driver 1 races the frozen build aa8ab98b0b40 of loaner:TR-CH54-RWD (applied revision 0, 0 part(s), PI 380) — hash verified
+[NightSignal.Server] challenge trial TR-CH54-RWD (CH54) on C09: loaner V05 aa8ab98b0b40
+[NightSignal.Server] match m_bbbc58dd1f9333a8632298da on C09: 1 humans, 0 AI, contact non-contact, port 7777
+[NightSignal.Server] 00000000-0000-4000-8000-000000000001 challenge trial TR-CH54-RWD: PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 2:40.500 (2:25.921)
+[NightSignal.Server] results for m_bbbc58dd1f9333a8632298da: 200 {"status":"settled","receipts":[{"matchId":"m_bbbc58dd1f9333a8632298da","accountId":"00000000-0000-4000-8000-000000000001","status":"settled","eventKind":"FreeplayTimeTrial","mode":null,"stageId":null,"courseId":"C09","outcome":"Finished","placement":1,"tied":false,"finishTimeMs":145921,"stage":null,"payout":{"base":8330,"difficultyX100":100,"placementX100":120,"cleanlinessX100":105,"utilityX1…

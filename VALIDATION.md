@@ -2554,3 +2554,42 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - **Limits:** offline only — online trials (the Challenges intent, the loaner frozen into the plan, the game server judging,
   settlement granting once) are the next step; the targets are the autopilot's, not a human benchmark; 31 challenges remain
   for the later slices (geometry judges, scripted AI, fixed cups, T00 drills and workshop trials).
+
+## V-120 — Challenge trials online (spec §11) (2026-09-29)
+- Revision: `33e91ea` and `bbdee6a`, documented in the commit with this entry; the player build of that tree (non-development,
+  the canonical automation build). The control plane had stopped with the previous session and was started once on this
+  source (tracked task; health ok, race content `7c38b3c4…`, the V-119 trials file); it served every run below.
+- **What was paused and when:** this work was written while the owner had paused Play Mode and game windows (2026-09-29):
+  the control plane and its tests with `dotnet test`, the game runtime compiled headlessly from Unity's generated project
+  (outputs outside the project) — no player, no editor run. The pause was lifted the same evening; the editor compile,
+  player build and built-player runs below came after it. An interrupted full .NET run from before the break was rerun.
+- **Online path:** under the Challenges intent a convoy proposes a trial (`event.propose {challengeTrialId}`); it is raced
+  as a non-contact, AI-free Time Attack on the trial's course and needs no sponsor — now or after a roster change (the
+  trial supplies its course as it supplies its car). At the start the control plane resolves the loaner from its own parts
+  data exactly as a garage build (`GarageService.TrialLoanerBuild`) and freezes it into every entrant (car, PI, build
+  hash; the members' garage builds and car caps do not enter it); the game server re-resolves the same hash (as for any
+  frozen build), resolves the loaner itself and judges each human with the same Core `TrialJudge` as offline — a human
+  counts as driving the loaner only if the frozen build is that loaner. Results carry `trialId`/`trialPassed`/
+  `trialSummary`; settlement refuses trial facts that do not belong to the match, writes the verdict on the receipt
+  (`challengeTrial {trialId, challenge, passed, summary, groupPassed, groupSize}`), replays the account's settled passes
+  from its receipts and grants the challenge once its trial — or its whole group — is passed. Trial ghosts are kept as
+  `trial-<id>` (as offline) and no rival reference is raced (the match info carries the trial id). The Convoy screen has a
+  Challenge Trial row under the Challenges intent (hiding the Team Trial rows), names the trial on the proposal, and the
+  receipt text gives the verdict in words and **every challenge a result earned — which the online receipt had never
+  shown** (they were settled, not displayed).
+- **Tests:** Services `ChallengeTrialOnlineTests` (8: the proposal's settings with no sponsor and none needed after a join;
+  a chosen cap, an unknown trial and a Team-Trial-bound intent refused; the start freezes the loaner for every entrant
+  and refuses without it or with another car; settlement grants only on the server's pass; CH54 only with both layouts
+  across settled matches; foreign trial facts refused; the store reads passes back from settled receipts) — Services 368,
+  Core 185, Builds 232, Toys 92; EditMode 483 passed, 2 skipped.
+- **Built players** (`ui-tour-online.ps1 -Intent 5 -ChallengeTrial <id>`: one game server bound to 127.0.0.1, one
+  client on the real menus, dev account 0, validator autopilot): **TR-CH55 PASS** — the server raced the frozen loaner
+  (`c12c2bea1a67`, the offline V01 loaner's hash, verified), judged 2:16.713 against 2:30.4 PASSED; the settled receipt
+  holds the verdict and CH55 with its cosmetic `COS-CH55`. **TR-CH54-FWD then TR-CH54-RWD PASS** — "Challenge trial passed
+  (1 of 2 of CH54's trials)" with nothing granted, then "(2 of 2)" and "Challenge earned CH54 One Index, Two Cars" (+8,000
+  cr Silver challenge cash on the second payout); both ghosts kept as `trial-TR-CH54-…`. `Evidence/challenges/trials-online/`.
+- **Found on the way:** the CH55 run, made before the ghost-format fix, was kept as the dev account's C04 **Time Attack**
+  ghost (a genuine stock-V01 run, in the ordinary bucket); later trial runs are kept apart. Left in the development
+  database.
+- **Limits:** trials whose conditions differ from their course's are refused online for now (none of the eight does); one
+  human per run here (the proposal and start rules for more are in the tests); CH28 is still not shown reachable (V-119).
