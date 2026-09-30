@@ -92,6 +92,19 @@ namespace NightSignal.Front
             yield return Until(() => Router.Current == Trials, 10f);
             yield return new WaitForSeconds(0.8f);
             yield return Snap("01-trials");
+            // More trials than one page: the page button shows the rest (a player reaches every trial by the buttons).
+            if (Trials.PageCount > 1)
+            {
+                if (!Click("TrialsPage")) { Finish(); yield break; }
+                yield return new WaitForSeconds(0.6f);
+                if (Trials.Page != 1) Fail($"the page button showed page {Trials.Page + 1}, not 2");
+                yield return Snap("01-trials-page2");
+                Click("Trial0"); // the first trial on page 2, by its row
+                yield return new WaitForSeconds(0.6f);
+                string expected = s.Catalogue.ChallengeTrials.Trials[ChallengeTrialsScreen.Rows].Id;
+                if (Trials.Open?.Id != expected) Fail($"page 2's first row opened {Trials.Open?.Id}, not {expected}");
+                else Note($"page 2 of {Trials.PageCount}: its first row opens {expected}");
+            }
 
             int passedCount = 0;
             foreach (ChallengeTrialDef t in s.Catalogue.ChallengeTrials.Trials)

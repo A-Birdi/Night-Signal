@@ -16,7 +16,7 @@ namespace NightSignal.Front
     /// Challenge trials offline (docs/CHALLENGE_TRIALS.md; spec §11 "fixed loaners"): every trial in a list with its state, and
     /// the open trial on the right — the challenge's predicate, the supplied loaner (car, parts, PI), the rules, the published
     /// targets and the last run's verdict, with "Start Trial". A pass is kept in the Local profile; a grouped challenge (CH54)
-    /// is earned once every trial of its group is passed.
+    /// is earned once every trial of its group is passed. More trials than <see cref="Rows"/> page: "More trials" turns the page.
     /// </summary>
     public sealed class ChallengeTrialsScreen : UIScreen
     {
@@ -24,8 +24,10 @@ namespace NightSignal.Front
         public const int Rows = 10;
         TextMeshProUGUI count, title, predicate, loaner, rules, targets, verdict;
         readonly List<Button> rows = new List<Button>();
-        Button start, back;
+        Button start, back, more;
         ChallengeTrialDef open;
+        int page;
+        int Pages => Math.Max(1, (All.Count + Rows - 1) / Rows);
         readonly Dictionary<string, string> lastVerdict = new Dictionary<string, string>();
 
         /// <summary>The trial open on the right and its last verdict (tours read them).</summary>
@@ -46,8 +48,9 @@ namespace NightSignal.Front
             for (int i = 0; i < Rows; i++)
             {
                 int slot = i;
-                rows.Add(UIFactory.Button("Trial" + i, col, "", () => Select(slot < All.Count ? All[slot] : null), 600, 46));
+                rows.Add(UIFactory.Button("Trial" + i, col, "", () => Select(page * Rows + slot < All.Count ? All[page * Rows + slot] : null), 600, 46));
             }
+            more = UIFactory.Button("TrialsPage", col, "More trials", () => { page = (page + 1) % Pages; Refresh(); }, 600, 46);
             back = UIFactory.Button("Back", col, "Back", () => App.Router.Back(), 600, 46);
 
             Image detail = UIFactory.Panel("TrialPanel", root, new Vector2(0.42f, 0.06f), new Vector2(0.97f, 0.94f), Vector2.zero, Vector2.zero, new Color(0.04f, 0.045f, 0.055f, 0.9f));
@@ -73,8 +76,20 @@ namespace NightSignal.Front
 
         public override void OnShow()
         {
+            ChallengeTrialDef t = open ?? All.FirstOrDefault();
+            ShowPageOf(t);
+            Select(t);
+        }
+
+        /// <summary>The list page (0-based) and how many there are (tours).</summary>
+        public int Page => page;
+        public int PageCount => Pages;
+
+        void ShowPageOf(ChallengeTrialDef t)
+        {
+            int index = t == null ? -1 : All.ToList().IndexOf(t);
+            page = index < 0 ? 0 : index / Rows;
             Refresh();
-            Select(open ?? All.FirstOrDefault());
         }
 
         /// <summary>Records the verdict of the run that just ended (shown when the screen returns).</summary>
@@ -89,6 +104,7 @@ namespace NightSignal.Front
         {
             ChallengeTrialDef t = All.FirstOrDefault(x => x.Id == id);
             if (t == null) return false;
+            ShowPageOf(t);
             Select(t);
             return true;
         }
@@ -98,12 +114,16 @@ namespace NightSignal.Front
             HashSet<string> passed = PassedTrials;
             int earned = All.Select(t => t.Challenge).Distinct().Count(Earned);
             count.text = $"{All.Count} trials · {earned} of {All.Select(t => t.Challenge).Distinct().Count()} challenges earned";
+            if (page >= Pages) page = 0;
+            more.gameObject.SetActive(Pages > 1);
+            more.GetComponentInChildren<TextMeshProUGUI>().text = $"More trials (page {page + 1} of {Pages})";
             for (int i = 0; i < rows.Count; i++)
             {
-                bool on = i < All.Count;
+                int index = page * Rows + i;
+                bool on = index < All.Count;
                 rows[i].gameObject.SetActive(on);
                 if (!on) continue;
-                ChallengeTrialDef t = All[i];
+                ChallengeTrialDef t = All[index];
                 // Words, as the Driving School marks its lessons (the game font has no check-mark glyph).
                 int group = string.IsNullOrEmpty(t.Group) ? 1 : All.Count(x => x.Group == t.Group);
                 int groupPassed = string.IsNullOrEmpty(t.Group) ? 0 : All.Count(x => x.Group == t.Group && passed.Contains(x.Id));
