@@ -2722,3 +2722,27 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - **Built player (`-nsTrialTour`, 1280×720, Text 150 %, with the bounds audit):** **PASS** — the list's page button shows page 2 and its first row opens TR-CH40 (by the buttons); TR-CH40 ran against its three class-C cars with the player last: not passed — no marked overtake, one car contact, no checkpoint cut; TR-CH41 ran six V07s from sixth: not passed — P5, two car contacts, no reset; both verdicts kept by the profile as judged, neither challenge granted. The ten earlier trials judged exactly as in V-122 (every verdict line identical); 8 of 12 passed; bounds 0 overflow, 0 missing glyphs (73 labels). A first run on `3d3b7ac` judged the two race trials identically and exposed the ten-row list. `Evidence/challenges/trials-tour/` (`01-trials-page2.png`, `02-TR-CH41-brief.png`).
 - **Limits:** neither race trial is reached by the autopilot (a poor overtaker that touches cars, V-096); the roles other
   than "field" have no behaviour yet (CH36's pacing rival, CH39's pressure car, CH37's merge car are next).
+
+## V-126 — Racecraft trial roles: CH36's pacing rival, CH39's pressure car (spec §11) (2026-09-30)
+- Revision: `ea7ffe8` (CH36), `4395f3f` (CH39 and its measured sector pace), `04b724c` (the pressure car's gap and the
+  diagnostics); the player build of `04b724c`.
+- **What:** two field roles get behaviour. **Pacing** (CH36): the car holds the far side of every challenge-tagged lane
+  (`RouteFollower.LineZones`, the lane's offset mirrored) so the marked lane stays open, at its trial pace (0.9). The
+  racecraft judge's marked-zone passes now include tagged **lanes** — a pass counts only with the passer inside the lane's
+  band — held to the challenge's gate (C10-HOLD-GAIN); TR-CH36 asks for a held pass of the pacing car there. **Pressure**
+  (CH39): the car never starts a passing move, treats any car ahead as in its lane, and keeps a car length + 2.5 m + 0.25 s
+  behind (`NoPassing`, `FollowAnyLane`, `FollowGapSeconds` — all off by default, so the AI and every published reference
+  keep the tuned driver). The racecraft judge times each pass through a challenge's **defence** zone (C14-PRESSURE, the
+  course's second sector): its time, whether a pressure car stayed within 1 s behind for all of it, any barrier touch.
+  TR-CH39: the player on pole, one V07 pressure car at pace 1.08 behind; pass when a sector is driven clean under pressure
+  within the published Silver pace — **28.7 s**, measured as 1.10 × the loaner alone (26.083 s; the measurement now takes a
+  list of trials, so this run touched only TR-CH39; `Evidence/challenges/trials-TR-CH39.txt`).
+- **Found on the way (targeted built-player runs, `tour.ps1 -TrialOnly TR-CH39`):** (1) the pressure car drove past the
+  player on another line (it only followed cars in its own lane) → `FollowAnyLane`; (2) it then ran into the player under
+  braking at 941 m (one contact; the sector voided) → a following gap; (3) at 0.45 s it fell just past 1.00 s behind at
+  the corner entry → 0.25 s. Each run's racecraft log (now printed by the tour) named the cause.
+- **Tests:** Core (the pressure-sector and pacing-role rules, their content checks; 14 trials) — Core 201; Services 369,
+  Builds 232, Toys 92; EditMode `RacecraftTrialTests` (the pacing car's mirrored lane, the pressure car's flags and gap, the
+  sector pace published) — EditMode 492 passed, 2 skipped (explicit), 0 failed.
+- **Built player:** the full trial tour (`-nsTrialTour`, 1280×720, Text 150 %, with the bounds audit) **PASS**, fourteen trials: **TR-CH39 PASSED** — both laps' C14-PRESSURE sectors in 26.08 / 26.10 s with the pressure car within 1 s throughout, no contact, P1 — against 28.7 s, and CH39 earned; TR-CH36 not passed — the autopilot followed the pacing car and made no pass in the marked lane (one car contact, P2); the twelve earlier trials judged exactly as in V-125 (every verdict line identical); 9 of 14 passed; bounds 0 overflow, 0 missing glyphs. `Evidence/challenges/trials-tour/`.
+- **Limits:** CH36 is not reached by the autopilot (it makes no pass in the lane); both trials are offline only.

@@ -1,4 +1,4 @@
-# -nsTrialTour (built player of 3c3570c, buttons only, isolated profile; validator autopilot — CH40 following at 0.5 s and attacking only in the marked zone; run with -nsBoundsAudit at 1280x720, Text 150 % / HUD 130 %; automation)
+# -nsTrialTour (built player of 04b724c, buttons only, isolated profile; validator autopilot — marked overtakes and lanes by following and attacking only in the zone; run with -nsBoundsAudit at 1280x720, Text 150 % / HUD 130 %; automation)
 [NightSignal.TrialTour] page 2 of 2: its first row opens TR-CH40
 [NightSignal.Trial] TR-CH13: V14 stock, PI 680, build 53f0713d354f, on C21 (course)
 [NightSignal.Ghost] C21 trial-TR-CH13: 1365 samples, result 136.347 s, resets 0, valid True; raced ghost none — your first ghost here; against the ghost: −0.00 s at the first checkpoint, −0.00 s at the finish
@@ -66,12 +66,29 @@
 [NightSignal.Ghost] C17 trial-TR-CH40: 1723 samples, result 172.147 s, resets 0, valid True; raced ghost none — your first ghost here
 [NightSignal.Trial] TR-CH40: Trial not passed — ok: the supplied loaner · ok: a valid finish · MISSED: the marked overtake, clean and held · MISSED: no car-to-car contact (1) · ok: no checkpoint cut
 [NightSignal.TrialTour] TR-CH40 (CH40 silver): not passed — ok: the supplied loaner · ok: a valid finish · MISSED: the marked overtake, clean and held · MISSED: no car-to-car contact (1) · ok: no checkpoint cut
+[NightSignal.TrialTour] TR-CH40:   car contacts 1, walls 0, resets 0, marshal recoveries 0, placement P4
 [NightSignal.TrialTour] TR-CH40: profile keeps it: False; challenge earned: False
 [NightSignal.Trial] TR-CH41: V07 stock, PI 430, build 235cbbb3bffd, on C18 (course)
 [NightSignal.Ghost] C18 trial-TR-CH41: 2189 samples, result 218.721 s, resets 0, valid True; raced ghost none — your first ghost here
 [NightSignal.Trial] TR-CH41: Trial not passed — ok: the supplied loaner · ok: a valid finish · ok: no reset (0) · MISSED: no car-to-car contact (2) · MISSED: first across the line (P5)
 [NightSignal.TrialTour] TR-CH41 (CH41 gold): not passed — ok: the supplied loaner · ok: a valid finish · ok: no reset (0) · MISSED: no car-to-car contact (2) · MISSED: first across the line (P5)
+[NightSignal.TrialTour] TR-CH41:   45.4 s: passed #4 standing — not raced
+[NightSignal.TrialTour] TR-CH41:   car contacts 2, walls 1, resets 0, marshal recoveries 0, placement P5
 [NightSignal.TrialTour] TR-CH41: profile keeps it: False; challenge earned: False
-[NightSignal.TrialTour] 8 of 12 trials passed by the autopilot; challenges earned: CH15, CH55, CH11, CH51, CH54, CH25, CH30; wallet 287,216 cr
+[NightSignal.Trial] TR-CH36: V07 stock, PI 430, build 235cbbb3bffd, on C10 (course)
+[NightSignal.Ghost] C10 trial-TR-CH36: 1844 samples, result 184.262 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH36: Trial not passed — ok: the supplied loaner · ok: a valid finish · MISSED: the pacing car passed in the marked lane, the gain held
+[NightSignal.TrialTour] TR-CH36 (CH36 silver): not passed — ok: the supplied loaner · ok: a valid finish · MISSED: the pacing car passed in the marked lane, the gain held
+[NightSignal.TrialTour] TR-CH36:   car contacts 1, walls 1, resets 0, marshal recoveries 0, placement P2
+[NightSignal.TrialTour] TR-CH36: profile keeps it: False; challenge earned: False
+[NightSignal.Trial] TR-CH39: V07 stock, PI 430, build 235cbbb3bffd, on C14 (course)
+[NightSignal.Ghost] C14 trial-TR-CH39: 2154 samples, result 215.275 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH39: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: the sector under pressure, clean, within 0:28.700 (0:26.084)
+[NightSignal.TrialTour] TR-CH39 (CH39 silver): PASSED — ok: the supplied loaner · ok: a valid finish · ok: the sector under pressure, clean, within 0:28.700 (0:26.084)
+[NightSignal.TrialTour] TR-CH39:   52.7 s: C14-PRESSURE in 26.08 s, pressure held throughout
+[NightSignal.TrialTour] TR-CH39:   158.5 s: C14-PRESSURE in 26.10 s, pressure held throughout
+[NightSignal.TrialTour] TR-CH39:   car contacts 0, walls 0, resets 0, marshal recoveries 0, placement P1
+[NightSignal.TrialTour] TR-CH39: profile keeps it: True; challenge earned: True
+[NightSignal.TrialTour] 9 of 14 trials passed by the autopilot; challenges earned: CH15, CH55, CH11, CH51, CH54, CH25, CH30, CH39; wallet 317,895 cr
 [NightSignal.TrialTour] PASS
-[NightSignal.Bounds] bounds-TrialTour-1280x720-text150: 73 labels over 142 moments — 0 overflow, 0 missing glyph, 9 edge spill, 0 fixed-size overflow, 2 at minimum size
+[NightSignal.Bounds] bounds-TrialTour-1280x720-text150: 73 labels over 161 moments — 0 overflow, 0 missing glyph, 9 edge spill, 0 fixed-size overflow, 2 at minimum size

@@ -175,11 +175,12 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
    reached by the autopilot; CH17, CH22, CH27 are not (the drift controller runs out of road on long slides — the zone
    tour's knobs in `OfflineRaceSession.ZoneSlide*` are where a better sustained-slide controller would start). Slice 3:
    CH34 is judged in ordinary C02 races (V-124, marked-zone passes in the racecraft judge); racecraft trials (a fixed AI
-   field, the player's grid slot; offline only — the control plane refuses them online) carry CH40 and CH41 (V-125). Next:
-   give the field roles behaviour — CH36 (C10 pacing rival, pass through the outside lane gate, hold to C10-HOLD-GAIN),
-   CH39 (C14 pressure car within 1 s through C14-PRESSURE at a measured Silver pace), CH37 (T00 merge beside a pace car in
-   the two MERGE lanes); then CH43 (C20 against R32's Gold practice reference with the defence gates), CH59 (a tunable
-   loaner within a parts budget); then fixed cups, T00 drills, workshop trials. The control plane (task b2kshjyh5) still
+   field, the player's grid slot; offline only — the control plane refuses them online) carry CH40 and CH41 (V-125) and,
+   with the pacing and pressure roles, CH36 and CH39 (V-126; CH39 reached). Next: CH37 (T00 merge beside a pace car in the
+   two MERGE lanes — T00 is the tutorial course, which Local validation keeps out of Freeplay), CH43 (C20 against R32's
+   Gold practice reference with the defence gates — the judge already times defence zones), CH59 (a tunable loaner within
+   a parts budget); then fixed cups, T00 drills, workshop trials. Targeted built-player runs: `Tools/run/tour.ps1 -Tour
+   TrialTour -TrialOnly <ids>`. The control plane (task b2kshjyh5) still
    serves the content of `0777df53…`; trials JSON changed since — restart it before any online run.
    `Assets/_Recovery/0.unity` is Unity's crash-recovery copy of an unsaved scene from 2026-09-29 18:10 — left untouched for
    the owner.
