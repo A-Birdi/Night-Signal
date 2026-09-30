@@ -5,9 +5,11 @@ using System.Linq;
 using NightSignal.Content;
 using NightSignal.Core.Builds;
 using NightSignal.Core.Content;
+using NightSignal.Core.Profiles;
 using NightSignal.Core.Rules;
 using NightSignal.Race;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace NightSignal.Front
@@ -31,7 +33,93 @@ namespace NightSignal.Front
                 Cup.BeginTrial(trial, trial.Legs.Select((l, i) => LocalEvents.CupLeg(trial, i)).ToList());
                 return;
             }
+            if (trial.IsLane)
+            {
+                StartCoroutine(RunLaneLesson(trial, returnTo));
+                return;
+            }
             StartLocalEvent(LocalEvents.Trial(trial, ContentLibrary.Load()?.Catalogue?.Course(trial.Course)?.Format ?? "sprint"), returnTo);
+        }
+
+        /// <summary>A frozen lesson side: the trial's loaner (with a loaned part, for a comparison) resolved like a garage build.</summary>
+        static TestYardBuild LaneBuild(TrialLoaner loaner, string label, out string problem)
+        {
+            ContentLibrary lib = ContentLibrary.Load();
+            CarDef car = lib.Catalogue.Car(loaner.Car);
+            ResolveResult r = TrialLoaners.Resolve(loaner, car, lib.Catalogue.CarTunings[car.Id], lib.Parts, out PiEstimate pi);
+            problem = r.Ok ? null : string.Join("; ", r.Issues.Select(i => i.Detail));
+            if (!r.Ok) return null;
+            return new TestYardBuild
+            {
+                Label = label, BuildHash = r.Spec.BuildHash, Pi = pi?.Value ?? car.BasePI,
+                Params = Vehicle.VehicleFactory.Build(r.Spec, Vehicle.AssistSettings.Default, lib.Body(car.Id).WheelRadius),
+            };
+        }
+
+        /// <summary>
+        /// A braking-lane lesson (CH02, CH47): T00's braking lane with the trial's supplied car (and, for a comparison, the same car
+        /// on the loaned package); judged from every start when the player leaves, and kept like any trial pass — no race, no
+        /// record, no payout (<see cref="LocalProgression.ApplyLessonTrial"/>).
+        /// </summary>
+        IEnumerator RunLaneLesson(ChallengeTrialDef t, UIScreen returnTo)
+        {
+            ContentLibrary lib = ContentLibrary.Load();
+            CarDef car = lib.Catalogue.Car(t.Loaner.Car);
+            TestYardBuild a = LaneBuild(t.Loaner, $"Supplied: {car.Name}", out string problem), b = a;
+            if (a != null && !string.IsNullOrEmpty(t.ComparePart) && lib.Parts.TryPart(t.ComparePart, out PartDef loanedPart))
+            {
+                var loaned = new TrialLoaner { Car = t.Loaner.Car, Parts = new Dictionary<string, string>(t.Loaner.Parts) };
+                loaned.Parts[loanedPart.Slot] = loanedPart.Id;
+                b = LaneBuild(loaned, $"Loaned: {car.Name} on {loanedPart.Name}", out problem);
+            }
+            if (a == null || b == null)
+            {
+                Trials.SetVerdict(t.Id, $"{t.Id}: the lesson's car does not resolve ({problem}).");
+                yield break;
+            }
+            LocalEvents.LastTrialVerdict = null;
+            Canvas.gameObject.SetActive(false);
+            if (backdropCamera != null) backdropCamera.SetActive(false);
+            AsyncOperation load = SceneManager.LoadSceneAsync(t.Course, LoadSceneMode.Single);
+            while (!load.isDone) yield return null;
+            yield return null;
+            var go = new GameObject("BrakingLaneLesson");
+            ActiveYard = go.AddComponent<TestYardSession>();
+            ActiveYard.CarId = car.Id;
+            ActiveYard.A = a;
+            ActiveYard.B = b;
+            ActiveYard.Lesson = t;
+            while (ActiveYard != null && !ActiveYard.ExitRequested) yield return null;
+            List<TestYardRun> runs = ActiveYard != null ? ActiveYard.LessonRuns.ToList() : new List<TestYardRun>();
+            Destroy(go);
+            ActiveYard = null;
+
+            var facts = new TrialRunFacts
+            {
+                DroveLoaner = true, // the lesson offers only the supplied car and its loaned package
+                Finished = runs.Count > 0,
+                LaneStops = runs.Select(r => new TrialLaneStop { B = r.B, GateKmh = r.GateKmh, Stopped = !float.IsNaN(r.StopAlong), InStopGate = r.InStopGate,
+                    StopMetres = r.StopMetres, StopAlong = float.IsNaN(r.StopAlong) ? 0f : r.StopAlong }).ToList(),
+            };
+            TrialVerdict v = TrialJudge.Judge(t, facts);
+            LocalEvents.LastTrialVerdict = v;
+            string line = (v.Passed ? "TRIAL PASSED — " : "Trial not passed — ") + v.Summary;
+            LocalSession s = LocalSession.Current;
+            if (s?.Profile != null && v.Passed)
+            {
+                LocalProgressionResult applied = LocalProgression.ApplyLessonTrial(s.Profile, lib.Catalogue, t.Id, car.Id, true, DateTime.UtcNow);
+                if (applied.Status == LocalOperationStatus.Applied && !s.Commit(applied, out string saveNote)) line += " Not saved: " + saveNote;
+                else if (applied.Status == LocalOperationStatus.Rejected) line += " " + applied.Reason;
+            }
+            for (int i = 0; i < runs.Count; i++)
+                Debug.Log($"[NightSignal.Trial] {t.Id} start {i + 1} ({(runs[i].B ? "B" : "A")}): {(runs[i].GateKmh >= 0f ? runs[i].GateKmh.ToString("F1") + " km/h at " + t.SpeedGate : "speed gate not reached")}, " +
+                          $"{(float.IsNaN(runs[i].StopAlong) ? "no stop" : $"stopped at {runs[i].StopAlong:F1} m ({runs[i].StopMetres:F1} m from {runs[i].StopFromKmh:F0} km/h){(runs[i].InStopGate ? ", inside " + t.StopGate : "")}")}");
+            Debug.Log($"[NightSignal.Trial] {t.Id}: {line}");
+            Trials.SetVerdict(t.Id, line);
+            Canvas.gameObject.SetActive(true);
+            yield return LoadBackdrop();
+            if (Router.Current == returnTo) returnTo.OnShow();
+            else Router.Show(returnTo, true);
         }
 
         /// <summary>The trial's loaner resolved like a garage build; the plan records the build hash driven (null = not driven).</summary>
@@ -238,9 +326,56 @@ namespace NightSignal.Front
                     LocalEvents.LastTrialVerdict = null;
                     OfflineRaceSession previousRace = activeRace;
                     if (!Click("StartTrial")) break;
-                    // A challenge cup runs its legs through the cup page (Next Leg between them); everything else is one race.
-                    int legs = t.IsCup ? t.Legs.Count : 1;
+                    // A challenge cup runs its legs through the cup page (Next Leg between them); a braking-lane lesson is driven
+                    // in the lane (below); everything else is one race.
+                    int legs = t.IsCup ? t.Legs.Count : t.IsLane ? 0 : 1;
                     bool started = true;
+                    if (t.IsLane)
+                    {
+                        yield return Until(() => ActiveYard != null && ActiveYard.Ready, 60f);
+                        TestYardSession yard = ActiveYard;
+                        if (yard == null || !yard.Ready) { Fail($"{t.Id}: the lesson did not open"); started = false; }
+                        else
+                        {
+                            // Straight-line starts: full throttle, then full brake when the stop predicted from the deceleration
+                            // measured so far reaches the middle of the stop gate (refined after every stop).
+                            yard.SimulationSpeed = 4;
+                            float decel = 9.5f, aim = (yard.LessonStopFrom + yard.LessonStopTo) * 0.5f, gate = yard.LessonSpeedGateAlong;
+                            bool braking = false;
+                            yard.Script = (st, secs) =>
+                            {
+                                if (secs < 0.05f) braking = false;
+                                float along = yard.LaneAlong(st.Position), mps = st.SpeedKmh / 3.6f;
+                                if (!braking && along > gate + 2f && along + mps * mps / (2f * decel) >= aim) braking = true;
+                                if (braking && st.SpeedKmh < 0.3f) return NightSignal.Vehicle.DriverInput.Neutral; // at rest: a held brake would select reverse
+                                return braking ? NightSignal.Vehicle.DriverInput.Quantize(0f, 0f, 1f, NightSignal.Vehicle.InputButtons.None)
+                                    : NightSignal.Vehicle.DriverInput.Quantize(0f, 1f, 0f, NightSignal.Vehicle.InputButtons.None);
+                            };
+                            // CH47: the supplied car, then the loaned package; CH02: starts until its stops count (at most twice as many).
+                            List<bool> starts = t.Rules.CompareStops ? new List<bool> { false, true } : Enumerable.Repeat(false, Math.Max(1, t.LaneStarts) * 2).ToList();
+                            int counted = 0;
+                            foreach (bool useB in starts)
+                            {
+                                yard.ResetAndDrive(useB, 0);
+                                yield return null;
+                                TestYardRun r = yard.CurrentRun;
+                                yield return Until(() => r == null || !float.IsNaN(r.StopAlong), 90f);
+                                if (r != null && !float.IsNaN(r.StopAlong) && r.StopMetres > 1f)
+                                {
+                                    float v0 = r.StopFromKmh / 3.6f;
+                                    decel = v0 * v0 / (2f * r.StopMetres);
+                                    if (r.InStopGate && r.GateKmh >= t.Targets.LaneEntryKmh) counted++;
+                                }
+                                Note($"{t.Id} start ({(useB ? "B" : "A")}): {(r == null ? "no run" : $"{r.GateKmh:F1} km/h at the speed gate, stopped at {r.StopAlong:F1} m ({r.StopMetres:F1} m from {r.StopFromKmh:F0} km/h){(r.InStopGate ? " inside" : "")}")}");
+                                if (!t.Rules.CompareStops && counted >= t.LaneStarts) break;
+                            }
+                            yield return new WaitForSeconds(0.6f);
+                            yield return Snap($"03-{t.Id}-lesson");
+                            yard.Script = null;
+                            yard.RequestExit();
+                            yield return Until(() => ActiveYard == null, 60f);
+                        }
+                    }
                     for (int leg = 0; leg < legs; leg++)
                     {
                         yield return Until(() => activeRace != null && activeRace != previousRace, 60f);

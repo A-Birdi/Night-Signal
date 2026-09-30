@@ -29,8 +29,8 @@ public sealed class ChallengeTrialsTests
     public void TheAuthoredTrials_LoadIntoTheHashedCatalogue_OnePerChallengeOrOneGroup()
     {
         Assert.Contains(ContentCatalogue.AuthoredFiles, f => f == "challenge-trials.json");
-        Assert.Equal(35, Trials.Trials.Count);
-        Assert.Equal(new[] { "CH07", "CH11", "CH13", "CH14", "CH15", "CH23", "CH25", "CH28", "CH30", "CH36", "CH37", "CH39", "CH40", "CH41", "CH42", "CH43", "CH46", "CH49", "CH51", "CH52", "CH53", "CH54", "CH55", "CH56", "CH57", "CH58", "CH59", "CH69", "CH72", "CH74" }, Trials.Trials.Select(t => t.Challenge).Distinct().OrderBy(c => c));
+        Assert.Equal(37, Trials.Trials.Count);
+        Assert.Equal(new[] { "CH02", "CH07", "CH11", "CH13", "CH14", "CH15", "CH23", "CH25", "CH28", "CH30", "CH36", "CH37", "CH39", "CH40", "CH41", "CH42", "CH43", "CH46", "CH47", "CH49", "CH51", "CH52", "CH53", "CH54", "CH55", "CH56", "CH57", "CH58", "CH59", "CH69", "CH72", "CH74" }, Trials.Trials.Select(t => t.Challenge).Distinct().OrderBy(c => c));
         ChallengeTrialDef ch36 = Trials.Find("TR-CH36")!;
         Assert.True(ch36.IsRace && ch36.Rules.ZonePassRole == "pacing" && ch36.Field.Single().Role == "pacing");
         // The racecraft trials: fixed fields in the loaner's class, the player starting last.
@@ -480,7 +480,58 @@ public sealed class ChallengeTrialsTests
         Assert.Contains(p, x => x.Contains("CH11 has several trials that are not one group"));
     }
 
+    [Fact]
+    public void BrakingLaneLessons_CountStops_FromTheEntrySpeed_InsideTheStopGate()
+    {
+        ChallengeTrialDef ch02 = Trials.Find("TR-CH02")!, ch47 = Trials.Find("TR-CH47")!;
+        Assert.True(ch02.IsLane && ch02.Rules.BoxStops && ch02.LaneStarts == 3 && ch02.Targets.LaneEntryKmh == 100f && ch02.Published && ch02.Course == "T00");
+        Assert.True(ch47.IsLane && ch47.Rules.CompareStops && ch47.ComparePart == "TYR-T2-SPORT" && ch47.Published);
+        // Each named gate is in T00's braking lane and tagged for its challenge.
+        using var t00 = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(TestContent.RepoRoot, "Assets", "Content", "Courses", "T00", "route.json")));
+        var laneGates = t00.RootElement.GetProperty("areas").EnumerateArray().Single(a => a.GetProperty("kind").GetString() == "braking-lane")
+            .GetProperty("gates").EnumerateArray().ToDictionary(g => g.GetProperty("id").GetString()!, g => g.GetProperty("challenge").GetString());
+        Assert.Equal("CH02", laneGates[ch02.SpeedGate]);
+        Assert.Equal("CH02", laneGates[ch02.StopGate]);
+        Assert.Equal("CH47", laneGates[ch47.StopGate]);
+
+        TrialLaneStop Stop(float kmh, bool inGate, bool b = false, float metres = 38f) => new() { B = b, GateKmh = kmh, Stopped = true, InStopGate = inGate, StopMetres = metres, StopAlong = inGate ? 236f : 250f };
+        TrialRunFacts Lesson(params TrialLaneStop[] stops) => new() { DroveLoaner = true, Finished = stops.Length > 0, LaneStops = stops.ToList() };
+        Assert.True(TrialJudge.Judge(ch02, Lesson(Stop(104, true), Stop(101, false), Stop(103, true), Stop(100, true))).Passed, "a miss between them is allowed");
+        Assert.False(TrialJudge.Judge(ch02, Lesson(Stop(104, true), Stop(103, true))).Passed, "two starts");
+        Assert.False(TrialJudge.Judge(ch02, Lesson(Stop(104, true), Stop(99, true), Stop(103, true))).Passed, "one below 100 km/h at the speed gate");
+        Assert.False(TrialJudge.Judge(ch02, Lesson()).Passed);
+        Assert.Contains("3 distinct starts", TrialJudge.Judge(ch02, Lesson(Stop(104, true))).Summary);
+
+        TrialVerdict both = TrialJudge.Judge(ch47, Lesson(Stop(103, true, false, 38.4f), Stop(102, true, true, 36.9f)));
+        Assert.True(both.Passed, both.Summary);
+        Assert.Contains("supplied 38.4 m, loaned 36.9 m: -1.5 m", both.Summary);
+        Assert.False(TrialJudge.Judge(ch47, Lesson(Stop(103, true), Stop(102, true))).Passed, "no loaned-package stop");
+        Assert.False(TrialJudge.Judge(ch47, Lesson(Stop(103, true), Stop(102, false, true))).Passed, "the loaned stop outside the window");
+    }
+
     // ---------------- the Local profile ----------------
+
+    [Fact]
+    public void ABrakingLaneLesson_IsKept_AndGrantsItsChallengeOnce_WithoutAnEvent()
+    {
+        LocalProfile p = LocalProgressionTests.NewProfile();
+        long wallet = p.WalletBalance;
+        Assert.Equal(LocalOperationStatus.Rejected, LocalProgression.ApplyLessonTrial(p, Cat, "TR-CH07", "V01", true, DateTime.UtcNow).Status); // a race drill
+        Assert.Equal(LocalOperationStatus.Rejected, LocalProgression.ApplyLessonTrial(p, Cat, "TR-CH02", "V05", true, DateTime.UtcNow).Status); // not its car
+        Assert.Equal(LocalOperationStatus.Rejected, LocalProgression.ApplyLessonTrial(p, Cat, "TR-CH02", "V01", false, DateTime.UtcNow).Status);
+        LocalProgressionResult r = LocalProgression.ApplyLessonTrial(p, Cat, "TR-CH02", "V01", true, DateTime.UtcNow);
+        Assert.Equal(LocalOperationStatus.Applied, r.Status);
+        LocalProfile q = r.Profile;
+        Assert.Contains("TR-CH02", q.TrialsPassed);
+        Assert.True(q.HasCompletedChallenge("CH02"));
+        Assert.Equal(wallet + RankPoints.ChallengeCash(ChallengeTier.Bronze), q.WalletBalance); // the challenge's own reward, no event payout
+        Assert.Empty(q.Records.Entries); // a lesson sets no record
+        Assert.Empty(q.Validate());
+        Assert.Equal(LocalOperationStatus.AlreadyApplied, LocalProgression.ApplyLessonTrial(q, Cat, "TR-CH02", "V01", true, DateTime.UtcNow).Status);
+        // A lane lesson cannot be claimed through a race's facts.
+        LocalEventFacts asRace = TrialRun(q, "TR-CH47", passed: true);
+        Assert.Contains("braking-lane lesson", LocalProgression.ApplyEvent(q, Cat, TestContent.Music, asRace).Reason);
+    }
 
     [Fact]
     public void ATunableTrialsSetup_IsSavedWithTheProfile_OnlyWhenLegal()

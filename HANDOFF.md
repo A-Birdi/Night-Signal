@@ -169,7 +169,7 @@ Render Cockpit Sheets* renders the mounted views of every car.
 
 Pipeline in dependency order (items at one level do not wait for later ones; human checks are listed where they gate).
 
-0. **Next — the last 3 challenges** (R11.3: 72 of 75 judged; `docs/CHALLENGE_TRIALS.md`). Done so far in the trial work:
+0. **Next — the last challenge** (R11.3: 74 of 75 judged; `docs/CHALLENGE_TRIALS.md`). Done so far in the trial work:
    slice 1 (V-119/V-120, online too), slice 2 (CH13 V-121, CH15 V-122, zone chains CH17/19/22/27 V-123), slice 3 (CH34 in
    ordinary races V-124; racecraft trials with a fixed AI field CH40/41 V-125, CH36/39 V-126), slice 4 (challenge cups
    CH14/42/69/72 V-127), CH43 (R32's own run, V-128), Driving School section trials CH52/58 (V-129), drills CH53 (V-130),
@@ -177,12 +177,10 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
    tour, identical verdicts), CH49 (manual gearbox, V-135), tunable loaners and CH46 (V-136: `choices`/`tunable`/`piBudget`,
    Tune the Loaner, `TrialSetups` in the Local profile), CH57 (V-137), CH56 (V-138, with the ghost-write fix), CH59 (V-139).
    Not shown reachable by the autopilot: CH13, CH17, CH22, CH23, CH27, CH28, CH34, CH36, CH40, CH41, CH43 (see each entry).
-   **Remaining:** CH02 and CH47 — T00's braking lane (an area beside the loop with CH02's 100 km/h speed gate at 150 m, the
-   8 m box at 232–240 m and CH47's 180–300 m window). Addendum 02 §10.1 says the Test Yard grants no challenge completion, so
-   the plan is Driving School braking-lane lessons launched as trials (reusing the yard's lane stations and stop measurement,
-   not the yard itself): CH02 three distinct starts each past the speed gate at ≥ 100 km/h and stopped in the box; CH47 the
-   stock car and a loaned tyre package on the lane, the measured difference shown, then the lesson's stop. CH60 (ten named
-   tuning demonstrations with driving checks). **Also:** tunable trials online (CH56's "server validates all installed
+   CH02 and CH47 as Driving School braking-lane lessons (V-140; kind "lane", `LocalProgression.ApplyLessonTrial`).
+   **Remaining:** CH60 (ten named tuning demonstrations with driving checks, distinct systems — plan: a CH60 group of ten
+   tunable T00 trials, each supplied with the part that exposes its control, a rule that the named control changed, and a
+   driving check on a marked Driving School section or zone). **Also:** tunable trials online (CH56's "server validates all installed
    parameters" — see V-138's limits). The tour's setup of each tunable trial is `FrontEndApp.TourSetup`. Targeted built-player runs: `Tools/run/tour.ps1 -Tour TrialTour -TrialOnly
    <ids>`; a trial's measurement: `Builds/diag/measure-trials.txt` + `ChallengeTrialReferenceTests.MeasureChallengeTrials`.
    Racecraft, cup, Driving School and story-gated trials are offline only (`ConvoyDirectory.OnlineTrial`). The control

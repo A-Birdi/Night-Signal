@@ -4,6 +4,7 @@ using System.Linq;
 using NightSignal.Art;
 using NightSignal.Cameras;
 using NightSignal.Content;
+using NightSignal.Core.Rules;
 using NightSignal.InputBindings;
 using NightSignal.Track;
 using NightSignal.UI;
@@ -35,6 +36,10 @@ namespace NightSignal.Race
         public float ZeroTo60 = -1f, ZeroTo100 = -1f;
         public float StopMetres = -1f, StopFromKmh;
         public string StopBox = "";
+        /// <summary>A braking-lane lesson: speed crossing its speed gate (-1 = not reached), where along the lane the first stop
+        /// came to rest (m from the entry; NaN = none) and whether that is inside the lesson's stop gate.</summary>
+        public float GateKmh = -1f, StopAlong = float.NaN;
+        public bool InStopGate;
         public float PeakLateralG;
         public float LoopSeconds = -1f;
 
@@ -70,6 +75,23 @@ namespace NightSignal.Race
         /// <summary>Scripted driving for automated evidence runs (state, seconds since the reset) — replaces the controls.</summary>
         public Func<VehicleState, float, DriverInput> Script;
         public int SimulationSpeed = 1;
+        /// <summary>
+        /// A Driving School braking-lane lesson (CH02, CH47) rather than the Test Yard: the lane station only, A the trial's
+        /// supplied car and B (a comparison lesson only) the loaned package, every start kept for the judge. The yard itself
+        /// still records nothing (Addendum 02 §10.1); the lesson is judged by the caller. Null: the Test Yard.
+        /// </summary>
+        public ChallengeTrialDef Lesson;
+        /// <summary>Every start of a lesson, in order (the yard keeps only the last three per side).</summary>
+        public readonly List<TestYardRun> LessonRuns = new List<TestYardRun>();
+        /// <summary>The lesson's speed gate and stop gate along the lane (m from its entry).</summary>
+        public float LessonSpeedGateAlong { get; private set; } = -1f;
+        public float LessonStopFrom { get; private set; } = -1f;
+        public float LessonStopTo { get; private set; } = -1f;
+        bool CanDriveB => Lesson == null || !string.IsNullOrEmpty(Lesson.ComparePart);
+
+        /// <summary>Where a point is along the braking lane (m from its entry) and across it (m, + = right).</summary>
+        public float LaneAlong(Vector3 p) => Vector3.Dot(p - laneEntry, laneDir);
+        public float LaneLateral(Vector3 p) => Vector3.Cross(laneDir, p - laneEntry).y;
 
         public bool Ready { get; private set; }
         public bool ExitRequested { get; private set; }
@@ -168,7 +190,18 @@ namespace NightSignal.Race
                 laneEntry = c - laneDir * hl;
                 stations.Add(new Station { Id = "straight", Label = $"Launch & braking straight ({lane.Size[1]:0} m)", Position = laneEntry + laneDir * 6f + Vector3.up * 0.4f, Rotation = rot });
                 foreach (RouteGateDef g in lane.Gates ?? new List<RouteGateDef>())
+                {
                     if (g.Kind == "brake-zone" && g.EndMetres - g.StartMetres <= 20f) stopBoxes.Add((g.Id, g.StartMetres, g.EndMetres));
+                    if (Lesson != null && g.Id == Lesson.SpeedGate) LessonSpeedGateAlong = g.StartMetres;
+                    if (Lesson != null && g.Id == Lesson.StopGate) { LessonStopFrom = g.StartMetres; LessonStopTo = g.EndMetres; }
+                }
+            }
+            if (Lesson != null)
+            {
+                // A lesson is the lane alone: no skid pad, no loop.
+                if (stations.Count == 0 || LessonSpeedGateAlong < 0f || LessonStopFrom < 0f)
+                    Debug.LogError($"[NightSignal.TestYard] {Lesson.Id}: the braking lane or its gates {Lesson.SpeedGate}/{Lesson.StopGate} are missing.");
+                return;
             }
             RouteAreaDef pad = route?.Areas?.FirstOrDefault(a => a.Kind == "skid-pad");
             if (pad != null)
@@ -230,6 +263,7 @@ namespace NightSignal.Race
         {
             if (run == null || runSeconds < 1f) return;
             run.Seconds = runSeconds;
+            if (Lesson != null) LessonRuns.Add(run);
             List<TestYardRun> list = run.B ? RunsB : RunsA;
             list.Add(run);
             if (list.Count > 3) list.RemoveAt(0);
@@ -264,9 +298,10 @@ namespace NightSignal.Race
             Keyboard k = Keyboard.current;
             Gamepad g = Gamepad.current;
             if ((k != null && k.digit1Key.wasPressedThisFrame) || (g != null && g.dpad.left.wasPressedThisFrame)) ResetAndDrive(false, StationIndex);
-            else if ((k != null && k.digit2Key.wasPressedThisFrame) || (g != null && g.dpad.right.wasPressedThisFrame)) ResetAndDrive(true, StationIndex);
-            else if ((k != null && k.digit3Key.wasPressedThisFrame) || (g != null && g.dpad.up.wasPressedThisFrame)) ResetAndDrive(DrivingB, (StationIndex + 1) % stations.Count);
-            else if ((k != null && k.digit4Key.wasPressedThisFrame) || (g != null && g.dpad.down.wasPressedThisFrame)) SetSurface(Surface == "dry" ? "wet" : "dry");
+            else if (CanDriveB && ((k != null && k.digit2Key.wasPressedThisFrame) || (g != null && g.dpad.right.wasPressedThisFrame))) ResetAndDrive(true, StationIndex);
+            // A lesson keeps its lane and its conditions.
+            else if (Lesson == null && ((k != null && k.digit3Key.wasPressedThisFrame) || (g != null && g.dpad.up.wasPressedThisFrame))) ResetAndDrive(DrivingB, (StationIndex + 1) % stations.Count);
+            else if (Lesson == null && ((k != null && k.digit4Key.wasPressedThisFrame) || (g != null && g.dpad.down.wasPressedThisFrame))) SetSurface(Surface == "dry" ? "wet" : "dry");
             // Leaving is the remappable Pause/menu action (Esc / Start): View/Select is Change View, as in every race.
             else if (controls.PausePressed) RequestExit();
         }
@@ -296,6 +331,9 @@ namespace NightSignal.Race
             if (run == null) return;
             float kmh = current.SpeedKmh;
             run.TopKmh = Mathf.Max(run.TopKmh, kmh);
+            // A lesson: the speed crossing its speed gate (the first crossing of this start).
+            if (Lesson != null && run.GateKmh < 0f && LessonSpeedGateAlong >= 0f && LaneAlong(previous.Position) < LessonSpeedGateAlong && LaneAlong(current.Position) >= LessonSpeedGateAlong)
+                run.GateKmh = kmh;
             // Launch timing from the first movement off the line.
             if (launchAt < 0f && kmh > 1f && run.ZeroTo60 < 0f) launchAt = runSeconds;
             if (launchAt >= 0f && run.ZeroTo60 < 0f && kmh >= 60f) run.ZeroTo60 = runSeconds - launchAt;
@@ -312,9 +350,19 @@ namespace NightSignal.Race
             if (braking && kmh < 0.5f)
             {
                 braking = false;
-                run.StopMetres = Vector3.Distance(Flat(current.Position), Flat(brakeFrom));
-                run.StopFromKmh = brakeFromKmh;
-                run.StopBox = StopBoxResult();
+                // A lesson counts the first stop of each start only (a start is one attempt).
+                if (Lesson == null || float.IsNaN(run.StopAlong))
+                {
+                    run.StopMetres = Vector3.Distance(Flat(current.Position), Flat(brakeFrom));
+                    run.StopFromKmh = brakeFromKmh;
+                    run.StopBox = StopBoxResult();
+                    if (Lesson != null)
+                    {
+                        float along = LaneAlong(current.Position);
+                        run.StopAlong = along;
+                        run.InStopGate = along >= LessonStopFrom && along <= LessonStopTo && Mathf.Abs(LaneLateral(current.Position)) <= 8f;
+                    }
+                }
             }
             // Peak one-second mean lateral acceleration.
             lateralWindow += Mathf.Abs(sim.Telemetry.LateralG);
@@ -390,6 +438,12 @@ namespace NightSignal.Race
             }
             if (panel == null) return;
             var sb = new System.Text.StringBuilder();
+            if (Lesson != null)
+            {
+                RenderLessonPanel(sb);
+                panel.text = sb.ToString();
+                return;
+            }
             sb.Append("<b>TEST YARD</b>  <size=80%>private practice — no reward, record or purchase; not an online result</size>\n");
             sb.Append(Side("A", A, !DrivingB)).Append('\n').Append(Side("B", B, DrivingB)).Append('\n');
             sb.Append($"<size=85%>{stations[StationIndex].Label}  ·  {Surface.ToUpperInvariant()} (same grip rules as a {Surface} event)</size>\n");
@@ -400,6 +454,45 @@ namespace NightSignal.Race
             AppendRuns(sb, "B", RunsB);
             sb.Append("<size=75%><color=#6F6C66>This compact yard cannot prove long high-speed stability, every surface, traffic or latency; the full course is the definitive test.</color></size>");
             panel.text = sb.ToString();
+        }
+
+        void RenderLessonPanel(System.Text.StringBuilder sb)
+        {
+            sb.Append($"<b>DRIVING SCHOOL — BRAKING LANE</b>  <size=80%>{Esc(Lesson.Challenge)} · {Esc(Lesson.Title)} · a lesson, judged when you leave</size>\n");
+            sb.Append(Side("A", A, !DrivingB)).Append('\n');
+            if (CanDriveB) sb.Append(Side("B", B, DrivingB)).Append('\n');
+            float entry = Lesson.Targets.LaneEntryKmh;
+            sb.Append($"<size=85%>From rest: past the speed board ({LessonSpeedGateAlong:0} m) at {entry:0} km/h or more, then stop between {LessonStopFrom:0} and {LessonStopTo:0} m" +
+                      (Lesson.Rules.BoxStops ? $"; {Lesson.LaneStarts} starts" : "") + (Lesson.Rules.CompareStops ? "; once on A and once on B" : "") + ".</size>\n");
+            sb.Append("<size=80%><color=#9A968D>[1] new start on A" + (CanDriveB ? "   [2] new start on B" : "") + "   [C] change view   [Esc] finish the lesson · hold reset to restart this start</color></size>\n");
+            sb.Append($"\n<b>Now</b> ({(DrivingB ? "B" : "A")}): {Esc(LessonLine(run))}\n");
+            int counted = 0;
+            for (int i = 0; i < LessonRuns.Count; i++)
+            {
+                TestYardRun r = LessonRuns[i];
+                bool ok = r.GateKmh >= entry && r.InStopGate;
+                if (ok) counted++;
+                sb.Append($"<size=85%>{i + 1}. {(r.B ? "B" : "A")}  {Esc(LessonLine(r))}{(ok ? "  <color=#3EC6D8>counts</color>" : "")}</size>\n");
+            }
+            // The start being driven counts as soon as it has stopped (it joins the list when the next start begins).
+            var all = new List<TestYardRun>(LessonRuns);
+            if (run != null && !float.IsNaN(run.StopAlong)) all.Add(run);
+            if (run != null && !float.IsNaN(run.StopAlong) && run.GateKmh >= entry && run.InStopGate) counted++;
+            if (Lesson.Rules.CompareStops)
+            {
+                TestYardRun a = all.LastOrDefault(r => !r.B && r.GateKmh >= entry && r.InStopGate), b = all.LastOrDefault(r => r.B && r.GateKmh >= entry && r.InStopGate);
+                if (a != null && b != null)
+                    sb.Append($"<b>Measured difference:</b> A {a.StopMetres:0.0} m, B {b.StopMetres:0.0} m — {(b.StopMetres <= a.StopMetres ? "the loaned tyres stop" : "the loaned tyres need")} {Mathf.Abs(b.StopMetres - a.StopMetres):0.0} m {(b.StopMetres <= a.StopMetres ? "shorter" : "more")}.\n");
+            }
+            else if (Lesson.Rules.BoxStops) sb.Append($"<b>{counted} of {Lesson.LaneStarts}</b> starts counted.\n");
+        }
+
+        string LessonLine(TestYardRun r)
+        {
+            if (r == null) return "";
+            string gate = r.GateKmh >= 0f ? $"{r.GateKmh:0} km/h at the speed board" : "speed board not reached";
+            string stop = float.IsNaN(r.StopAlong) ? "no stop yet" : r.InStopGate ? $"stopped IN ({r.StopMetres:0.0} m)" : $"stopped at {r.StopAlong:0} m";
+            return gate + " · " + stop;
         }
 
         static string Side(string tag, TestYardBuild b, bool driving) =>

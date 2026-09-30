@@ -176,6 +176,8 @@ namespace NightSignal.Core.Profiles
         LessonPassed = 24,
         /// <summary>A tunable challenge trial's setup saved (no money).</summary>
         TrialSetupSaved = 25,
+        /// <summary>A braking-lane lesson trial passed (CH02, CH47; its challenge is a separate change).</summary>
+        LessonTrialPassed = 26,
     }
 
     /// <summary>One itemised line for the results screen: what changed and why.</summary>
@@ -862,6 +864,7 @@ namespace NightSignal.Core.Profiles
             {
                 ChallengeTrialDef trial = catalogue.ChallengeTrials.Find(f.TrialId);
                 if (trial == null) return $"Unknown challenge trial '{f.TrialId}'.";
+                if (trial.IsLane) return $"{trial.Id} is a braking-lane lesson, judged in the lane, not in a race.";
                 if ((trial.IsCup ? !trial.Legs.Any(l => l.Course == f.CourseId) : f.CourseId != trial.Course) || (trial.IsRace
                         ? f.Kind != EventKind.FreeplaySprint && f.Kind != EventKind.FreeplayCircuit
                         : f.Kind != EventKind.FreeplayTimeTrial))
@@ -1113,6 +1116,14 @@ namespace NightSignal.Core.Profiles
             if (catalogue == null) throw new ArgumentNullException(nameof(catalogue));
             if (!catalogue.TryChallenge(challengeId ?? "", out ChallengeDef ch) || !allowed(ch)) return Reject(result, refusal);
             if (profile.HasCompletedChallenge(challengeId)) return Already(result, $"{challengeId} was already completed; no repeat reward.");
+            GrantChallenge(profile, result, catalogue, ch, where, utc);
+            result.Status = LocalOperationStatus.Applied;
+            return Finish(result, profile);
+        }
+
+        /// <summary>Unlock, RP, cosmetic and cash for a challenge completed outside a race's facts — exactly once (callers check).</summary>
+        static void GrantChallenge(LocalProfile profile, LocalProgressionResult result, ContentCatalogue catalogue, ChallengeDef ch, string where, DateTime utc)
+        {
             ChallengeTier tier = ParseTier(ch.Tier);
             long cash = RankPoints.ChallengeCash(tier);
             int rp = RankPoints.ForChallenge(tier);
@@ -1126,6 +1137,28 @@ namespace NightSignal.Core.Profiles
                 Add(result, ProgressionChangeKind.CosmeticGranted, ch.Reward, 0, $"{cosmeticName} (reward for {ch.Id}).");
             }
             Credit(profile, result, "challenge", ch.Id, cash, utc, $"{ch.Name} ({ch.Tier}).");
+        }
+
+        /// <summary>
+        /// A braking-lane lesson trial (CH02, CH47) passed in the Driving School's T00 braking lane — a lesson, not a race, so
+        /// no event, record or payout: the pass is kept like any trial pass, and its challenge granted once every trial of its
+        /// group is passed, exactly once. Only lane trials, only in their supplied car.
+        /// </summary>
+        public static LocalProgressionResult ApplyLessonTrial(LocalProfile profile, ContentCatalogue catalogue, string trialId, string carModelId, bool passed, DateTime utc)
+        {
+            LocalProgressionResult result = Begin(profile);
+            if (catalogue == null) throw new ArgumentNullException(nameof(catalogue));
+            ChallengeTrialDef trial = catalogue.ChallengeTrials?.Find(trialId ?? "");
+            if (trial == null || !trial.IsLane) return Reject(result, "Only a braking-lane lesson is judged outside a race.");
+            if (carModelId != trial.Loaner.Car) return Reject(result, $"{trial.Id} is driven in its supplied {trial.Loaner.Car}.");
+            if (!passed) return Reject(result, $"{trial.Id} not passed: nothing to keep.");
+            var kept = new HashSet<string>(profile.TrialsPassed ?? new List<string>(), StringComparer.Ordinal);
+            bool isNew = kept.Add(trial.Id);
+            profile.TrialsPassed = kept.OrderBy(x => x, StringComparer.Ordinal).ToList();
+            bool earn = TrialJudge.ChallengeEarned(catalogue.ChallengeTrials, trial.Challenge, kept) && !profile.HasCompletedChallenge(trial.Challenge);
+            if (!isNew && !earn) return Already(result, $"{trial.Id} was already passed.");
+            if (isNew) Add(result, ProgressionChangeKind.LessonTrialPassed, trial.Id, 0, $"{trial.Title}: passed.");
+            if (earn && catalogue.TryChallenge(trial.Challenge, out ChallengeDef ch)) GrantChallenge(profile, result, catalogue, ch, "lesson:" + trial.Id, utc);
             result.Status = LocalOperationStatus.Applied;
             return Finish(result, profile);
         }

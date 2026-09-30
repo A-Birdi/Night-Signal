@@ -1,0 +1,21 @@
+# -nsTrialTour -nsTrialOnly TR-CH02,TR-CH47 (built player of a00370c + the braking-lane lessons of the next commit; buttons up to the lane, then scripted straight-line starts: full throttle, full brake when the stop predicted from the measured deceleration reaches the stop gate's middle; isolated profile; 1280x720; automation).
+[NightSignal.TrialTour] page 2 of 4: its first row opens TR-CH30
+[NightSignal.TrialTour] only: TR-CH02, TR-CH47
+[NightSignal.TrialTour] TR-CH02 start (A): 109.4 km/h at the speed gate, stopped at 233.0 m (51.7 m from 116 km/h) inside
+[NightSignal.TrialTour] TR-CH02 start (A): 109.4 km/h at the speed gate, stopped at 236.3 m (52.2 m from 117 km/h) inside
+[NightSignal.TrialTour] TR-CH02 start (A): 109.4 km/h at the speed gate, stopped at 236.3 m (52.2 m from 117 km/h) inside
+[NightSignal.Trial] TR-CH02 start 1 (A): 109.4 km/h at T00-BRAKE-SPEED, stopped at 233.0 m (51.7 m from 116 km/h), inside T00-BRAKE-BOX
+[NightSignal.Trial] TR-CH02 start 2 (A): 109.4 km/h at T00-BRAKE-SPEED, stopped at 236.3 m (52.2 m from 117 km/h), inside T00-BRAKE-BOX
+[NightSignal.Trial] TR-CH02 start 3 (A): 109.4 km/h at T00-BRAKE-SPEED, stopped at 236.3 m (52.2 m from 117 km/h), inside T00-BRAKE-BOX
+[NightSignal.Trial] TR-CH02: TRIAL PASSED — ok: the supplied loaner · ok: the lesson finished (3 starts) · ok: 3 distinct starts past T00-BRAKE-SPEED at 100 km/h or more, each stopped inside T00-BRAKE-BOX (3 of 3: 109 km/h, stopped in (51.7 m); 109 km/h, stopped in (52.2 m); 109 km/h, stopped in (52.2 m))
+[NightSignal.TrialTour] TR-CH02 (CH02 bronze): PASSED — ok: the supplied loaner · ok: the lesson finished (3 starts) · ok: 3 distinct starts past T00-BRAKE-SPEED at 100 km/h or more, each stopped inside T00-BRAKE-BOX (3 of 3: 109 km/h, stopped in (51.7 m); 109 km/h, stopped in (52.2 m); 109 km/h, stopped in (52.2 m))
+[NightSignal.TrialTour] TR-CH02: profile keeps it: True; challenge earned: True
+[NightSignal.TrialTour] TR-CH47 start (A): 109.4 km/h at the speed gate, stopped at 236.9 m (52.3 m from 117 km/h) inside
+[NightSignal.TrialTour] TR-CH47 start (B): 110.6 km/h at the speed gate, stopped at 236.3 m (49.8 m from 118 km/h) inside
+[NightSignal.Trial] TR-CH47 start 1 (A): 109.4 km/h at T00-BRAKE-SPEED, stopped at 236.9 m (52.3 m from 117 km/h), inside T00-BRAKE-COMPARE
+[NightSignal.Trial] TR-CH47 start 2 (B): 110.6 km/h at T00-BRAKE-SPEED, stopped at 236.3 m (49.8 m from 118 km/h), inside T00-BRAKE-COMPARE
+[NightSignal.Trial] TR-CH47: TRIAL PASSED — ok: the supplied loaner · ok: the lesson finished (2 starts) · ok: a stop on the supplied tyres and on the loaned package from 100 km/h inside T00-BRAKE-COMPARE (supplied 52.3 m, loaned 49.8 m: -2.5 m)
+[NightSignal.TrialTour] TR-CH47 (CH47 bronze): PASSED — ok: the supplied loaner · ok: the lesson finished (2 starts) · ok: a stop on the supplied tyres and on the loaned package from 100 km/h inside T00-BRAKE-COMPARE (supplied 52.3 m, loaned 49.8 m: -2.5 m)
+[NightSignal.TrialTour] TR-CH47: profile keeps it: True; challenge earned: True
+[NightSignal.TrialTour] 2 of 37 trials passed by the autopilot; challenges earned: CH02, CH47; wallet 18,000 cr
+[NightSignal.TrialTour] PASS

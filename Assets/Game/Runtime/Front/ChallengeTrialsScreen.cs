@@ -189,6 +189,7 @@ namespace NightSignal.Front
                 ? $"A race against a fixed field of {t.Field.Count}: {string.Join(", ", t.Field.GroupBy(c => c.Car).Select(g => $"{g.Count()} × {cat.Car(g.Key).Name}"))}" +
                   (t.PlayerStartsLast ? "; you start last" : "")
                 : t.IsCup ? $"{t.Legs.Count} legs, each solo and non-contact, in one continuous session (leaving ends it)"
+                : t.IsLane ? "A Driving School lesson on T00's braking lane — standing starts, no race"
                 : "Solo, non-contact";
             rules.text = field + "; your garage and upgrades are not used" + (said.Count > 0 ? "; " + string.Join(", ", said) : "") + ".";
             var goals = new List<string>();
@@ -196,6 +197,10 @@ namespace NightSignal.Front
             if (t.Rules.ShiftWindows) goals.Add($"a manual gearbox: shift up at each of the {t.ShiftGates.Count} marked boards ({ChallengeTrialDef.ShiftWindowBefore:F0} m before to {ChallengeTrialDef.ShiftWindowAfter:F0} m after it)");
             if (t.Rules.CleanMerge) goals.Add("drive the marked merge beside the pace car, each in its own lane, without touching");
             if (t.Rules.FinalDriveChanged) goals.Add("your saved tune changes the final drive");
+            if (t.Rules.BoxStops) goals.Add($"{t.LaneStarts} starts past the speed board at {t.Targets.LaneEntryKmh:F0} km/h, each stopped inside the 8 m box");
+            if (t.Rules.CompareStops)
+                goals.Add($"from {t.Targets.LaneEntryKmh:F0} km/h, a stop inside the lesson's window on the supplied tyres and on the loaned " +
+                          $"{(Lib.Parts.TryPart(t.ComparePart, out PartDef cp) ? cp.Name : t.ComparePart)}, then compare them");
             if (t.Rules.AeroNotAtExtreme) goals.Add("neither front nor rear aero at its maximum");
             if (t.Rules.AlternatingRecoveries) goals.Add("slide and catch the car in each marked zone in turn, left and right alternately, without a spin");
             if (t.Rules.BrakeEnvelope)

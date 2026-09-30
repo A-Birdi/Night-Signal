@@ -96,6 +96,17 @@ namespace NightSignal.Core.Rules
         public bool CleanMerge;
         /// <summary>CH49: an upshift inside the window at each of the trial's shift boards, on one lap, with a manual gearbox.</summary>
         public bool ShiftWindows;
+        /// <summary>
+        /// CH02: <see cref="ChallengeTrialDef.LaneStarts"/> distinct starts in one braking-lane lesson, each past the speed gate at
+        /// <see cref="TrialTargets.LaneEntryKmh"/> or more and stopped inside the stop gate (the 8 m box).
+        /// </summary>
+        public bool BoxStops;
+        /// <summary>
+        /// CH47: in one braking-lane lesson, a stop on the supplied tyres and one on the loaned package
+        /// (<see cref="ChallengeTrialDef.ComparePart"/>), each from the speed gate at the entry speed and inside the stop gate —
+        /// the measured difference is shown, then the lesson is finished.
+        /// </summary>
+        public bool CompareStops;
         /// <summary>CH46: the player's setup changes the final drive from its default.</summary>
         public bool FinalDriveChanged;
         /// <summary>CH57: the aero balance is at neither end of its range (neither front nor rear aero at its maximum).</summary>
@@ -146,6 +157,8 @@ namespace NightSignal.Core.Rules
         public List<TrialExitFloor> ExitFloors = new List<TrialExitFloor>();
         /// <summary>Trail-brake envelopes at the challenge's braking zones (measured from the loaner's reference trace).</summary>
         public List<TrialBrakeEnvelope> Brakes = new List<TrialBrakeEnvelope>();
+        /// <summary>A braking-lane lesson's entry speed at its speed gate (km/h; CH02's "from 100 km/h").</summary>
+        public float LaneEntryKmh;
     }
 
     /// <summary>One challenge trial (docs/CHALLENGE_TRIALS.md): a fixed course, loaner, rules and targets for one challenge.</summary>
@@ -164,6 +177,12 @@ namespace NightSignal.Core.Rules
         public bool IsDrill => Kind == "drill";
         /// <summary>A challenge cup: <see cref="Legs"/> run in order in the loaner, one continuous session, judged as a whole.</summary>
         public bool IsCup => Kind == "cup";
+        /// <summary>
+        /// A braking-lane lesson (CH02, CH47): driven in the Driving School's T00 braking lane — starts at rest at the lane's
+        /// entry, judged from the stops — not a race; recorded like any trial (the Garage Test Yard itself grants nothing,
+        /// Addendum 02 §10.1).
+        /// </summary>
+        public bool IsLane => Kind == "lane";
         /// <summary>A challenge cup's legs, in order (empty otherwise).</summary>
         public List<TrialCupLeg> Legs = new List<TrialCupLeg>();
         /// <summary>
@@ -191,6 +210,11 @@ namespace NightSignal.Core.Rules
         public bool ManualGearbox;
         /// <summary>CH49's shift boards, in order (route gate ids): an upshift is wanted at each.</summary>
         public List<string> ShiftGates = new List<string>();
+        /// <summary>A braking-lane lesson: its speed gate and stop gate (ids in the T00 braking lane), the distinct starts it
+        /// needs (CH02: 3) and the loaned part compared with the supplied car (CH47: a tyre package; "" = none).</summary>
+        public string SpeedGate = "", StopGate = "";
+        public int LaneStarts;
+        public string ComparePart = "";
         /// <summary>An upshift counts for a board from this far before it to this far after it (m).</summary>
         public const float ShiftWindowBefore = 25f, ShiftWindowAfter = 10f;
         /// <summary>The trial races its course's authored rival reference ghost, whose time is its target (CH74's C24 reference).</summary>
@@ -221,7 +245,23 @@ namespace NightSignal.Core.Rules
         public bool Published => (!JudgesTime || Targets.TimeMs > 0) && (!JudgesDrift || Targets.DriftRaw > 0) && (!Rules.PressureSector || Targets.SectorTimeMs > 0) &&
                                  (!IsCup || LegFactor <= 0 || Legs.All(l => l.TimeMs > 0)) &&
                                  (!Rules.ChallengeExits || (Targets.ExitFloors.Count > 0 && Targets.ExitFloors.All(x => x.Kmh > 0f))) &&
-                                 (!Rules.BrakeEnvelope || (Targets.Brakes.Count > 0 && Targets.Brakes.All(x => x.BrakeByMetres > 0f && x.MaxExitKmh > 0f)));
+                                 (!Rules.BrakeEnvelope || (Targets.Brakes.Count > 0 && Targets.Brakes.All(x => x.BrakeByMetres > 0f && x.MaxExitKmh > 0f))) &&
+                                 (!IsLane || Targets.LaneEntryKmh > 0f);
+    }
+
+    /// <summary>One start in a braking-lane lesson: which car, its speed at the speed gate, and where it stopped.</summary>
+    public sealed class TrialLaneStop
+    {
+        /// <summary>The loaned package (CH47's B) rather than the supplied car.</summary>
+        public bool B;
+        /// <summary>Speed crossing the speed gate (km/h; -1 = not reached).</summary>
+        public float GateKmh = -1f;
+        /// <summary>A full stop after braking, the car still in the lane.</summary>
+        public bool Stopped;
+        /// <summary>The stop is inside the stop gate (between its start and end metres along the lane).</summary>
+        public bool InStopGate;
+        /// <summary>Braking distance (m) and where along the lane the car stopped (m from its entry).</summary>
+        public float StopMetres, StopAlong;
     }
 
     public sealed class ChallengeTrialsFile
@@ -291,6 +331,8 @@ namespace NightSignal.Core.Rules
         public bool MergeKept;
         /// <summary>CH49: the best lap's upshift offset at each shift board (m past it; NaN = no upshift in its window), in board order.</summary>
         public float[] ShiftOffsets;
+        /// <summary>A braking-lane lesson: every start, in order.</summary>
+        public List<TrialLaneStop> LaneStops;
         /// <summary>A tunable loaner: the player's setup was legal (its parts among the trial's, a valid tune, within the PI budget), its PI, and what it set.</summary>
         public bool SetupLegal, FinalDriveChanged, AeroAtExtreme;
         public int SetupPi;
@@ -355,6 +397,7 @@ namespace NightSignal.Core.Rules
                 Check(f.StoryRecords >= t.RequiredStoryRecords,
                     $"the {t.RequiredStoryRecords} story records collected through Normal progression ({f.StoryRecords} of {t.RequiredStoryRecords})");
             if (t.IsCup) return JudgeCup(t, f, v);
+            if (t.IsLane) return JudgeLane(t, f, v);
             Check(f.Finished, "a valid finish");
             if (t.Targets.TimeMs > 0 && t.HasSection)
                 Check(f.Finished && f.SectionMs > 0 && f.SectionMs < t.Targets.TimeMs,
@@ -418,6 +461,37 @@ namespace NightSignal.Core.Rules
         }
 
         /// <summary>One leg of a challenge cup on its own (shown between legs; the cup's verdict comes after the last leg).</summary>
+        /// <summary>A stop that counts in a braking-lane lesson: past the speed gate at the entry speed, a full stop inside the stop gate.</summary>
+        public static bool LaneStopCounts(ChallengeTrialDef t, TrialLaneStop s) =>
+            s != null && s.GateKmh >= t.Targets.LaneEntryKmh && s.Stopped && s.InStopGate;
+
+        static TrialVerdict JudgeLane(ChallengeTrialDef t, TrialRunFacts f, TrialVerdict v)
+        {
+            void Check(bool ok, string what) => v.Checks.Add(new KeyValuePair<bool, string>(ok, what));
+            List<TrialLaneStop> stops = f.LaneStops ?? new List<TrialLaneStop>();
+            Check(f.Finished, $"the lesson finished ({stops.Count} start{(stops.Count == 1 ? "" : "s")})");
+            string Line(TrialLaneStop s) => $"{(s.GateKmh >= 0f ? s.GateKmh.ToString("F0") + " km/h" : "speed gate not reached")}, " +
+                                            (!s.Stopped ? "no stop" : s.InStopGate ? $"stopped in ({s.StopMetres:F1} m)" : $"stopped at {s.StopAlong:F0} m");
+            if (t.Rules.BoxStops)
+            {
+                List<TrialLaneStop> good = stops.Where(s => !s.B && LaneStopCounts(t, s)).ToList();
+                Check(t.LaneStarts > 0 && good.Count >= t.LaneStarts,
+                    $"{t.LaneStarts} distinct starts past {t.SpeedGate} at {t.Targets.LaneEntryKmh:F0} km/h or more, each stopped inside {t.StopGate} " +
+                    $"({good.Count} of {t.LaneStarts}{(stops.Count > 0 ? ": " + string.Join("; ", stops.Select(Line)) : "")})");
+            }
+            if (t.Rules.CompareStops)
+            {
+                TrialLaneStop a = stops.LastOrDefault(s => !s.B && LaneStopCounts(t, s)), b = stops.LastOrDefault(s => s.B && LaneStopCounts(t, s));
+                Check(a != null && b != null,
+                    $"a stop on the supplied tyres and on the loaned package from {t.Targets.LaneEntryKmh:F0} km/h inside {t.StopGate} " +
+                    (a != null && b != null ? $"(supplied {a.StopMetres:F1} m, loaned {b.StopMetres:F1} m: {(b.StopMetres - a.StopMetres >= 0f ? "+" : "")}{b.StopMetres - a.StopMetres:F1} m)"
+                        : $"({(a != null ? "supplied " + a.StopMetres.ToString("F1") + " m" : "no supplied stop")}, {(b != null ? "loaned " + b.StopMetres.ToString("F1") + " m" : "no loaned stop")})"));
+            }
+            v.Passed = t.Published && v.Checks.All(c => c.Key);
+            if (!t.Published) v.Checks.Add(new KeyValuePair<bool, string>(false, "targets not published yet"));
+            return v;
+        }
+
         public static TrialVerdict JudgeCupLeg(ChallengeTrialDef t, int leg, TrialCupLegFacts f)
         {
             var v = new TrialVerdict();
@@ -482,7 +556,16 @@ namespace NightSignal.Core.Rules
                 if (!carExists(t.Loaner?.Car ?? "")) problems.Add($"{t.Id}: unknown loaner car {t.Loaner?.Car}");
                 if (t.Targets == null || t.Targets.TimeMs < 0 || t.Targets.DriftRaw < 0) problems.Add($"{t.Id}: negative target");
                 if (t.Rules != null && t.Rules.MaxWallImpacts < -1) problems.Add($"{t.Id}: invalid wall allowance");
-                if (!t.JudgesTime && !t.JudgesDrift && !t.IsRace && !t.IsCup && !t.IsDrill) problems.Add($"{t.Id}: unknown kind {t.Kind}");
+                if (!t.JudgesTime && !t.JudgesDrift && !t.IsRace && !t.IsCup && !t.IsDrill && !t.IsLane) problems.Add($"{t.Id}: unknown kind {t.Kind}");
+                if (t.IsLane)
+                {
+                    if (string.IsNullOrEmpty(t.SpeedGate) || string.IsNullOrEmpty(t.StopGate)) problems.Add($"{t.Id}: a braking-lane lesson needs its speed and stop gates");
+                    if (t.Rules != null && !(t.Rules.BoxStops || t.Rules.CompareStops)) problems.Add($"{t.Id}: a braking-lane lesson judges nothing");
+                    if (t.Rules != null && t.Rules.BoxStops && t.LaneStarts <= 0) problems.Add($"{t.Id}: box stops need their number of starts");
+                    if (t.Rules != null && t.Rules.CompareStops && string.IsNullOrEmpty(t.ComparePart)) problems.Add($"{t.Id}: a comparison needs its loaned part");
+                }
+                else if (!string.IsNullOrEmpty(t.SpeedGate) || !string.IsNullOrEmpty(t.StopGate) || !string.IsNullOrEmpty(t.ComparePart) || t.LaneStarts != 0)
+                    problems.Add($"{t.Id}: only braking-lane lessons have lane gates");
                 if (t.IsDrill && t.Rules != null && !(t.Rules.AllChallengeGates || t.Rules.ChallengeExits || t.Rules.AllDefenceZones || t.Rules.BrakeEnvelope || t.Rules.AlternatingRecoveries || t.Rules.ShiftWindows
                     || t.HasSection || t.Rules.FinalDriveChanged))
                     problems.Add($"{t.Id}: a drill judges nothing");

@@ -2986,3 +2986,31 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   no grid), so the autopilot leads from the front; the win is shown, not a comeback.
   `Evidence/challenges/trials-tour/trial-tour-TR-CH56-CH59.txt`. Offline only (racecraft and tunable).
 - **Tests (this block):** Core 207 (CH56, CH57, CH59 content and budgets); Services 369; all .NET suites passed at this revision.
+
+## V-140 — CH02 and CH47: Driving School braking-lane lessons on T00 (spec §11 with Addendum 02 §10.1) (2026-09-30)
+- Revision: documented with the commit of this entry; the player build of `a00370c` + this work (the lesson panel's live
+  count/difference and a dash in its goal line were changed after that build — rendered in the next built run).
+- **Reconciling the rules:** CH02 names "T00 braking lane … in one lesson" and CH47 "the garage comparison harness … then
+  finish its braking lesson", while Addendum 02 §10.1 says the Garage Test Yard grants no reward or challenge completion.
+  Both are therefore **Driving School lessons**, launched from Challenge Trials as a new trial kind **"lane"**: T00's braking
+  lane (the area beside the loop: speed gate T00-BRAKE-SPEED at 150 m, the 8 m box T00-BRAKE-BOX at 232–240 m, CH47's window
+  T00-BRAKE-COMPARE at 180–300 m), driven with the same simulation and the Test Yard's lane station and stop measurement
+  (`TestYardSession` in a lesson mode: the lane only, the trial's supplied car as A and — for a comparison — the same car on
+  the loaned package as B, no station or surface switching, every start kept). The Test Yard itself still records nothing.
+- **Judged (Core `TrialJudge`, kind "lane"):** each start from rest counts once — its speed crossing the speed gate and where
+  its first full stop came to rest. **TR-CH02** (Bronze, V01): 3 starts past the speed gate at ≥ 100 km/h, each stopped inside
+  the box (a miss may be followed by another start). **TR-CH47** (Bronze, V01): a stop on the supplied tyres and one on a loaned
+  sport tyre package (TYR-T2-SPORT), each from ≥ 100 km/h inside the lesson window; the panel and the verdict show the measured
+  difference. A pass is kept by `LocalProgression.ApplyLessonTrial` — the trial kept, its challenge granted exactly once — with
+  **no event, no record and no payout** (a lesson is not a race); a lane trial offered through race facts is refused. Offline
+  only (T00 trials are not offered online).
+- **Tests:** Core (the box stops: a miss allowed, two starts, one below 100 km/h, none; the comparison and its difference text;
+  the gates tagged in T00's lane; the lesson pass kept and granted once with only the challenge cash and no record; refused for
+  another car, a race drill or through race facts) — Core 209.
+- **Built player (`tour.ps1 -TrialOnly TR-CH02,TR-CH47`; the page buttons, then scripted straight-line starts — full
+  throttle, full brake when the stop predicted from the deceleration measured so far reaches the middle of the stop gate):**
+  TR-CH02 **PASSED** — three starts, 109 km/h at the speed gate, stopped at 233.0 / 236.3 / 236.3 m (inside 232–240); CH02
+  earned. TR-CH47 **PASSED** — supplied 52.3 m, loaned sport tyres 49.8 m from 117–118 km/h (−2.5 m); CH47 earned.
+  `Evidence/challenges/trials-tour/trial-tour-TR-CH02-CH47.txt`, `03-TR-CH02-lesson.png`, `03-TR-CH47-lesson.png`.
+- **Limits:** "server verifies speed before each start" is done by the Local judge from the simulation; online there is no
+  lane lesson yet. The automation drives straight lines; a human's steering is not exercised.
