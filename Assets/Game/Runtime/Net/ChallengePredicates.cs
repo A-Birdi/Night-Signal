@@ -16,16 +16,17 @@ namespace NightSignal.Net
         static ChallengeReferencesFile References => NightSignal.Content.ContentLibrary.Load()?.Catalogue?.ChallengeReferences;
 
         public static IEnumerable<string> Evaluate(MatchAssignment a, EntrantProgress p, DriftScorer drift = null, string surface = null, GateRun gates = null,
-            RacecraftRun racecraft = null) =>
-            Evaluate(a.CourseId, p, drift, a.FreeplayMode, surface, gates, racecraft);
+            RacecraftRun racecraft = null, ZoneChainRun zones = null) =>
+            Evaluate(a.CourseId, p, drift, a.FreeplayMode, surface, gates, racecraft, zones);
 
         /// <summary>
         /// The same predicates for any race (online on the game server, offline in the Local race). <paramref name="drift"/>
         /// is the entrant's drift scorer (every race scores drift in its judged zones); <paramref name="freeplayMode"/> and
-        /// <paramref name="surface"/> describe the event; <paramref name="racecraft"/> is null outside races with live opponents.
+        /// <paramref name="surface"/> describe the event; <paramref name="racecraft"/> is null outside races with live opponents;
+        /// <paramref name="zones"/> is the entrant's challenge-zone chains (null on courses without such zones).
         /// </summary>
         public static IEnumerable<string> Evaluate(string courseId, EntrantProgress p, DriftScorer drift = null, string freeplayMode = null, string surface = null,
-            GateRun gates = null, RacecraftRun racecraft = null)
+            GateRun gates = null, RacecraftRun racecraft = null, ZoneChainRun zones = null)
         {
             if (!p.Finished) yield break;
             // CH01 First Clean Signal: finish C01 with no meaningful wall impacts and no reset.
@@ -64,6 +65,19 @@ namespace NightSignal.Net
                 if (courseId == "C08" && p.WallIncidents == 0 && ChallengeReferenceJudge.GatesPassed(refs, "CH08", courseId, gates.SpeedFact)) yield return "CH08";
                 // CH12 The Last Ten Metres: C20's four late-braking gates inside their windows, no collision or reset in them.
                 if (courseId == "C20" && ChallengeReferenceJudge.GatesPassed(refs, "CH12", courseId, gates.SpeedFact, contactFree: true)) yield return "CH12";
+            }
+            if (zones != null)
+            {
+                // CH17 Change of Direction: C03's three link corners (the route's alternating left-right sequence) in one chain
+                // that banked — never lost.
+                if (courseId == "C03" && zones.Linked("CH17", 3)) yield return "CH17";
+                // CH19 A Useful Angle: a legal 20–35° drift held 3 s without a break inside C05's demonstration zone.
+                if (courseId == "C05" && zones.LongestHoldFor("CH19") >= 3f) yield return "CH19";
+                // CH22 Outer Clip Reader: C09's three outer clip zones, each on its marked line, in one banked chain with no
+                // barrier touch while it was alive.
+                if (courseId == "C09" && zones.LinkedAll("CH22", untouched: true)) yield return "CH22";
+                // CH27 Six Connected Corners: all six C19 transition zones in one forward chain, banked at the final gate.
+                if (courseId == "C19" && zones.LinkedAll("CH27", atBankGate: true)) yield return "CH27";
             }
             // CH10 Equal Splits: C11's two laps within 2.0 s of each other, both legal, inside the Silver reference time.
             if (courseId == "C11" && !p.CorridorCut && ChallengeReferenceJudge.EqualSplits(References, "CH10", courseId, p.LapMicros, p.FinishTimeMicros - p.PenaltyMicros))

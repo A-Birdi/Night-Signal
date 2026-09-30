@@ -186,7 +186,7 @@ namespace NightSignal.Front
             };
             // The same race predicates the game server evaluates online, from this run's facts.
             facts.ChallengesCompleted.AddRange(Net.ChallengePredicates.Evaluate(plan.CourseId, me.Entrant.Progress, me.Entrant.Drift,
-                plan.FreeplayFormat, plan.Rules?.Surface, me.Entrant.GateRun, me.Entrant.Racecraft));
+                plan.FreeplayFormat, plan.Rules?.Surface, me.Entrant.GateRun, me.Entrant.Racecraft, me.Entrant.ZoneChains));
             // A challenge trial: judged by the Core TrialJudge from this run's facts; the profile keeps the pass.
             if (!string.IsNullOrEmpty(plan.TrialId) && s.Catalogue.ChallengeTrials.Find(plan.TrialId) is ChallengeTrialDef trial)
             {

@@ -42,6 +42,11 @@ namespace NightSignal.Race
         public float AutopilotEdgeMargin;
         /// <summary>Automation only: the validator autopilot steers through the course's challenge touch gates (CH03, CH06).</summary>
         public static bool AutopilotAimsChallengeGates;
+        /// <summary>
+        /// Automation only: the validator autopilot drifts the course's challenge zones as one slide per challenge (first zone
+        /// to bank gate) and aims at clip zones' marked lines (CH17, CH19, CH22, CH27 — the zone tour).
+        /// </summary>
+        public static bool AutopilotDrivesChallengeZones;
         /// <summary>Automation only: the autopilot holds the brakes this long after GO, so the field goes ahead (racecraft tour).</summary>
         public static float AutopilotHoldSeconds;
         /// <summary>Automation only: the autopilot keeps about this interval (s) behind the car ahead; 0 = it races normally.</summary>
@@ -167,7 +172,9 @@ namespace NightSignal.Race
             pilotProfile.EdgeMargin = AutopilotEdgeMargin;
             pilot = new RouteFollower(course.Track, Player.Params, pilotProfile)
             {
-                DriftZones = Sim.DriftZonesForAi, ApexGates = Sim.Contracts?.ApexGates ?? (AutopilotAimsChallengeGates ? Sim.Gates?.TouchGates : null),
+                DriftZones = AutopilotDrivesChallengeZones && Sim.ZoneChains != null ? Sim.ZoneChains.AutopilotSpans() : Sim.DriftZonesForAi,
+                ApexGates = Sim.Contracts?.ApexGates ?? (AutopilotAimsChallengeGates ? Sim.Gates?.TouchGates
+                    : AutopilotDrivesChallengeZones && Sim.ZoneChains != null && Sim.ZoneChains.AutopilotClipAims().Count > 0 ? Sim.ZoneChains.AutopilotClipAims() : null),
                 ResetWhenStuck = true, SurfaceGrip = CourseRuntime.SurfaceGrip(Rules.Surface),
             };
             foreach (RaceEntrant e in Sim.Entrants) previous[e] = e.State;

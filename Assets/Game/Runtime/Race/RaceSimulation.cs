@@ -45,6 +45,8 @@ namespace NightSignal.Race
         public GateRun GateRun;
         /// <summary>Racecraft facts: clean passes and follows (races with live opponents; null elsewhere).</summary>
         public RacecraftRun Racecraft;
+        /// <summary>Challenge-zone chains and holds (courses with tagged transition, clip or demonstration zones; null elsewhere).</summary>
+        public ZoneChainRun ZoneChains;
         public bool Collides => Status == EntrantStatus.Racing || Status == EntrantStatus.Finished;
     }
 
@@ -181,6 +183,7 @@ namespace NightSignal.Race
             // Before the AI are placed: an S29 field drifts the Arc like the humans must.
             sim.Contracts = ContractJudge.ForEvent(track, cat, rules.Kind, rules.StageId, rules.Mode, rules.MeasureContracts);
             sim.Gates = GateJudge.ForTrack(track);
+            sim.ZoneChains = ZoneChainJudge.ForTrack(track);
             sim.gateWorld = world;
             sim.Racecraft = RacecraftJudge.ForEvent(rules, sim.Entrants);
             int slot = 0, generic = 0;
@@ -315,6 +318,7 @@ namespace NightSignal.Race
                 Drift.Step(e, reset, e.Progress.Finished);
                 Contracts?.Step(e, input, raceMicros, reset);
                 Gates?.Step(e, input, reset, gateWorld);
+                ZoneChains?.Step(e, reset);
                 Racecraft?.Step(e, reset, raceMicros);
                 if (e.Progress.Finished)
                 {
@@ -355,6 +359,8 @@ namespace NightSignal.Race
         public ContractJudge Contracts { get; private set; }
         /// <summary>Challenge-gate judging (CH03, CH06, CH09…) where the course tags such gates.</summary>
         public GateJudge Gates { get; private set; }
+        /// <summary>Challenge-zone chain judging (CH17, CH19, CH22, CH27) where the course tags such zones.</summary>
+        public ZoneChainJudge ZoneChains { get; private set; }
         IVehicleWorld gateWorld;
         /// <summary>Racecraft judging (CH31, CH32) in races with live opponents; null in Time Attack and Drift Attack.</summary>
         public RacecraftJudge Racecraft { get; private set; }
