@@ -21,7 +21,8 @@
         "maxWallImpacts": -1,
         "noHandbrake": false,
         "bankEveryZone": false,
-        "allTyresPaved": true
+        "allTyresPaved": true,
+        "allChallengeGates": false
       },
       "targets": {
         "timeMs": 136346,
@@ -32,6 +33,41 @@
       "group": "",
       "brief": "Race the fixed Gold ghost and finish ahead of it with all four tyres on the paved road the whole way; a shoulder touch fails the trial, not the race.",
       "ghost": true,
+      "judgesTime": true,
+      "judgesDrift": false,
+      "published": true
+    },
+    {
+      "id": "TR-CH15",
+      "challenge": "CH15",
+      "title": "Dawn Precision",
+      "course": "C25",
+      "tier": "gold",
+      "kind": "time",
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V17",
+        "parts": {},
+        "piCap": 0
+      },
+      "rules": {
+        "noReset": true,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": true
+      },
+      "targets": {
+        "timeMs": 273700,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0
+      },
+      "group": "",
+      "brief": "The fixed challenge reference on C25: beat its Gold time, touch all three final-sector apex gates, and never reset.",
+      "ghost": false,
       "judgesTime": true,
       "judgesDrift": false,
       "published": true
@@ -55,7 +91,8 @@
         "maxWallImpacts": -1,
         "noHandbrake": false,
         "bankEveryZone": false,
-        "allTyresPaved": false
+        "allTyresPaved": false,
+        "allChallengeGates": false
       },
       "targets": {
         "timeMs": 150400,
@@ -89,7 +126,8 @@
         "maxWallImpacts": 1,
         "noHandbrake": false,
         "bankEveryZone": false,
-        "allTyresPaved": false
+        "allTyresPaved": false,
+        "allChallengeGates": false
       },
       "targets": {
         "timeMs": 194300,
@@ -125,7 +163,8 @@
         "maxWallImpacts": -1,
         "noHandbrake": false,
         "bankEveryZone": false,
-        "allTyresPaved": false
+        "allTyresPaved": false,
+        "allChallengeGates": false
       },
       "targets": {
         "timeMs": 169200,
@@ -159,7 +198,8 @@
         "maxWallImpacts": -1,
         "noHandbrake": false,
         "bankEveryZone": false,
-        "allTyresPaved": false
+        "allTyresPaved": false,
+        "allChallengeGates": false
       },
       "targets": {
         "timeMs": 158400,
@@ -193,7 +233,8 @@
         "maxWallImpacts": -1,
         "noHandbrake": false,
         "bankEveryZone": false,
-        "allTyresPaved": false
+        "allTyresPaved": false,
+        "allChallengeGates": false
       },
       "targets": {
         "timeMs": 160500,
@@ -229,7 +270,8 @@
         "maxWallImpacts": -1,
         "noHandbrake": true,
         "bankEveryZone": false,
-        "allTyresPaved": false
+        "allTyresPaved": false,
+        "allChallengeGates": false
       },
       "targets": {
         "timeMs": 0,
@@ -265,7 +307,8 @@
         "maxWallImpacts": -1,
         "noHandbrake": false,
         "bankEveryZone": false,
-        "allTyresPaved": false
+        "allTyresPaved": false,
+        "allChallengeGates": false
       },
       "targets": {
         "timeMs": 274100,
@@ -301,7 +344,8 @@
         "maxWallImpacts": -1,
         "noHandbrake": false,
         "bankEveryZone": true,
-        "allTyresPaved": false
+        "allTyresPaved": false,
+        "allChallengeGates": false
       },
       "targets": {
         "timeMs": 0,

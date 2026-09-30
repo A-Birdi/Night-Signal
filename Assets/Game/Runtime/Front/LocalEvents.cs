@@ -196,6 +196,8 @@ namespace NightSignal.Front
                     TimeMs = me.Outcome == RunOutcome.Finished ? me.FinishTimeMicros / 1000 : 0,
                     Resets = me.Entrant.Progress.Resets, WallImpacts = me.Entrant.Progress.WallIncidents,
                     HandbrakeSeconds = me.Entrant.Progress.HandbrakeSeconds, OffPavedSeconds = me.Entrant.Progress.OffPavedSeconds,
+                    ChallengeGatesTouched = me.Entrant.GateRun != null && me.Entrant.GateRun.AllTouched(trial.Challenge),
+                    ChallengeGates = me.Entrant.GateRun?.Count(trial.Challenge) ?? 0,
                     DriftRaw = (long)Math.Floor(me.Entrant.Drift.BankedRaw),
                     ZonesBanked = me.Entrant.Drift.ZonesBanked.Count,
                     ZonesTotal = s.Catalogue.DriftZones.TryGetValue(trial.Course, out int zones) ? zones : 0,

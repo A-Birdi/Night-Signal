@@ -12,6 +12,11 @@ edge margin 2.2 m: time 143.363 s; banked 0 raw (earned 0) in 0/0 zones; walls 1
   off the paved road at: 474 m lateral 2.88 of 3.75, 479 m lateral 3.00 of 3.75, 485 m lateral 3.12 of 3.75, 490 m lateral 3.25 of 3.75, 496 m lateral 3.38 of 3.75, 502 m lateral 3.52 of 3.75, 507 m lateral 3.66 of 3.75, 513 m lateral 3.82 of 3.75, 518 m lateral 3.99 of 3.75, 524 m lateral 4.19 of 3.75, 529 m lateral 4.29 of 3.75, 535 m lateral 4.22 of 3.75, 540 m lateral 4.21 of 3.75, 546 m lateral 4.26 of 3.75
 → beat the Gold ghost's 136.346 s (the reference run itself, recorded)
 
+## TR-CH15 (CH15, gold) on C25 (dry): Shinmei Aurora 4S, PI 810
+time 268.259 s; banked 0 raw (earned 0) in 0/6 zones; walls 0, resets 0, handbrake 0.0 s, off the paved road 17.3 s
+marked gates (CH15) all touched: True
+→ gold time 273.7 s (1.02 ×)
+
 ## TR-CH55 (CH55, silver) on C04 (dry): Kogane Hachi RS, PI 220
 time 136.696 s; banked 0 raw (earned 0) in 0/2 zones; walls 0, resets 0, handbrake 0.0 s, off the paved road 7.7 s
 → silver time 150.4 s (1.10 ×)

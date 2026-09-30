@@ -111,6 +111,7 @@ namespace NightSignal.Front
                     pendingAutopilotDriftSkill = skill;
                     pendingAutopilotNoHandbrake = t.Rules.NoHandbrake;
                     pendingAutopilotEdgeMargin = t.Targets.ReferenceEdgeMargin;
+                    OfflineRaceSession.AutopilotAimsChallengeGates = t.Rules.AllChallengeGates;
                     LocalEvents.LastTrialVerdict = null;
                     if (!Click("StartTrial")) break;
                     yield return Until(() => activeRace != null, 60f);
@@ -123,6 +124,7 @@ namespace NightSignal.Front
                     Click("Continue");
                     yield return Until(() => Router.Current == Trials, 15f);
                     yield return new WaitForSeconds(0.8f);
+                    OfflineRaceSession.AutopilotAimsChallengeGates = false;
                     v = LocalEvents.LastTrialVerdict;
                     if (v == null) { Fail(t.Id + " was not judged"); break; }
                     Note($"{t.Id} ({t.Challenge} {t.Tier}){(t.JudgesDrift ? $" at drift skill {skill:F2}{(skill == refSkill ? " (the reference's)" : "")}" : "")}: " +

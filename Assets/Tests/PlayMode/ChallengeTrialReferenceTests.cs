@@ -43,6 +43,7 @@ namespace NightSignal.Tests
             public double Banked, Earned;
             public int Zones, ZonesBanked, Walls, Resets;
             public float OffPaved;
+            public bool GatesTouched;
             public string OffPavedWhere = "";
             public string Surface;
             public NightSignal.Core.Ghosts.GhostRecording Ghost;
@@ -67,6 +68,7 @@ namespace NightSignal.Tests
             session.AutopilotDriftSkill = skill;
             session.AutopilotNoHandbrake = t.Rules.NoHandbrake;
             session.AutopilotEdgeMargin = margin;
+            OfflineRaceSession.AutopilotAimsChallengeGates = t.Rules.AllChallengeGates;
             if (t.Ghost)
                 session.GhostTemplate = new NightSignal.Core.Ghosts.GhostHeader
                 {
@@ -90,9 +92,11 @@ namespace NightSignal.Tests
                 Banked = me.Drift.BankedRaw, Earned = me.Drift.EarnedRaw, Zones = session.Sim.Drift.Zones.Count, ZonesBanked = me.Drift.ZonesBanked.Count,
                 Walls = me.Progress.WallIncidents, Resets = me.Progress.Resets, Handbrake = me.Progress.HandbrakeSeconds, OffPaved = me.Progress.OffPavedSeconds,
                 Ghost = session.PlayerGhost,
+                GatesTouched = me.GateRun != null && me.GateRun.AllTouched(t.Challenge),
                 OffPavedWhere = string.Join(", ", me.Progress.OffPavedAt.Select(v => $"{v.x:F0} m lateral {v.y:F2} of {v.z * 0.5f:F2}")),
                 Surface = session.Rules.Surface ?? CourseRuntime.Active?.Route?.Surface ?? "dry",
             };
+            OfflineRaceSession.AutopilotAimsChallengeGates = false;
             UnityEngine.Object.Destroy(go);
             yield return null;
             done(f);
@@ -142,6 +146,9 @@ namespace NightSignal.Tests
                 if (best.TimeMs <= 0) { problems.Add($"{t.Id}: the reference did not finish"); continue; }
                 if (t.Rules.NoHandbrake && best.Handbrake > 0f) { problems.Add($"{t.Id}: the reference used the handbrake"); continue; }
                 if (t.Loaner.PiCap > 0 && pi.Value > t.Loaner.PiCap) { problems.Add($"{t.Id}: PI {pi.Value} over the cap"); continue; }
+                if (t.Rules.AllChallengeGates) report.AppendLine($"marked gates ({t.Challenge}) all touched: {best.GatesTouched}");
+                if (t.Rules.AllChallengeGates && !best.GatesTouched) problems.Add($"{t.Id}: the reference missed a marked gate (the rule stays; a person must do better)");
+                if (t.Rules.NoReset && best.Resets > 0) problems.Add($"{t.Id}: the reference reset (the rule stays; a person must do better)");
                 if (best.Resets > 0) report.AppendLine($"(the cleanest reference still reset {best.Resets} time(s): its time includes them)");
                 t.Targets.TimeMs = t.JudgesTime ? (long)Math.Ceiling(TimeFactor(t.Tier) * best.TimeMs / 100.0) * 100 : 0;
                 t.Targets.ReferenceEdgeMargin = best.Margin;

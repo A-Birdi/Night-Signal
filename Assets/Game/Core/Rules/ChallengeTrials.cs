@@ -25,6 +25,8 @@ namespace NightSignal.Core.Rules
         public bool BankEveryZone;
         /// <summary>All four tyres on the paved road the whole run (CH13): a shoulder touch fails the trial, not the race.</summary>
         public bool AllTyresPaved;
+        /// <summary>Every route gate tagged with the trial's challenge touched (CH15: the three final-sector apex gates on C25).</summary>
+        public bool AllChallengeGates;
     }
 
     /// <summary>Published targets (measured, see the file's method); 0 = not judged.</summary>
@@ -94,6 +96,9 @@ namespace NightSignal.Core.Rules
         public float HandbrakeSeconds;
         /// <summary>Seconds with a tyre beyond the paved road (on the shoulder or off it).</summary>
         public float OffPavedSeconds;
+        /// <summary>Every route gate tagged with the trial's challenge was touched, and how many there are.</summary>
+        public bool ChallengeGatesTouched;
+        public int ChallengeGates;
         public long DriftRaw;
         public int ZonesBanked, ZonesTotal;
         /// <summary>The run drove this trial's loaner (the runtime resolved it; any other car or build fails the trial).</summary>
@@ -127,6 +132,8 @@ namespace NightSignal.Core.Rules
             if (t.Rules.MaxWallImpacts >= 0)
                 Check(f.WallImpacts <= t.Rules.MaxWallImpacts, t.Rules.MaxWallImpacts == 0 ? $"no wall impact ({f.WallImpacts})" : $"at most {t.Rules.MaxWallImpacts} wall impact{(t.Rules.MaxWallImpacts == 1 ? "" : "s")} ({f.WallImpacts})");
             if (t.Rules.NoHandbrake) Check(f.HandbrakeSeconds <= 0f, "no handbrake after the start" + (f.HandbrakeSeconds > 0f ? $" (held {f.HandbrakeSeconds:F1} s)" : ""));
+            if (t.Rules.AllChallengeGates)
+                Check(f.ChallengeGates > 0 && f.ChallengeGatesTouched, $"every marked gate touched ({f.ChallengeGates} of them)");
             if (t.Rules.AllTyresPaved)
                 Check(f.OffPavedSeconds <= 0f, "all tyres on the paved road" + (f.OffPavedSeconds > 0f ? $" (off it {f.OffPavedSeconds:F1} s)" : ""));
             if (t.Rules.BankEveryZone) Check(f.ZonesTotal > 0 && f.ZonesBanked >= f.ZonesTotal, $"a chain banked in every judged zone ({f.ZonesBanked}/{f.ZonesTotal})");

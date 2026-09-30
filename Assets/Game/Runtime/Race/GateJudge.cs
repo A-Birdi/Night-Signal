@@ -58,6 +58,15 @@ namespace NightSignal.Race
         /// Every touch gate serving <paramref name="challenge"/> crossed, and touched on every crossing (each lap of a circuit);
         /// false when the course has none.
         /// </summary>
+        /// <summary>How many touch gates serve <paramref name="challenge"/> on this course.</summary>
+        public int Count(string challenge)
+        {
+            int n = 0;
+            for (int i = 0; i < touchChallenges.Length; i++)
+                if (touchChallenges[i] == challenge) n++;
+            return n;
+        }
+
         public bool AllTouched(string challenge)
         {
             bool any = false;
