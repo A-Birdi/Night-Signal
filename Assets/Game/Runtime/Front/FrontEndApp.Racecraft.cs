@@ -19,7 +19,9 @@ namespace NightSignal.Front
         /// reason, samples the HUD's gap line against the judge's interval, and checks that the predicates grant CH31 / CH32
         /// exactly when the facts say so. The follow run must earn CH32. A clean pass is not required: the autopilot is a poor
         /// overtaker (it queues on the narrow road and its passes are bumps; with quicker cars on C01 it never caught the
-        /// field), so CH31's positive case rests on the EditMode judge tests. Automation, not a person.
+        /// field), so CH31's positive case rests on the EditMode judge tests. A third sprint on C02 (seven AI) follows the car
+        /// ahead at about 0.5 s and attacks only inside the hairpin's marked exit zone (CH34: a pass there, the place held to
+        /// the retain gate); the tour checks CH34 against the judge's marked-zone passes. Automation, not a person.
         /// </summary>
         IEnumerator RacecraftTour()
         {
@@ -29,10 +31,13 @@ namespace NightSignal.Front
             void Note(string n) => Debug.Log("[NightSignal.RacecraftTour] " + n);
             void Fail(string f) { failures.Add(f); Note("FAIL " + f); }
             yield return new WaitForSeconds(3f);
-            foreach ((string run, string course, string car, int cap, float hold, float follow, string wanted, int aiCount) in new[] { ("pass", "C05", "V07", 300, 8f, 0f, "", 7), ("follow", "C05", "V07", 300, 2.5f, 1.5f, "CH32", 5) })
+            foreach ((string run, string course, string car, int cap, float hold, float follow, string wanted, int aiCount) in new[]
+                     { ("pass", "C05", "V07", 300, 8f, 0f, "", 7), ("follow", "C05", "V07", 300, 2.5f, 1.5f, "CH32", 5), ("zone", "C02", "V07", 300, 2.5f, 0.5f, "", 7) })
             {
                 OfflineRaceSession.AutopilotHoldSeconds = hold;
                 OfflineRaceSession.AutopilotFollowSeconds = follow;
+                // The zone run: follow the car ahead, attack only inside C02's marked hairpin exit zone (CH34).
+                OfflineRaceSession.AutopilotAttacksMarkedZones = run == "zone";
                 var free = new RaceEventRules { Kind = "freeplay", Contact = ContactPolicy.LightContact, StageNumber = 10, CarCapPi = cap };
                 var field = Enumerable.Range(1, aiCount).Select(i => $"ai-{i}").ToList();
                 List<RaceEntrantResult> results = null;
@@ -81,6 +86,7 @@ namespace NightSignal.Front
                     yield return null;
                 }
                 OfflineRaceSession.AutopilotHoldSeconds = OfflineRaceSession.AutopilotFollowSeconds = 0f;
+                OfflineRaceSession.AutopilotAttacksMarkedZones = false;
                 RaceEntrant me = race.Player;
                 RacecraftRun r = me?.Racecraft;
                 if (results == null || me == null || r == null) { Fail($"{run}: no finished run to judge"); continue; }
@@ -89,13 +95,14 @@ namespace NightSignal.Front
                 string passes = string.Join(", ", r.CleanPasses.Select(p => $"{race.Sim.Entrants[p.Passed].Roster.DisplayName} at {p.Time:F1} s"));
                 Note($"{run} ({course}, {car} against {aiCount} AI capped at PI {cap}): {mine?.Outcome} P{(mine != null ? mine.Placement : 0)} in {(mine != null ? RaceClassification.ToReportedMillis(mine.FinishTimeMicros) / 1000.0 : 0):F1} s; " +
                      $"car contacts {me.Progress.VehicleContacts}, walls {me.Progress.WallIncidents}, resets {me.Progress.Resets}; " +
-                     $"clean passes [{passes}]; longest follow {r.FollowLongest:F1} s behind {(r.FollowLongestTarget >= 0 ? race.Sim.Entrants[r.FollowLongestTarget].Roster.DisplayName : "nobody")}; " +
+                     $"clean passes [{passes}]; marked-zone passes held to the gate [{string.Join(", ", r.ZonePasses.Select(p => $"{p.Challenge} {race.Sim.Entrants[p.Passed].Roster.DisplayName} at {p.Time:F1} s{(p.TouchFree ? "" : " (touched)")}"))}]; longest follow {r.FollowLongest:F1} s behind {(r.FollowLongestTarget >= 0 ? race.Sim.Entrants[r.FollowLongestTarget].Roster.DisplayName : "nobody")}; " +
                      $"challenges granted: {string.Join(", ", granted)}");
                 foreach (string t in trace) Note($"{run}:   {t}");
                 foreach (string l in r.PassLog)
                     Note($"{run}:   pass {System.Text.RegularExpressions.Regex.Replace(l, "#([0-9]+)", mm => race.Sim.Entrants[int.Parse(mm.Groups[1].Value)].Roster.DisplayName)}");
                 Note($"{run}: HUD gap samples {samples}, with a car ahead in reach {shown}, HUD equal to the judge {agree}, inside 1–2 s {inWindow}");
-                bool ch31 = r.CleanPasses.Count > 0, ch32 = course == "C05" && r.FollowLongest >= 8f;
+                bool ch31 = r.CleanPasses.Count > 0, ch32 = course == "C05" && r.FollowLongest >= 8f, ch34 = course == "C02" && r.ZonePasses.Any(p => p.Challenge == "CH34");
+                if (granted.Contains("CH34") != ch34) Fail($"{run}: CH34 {(ch34 ? "withheld" : "granted")} against the facts");
                 if (granted.Contains("CH31") != ch31) Fail($"{run}: CH31 {(ch31 ? "withheld" : "granted")} against the facts");
                 if (granted.Contains("CH32") != ch32) Fail($"{run}: CH32 {(ch32 ? "withheld" : "granted")} against the facts");
                 if (mine == null || mine.Outcome != RunOutcome.Finished) Fail($"{run}: did not finish");

@@ -173,8 +173,11 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
    (V-120); CH13's paved-road rule and fixed Gold ghost (V-121), CH15's marked apex gates (V-122) and the challenge-zone
    chains CH17, CH19, CH22, CH27 (V-123, judged in ordinary races — no loaner needed) are done: slice 2 is complete. CH19 is
    reached by the autopilot; CH17, CH22, CH27 are not (the drift controller runs out of road on long slides — the zone
-   tour's knobs in `OfflineRaceSession.ZoneSlide*` are where a better sustained-slide controller would start). Next: slice 3,
-   scripted AI (CH34, CH36, CH37, CH39, CH40, CH41, CH43, CH59), then fixed cups, T00 drills, workshop trials.
+   tour's knobs in `OfflineRaceSession.ZoneSlide*` are where a better sustained-slide controller would start). Slice 3:
+   CH34 is judged in ordinary C02 races (V-124, marked-zone passes in the racecraft judge). Next: racecraft trials — a
+   challenge trial with a fixed AI field (roles, grid slots, the player's slot) — for CH40 (C17 fixed race, clean
+   braking-zone overtake), CH41 (C18 six-entrant class-equalized, from last), CH36 (C10 pacing rival, outside lane), CH39
+   (C14 pressure car), CH37 (T00 merge), CH43, CH59; then fixed cups, T00 drills, workshop trials.
    `Assets/_Recovery/0.unity` is Unity's crash-recovery copy of an unsaved scene from 2026-09-29 18:10 — left untouched for
    the owner.
 0. **After any AI tendency change**: rerun `-nsCrewTelemetryTour` and `CertifyListed` for the stages whose featured

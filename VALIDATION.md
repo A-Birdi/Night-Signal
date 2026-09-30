@@ -2677,3 +2677,23 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - **Regression:** the knobs are off by default, and the built-player trial tour on the same build reproduced V-122 exactly — every one of the ten verdict lines identical (times, drift banked, zones), 8 of 10, PASS (`Evidence/challenges/zones-tour/trial-tour-regression.txt`).
 - **Limits:** no online run of these four (the online autopilot does not drive zone slides; the game server runs the same
   `RaceSimulation` step and predicates as offline).
+
+## V-124 — CH34: a pass in C02's marked hairpin exit zone, held to the gate (spec §11) (2026-09-30)
+- Revision: `27dc764` (judge, predicate, tests) and the tour run committed with this entry; the player build of that tree.
+- **What:** C02's route already marks the hairpin's exit (`C02-HP4-EXIT`, overtake zone 2584–2681 m, CH34) and the retain
+  gate (`C02-HP4-RETAIN`, 2766 m). The racecraft judge (V-096) now keeps marked-zone passes: a pass of a live, moving car
+  (the same legal-progress pass as CH31) made inside a route overtake zone tagged with a challenge — not on its approach —
+  that stands once this car crosses that challenge's retain gate still ahead, neither car recovering in between; whether
+  the car touched another car from 2 s before the pass to the gate is kept too (CH40 will need it; CH34 does not ask for a
+  clean pass). **CH34** is granted after a finish on C02 in any race with live opponents, online (the game server runs the
+  same judge) and offline. No trial: the predicate names no loaner or fixed field.
+- **Tests:** EditMode `ZonePassTests` on the real C02 route (a pass at ~2660 m held past 2766 m → CH34, not on C05; a pass
+  on the approach at ~2540 m → none; the place taken back before the gate → none; the passed car recovering before the
+  gate → none; a touch just before the pass → CH34 kept, the touch recorded) and the V-096 `RacecraftJudgeTests` — 14 of 14.
+- **Built player (`Tools/run/tour.ps1 -Tour RacecraftTour`, new one-tour launcher with isolated prefs and profile):**
+  **PASS.** A third sprint on C02 (V07 against seven AI at PI 300) followed the car ahead at ~0.5 s and was allowed to
+  attack only inside the marked exit zone (`AutopilotAttacksMarkedZones`, automation only); it finished P3 but made no
+  pass there — the autopilot's own traffic logic keeps it behind (V-096 already found it a poor overtaker) — so CH34 was
+  withheld, as the judge's facts say. The two C05 runs reproduced V-096 exactly (P6 in 147.3 s, 7 car contacts; the follow
+  run P2 in 133.8 s, CH32). CH34's positive case rests on the EditMode judge tests, as CH31's does.
+  `Evidence/courses/racecraft/racecraft-tour-ch34.txt`.

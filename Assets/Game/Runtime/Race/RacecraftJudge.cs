@@ -149,6 +149,9 @@ namespace NightSignal.Race
         float RouteDistance(float raceDistance) =>
             track != null && track.ClosedLoop ? Mathf.Repeat(raceDistance + track.StartMetres, track.LengthMetres) : raceDistance;
 
+        /// <summary>Whether a legal race distance lies inside a marked overtake zone (automation: where the zone tour's autopilot attacks).</summary>
+        public bool InPassZone(float raceDistance) => passZones.Count > 0 && PassZoneAt(RouteDistance(raceDistance)) != null;
+
         /// <summary>The challenge of the marked overtake zone at a route distance, or null.</summary>
         string PassZoneAt(float routeDistance)
         {

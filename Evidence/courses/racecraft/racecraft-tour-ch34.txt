@@ -1,0 +1,46 @@
+# -nsRacecraftTour (built player of the CH34 source, Tools/run/tour.ps1: isolated prefs and profile, 1280x720 window; validator autopilot; automation) — V-124
+[NightSignal.RacecraftTour] pass (C05, V07 against 7 AI capped at PI 300): Finished P6 in 147.3 s; car contacts 7, walls 2, resets 0; clean passes []; marked-zone passes held to the gate []; longest follow 39.3 s behind Driver AI-4; challenges granted: CH32
+[NightSignal.RacecraftTour] pass:   5s: ahead Driver AI-3 interval 3.89 / HUD "GAP AHEAD  3.9 s  Driver AI-3"
+[NightSignal.RacecraftTour] pass:   10s: ahead Driver AI-2 interval -1.00 / HUD ""
+[NightSignal.RacecraftTour] pass:   15s: ahead Driver AI-2 interval 0.89 / HUD "GAP AHEAD  0.9 s  Driver AI-2"
+[NightSignal.RacecraftTour] pass:   20s: ahead Driver AI-2 interval 0.26 / HUD "GAP AHEAD  0.3 s  Driver AI-2"
+[NightSignal.RacecraftTour] pass:   25s: ahead Driver AI-2 interval 0.26 / HUD "GAP AHEAD  0.3 s  Driver AI-2"
+[NightSignal.RacecraftTour] pass:   30s: ahead Driver AI-2 interval 0.21 / HUD "GAP AHEAD  0.2 s  Driver AI-2"
+[NightSignal.RacecraftTour] pass:   35s: ahead Driver AI-4 interval 1.52 / HUD "GAP AHEAD  1.5 s  Driver AI-4"
+[NightSignal.RacecraftTour] pass:   40s: ahead Driver AI-4 interval 0.28 / HUD "GAP AHEAD  0.3 s  Driver AI-4"
+[NightSignal.RacecraftTour] pass:   45s: ahead Driver AI-4 interval 0.79 / HUD "GAP AHEAD  0.8 s  Driver AI-4"
+[NightSignal.RacecraftTour] pass:   50s: ahead Driver AI-4 interval 1.11 / HUD "GAP AHEAD  1.1 s  Driver AI-4"
+[NightSignal.RacecraftTour] pass:   55s: ahead Driver AI-4 interval 0.87 / HUD "GAP AHEAD  0.9 s  Driver AI-4"
+[NightSignal.RacecraftTour] pass:   60s: ahead Driver AI-4 interval 0.28 / HUD "GAP AHEAD  0.3 s  Driver AI-4"
+[NightSignal.RacecraftTour] pass:   pass 33.4 s: passed Driver AI-2 0.0 s after a touch — not clean
+[NightSignal.RacecraftTour] pass: HUD gap samples 295, with a car ahead in reach 276, HUD equal to the judge 276, inside 1–2 s 109
+[NightSignal.RacecraftTour] follow (C05, V07 against 5 AI capped at PI 300): Finished P2 in 133.8 s; car contacts 2, walls 0, resets 0; clean passes []; marked-zone passes held to the gate []; longest follow 15.5 s behind Driver AI-3; challenges granted: CH33, CH32, CH06
+[NightSignal.RacecraftTour] follow:   5s: ahead Driver AI-3 interval 2.10 / HUD "GAP AHEAD  2.1 s  Driver AI-3"
+[NightSignal.RacecraftTour] follow:   10s: ahead Driver AI-3 interval 1.77 / HUD "GAP AHEAD  1.8 s  Driver AI-3"
+[NightSignal.RacecraftTour] follow:   15s: ahead Driver AI-3 interval 1.42 / HUD "GAP AHEAD  1.4 s  Driver AI-3"
+[NightSignal.RacecraftTour] follow:   20s: ahead Driver AI-3 interval 1.62 / HUD "GAP AHEAD  1.6 s  Driver AI-3"
+[NightSignal.RacecraftTour] follow:   25s: ahead Driver AI-1 interval 2.64 / HUD "GAP AHEAD  2.6 s  Driver AI-1"
+[NightSignal.RacecraftTour] follow:   30s: ahead Driver AI-1 interval 2.67 / HUD "GAP AHEAD  2.7 s  Driver AI-1"
+[NightSignal.RacecraftTour] follow:   35s: ahead Driver AI-1 interval 2.65 / HUD "GAP AHEAD  2.6 s  Driver AI-1"
+[NightSignal.RacecraftTour] follow:   40s: ahead Driver AI-1 interval 2.62 / HUD "GAP AHEAD  2.6 s  Driver AI-1"
+[NightSignal.RacecraftTour] follow:   45s: ahead Driver AI-1 interval 2.68 / HUD "GAP AHEAD  2.7 s  Driver AI-1"
+[NightSignal.RacecraftTour] follow:   50s: ahead Driver AI-1 interval 2.68 / HUD "GAP AHEAD  2.7 s  Driver AI-1"
+[NightSignal.RacecraftTour] follow:   55s: ahead Driver AI-1 interval 2.68 / HUD "GAP AHEAD  2.7 s  Driver AI-1"
+[NightSignal.RacecraftTour] follow:   60s: ahead Driver AI-1 interval 2.69 / HUD "GAP AHEAD  2.7 s  Driver AI-1"
+[NightSignal.RacecraftTour] follow:   pass 23.7 s: passed Driver AI-3 standing — not raced
+[NightSignal.RacecraftTour] follow: HUD gap samples 268, with a car ahead in reach 259, HUD equal to the judge 259, inside 1–2 s 37
+[NightSignal.RacecraftTour] zone (C02, V07 against 7 AI capped at PI 300): Finished P3 in 142.9 s; car contacts 3, walls 0, resets 0; clean passes []; marked-zone passes held to the gate []; longest follow 36.9 s behind Driver AI-3; challenges granted: CH33, CH04
+[NightSignal.RacecraftTour] zone:   5s: ahead Driver AI-3 interval 1.56 / HUD "GAP AHEAD  1.6 s  Driver AI-3"
+[NightSignal.RacecraftTour] zone:   10s: ahead Driver AI-3 interval 1.23 / HUD "GAP AHEAD  1.2 s  Driver AI-3"
+[NightSignal.RacecraftTour] zone:   15s: ahead Driver AI-3 interval 0.89 / HUD "GAP AHEAD  0.9 s  Driver AI-3"
+[NightSignal.RacecraftTour] zone:   20s: ahead Driver AI-3 interval 1.58 / HUD "GAP AHEAD  1.6 s  Driver AI-3"
+[NightSignal.RacecraftTour] zone:   25s: ahead Driver AI-3 interval 1.60 / HUD "GAP AHEAD  1.6 s  Driver AI-3"
+[NightSignal.RacecraftTour] zone:   30s: ahead Driver AI-3 interval 1.62 / HUD "GAP AHEAD  1.6 s  Driver AI-3"
+[NightSignal.RacecraftTour] zone:   35s: ahead Driver AI-3 interval 1.52 / HUD "GAP AHEAD  1.5 s  Driver AI-3"
+[NightSignal.RacecraftTour] zone:   40s: ahead Driver AI-3 interval 1.35 / HUD "GAP AHEAD  1.3 s  Driver AI-3"
+[NightSignal.RacecraftTour] zone:   45s: ahead Driver AI-3 interval 1.51 / HUD "GAP AHEAD  1.5 s  Driver AI-3"
+[NightSignal.RacecraftTour] zone:   50s: ahead Driver AI-3 interval 1.29 / HUD "GAP AHEAD  1.3 s  Driver AI-3"
+[NightSignal.RacecraftTour] zone:   55s: ahead Driver AI-3 interval 0.96 / HUD "GAP AHEAD  1.0 s  Driver AI-3"
+[NightSignal.RacecraftTour] zone:   60s: ahead Driver AI-3 interval 1.21 / HUD "GAP AHEAD  1.2 s  Driver AI-3"
+[NightSignal.RacecraftTour] zone: HUD gap samples 286, with a car ahead in reach 282, HUD equal to the judge 282, inside 1–2 s 109
+[NightSignal.RacecraftTour] PASS

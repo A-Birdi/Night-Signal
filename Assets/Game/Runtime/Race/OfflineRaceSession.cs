@@ -54,6 +54,8 @@ namespace NightSignal.Race
         public static float AutopilotHoldSeconds;
         /// <summary>Automation only: the autopilot keeps about this interval (s) behind the car ahead; 0 = it races normally.</summary>
         public static float AutopilotFollowSeconds;
+        /// <summary>Automation only: with <see cref="AutopilotFollowSeconds"/>, the autopilot stops holding back inside a marked overtake zone (CH34's hairpin exit) and races.</summary>
+        public static bool AutopilotAttacksMarkedZones;
         public int CountdownTicks = 60 * 3;
 
         public RaceSimulation Sim { get; private set; }
@@ -267,7 +269,8 @@ namespace NightSignal.Race
                 if (tick < Sim.StartTick + (int)(AutopilotHoldSeconds * VehicleSimulation.TickRate)) return DriverInput.Quantize(0f, 0f, 1f, InputButtons.None);
                 DriverInput d = pilot.Drive(e.State, Sim.TrafficFor(e));
                 RacecraftRun rc = e.Racecraft;
-                if (AutopilotFollowSeconds > 0f && rc != null && rc.Ahead >= 0 && rc.Interval >= 0f && rc.Interval < AutopilotFollowSeconds)
+                bool attack = AutopilotAttacksMarkedZones && Sim.Racecraft != null && Sim.Racecraft.InPassZone(e.Progress.RaceDistance);
+                if (!attack && AutopilotFollowSeconds > 0f && rc != null && rc.Ahead >= 0 && rc.Interval >= 0f && rc.Interval < AutopilotFollowSeconds)
                 {
                     // Closer than wanted: ease off, lift, then brake gently (the route follower still steers).
                     float close = AutopilotFollowSeconds - rc.Interval;
