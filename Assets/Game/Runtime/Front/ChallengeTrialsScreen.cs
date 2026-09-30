@@ -159,6 +159,11 @@ namespace NightSignal.Front
             if (t.Rules.NoCarContact) said.Add("no car-to-car contact");
             if (t.Rules.NoCheckpointCut) said.Add("no checkpoint cut");
             if (t.Rules.AllDefenceZones) said.Add("every marked defence gate inside the legal corridor");
+            if (t.Rules.AllChallengeGates && t.IsDrill)
+            {
+                said.Remove("every marked gate touched");
+                said.Add("every marked turn-in apex touched on every lap");
+            }
             string field = t.IsRace
                 ? $"A race against a fixed field of {t.Field.Count}: {string.Join(", ", t.Field.GroupBy(c => c.Car).Select(g => $"{g.Count()} × {cat.Car(g.Key).Name}"))}" +
                   (t.PlayerStartsLast ? "; you start last" : "")
@@ -167,6 +172,10 @@ namespace NightSignal.Front
             rules.text = field + "; your garage and upgrades are not used" + (said.Count > 0 ? "; " + string.Join(", ", said) : "") + ".";
             var goals = new List<string>();
             if (t.Rules.Win) goals.Add("win");
+            if (t.Rules.ChallengeExits)
+                goals.Add(t.Targets.ExitFloors.Count > 0 && t.Targets.ExitFloors.All(x => x.Kmh > 0f)
+                    ? "exits: " + string.Join(", ", t.Targets.ExitFloors.Select(x => $"{x.Gate} at least {x.Kmh:F1} km/h"))
+                    : "exit floors not published yet");
             if (t.IsCup)
                 goals.Add(t.LegFactor <= 0 ? "finish every leg"
                     : t.Legs.All(l => l.TimeMs > 0) ? "each leg inside its time: " + string.Join(", ", t.Legs.Select(l => $"{l.Course} {l.TimeMs / 60000}:{l.TimeMs / 1000 % 60:00}.{l.TimeMs % 1000 / 100}"))

@@ -144,6 +144,11 @@ namespace NightSignal.AI
         public IReadOnlyList<RouteGateDef> ApexGates;
         const float ApexBlendMetres = 40f;
         /// <summary>
+        /// Holds each marked apex gate's line this far past the gate before blending out (0 = none, the tuned line): automation's
+        /// drills, where the car must actually be at the marked offset as it crosses the gate on a long bend (CH53).
+        /// </summary>
+        public float ApexHoldMetres;
+        /// <summary>
         /// Marked zones whose line the driver holds from start to end (automation: the zone tour's challenge zones — a drifter
         /// enters from the marked line, not the apex): blended in over <see cref="ApexBlendMetres"/> before each; later entries
         /// override earlier ones where they overlap. Null: race the ordinary line.
@@ -447,7 +452,10 @@ namespace NightSignal.AI
             if (ApexGates != null)
                 foreach (RouteGateDef g in ApexGates)
                 {
-                    float from = Mathf.Abs(distance - g.StartMetres);
+                    // Blended in over ApexBlendMetres before the gate and out after it — after holding the gate's line for
+                    // ApexHoldMetres past it (0: none), so the aim point, which runs ahead of the car, still carries it at the gate.
+                    float past = distance - g.StartMetres;
+                    float from = past <= 0f ? Mathf.Abs(past) : ApexHoldMetres > 0f ? Mathf.Max(0f, past - ApexHoldMetres) : past;
                     if (from < ApexBlendMetres) lateral = Mathf.Lerp(lateral, Mathf.Clamp(g.LineOffset, -half, half), 1f - from / ApexBlendMetres);
                 }
             return s.Position + s.Right * lateral;

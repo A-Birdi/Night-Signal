@@ -43,6 +43,8 @@ namespace NightSignal.Race
         /// <summary>Measurement only: the autopilot drives as this rival (its profile at <see cref="AutopilotRivalStage"/>) instead of the validator.</summary>
         public string AutopilotRival;
         public int AutopilotRivalStage = 1;
+        /// <summary>The autopilot's corner-speed pace (0 = the validator's own; replaying a drill's reference).</summary>
+        public float AutopilotPaceScale;
         /// <summary>The margin the autopilot's line keeps from the road's edge (0 = the validator's own; a trial that keeps every tyre paved).</summary>
         public float AutopilotEdgeMargin;
         /// <summary>Automation only: the validator autopilot steers through the course's challenge touch gates (CH03, CH06).</summary>
@@ -63,6 +65,8 @@ namespace NightSignal.Race
         public static bool AutopilotAttacksMarkedZones;
         /// <summary>Automation only: the autopilot drives each challenge-tagged lane on its marked line (CH36's outside lane).</summary>
         public static bool AutopilotHoldsMarkedLanes;
+        /// <summary>Automation only: the autopilot holds each marked apex's line this far past the gate (drills; 0 = the tuned line).</summary>
+        public static float AutopilotApexHoldMetres;
         public int CountdownTicks = 60 * 3;
 
         public RaceSimulation Sim { get; private set; }
@@ -183,6 +187,7 @@ namespace NightSignal.Race
             pilotProfile.DriftSkill = AutopilotDriftSkill;
             pilotProfile.NoHandbrake = AutopilotNoHandbrake;
             pilotProfile.EdgeMargin = AutopilotEdgeMargin;
+            if (AutopilotPaceScale > 0f) pilotProfile.PaceScale = AutopilotPaceScale;
             pilot = new RouteFollower(course.Track, Player.Params, pilotProfile)
             {
                 DriftZones = AutopilotDrivesChallengeZones && Sim.ZoneChains != null ? Sim.ZoneChains.AutopilotSpans() : Sim.DriftZonesForAi,
@@ -191,6 +196,7 @@ namespace NightSignal.Race
                     : AutopilotHoldsMarkedLanes ? course.Track.Gates.Where(g => g.Kind == "lane" && !string.IsNullOrEmpty(g.Challenge)).ToList() : null,
                 ResetWhenStuck = true, SurfaceGrip = CourseRuntime.SurfaceGrip(Rules.Surface),
             };
+            pilot.ApexHoldMetres = AutopilotApexHoldMetres;
             if (AutopilotDrivesChallengeZones)
             {
                 // Sustained slides: a shallower target in the middle of CH19's band and slip-rate damping against overshoot.

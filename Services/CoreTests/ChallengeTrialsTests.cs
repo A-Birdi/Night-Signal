@@ -29,8 +29,8 @@ public sealed class ChallengeTrialsTests
     public void TheAuthoredTrials_LoadIntoTheHashedCatalogue_OnePerChallengeOrOneGroup()
     {
         Assert.Contains(ContentCatalogue.AuthoredFiles, f => f == "challenge-trials.json");
-        Assert.Equal(24, Trials.Trials.Count);
-        Assert.Equal(new[] { "CH11", "CH13", "CH14", "CH15", "CH25", "CH28", "CH30", "CH36", "CH39", "CH40", "CH41", "CH42", "CH43", "CH51", "CH52", "CH54", "CH55", "CH58", "CH69", "CH72" }, Trials.Trials.Select(t => t.Challenge).Distinct().OrderBy(c => c));
+        Assert.Equal(26, Trials.Trials.Count);
+        Assert.Equal(new[] { "CH11", "CH13", "CH14", "CH15", "CH25", "CH28", "CH30", "CH36", "CH39", "CH40", "CH41", "CH42", "CH43", "CH51", "CH52", "CH53", "CH54", "CH55", "CH58", "CH69", "CH72" }, Trials.Trials.Select(t => t.Challenge).Distinct().OrderBy(c => c));
         ChallengeTrialDef ch36 = Trials.Find("TR-CH36")!;
         Assert.True(ch36.IsRace && ch36.Rules.ZonePassRole == "pacing" && ch36.Field.Single().Role == "pacing");
         // The racecraft trials: fixed fields in the loaner's class, the player starting last.
@@ -61,6 +61,12 @@ public sealed class ChallengeTrialsTests
         Assert.All(sections, t => Assert.True(t.Course == "T00" && t.Group == t.Challenge && t.JudgesTime
             && t00Gates.TryGetValue(t.SectionStartGate, out string? a) && a == t.Challenge && t00Gates.TryGetValue(t.SectionEndGate, out string? b) && b == t.Challenge, t.Id));
         Assert.Equal(new[] { "FWD", "RWD", "AWD" }, sections.Where(t => t.Challenge == "CH58").Select(t => Cat.Car(t.Loaner.Car).Drive));
+        // CH53: two diff setups of one car, each a drill on C03's marked apexes and exits.
+        List<ChallengeTrialDef> diffs = Trials.Trials.Where(t => t.Challenge == "CH53").ToList();
+        Assert.Equal(2, diffs.Count);
+        Assert.All(diffs, t => Assert.True(t.IsDrill && t.Group == "CH53" && t.Rules.AllChallengeGates && t.Rules.ChallengeExits && t.Loaner.Car == "V05"
+            && t.Targets.ExitFloors.Select(x => x.Gate).SequenceEqual(new[] { "C03-DIFF-EXIT-1", "C03-DIFF-EXIT-2" })));
+        Assert.NotEqual(diffs[0].Loaner.Parts.GetValueOrDefault("differential"), diffs[1].Loaner.Parts.GetValueOrDefault("differential"));
         Assert.True(Trials.Find("TR-CH15")!.Rules.AllChallengeGates && Trials.Find("TR-CH15")!.Rules.NoReset);
         Assert.True(Trials.Find("TR-CH13")!.Ghost && Trials.Find("TR-CH13")!.Rules.AllTyresPaved); // the fixed Gold ghost, tyres on the paved road
         Assert.Equal(2, Trials.ForChallenge("CH54").Count);
@@ -170,6 +176,18 @@ public sealed class ChallengeTrialsTests
         Assert.True(TrialJudge.Judge(timed, Run(timeMs: 200_000) with { SectionMs = 29_000 }).Passed, "the section's time, not the finish");
         Assert.False(TrialJudge.Judge(timed, Run(timeMs: 20_000) with { SectionMs = 31_000 }).Passed);
         Assert.Contains("T00-CFG1-START to T00-CFG1-END faster than 0:30.000 (not driven)", TrialJudge.Judge(timed, Run()).Summary);
+
+        var drill = new ChallengeTrialDef { Id = "TR-D", Challenge = "CH53", Course = "C03", Kind = "drill", Loaner = new TrialLoaner { Car = "V05" },
+            Rules = new TrialRules { AllChallengeGates = true, ChallengeExits = true },
+            Targets = new TrialTargets { ExitFloors = { new TrialExitFloor { Gate = "E1", Kmh = 80f }, new TrialExitFloor { Gate = "E2", Kmh = 90f } } } };
+        TrialRunFacts Exits(float e1, float e2) => Run() with { ChallengeGates = 2, ChallengeGatesTouched = true, ExitGates = new[] { "E1", "E2" }, ExitKmh = new[] { e1, e2 } };
+        Assert.True(drill.Published);
+        Assert.True(TrialJudge.Judge(drill, Exits(81f, 95f)).Passed, "no time target: the gates and exits are the drill");
+        Assert.False(TrialJudge.Judge(drill, Exits(79f, 95f)).Passed);
+        Assert.False(TrialJudge.Judge(drill, Exits(81f, 95f) with { ChallengeGatesTouched = false }).Passed, "an apex missed");
+        Assert.Contains("MISSED: E2 exit at least 90.0 km/h (not crossed)", TrialJudge.Judge(drill, Run() with { ChallengeGates = 2, ChallengeGatesTouched = true, ExitGates = new[] { "E1" }, ExitKmh = new[] { 85f } }).Summary);
+        drill.Targets.ExitFloors[0].Kmh = 0f;
+        Assert.False(drill.Published, "the floors are measured first");
 
         var defended = new ChallengeTrialDef { Id = "TR-G", Challenge = "CH43", Course = "C20", Kind = "time", Loaner = new TrialLoaner { Car = "V16" },
             Rules = new TrialRules { AllDefenceZones = true }, Targets = new TrialTargets { TimeMs = 100_000 } };

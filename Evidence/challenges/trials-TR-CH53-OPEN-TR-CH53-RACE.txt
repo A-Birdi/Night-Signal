@@ -1,0 +1,33 @@
+# Challenge trial targets, measured by ChallengeTrialReferenceTests (PlayMode, explicit): each trial's loaner resolved like a
+# garage build, solo, validator autopilot, the trial's course and conditions; drift trials: the cleanest of three drift skills. Automation.
+# this run measured only: TR-CH53-OPEN, TR-CH53-RACE
+
+## TR-CH53-OPEN (CH53, silver) on C03 (dry): Shinmei Linea 20, PI 380
+time 174.220 s; banked 0 raw (earned 0) in 0/0 zones; walls 0, resets 0, handbrake 0.0 s, off the paved road 9.5 s
+  gates: C03-DIFF-APEX-1 touched 2/2 (last at 2.76 m for 3.5 ± 1.4), C03-DIFF-APEX-2 touched 0/2 (last at 0.31 m for -3.4 ± 1.4)
+edge margin 0.9 m: time 174.095 s; banked 0 raw (earned 0) in 0/0 zones; walls 0, resets 0, handbrake 0.0 s, off the paved road 9.3 s
+  gates: C03-DIFF-APEX-1 touched 2/2 (last at 2.84 m for 3.5 ± 1.4), C03-DIFF-APEX-2 touched 0/2 (last at 0.41 m for -3.4 ± 1.4)
+edge margin 0.6 m: time 174.121 s; banked 0 raw (earned 0) in 0/0 zones; walls 0, resets 0, handbrake 0.0 s, off the paved road 9.7 s
+  gates: C03-DIFF-APEX-1 touched 2/2 (last at 2.83 m for 3.5 ± 1.4), C03-DIFF-APEX-2 touched 0/2 (last at 0.49 m for -3.4 ± 1.4)
+pace 0.95: time 178.275 s; banked 0 raw (earned 0) in 0/0 zones; walls 0, resets 0, handbrake 0.0 s, off the paved road 5.9 s  ← used
+  gates: C03-DIFF-APEX-1 touched 2/2 (last at 2.97 m for 3.5 ± 1.4), C03-DIFF-APEX-2 touched 2/2 (last at -1.43 m for -3.4 ± 1.4)
+marked gates (CH53) all touched: True — C03-DIFF-APEX-1 touched 2/2 (last at 2.97 m for 3.5 ± 1.4), C03-DIFF-APEX-2 touched 2/2 (last at -1.43 m for -3.4 ± 1.4)
+C03-DIFF-EXIT-1: slowest exit 128.9 km/h → floor 122.4
+C03-DIFF-EXIT-2: slowest exit 102.1 km/h → floor 96.9
+→ 
+
+## TR-CH53-RACE (CH53, silver) on C03 (dry): Shinmei Linea 20 DIF-T3-RWD-RACE, PI 381
+time 174.081 s; banked 0 raw (earned 0) in 0/0 zones; walls 0, resets 0, handbrake 0.0 s, off the paved road 6.9 s
+  gates: C03-DIFF-APEX-1 touched 2/2 (last at 2.77 m for 3.5 ± 1.4), C03-DIFF-APEX-2 touched 0/2 (last at 0.28 m for -3.4 ± 1.4)
+edge margin 0.9 m: time 174.056 s; banked 0 raw (earned 0) in 0/0 zones; walls 0, resets 0, handbrake 0.0 s, off the paved road 9.3 s
+  gates: C03-DIFF-APEX-1 touched 2/2 (last at 2.83 m for 3.5 ± 1.4), C03-DIFF-APEX-2 touched 0/2 (last at 0.47 m for -3.4 ± 1.4)
+edge margin 0.6 m: time 174.078 s; banked 0 raw (earned 0) in 0/0 zones; walls 0, resets 0, handbrake 0.0 s, off the paved road 9.6 s
+  gates: C03-DIFF-APEX-1 touched 2/2 (last at 2.84 m for 3.5 ± 1.4), C03-DIFF-APEX-2 touched 0/2 (last at 0.50 m for -3.4 ± 1.4)
+pace 0.95: time 178.260 s; banked 0 raw (earned 0) in 0/0 zones; walls 0, resets 0, handbrake 0.0 s, off the paved road 6.1 s  ← used
+  gates: C03-DIFF-APEX-1 touched 2/2 (last at 2.97 m for 3.5 ± 1.4), C03-DIFF-APEX-2 touched 2/2 (last at -1.42 m for -3.4 ± 1.4)
+marked gates (CH53) all touched: True — C03-DIFF-APEX-1 touched 2/2 (last at 2.97 m for 3.5 ± 1.4), C03-DIFF-APEX-2 touched 2/2 (last at -1.42 m for -3.4 ± 1.4)
+C03-DIFF-EXIT-1: slowest exit 128.9 km/h → floor 122.4
+C03-DIFF-EXIT-2: slowest exit 102.0 km/h → floor 96.9
+→ 
+
+# every trial measured

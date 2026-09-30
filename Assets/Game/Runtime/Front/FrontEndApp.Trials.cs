@@ -18,6 +18,8 @@ namespace NightSignal.Front
         bool pendingAutopilotNoHandbrake;
         /// <summary>The autopilot's edge margin in the next offline race (0 = the validator's own; replaying a trial's reference).</summary>
         float pendingAutopilotEdgeMargin;
+        /// <summary>The autopilot's pace in the next offline race (0 = the validator's own; replaying a drill's reference).</summary>
+        float pendingAutopilotPaceScale;
 
         /// <summary>Starts a challenge trial (docs/CHALLENGE_TRIALS.md) in its supplied loaner; the result returns to <paramref name="returnTo"/>.</summary>
         public void StartTrial(ChallengeTrialDef trial, UIScreen returnTo)
@@ -140,7 +142,9 @@ namespace NightSignal.Front
                     pendingAutopilotDriftSkill = skill;
                     pendingAutopilotNoHandbrake = t.Rules.NoHandbrake;
                     pendingAutopilotEdgeMargin = t.Targets.ReferenceEdgeMargin;
+                    pendingAutopilotPaceScale = t.Targets.ReferencePaceScale;
                     OfflineRaceSession.AutopilotAimsChallengeGates = t.Rules.AllChallengeGates;
+                    OfflineRaceSession.AutopilotApexHoldMetres = t.IsDrill ? 30f : 0f; // as a drill's reference was measured
                     // A marked overtake (CH40): follow the car ahead and attack only inside the marked zone, as the racecraft tour does.
                     bool zonePass = t.Rules.CleanZonePass || !string.IsNullOrEmpty(t.Rules.ZonePassRole);
                     OfflineRaceSession.AutopilotFollowSeconds = zonePass ? 0.5f : 0f;
@@ -179,6 +183,7 @@ namespace NightSignal.Front
                     OfflineRaceSession.AutopilotFollowSeconds = 0f;
                     OfflineRaceSession.AutopilotAttacksMarkedZones = false;
                     OfflineRaceSession.AutopilotHoldsMarkedLanes = false;
+                    OfflineRaceSession.AutopilotApexHoldMetres = 0f;
                     v = LocalEvents.LastTrialVerdict;
                     if (v == null) { Fail(t.Id + " was not judged"); break; }
                     Note($"{t.Id} ({t.Challenge} {t.Tier}){(t.JudgesDrift ? $" at drift skill {skill:F2}{(skill == refSkill ? " (the reference's)" : "")}" : "")}: " +

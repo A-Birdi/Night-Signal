@@ -608,6 +608,9 @@ namespace NightSignal.Net
                         DefenceZonesKept = c.Entrant.GateRun != null && c.Entrant.GateRun.DefenceKept(trialDef.Challenge),
                         DefenceZones = c.Entrant.GateRun?.DefenceCount(trialDef.Challenge) ?? 0,
                         SectionMs = c.Entrant.SectionMicros > 0 ? c.Entrant.SectionMicros / 1000 : 0,
+                        ExitGates = trialDef.Targets.ExitFloors.Select(x => x.Gate).Where(g => c.Entrant.GateRun?.SpeedFact(g)?.Crossed == true).ToArray(),
+                        ExitKmh = trialDef.Targets.ExitFloors.Select(x => x.Gate).Where(g => c.Entrant.GateRun?.SpeedFact(g)?.Crossed == true)
+                            .Select(g => c.Entrant.GateRun.SpeedFact(g).Value.SpeedKmh).ToArray(),
                         Placement = c.Outcome == RunOutcome.Finished ? c.Placement : 0,
                         CarContacts = c.Entrant.Progress.VehicleContacts,
                         CheckpointCut = c.Entrant.Progress.CorridorCut,

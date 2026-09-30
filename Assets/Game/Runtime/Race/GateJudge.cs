@@ -13,6 +13,8 @@ namespace NightSignal.Race
         public float LastDistance = -1f;
         /// <summary>Per touch gate (apex / precision), in route order: times the car crossed it, and times its body was in the band.</summary>
         public readonly int[] Passes, Touches;
+        /// <summary>Per touch gate: the car's offset from the centreline at its last crossing (m, + = right; diagnostics).</summary>
+        public readonly float[] LastLateral;
         /// <summary>Per lane zone: inside now (entered over its start), passes completed over its end, and the margin never broken.</summary>
         public readonly bool[] LaneInside, LaneMarginKept;
         public readonly int[] LanePasses;
@@ -77,6 +79,7 @@ namespace NightSignal.Race
             this.laneChallenges = laneChallenges;
             Passes = new int[touchChallenges.Length];
             Touches = new int[touchChallenges.Length];
+            LastLateral = new float[touchChallenges.Length];
             LaneInside = new bool[laneChallenges.Length];
             LanePasses = new int[laneChallenges.Length];
             LaneMarginKept = Enumerable.Repeat(true, laneChallenges.Length).ToArray();
@@ -210,6 +213,7 @@ namespace NightSignal.Race
                 if (Crossed(touches[i].StartMetres))
                 {
                     r.Passes[i]++;
+                    r.LastLateral[i] = lateral;
                     if (Mathf.Abs(lateral - touches[i].LineOffset) <= touches[i].LineTolerance + halfWidth) r.Touches[i]++;
                 }
             float kmh = e.State.SpeedKmh;

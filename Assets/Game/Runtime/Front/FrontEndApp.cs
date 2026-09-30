@@ -1453,6 +1453,8 @@ namespace NightSignal.Front
             activeRace.AutopilotDriftSkill = pendingAutopilotDriftSkill;
             activeRace.AutopilotNoHandbrake = pendingAutopilotNoHandbrake;
             activeRace.AutopilotEdgeMargin = pendingAutopilotEdgeMargin;
+            activeRace.AutopilotPaceScale = pendingAutopilotPaceScale;
+            pendingAutopilotPaceScale = 0f;
             pendingAutopilotDriftSkill = 0f;
             pendingAutopilotNoHandbrake = false;
             pendingAutopilotEdgeMargin = 0f;

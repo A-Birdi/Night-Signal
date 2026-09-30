@@ -77,6 +77,15 @@ namespace NightSignal.Core.Rules
         public bool PressureSector;
         /// <summary>Every defence zone tagged with the challenge driven start to end inside the legal corridor (CH43's defence/exit gates).</summary>
         public bool AllDefenceZones;
+        /// <summary>Every exit-speed gate tagged with the challenge cleared at its measured floor on every pass (CH53's exit criteria).</summary>
+        public bool ChallengeExits;
+    }
+
+    /// <summary>A measured exit-speed floor at one route gate (a drill's exit criterion).</summary>
+    public sealed class TrialExitFloor
+    {
+        public string Gate = "";
+        public float Kmh;
     }
 
     /// <summary>Published targets (measured, see the file's method); 0 = not judged.</summary>
@@ -94,8 +103,16 @@ namespace NightSignal.Core.Rules
         /// the fastest wider margin that keeps them, so the target is shown reachable within its own rules.
         /// </summary>
         public float ReferenceEdgeMargin;
+        /// <summary>
+        /// The autopilot's corner-speed pace in the measured reference run (0 = the validator's own): a drill whose marked apex the
+        /// validator's pace cannot hold (CH53's long left) is measured at the fastest pace that touches every marked gate, so its
+        /// exit floors come from a run that meets the turn-in criteria too.
+        /// </summary>
+        public float ReferencePaceScale;
         /// <summary>The time through the challenge's defence zone to match (CH39's "valid Silver pace"; measured, the tier's factor).</summary>
         public long SectorTimeMs;
+        /// <summary>Exit-speed floors at the challenge's exit gates (a drill's exit criteria; measured: 0.95 × the loaner's slowest exit there).</summary>
+        public List<TrialExitFloor> ExitFloors = new List<TrialExitFloor>();
     }
 
     /// <summary>One challenge trial (docs/CHALLENGE_TRIALS.md): a fixed course, loaner, rules and targets for one challenge.</summary>
@@ -110,6 +127,8 @@ namespace NightSignal.Core.Rules
         public bool JudgesTime => Kind == "time" || Kind == "time+drift";
         public bool JudgesDrift => Kind == "drift" || Kind == "time+drift";
         public bool IsRace => Kind == "race";
+        /// <summary>A drill: a solo run judged by its rules alone — gates, exits — with no time or score target (CH53's guided corners).</summary>
+        public bool IsDrill => Kind == "drill";
         /// <summary>A challenge cup: <see cref="Legs"/> run in order in the loaner, one continuous session, judged as a whole.</summary>
         public bool IsCup => Kind == "cup";
         /// <summary>A challenge cup's legs, in order (empty otherwise).</summary>
@@ -154,7 +173,8 @@ namespace NightSignal.Core.Rules
 
         /// <summary>Measured targets exist for everything this trial judges.</summary>
         public bool Published => (!JudgesTime || Targets.TimeMs > 0) && (!JudgesDrift || Targets.DriftRaw > 0) && (!Rules.PressureSector || Targets.SectorTimeMs > 0) &&
-                                 (!IsCup || LegFactor <= 0 || Legs.All(l => l.TimeMs > 0));
+                                 (!IsCup || LegFactor <= 0 || Legs.All(l => l.TimeMs > 0)) &&
+                                 (!Rules.ChallengeExits || (Targets.ExitFloors.Count > 0 && Targets.ExitFloors.All(x => x.Kmh > 0f)));
     }
 
     public sealed class ChallengeTrialsFile
@@ -210,6 +230,9 @@ namespace NightSignal.Core.Rules
         public int DefenceZones;
         /// <summary>A section trial: the first time the section was driven start to end without a reset (ms; 0 = never).</summary>
         public long SectionMs;
+        /// <summary>The slowest exit over each of the challenge's exit gates (km/h; a gate never crossed is absent).</summary>
+        public string[] ExitGates;
+        public float[] ExitKmh;
     }
 
     public sealed class TrialVerdict
@@ -249,6 +272,13 @@ namespace NightSignal.Core.Rules
                 Check(f.OffPavedSeconds <= 0f, "all tyres on the paved road" + (f.OffPavedSeconds > 0f ? $" (off it {f.OffPavedSeconds:F1} s)" : ""));
             if (t.Rules.BankEveryZone) Check(f.ZonesTotal > 0 && f.ZonesBanked >= f.ZonesTotal, $"a chain banked in every judged zone ({f.ZonesBanked}/{f.ZonesTotal})");
             if (t.Rules.AllDefenceZones) Check(f.DefenceZones > 0 && f.DefenceZonesKept, $"every marked defence gate inside the legal corridor ({f.DefenceZones} of them)");
+            if (t.Rules.ChallengeExits)
+                foreach (TrialExitFloor floor in t.Targets.ExitFloors)
+                {
+                    int i = f.ExitGates == null ? -1 : Array.IndexOf(f.ExitGates, floor.Gate);
+                    float kmh = i >= 0 && f.ExitKmh != null && i < f.ExitKmh.Length ? f.ExitKmh[i] : 0f;
+                    Check(i >= 0 && kmh >= floor.Kmh, $"{floor.Gate} exit at least {floor.Kmh:F1} km/h ({(i >= 0 ? kmh.ToString("F1") : "not crossed")})");
+                }
             if (t.Rules.CleanZonePass) Check(f.CleanZonePass, "the marked overtake, clean and held");
             if (t.Rules.PressureSector)
                 Check(f.PressureSectorMs > 0 && t.Targets.SectorTimeMs > 0 && f.PressureSectorMs <= t.Targets.SectorTimeMs,
@@ -328,7 +358,9 @@ namespace NightSignal.Core.Rules
                 if (!carExists(t.Loaner?.Car ?? "")) problems.Add($"{t.Id}: unknown loaner car {t.Loaner?.Car}");
                 if (t.Targets == null || t.Targets.TimeMs < 0 || t.Targets.DriftRaw < 0) problems.Add($"{t.Id}: negative target");
                 if (t.Rules != null && t.Rules.MaxWallImpacts < -1) problems.Add($"{t.Id}: invalid wall allowance");
-                if (!t.JudgesTime && !t.JudgesDrift && !t.IsRace && !t.IsCup) problems.Add($"{t.Id}: unknown kind {t.Kind}");
+                if (!t.JudgesTime && !t.JudgesDrift && !t.IsRace && !t.IsCup && !t.IsDrill) problems.Add($"{t.Id}: unknown kind {t.Kind}");
+                if (t.IsDrill && t.Rules != null && !(t.Rules.AllChallengeGates || t.Rules.ChallengeExits || t.Rules.AllDefenceZones))
+                    problems.Add($"{t.Id}: a drill judges nothing");
                 if (t.IsCup)
                 {
                     if (t.Legs == null || t.Legs.Count != CupTable.Legs) problems.Add($"{t.Id}: a challenge cup has {CupTable.Legs} legs");

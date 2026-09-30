@@ -275,6 +275,9 @@ namespace NightSignal.Front
                     DefenceZonesKept = me.Entrant.GateRun != null && me.Entrant.GateRun.DefenceKept(trial.Challenge),
                     DefenceZones = me.Entrant.GateRun?.DefenceCount(trial.Challenge) ?? 0,
                     SectionMs = me.Entrant.SectionMicros > 0 ? me.Entrant.SectionMicros / 1000 : 0,
+                    ExitGates = trial.Targets.ExitFloors.Select(x => x.Gate).Where(g => me.Entrant.GateRun?.SpeedFact(g)?.Crossed == true).ToArray(),
+                    ExitKmh = trial.Targets.ExitFloors.Select(x => x.Gate).Where(g => me.Entrant.GateRun?.SpeedFact(g)?.Crossed == true)
+                        .Select(g => me.Entrant.GateRun.SpeedFact(g).Value.SpeedKmh).ToArray(),
                     DriftRaw = (long)Math.Floor(me.Entrant.Drift.BankedRaw),
                     ZonesBanked = me.Entrant.Drift.ZonesBanked.Count,
                     ZonesTotal = s.Catalogue.DriftZones.TryGetValue(trial.Course, out int zones) ? zones : 0,
