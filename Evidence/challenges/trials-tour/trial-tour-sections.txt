@@ -1,0 +1,25 @@
+# -nsTrialTour -nsTrialOnly (the five Driving School section trials; built player of cae8043 via Tools/run/tour.ps1 -TrialOnly: isolated prefs and profile, 1280x720; validator autopilot; automation)
+[NightSignal.TrialTour] page 2 of 3: its first row opens TR-CH30
+[NightSignal.TrialTour] only: TR-CH52-LIGHT, TR-CH52-HEAVY, TR-CH58-FWD, TR-CH58-RWD, TR-CH58-AWD
+[NightSignal.Trial] TR-CH52-LIGHT: V07 WGT-T2-PANELS, PI 448, build 9de6fd2e3bf2, on T00 (course)
+[NightSignal.Trial] TR-CH52-LIGHT: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: T00-CMP-A-START to T00-CMP-A-END faster than 0:14.600 (0:13.183)
+[NightSignal.TrialTour] TR-CH52-LIGHT (CH52 silver): PASSED — ok: the supplied loaner · ok: a valid finish · ok: T00-CMP-A-START to T00-CMP-A-END faster than 0:14.600 (0:13.183)
+[NightSignal.TrialTour] TR-CH52-LIGHT: profile keeps it: True; challenge earned: False
+[NightSignal.Trial] TR-CH52-HEAVY: V07 stock, PI 430, build 235cbbb3bffd, on T00 (course)
+[NightSignal.Trial] TR-CH52-HEAVY: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: T00-CMP-B-START to T00-CMP-B-END faster than 0:21.400 (0:19.366)
+[NightSignal.TrialTour] TR-CH52-HEAVY (CH52 silver): PASSED — ok: the supplied loaner · ok: a valid finish · ok: T00-CMP-B-START to T00-CMP-B-END faster than 0:21.400 (0:19.366)
+[NightSignal.TrialTour] TR-CH52-HEAVY: profile keeps it: True; challenge earned: True
+[NightSignal.Trial] TR-CH58-FWD: V06 stock, PI 405, build 249f587db6f0, on T00 (course)
+[NightSignal.Trial] TR-CH58-FWD: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: T00-CFG1-START to T00-CFG1-END faster than 0:15.800 (0:15.433)
+[NightSignal.TrialTour] TR-CH58-FWD (CH58 gold): PASSED — ok: the supplied loaner · ok: a valid finish · ok: T00-CFG1-START to T00-CFG1-END faster than 0:15.800 (0:15.433)
+[NightSignal.TrialTour] TR-CH58-FWD: profile keeps it: True; challenge earned: False
+[NightSignal.Trial] TR-CH58-RWD: V05 stock, PI 380, build aa8ab98b0b40, on T00 (course)
+[NightSignal.Trial] TR-CH58-RWD: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: T00-CFG2-START to T00-CFG2-END faster than 0:16.900 (0:16.550)
+[NightSignal.TrialTour] TR-CH58-RWD (CH58 gold): PASSED — ok: the supplied loaner · ok: a valid finish · ok: T00-CFG2-START to T00-CFG2-END faster than 0:16.900 (0:16.550)
+[NightSignal.TrialTour] TR-CH58-RWD: profile keeps it: True; challenge earned: False
+[NightSignal.Trial] TR-CH58-AWD: V07 stock, PI 430, build 235cbbb3bffd, on T00 (course)
+[NightSignal.Trial] TR-CH58-AWD: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: T00-CFG3-START to T00-CFG3-END faster than 0:20.000 (0:19.516)
+[NightSignal.TrialTour] TR-CH58-AWD (CH58 gold): PASSED — ok: the supplied loaner · ok: a valid finish · ok: T00-CFG3-START to T00-CFG3-END faster than 0:20.000 (0:19.516)
+[NightSignal.TrialTour] TR-CH58-AWD: profile keeps it: True; challenge earned: True
+[NightSignal.TrialTour] 5 of 24 trials passed by the autopilot; challenges earned: CH52, CH58; wallet 38,000 cr
+[NightSignal.TrialTour] PASS

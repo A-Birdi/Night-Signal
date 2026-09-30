@@ -2788,3 +2788,21 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   reachable by automation (R32's profile out-drives the validator on damp C20). `Evidence/challenges/trials-tour/trial-tour-TR-CH43.txt`.
 - **Limits:** offline trial (online trials of this kind work like the others once published — its conditions are the
   course's own — but no online run was made).
+
+## V-129 — Driving School section trials: CH52 and CH58 (spec §11, slice 5) (2026-09-30)
+- Revision: `cae8043`, documented with the commit of this entry; the player build of `cae8043`.
+- **What:** a trial may time a **marked section** between two route gates instead of its finish (`sectionStartGate` /
+  `sectionEndGate`): the race simulation starts the clock when the car drives over the start gate and stops it over the end
+  gate — across a circuit's seam too (T00 races two laps, so T00-CFG3, 1314 m → 108 m, crosses its start line) — and a reset,
+  recovery or jump in between voids that attempt; the first clean time is judged. Trials may now run on the Driving School
+  course (Local validation still keeps T00 out of Freeplay). **CH52** (Silver, group of two): comparison route A in the
+  light variant (V07 + lightweight panels and glass, PI 448) and route B in the heavy variant (the stock V07) — the reading
+  of "both routes in supplied light/heavy tune variants" chosen here; targets 1.10 × the validator's section (14.6 s, 21.4 s).
+  **CH58** (Gold, group of three): configuration 1 in the FWD V06, 2 in the RWD V05, 3 in the AWD V07 — one car per named
+  configuration; targets 1.02 × (15.8 s, 16.9 s, 20.0 s). `Evidence/challenges/trials-TR-CH52-HEAVY-…txt`.
+- **Online:** refused for now (`trial_unsupported`: T00 is not an online course and the server does not time sections).
+- **Tests:** Core (a section's time is judged, not the finish; "not driven"; each named gate is on T00's route with the
+  challenge's tag; the three drive layouts) — Core 202; Services 369 (the online refusal).
+- **Built player (`tour.ps1 -TrialOnly`, the five):** **all five PASSED**, the section times equal to the measurement
+  (13.183 / 19.366 / 15.433 / 16.550 / 19.516 s); CH52 earned after its second trial, CH58 after its third, the profile
+  keeping each pass. `Evidence/challenges/trials-tour/trial-tour-sections.txt`.
