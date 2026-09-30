@@ -65,7 +65,8 @@ an event whose conditions are fixed by the content, not by the player's garage. 
    the cup's published factor, walls and resets summed); leaving ends the cup.
 5. T00 challenge drills and workshop trials (CH02, CH07, CH23, CH46, CH47, CH49, CH52, CH53, CH56, CH57, CH58, CH60),
    and CH74 (the six story records, then the C24 reference trial). Done: CH52/CH58 sections (V-129), CH53 (V-130), CH07
-   (V-131), CH23 (V-132, not reached), CH74 (V-133), CH49 with a manual gearbox (V-135), CH46 (V-136).
+   (V-131), CH23 (V-132, not reached), CH74 (V-133), CH49 with a manual gearbox (V-135), CH46 (V-136), CH57 (V-137), CH56
+   (V-138). CH59 is a racecraft trial with a tunable loaner (V-139).
 
 ### Tunable loaners (V-136)
 

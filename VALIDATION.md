@@ -2940,3 +2940,49 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   `04-TR-CH46-verdict.png`. `Evidence/challenges/trials-tour/trial-tour-TR-CH37-CH49-CH46.txt`.
 - **Limits:** the 20 s bar is loose for the autopilot (12.6 s); it is the lesson's published standard, kept as CH46's
   "complete the lane". The aero-level part of "aero at an end" was added after that build (Core-tested; no aero trial yet).
+
+## V-137 — CH57: C15 with a tune-budget loaner, aero not at an end (spec §11, slice 5) (2026-09-30)
+- Revision: `3fa956e` (content, tour setup), documented with the commit of this entry.
+- **What:** **TR-CH57** (Gold) on C15, damp: the V09 Crestline 26 supplied with the adjustable wing (AER-T3-GTWING), tunable,
+  free choices touring or sport tyres and coilovers, **PI budget 530**; rule `aeroNotAtExtreme` (the wing level below its top,
+  the balance inside its range). The budget binds: sport tyres alone are PI 555; touring tyres with coilovers are 531–532 and fit
+  only with the wing at its top (529) — which the aero rule forbids — so the player picks one (Core-tested). Gold measured with
+  the loaner as supplied (`MeasureChallengeTrials`, 141.415 s → **144.3 s**, 1.02 ×; `Evidence/challenges/trials-TR-CH57.txt`).
+  C15 marks its three late-apex corners but has no CH57 exit gates, so the "combined grip/exit target" is its measured Gold time
+  (the route is not edited: that would change C15's source hash).
+- **Tune the Loaner:** the tuning rows now page (**More Controls**, six a page) — a coilover alone has nine controls; the
+  tour pages to a control before its row. No tour setup has more than six controls yet, so the paging is built, not exercised.
+- **Built player (`tour.ps1 -TrialOnly TR-CH57,TR-CH46`):** as supplied **PASSED** (PI 504, 2:21.415 — the measured time
+  exactly); then Tune the Loaner by buttons: touring tyres, AeroLevel 1000 → 900, AeroBalance 440 → 450, PI 522, legal, saved —
+  **PASSED** (2:20.187); CH57 earned. TR-CH46 again PASSED with its shortened brief.
+  `Evidence/challenges/trials-tour/trial-tour-TR-CH57-CH46.txt`, `02-TR-CH57-tune-*.png`, `04-TR-CH57-verdict.png`.
+
+## V-138 — CH56: C23 inside a locked PI budget; a busy ghost file no longer ends a race's results (2026-09-30)
+- Revision: `3fa956e`, documented with the commit of this entry.
+- **What:** **TR-CH56** (Gold) on C23: the V11 Vector MR, free challenge parts — intake or exhaust, the final-drive kit or
+  close gears, sport suspension, street tyres — inside a **locked PI 615** (the exhaust alone, or the intake with street tyres,
+  go over it; Core-tested). Gold measured as supplied: 220.232 s → **224.7 s** (`Evidence/challenges/trials-TR-CH56.txt`).
+- **First built-player run:** both runs judged PASSED, but the tour **FAILED**: after the tuned run `LocalGhosts.Offer` threw
+  `IOException` ("Unable to remove the file to be replaced") from `File.Replace` of the stored C23 ghost, which ended the
+  race-finish coroutine before the results page (the profile had already saved the verdict).
+  `Evidence/challenges/trials-tour/trial-tour-TR-CH56-first.txt`. **Fix:** the ghost write falls back to a copy over the stored
+  file and, if that fails too, reports "ghost not saved" (logged) instead of throwing into the race flow.
+- **Built player (the fixed build):** as supplied **PASSED** (PI 590, 3:40.232); tuned by buttons — intake, final-drive kit,
+  FinalDrive 1040, PI 613 of 615 — **PASSED** (3:39.516); CH56 earned; no ghost error this time (the IOException did not recur,
+  so the fallback path itself was not exercised). `Evidence/challenges/trials-tour/trial-tour-TR-CH56-CH59.txt`.
+- **Limits:** the predicate says the server validates every installed parameter; tunable trials are **offline only** so far —
+  online, the control plane refuses them (`OnlineTrial`) and the game server races only the supplied loaner. Planned: the
+  setup sent with Ready, validated by the control plane with `TrialLoaners.ResolveSetup`, a per-player loaner build in the
+  assignment, and the game server filling the setup facts.
+
+## V-139 — CH59: six V10s at one PI on C19 with the player's own tune — a racecraft trial (2026-09-30)
+- Revision: `3fa956e`, documented with the commit of this entry.
+- **What:** **TR-CH59** (Gold) on C19: five stock V10 Spiral RXs ("field") and the player's V10, tunable from the provided
+  parts — the lip, a brake kit, the adjustable diff, the final-drive kit or close gears — inside **PI 580, the field's own**
+  (equal PI); win. The brake kit alone is 581 (the lip pays for it); the final drive moves PI non-monotonically (3 % shorter is
+  584, 6 % shorter 580) — Core-tested.
+- **Built player:** as supplied **PASSED** — P1 from the grid, no contact, no wall, no reset; tuned by buttons — the diff and the
+  final-drive kit, FinalDrive 1060, PI 580 — **PASSED**, P1; CH59 earned. The player does not start last (the predicate names
+  no grid), so the autopilot leads from the front; the win is shown, not a comeback.
+  `Evidence/challenges/trials-tour/trial-tour-TR-CH56-CH59.txt`. Offline only (racecraft and tunable).
+- **Tests (this block):** Core 207 (CH56, CH57, CH59 content and budgets); Services 369; all .NET suites passed at this revision.
