@@ -1,0 +1,8 @@
+# Challenge trial targets, measured by ChallengeTrialReferenceTests (PlayMode, explicit): each trial's loaner resolved like a
+# garage build, solo, validator autopilot, the trial's course and conditions; drift trials: the cleanest of three drift skills. Automation.
+# this run measured only: TR-CH39
+
+## TR-CH39 (CH39, silver) on C14: Arata Shigure GT stock, PI 430; the loaner alone through the marked sector: 26.083 s; 26.100 s
+→ silver sector pace 28.7 s (1.10 × the fastest pass)
+
+# every trial measured

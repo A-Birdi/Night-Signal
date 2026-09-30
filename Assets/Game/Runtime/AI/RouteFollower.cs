@@ -120,6 +120,8 @@ namespace NightSignal.AI
         /// the controller countersteers it through to the new side (0 = end the attempt at once, the tuned controller).
         /// </summary>
         public float TransitionGraceSeconds;
+        /// <summary>Never starts a passing move: closes up behind a slower car and stays there (a racecraft trial's pressure car).</summary>
+        public bool NoPassing;
         int reversedTicks;
         float lastAbsSlip;
 
@@ -217,6 +219,7 @@ namespace NightSignal.AI
             }
             if (ApexGates != null && ApexGates.Any(g => g.StartMetres - here.Distance > -5f && g.StartMetres - here.Distance < ApexBlendMetres + 20f))
                 wantSide = 0; // committing to a marked apex: no passing move now
+            if (NoPassing) wantSide = 0;
             if (wantSide != 0 && passHoldTicks <= 0) { passSide = wantSide; passHoldTicks = 150; }
             else if (passHoldTicks > 0) passHoldTicks--;
             else passSide = 0;

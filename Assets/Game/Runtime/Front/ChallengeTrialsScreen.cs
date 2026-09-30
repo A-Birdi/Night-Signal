@@ -166,6 +166,10 @@ namespace NightSignal.Front
             if (t.Rules.Win) goals.Add("win");
             if (t.Rules.CleanZonePass) goals.Add("make the marked overtake cleanly and keep the place");
             if (!string.IsNullOrEmpty(t.Rules.ZonePassRole)) goals.Add($"pass the {t.Rules.ZonePassRole} car through the marked lane and hold the gain");
+            if (t.Rules.PressureSector)
+                goals.Add(t.Targets.SectorTimeMs > 0
+                    ? $"the marked sector within {t.Targets.SectorTimeMs / 1000.0:F1} s with the pressure car within 1 s behind all the way, no barrier touched"
+                    : "sector pace not published yet");
             if (t.JudgesTime) goals.Add(t.Targets.TimeMs > 0 ? $"beat {t.Targets.TimeMs / 60000}:{t.Targets.TimeMs / 1000 % 60:00}.{t.Targets.TimeMs % 1000 / 100}" : "time target not published yet");
             if (t.JudgesDrift) goals.Add(t.Targets.DriftRaw > 0 ? $"bank {t.Targets.DriftRaw:N0} raw drift" : "drift target not published yet");
             targets.text = $"{(ch?.Tier ?? t.Tier)} target: {string.Join(" and ", goals)}" + (string.IsNullOrEmpty(t.Group) ? "" : "  (one of a pair: both earn the challenge)");

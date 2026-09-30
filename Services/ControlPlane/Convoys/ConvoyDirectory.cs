@@ -2431,7 +2431,7 @@ public sealed class ConvoyDirectory
             eventProposal = c.EventProposal is { } e ? EventProposalWire(c, e) : null,
             postEvent = PostEventWire(c),
             challengeTrials = c.Intent is { Kind: IntentKind.Challenges }
-                ? Catalogue.ChallengeTrials.Trials.Where(t => t.Published && t.Conditions == "course").Select(t => new
+                ? Catalogue.ChallengeTrials.Trials.Where(t => t.Published && t.Conditions == "course" && !t.IsRace).Select(t => new
                 {
                     id = t.Id, challenge = t.Challenge, title = t.Title, tier = t.Tier, course = t.Course, car = t.Loaner.Car, piCap = t.Loaner.PiCap,
                     kind = t.Kind, timeMs = t.Targets.TimeMs, driftRaw = t.Targets.DriftRaw, group = t.Group, brief = t.Brief,

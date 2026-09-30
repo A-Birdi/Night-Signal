@@ -609,6 +609,8 @@ namespace NightSignal.Net
                         CarContacts = c.Entrant.Progress.VehicleContacts,
                         CheckpointCut = c.Entrant.Progress.CorridorCut,
                         CleanZonePass = c.Entrant.Racecraft != null && c.Entrant.Racecraft.ZonePasses.Any(z => z.Challenge == trialDef.Challenge && z.TouchFree),
+                        PressureSectorMs = c.Entrant.Racecraft == null ? 0 : c.Entrant.Racecraft.DefenceRuns.Where(d => d.Challenge == trialDef.Challenge && d.PressureHeld && !d.WallTouched)
+                            .Select(d => (long)System.Math.Ceiling(d.Seconds * 1000)).DefaultIfEmpty(0).Min(),
                         ZonePassRoles = c.Entrant.Racecraft == null ? new string[0] : c.Entrant.Racecraft.ZonePasses.Where(z => z.Challenge == trialDef.Challenge)
                             .Select(z => z.Passed >= 0 && z.Passed < sim.Entrants.Count ? sim.Entrants[z.Passed].Roster.Role : "").ToArray(),
                         DriftRaw = (long)System.Math.Floor(c.Entrant.Drift.BankedRaw),

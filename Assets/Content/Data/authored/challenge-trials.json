@@ -1,6 +1,6 @@
 {
   "schema": "night-signal/challenge-trials@1",
-  "method": "Measured 2026-09-30 by ChallengeTrialReferenceTests: each trial's loaner resolved like a garage build (hm-1), solo, validator autopilot, the trial's course and conditions; time targets Gold 1.02 ×, Silver 1.10 ×, Bronze 1.20 × its time; drift trials use the cleanest of drift skills 0.95/0.80/0.65 (fewest resets, then most scored; slides started by power where the handbrake is forbidden), time and drift from that one run, drift targets Gold = the raw it scored in the zones (banked or earned, the larger), Silver 0.85 ×, Bronze 0.70 ×; physics chassis-2026.09-contact1, scoring classify-2. Automation, not a human.",
+  "method": "Measured 2026-09-30 by ChallengeTrialReferenceTests: each trial's loaner resolved like a garage build (hm-1), solo, validator autopilot, the trial's course and conditions; time targets Gold 1.02 ×, Silver 1.10 ×, Bronze 1.20 × its time; drift trials use the cleanest of drift skills 0.95/0.80/0.65 (fewest resets, then most scored; slides started by power where the handbrake is forbidden), time and drift from that one run, drift targets Gold = the raw it scored in the zones (banked or earned, the larger), Silver 0.85 ×, Bronze 0.70 ×; racecraft trials have no targets except a pressure trial's sector pace (the loaner alone through the marked sector under contact rules, the fastest pass × the time factor); physics chassis-2026.09-contact1, scoring classify-2. Automation, not a human.",
   "trials": [
     {
       "id": "TR-CH13",
@@ -9,6 +9,8 @@
       "course": "C21",
       "tier": "gold",
       "kind": "time",
+      "field": [],
+      "playerStartsLast": false,
       "conditions": "course",
       "laps": 0,
       "loaner": {
@@ -27,22 +29,23 @@
         "noCarContact": false,
         "noCheckpointCut": false,
         "cleanZonePass": false,
-        "zonePassRole": ""
+        "zonePassRole": "",
+        "pressureSector": false
       },
       "targets": {
         "timeMs": 136346,
         "driftRaw": 0,
         "referenceDriftSkill": 0.0,
-        "referenceEdgeMargin": 0.0
+        "referenceEdgeMargin": 0.0,
+        "sectorTimeMs": 0
       },
       "group": "",
       "brief": "Race the fixed Gold ghost and finish ahead of it with all four tyres on the paved road the whole way; a shoulder touch fails the trial, not the race.",
       "ghost": true,
       "judgesTime": true,
       "judgesDrift": false,
-      "published": true,
-      "field": [],
-      "playerStartsLast": false
+      "isRace": false,
+      "published": true
     },
     {
       "id": "TR-CH15",
@@ -51,6 +54,8 @@
       "course": "C25",
       "tier": "gold",
       "kind": "time",
+      "field": [],
+      "playerStartsLast": false,
       "conditions": "course",
       "laps": 0,
       "loaner": {
@@ -69,22 +74,23 @@
         "noCarContact": false,
         "noCheckpointCut": false,
         "cleanZonePass": false,
-        "zonePassRole": ""
+        "zonePassRole": "",
+        "pressureSector": false
       },
       "targets": {
         "timeMs": 273700,
         "driftRaw": 0,
         "referenceDriftSkill": 0.0,
-        "referenceEdgeMargin": 0.0
+        "referenceEdgeMargin": 0.0,
+        "sectorTimeMs": 0
       },
       "group": "",
       "brief": "The fixed challenge reference on C25: beat its Gold time, touch all three final-sector apex gates, and never reset.",
       "ghost": false,
       "judgesTime": true,
       "judgesDrift": false,
-      "published": true,
-      "field": [],
-      "playerStartsLast": false
+      "isRace": false,
+      "published": true
     },
     {
       "id": "TR-CH55",
@@ -93,6 +99,8 @@
       "course": "C04",
       "tier": "silver",
       "kind": "time",
+      "field": [],
+      "playerStartsLast": false,
       "conditions": "course",
       "laps": 0,
       "loaner": {
@@ -111,22 +119,23 @@
         "noCarContact": false,
         "noCheckpointCut": false,
         "cleanZonePass": false,
-        "zonePassRole": ""
+        "zonePassRole": "",
+        "pressureSector": false
       },
       "targets": {
         "timeMs": 150400,
         "driftRaw": 0,
         "referenceDriftSkill": 0.0,
-        "referenceEdgeMargin": 0.0
+        "referenceEdgeMargin": 0.0,
+        "sectorTimeMs": 0
       },
       "group": "",
       "brief": "No performance parts: the stock starter against a Silver time.",
       "ghost": false,
       "judgesTime": true,
       "judgesDrift": false,
-      "published": true,
-      "field": [],
-      "playerStartsLast": false
+      "isRace": false,
+      "published": true
     },
     {
       "id": "TR-CH11",
@@ -135,6 +144,8 @@
       "course": "C12",
       "tier": "gold",
       "kind": "time",
+      "field": [],
+      "playerStartsLast": false,
       "conditions": "course",
       "laps": 0,
       "loaner": {
@@ -153,22 +164,23 @@
         "noCarContact": false,
         "noCheckpointCut": false,
         "cleanZonePass": false,
-        "zonePassRole": ""
+        "zonePassRole": "",
+        "pressureSector": false
       },
       "targets": {
         "timeMs": 194300,
         "driftRaw": 0,
         "referenceDriftSkill": 0.0,
-        "referenceEdgeMargin": 0.0
+        "referenceEdgeMargin": 0.0,
+        "sectorTimeMs": 0
       },
       "group": "",
       "brief": "The loaner sits under the C12 stages' PI 699 cap. Gold time, no reset, and at most one meaningful wall impact.",
       "ghost": false,
       "judgesTime": true,
       "judgesDrift": false,
-      "published": true,
-      "field": [],
-      "playerStartsLast": false
+      "isRace": false,
+      "published": true
     },
     {
       "id": "TR-CH51",
@@ -177,6 +189,8 @@
       "course": "C08",
       "tier": "silver",
       "kind": "time",
+      "field": [],
+      "playerStartsLast": false,
       "conditions": "course",
       "laps": 0,
       "loaner": {
@@ -197,22 +211,23 @@
         "noCarContact": false,
         "noCheckpointCut": false,
         "cleanZonePass": false,
-        "zonePassRole": ""
+        "zonePassRole": "",
+        "pressureSector": false
       },
       "targets": {
         "timeMs": 169200,
         "driftRaw": 0,
         "referenceDriftSkill": 0.0,
-        "referenceEdgeMargin": 0.0
+        "referenceEdgeMargin": 0.0,
+        "sectorTimeMs": 0
       },
       "group": "",
       "brief": "The supplied wet tune: rain-sport tyres in C08's wet. Beat the Silver time.",
       "ghost": false,
       "judgesTime": true,
       "judgesDrift": false,
-      "published": true,
-      "field": [],
-      "playerStartsLast": false
+      "isRace": false,
+      "published": true
     },
     {
       "id": "TR-CH54-FWD",
@@ -221,6 +236,8 @@
       "course": "C09",
       "tier": "silver",
       "kind": "time",
+      "field": [],
+      "playerStartsLast": false,
       "conditions": "course",
       "laps": 0,
       "loaner": {
@@ -239,22 +256,23 @@
         "noCarContact": false,
         "noCheckpointCut": false,
         "cleanZonePass": false,
-        "zonePassRole": ""
+        "zonePassRole": "",
+        "pressureSector": false
       },
       "targets": {
         "timeMs": 158400,
         "driftRaw": 0,
         "referenceDriftSkill": 0.0,
-        "referenceEdgeMargin": 0.0
+        "referenceEdgeMargin": 0.0,
+        "sectorTimeMs": 0
       },
       "group": "CH54-LAYOUTS",
       "brief": "Front-drive layout under the shared PI 450 cap, with its own Silver time; the challenge also needs the rear-drive trial.",
       "ghost": false,
       "judgesTime": true,
       "judgesDrift": false,
-      "published": true,
-      "field": [],
-      "playerStartsLast": false
+      "isRace": false,
+      "published": true
     },
     {
       "id": "TR-CH54-RWD",
@@ -263,6 +281,8 @@
       "course": "C09",
       "tier": "silver",
       "kind": "time",
+      "field": [],
+      "playerStartsLast": false,
       "conditions": "course",
       "laps": 0,
       "loaner": {
@@ -281,22 +301,23 @@
         "noCarContact": false,
         "noCheckpointCut": false,
         "cleanZonePass": false,
-        "zonePassRole": ""
+        "zonePassRole": "",
+        "pressureSector": false
       },
       "targets": {
         "timeMs": 160500,
         "driftRaw": 0,
         "referenceDriftSkill": 0.0,
-        "referenceEdgeMargin": 0.0
+        "referenceEdgeMargin": 0.0,
+        "sectorTimeMs": 0
       },
       "group": "CH54-LAYOUTS",
       "brief": "Rear-drive layout under the shared PI 450 cap, with its own Silver time; the challenge also needs the front-drive trial.",
       "ghost": false,
       "judgesTime": true,
       "judgesDrift": false,
-      "published": true,
-      "field": [],
-      "playerStartsLast": false
+      "isRace": false,
+      "published": true
     },
     {
       "id": "TR-CH25",
@@ -305,6 +326,8 @@
       "course": "C16",
       "tier": "silver",
       "kind": "drift",
+      "field": [],
+      "playerStartsLast": false,
       "conditions": "course",
       "laps": 0,
       "loaner": {
@@ -325,22 +348,23 @@
         "noCarContact": false,
         "noCheckpointCut": false,
         "cleanZonePass": false,
-        "zonePassRole": ""
+        "zonePassRole": "",
+        "pressureSector": false
       },
       "targets": {
         "timeMs": 0,
         "driftRaw": 2900,
         "referenceDriftSkill": 0.8,
-        "referenceEdgeMargin": 0.0
+        "referenceEdgeMargin": 0.0,
+        "sectorTimeMs": 0
       },
       "group": "",
       "brief": "The drift loaner: bank the Silver drift score without touching the handbrake after the start, then finish.",
       "ghost": false,
       "judgesTime": false,
       "judgesDrift": true,
-      "published": true,
-      "field": [],
-      "playerStartsLast": false
+      "isRace": false,
+      "published": true
     },
     {
       "id": "TR-CH28",
@@ -349,6 +373,8 @@
       "course": "C23",
       "tier": "gold",
       "kind": "time+drift",
+      "field": [],
+      "playerStartsLast": false,
       "conditions": "course",
       "laps": 0,
       "loaner": {
@@ -369,22 +395,23 @@
         "noCarContact": false,
         "noCheckpointCut": false,
         "cleanZonePass": false,
-        "zonePassRole": ""
+        "zonePassRole": "",
+        "pressureSector": false
       },
       "targets": {
         "timeMs": 274100,
         "driftRaw": 2000,
         "referenceDriftSkill": 0.65,
-        "referenceEdgeMargin": 0.0
+        "referenceEdgeMargin": 0.0,
+        "sectorTimeMs": 0
       },
       "group": "",
       "brief": "The fixed C23 build: beat both the published time and the raw drift target in the same legal run.",
       "ghost": false,
       "judgesTime": true,
       "judgesDrift": true,
-      "published": true,
-      "field": [],
-      "playerStartsLast": false
+      "isRace": false,
+      "published": true
     },
     {
       "id": "TR-CH30",
@@ -393,6 +420,8 @@
       "course": "C25",
       "tier": "gold",
       "kind": "drift",
+      "field": [],
+      "playerStartsLast": false,
       "conditions": "course",
       "laps": 0,
       "loaner": {
@@ -413,22 +442,23 @@
         "noCarContact": false,
         "noCheckpointCut": false,
         "cleanZonePass": false,
-        "zonePassRole": ""
+        "zonePassRole": "",
+        "pressureSector": false
       },
       "targets": {
         "timeMs": 0,
         "driftRaw": 10800,
         "referenceDriftSkill": 0.65,
-        "referenceEdgeMargin": 0.0
+        "referenceEdgeMargin": 0.0,
+        "sectorTimeMs": 0
       },
       "group": "",
       "brief": "The Gold drift route: bank the Gold raw target, with a chain banked in every judged zone.",
       "ghost": false,
       "judgesTime": false,
       "judgesDrift": true,
-      "published": true,
-      "field": [],
-      "playerStartsLast": false
+      "isRace": false,
+      "published": true
     },
     {
       "id": "TR-CH40",
@@ -437,6 +467,27 @@
       "course": "C17",
       "tier": "silver",
       "kind": "race",
+      "field": [
+        {
+          "car": "V05",
+          "rival": "",
+          "role": "field",
+          "pace": 0.95
+        },
+        {
+          "car": "V06",
+          "rival": "",
+          "role": "field",
+          "pace": 0.95
+        },
+        {
+          "car": "V05",
+          "rival": "",
+          "role": "field",
+          "pace": 0.95
+        }
+      ],
+      "playerStartsLast": true,
       "conditions": "course",
       "laps": 0,
       "loaner": {
@@ -455,38 +506,23 @@
         "noCarContact": true,
         "noCheckpointCut": true,
         "cleanZonePass": true,
-        "zonePassRole": ""
+        "zonePassRole": "",
+        "pressureSector": false
       },
       "targets": {
         "timeMs": 0,
         "driftRaw": 0,
         "referenceDriftSkill": 0.0,
-        "referenceEdgeMargin": 0.0
+        "referenceEdgeMargin": 0.0,
+        "sectorTimeMs": 0
       },
       "group": "",
+      "brief": "C17's fixed challenge race: three class-C cars ahead of you on the grid. Make the marked overtake in the braking zone about 2.8 km in — clean, no touch — keep the place, never touch another car or cut a checkpoint, and finish.",
       "ghost": false,
-      "field": [
-        {
-          "car": "V05",
-          "rival": "",
-          "role": "field",
-          "pace": 0.95
-        },
-        {
-          "car": "V06",
-          "rival": "",
-          "role": "field",
-          "pace": 0.95
-        },
-        {
-          "car": "V05",
-          "rival": "",
-          "role": "field",
-          "pace": 0.95
-        }
-      ],
-      "playerStartsLast": true,
-      "brief": "C17's fixed challenge race: three class-C cars ahead of you on the grid. Make the marked overtake in the braking zone about 2.8 km in — clean, no touch — keep the place, never touch another car or cut a checkpoint, and finish."
+      "judgesTime": false,
+      "judgesDrift": false,
+      "isRace": true,
+      "published": true
     },
     {
       "id": "TR-CH41",
@@ -495,6 +531,39 @@
       "course": "C18",
       "tier": "gold",
       "kind": "race",
+      "field": [
+        {
+          "car": "V07",
+          "rival": "",
+          "role": "field",
+          "pace": 0.0
+        },
+        {
+          "car": "V07",
+          "rival": "",
+          "role": "field",
+          "pace": 0.0
+        },
+        {
+          "car": "V07",
+          "rival": "",
+          "role": "field",
+          "pace": 0.0
+        },
+        {
+          "car": "V07",
+          "rival": "",
+          "role": "field",
+          "pace": 0.0
+        },
+        {
+          "car": "V07",
+          "rival": "",
+          "role": "field",
+          "pace": 0.0
+        }
+      ],
+      "playerStartsLast": true,
       "conditions": "course",
       "laps": 0,
       "loaner": {
@@ -513,50 +582,23 @@
         "noCarContact": true,
         "noCheckpointCut": false,
         "cleanZonePass": false,
-        "zonePassRole": ""
+        "zonePassRole": "",
+        "pressureSector": false
       },
       "targets": {
         "timeMs": 0,
         "driftRaw": 0,
         "referenceDriftSkill": 0.0,
-        "referenceEdgeMargin": 0.0
+        "referenceEdgeMargin": 0.0,
+        "sectorTimeMs": 0
       },
       "group": "",
+      "brief": "Class-equalized: six identical stock V07s on the Kilnlight Ring, and you start sixth. Win with no reset and no car-to-car contact.",
       "ghost": false,
-      "field": [
-        {
-          "car": "V07",
-          "rival": "",
-          "role": "field",
-          "pace": 0.0
-        },
-        {
-          "car": "V07",
-          "rival": "",
-          "role": "field",
-          "pace": 0.0
-        },
-        {
-          "car": "V07",
-          "rival": "",
-          "role": "field",
-          "pace": 0.0
-        },
-        {
-          "car": "V07",
-          "rival": "",
-          "role": "field",
-          "pace": 0.0
-        },
-        {
-          "car": "V07",
-          "rival": "",
-          "role": "field",
-          "pace": 0.0
-        }
-      ],
-      "playerStartsLast": true,
-      "brief": "Class-equalized: six identical stock V07s on the Kilnlight Ring, and you start sixth. Win with no reset and no car-to-car contact."
+      "judgesTime": false,
+      "judgesDrift": false,
+      "isRace": true,
+      "published": true
     },
     {
       "id": "TR-CH36",
@@ -565,6 +607,15 @@
       "course": "C10",
       "tier": "silver",
       "kind": "race",
+      "field": [
+        {
+          "car": "V06",
+          "rival": "",
+          "role": "pacing",
+          "pace": 0.9
+        }
+      ],
+      "playerStartsLast": true,
       "conditions": "course",
       "laps": 0,
       "loaner": {
@@ -583,26 +634,75 @@
         "noCarContact": false,
         "noCheckpointCut": false,
         "cleanZonePass": false,
-        "zonePassRole": "pacing"
+        "zonePassRole": "pacing",
+        "pressureSector": false
       },
       "targets": {
         "timeMs": 0,
         "driftRaw": 0,
         "referenceDriftSkill": 0.0,
-        "referenceEdgeMargin": 0.0
+        "referenceEdgeMargin": 0.0,
+        "sectorTimeMs": 0
       },
       "group": "",
+      "brief": "C10's racecraft trial: a pacing rival starts ahead and keeps to the inside through the marked outside lane (about 2.7 km in). Pass it there, in the outside lane, and hold the gain through the next straight to the marked gate; then finish.",
       "ghost": false,
+      "judgesTime": false,
+      "judgesDrift": false,
+      "isRace": true,
+      "published": true
+    },
+    {
+      "id": "TR-CH39",
+      "challenge": "CH39",
+      "title": "No Panic Reply",
+      "course": "C14",
+      "tier": "silver",
+      "kind": "race",
       "field": [
         {
-          "car": "V06",
+          "car": "V07",
           "rival": "",
-          "role": "pacing",
-          "pace": 0.9
+          "role": "pressure",
+          "pace": 1.08
         }
       ],
-      "playerStartsLast": true,
-      "brief": "C10's racecraft trial: a pacing rival starts ahead and keeps to the inside through the marked outside lane (about 2.7 km in). Pass it there, in the outside lane, and hold the gain through the next straight to the marked gate; then finish."
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V07",
+        "parts": {},
+        "piCap": 499
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": true
+      },
+      "targets": {
+        "timeMs": 0,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0,
+        "sectorTimeMs": 28700
+      },
+      "group": "",
+      "brief": "C14's pressure trial: you start on pole and a quicker car starts behind you, closing up but never passing. Drive the marked second sector at the published pace with it within a second of you all the way and no barrier touched; then finish.",
+      "ghost": false,
+      "judgesTime": false,
+      "judgesDrift": false,
+      "isRace": true,
+      "published": true
     }
   ]
 }

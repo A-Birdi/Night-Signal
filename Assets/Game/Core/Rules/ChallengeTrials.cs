@@ -59,6 +59,11 @@ namespace NightSignal.Core.Rules
         /// gain held to its gate ("" = not judged).
         /// </summary>
         public string ZonePassRole = "";
+        /// <summary>
+        /// CH39: a pass through the challenge's defence zone (one sector) with the field's pressure car within 1 s behind the
+        /// whole way, no barrier touched in it, at the published sector pace (<see cref="TrialTargets.SectorTimeMs"/>).
+        /// </summary>
+        public bool PressureSector;
     }
 
     /// <summary>Published targets (measured, see the file's method); 0 = not judged.</summary>
@@ -76,6 +81,8 @@ namespace NightSignal.Core.Rules
         /// the fastest wider margin that keeps them, so the target is shown reachable within its own rules.
         /// </summary>
         public float ReferenceEdgeMargin;
+        /// <summary>The time through the challenge's defence zone to match (CH39's "valid Silver pace"; measured, the tier's factor).</summary>
+        public long SectorTimeMs;
     }
 
     /// <summary>One challenge trial (docs/CHALLENGE_TRIALS.md): a fixed course, loaner, rules and targets for one challenge.</summary>
@@ -112,7 +119,7 @@ namespace NightSignal.Core.Rules
         public bool Ghost;
 
         /// <summary>Measured targets exist for everything this trial judges.</summary>
-        public bool Published => (!JudgesTime || Targets.TimeMs > 0) && (!JudgesDrift || Targets.DriftRaw > 0);
+        public bool Published => (!JudgesTime || Targets.TimeMs > 0) && (!JudgesDrift || Targets.DriftRaw > 0) && (!Rules.PressureSector || Targets.SectorTimeMs > 0);
     }
 
     public sealed class ChallengeTrialsFile
@@ -150,6 +157,8 @@ namespace NightSignal.Core.Rules
         public bool CleanZonePass;
         /// <summary>The roles of the field cars passed in the challenge's marked zone or lane with the gain held.</summary>
         public string[] ZonePassRoles;
+        /// <summary>The fastest pass through the challenge's defence zone with the pressure car within 1 s all the way and no barrier touched (ms; 0 = none).</summary>
+        public long PressureSectorMs;
     }
 
     public sealed class TrialVerdict
@@ -185,6 +194,9 @@ namespace NightSignal.Core.Rules
                 Check(f.OffPavedSeconds <= 0f, "all tyres on the paved road" + (f.OffPavedSeconds > 0f ? $" (off it {f.OffPavedSeconds:F1} s)" : ""));
             if (t.Rules.BankEveryZone) Check(f.ZonesTotal > 0 && f.ZonesBanked >= f.ZonesTotal, $"a chain banked in every judged zone ({f.ZonesBanked}/{f.ZonesTotal})");
             if (t.Rules.CleanZonePass) Check(f.CleanZonePass, "the marked overtake, clean and held");
+            if (t.Rules.PressureSector)
+                Check(f.PressureSectorMs > 0 && t.Targets.SectorTimeMs > 0 && f.PressureSectorMs <= t.Targets.SectorTimeMs,
+                    $"the sector under pressure, clean, within {Clock(t.Targets.SectorTimeMs)} ({(f.PressureSectorMs > 0 ? Clock(f.PressureSectorMs) : "not held")})");
             if (!string.IsNullOrEmpty(t.Rules.ZonePassRole))
                 Check(f.ZonePassRoles != null && Array.IndexOf(f.ZonePassRoles, t.Rules.ZonePassRole) >= 0, $"the {t.Rules.ZonePassRole} car passed in the marked lane, the gain held");
             if (t.Rules.NoCarContact) Check(f.CarContacts == 0, $"no car-to-car contact ({f.CarContacts})");
@@ -223,10 +235,13 @@ namespace NightSignal.Core.Rules
                 if (!t.JudgesTime && !t.JudgesDrift && !t.IsRace) problems.Add($"{t.Id}: unknown kind {t.Kind}");
                 if (t.IsRace && (t.Field == null || t.Field.Count == 0)) problems.Add($"{t.Id}: a racecraft trial needs its fixed field");
                 if (!t.IsRace && t.Field != null && t.Field.Count > 0) problems.Add($"{t.Id}: only racecraft trials have a field");
-                if (t.IsRace && t.Rules != null && !(t.Rules.Win || t.Rules.CleanZonePass || !string.IsNullOrEmpty(t.Rules.ZonePassRole)))
+                if (t.IsRace && t.Rules != null && !(t.Rules.Win || t.Rules.CleanZonePass || t.Rules.PressureSector || !string.IsNullOrEmpty(t.Rules.ZonePassRole)))
                     problems.Add($"{t.Id}: a racecraft trial judges nothing of the race");
                 if (!string.IsNullOrEmpty(t.Rules?.ZonePassRole) && (t.Field == null || !t.Field.Any(c => c.Role == t.Rules.ZonePassRole)))
                     problems.Add($"{t.Id}: no {t.Rules.ZonePassRole} car in the field to pass");
+                if (t.Rules != null && t.Rules.PressureSector && (t.Field == null || !t.Field.Any(c => c.Role == "pressure")))
+                    problems.Add($"{t.Id}: no pressure car in the field");
+                if (t.Targets != null && t.Targets.SectorTimeMs < 0) problems.Add($"{t.Id}: negative target");
                 foreach (TrialFieldCar c in t.Field ?? new List<TrialFieldCar>())
                 {
                     if (!carExists(c.Car ?? "")) problems.Add($"{t.Id}: unknown field car {c.Car}");

@@ -102,6 +102,39 @@ namespace NightSignal.Tests
             done(f);
         }
 
+        /// <summary>
+        /// A pressure trial's sector pace (CH39): the loaner alone under contact rules (so the racecraft judge times the challenge's
+        /// defence zone), the validator's pace; the fastest pass through the zone.
+        /// </summary>
+        static IEnumerator RunSector(ChallengeTrialDef t, CarDef car, ResolvedCarSpec spec, Action<double, string> done)
+        {
+#if UNITY_EDITOR
+            yield return UnityEditor.SceneManagement.EditorSceneManager.LoadSceneAsyncInPlayMode($"Assets/Content/Courses/{t.Course}/{t.Course}.unity",
+                new LoadSceneParameters(LoadSceneMode.Single));
+#endif
+            yield return null;
+            var go = new GameObject("ChallengeTrialSector");
+            var session = go.AddComponent<OfflineRaceSession>();
+            session.CarId = car.Id;
+            session.PlayerSpec = spec;
+            session.Autopilot = true;
+            session.Headless = true;
+            session.SimulationSpeed = 30;
+            session.Rules = new RaceEventRules { Kind = "freeplay", Contact = ContactPolicy.LightContact, StageNumber = 10,
+                CarCapPi = t.Loaner.PiCap > 0 ? t.Loaner.PiCap : PerformanceIndex.Max, Surface = t.Conditions == "course" ? null : t.Conditions };
+            session.OpposingAi = new System.Collections.Generic.List<string>();
+            yield return null;
+            float t0 = Time.realtimeSinceStartup;
+            while (session.Results == null && Time.realtimeSinceStartup - t0 < 600f) yield return null;
+            RacecraftRun rc = session.Player?.Racecraft;
+            var runs = rc == null ? new System.Collections.Generic.List<double>() : rc.DefenceRuns.Where(d => d.Challenge == t.Challenge).Select(d => d.Seconds).ToList();
+            string log = rc == null ? "no racecraft judge" : string.Join("; ", rc.DefenceRuns.Where(d => d.Challenge == t.Challenge)
+                .Select(d => $"{d.Seconds:F3} s{(d.WallTouched ? " (barrier touched)" : "")}"));
+            UnityEngine.Object.Destroy(go);
+            yield return null;
+            done(runs.Count > 0 ? runs.Min() : 0, log);
+        }
+
         [UnityTest, Timeout(3600000)]
         public IEnumerator MeasureChallengeTrials()
         {
@@ -112,13 +145,32 @@ namespace NightSignal.Tests
             var problems = new System.Collections.Generic.List<string>();
             report.AppendLine("# Challenge trial targets, measured by ChallengeTrialReferenceTests (PlayMode, explicit): each trial's loaner resolved like a");
             report.AppendLine("# garage build, solo, validator autopilot, the trial's course and conditions; drift trials: the cleanest of three drift skills. Automation.");
+            // Builds/diag/measure-trials.txt (one trial id per line) limits a run to those trials; the others keep their targets.
+            const string OnlyFile = "Builds/diag/measure-trials.txt";
+            var only = File.Exists(OnlyFile) ? new System.Collections.Generic.HashSet<string>(File.ReadAllLines(OnlyFile).Select(l => l.Trim()).Where(l => l.Length > 0)) : null;
+            if (only != null) report.AppendLine($"# this run measured only: {string.Join(", ", only)}");
 
             foreach (ChallengeTrialDef t in file.Trials)
             {
+                if (only != null && !only.Contains(t.Id)) continue;
                 if (t.IsRace)
                 {
-                    // Racecraft trials have no targets: they are judged by their rules against their fixed field.
-                    report.AppendLine().AppendLine($"## {t.Id} ({t.Challenge}, {t.Tier}) on {t.Course}: a race against its fixed field — no targets to measure");
+                    if (!t.Rules.PressureSector)
+                    {
+                        // Racecraft trials are judged by their rules against their fixed field; a pressure trial has a sector pace.
+                        report.AppendLine().AppendLine($"## {t.Id} ({t.Challenge}, {t.Tier}) on {t.Course}: a race against its fixed field — no targets to measure");
+                        continue;
+                    }
+                    CarDef rcar = cat.Car(t.Loaner.Car);
+                    ResolveResult rres = TrialLoaners.Resolve(t.Loaner, rcar, cat.CarTunings[rcar.Id], lib.Parts, out PiEstimate rpi);
+                    if (!rres.Ok) { problems.Add($"{t.Id}: the loaner does not resolve"); continue; }
+                    double sector = 0;
+                    string sectorLog = "";
+                    yield return RunSector(t, rcar, rres.Spec, (sec, log) => { sector = sec; sectorLog = log; });
+                    report.AppendLine().AppendLine($"## {t.Id} ({t.Challenge}, {t.Tier}) on {t.Course}: {rcar.Name} stock, PI {rpi.Value}; the loaner alone through the marked sector: {sectorLog}");
+                    if (sector <= 0) { problems.Add($"{t.Id}: the reference never drove the marked sector"); t.Targets.SectorTimeMs = 0; continue; }
+                    t.Targets.SectorTimeMs = (long)Math.Ceiling(TimeFactor(t.Tier) * sector * 1000 / 100.0) * 100;
+                    report.AppendLine($"→ {t.Tier} sector pace {t.Targets.SectorTimeMs / 1000.0:F1} s ({TimeFactor(t.Tier):F2} × the fastest pass)");
                     continue;
                 }
                 CarDef car = cat.Car(t.Loaner.Car);
@@ -190,12 +242,14 @@ namespace NightSignal.Tests
                           "validator autopilot, the trial's course and conditions; time targets Gold 1.02 ×, Silver 1.10 ×, Bronze 1.20 × its time; drift trials " +
                           "use the cleanest of drift skills 0.95/0.80/0.65 (fewest resets, then most scored; slides started by power where the handbrake is " +
                           "forbidden), time and drift from that one run, drift targets Gold = the raw it scored in the zones (banked or earned, the larger), " +
-                          $"Silver 0.85 ×, Bronze 0.70 ×; physics {RaceSimulation.PhysicsVersion}, scoring {RaceSimulation.ScoringVersion}. Automation, not a human.";
+                          "Silver 0.85 ×, Bronze 0.70 ×; racecraft trials have no targets except a pressure trial's sector pace (the loaner alone through " +
+                          "the marked sector under contact rules, the fastest pass × the time factor); " +
+                          $"physics {RaceSimulation.PhysicsVersion}, scoring {RaceSimulation.ScoringVersion}. Automation, not a human.";
             report.AppendLine().AppendLine(problems.Count == 0 ? "# every trial measured" : "# problems: " + string.Join("; ", problems));
             File.WriteAllText(FileName, JsonConvert.SerializeObject(file, Formatting.Indented,
                 new JsonSerializerSettings { ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver() }) + "\n");
             Directory.CreateDirectory("Evidence/challenges");
-            File.WriteAllText("Evidence/challenges/trials.txt", report.ToString());
+            File.WriteAllText(only == null ? "Evidence/challenges/trials.txt" : $"Evidence/challenges/trials-{string.Join("-", only.OrderBy(x => x))}.txt", report.ToString());
             Debug.Log("[NightSignal.ChallengeTrials] " + report.ToString().Replace("\n", " | "));
             Assert.That(problems.Where(p => !p.Contains("a person must do better")), Is.Empty, string.Join("; ", problems));
         }

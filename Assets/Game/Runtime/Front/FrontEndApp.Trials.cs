@@ -107,8 +107,14 @@ namespace NightSignal.Front
             }
 
             int passedCount = 0;
+            // -nsTrialOnly <id,id,…>: drive only those trials (a targeted run; the full tour stays the regression check).
+            string[] args = Environment.GetCommandLineArgs();
+            int onlyAt = Array.IndexOf(args, "-nsTrialOnly");
+            HashSet<string> only = onlyAt >= 0 && onlyAt + 1 < args.Length ? new HashSet<string>(args[onlyAt + 1].Split(',')) : null;
+            if (only != null) Note($"only: {string.Join(", ", only)}");
             foreach (ChallengeTrialDef t in s.Catalogue.ChallengeTrials.Trials)
             {
+                if (only != null && !only.Contains(t.Id)) continue;
                 if (!Trials.SelectTrial(t.Id)) { Fail(t.Id + " is not listed"); continue; }
                 yield return new WaitForSeconds(0.6f);
                 yield return Snap($"02-{t.Id}-brief");

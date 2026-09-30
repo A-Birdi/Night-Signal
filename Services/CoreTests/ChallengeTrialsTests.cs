@@ -29,8 +29,8 @@ public sealed class ChallengeTrialsTests
     public void TheAuthoredTrials_LoadIntoTheHashedCatalogue_OnePerChallengeOrOneGroup()
     {
         Assert.Contains(ContentCatalogue.AuthoredFiles, f => f == "challenge-trials.json");
-        Assert.Equal(13, Trials.Trials.Count);
-        Assert.Equal(new[] { "CH11", "CH13", "CH15", "CH25", "CH28", "CH30", "CH36", "CH40", "CH41", "CH51", "CH54", "CH55" }, Trials.Trials.Select(t => t.Challenge).Distinct().OrderBy(c => c));
+        Assert.Equal(14, Trials.Trials.Count);
+        Assert.Equal(new[] { "CH11", "CH13", "CH15", "CH25", "CH28", "CH30", "CH36", "CH39", "CH40", "CH41", "CH51", "CH54", "CH55" }, Trials.Trials.Select(t => t.Challenge).Distinct().OrderBy(c => c));
         ChallengeTrialDef ch36 = Trials.Find("TR-CH36")!;
         Assert.True(ch36.IsRace && ch36.Rules.ZonePassRole == "pacing" && ch36.Field.Single().Role == "pacing");
         // The racecraft trials: fixed fields in the loaner's class, the player starting last.
@@ -38,7 +38,9 @@ public sealed class ChallengeTrialsTests
         Assert.True(ch41.IsRace && ch41.PlayerStartsLast && ch41.Field.Count == 5 && ch41.Rules.Win && ch41.Rules.NoReset && ch41.Rules.NoCarContact);
         Assert.All(ch41.Field, c => Assert.Equal(ch41.Loaner.Car, c.Car)); // class-equalized: six identical stock cars
         Assert.True(ch40.IsRace && ch40.Rules.CleanZonePass && ch40.Rules.NoCarContact && ch40.Rules.NoCheckpointCut && !ch40.Rules.Win);
-        foreach (ChallengeTrialDef race in new[] { ch40, ch41, ch36 })
+        ChallengeTrialDef ch39 = Trials.Find("TR-CH39")!;
+        Assert.True(ch39.IsRace && ch39.Rules.PressureSector && ch39.Field.Single().Role == "pressure" && !ch39.PlayerStartsLast);
+        foreach (ChallengeTrialDef race in new[] { ch40, ch41, ch36, ch39 })
             Assert.All(race.Field, c => Assert.True(Cat.Car(c.Car).BasePI <= race.Loaner.PiCap, $"{race.Id}: {c.Car} outside the class"));
         Assert.All(Trials.Trials.Where(t => !t.IsRace), t => Assert.Empty(t.Field));
         Assert.True(Trials.Find("TR-CH15")!.Rules.AllChallengeGates && Trials.Find("TR-CH15")!.Rules.NoReset);
@@ -136,6 +138,14 @@ public sealed class ChallengeTrialsTests
         Assert.True(TrialJudge.Judge(race, Run() with { ZonePassRoles = new[] { "field", "pacing" } }).Passed);
         Assert.False(TrialJudge.Judge(race, Run() with { ZonePassRoles = new[] { "field" } }).Passed, "another car passed");
         Assert.False(TrialJudge.Judge(race, Run()).Passed, "no marked pass");
+
+        race.Rules = new TrialRules { PressureSector = true };
+        Assert.False(race.Published, "the sector pace is measured first");
+        race.Targets = new TrialTargets { SectorTimeMs = 30_000 };
+        Assert.True(TrialJudge.Judge(race, Run() with { PressureSectorMs = 29_500 }).Passed);
+        Assert.False(TrialJudge.Judge(race, Run() with { PressureSectorMs = 30_500 }).Passed, "too slow");
+        Assert.False(TrialJudge.Judge(race, Run()).Passed, "never held under pressure");
+        race.Targets = new TrialTargets();
 
         race.Rules = new TrialRules { CleanZonePass = true, NoCheckpointCut = true };
         Assert.True(TrialJudge.Judge(race, Run() with { Placement = 3, CleanZonePass = true }).Passed);

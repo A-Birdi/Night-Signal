@@ -105,6 +105,15 @@ namespace NightSignal.Race
         /// and whether this car touched no car from 2 s before the pass until the gate.
         /// </summary>
         public readonly List<(int Passed, string Challenge, double Time, bool TouchFree)> ZonePasses = new List<(int, string, double, bool)>();
+
+        /// <summary>
+        /// Every complete pass through a challenge's defence zone (CH39's pressure sector): its time, whether a car in the
+        /// "pressure" role stayed within 1 s behind for all of it, and whether this car touched a barrier in it.
+        /// </summary>
+        public readonly List<(string Challenge, double Seconds, bool PressureHeld, bool WallTouched)> DefenceRuns = new List<(string, double, bool, bool)>();
+        internal int DefenceZone = -1;
+        internal double DefenceEntry;
+        internal bool DefenceHeld, DefenceTouched;
     }
 
     /// <summary>
@@ -131,7 +140,9 @@ namespace NightSignal.Race
 
         readonly List<RaceEntrant> entrants;
         readonly TrackData track;
-        readonly List<RouteGateDef> passZones = new List<RouteGateDef>(), retainGates = new List<RouteGateDef>();
+        readonly List<RouteGateDef> passZones = new List<RouteGateDef>(), retainGates = new List<RouteGateDef>(), defenceZones = new List<RouteGateDef>();
+        /// <summary>The interval (s) within which a pressure car counts as following (CH39 "follows within 1 second").</summary>
+        public const float PressureSeconds = 1f;
 
         public RacecraftJudge(List<RaceEntrant> entrants, TrackData track = null)
         {
@@ -140,6 +151,7 @@ namespace NightSignal.Race
             if (track?.Gates == null) return;
             passZones.AddRange(track.Gates.Where(g => (g.Kind == "overtake-zone" || g.Kind == "lane") && !string.IsNullOrEmpty(g.Challenge) && g.EndMetres > g.StartMetres));
             retainGates.AddRange(track.Gates.Where(g => g.Kind == "timing" && !string.IsNullOrEmpty(g.Challenge) && passZones.Any(z => z.Challenge == g.Challenge)));
+            defenceZones.AddRange(track.Gates.Where(g => g.Kind == "defence" && !string.IsNullOrEmpty(g.Challenge) && g.EndMetres > g.StartMetres));
         }
 
         /// <summary>Only races with live opponents are judged (a drift or non-contact event has no racecraft).</summary>
@@ -218,6 +230,7 @@ namespace NightSignal.Race
                     }
                 Confirm(a, ra, now);
                 if (ra.ZonePending.Count > 0) ConfirmZonePasses(a, ra, now, da);
+                if (defenceZones.Count > 0) Defence(a, ra, now, da);
                 Follow(i, a, ra, now);
             }
             foreach (RaceEntrant e in entrants) Run(e).PreviousDistance = e.Progress.RaceDistance;
@@ -278,6 +291,46 @@ namespace NightSignal.Race
                 ra.Log($"{at:F1} s: {challenge} pass of #{j} — held to {(gate != null ? gate.Id : "the hold")}{(touchFree ? ", no touch" : ", touched")}");
                 ra.ZonePending.RemoveAt(k);
             }
+        }
+
+        /// <summary>
+        /// A defence zone driven start to end in one go (crossed over its start, then over its end, no recovery between): its
+        /// time, whether a live car in the "pressure" role was within <see cref="PressureSeconds"/> behind at every step, and
+        /// any barrier touch by this car in it.
+        /// </summary>
+        void Defence(RaceEntrant a, RacecraftRun ra, double now, float da)
+        {
+            if (float.IsNaN(ra.PreviousDistance)) return;
+            float before = RouteDistance(ra.PreviousDistance), here = RouteDistance(da);
+            bool stepped = here >= before && here - before < 30f;
+            if (ra.DefenceZone >= 0)
+            {
+                RouteGateDef z = defenceZones[ra.DefenceZone];
+                if (!stepped || ra.LastReset >= ra.DefenceEntry || !Live(a)) { ra.DefenceZone = -1; return; }
+                bool pressed = false;
+                foreach (RaceEntrant b in entrants)
+                    if (b != a && b.Roster.Role == "pressure" && Live(b) && b.Progress.RaceDistance < da &&
+                        ra.History.IntervalBehind(b.Progress.RaceDistance, now, out float gap) && gap <= PressureSeconds)
+                        pressed = true;
+                ra.DefenceHeld &= pressed;
+                ra.DefenceTouched |= a.Sim != null && a.Sim.Telemetry.WallContact;
+                if (before < z.EndMetres && here >= z.EndMetres)
+                {
+                    ra.DefenceRuns.Add((z.Challenge, now - ra.DefenceEntry, ra.DefenceHeld, ra.DefenceTouched));
+                    ra.Log($"{now:F1} s: {z.Id} in {now - ra.DefenceEntry:F2} s, pressure {(ra.DefenceHeld ? "held throughout" : "not held")}{(ra.DefenceTouched ? ", barrier touched" : "")}");
+                    ra.DefenceZone = -1;
+                }
+                return;
+            }
+            if (!stepped) return;
+            for (int k = 0; k < defenceZones.Count; k++)
+                if (before < defenceZones[k].StartMetres && here >= defenceZones[k].StartMetres)
+                {
+                    ra.DefenceZone = k;
+                    ra.DefenceEntry = now;
+                    ra.DefenceHeld = true;
+                    ra.DefenceTouched = a.Sim != null && a.Sim.Telemetry.WallContact;
+                }
         }
 
         void Follow(int i, RaceEntrant a, RacecraftRun ra, double now)

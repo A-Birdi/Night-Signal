@@ -248,6 +248,8 @@ namespace NightSignal.Race
             if (fc.Pace > 0f) profile.PaceScale = fc.Pace;
             RaceEntrant e = Add(lib, world, slot, id, name, false, fc.Car, "opposing", string.IsNullOrEmpty(fc.Role) ? "field" : fc.Role, null, grid: grid);
             e.Ai = new RouteFollower(Track, e.Params, profile) { DriftZones = DriftZonesForAi, SurfaceGrip = CourseRuntime.SurfaceGrip(Rules.Surface), Seed = slot };
+            // A pressure car closes up and follows, never passing (CH39).
+            if (fc.Role == "pressure") e.Ai.NoPassing = true;
             // A pacing rival keeps to the far side of each marked lane (CH36's outside lane gate), so the lane stays open for a pass.
             if (fc.Role == "pacing")
                 e.Ai.LineZones = Track.Gates.Where(g => g.Kind == "lane" && !string.IsNullOrEmpty(g.Challenge))
