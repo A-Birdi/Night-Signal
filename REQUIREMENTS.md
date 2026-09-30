@@ -47,9 +47,9 @@ lists the superseded rules and where each lands. Rows marked _(A01)_ carry the r
 | R2.3 | A02 §9 _(A02)_ | ≥ 8 mechanical loadouts per car instance, ≥ 5 visual presets, 3 protected references, atomic whole-build apply/restore | implemented — Core/Builds (223 tests), Local profile schema 2 + Garage screen (V-038), online `/v1/me/garage` with idempotent settlement (329 control plane tests, V-040) and the Garage screen online (V-041); visual-preset UI pending |
 | R2.4 | A02 §10 _(A02)_ | Garage Test Yard: drivable, same controller, A/B, preview unowned parts, no progression | implemented (Local) — T00 campus stations, A/B reset-and-drive, dry/wet, last 3 runs per side, notes/prefer marker (V-039); online yard entry pending with the online Garage UI |
 | R2.5 | A02 §8, master §9 _(A02)_ | Parts/tuning system with real tradeoffs; favourite-car upgrade path for all 18 cars; calibrated pacing | in progress — 67 parts, resolver, recipes for 18 cars; Local races drive the applied build; T2 engine/tyres/brakes measurably improve all three starters in the vehicle simulation (V-038); a part bought online races with a server-verified build hash (V-041); tuning UI; F08 with certified targets: V03 completes all 30 Normal stages on its intended path, V01/V02 28/30 (S29 Entry apex gates in traffic, automation limit) (V-065); Hard: V03 28/30 (S29 Descent wall contact in traffic) (V-068); F09 driving: all 18 models on their paths beat the certified targets at four sides each, 72/72 after V06-H3 moved to semi-slicks (V-069); F10 starters (V-048); human runs pending |
-| R2.6 | A02 D208 _(A02)_ | 24 h dormant convoy for all-disconnected case | in progress (control plane) |
+| R2.6 | A02 D208 _(A02)_ | 24 h dormant convoy for all-disconnected case | implemented in the control plane — tests (V-021: 24 h dormant rooms, restart recovery; V-028: toy snapshots survive a restart, 24 h expiry); a real restart restores dormant rooms (control-plane log). Not shown: a built-client reconnection after a long all-disconnected wait |
 | R3.1 | §3.1 | URP, C#, Input System, uGUI+TMP single UI stack | implemented — URP, C#, Input System; uGUI + TMP front end and race HUD used by every evidence tour (V-027 … V-047) |
-| R3.2 | §3.2 | Dedicated authoritative server process (NGO + Unity Transport) | implemented — run pending |
+| R3.2 | §3.2 | Dedicated authoritative server process (NGO + Unity Transport) | implemented — run in built players since V-016 (three processes, UDP, ticket-validated), e.g. the 12-car grid V-035, parties of 1–6 V-114, online trials V-142/V-144 |
 | R3.3 | §3.2 | ASP.NET Core control plane (.NET 10 LTS), HTTP + authenticated control channel | verified (V-013) |
 | R3.4 | §3.2 | Supabase Auth; JWT verification via JWKS | implemented; DevAuth path verified; Supabase itself **blocked** |
 | R3.5 | §3.2 | Short-lived single-use audience-bound match tickets | verified (V-013, V-014) |
@@ -58,7 +58,7 @@ lists the superseded rules and where each lands. Rows marked _(A01)_ carry the r
 | R3.8 | §3.2 | Local integration env of real components; dev bypass impossible in production | in progress (DevAuth guard verified; Supabase local blocked) |
 | R3.9 | §3.2a | Email/password lifecycle incl. reset, deletion request | not started (client side) |
 | R3.10 | §3.2a | One active driving session per account; takeover consent | implemented in control plane (takeover) |
-| R3.11 | §3.2a | Guest/offline practice clearly labelled, never uploads earnings | in progress (offline practice exists; labelling UI pending) |
+| R3.11 | §3.2a | Guest/offline practice clearly labelled, never uploads earnings | implemented for Local/offline — labelled on the strip, the hub and the results page (V-020); Local results, records and ghosts stay on the PC (V-103). Guest (unauthenticated) practice labelling not separately verified |
 | R3.12 | §3.3 | Leader is not authority; race survives leader loss | implemented (control plane transfer; server owns race) |
 | R3.13 | §3.4 | Web target (secondary, later) | not started |
 | R3.14 | §3.5 | Cost/operations worksheet after first six-client test | not started |
@@ -66,7 +66,7 @@ lists the superseded rules and where each lands. Rows marked _(A01)_ carry the r
 | R4.2 | §4.1 | Convoy create/join, invites, privacy, expiry/rate limit | verified — control plane (V-013) and the client convoy screen/Friends invites (V-027, V-037) |
 | R4.3 | §4.1 | Persistent convoy header UI | in progress — the compact convoy header at the meet with members, readiness and Event/Mode Ready (V-075); not yet persistent across every menu screen |
 | R4.4 | §4.2 | Two revisioned ready checks, invalidation, 15 s / 120 s rules | verified in control plane (V-013) |
-| R4.5 | §4.3 | Loading barrier (90 s + 30 s), server start tick, 3-2-1-GO | implemented (RaceServer) — run pending |
+| R4.5 | §4.3 | Loading barrier (90 s + 30 s), server start tick, 3-2-1-GO | implemented (RaceServer) — verified in built players (loading barrier → countdown → race, V-016 onward) |
 | R4.6 | §4.4 | Heartbeats, 250 ms coast, DQ, spectate, slot hold, leader transfer | partial: coast/DQ implemented; spectating (server, client mode, target cycling/loss, empty state, convoy button) and refused mid-race re-entry verified on real processes (V-057/V-058); the UI path — mid-race crash, sign in, Rejoin, Spectate the Race — driven on two built clients with a human still racing (V-060); under load — six impaired clients, a recovery-then-drop refused re-entry and spectated, a second drop, both DQ with no payout while four finished and were credited (V-095) |
 | R5.1 | §5.1 | Ordered frontier, shared selection, server validation | verified (V-009, V-013); the neutral shared-frontier line, locked stages and a selection returned to the frontier on the Convoy screen, run with two built players of different progress (V-117) |
 | R5.2 | §5.2 | Team success, support envelopes, deadlines | verified rules (V-009); server deadline implemented |
@@ -100,7 +100,7 @@ lists the superseded rules and where each lands. Rows marked _(A01)_ carry the r
 | R16.2 | §16 | Tutorial T00 lessons | in progress — the Driving School: 8 judged drive lessons on the T00 loop with autopilot demonstrations and local retry, 6 knowledge cards, a searchable help index, progress in the Local profile, never a race gate (V-111); left: the convoy tutorial session and the off-loop areas (braking lane, skid pad) |
 | R17.1 | §17 | Typed schemas, reference validator, coverage report | in progress |
 | R17.2 | §17 | Editor tools: generation/validation, builds, smoke, capture | in progress (course/scene/car/material/content tools, BuildCommands) |
-| R18.1 | §18 | Prediction/reconciliation; interpolated remotes; 60/30/20 Hz | implemented (RaceClient) — run pending |
+| R18.1 | §18 | Prediction/reconciliation; interpolated remotes; 60/30/20 Hz | implemented (RaceClient) — measured in built players, including under delay/jitter/loss (V-016, V-054, V-061); open: the heavy-contact prediction hitch at ~190 ms RTT (V-061 inconclusive, V-087) |
 | R18.2 | §18 | Server validation of inputs/progress; tick finish; ties | implemented (RaceServer, RaceClassification verified) |
 | R18.3 | §18 | Network impairment test matrix | in progress — races under delay/jitter/loss with recoveries (V-054), correction blending under impairment with six rendered clients (V-061), the meet under control-channel latency (V-094), six impaired humans with drops and refused re-entry (V-095); not yet a single matrix across every mode |
 | R20.1 | §20 | Maintained docs | in progress |
