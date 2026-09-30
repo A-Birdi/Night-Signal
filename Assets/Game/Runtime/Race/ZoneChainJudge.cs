@@ -98,8 +98,14 @@ namespace NightSignal.Race
                 BankGate = gate,
                 SectorEnd = sectorEnd,
                 Finished = e.Progress.Finished,
+                RouteMetres = d,
             });
         }
+
+        /// <summary>Automation only (CH23's recoveries): a challenge's zones as separate drift zones — one slide started and caught in each.</summary>
+        public IReadOnlyList<RouteGateDef> AutopilotZonesOf(string challenge) =>
+            zones.Where(z => z.Challenge == challenge).Select(z => new RouteGateDef { Id = z.Id, Kind = "drift-zone", Challenge = z.Challenge,
+                StartMetres = z.StartMetres, EndMetres = z.EndMetres, LineOffset = z.LineOffset, LineTolerance = Mathf.Max(0.5f, z.LineTolerance) }).ToList();
 
         /// <summary>
         /// Automation only (the zone tour and its measurement): where the validator autopilot holds one slide — per challenge,

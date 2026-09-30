@@ -133,7 +133,7 @@ namespace NightSignal.Front
                 // Drift trials: the reference's own drift skill first, then the other measured skills until one run passes
                 // (whether the published targets can be reached at all); time trials: one run.
                 float refSkill = t.Targets.ReferenceDriftSkill > 0f ? t.Targets.ReferenceDriftSkill : 0.95f;
-                float[] skills = t.JudgesDrift ? new[] { refSkill }.Concat(new[] { 0.95f, 0.8f, 0.65f }.Where(k => Math.Abs(k - refSkill) > 0.001f)).ToArray() : new[] { 0f };
+                float[] skills = t.JudgesDrift || t.Rules.AlternatingRecoveries ? new[] { refSkill }.Concat(new[] { 0.95f, 0.8f, 0.65f }.Where(k => Math.Abs(k - refSkill) > 0.001f)).ToArray() : new[] { 0f };
                 TrialVerdict v = null;
                 foreach (float skill in skills)
                 {
@@ -145,6 +145,7 @@ namespace NightSignal.Front
                     pendingAutopilotPaceScale = t.Targets.ReferencePaceScale;
                     OfflineRaceSession.AutopilotAimsChallengeGates = t.Rules.AllChallengeGates;
                     OfflineRaceSession.AutopilotApexHoldMetres = t.IsDrill ? 30f : 0f; // as a drill's reference was measured
+                    OfflineRaceSession.AutopilotSlidesZonesOf = t.Rules.AlternatingRecoveries ? t.Challenge : null;
                     // A marked overtake (CH40): follow the car ahead and attack only inside the marked zone, as the racecraft tour does.
                     bool zonePass = t.Rules.CleanZonePass || !string.IsNullOrEmpty(t.Rules.ZonePassRole);
                     OfflineRaceSession.AutopilotFollowSeconds = zonePass ? 0.5f : 0f;
@@ -184,9 +185,10 @@ namespace NightSignal.Front
                     OfflineRaceSession.AutopilotAttacksMarkedZones = false;
                     OfflineRaceSession.AutopilotHoldsMarkedLanes = false;
                     OfflineRaceSession.AutopilotApexHoldMetres = 0f;
+                    OfflineRaceSession.AutopilotSlidesZonesOf = null;
                     v = LocalEvents.LastTrialVerdict;
                     if (v == null) { Fail(t.Id + " was not judged"); break; }
-                    Note($"{t.Id} ({t.Challenge} {t.Tier}){(t.JudgesDrift ? $" at drift skill {skill:F2}{(skill == refSkill ? " (the reference's)" : "")}" : "")}: " +
+                    Note($"{t.Id} ({t.Challenge} {t.Tier}){(t.JudgesDrift || t.Rules.AlternatingRecoveries ? $" at drift skill {skill:F2}{(skill == refSkill ? " (the reference's)" : "")}" : "")}: " +
                          $"{(v.Passed ? "PASSED" : "not passed")} — {v.Summary}");
                     if (t.IsRace)
                         foreach (string line in LocalEvents.LastTrialRacecraftLog) Note($"{t.Id}:   {line}");

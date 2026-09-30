@@ -1,0 +1,16 @@
+# Challenge trial targets, measured by ChallengeTrialReferenceTests (PlayMode, explicit): each trial's loaner resolved like a
+# garage build, solo, validator autopilot, the trial's course and conditions; drift trials: the cleanest of three drift skills. Automation.
+# this run measured only: TR-CH23
+
+## TR-CH23 (CH23, silver) on T00 (dry): Kogane Kestrel S, PI 295
+skill 0.95: time 175.046 s; banked 3319 raw (earned 3319) in 1/3 zones; walls 3, resets 2, handbrake 6.9 s, off the paved road 38.5 s
+skill 0.80: time 158.904 s; banked 0 raw (earned 0) in 0/3 zones; walls 3, resets 2, handbrake 4.2 s, off the paved road 28.5 s
+skill 0.65: time 142.409 s; banked 0 raw (earned 0) in 0/3 zones; walls 1, resets 1, handbrake 3.2 s, off the paved road 12.1 s  ← used
+(the cleanest reference still reset 1 time(s): its time includes them)
+skill 0.95 recoveries: T00-COUNTER-1 −, | reset or spin |, T00-COUNTER-1 +, T00-COUNTER-1 +, T00-COUNTER-2 +, T00-COUNTER-2 −, T00-COUNTER-2 −, T00-COUNTER-2 −, T00-COUNTER-3 −, T00-COUNTER-3 +, T00-COUNTER-3 −, T00-COUNTER-3 +, T00-COUNTER-4 +, T00-COUNTER-4 −, T00-COUNTER-4 −, T00-COUNTER-2 +, T00-COUNTER-2 −, T00-COUNTER-2 +, | reset or spin |; resets 2
+skill 0.80 recoveries: T00-COUNTER-1 −, | reset or spin |, T00-COUNTER-1 +, T00-COUNTER-2 +, T00-COUNTER-2 −, T00-COUNTER-2 −, T00-COUNTER-3 −, | reset or spin |, T00-COUNTER-3 +, T00-COUNTER-4 +, T00-COUNTER-4 −; resets 2
+skill 0.65 recoveries: T00-COUNTER-1 −, | reset or spin |, T00-COUNTER-2 +, T00-COUNTER-3 −, T00-COUNTER-4 +, T00-COUNTER-4 −, T00-COUNTER-2 +, T00-COUNTER-3 −, T00-COUNTER-4 +, T00-COUNTER-4 −; resets 1
+recoveries: T00-COUNTER-1 −, | reset or spin |, T00-COUNTER-2 +, T00-COUNTER-3 −, T00-COUNTER-4 +, T00-COUNTER-4 −, T00-COUNTER-2 +, T00-COUNTER-3 −, T00-COUNTER-4 +, T00-COUNTER-4 − — four alternating: False
+→ 
+
+# problems: TR-CH23: the reference did not make the four alternating recoveries (the rule stays; a person must do better)

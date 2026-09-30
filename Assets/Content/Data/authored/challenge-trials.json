@@ -39,7 +39,8 @@
         "pressureSector": false,
         "allDefenceZones": false,
         "challengeExits": false,
-        "brakeEnvelope": false
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false
       },
       "targets": {
         "timeMs": 136346,
@@ -99,7 +100,8 @@
         "pressureSector": false,
         "allDefenceZones": false,
         "challengeExits": false,
-        "brakeEnvelope": false
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false
       },
       "targets": {
         "timeMs": 273700,
@@ -159,7 +161,8 @@
         "pressureSector": false,
         "allDefenceZones": true,
         "challengeExits": false,
-        "brakeEnvelope": false
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false
       },
       "targets": {
         "timeMs": 167220,
@@ -219,7 +222,8 @@
         "pressureSector": false,
         "allDefenceZones": false,
         "challengeExits": false,
-        "brakeEnvelope": false
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false
       },
       "targets": {
         "timeMs": 150400,
@@ -279,7 +283,8 @@
         "pressureSector": false,
         "allDefenceZones": false,
         "challengeExits": false,
-        "brakeEnvelope": false
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false
       },
       "targets": {
         "timeMs": 194300,
@@ -341,7 +346,8 @@
         "pressureSector": false,
         "allDefenceZones": false,
         "challengeExits": false,
-        "brakeEnvelope": false
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false
       },
       "targets": {
         "timeMs": 169200,
@@ -401,7 +407,8 @@
         "pressureSector": false,
         "allDefenceZones": false,
         "challengeExits": false,
-        "brakeEnvelope": false
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false
       },
       "targets": {
         "timeMs": 158400,
@@ -461,7 +468,8 @@
         "pressureSector": false,
         "allDefenceZones": false,
         "challengeExits": false,
-        "brakeEnvelope": false
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false
       },
       "targets": {
         "timeMs": 160500,
@@ -523,7 +531,8 @@
         "pressureSector": false,
         "allDefenceZones": false,
         "challengeExits": false,
-        "brakeEnvelope": false
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false
       },
       "targets": {
         "timeMs": 0,
@@ -585,7 +594,8 @@
         "pressureSector": false,
         "allDefenceZones": false,
         "challengeExits": false,
-        "brakeEnvelope": false
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false
       },
       "targets": {
         "timeMs": 274100,
@@ -647,7 +657,8 @@
         "pressureSector": false,
         "allDefenceZones": false,
         "challengeExits": false,
-        "brakeEnvelope": false
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false
       },
       "targets": {
         "timeMs": 0,
@@ -726,7 +737,8 @@
         "pressureSector": false,
         "allDefenceZones": false,
         "challengeExits": false,
-        "brakeEnvelope": false
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false
       },
       "targets": {
         "timeMs": 0,
@@ -817,7 +829,8 @@
         "pressureSector": false,
         "allDefenceZones": false,
         "challengeExits": false,
-        "brakeEnvelope": false
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false
       },
       "targets": {
         "timeMs": 0,
@@ -884,7 +897,8 @@
         "pressureSector": false,
         "allDefenceZones": false,
         "challengeExits": false,
-        "brakeEnvelope": false
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false
       },
       "targets": {
         "timeMs": 0,
@@ -951,7 +965,8 @@
         "pressureSector": true,
         "allDefenceZones": false,
         "challengeExits": false,
-        "brakeEnvelope": false
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false
       },
       "targets": {
         "timeMs": 0,
@@ -1027,7 +1042,8 @@
         "pressureSector": false,
         "allDefenceZones": false,
         "challengeExits": false,
-        "brakeEnvelope": false
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false
       },
       "targets": {
         "timeMs": 0,
@@ -1103,7 +1119,8 @@
         "pressureSector": false,
         "allDefenceZones": false,
         "challengeExits": false,
-        "brakeEnvelope": false
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false
       },
       "targets": {
         "timeMs": 0,
@@ -1179,7 +1196,8 @@
         "pressureSector": false,
         "allDefenceZones": false,
         "challengeExits": false,
-        "brakeEnvelope": false
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false
       },
       "targets": {
         "timeMs": 0,
@@ -1255,7 +1273,8 @@
         "pressureSector": false,
         "allDefenceZones": false,
         "challengeExits": false,
-        "brakeEnvelope": false
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false
       },
       "targets": {
         "timeMs": 0,
@@ -1317,7 +1336,8 @@
         "pressureSector": false,
         "allDefenceZones": false,
         "challengeExits": false,
-        "brakeEnvelope": false
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false
       },
       "targets": {
         "timeMs": 14600,
@@ -1377,7 +1397,8 @@
         "pressureSector": false,
         "allDefenceZones": false,
         "challengeExits": false,
-        "brakeEnvelope": false
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false
       },
       "targets": {
         "timeMs": 21400,
@@ -1437,7 +1458,8 @@
         "pressureSector": false,
         "allDefenceZones": false,
         "challengeExits": false,
-        "brakeEnvelope": false
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false
       },
       "targets": {
         "timeMs": 15800,
@@ -1497,7 +1519,8 @@
         "pressureSector": false,
         "allDefenceZones": false,
         "challengeExits": false,
-        "brakeEnvelope": false
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false
       },
       "targets": {
         "timeMs": 16900,
@@ -1557,7 +1580,8 @@
         "pressureSector": false,
         "allDefenceZones": false,
         "challengeExits": false,
-        "brakeEnvelope": false
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false
       },
       "targets": {
         "timeMs": 20000,
@@ -1617,7 +1641,8 @@
         "pressureSector": false,
         "allDefenceZones": false,
         "challengeExits": true,
-        "brakeEnvelope": false
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false
       },
       "targets": {
         "timeMs": 0,
@@ -1688,7 +1713,8 @@
         "pressureSector": false,
         "allDefenceZones": false,
         "challengeExits": true,
-        "brakeEnvelope": false
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false
       },
       "targets": {
         "timeMs": 0,
@@ -1757,7 +1783,8 @@
         "pressureSector": false,
         "allDefenceZones": false,
         "challengeExits": false,
-        "brakeEnvelope": true
+        "brakeEnvelope": true,
+        "alternatingRecoveries": false
       },
       "targets": {
         "timeMs": 0,
@@ -1779,6 +1806,67 @@
       },
       "group": "",
       "brief": "The Driving School's braking lesson in its fixed loaner, the starter Hachi RS: brake for the test bend in the marked zone and trail the brake into the turn — begin by the marked point, keep some brake on until late in the zone, and leave at the published speed. No handbrake.",
+      "ghost": false,
+      "judgesTime": false,
+      "judgesDrift": false,
+      "isRace": false,
+      "isDrill": true,
+      "isCup": false,
+      "hasSection": false,
+      "published": true
+    },
+    {
+      "id": "TR-CH23",
+      "challenge": "CH23",
+      "title": "Countersteer Conversation",
+      "course": "T00",
+      "tier": "silver",
+      "kind": "drill",
+      "legs": [],
+      "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
+      "sectionStartGate": "",
+      "sectionEndGate": "",
+      "field": [],
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V04",
+        "parts": {},
+        "piCap": 0
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": false,
+        "allDefenceZones": false,
+        "challengeExits": false,
+        "brakeEnvelope": false,
+        "alternatingRecoveries": true
+      },
+      "targets": {
+        "timeMs": 0,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.65,
+        "referenceEdgeMargin": 0.0,
+        "referencePaceScale": 0.0,
+        "sectorTimeMs": 0,
+        "exitFloors": [],
+        "brakes": []
+      },
+      "group": "",
+      "brief": "The Driving School's advanced countersteer drill in the rear-drive Kestrel S: in each of the four marked slalom zones in turn, let the car slide and catch it before the next arc — left and right alternately — with no spin and no reset between the recoveries.",
       "ghost": false,
       "judgesTime": false,
       "judgesDrift": false,

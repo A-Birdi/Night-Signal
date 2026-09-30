@@ -172,6 +172,7 @@ namespace NightSignal.Front
             rules.text = field + "; your garage and upgrades are not used" + (said.Count > 0 ? "; " + string.Join(", ", said) : "") + ".";
             var goals = new List<string>();
             if (t.Rules.Win) goals.Add("win");
+            if (t.Rules.AlternatingRecoveries) goals.Add("slide and catch the car in each marked zone in turn, left and right alternately, without a spin");
             if (t.Rules.BrakeEnvelope)
                 goals.Add(t.Targets.Brakes.Count > 0 && t.Targets.Brakes.All(x => x.BrakeByMetres > 0f)
                     ? string.Join(", ", t.Targets.Brakes.Select(x => $"brake by {x.BrakeByMetres:F0} m, trail it to {x.ReleaseAfterMetres:F0} m, exit {x.MinExitKmh:F0}–{x.MaxExitKmh:F0} km/h"))

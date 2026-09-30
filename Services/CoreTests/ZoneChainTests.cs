@@ -28,7 +28,7 @@ public sealed class ZoneChainTests
             return -1;
         }
 
-        /// <summary>Drives <paramref name="metres"/> at <paramref name="slip"/> degrees.</summary>
+        /// <summary>Drives <paramref name="metres"/> at <paramref name="slip"/> degrees (signed: + one way, − the other).</summary>
         public Driver Drive(double metres, float slip, string bankGateAt = null, float gateMetres = -1f, bool touch = false)
         {
             double to = At + metres;
@@ -38,7 +38,7 @@ public sealed class ZoneChainTests
                 At += 20.0 * Dt;
                 string gate = gateMetres >= 0f && before < gateMetres && At >= gateMetres ? bankGateAt ?? "" : "";
                 run.Step(new ZoneChainSample { DeltaSeconds = Dt, SpeedKmh = 72f, SlipAngleDegrees = slip, ProgressMetres = At, MovingInLegalDirection = true,
-                    OnRoad = true, Zone = ZoneAt(At), LateralMetres = Lateral, BankGate = gate, WallContact = touch });
+                    OnRoad = true, Zone = ZoneAt(At), LateralMetres = Lateral, BankGate = gate, WallContact = touch, RouteMetres = (float)At });
             }
             return this;
         }
@@ -186,6 +186,59 @@ public sealed class ZoneChainTests
         d.Drive(30, 28f);
         Assert.False(run.ChainAlive);
         Assert.Equal(new[] { 0, 1 }, run.Chains.Single().Zones);
+    }
+
+    static ZoneChainRun Slalom() => new(new[]
+    {
+        Z("S1", "CH23", ChallengeZone.Transition, 100, 180), Z("S2", "CH23", ChallengeZone.Transition, 190, 270),
+        Z("S3", "CH23", ChallengeZone.Transition, 280, 360), Z("S4", "CH23", ChallengeZone.Transition, 370, 430),
+    });
+
+    /// <summary>A slide in a zone, then caught (3°) before the next zone begins.</summary>
+    static Driver SlideAndCatch(Driver d, float slip) => d.Drive(40, slip).Drive(50, slip > 0 ? 3f : -3f);
+
+    [Fact]
+    public void FourAlternatingRecoveries_OneInEachZone()
+    {
+        var run = Slalom();
+        var d = new Driver(run).Drive(100, 2f);
+        SlideAndCatch(SlideAndCatch(SlideAndCatch(SlideAndCatch(d, 20f), -20f), 20f), -20f);
+        Assert.Equal(new[] { 1, -1, 1, -1 }, run.Recoveries.Select(r => r.Direction));
+        Assert.Equal(new[] { 0, 1, 2, 3 }, run.Recoveries.Select(r => r.Zone));
+        Assert.True(run.AlternatingRecoveries("CH23"));
+        Assert.False(run.AlternatingRecoveries("CH99"), "a course without the zones");
+    }
+
+    [Fact]
+    public void Recoveries_MustAlternate_BeCaught_AndNotSpin()
+    {
+        var same = Slalom();
+        SlideAndCatch(SlideAndCatch(SlideAndCatch(SlideAndCatch(new Driver(same).Drive(100, 2f), 20f), 20f), -20f), 20f);
+        Assert.False(same.AlternatingRecoveries("CH23"), "the same way twice");
+
+        var uncaught = Slalom();
+        var d = SlideAndCatch(new Driver(uncaught).Drive(100, 2f), 20f);
+        d.Drive(95, -20f); // the second slide is still held well past its zone and into the next
+        SlideAndCatch(SlideAndCatch(d, 20f), -20f);
+        Assert.False(uncaught.AlternatingRecoveries("CH23"), "a slide not caught in time");
+
+        var spun = Slalom();
+        d = SlideAndCatch(SlideAndCatch(new Driver(spun).Drive(100, 2f), 20f), -20f);
+        d.Drive(10, 120f).Drive(5, 3f);
+        SlideAndCatch(SlideAndCatch(d, 20f), -20f);
+        Assert.True(spun.Spun);
+        Assert.False(spun.AlternatingRecoveries("CH23"), "a spin between the recoveries");
+
+        var resetAfter = Slalom();
+        d = SlideAndCatch(SlideAndCatch(SlideAndCatch(SlideAndCatch(new Driver(resetAfter).Drive(100, 2f), 20f), -20f), 20f), -20f);
+        d.Event(reset: true);
+        Assert.True(resetAfter.AlternatingRecoveries("CH23"), "a reset after the drill does not undo it");
+
+        var resetBetween = Slalom();
+        d = SlideAndCatch(SlideAndCatch(new Driver(resetBetween).Drive(100, 2f), 20f), -20f);
+        d.Event(reset: true);
+        SlideAndCatch(SlideAndCatch(d, 20f), -20f);
+        Assert.False(resetBetween.AlternatingRecoveries("CH23"), "a reset between the recoveries");
     }
 
     /// <summary>The routes carry the zones the four predicates read (no route change was needed for them).</summary>

@@ -67,6 +67,8 @@ namespace NightSignal.Race
         public static bool AutopilotHoldsMarkedLanes;
         /// <summary>Automation only: the autopilot holds each marked apex's line this far past the gate (drills; 0 = the tuned line).</summary>
         public static float AutopilotApexHoldMetres;
+        /// <summary>Automation only: the autopilot slides each zone of this challenge as a separate drift and catches it (CH23; null = off).</summary>
+        public static string AutopilotSlidesZonesOf;
         public int CountdownTicks = 60 * 3;
 
         public RaceSimulation Sim { get; private set; }
@@ -190,7 +192,8 @@ namespace NightSignal.Race
             if (AutopilotPaceScale > 0f) pilotProfile.PaceScale = AutopilotPaceScale;
             pilot = new RouteFollower(course.Track, Player.Params, pilotProfile)
             {
-                DriftZones = AutopilotDrivesChallengeZones && Sim.ZoneChains != null ? Sim.ZoneChains.AutopilotSpans() : Sim.DriftZonesForAi,
+                DriftZones = !string.IsNullOrEmpty(AutopilotSlidesZonesOf) && Sim.ZoneChains != null ? Sim.ZoneChains.AutopilotZonesOf(AutopilotSlidesZonesOf)
+                    : AutopilotDrivesChallengeZones && Sim.ZoneChains != null ? Sim.ZoneChains.AutopilotSpans() : Sim.DriftZonesForAi,
                 ApexGates = Sim.Contracts?.ApexGates ?? (AutopilotAimsChallengeGates ? Sim.Gates?.TouchGates : null),
                 LineZones = AutopilotDrivesChallengeZones ? Sim.ZoneChains?.AutopilotLines(ZoneSlideClipInset)
                     : AutopilotHoldsMarkedLanes ? course.Track.Gates.Where(g => g.Kind == "lane" && !string.IsNullOrEmpty(g.Challenge)).ToList() : null,

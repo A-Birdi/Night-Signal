@@ -48,6 +48,8 @@ namespace NightSignal.Core.Rules
         public bool SectorEnd;
         /// <summary>The car finished this step.</summary>
         public bool Finished;
+        /// <summary>The car's route distance (recoveries are allowed a short run-out past a zone's end).</summary>
+        public float RouteMetres;
     }
 
     /// <summary>One chain that linked at least one challenge zone, as it ended.</summary>
@@ -89,6 +91,21 @@ namespace NightSignal.Core.Rules
         /// <summary>Chains lost (with or without linked zones).</summary>
         public int ChainsLost { get; private set; }
 
+        /// <summary>
+        /// CH23: a valid recovery — a slide past <see cref="SlideDegrees"/> inside a transition zone caught back to
+        /// <see cref="RecoverDegrees"/> or less, inside the zone or within <see cref="RecoveryRunOutMetres"/> after it, without a
+        /// spin, wall impact, leaving the road or a reset in between.
+        /// </summary>
+        public const float SlideDegrees = 12f, RecoverDegrees = 5f, RecoveryRunOutMetres = 20f;
+        /// <summary>
+        /// Every valid recovery in order: the zone and the slide's direction (+1 / −1, the sign of its slip); a reset or a spin in
+        /// between is kept as a break (zone −1), so a drill's recoveries must follow one another without one.
+        /// </summary>
+        public readonly List<(int Zone, int Direction)> Recoveries = new List<(int, int)>();
+        /// <summary>A spin at any time (the slip beyond 100° for 0.3 s).</summary>
+        public bool Spun { get; private set; }
+        int slideZone = -1, slideSign;
+
         /// <summary>Feed bookkeeping for the runtime judge (last route distance, sector and wall count seen).</summary>
         public float LastDistance = -1f;
         public int LastSector = -1, WallsSeen;
@@ -118,13 +135,18 @@ namespace NightSignal.Core.Rules
             if (current != null && s.WallContact) current.Touched = true;
             ChainEnd lost = s.Reset ? ChainEnd.LostReset : s.WallImpact ? ChainEnd.LostWall : !s.OnRoad ? ChainEnd.LostOffCourse : ChainEnd.None;
             spinning = absSlip >= DriftScorer.SpinAngleDegrees ? spinning + s.DeltaSeconds : 0f;
+            if (spinning >= DriftScorer.SpinHoldSeconds) Spun = true;
             if (lost == ChainEnd.None && spinning >= DriftScorer.SpinHoldSeconds) lost = ChainEnd.LostSpin;
             if (lost != ChainEnd.None)
             {
                 Lose(lost);
                 EndHold();
+                slideZone = -1;
+                if ((lost == ChainEnd.LostReset || lost == ChainEnd.LostSpin || s.Reset) && (Recoveries.Count == 0 || Recoveries[Recoveries.Count - 1].Zone >= 0))
+                    Recoveries.Add((-1, 0));
                 return;
             }
+            StepRecovery(s, absSlip);
 
             bool drifting = forward > 0 && s.MovingInLegalDirection && s.SpeedKmh >= DriftScorer.MinimumSpeedKmh && DriftScorer.AngleFactor(absSlip) > 0;
             ChallengeZone z = s.Zone >= 0 && s.Zone < zones.Count ? zones[s.Zone] : null;
@@ -153,6 +175,50 @@ namespace NightSignal.Core.Rules
 
             if (!string.IsNullOrEmpty(s.BankGate)) Bank(s.BankGate);
             else if (s.SectorEnd || s.Finished) Bank("");
+        }
+
+        void StepRecovery(ZoneChainSample s, float absSlip)
+        {
+            ChallengeZone z = s.Zone >= 0 && s.Zone < zones.Count ? zones[s.Zone] : null;
+            if (z != null && z.Kind == ChallengeZone.Transition && absSlip >= SlideDegrees)
+            {
+                slideZone = s.Zone;
+                slideSign = Math.Sign(s.SlipAngleDegrees);
+                return;
+            }
+            if (slideZone < 0) return;
+            if (s.RouteMetres > zones[slideZone].EndMetres + RecoveryRunOutMetres || s.RouteMetres < zones[slideZone].StartMetres - 1f)
+            {
+                slideZone = -1; // not caught in time (or a jump): no recovery
+                return;
+            }
+            if (absSlip <= RecoverDegrees)
+            {
+                Recoveries.Add((slideZone, slideSign));
+                slideZone = -1;
+            }
+        }
+
+        /// <summary>
+        /// CH23: every zone of <paramref name="challenge"/> recovered, consecutively and in route order, the slide's direction
+        /// alternating from one to the next, with no reset or spin between them (false when the course has none).
+        /// </summary>
+        public bool AlternatingRecoveries(string challenge)
+        {
+            List<int> mine = Enumerable.Range(0, zones.Count).Where(i => zones[i].Challenge == challenge && zones[i].Kind == ChallengeZone.Transition)
+                .OrderBy(i => zones[i].StartMetres).ToList();
+            if (mine.Count == 0) return false;
+            for (int start = 0; start + mine.Count <= Recoveries.Count; start++)
+            {
+                bool ok = true;
+                for (int k = 0; k < mine.Count && ok; k++)
+                {
+                    (int zone, int dir) = Recoveries[start + k];
+                    ok = zone == mine[k] && dir != 0 && (k == 0 || dir == -Recoveries[start + k - 1].Direction);
+                }
+                if (ok) return true;
+            }
+            return false;
         }
 
         /// <summary>A drifting step inside a zone links it; a clip zone only with the car on its marked line.</summary>

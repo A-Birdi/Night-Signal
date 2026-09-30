@@ -48,6 +48,8 @@ namespace NightSignal.Tests
             public float OffPaved;
             public bool GatesTouched, DefenceKept;
             public string GateLog = "";
+            public string RecoveryLog = "";
+            public bool Recovered;
             public long SectionMs;
             public System.Collections.Generic.Dictionary<string, float> Exits = new System.Collections.Generic.Dictionary<string, float>();
             public System.Collections.Generic.Dictionary<string, GateSpeedFact> Brakes = new System.Collections.Generic.Dictionary<string, GateSpeedFact>();
@@ -80,6 +82,7 @@ namespace NightSignal.Tests
             session.AutopilotRivalStage = t.ReferenceStage > 0 ? t.ReferenceStage : 1;
             OfflineRaceSession.AutopilotAimsChallengeGates = t.Rules.AllChallengeGates;
             OfflineRaceSession.AutopilotApexHoldMetres = t.IsDrill ? DrillApexHoldMetres : 0f;
+            OfflineRaceSession.AutopilotSlidesZonesOf = t.Rules.AlternatingRecoveries ? t.Challenge : null;
             if (t.Ghost)
                 session.GhostTemplate = new NightSignal.Core.Ghosts.GhostHeader
                 {
@@ -108,6 +111,9 @@ namespace NightSignal.Tests
                 GateLog = me.GateRun == null ? "" : string.Join(", ", session.Sim.Gates.TouchGates.Select((g, i) => (g, i)).Where(x => x.g.Challenge == t.Challenge)
                     .Select(x => $"{x.g.Id} touched {me.GateRun.Touches[x.i]}/{me.GateRun.Passes[x.i]} (last at {me.GateRun.LastLateral[x.i]:F2} m for {x.g.LineOffset:F1} ± {x.g.LineTolerance:F1})")),
                 DefenceKept = me.GateRun != null && me.GateRun.DefenceKept(t.Challenge),
+                Recovered = me.ZoneChains != null && me.ZoneChains.AlternatingRecoveries(t.Challenge),
+                RecoveryLog = me.ZoneChains == null ? "" : string.Join(", ", me.ZoneChains.Recoveries.Select(x => x.Zone < 0 ? "| reset or spin |" : $"{me.ZoneChains.Zones[x.Zone].Id} {(x.Direction > 0 ? "+" : "−")}"))
+                              + (me.ZoneChains.Spun ? "; SPUN" : ""),
                 SectionMs = me.SectionMicros > 0 ? me.SectionMicros / 1000 : 0,
                 Brakes = me.GateRun == null ? new System.Collections.Generic.Dictionary<string, GateSpeedFact>()
                     : me.GateRun.SpeedGateIds.Where(g => me.GateRun.SpeedFact(g)?.Crossed == true).ToDictionary(g => g, g => me.GateRun.SpeedFact(g).Value),
@@ -118,6 +124,7 @@ namespace NightSignal.Tests
             };
             OfflineRaceSession.AutopilotAimsChallengeGates = false;
             OfflineRaceSession.AutopilotApexHoldMetres = 0f;
+            OfflineRaceSession.AutopilotSlidesZonesOf = null;
             UnityEngine.Object.Destroy(go);
             yield return null;
             done(f);
@@ -221,7 +228,8 @@ namespace NightSignal.Tests
                 // Drift trials: the cleanest of three skills (the drift controller still runs out of road on some courses, and a
                 // run full of resets would publish soft targets); time trials: one run.
                 var runs = new System.Collections.Generic.List<RunFacts>();
-                foreach (float skill in drift ? new[] { 0.95f, 0.8f, 0.65f } : new[] { 0f })
+                // A recovery drill (CH23) slides too: the same three skills, the cleanest run that recovers in every zone published.
+                foreach (float skill in drift || t.Rules.AlternatingRecoveries ? new[] { 0.95f, 0.8f, 0.65f } : new[] { 0f })
                     yield return Run(t, car, resolved.Spec, skill, f => runs.Add(f));
                 // A trial that keeps every tyre on the paved road: if the validator's line cuts an apex onto the shoulder, the
                 // fastest wider edge margin that keeps the rule is the reference (so the Gold target is shown reachable within its
@@ -252,13 +260,15 @@ namespace NightSignal.Tests
                     }
                 RunFacts best = t.Rules.AllTyresPaved && runs.Any(r => r.TimeMs > 0 && r.OffPaved <= 0f)
                     ? runs.Where(r => r.TimeMs > 0 && r.OffPaved <= 0f).OrderBy(r => r.TimeMs).First()
+                    : t.Rules.AlternatingRecoveries && runs.Any(r => r.TimeMs > 0 && r.Recovered)
+                    ? runs.Where(r => r.TimeMs > 0 && r.Recovered).OrderBy(r => r.Resets).ThenBy(r => r.TimeMs).First()
                     : t.Rules.AllChallengeGates && runs.Any(r => r.TimeMs > 0 && r.GatesTouched)
                     ? runs.Where(r => r.TimeMs > 0 && r.GatesTouched).OrderBy(r => r.TimeMs).First()
                     : runs.OrderByDescending(r => r.TimeMs > 0).ThenBy(r => r.Resets).ThenByDescending(r => Math.Max(r.Banked, r.Earned)).ThenBy(r => r.TimeMs).First();
                 report.AppendLine().AppendLine($"## {t.Id} ({t.Challenge}, {t.Tier}) on {t.Course} ({best.Surface}): {car.Name} {string.Join(" + ", t.Loaner.Parts.Values)}".TrimEnd(' ', '+') +
                                                $", PI {pi.Value}{(t.Loaner.PiCap > 0 ? $" (cap {t.Loaner.PiCap})" : "")}");
                 foreach (RunFacts r in runs)
-                    report.AppendLine($"{(drift ? $"skill {r.Skill:F2}: " : r.Margin > 0f ? $"edge margin {r.Margin:F1} m: " : r.Pace > 0f ? $"pace {r.Pace:F2}: " : "")}time {(r.TimeMs > 0 ? (r.TimeMs / 1000.0).ToString("F3") + " s" : "DNF")}; banked {r.Banked:F0} raw " +
+                    report.AppendLine($"{(drift || t.Rules.AlternatingRecoveries ? $"skill {r.Skill:F2}: " : r.Margin > 0f ? $"edge margin {r.Margin:F1} m: " : r.Pace > 0f ? $"pace {r.Pace:F2}: " : "")}time {(r.TimeMs > 0 ? (r.TimeMs / 1000.0).ToString("F3") + " s" : "DNF")}; banked {r.Banked:F0} raw " +
                                       $"(earned {r.Earned:F0}) in {r.ZonesBanked}/{r.Zones} zones; walls {r.Walls}, resets {r.Resets}, handbrake {r.Handbrake:F1} s, off the paved road {r.OffPaved:F1} s" +
                                       (runs.Count > 1 && r == best ? "  ← used" : "") + (r.OffPaved > 0f && t.Rules.AllTyresPaved ? $"\n  off the paved road at: {r.OffPavedWhere}" : "") +
                                       (t.Rules.AllChallengeGates ? $"\n  gates: {r.GateLog}" : ""));
@@ -276,6 +286,13 @@ namespace NightSignal.Tests
                     : (long)Math.Ceiling(TimeFactor(t.Tier) * best.TimeMs / 100.0) * 100;
                 if (t.HasSection) report.AppendLine($"section {t.SectionStartGate} → {t.SectionEndGate}: {(best.SectionMs > 0 ? $"{best.SectionMs / 1000.0:F3} s" : "NOT DRIVEN")}");
                 if (t.HasSection && best.SectionMs <= 0) problems.Add($"{t.Id}: the reference never drove its section");
+                if (t.Rules.AlternatingRecoveries)
+                {
+                    t.Targets.ReferenceDriftSkill = best.Skill;
+                    foreach (RunFacts r in runs) report.AppendLine($"skill {r.Skill:F2} recoveries: {r.RecoveryLog}; resets {r.Resets}");
+                    report.AppendLine($"recoveries: {best.RecoveryLog} — four alternating: {best.Recovered}");
+                    if (!best.Recovered) problems.Add($"{t.Id}: the reference did not make the four alternating recoveries (the rule stays; a person must do better)");
+                }
                 if (t.Rules.BrakeEnvelope)
                     foreach (TrialBrakeEnvelope env in t.Targets.Brakes)
                     {

@@ -81,6 +81,8 @@ namespace NightSignal.Core.Rules
         public bool ChallengeExits;
         /// <summary>Every braking zone tagged with the challenge driven inside its measured trail-brake envelope (CH07).</summary>
         public bool BrakeEnvelope;
+        /// <summary>CH23: every transition zone of the challenge recovered in turn, alternating directions, no spin.</summary>
+        public bool AlternatingRecoveries;
     }
 
     /// <summary>
@@ -251,6 +253,9 @@ namespace NightSignal.Core.Rules
         /// <summary>What the car did at each of the challenge's braking zones (the gate judge's facts; a zone never crossed is absent).</summary>
         public string[] BrakeGates;
         public GateSpeedFact[] BrakeFacts;
+        /// <summary>CH23: the challenge's zones recovered in turn with alternating directions and no spin; the recoveries made, and a spin.</summary>
+        public bool RecoveriesAlternating, Spun;
+        public int Recoveries;
     }
 
     public sealed class TrialVerdict
@@ -290,6 +295,8 @@ namespace NightSignal.Core.Rules
                 Check(f.OffPavedSeconds <= 0f, "all tyres on the paved road" + (f.OffPavedSeconds > 0f ? $" (off it {f.OffPavedSeconds:F1} s)" : ""));
             if (t.Rules.BankEveryZone) Check(f.ZonesTotal > 0 && f.ZonesBanked >= f.ZonesTotal, $"a chain banked in every judged zone ({f.ZonesBanked}/{f.ZonesTotal})");
             if (t.Rules.AllDefenceZones) Check(f.DefenceZones > 0 && f.DefenceZonesKept, $"every marked defence gate inside the legal corridor ({f.DefenceZones} of them)");
+            if (t.Rules.AlternatingRecoveries)
+                Check(f.RecoveriesAlternating, $"alternating recoveries, one in each marked zone in turn, no spin or reset between them ({f.Recoveries} recoveries in the run)");
             if (t.Rules.BrakeEnvelope)
                 foreach (TrialBrakeEnvelope env in t.Targets.Brakes)
                 {
@@ -390,7 +397,7 @@ namespace NightSignal.Core.Rules
                 if (t.Targets == null || t.Targets.TimeMs < 0 || t.Targets.DriftRaw < 0) problems.Add($"{t.Id}: negative target");
                 if (t.Rules != null && t.Rules.MaxWallImpacts < -1) problems.Add($"{t.Id}: invalid wall allowance");
                 if (!t.JudgesTime && !t.JudgesDrift && !t.IsRace && !t.IsCup && !t.IsDrill) problems.Add($"{t.Id}: unknown kind {t.Kind}");
-                if (t.IsDrill && t.Rules != null && !(t.Rules.AllChallengeGates || t.Rules.ChallengeExits || t.Rules.AllDefenceZones || t.Rules.BrakeEnvelope))
+                if (t.IsDrill && t.Rules != null && !(t.Rules.AllChallengeGates || t.Rules.ChallengeExits || t.Rules.AllDefenceZones || t.Rules.BrakeEnvelope || t.Rules.AlternatingRecoveries))
                     problems.Add($"{t.Id}: a drill judges nothing");
                 if (t.IsCup)
                 {
