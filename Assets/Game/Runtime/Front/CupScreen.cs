@@ -16,7 +16,7 @@ namespace NightSignal.Front
     /// </summary>
     public sealed class CupScreen : UIScreen
     {
-        public override string ScreenName => "CustomCup";
+        public override string ScreenName => trial != null ? "Challenge Cup" : "CustomCup";
         TextMeshProUGUI heading, schedule, table, note;
         Button next, leave;
         List<LocalEventPlan> legs = new List<LocalEventPlan>();
@@ -106,10 +106,12 @@ namespace NightSignal.Front
                 }));
                 awaitingLeg = false;
                 Debug.Log($"[NightSignal.Cup] after leg {cup.LegsRaced}: " + string.Join(" | ", cup.Standings().Select(e => $"{e.Name} {e.Points} ({Places(e)})")));
-                if (trial != null && LocalEvents.LastTrialVerdict != null)
+                if (trial != null && LocalEvents.CupLegsRun.Count >= cup.LegsRaced)
                 {
-                    legLines.Add($"{cup.Schedule[cup.LegsRaced - 1]}: {LocalEvents.LastTrialVerdict.Summary}");
-                    Debug.Log($"[NightSignal.Cup] {trial.Id} leg {cup.LegsRaced}: {LocalEvents.LastTrialVerdict.Summary}");
+                    // Each leg's own checks (after the last leg the verdict on the whole cup goes in the note).
+                    string own = TrialJudge.JudgeCupLeg(trial, cup.LegsRaced - 1, LocalEvents.CupLegsRun[cup.LegsRaced - 1]).Summary;
+                    legLines.Add($"{cup.Schedule[cup.LegsRaced - 1]}: {own}");
+                    Debug.Log($"[NightSignal.Cup] {trial.Id} leg {cup.LegsRaced}: {own}");
                 }
             }
             Render();
