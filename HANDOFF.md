@@ -169,22 +169,23 @@ Render Cockpit Sheets* renders the mounted views of every car.
 
 Pipeline in dependency order (items at one level do not wait for later ones; human checks are listed where they gate).
 
-0. **Next — the challenge-trial slices** (`docs/CHALLENGE_TRIALS.md`): the first slice is done offline (V-119) and online
-   (V-120); CH13's paved-road rule and fixed Gold ghost (V-121), CH15's marked apex gates (V-122) and the challenge-zone
-   chains CH17, CH19, CH22, CH27 (V-123, judged in ordinary races — no loaner needed) are done: slice 2 is complete. CH19 is
-   reached by the autopilot; CH17, CH22, CH27 are not (the drift controller runs out of road on long slides — the zone
-   tour's knobs in `OfflineRaceSession.ZoneSlide*` are where a better sustained-slide controller would start). Slice 3:
-   CH34 is judged in ordinary C02 races (V-124, marked-zone passes in the racecraft judge); racecraft trials (a fixed AI
-   field, the player's grid slot; offline only — the control plane refuses them online) carry CH40 and CH41 (V-125) and,
-   with the pacing and pressure roles, CH36 and CH39 (V-126; CH39 reached). Slice 4 is done: challenge cups CH14, CH42,
-   CH69, CH72 (V-127, three legs in one session, all four reached); CH43 against R32's own practice run (V-128); Driving School section trials CH52, CH58 (V-129); CH53 drills (V-130); CH07 trail-brake drill (V-131); CH23 recoveries drill (V-132, not reached). Next: CH37 (T00 merge beside a pace car in the
-   two MERGE lanes — T00 is the tutorial course, which Local validation keeps out of Freeplay), CH43 (C20 against R32's
-   Gold practice reference with the defence gates — the judge already times defence zones), CH59 (a tunable loaner within
-   a parts budget); then fixed cups, T00 drills, workshop trials. Targeted built-player runs: `Tools/run/tour.ps1 -Tour
-   TrialTour -TrialOnly <ids>`. The control plane (task b2kshjyh5) still
-   serves the content of `0777df53…`; trials JSON changed since — restart it before any online run.
-   `Assets/_Recovery/0.unity` is Unity's crash-recovery copy of an unsaved scene from 2026-09-29 18:10 — left untouched for
-   the owner.
+0. **Next — the last 9 challenges** (R11.3: 66 of 75 judged; `docs/CHALLENGE_TRIALS.md`). Done so far in the trial work:
+   slice 1 (V-119/V-120, online too), slice 2 (CH13 V-121, CH15 V-122, zone chains CH17/19/22/27 V-123), slice 3 (CH34 in
+   ordinary races V-124; racecraft trials with a fixed AI field CH40/41 V-125, CH36/39 V-126), slice 4 (challenge cups
+   CH14/42/69/72 V-127), CH43 (R32's own run, V-128), Driving School section trials CH52/58 (V-129), drills CH53 (V-130),
+   CH07 (V-131), CH23 (V-132, not reached), CH74 (story-gated, V-133). Not shown reachable by the autopilot: CH13, CH17,
+   CH22, CH23, CH27, CH28, CH34, CH36, CH40, CH41, CH43 (see each entry). **Remaining:** CH37 (T00 merge beside a pace car
+   in the two MERGE lanes — a racecraft trial on T00 with a "merge" role); CH49 (gear-shift windows at T00's GEAR gates —
+   the simulation has manual shifting, the game never turns it on); CH02 and CH47 (the Test Yard's braking lane: three stops
+   from 100 km/h in the 8 m box; a stock-versus-loaned-tyre comparison, then the braking lesson — the Test Yard records
+   nothing in the profile today); CH46 (a saved loadout with a changed final drive, then T00's acceleration lane); CH56,
+   CH57, CH59, CH60 (tuning inside a PI / parts budget — no budget concept exists yet; tuning keys in
+   `Assets/Game/Core/Builds/BuildTypes.cs`). Targeted built-player runs: `Tools/run/tour.ps1 -Tour TrialTour -TrialOnly
+   <ids>`; a trial's measurement: `Builds/diag/measure-trials.txt` + `ChallengeTrialReferenceTests.MeasureChallengeTrials`.
+   Racecraft, cup, Driving School and story-gated trials are offline only (`ConvoyDirectory.OnlineTrial`). The control
+   plane (task b2kshjyh5) still serves the content of `0777df53…`; the trials JSON changed since — restart it before any
+   online run. `Assets/_Recovery/0.unity` is Unity's crash-recovery copy of an unsaved scene from 2026-09-29 18:10 — left
+   untouched for the owner.
 0. **After any AI tendency change**: rerun `-nsCrewTelemetryTour` and `CertifyListed` for the stages whose featured
    rival has that tendency (V-108; the crew telemetry was rerun on the V-109 build and passes).
 

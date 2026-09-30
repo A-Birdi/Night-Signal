@@ -2865,3 +2865,20 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   reset between them; a reset after the drill) — Core 204.
 - **Built player (`tour.ps1 -TrialOnly TR-CH23`):** judged at the three skills — **not passed** (10 / 19 / 11 recoveries, never
   four in turn without a break). CH23 is judged, not shown reachable. `Evidence/challenges/trials-tour/trial-tour-TR-CH23.txt`.
+
+## V-133 — CH74: the six story records, then the C24 reference — a gated trial (spec §11) (2026-09-30)
+- Revision: `ac6429d`, documented with the commit of this entry; the player build of `ac6429d`.
+- **What:** a trial may require **story records** collected through Normal progression (`requiredStoryRecords`), judged from
+  the profile's campaign clears exactly as the race diary shows them (the six authored radio / timing-slip records of
+  `story/radio-records.json`, awarded after Normal S06, S12, S15, S17, S23, S25), and may race its course's **authored rival
+  reference** ghost, whose own time is its target (`raceRivalReference`). **TR-CH74** (Gold): all six records, then beat the
+  C24 reference — Satoshi Mibe's authored run in the V14, **240.846 s** — in the same stock V14 with that reference on the road
+  as a ghost. The target is read from the reference ghost (a Core test keeps them equal); the trials page shows how many
+  records the player holds.
+- **Online:** refused (the control plane does not know a profile's story records; `OnlineTrial`) — Services 369.
+- **Tests:** Core (the lock with 5 of 6; passes with 6; the target equals the ghost's time; its car is the ghost's) — Core 204.
+- **Built player (`tour.ps1 -TrialOnly TR-CH74`):** on the tour's fresh profile the trial is **locked** — 3:56.838, faster
+  than 4:00.846, yet "MISSED: the 6 story records collected through Normal progression (0 of 6)"; the tour then seeds Normal
+  S01–S25 on its own profile (as the V-102 diary tour does; logged), the diary holds 6 records, and the same run **PASSED**;
+  CH74 earned. `Evidence/challenges/trials-tour/trial-tour-TR-CH74.txt`.
+- **Limits:** the positive case rests on seeded clears (the automation does not play the campaign to S25).

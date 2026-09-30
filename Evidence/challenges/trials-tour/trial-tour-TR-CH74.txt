@@ -1,0 +1,15 @@
+# -nsTrialTour -nsTrialOnly TR-CH74 (built player of ac6429d via Tools/run/tour.ps1 -TrialOnly: isolated prefs and profile, 1280x720; validator autopilot; the tour seeds Normal S01-S25 on its own profile after the locked run, as the diary tour does; automation)
+[NightSignal.TrialTour] page 2 of 3: its first row opens TR-CH30
+[NightSignal.TrialTour] only: TR-CH74
+[NightSignal.Trial] TR-CH74: V14 stock, PI 680, build 53f0713d354f, on C24 (course)
+[NightSignal.Ghost] C24 trial-TR-CH74: 2370 samples, result 236.838 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH74: Trial not passed — ok: the supplied loaner · MISSED: the 6 story records collected through Normal progression (0 of 6) · ok: a valid finish · ok: faster than 4:00.846 (3:56.838)
+[NightSignal.TrialTour] TR-CH74 (CH74 gold): not passed — ok: the supplied loaner · MISSED: the 6 story records collected through Normal progression (0 of 6) · ok: a valid finish · ok: faster than 4:00.846 (3:56.838)
+[NightSignal.TrialTour] TR-CH74: seeded Normal S01–S25 as cleared on the tour's profile — the diary now holds 6 records
+[NightSignal.Trial] TR-CH74: V14 stock, PI 680, build 53f0713d354f, on C24 (course)
+[NightSignal.Ghost] C24 trial-TR-CH74: 2370 samples, result 236.838 s, resets 0, valid True; raced ghost 236.838 s — your ghost stays the 236.838 s run; against the ghost: −0.00 s at the first checkpoint, −0.00 s at the finish
+[NightSignal.Trial] TR-CH74: TRIAL PASSED — ok: the supplied loaner · ok: the 6 story records collected through Normal progression (6 of 6) · ok: a valid finish · ok: faster than 4:00.846 (3:56.838)
+[NightSignal.TrialTour] TR-CH74 (CH74 gold): PASSED — ok: the supplied loaner · ok: the 6 story records collected through Normal progression (6 of 6) · ok: a valid finish · ok: faster than 4:00.846 (3:56.838)
+[NightSignal.TrialTour] TR-CH74: profile keeps it: True; challenge earned: True
+[NightSignal.TrialTour] 1 of 29 trials passed by the autopilot; challenges earned: CH74; wallet 59,584 cr
+[NightSignal.TrialTour] PASS
