@@ -20,7 +20,11 @@ public sealed class SqliteGameStore : SqlGameStore
         {
             DataSource = path,
             Mode = SqliteOpenMode.ReadWriteCreate,
-            Pooling = true,
+            // No pooling: Microsoft.Data.Sqlite 10.0.12's pool can hand one native connection to two concurrent openers
+            // (measured: a writer rented a handle another writer was still inside BEGIN IMMEDIATE on — "cannot start a
+            // transaction within a transaction", 5–8 in 900 rounds of an 8-writer race; 0 in 900 without pooling). Two
+            // requests sharing a handle would share a transaction. Opening a SQLite file is cheap; PostgreSQL is unaffected.
+            Pooling = false,
             ForeignKeys = true,
             DefaultTimeout = 30,
         }.ToString();

@@ -3106,3 +3106,30 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   `Evidence/challenges/trials-online/online-TR-CH56.txt`. With V-142's TR-CH57 run, both tunable trials offered online are
   shown; CH56's "server validates all installed parameters" is met by the control plane (at readiness) and the game server
   (at the finish).
+
+## V-145 — the intermittent SocialStore handle-race failure: a connection-pool double hand-out, fixed in the store (2026-09-30)
+- Revision: documented with the commit of this entry (the fix is in it).
+- **Symptom:** `SocialStoreTests.HandleUniqueness_IsCaseInsensitive_AndAtomicUnderConcurrentClaims` (eight concurrent
+  claims of one handle through two store instances) failed about once in a dozen full solution runs (V-136) and never
+  alone; 8 further full Services runs passed.
+- **Reproduced** with a stress probe of that race over fresh databases: **1 in 300, then 8 in 900** rounds failed with
+  `SqliteException: SQL logic error` at `BEGIN IMMEDIATE`. Instrumented in a scratch copy: the handle's errmsg was "cannot
+  start a transaction within a transaction", with **autocommit 0 before our BEGIN and 1 after** — another thread's
+  transaction was live on the same native connection; a per-handle registry then caught **the pool handing a handle to one
+  writer while another writer was still inside its `await using` scope on it** (5 in 900). Our code keeps each connection
+  strictly inside its scope, so this is Microsoft.Data.Sqlite 10.0.12's pool under concurrent opens and returns.
+  Control experiments (900 rounds each): pooled with no `ClearAllPools()` at all — 8 failures (so the pool clear the
+  test-assembly note blamed is not needed for this); **pooling off — 0**.
+- **Why it matters beyond the test:** two concurrent control-plane requests sharing one native connection share one
+  transaction — one fails at BEGIN, or their statements interleave and commit or roll back together.
+- **Fix:** `SqliteGameStore` opens unpooled connections (`Pooling = false`; the reason is recorded where it is set).
+  PostgreSQL is unaffected (its own data source). A package upgrade was not tried (Addendum 03: no unapproved package
+  upgrades). Cost: about 3–4 ms more per store operation (the probe's rounds 0.19 → 0.30 s); the Services suite 33 → ~60 s.
+- **Found by the fix:** `MeetControlChannelTests.ADroppedConnection_IsDisconnected_ThenRejoinsQuietlyInTheSameBay` then
+  failed every time. The server was right (Ben joined, arrived and rejoined as Ben — logged in a scratch copy); the test's
+  final wait re-scans every snapshot Aki ever received from the first, and its predicate called `Member(Ben)` — which
+  throws on Aki's first snapshot when that predates Ben's join (the slower opens let that push go out first) — and would
+  otherwise have matched Ben's pre-drop "present". It now accepts only snapshots newer than the drop, with Ben in them.
+- **Tests:** `SqliteStoreStressTests` keeps the probe (skipped unless `NS_SQLITE_STRESS=<rounds>`): **900 rounds, 0
+  failures** with the fix. Full solution four times: Core 209, Builds 232, Toys 92, **Services 372 passed + 1 skipped**
+  each time; the meet test class five times alone, all passing.

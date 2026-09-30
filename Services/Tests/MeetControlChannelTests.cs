@@ -181,7 +181,11 @@ public sealed class MeetControlChannelTests : IDisposable
         Assert.Equal(bay, Member(rj.GetProperty("state"), b.AccountId).GetProperty("bay").GetInt32());
         Assert.Equal(Member(jb.GetProperty("state"), b.AccountId).GetProperty("generation").GetInt64(),
             Member(rj.GetProperty("state"), b.AccountId).GetProperty("generation").GetInt64()); // a reconnect is the same visit
-        JsonElement back = await WaitForMeet(a.Control, s => Member(s, b.AccountId).GetProperty("state").GetString() == "present");
+        // A snapshot after the drop with Ben present again. WaitForMeet scans every snapshot Aki has received from the first:
+        // Aki's earliest can predate Ben's join (then Member() would throw), and Ben's pre-drop "present" must not count.
+        long lostRevision = lost.GetProperty("revision").GetInt64();
+        JsonElement back = await WaitForMeet(a.Control, s => s.GetProperty("revision").GetInt64() > lostRevision
+            && HasMember(s, b.AccountId) && Member(s, b.AccountId).GetProperty("state").GetString() == "present");
         Assert.Equal(2, Events(back).Count(e => e.GetProperty("kind").GetString() == "arrived"));
 
         // Leaving because the convoy's event allocated is worded apart from both "left" and "disconnected".
