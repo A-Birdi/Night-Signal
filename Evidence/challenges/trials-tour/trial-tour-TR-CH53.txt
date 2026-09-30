@@ -1,0 +1,13 @@
+# -nsTrialTour -nsTrialOnly TR-CH53-OPEN,TR-CH53-RACE (built player of 127f509 via Tools/run/tour.ps1 -TrialOnly: isolated prefs and profile, 1280x720; validator autopilot at the drills' published pace 0.95, aiming at the marked apexes; automation)
+[NightSignal.TrialTour] page 2 of 3: its first row opens TR-CH30
+[NightSignal.TrialTour] only: TR-CH53-OPEN, TR-CH53-RACE
+[NightSignal.Trial] TR-CH53-OPEN: V05 stock, PI 380, build aa8ab98b0b40, on C03 (course)
+[NightSignal.Trial] TR-CH53-OPEN: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: every marked gate touched (2 of them) · ok: C03-DIFF-EXIT-1 exit at least 122.4 km/h (128.9) · ok: C03-DIFF-EXIT-2 exit at least 96.9 km/h (102.1)
+[NightSignal.TrialTour] TR-CH53-OPEN (CH53 silver): PASSED — ok: the supplied loaner · ok: a valid finish · ok: every marked gate touched (2 of them) · ok: C03-DIFF-EXIT-1 exit at least 122.4 km/h (128.9) · ok: C03-DIFF-EXIT-2 exit at least 96.9 km/h (102.1)
+[NightSignal.TrialTour] TR-CH53-OPEN: profile keeps it: True; challenge earned: False
+[NightSignal.Trial] TR-CH53-RACE: V05 DIF-T3-RWD-RACE, PI 381, build 262ebc02fba5, on C03 (course)
+[NightSignal.Trial] TR-CH53-RACE: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: every marked gate touched (2 of them) · ok: C03-DIFF-EXIT-1 exit at least 122.4 km/h (128.9) · ok: C03-DIFF-EXIT-2 exit at least 96.9 km/h (102.0)
+[NightSignal.TrialTour] TR-CH53-RACE (CH53 silver): PASSED — ok: the supplied loaner · ok: a valid finish · ok: every marked gate touched (2 of them) · ok: C03-DIFF-EXIT-1 exit at least 122.4 km/h (128.9) · ok: C03-DIFF-EXIT-2 exit at least 96.9 km/h (102.0)
+[NightSignal.TrialTour] TR-CH53-RACE: profile keeps it: True; challenge earned: True
+[NightSignal.TrialTour] 2 of 26 trials passed by the autopilot; challenges earned: CH53; wallet 45,050 cr
+[NightSignal.TrialTour] PASS

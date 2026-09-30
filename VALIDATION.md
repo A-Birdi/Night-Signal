@@ -2806,3 +2806,25 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - **Built player (`tour.ps1 -TrialOnly`, the five):** **all five PASSED**, the section times equal to the measurement
   (13.183 / 19.366 / 15.433 / 16.550 / 19.516 s); CH52 earned after its second trial, CH58 after its third, the profile
   keeping each pass. `Evidence/challenges/trials-tour/trial-tour-sections.txt`.
+
+## V-130 — CH53: C03's two marked corners in two diff setups — drill trials (spec §11, slice 5) (2026-09-30)
+- Revision: `127f509`, documented with the commit of this entry; the player build of `127f509`.
+- **What:** C03's route already marks CH53's "guided two-corner challenge": two turn-in apexes (C03-DIFF-APEX-1, +3.5 m;
+  C03-DIFF-APEX-2, −3.4 m on a 92° left) and two exits (C03-DIFF-EXIT-1/2). A new **"drill"** trial kind is a solo run judged
+  by its rules alone (no time target); a new rule clears every exit-speed gate tagged with the challenge at a **measured
+  floor** (the gate judge's slowest crossing, every lap), beside the existing every-marked-gate-touched rule. **CH53** (Silver,
+  a group of two): the supplied Linea 20 (V05, RWD) with its stock open differential and with the race differential
+  (DIF-T3-RWD-RACE, PI 381). Floors: 0.95 × the loaner's slowest exit, as CH04's were measured — **122.4 / 96.9 km/h** for
+  both setups (the race differential changed the exits by 0.1 km/h on this car).
+- **Found on the way:** the validator missed C03-DIFF-APEX-2 on every lap (crossing at +0.3–0.5 m, the wrong side): its speed
+  plan follows the centreline, so the tighter inside line of the long left runs wide; narrower edge margins (0.9, 0.6 m) and
+  holding the apex line 30 m past the gate did not help. At pace **0.95** it touches both apexes (−1.42 m) — the floors come
+  from that run, so exits and turn-ins are shown reachable together. Automation-only knobs, off by default: a published
+  `referencePaceScale` (replayed by the tour, like `referenceEdgeMargin`), an apex hold past a marked gate for drills, and the
+  gate judge's lateral at each crossing (a diagnostic). `Evidence/challenges/trials-TR-CH53-OPEN-TR-CH53-RACE.txt`.
+- **Tests:** Core (a drill passes on gates and exits with no time; a slow exit, a missed apex, an uncrossed gate fail; the
+  floors are measured first; the two setups differ only in the differential) — Core 202.
+- **Built player (`tour.ps1 -TrialOnly`):** **both PASSED** — both apexes touched on both laps, exits 128.9 / 102.1 and
+  128.9 / 102.0 km/h against 122.4 / 96.9; CH53 earned after the second. `Evidence/challenges/trials-tour/trial-tour-TR-CH53.txt`.
+- **Limits:** the two setups drive almost the same on this car (the published floors are equal); online, drills run as time
+  trials do but no online run was made.
