@@ -1321,7 +1321,10 @@ namespace NightSignal.Front
             }
             if (plan.TrialId != null && LocalEvents.LastTrialVerdict != null && facts0 != null)
             {
-                string line = (LocalEvents.LastTrialVerdict.Passed ? "TRIAL PASSED — " : "Trial not passed — ") + LocalEvents.LastTrialVerdict.Summary;
+                // A challenge cup's leg while its session continues: that leg's checks, not a verdict on the cup.
+                bool interim = plan.TrialLeg >= 0 && LocalEvents.CupTrialId == plan.TrialId;
+                string line = (interim ? $"Cup leg {plan.TrialLeg + 1} of {CupTable.Legs} — "
+                        : LocalEvents.LastTrialVerdict.Passed ? "TRIAL PASSED — " : "Trial not passed — ") + LocalEvents.LastTrialVerdict.Summary;
                 Trials.SetVerdict(plan.TrialId, line);
                 saveNote = line + (saveNote.Length > 0 ? " " + saveNote : "");
                 Debug.Log($"[NightSignal.Trial] {plan.TrialId}: {line}");

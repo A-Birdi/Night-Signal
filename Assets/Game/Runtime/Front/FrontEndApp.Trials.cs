@@ -20,8 +20,17 @@ namespace NightSignal.Front
         float pendingAutopilotEdgeMargin;
 
         /// <summary>Starts a challenge trial (docs/CHALLENGE_TRIALS.md) in its supplied loaner; the result returns to <paramref name="returnTo"/>.</summary>
-        public void StartTrial(ChallengeTrialDef trial, UIScreen returnTo) =>
+        public void StartTrial(ChallengeTrialDef trial, UIScreen returnTo)
+        {
+            if (trial.IsCup)
+            {
+                // A challenge cup: its legs in order through the cup page, one continuous session.
+                Router.Show(Cup);
+                Cup.BeginTrial(trial, trial.Legs.Select((l, i) => LocalEvents.CupLeg(trial, i)).ToList());
+                return;
+            }
             StartLocalEvent(LocalEvents.Trial(trial, ContentLibrary.Load()?.Catalogue?.Course(trial.Course)?.Format ?? "sprint"), returnTo);
+        }
 
         /// <summary>The trial's loaner resolved like a garage build; the plan records the build hash driven (null = not driven).</summary>
         ResolvedCarSpec TrialLoanerSpec(LocalEventPlan plan, out string problem)
@@ -138,15 +147,32 @@ namespace NightSignal.Front
                     OfflineRaceSession.AutopilotAttacksMarkedZones = zonePass;
                     OfflineRaceSession.AutopilotHoldsMarkedLanes = !string.IsNullOrEmpty(t.Rules.ZonePassRole);
                     LocalEvents.LastTrialVerdict = null;
+                    OfflineRaceSession previousRace = activeRace;
                     if (!Click("StartTrial")) break;
-                    yield return Until(() => activeRace != null, 60f);
-                    if (activeRace == null) { Fail(t.Id + " did not start"); break; }
-                    activeRace.Autopilot = true; // before the start, as its targets were measured
-                    activeRace.SimulationSpeed = 12;
-                    yield return Until(() => Router.Current == Results, 900f);
-                    yield return new WaitForSeconds(1.2f);
-                    if (skill == skills[0]) yield return Snap($"03-{t.Id}-result");
-                    Click("Continue");
+                    // A challenge cup runs its legs through the cup page (Next Leg between them); everything else is one race.
+                    int legs = t.IsCup ? t.Legs.Count : 1;
+                    bool started = true;
+                    for (int leg = 0; leg < legs; leg++)
+                    {
+                        yield return Until(() => activeRace != null && activeRace != previousRace, 60f);
+                        if (activeRace == null || activeRace == previousRace) { Fail($"{t.Id} leg {leg + 1} did not start"); started = false; break; }
+                        previousRace = activeRace;
+                        activeRace.Autopilot = true; // before the start, as its targets were measured
+                        activeRace.SimulationSpeed = 12;
+                        yield return Until(() => Router.Current == Results, 900f);
+                        yield return new WaitForSeconds(1.2f);
+                        if (skill == skills[0]) yield return Snap(t.IsCup ? $"03-{t.Id}-leg{leg + 1}-result" : $"03-{t.Id}-result");
+                        Click("Continue");
+                        if (!t.IsCup) break;
+                        yield return Until(() => Router.Current == Cup, 15f);
+                        yield return new WaitForSeconds(0.8f);
+                        yield return Snap($"03-{t.Id}-cup-after-leg{leg + 1}");
+                        Note($"{t.Id} leg {leg + 1}: {LocalEvents.LastTrialVerdict?.Summary}");
+                        if (LocalEvents.CupTrialId != t.Id) break; // the cup ended (its last leg, or a leg not finished)
+                        if (!Click("CupNext")) { started = false; break; }
+                    }
+                    if (!started) break;
+                    if (t.IsCup) Click("CupLeave"); // Back to the trials
                     yield return Until(() => Router.Current == Trials, 15f);
                     yield return new WaitForSeconds(0.8f);
                     OfflineRaceSession.AutopilotAimsChallengeGates = false;

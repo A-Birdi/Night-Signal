@@ -29,6 +29,17 @@ namespace NightSignal.Core.Rules
         public static readonly string[] Roles = { "field", "pacing", "pressure", "merge" };
     }
 
+    /// <summary>
+    /// One leg of a challenge cup (slice 4: CH14, CH42, CH69, CH72): its course and conditions, and the time to beat there
+    /// (measured: the loaner's autopilot time × the cup's <see cref="ChallengeTrialDef.LegFactor"/>; 0 = no time judged).
+    /// </summary>
+    public sealed class TrialCupLeg
+    {
+        public string Course = "";
+        public string Conditions = "course";
+        public long TimeMs;
+    }
+
     /// <summary>Conditions of a legal trial run beyond finishing.</summary>
     public sealed class TrialRules
     {
@@ -97,6 +108,15 @@ namespace NightSignal.Core.Rules
         public bool JudgesTime => Kind == "time" || Kind == "time+drift";
         public bool JudgesDrift => Kind == "drift" || Kind == "time+drift";
         public bool IsRace => Kind == "race";
+        /// <summary>A challenge cup: <see cref="Legs"/> run in order in the loaner, one continuous session, judged as a whole.</summary>
+        public bool IsCup => Kind == "cup";
+        /// <summary>A challenge cup's legs, in order (empty otherwise).</summary>
+        public List<TrialCupLeg> Legs = new List<TrialCupLeg>();
+        /// <summary>
+        /// A cup's leg times: this × the loaner's measured time on each leg (CH42's Gold benchmark 1.02, CH72's generous Silver pace,
+        /// CH69's generous limits; 0 = the legs are not timed, CH14).
+        /// </summary>
+        public double LegFactor;
         /// <summary>A racecraft trial's fixed AI field, in grid order (empty for time and drift trials, which run alone).</summary>
         public List<TrialFieldCar> Field = new List<TrialFieldCar>();
         /// <summary>The player starts from the last grid slot, behind the whole field (CH41 "from the last grid position").</summary>
@@ -119,7 +139,8 @@ namespace NightSignal.Core.Rules
         public bool Ghost;
 
         /// <summary>Measured targets exist for everything this trial judges.</summary>
-        public bool Published => (!JudgesTime || Targets.TimeMs > 0) && (!JudgesDrift || Targets.DriftRaw > 0) && (!Rules.PressureSector || Targets.SectorTimeMs > 0);
+        public bool Published => (!JudgesTime || Targets.TimeMs > 0) && (!JudgesDrift || Targets.DriftRaw > 0) && (!Rules.PressureSector || Targets.SectorTimeMs > 0) &&
+                                 (!IsCup || LegFactor <= 0 || Legs.All(l => l.TimeMs > 0));
     }
 
     public sealed class ChallengeTrialsFile
@@ -131,6 +152,15 @@ namespace NightSignal.Core.Rules
 
         /// <summary>Every trial that must be passed for <paramref name="challenge"/> (one, or its whole group).</summary>
         public IReadOnlyList<ChallengeTrialDef> ForChallenge(string challenge) => Trials.Where(t => t.Challenge == challenge).ToList();
+    }
+
+    /// <summary>One finished (or abandoned) leg of a challenge cup, from that race's facts.</summary>
+    public struct TrialCupLegFacts
+    {
+        public string Course;
+        public bool Finished;
+        public long TimeMs;
+        public int Resets, WallImpacts;
     }
 
     /// <summary>What happened in one trial run, from the race's authoritative facts.</summary>
@@ -159,6 +189,8 @@ namespace NightSignal.Core.Rules
         public string[] ZonePassRoles;
         /// <summary>The fastest pass through the challenge's defence zone with the pressure car within 1 s all the way and no barrier touched (ms; 0 = none).</summary>
         public long PressureSectorMs;
+        /// <summary>A challenge cup: every leg run so far in this session, in order (the verdict needs all of them).</summary>
+        public TrialCupLegFacts[] CupLegs;
     }
 
     public sealed class TrialVerdict
@@ -179,6 +211,7 @@ namespace NightSignal.Core.Rules
             var v = new TrialVerdict();
             void Check(bool ok, string what) => v.Checks.Add(new KeyValuePair<bool, string>(ok, what));
             Check(f.DroveLoaner, "the supplied loaner");
+            if (t.IsCup) return JudgeCup(t, f, v);
             Check(f.Finished, "a valid finish");
             if (t.Targets.TimeMs > 0)
                 Check(f.Finished && f.TimeMs > 0 && f.TimeMs < t.Targets.TimeMs, $"faster than {Clock(t.Targets.TimeMs)} ({(f.TimeMs > 0 ? Clock(f.TimeMs) : "no time")})");
@@ -202,6 +235,46 @@ namespace NightSignal.Core.Rules
             if (t.Rules.NoCarContact) Check(f.CarContacts == 0, $"no car-to-car contact ({f.CarContacts})");
             if (t.Rules.NoCheckpointCut) Check(!f.CheckpointCut, "no checkpoint cut");
             if (t.Rules.Win) Check(f.Finished && f.Placement == 1, $"first across the line ({(f.Placement > 0 ? "P" + f.Placement : "not classified")})");
+            v.Passed = t.Published && v.Checks.All(c => c.Key);
+            if (!t.Published) v.Checks.Add(new KeyValuePair<bool, string>(false, "targets not published yet"));
+            return v;
+        }
+
+        /// <summary>One leg of a challenge cup on its own (shown between legs; the cup's verdict comes after the last leg).</summary>
+        public static TrialVerdict JudgeCupLeg(ChallengeTrialDef t, int leg, TrialCupLegFacts f)
+        {
+            var v = new TrialVerdict();
+            void Check(bool ok, string what) => v.Checks.Add(new KeyValuePair<bool, string>(ok, what));
+            Check(f.Finished, $"leg {leg + 1} of {t.Legs.Count} ({f.Course}) finished");
+            if (leg < t.Legs.Count && t.Legs[leg].TimeMs > 0)
+                Check(f.Finished && f.TimeMs > 0 && f.TimeMs < t.Legs[leg].TimeMs, $"faster than {Clock(t.Legs[leg].TimeMs)} ({(f.TimeMs > 0 ? Clock(f.TimeMs) : "no time")})");
+            if (t.Rules.MaxWallImpacts == 0) Check(f.WallImpacts == 0, $"no wall impact ({f.WallImpacts})");
+            if (t.Rules.NoReset) Check(f.Resets == 0, $"no reset ({f.Resets})");
+            v.Passed = false; // a leg never passes the trial on its own
+            return v;
+        }
+
+        /// <summary>
+        /// A challenge cup as a whole: every leg run in order in one session and finished, each leg inside its time, and the
+        /// cup's rules summed over all legs (wall impacts, resets). A leg that was not finished ends the cup.
+        /// </summary>
+        static TrialVerdict JudgeCup(ChallengeTrialDef t, TrialRunFacts f, TrialVerdict v)
+        {
+            void Check(bool ok, string what) => v.Checks.Add(new KeyValuePair<bool, string>(ok, what));
+            TrialCupLegFacts[] legs = f.CupLegs ?? Array.Empty<TrialCupLegFacts>();
+            bool inOrder = legs.Length == t.Legs.Count && legs.Select(l => l.Course).SequenceEqual(t.Legs.Select(l => l.Course));
+            Check(inOrder && legs.All(l => l.Finished), $"all {t.Legs.Count} legs finished in one session ({legs.Count(l => l.Finished)} of {t.Legs.Count})");
+            for (int i = 0; i < t.Legs.Count; i++)
+                if (t.Legs[i].TimeMs > 0)
+                {
+                    bool ran = i < legs.Length && legs[i].Finished && legs[i].TimeMs > 0;
+                    Check(ran && legs[i].TimeMs < t.Legs[i].TimeMs,
+                        $"{t.Legs[i].Course} faster than {Clock(t.Legs[i].TimeMs)} ({(ran ? Clock(legs[i].TimeMs) : "not run")})");
+                }
+            int walls = legs.Sum(l => l.WallImpacts), resets = legs.Sum(l => l.Resets);
+            if (t.Rules.MaxWallImpacts >= 0)
+                Check(walls <= t.Rules.MaxWallImpacts, t.Rules.MaxWallImpacts == 0 ? $"no wall impact in any leg ({walls})" : $"at most {t.Rules.MaxWallImpacts} wall impacts in the cup ({walls})");
+            if (t.Rules.NoReset) Check(resets == 0, $"no reset in any leg ({resets})");
             v.Passed = t.Published && v.Checks.All(c => c.Key);
             if (!t.Published) v.Checks.Add(new KeyValuePair<bool, string>(false, "targets not published yet"));
             return v;
@@ -232,7 +305,19 @@ namespace NightSignal.Core.Rules
                 if (!carExists(t.Loaner?.Car ?? "")) problems.Add($"{t.Id}: unknown loaner car {t.Loaner?.Car}");
                 if (t.Targets == null || t.Targets.TimeMs < 0 || t.Targets.DriftRaw < 0) problems.Add($"{t.Id}: negative target");
                 if (t.Rules != null && t.Rules.MaxWallImpacts < -1) problems.Add($"{t.Id}: invalid wall allowance");
-                if (!t.JudgesTime && !t.JudgesDrift && !t.IsRace) problems.Add($"{t.Id}: unknown kind {t.Kind}");
+                if (!t.JudgesTime && !t.JudgesDrift && !t.IsRace && !t.IsCup) problems.Add($"{t.Id}: unknown kind {t.Kind}");
+                if (t.IsCup)
+                {
+                    if (t.Legs == null || t.Legs.Count != CupTable.Legs) problems.Add($"{t.Id}: a challenge cup has {CupTable.Legs} legs");
+                    foreach (TrialCupLeg leg in t.Legs ?? new List<TrialCupLeg>())
+                    {
+                        if (!courseExists(leg.Course ?? "")) problems.Add($"{t.Id}: unknown leg course {leg.Course}");
+                        if (leg.TimeMs < 0) problems.Add($"{t.Id}: negative target");
+                    }
+                    if (t.Legs != null && t.Legs.Count > 0 && t.Course != t.Legs[0].Course) problems.Add($"{t.Id}: a cup's course is its first leg's");
+                    if (t.LegFactor < 0) problems.Add($"{t.Id}: negative leg factor");
+                }
+                else if (t.Legs != null && t.Legs.Count > 0) problems.Add($"{t.Id}: only challenge cups have legs");
                 if (t.IsRace && (t.Field == null || t.Field.Count == 0)) problems.Add($"{t.Id}: a racecraft trial needs its fixed field");
                 if (!t.IsRace && t.Field != null && t.Field.Count > 0) problems.Add($"{t.Id}: only racecraft trials have a field");
                 if (t.IsRace && t.Rules != null && !(t.Rules.Win || t.Rules.CleanZonePass || t.Rules.PressureSector || !string.IsNullOrEmpty(t.Rules.ZonePassRole)))

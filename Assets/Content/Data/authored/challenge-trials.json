@@ -1,6 +1,6 @@
 {
   "schema": "night-signal/challenge-trials@1",
-  "method": "Measured 2026-09-30 by ChallengeTrialReferenceTests: each trial's loaner resolved like a garage build (hm-1), solo, validator autopilot, the trial's course and conditions; time targets Gold 1.02 ×, Silver 1.10 ×, Bronze 1.20 × its time; drift trials use the cleanest of drift skills 0.95/0.80/0.65 (fewest resets, then most scored; slides started by power where the handbrake is forbidden), time and drift from that one run, drift targets Gold = the raw it scored in the zones (banked or earned, the larger), Silver 0.85 ×, Bronze 0.70 ×; racecraft trials have no targets except a pressure trial's sector pace (the loaner alone through the marked sector under contact rules, the fastest pass × the time factor); physics chassis-2026.09-contact1, scoring classify-2. Automation, not a human.",
+  "method": "Measured 2026-09-30 by ChallengeTrialReferenceTests: each trial's loaner resolved like a garage build (hm-1), solo, validator autopilot, the trial's course and conditions; time targets Gold 1.02 ×, Silver 1.10 ×, Bronze 1.20 × its time; drift trials use the cleanest of drift skills 0.95/0.80/0.65 (fewest resets, then most scored; slides started by power where the handbrake is forbidden), time and drift from that one run, drift targets Gold = the raw it scored in the zones (banked or earned, the larger), Silver 0.85 ×, Bronze 0.70 ×; racecraft trials have no targets except a pressure trial's sector pace (the loaner alone through the marked sector under contact rules, the fastest pass × the time factor); challenge cups: the loaner alone on each leg × the cup's published leg factor; physics chassis-2026.09-contact1, scoring classify-2. Automation, not a human.",
   "trials": [
     {
       "id": "TR-CH13",
@@ -9,6 +9,8 @@
       "course": "C21",
       "tier": "gold",
       "kind": "time",
+      "legs": [],
+      "legFactor": 0.0,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -45,6 +47,7 @@
       "judgesTime": true,
       "judgesDrift": false,
       "isRace": false,
+      "isCup": false,
       "published": true
     },
     {
@@ -54,6 +57,8 @@
       "course": "C25",
       "tier": "gold",
       "kind": "time",
+      "legs": [],
+      "legFactor": 0.0,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -90,6 +95,7 @@
       "judgesTime": true,
       "judgesDrift": false,
       "isRace": false,
+      "isCup": false,
       "published": true
     },
     {
@@ -99,6 +105,8 @@
       "course": "C04",
       "tier": "silver",
       "kind": "time",
+      "legs": [],
+      "legFactor": 0.0,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -135,6 +143,7 @@
       "judgesTime": true,
       "judgesDrift": false,
       "isRace": false,
+      "isCup": false,
       "published": true
     },
     {
@@ -144,6 +153,8 @@
       "course": "C12",
       "tier": "gold",
       "kind": "time",
+      "legs": [],
+      "legFactor": 0.0,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -180,6 +191,7 @@
       "judgesTime": true,
       "judgesDrift": false,
       "isRace": false,
+      "isCup": false,
       "published": true
     },
     {
@@ -189,6 +201,8 @@
       "course": "C08",
       "tier": "silver",
       "kind": "time",
+      "legs": [],
+      "legFactor": 0.0,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -227,6 +241,7 @@
       "judgesTime": true,
       "judgesDrift": false,
       "isRace": false,
+      "isCup": false,
       "published": true
     },
     {
@@ -236,6 +251,8 @@
       "course": "C09",
       "tier": "silver",
       "kind": "time",
+      "legs": [],
+      "legFactor": 0.0,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -272,6 +289,7 @@
       "judgesTime": true,
       "judgesDrift": false,
       "isRace": false,
+      "isCup": false,
       "published": true
     },
     {
@@ -281,6 +299,8 @@
       "course": "C09",
       "tier": "silver",
       "kind": "time",
+      "legs": [],
+      "legFactor": 0.0,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -317,6 +337,7 @@
       "judgesTime": true,
       "judgesDrift": false,
       "isRace": false,
+      "isCup": false,
       "published": true
     },
     {
@@ -326,6 +347,8 @@
       "course": "C16",
       "tier": "silver",
       "kind": "drift",
+      "legs": [],
+      "legFactor": 0.0,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -364,6 +387,7 @@
       "judgesTime": false,
       "judgesDrift": true,
       "isRace": false,
+      "isCup": false,
       "published": true
     },
     {
@@ -373,6 +397,8 @@
       "course": "C23",
       "tier": "gold",
       "kind": "time+drift",
+      "legs": [],
+      "legFactor": 0.0,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -411,6 +437,7 @@
       "judgesTime": true,
       "judgesDrift": true,
       "isRace": false,
+      "isCup": false,
       "published": true
     },
     {
@@ -420,6 +447,8 @@
       "course": "C25",
       "tier": "gold",
       "kind": "drift",
+      "legs": [],
+      "legFactor": 0.0,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -458,6 +487,7 @@
       "judgesTime": false,
       "judgesDrift": true,
       "isRace": false,
+      "isCup": false,
       "published": true
     },
     {
@@ -467,6 +497,8 @@
       "course": "C17",
       "tier": "silver",
       "kind": "race",
+      "legs": [],
+      "legFactor": 0.0,
       "field": [
         {
           "car": "V05",
@@ -522,6 +554,7 @@
       "judgesTime": false,
       "judgesDrift": false,
       "isRace": true,
+      "isCup": false,
       "published": true
     },
     {
@@ -531,6 +564,8 @@
       "course": "C18",
       "tier": "gold",
       "kind": "race",
+      "legs": [],
+      "legFactor": 0.0,
       "field": [
         {
           "car": "V07",
@@ -598,6 +633,7 @@
       "judgesTime": false,
       "judgesDrift": false,
       "isRace": true,
+      "isCup": false,
       "published": true
     },
     {
@@ -607,6 +643,8 @@
       "course": "C10",
       "tier": "silver",
       "kind": "race",
+      "legs": [],
+      "legFactor": 0.0,
       "field": [
         {
           "car": "V06",
@@ -650,6 +688,7 @@
       "judgesTime": false,
       "judgesDrift": false,
       "isRace": true,
+      "isCup": false,
       "published": true
     },
     {
@@ -659,6 +698,8 @@
       "course": "C14",
       "tier": "silver",
       "kind": "race",
+      "legs": [],
+      "legFactor": 0.0,
       "field": [
         {
           "car": "V07",
@@ -702,6 +743,263 @@
       "judgesTime": false,
       "judgesDrift": false,
       "isRace": true,
+      "isCup": false,
+      "published": true
+    },
+    {
+      "id": "TR-CH14",
+      "challenge": "CH14",
+      "title": "Unbroken Datum",
+      "course": "C17",
+      "tier": "gold",
+      "kind": "cup",
+      "legs": [
+        {
+          "course": "C17",
+          "conditions": "course",
+          "timeMs": 0
+        },
+        {
+          "course": "C18",
+          "conditions": "course",
+          "timeMs": 0
+        },
+        {
+          "course": "C19",
+          "conditions": "course",
+          "timeMs": 0
+        }
+      ],
+      "legFactor": 0.0,
+      "field": [],
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V07",
+        "parts": {},
+        "piCap": 0
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": 0,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": false
+      },
+      "targets": {
+        "timeMs": 0,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0,
+        "sectorTimeMs": 0
+      },
+      "group": "",
+      "brief": "Three legs back to back — C17, C18, C19 — in one session with not a single meaningful wall impact across them. A leg cannot be retried: leave or fail a leg and the cup starts over.",
+      "ghost": false,
+      "judgesTime": false,
+      "judgesDrift": false,
+      "isRace": false,
+      "isCup": true,
+      "published": true
+    },
+    {
+      "id": "TR-CH42",
+      "challenge": "CH42",
+      "title": "Four Roads Ahead",
+      "course": "C06",
+      "tier": "gold",
+      "kind": "cup",
+      "legs": [
+        {
+          "course": "C06",
+          "conditions": "course",
+          "timeMs": 143100
+        },
+        {
+          "course": "C13",
+          "conditions": "course",
+          "timeMs": 131900
+        },
+        {
+          "course": "C21",
+          "conditions": "course",
+          "timeMs": 142000
+        }
+      ],
+      "legFactor": 1.02,
+      "field": [],
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V12",
+        "parts": {},
+        "piCap": 0
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": false
+      },
+      "targets": {
+        "timeMs": 0,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0,
+        "sectorTimeMs": 0
+      },
+      "group": "",
+      "brief": "Three legs — C06, C13, C21 — each against its designated benchmark (the loaner's measured time, Gold 1.02 ×); a valid finish every time, no other driver needed.",
+      "ghost": false,
+      "judgesTime": false,
+      "judgesDrift": false,
+      "isRace": false,
+      "isCup": true,
+      "published": true
+    },
+    {
+      "id": "TR-CH69",
+      "challenge": "CH69",
+      "title": "A Quiet Cup",
+      "course": "C01",
+      "tier": "silver",
+      "kind": "cup",
+      "legs": [
+        {
+          "course": "C01",
+          "conditions": "course",
+          "timeMs": 116800
+        },
+        {
+          "course": "C05",
+          "conditions": "course",
+          "timeMs": 186800
+        },
+        {
+          "course": "C09",
+          "conditions": "course",
+          "timeMs": 206500
+        }
+      ],
+      "legFactor": 1.35,
+      "field": [],
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V01",
+        "parts": {},
+        "piCap": 0
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": false
+      },
+      "targets": {
+        "timeMs": 0,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0,
+        "sectorTimeMs": 0
+      },
+      "group": "",
+      "brief": "A quiet touring cup — C01, C05, C09 — in the starter car: finish each leg inside a generous time limit (1.35 × the loaner's measured time) and do not quit.",
+      "ghost": false,
+      "judgesTime": false,
+      "judgesDrift": false,
+      "isRace": false,
+      "isCup": true,
+      "published": true
+    },
+    {
+      "id": "TR-CH72",
+      "challenge": "CH72",
+      "title": "Before the First Train",
+      "course": "C21",
+      "tier": "gold",
+      "kind": "cup",
+      "legs": [
+        {
+          "course": "C21",
+          "conditions": "course",
+          "timeMs": 167100
+        },
+        {
+          "course": "C22",
+          "conditions": "course",
+          "timeMs": 202600
+        },
+        {
+          "course": "C23",
+          "conditions": "course",
+          "timeMs": 266800
+        }
+      ],
+      "legFactor": 1.2,
+      "field": [],
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V12",
+        "parts": {},
+        "piCap": 0
+      },
+      "rules": {
+        "noReset": true,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": false
+      },
+      "targets": {
+        "timeMs": 0,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0,
+        "sectorTimeMs": 0
+      },
+      "group": "",
+      "brief": "Before the first train — C21, C22, C23 in one session, each at a generous Silver pace (1.20 × the loaner's measured time), with no reset in any leg.",
+      "ghost": false,
+      "judgesTime": false,
+      "judgesDrift": false,
+      "isRace": false,
+      "isCup": true,
       "published": true
     }
   ]

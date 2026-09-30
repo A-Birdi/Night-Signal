@@ -145,11 +145,12 @@ namespace NightSignal.Front
             title.text = $"{t.Challenge} · {t.Title}";
             predicate.text = $"{(ch?.Tier ?? t.Tier).ToUpperInvariant()} — {ch?.PredicateText}";
             loaner.text = $"Supplied loaner: {car.Name} ({car.Drive}) — {parts}; PI {(r.Ok ? pi.Value.ToString() : "?")}" +
-                          (t.Loaner.PiCap > 0 ? $" (cap {t.Loaner.PiCap})" : "") + $"\nCourse {t.Course} {cat.Course(t.Course).Name}, " +
-                          (t.Conditions == "course" ? "its own conditions" : t.Conditions) + ". " + t.Brief;
+                          (t.Loaner.PiCap > 0 ? $" (cap {t.Loaner.PiCap})" : "") +
+                          (t.IsCup ? $"\nCup: {string.Join(" → ", t.Legs.Select(l => $"{l.Course} {cat.Course(l.Course).Name}"))}, each in its own conditions. "
+                              : $"\nCourse {t.Course} {cat.Course(t.Course).Name}, " + (t.Conditions == "course" ? "its own conditions" : t.Conditions) + ". ") + t.Brief;
             var said = new List<string>();
             if (t.Rules.NoReset) said.Add("no reset");
-            if (t.Rules.MaxWallImpacts == 0) said.Add("no wall impact");
+            if (t.Rules.MaxWallImpacts == 0) said.Add(t.IsCup ? "no wall impact in any leg" : "no wall impact");
             else if (t.Rules.MaxWallImpacts > 0) said.Add($"at most {t.Rules.MaxWallImpacts} meaningful wall impact{(t.Rules.MaxWallImpacts == 1 ? "" : "s")}");
             if (t.Rules.NoHandbrake) said.Add("no handbrake after the start");
             if (t.Rules.BankEveryZone) said.Add("a chain banked in every judged zone");
@@ -160,10 +161,15 @@ namespace NightSignal.Front
             string field = t.IsRace
                 ? $"A race against a fixed field of {t.Field.Count}: {string.Join(", ", t.Field.GroupBy(c => c.Car).Select(g => $"{g.Count()} × {cat.Car(g.Key).Name}"))}" +
                   (t.PlayerStartsLast ? "; you start last" : "")
+                : t.IsCup ? $"{t.Legs.Count} legs, each solo and non-contact, in one continuous session (leaving ends it)"
                 : "Solo, non-contact";
             rules.text = field + "; your garage and upgrades are not used" + (said.Count > 0 ? "; " + string.Join(", ", said) : "") + ".";
             var goals = new List<string>();
             if (t.Rules.Win) goals.Add("win");
+            if (t.IsCup)
+                goals.Add(t.LegFactor <= 0 ? "finish every leg"
+                    : t.Legs.All(l => l.TimeMs > 0) ? "each leg inside its time: " + string.Join(", ", t.Legs.Select(l => $"{l.Course} {l.TimeMs / 60000}:{l.TimeMs / 1000 % 60:00}.{l.TimeMs % 1000 / 100}"))
+                    : "leg times not published yet");
             if (t.Rules.CleanZonePass) goals.Add("make the marked overtake cleanly and keep the place");
             if (!string.IsNullOrEmpty(t.Rules.ZonePassRole)) goals.Add($"pass the {t.Rules.ZonePassRole} car through the marked lane and hold the gain");
             if (t.Rules.PressureSector)

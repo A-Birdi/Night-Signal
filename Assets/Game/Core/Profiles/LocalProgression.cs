@@ -860,7 +860,7 @@ namespace NightSignal.Core.Profiles
             {
                 ChallengeTrialDef trial = catalogue.ChallengeTrials.Find(f.TrialId);
                 if (trial == null) return $"Unknown challenge trial '{f.TrialId}'.";
-                if (f.CourseId != trial.Course || (trial.IsRace
+                if ((trial.IsCup ? !trial.Legs.Any(l => l.Course == f.CourseId) : f.CourseId != trial.Course) || (trial.IsRace
                         ? f.Kind != EventKind.FreeplaySprint && f.Kind != EventKind.FreeplayCircuit
                         : f.Kind != EventKind.FreeplayTimeTrial))
                     return $"{trial.Id} runs as a {(trial.IsRace ? "race against its field" : "time trial")} on {trial.Course}.";

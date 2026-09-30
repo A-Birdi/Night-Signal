@@ -1773,8 +1773,10 @@ public sealed class ConvoyDirectory
                     return ConvoyResult.Fail("trial_unpublished", $"{challengeTrial.Id}'s targets are not published yet.");
                 if (challengeTrial.Conditions != "course")
                     return ConvoyResult.Fail("trial_unsupported", $"{challengeTrial.Id} sets its own conditions, which online trials do not support yet.");
-                if (challengeTrial.IsRace)
-                    return ConvoyResult.Fail("trial_unsupported", $"{challengeTrial.Id} is raced against a fixed AI field, which online trials do not support yet.");
+                if (challengeTrial.IsRace || challengeTrial.IsCup)
+                    return ConvoyResult.Fail("trial_unsupported", challengeTrial.IsCup
+                        ? $"{challengeTrial.Id} is a three-leg challenge cup, which online trials do not support yet."
+                        : $"{challengeTrial.Id} is raced against a fixed AI field, which online trials do not support yet.");
                 if (r.AiCount is not null || r.AiRivals is not null || r.CarCapPi is not null || (r.Collision is not null && r.Collision != "non-contact"))
                     return ConvoyResult.Fail("invalid_request", "A challenge trial's car, rules and field are fixed by the trial.");
                 // The trial supplies its course as it supplies its loaner (spec §11: every challenge without a purchase).
@@ -2431,7 +2433,7 @@ public sealed class ConvoyDirectory
             eventProposal = c.EventProposal is { } e ? EventProposalWire(c, e) : null,
             postEvent = PostEventWire(c),
             challengeTrials = c.Intent is { Kind: IntentKind.Challenges }
-                ? Catalogue.ChallengeTrials.Trials.Where(t => t.Published && t.Conditions == "course" && !t.IsRace).Select(t => new
+                ? Catalogue.ChallengeTrials.Trials.Where(t => t.Published && t.Conditions == "course" && !t.IsRace && !t.IsCup).Select(t => new
                 {
                     id = t.Id, challenge = t.Challenge, title = t.Title, tier = t.Tier, course = t.Course, car = t.Loaner.Car, piCap = t.Loaner.PiCap,
                     kind = t.Kind, timeMs = t.Targets.TimeMs, driftRaw = t.Targets.DriftRaw, group = t.Group, brief = t.Brief,

@@ -31,6 +31,8 @@ namespace NightSignal.Front
         public string FreeplayFormat = "";
         /// <summary>A challenge trial run (docs/CHALLENGE_TRIALS.md): its id, and the build hash of the loaner actually driven.</summary>
         public string TrialId, TrialBuildHash;
+        /// <summary>A challenge cup's leg (0-based; -1 for every other event).</summary>
+        public int TrialLeg = -1;
     }
 
     /// <summary>
@@ -126,6 +128,35 @@ namespace NightSignal.Front
             return plan;
         }
 
+        /// <summary>A challenge cup's leg: its loaner, solo and non-contact, on that leg's course and conditions.</summary>
+        public static LocalEventPlan CupLeg(ChallengeTrialDef trial, int leg)
+        {
+            LocalEventPlan plan = SoloTrial(trial);
+            TrialCupLeg l = trial.Legs[leg];
+            plan.CourseId = l.Course;
+            plan.Rules.Surface = l.Conditions == "course" ? null : l.Conditions;
+            plan.TrialLeg = leg;
+            return plan;
+        }
+
+        /// <summary>The challenge cup in progress — one continuous session: its trial and every leg run so far (null / empty: none).</summary>
+        public static string CupTrialId { get; private set; }
+        public static readonly List<TrialCupLegFacts> CupLegsRun = new List<TrialCupLegFacts>();
+
+        /// <summary>Starts a challenge cup's session (its first leg follows).</summary>
+        public static void BeginCup(string trialId)
+        {
+            CupTrialId = trialId;
+            CupLegsRun.Clear();
+        }
+
+        /// <summary>Ends the session early (the player left the cup): its legs no longer count.</summary>
+        public static void AbandonCup()
+        {
+            CupTrialId = null;
+            CupLegsRun.Clear();
+        }
+
         static LocalEventPlan SoloTrial(ChallengeTrialDef trial) => new LocalEventPlan
         {
             EventId = NewEventId(),
@@ -206,7 +237,31 @@ namespace NightSignal.Front
             facts.ChallengesCompleted.AddRange(Net.ChallengePredicates.Evaluate(plan.CourseId, me.Entrant.Progress, me.Entrant.Drift,
                 plan.FreeplayFormat, plan.Rules?.Surface, me.Entrant.GateRun, me.Entrant.Racecraft, me.Entrant.ZoneChains));
             // A challenge trial: judged by the Core TrialJudge from this run's facts; the profile keeps the pass.
-            if (!string.IsNullOrEmpty(plan.TrialId) && s.Catalogue.ChallengeTrials.Find(plan.TrialId) is ChallengeTrialDef trial)
+            if (!string.IsNullOrEmpty(plan.TrialId) && s.Catalogue.ChallengeTrials.Find(plan.TrialId) is ChallengeTrialDef cupTrial && cupTrial.IsCup)
+            {
+                // A challenge cup leg: kept in the session; the cup is judged after its last leg, or ends at a leg not finished.
+                var leg = new TrialCupLegFacts
+                {
+                    Course = plan.CourseId, Finished = me.Outcome == RunOutcome.Finished,
+                    TimeMs = me.Outcome == RunOutcome.Finished ? me.FinishTimeMicros / 1000 : 0,
+                    Resets = me.Entrant.Progress.Resets, WallImpacts = me.Entrant.Progress.WallIncidents,
+                };
+                if (CupTrialId != cupTrial.Id || plan.TrialLeg != CupLegsRun.Count) BeginCup(cupTrial.Id); // only a session's next leg continues it
+                CupLegsRun.Add(leg);
+                bool last = CupLegsRun.Count >= cupTrial.Legs.Count || !leg.Finished;
+                LastTrialVerdict = last
+                    ? TrialJudge.Judge(cupTrial, new TrialRunFacts
+                    {
+                        Finished = leg.Finished, CupLegs = CupLegsRun.ToArray(),
+                        DroveLoaner = !string.IsNullOrEmpty(plan.TrialBuildHash) && plan.Car.Loaner && plan.Car.ModelId == cupTrial.Loaner.Car,
+                    })
+                    : TrialJudge.JudgeCupLeg(cupTrial, CupLegsRun.Count - 1, leg);
+                if (last) CupTrialId = null; // the session is over (its legs stay readable until the next cup)
+                facts.TrialId = cupTrial.Id;
+                facts.TrialPassed = last && LastTrialVerdict.Passed;
+                LastTrialRacecraftLog = new List<string>();
+            }
+            else if (!string.IsNullOrEmpty(plan.TrialId) && s.Catalogue.ChallengeTrials.Find(plan.TrialId) is ChallengeTrialDef trial)
             {
                 LastTrialVerdict = TrialJudge.Judge(trial, new TrialRunFacts
                 {

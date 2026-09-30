@@ -29,8 +29,8 @@ public sealed class ChallengeTrialsTests
     public void TheAuthoredTrials_LoadIntoTheHashedCatalogue_OnePerChallengeOrOneGroup()
     {
         Assert.Contains(ContentCatalogue.AuthoredFiles, f => f == "challenge-trials.json");
-        Assert.Equal(14, Trials.Trials.Count);
-        Assert.Equal(new[] { "CH11", "CH13", "CH15", "CH25", "CH28", "CH30", "CH36", "CH39", "CH40", "CH41", "CH51", "CH54", "CH55" }, Trials.Trials.Select(t => t.Challenge).Distinct().OrderBy(c => c));
+        Assert.Equal(18, Trials.Trials.Count);
+        Assert.Equal(new[] { "CH11", "CH13", "CH14", "CH15", "CH25", "CH28", "CH30", "CH36", "CH39", "CH40", "CH41", "CH42", "CH51", "CH54", "CH55", "CH69", "CH72" }, Trials.Trials.Select(t => t.Challenge).Distinct().OrderBy(c => c));
         ChallengeTrialDef ch36 = Trials.Find("TR-CH36")!;
         Assert.True(ch36.IsRace && ch36.Rules.ZonePassRole == "pacing" && ch36.Field.Single().Role == "pacing");
         // The racecraft trials: fixed fields in the loaner's class, the player starting last.
@@ -43,6 +43,13 @@ public sealed class ChallengeTrialsTests
         foreach (ChallengeTrialDef race in new[] { ch40, ch41, ch36, ch39 })
             Assert.All(race.Field, c => Assert.True(Cat.Car(c.Car).BasePI <= race.Loaner.PiCap, $"{race.Id}: {c.Car} outside the class"));
         Assert.All(Trials.Trials.Where(t => !t.IsRace), t => Assert.Empty(t.Field));
+        // The challenge cups: three legs each, the first leg's course as the trial's; CH14 untimed with no wall impact at all.
+        List<ChallengeTrialDef> cups = Trials.Trials.Where(t => t.IsCup).ToList();
+        Assert.Equal(new[] { "CH14", "CH42", "CH69", "CH72" }, cups.Select(t => t.Challenge));
+        Assert.All(cups, c => Assert.True(c.Legs.Count == 3 && c.Course == c.Legs[0].Course));
+        Assert.True(Trials.Find("TR-CH14")!.Rules.MaxWallImpacts == 0 && Trials.Find("TR-CH14")!.LegFactor == 0 && Trials.Find("TR-CH14")!.Published);
+        Assert.True(Trials.Find("TR-CH72")!.Rules.NoReset && Trials.Find("TR-CH72")!.LegFactor == 1.20);
+        Assert.Equal(new[] { "C06", "C13", "C21" }, Trials.Find("TR-CH42")!.Legs.Select(l => l.Course));
         Assert.True(Trials.Find("TR-CH15")!.Rules.AllChallengeGates && Trials.Find("TR-CH15")!.Rules.NoReset);
         Assert.True(Trials.Find("TR-CH13")!.Ghost && Trials.Find("TR-CH13")!.Rules.AllTyresPaved); // the fixed Gold ghost, tyres on the paved road
         Assert.Equal(2, Trials.ForChallenge("CH54").Count);
@@ -153,6 +160,43 @@ public sealed class ChallengeTrialsTests
         Assert.False(TrialJudge.Judge(race, Run() with { CleanZonePass = true, CheckpointCut = true }).Passed);
     }
 
+    static TrialCupLegFacts Leg(string course, long ms = 60_000, int walls = 0, int resets = 0, bool finished = true) =>
+        new() { Course = course, Finished = finished, TimeMs = finished ? ms : 0, WallImpacts = walls, Resets = resets };
+
+    static TrialRunFacts CupRun(params TrialCupLegFacts[] legs) => new() { DroveLoaner = true, Finished = legs.Length > 0 && legs[^1].Finished, CupLegs = legs };
+
+    [Fact]
+    public void AChallengeCup_IsJudgedAsAWhole()
+    {
+        var cup = new ChallengeTrialDef
+        {
+            Id = "TR-K", Challenge = "CH72", Course = "C21", Kind = "cup", Loaner = new TrialLoaner { Car = "V12" }, LegFactor = 1.2,
+            Legs = { new TrialCupLeg { Course = "C21", TimeMs = 70_000 }, new TrialCupLeg { Course = "C22", TimeMs = 80_000 }, new TrialCupLeg { Course = "C23", TimeMs = 90_000 } },
+            Rules = new TrialRules { NoReset = true },
+        };
+        Assert.True(TrialJudge.Judge(cup, CupRun(Leg("C21"), Leg("C22"), Leg("C23"))).Passed);
+        Assert.False(TrialJudge.Judge(cup, CupRun(Leg("C21"), Leg("C22"))).Passed, "two legs of three");
+        Assert.False(TrialJudge.Judge(cup, CupRun(Leg("C22"), Leg("C21"), Leg("C23"))).Passed, "out of order");
+        TrialVerdict slow = TrialJudge.Judge(cup, CupRun(Leg("C21"), Leg("C22", 85_000), Leg("C23")));
+        Assert.False(slow.Passed);
+        Assert.Contains("MISSED: C22 faster than 1:20.000 (1:25.000)", slow.Summary);
+        Assert.False(TrialJudge.Judge(cup, CupRun(Leg("C21"), Leg("C22", resets: 1), Leg("C23"))).Passed, "a reset in any leg");
+        Assert.False(TrialJudge.Judge(cup, CupRun(Leg("C21"), Leg("C22", finished: false))).Passed, "a leg not finished ends the cup");
+
+        cup.Rules = new TrialRules { MaxWallImpacts = 0 };
+        cup.LegFactor = 0;
+        foreach (TrialCupLeg l in cup.Legs) l.TimeMs = 0;
+        Assert.True(cup.Published, "untimed legs");
+        Assert.True(TrialJudge.Judge(cup, CupRun(Leg("C21", 999_000), Leg("C22"), Leg("C23"))).Passed);
+        Assert.False(TrialJudge.Judge(cup, CupRun(Leg("C21"), Leg("C22", walls: 1), Leg("C23"))).Passed, "one wall impact across the cup");
+
+        cup.LegFactor = 1.2;
+        Assert.False(cup.Published, "leg times are measured first");
+        TrialVerdict leg1 = TrialJudge.JudgeCupLeg(cup, 0, Leg("C21"));
+        Assert.False(leg1.Passed, "a leg never passes the trial alone");
+        Assert.Contains("ok: leg 1 of 3 (C21) finished", leg1.Summary);
+    }
+
     [Fact]
     public void RacecraftTrialContent_IsChecked()
     {
@@ -173,6 +217,16 @@ public sealed class ChallengeTrialsTests
         noPacer.Trials.Add(new ChallengeTrialDef { Id = "TR-D", Challenge = "CH36", Course = "C04", Kind = "race", Loaner = new TrialLoaner { Car = "V01" },
             Field = { new TrialFieldCar { Car = "V01" } }, Rules = new TrialRules { ZonePassRole = "pacing" } });
         Assert.Contains("TR-D: no pacing car in the field to pass", TrialJudge.Problems(noPacer, id => id == "C04", id => true, id => id == "V01"));
+
+        var cupFile = new ChallengeTrialsFile();
+        cupFile.Trials.Add(new ChallengeTrialDef { Id = "TR-E", Challenge = "CH14", Course = "C04", Kind = "cup", Loaner = new TrialLoaner { Car = "V01" },
+            Legs = { new TrialCupLeg { Course = "C04" }, new TrialCupLeg { Course = "C99" } } });
+        cupFile.Trials.Add(new ChallengeTrialDef { Id = "TR-F", Challenge = "CH69", Course = "C04", Kind = "time", Loaner = new TrialLoaner { Car = "V01" },
+            Legs = { new TrialCupLeg { Course = "C04" } } });
+        List<string> cp = TrialJudge.Problems(cupFile, id => id == "C04", id => true, id => id == "V01");
+        Assert.Contains("TR-E: a challenge cup has 3 legs", cp);
+        Assert.Contains("TR-E: unknown leg course C99", cp);
+        Assert.Contains("TR-F: only challenge cups have legs", cp);
     }
 
     [Fact]

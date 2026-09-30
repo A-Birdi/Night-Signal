@@ -1,0 +1,20 @@
+# Challenge trial targets, measured by ChallengeTrialReferenceTests (PlayMode, explicit): each trial's loaner resolved like a
+# garage build, solo, validator autopilot, the trial's course and conditions; drift trials: the cleanest of three drift skills. Automation.
+# this run measured only: TR-CH42, TR-CH69, TR-CH72
+
+## TR-CH42 (CH42, gold) — a cup C06 → C13 → C21: Shinmei Stormline 32 stock, PI 650; leg factor 1.02
+C06: time 140.247 s, walls 0, resets 0 → 143.1 s
+C13: time 129.278 s, walls 0, resets 0 → 131.9 s
+C21: time 139.195 s, walls 0, resets 0 → 142.0 s
+
+## TR-CH69 (CH69, silver) — a cup C01 → C05 → C09: Kogane Hachi RS stock, PI 220; leg factor 1.35
+C01: time 86.500 s, walls 0, resets 0 → 116.8 s
+C05: time 138.321 s, walls 1, resets 0 → 186.8 s
+C09: time 152.954 s, walls 0, resets 0 → 206.5 s
+
+## TR-CH72 (CH72, gold) — a cup C21 → C22 → C23: Shinmei Stormline 32 stock, PI 650; leg factor 1.20
+C21: time 139.195 s, walls 0, resets 0 → 167.1 s
+C22: time 168.790 s, walls 0, resets 0 → 202.6 s
+C23: time 222.287 s, walls 0, resets 0 → 266.8 s
+
+# every trial measured

@@ -153,6 +153,26 @@ namespace NightSignal.Tests
             foreach (ChallengeTrialDef t in file.Trials)
             {
                 if (only != null && !only.Contains(t.Id)) continue;
+                if (t.IsCup)
+                {
+                    // A challenge cup: the loaner alone on each leg, the time × the cup's published leg factor (0 = untimed legs).
+                    CarDef ccar = cat.Car(t.Loaner.Car);
+                    ResolveResult cres = TrialLoaners.Resolve(t.Loaner, ccar, cat.CarTunings[ccar.Id], lib.Parts, out PiEstimate cpi);
+                    if (!cres.Ok) { problems.Add($"{t.Id}: the loaner does not resolve"); continue; }
+                    report.AppendLine().AppendLine($"## {t.Id} ({t.Challenge}, {t.Tier}) — a cup {string.Join(" → ", t.Legs.Select(l => l.Course))}: {ccar.Name} stock, PI {cpi.Value}; leg factor {t.LegFactor:F2}");
+                    if (t.LegFactor <= 0) { report.AppendLine("→ untimed legs: nothing to measure"); continue; }
+                    foreach (TrialCupLeg leg in t.Legs)
+                    {
+                        var legTrial = new ChallengeTrialDef { Id = t.Id, Challenge = t.Challenge, Course = leg.Course, Conditions = leg.Conditions, Loaner = t.Loaner };
+                        RunFacts lf = null;
+                        yield return Run(legTrial, ccar, cres.Spec, 0f, f => lf = f);
+                        if (lf == null || lf.TimeMs <= 0) { problems.Add($"{t.Id}: the reference did not finish {leg.Course}"); leg.TimeMs = 0; continue; }
+                        leg.TimeMs = (long)Math.Ceiling(t.LegFactor * lf.TimeMs / 100.0) * 100;
+                        report.AppendLine($"{leg.Course}: time {lf.TimeMs / 1000.0:F3} s, walls {lf.Walls}, resets {lf.Resets} → {leg.TimeMs / 1000.0:F1} s");
+                        if (t.Rules.NoReset && lf.Resets > 0) problems.Add($"{t.Id}: the reference reset on {leg.Course} (the rule stays; a person must do better)");
+                    }
+                    continue;
+                }
                 if (t.IsRace)
                 {
                     if (!t.Rules.PressureSector)
@@ -243,7 +263,8 @@ namespace NightSignal.Tests
                           "use the cleanest of drift skills 0.95/0.80/0.65 (fewest resets, then most scored; slides started by power where the handbrake is " +
                           "forbidden), time and drift from that one run, drift targets Gold = the raw it scored in the zones (banked or earned, the larger), " +
                           "Silver 0.85 ×, Bronze 0.70 ×; racecraft trials have no targets except a pressure trial's sector pace (the loaner alone through " +
-                          "the marked sector under contact rules, the fastest pass × the time factor); " +
+                          "the marked sector under contact rules, the fastest pass × the time factor); challenge cups: the loaner alone on each leg × the " +
+                          "cup's published leg factor; " +
                           $"physics {RaceSimulation.PhysicsVersion}, scoring {RaceSimulation.ScoringVersion}. Automation, not a human.";
             report.AppendLine().AppendLine(problems.Count == 0 ? "# every trial measured" : "# problems: " + string.Join("; ", problems));
             File.WriteAllText(FileName, JsonConvert.SerializeObject(file, Formatting.Indented,
