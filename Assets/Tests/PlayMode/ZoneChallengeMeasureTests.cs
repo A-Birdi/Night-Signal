@@ -91,6 +91,85 @@ namespace NightSignal.Tests
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Diagnostics: one course with the autopilot's drift trace, over the slide knobs listed in Builds/diag/zone-knobs.txt
+        /// ("slip rateSteer rateThrottle skill pathFollow pathThrottle entrySpeed grace clipInset" per line; the defaults when absent) — Builds/diag/zone-trace-&lt;course&gt;.txt, not evidence.
+        /// </summary>
+        [UnityTest, Timeout(1800000)]
+        public IEnumerator TraceZoneDrift([Values("C05", "C03", "C09", "C19")] string course)
+        {
+            ContentLibrary lib = ContentLibrary.Load();
+            ContentCatalogue cat = lib.Catalogue;
+            CarDef car = cat.Car(Car.Car);
+            ResolveResult resolved = TrialLoaners.Resolve(Car, car, cat.CarTunings[car.Id], lib.Parts, out PiEstimate _);
+            var knobs = new List<float[]>();
+            if (File.Exists("Builds/diag/zone-knobs.txt"))
+                foreach (string l in File.ReadAllLines("Builds/diag/zone-knobs.txt"))
+                {
+                    string[] p = l.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (p.Length == 9) knobs.Add(p.Select(x => float.Parse(x, System.Globalization.CultureInfo.InvariantCulture)).ToArray());
+                }
+            if (knobs.Count == 0)
+                knobs.Add(new[] { OfflineRaceSession.ZoneSlideSlipDeg, OfflineRaceSession.ZoneSlideRateSteer, OfflineRaceSession.ZoneSlideRateThrottle, 0.8f,
+                    OfflineRaceSession.ZoneSlidePathFollow, OfflineRaceSession.ZoneSlidePathThrottle, OfflineRaceSession.ZoneSlideEntrySpeed,
+                    OfflineRaceSession.ZoneSlideTransitionGrace, OfflineRaceSession.ZoneSlideClipInset });
+            float[] saved = { OfflineRaceSession.ZoneSlideSlipDeg, OfflineRaceSession.ZoneSlideRateSteer, OfflineRaceSession.ZoneSlideRateThrottle,
+                OfflineRaceSession.ZoneSlidePathFollow, OfflineRaceSession.ZoneSlidePathThrottle, OfflineRaceSession.ZoneSlideEntrySpeed,
+                OfflineRaceSession.ZoneSlideTransitionGrace, OfflineRaceSession.ZoneSlideClipInset };
+            var summary = new StringBuilder();
+            var traces = new StringBuilder();
+            foreach (float[] k in knobs)
+            {
+                var trace = new StringBuilder();
+#if UNITY_EDITOR
+                yield return UnityEditor.SceneManagement.EditorSceneManager.LoadSceneAsyncInPlayMode($"Assets/Content/Courses/{course}/{course}.unity",
+                    new LoadSceneParameters(LoadSceneMode.Single));
+#endif
+                yield return null;
+                var go = new GameObject("ZoneChallengeTrace");
+                var session = go.AddComponent<OfflineRaceSession>();
+                session.CarId = car.Id;
+                session.PlayerSpec = resolved.Spec;
+                session.Autopilot = true;
+                session.Headless = true;
+                session.SimulationSpeed = 30;
+                session.AutopilotDriftSkill = k[3];
+                OfflineRaceSession.AutopilotDrivesChallengeZones = true;
+                OfflineRaceSession.ZoneSlideSlipDeg = k[0];
+                OfflineRaceSession.ZoneSlideRateSteer = k[1];
+                OfflineRaceSession.ZoneSlideRateThrottle = k[2];
+                OfflineRaceSession.ZoneSlidePathFollow = k[4];
+                OfflineRaceSession.ZoneSlidePathThrottle = k[5];
+                OfflineRaceSession.ZoneSlideEntrySpeed = k[6];
+                OfflineRaceSession.ZoneSlideTransitionGrace = k[7];
+                OfflineRaceSession.ZoneSlideClipInset = k[8];
+                session.Rules = new RaceEventRules { Kind = "freeplay", Contact = ContactPolicy.NonContact, StageNumber = 10, CarCapPi = PerformanceIndex.Max };
+                session.OpposingAi = new List<string>();
+                yield return null;
+                float t0 = Time.realtimeSinceStartup;
+                while (session.Pilot == null && Time.realtimeSinceStartup - t0 < 60f) yield return null;
+                if (session.Pilot != null) session.Pilot.Trace = l => trace.AppendLine(l);
+                while (session.Results == null && Time.realtimeSinceStartup - t0 < 600f) yield return null;
+                OfflineRaceSession.AutopilotDrivesChallengeZones = false;
+                string line = Describe(course, session.Player, session.Results?.FirstOrDefault(x => x.Entrant.Human), session.Pilot, out bool _);
+                string head = $"### slip {k[0]} rateSteer {k[1]} rateThrottle {k[2]} skill {k[3]} pathFollow {k[4]} pathThrottle {k[5]} entry {k[6]} grace {k[7]} inset {k[8]}: {line}";
+                summary.AppendLine(head);
+                traces.AppendLine(head).Append(trace);
+                UnityEngine.Object.Destroy(go);
+                yield return null;
+            }
+            OfflineRaceSession.ZoneSlideSlipDeg = saved[0];
+            OfflineRaceSession.ZoneSlideRateSteer = saved[1];
+            OfflineRaceSession.ZoneSlideRateThrottle = saved[2];
+            OfflineRaceSession.ZoneSlidePathFollow = saved[3];
+            OfflineRaceSession.ZoneSlidePathThrottle = saved[4];
+            OfflineRaceSession.ZoneSlideEntrySpeed = saved[5];
+            OfflineRaceSession.ZoneSlideTransitionGrace = saved[6];
+            OfflineRaceSession.ZoneSlideClipInset = saved[7];
+            Directory.CreateDirectory("Builds/diag");
+            File.WriteAllText($"Builds/diag/zone-trace-{course}.txt", summary + System.Environment.NewLine + traces);
+        }
+
         [UnityTest, Timeout(3600000)]
         public IEnumerator MeasureZoneChallenges()
         {
@@ -102,6 +181,9 @@ namespace NightSignal.Tests
             var report = new StringBuilder();
             report.AppendLine("# Challenge-zone chains measured by ZoneChallengeMeasureTests (PlayMode, explicit): solo, non-contact freeplay, the validator");
             report.AppendLine($"# autopilot holding one slide per challenge's zones (clip lines aimed at), {car.Name} on T2 drift tyres (PI {pi.Value}), drift skills 0.95 / 0.80 / 0.65.");
+            report.AppendLine($"# Zone-tour slide settings (automation only; the AI and the published references keep the tuned controller): the zones' marked lines held,");
+            report.AppendLine($"# clip lines {OfflineRaceSession.ZoneSlideClipInset} m inside the clip, entry {OfflineRaceSession.ZoneSlideEntrySpeed} m/s, target slip {OfflineRaceSession.ZoneSlideSlipDeg}°, slip-rate damping " +
+                              $"{OfflineRaceSession.ZoneSlideRateSteer} / {OfflineRaceSession.ZoneSlideRateThrottle}, transition grace {OfflineRaceSession.ZoneSlideTransitionGrace} s.");
             report.AppendLine("# The game's ZoneChainJudge measures; ChallengePredicates says what the finish grants. Automation, not a person.");
             var reached = new List<string>();
             foreach ((string course, string challenge) in Courses)

@@ -117,11 +117,15 @@ namespace NightSignal.Race
             return spans.OrderBy(s => s.StartMetres).ToList();
         }
 
-        /// <summary>Automation only: each clip zone's marked line as an aim point at its middle (the autopilot's apex-gate blend).</summary>
-        public IReadOnlyList<RouteGateDef> AutopilotClipAims() =>
-            zones.Where(z => z.Kind == ChallengeZone.Clip)
-                .Select(z => new RouteGateDef { Id = z.Id, Kind = "apex", Challenge = z.Challenge, StartMetres = 0.5f * (z.StartMetres + z.EndMetres),
-                    EndMetres = 0.5f * (z.StartMetres + z.EndMetres), LineOffset = z.LineOffset, LineTolerance = z.LineTolerance })
+        /// <summary>
+        /// Automation only: the lines the autopilot holds — each span on the centreline, then each clip zone on its marked line
+        /// (overriding the span there), <paramref name="clipInset"/> inside it (kept within the clip's tolerance) so a slide
+        /// running wide still has road before the barrier.
+        /// </summary>
+        public IReadOnlyList<RouteGateDef> AutopilotLines(float clipInset = 0f) =>
+            AutopilotSpans().Concat(zones.Where(z => z.Kind == ChallengeZone.Clip)
+                .Select(z => new RouteGateDef { Id = z.Id, Kind = z.Kind, Challenge = z.Challenge, StartMetres = z.StartMetres, EndMetres = z.EndMetres,
+                    LineOffset = z.LineOffset - Mathf.Sign(z.LineOffset) * Mathf.Min(clipInset, Mathf.Max(0f, z.LineTolerance - 0.2f)), LineTolerance = z.LineTolerance }))
                 .ToList();
     }
 }

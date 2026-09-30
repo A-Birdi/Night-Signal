@@ -47,6 +47,9 @@ namespace NightSignal.Race
         /// to bank gate) and aims at clip zones' marked lines (CH17, CH19, CH22, CH27 — the zone tour).
         /// </summary>
         public static bool AutopilotDrivesChallengeZones;
+        /// <summary>The zone tour's slide knobs (diagnostics may tune them): target slip, slip-rate countersteer and throttle lift.</summary>
+        public static float ZoneSlideSlipDeg = 28f, ZoneSlideRateSteer = 0.15f, ZoneSlideRateThrottle = 0.02f, ZoneSlidePathFollow = 0.6f, ZoneSlidePathThrottle,
+            ZoneSlideEntrySpeed = 25f, ZoneSlideTransitionGrace = 1f, ZoneSlideClipInset = 0.8f;
         /// <summary>Automation only: the autopilot holds the brakes this long after GO, so the field goes ahead (racecraft tour).</summary>
         public static float AutopilotHoldSeconds;
         /// <summary>Automation only: the autopilot keeps about this interval (s) behind the car ahead; 0 = it races normally.</summary>
@@ -173,10 +176,21 @@ namespace NightSignal.Race
             pilot = new RouteFollower(course.Track, Player.Params, pilotProfile)
             {
                 DriftZones = AutopilotDrivesChallengeZones && Sim.ZoneChains != null ? Sim.ZoneChains.AutopilotSpans() : Sim.DriftZonesForAi,
-                ApexGates = Sim.Contracts?.ApexGates ?? (AutopilotAimsChallengeGates ? Sim.Gates?.TouchGates
-                    : AutopilotDrivesChallengeZones && Sim.ZoneChains != null && Sim.ZoneChains.AutopilotClipAims().Count > 0 ? Sim.ZoneChains.AutopilotClipAims() : null),
+                ApexGates = Sim.Contracts?.ApexGates ?? (AutopilotAimsChallengeGates ? Sim.Gates?.TouchGates : null),
+                LineZones = AutopilotDrivesChallengeZones ? Sim.ZoneChains?.AutopilotLines(ZoneSlideClipInset) : null,
                 ResetWhenStuck = true, SurfaceGrip = CourseRuntime.SurfaceGrip(Rules.Surface),
             };
+            if (AutopilotDrivesChallengeZones)
+            {
+                // Sustained slides: a shallower target in the middle of CH19's band and slip-rate damping against overshoot.
+                pilot.DriftSlipDeg = ZoneSlideSlipDeg;
+                pilot.SlipRateSteer = ZoneSlideRateSteer;
+                pilot.SlipRateThrottle = ZoneSlideRateThrottle;
+                pilot.PathFollow = ZoneSlidePathFollow;
+                pilot.PathThrottle = ZoneSlidePathThrottle;
+                pilot.DriftEntrySpeed = ZoneSlideEntrySpeed;
+                pilot.TransitionGraceSeconds = ZoneSlideTransitionGrace;
+            }
             foreach (RaceEntrant e in Sim.Entrants) previous[e] = e.State;
 
             if (GhostTemplate != null)

@@ -104,6 +104,24 @@ namespace NightSignal.AI
 
         /// <summary>Drift controller knobs (set from the skill; diagnostics may set them directly).</summary>
         public float CountersteerGain = 0.4f, EdgeMargin = 0.5f, FlickWindow = 0.5f, PathFollow = 0.6f;
+        /// <summary>
+        /// Slip-rate damping of a held drift (0 = off, the tuned controller): extra countersteer (wheel degrees per degree/s of
+        /// rising slip) and lifted throttle (per degree/s), so a slide caught quickly does not overshoot past the steering lock.
+        /// Automation's sustained slides (the zone tour) use it; the AI and the published references do not.
+        /// </summary>
+        public float SlipRateSteer, SlipRateThrottle;
+        /// <summary>
+        /// Throttle steering of a held slide's path (0 = off, the tuned controller): per degree the road bends away from the
+        /// car's travel, more throttle widens the slide and less tightens it — the way a driver steers a long drift.
+        /// </summary>
+        public float PathThrottle;
+        /// <summary>
+        /// How long (s) a held slide may point the wrong way — the car still in the last bend's slide as an S-bend turns — while
+        /// the controller countersteers it through to the new side (0 = end the attempt at once, the tuned controller).
+        /// </summary>
+        public float TransitionGraceSeconds;
+        int reversedTicks;
+        float lastAbsSlip;
 
         public float TargetSpeed { get; private set; }
 
@@ -120,6 +138,12 @@ namespace NightSignal.AI
         public IReadOnlyList<RouteGateDef> ApexGates;
         const float ApexBlendMetres = 40f;
         /// <summary>
+        /// Marked zones whose line the driver holds from start to end (automation: the zone tour's challenge zones — a drifter
+        /// enters from the marked line, not the apex): blended in over <see cref="ApexBlendMetres"/> before each; later entries
+        /// override earlier ones where they overlap. Null: race the ordinary line.
+        /// </summary>
+        public IReadOnlyList<RouteGateDef> LineZones;
+        /// <summary>
         /// The event's weather grip (CourseRuntime.SurfaceGrip: dry 1, damp 0.88, wet 0.76). The speed plan and braking use it,
         /// as a driver reads the conditions — planning wet corners with dry grip put every car into the walls.
         /// </summary>
@@ -132,6 +156,8 @@ namespace NightSignal.AI
         public bool Drifting { get; private set; }
         /// <summary>Drift attempt diagnostics: flicks started, holds reached, and why attempts ended (edge, spin, slow, wrong way).</summary>
         public int DriftFlicks, DriftHolds, DriftEndEdge, DriftEndSpin, DriftEndSlow, DriftEndWrongWay;
+        /// <summary>Diagnostics only: one line per held drift step and per ended attempt (null = off).</summary>
+        public System.Action<string> Trace;
         int driftZone = -1, flickTicks, wantSign;
         DriftPhase phase;
         readonly HashSet<int> failedZones = new HashSet<int>(); // an attempt went wrong here: race the line on later visits
@@ -306,6 +332,8 @@ namespace NightSignal.AI
                     phase = DriftPhase.Flick;
                     wantSign = turn;
                     flickTicks = 0;
+                    lastAbsSlip = 0f;
+                    reversedTicks = 0;
                     DriftFlicks++;
                     goto case DriftPhase.Flick;
                 }
@@ -334,6 +362,8 @@ namespace NightSignal.AI
                     phase = DriftPhase.Flick;
                     wantSign = turn;
                     flickTicks = 0;
+                    lastAbsSlip = 0f;
+                    reversedTicks = 0;
                     DriftFlicks++;
                     goto case DriftPhase.Flick;
                 }
@@ -345,9 +375,13 @@ namespace NightSignal.AI
                 // S-bend: swing the slide the other way through the transition (the countersteer does most of it).
                 wantSign = turn;
             }
-            bool wrongWay = Mathf.Abs(slipDeg) > 12f && Mathf.Sign(slipDeg) != -wantSign;
+            bool reversed = Mathf.Abs(slipDeg) > 12f && Mathf.Sign(slipDeg) != -wantSign;
+            reversedTicks = reversed ? reversedTicks + 1 : 0;
+            bool wrongWay = reversed && reversedTicks * VehicleSimulation.TickDt > TransitionGraceSeconds;
             if (edgeAhead || Mathf.Abs(slipDeg) > 70f || speed < 9f || wrongWay)
             {
+                Trace?.Invoke($"END {here.Distance:F1} lat {here.Lateral:F2}/{half:F2} pred {predicted:F2} v {speed:F1} slip {slipDeg:F1} want {wantSign} turn {turn} " +
+                              (edgeAhead ? "edge" : Mathf.Abs(slipDeg) > 70f ? "spin" : speed < 9f ? "slow" : "wrong-way"));
                 phase = DriftPhase.Done;
                 if (edgeAhead) DriftEndEdge++;
                 else if (Mathf.Abs(slipDeg) > 70f) DriftEndSpin++;
@@ -363,14 +397,20 @@ namespace NightSignal.AI
             // Where the road goes relative to where the car is going: aim further into the corner → more slip, less → less.
             float pathErr = Vector3.SignedAngle(Vector3.ProjectOnPlane(s.Velocity, up), Vector3.ProjectOnPlane(aim - s.Position, up), up);
             float target = Mathf.Clamp(DriftSlipDeg + pathErr * wantSign * PathFollow, 14f, 38f);
+            if (reversed) target = 0f; // swinging through a transition: countersteer the old slide away, then hold the new side
             float excess = Mathf.Abs(slipDeg) - target;
-            float wheelDeg = frontAngle + Mathf.Sign(frontAngle) * excess * CountersteerGain;
+            float slipRate = phase == DriftPhase.Hold && lastAbsSlip > 0f ? (Mathf.Abs(slipDeg) - lastAbsSlip) / VehicleSimulation.TickDt : 0f;
+            lastAbsSlip = Mathf.Abs(slipDeg);
+            float wheelDeg = frontAngle + Mathf.Sign(frontAngle) * (excess * CountersteerGain + slipRate * SlipRateSteer);
             float limitDeg = VehicleSimulation.SteeringLimit(p, speed, Mathf.Abs(signedSlip)) * Mathf.Rad2Deg;
             float steerCmd = Mathf.Clamp(wheelDeg / Mathf.Max(1f, limitDeg), -1f, 1f);
-            float keepSpeed = Mathf.Clamp(plannedSpeed, 12.5f, 22f);
-            float throttleCmd = Mathf.Clamp01(0.45f - excess * 0.04f + (keepSpeed - speed) * 0.05f);
+            // Held-slide speed: the plan, within 12.5 m/s and the entry speed + 3 (22 m/s at the tuned entry).
+            float keepSpeed = Mathf.Clamp(plannedSpeed, 12.5f, Mathf.Max(22f, DriftEntrySpeed + 3f));
+            float throttleCmd = Mathf.Clamp01(0.45f - excess * 0.04f - slipRate * SlipRateThrottle - pathErr * wantSign * PathThrottle + (keepSpeed - speed) * 0.05f);
             if (Mathf.Abs(slipDeg) > 55f) throttleCmd = 0f; // near a spin: lift and let the countersteer bring it back
             Drifting = true;
+            Trace?.Invoke($"{here.Distance:F1} lat {here.Lateral:F2}/{half:F2} latv {lateralSpeed:F2} v {speed:F1} slip {slipDeg:F1} tgt {target:F1} pathErr {pathErr:F1} " +
+                          $"steer {steerCmd:F2} thr {throttleCmd:F2} want {wantSign} turn {turn} k {k * 1000f:F2}");
             input = DriverInput.Quantize(steerCmd, throttleCmd, 0f, InputButtons.None);
             return true;
         }
@@ -390,6 +430,13 @@ namespace NightSignal.AI
                     lateral -= Mathf.Sign(kAhead) * Profile.EntryWidth * Mathf.Clamp01(Mathf.Abs(kAhead) * 900f) * half;
                 lateral = Mathf.Clamp(lateral, -half, half);
             }
+            if (LineZones != null)
+                foreach (RouteGateDef g in LineZones)
+                {
+                    if (distance < g.StartMetres - ApexBlendMetres || distance > g.EndMetres) continue;
+                    float w = distance < g.StartMetres ? 1f - (g.StartMetres - distance) / ApexBlendMetres : 1f;
+                    lateral = Mathf.Lerp(lateral, Mathf.Clamp(g.LineOffset, -half, half), w);
+                }
             if (ApexGates != null)
                 foreach (RouteGateDef g in ApexGates)
                 {
