@@ -248,6 +248,12 @@ namespace NightSignal.Race
             if (fc.Pace > 0f) profile.PaceScale = fc.Pace;
             RaceEntrant e = Add(lib, world, slot, id, name, false, fc.Car, "opposing", string.IsNullOrEmpty(fc.Role) ? "field" : fc.Role, null, grid: grid);
             e.Ai = new RouteFollower(Track, e.Params, profile) { DriftZones = DriftZonesForAi, SurfaceGrip = CourseRuntime.SurfaceGrip(Rules.Surface), Seed = slot };
+            // A pacing rival keeps to the far side of each marked lane (CH36's outside lane gate), so the lane stays open for a pass.
+            if (fc.Role == "pacing")
+                e.Ai.LineZones = Track.Gates.Where(g => g.Kind == "lane" && !string.IsNullOrEmpty(g.Challenge))
+                    .Select(g => new RouteGateDef { Id = g.Id, Kind = g.Kind, Challenge = g.Challenge, StartMetres = g.StartMetres, EndMetres = g.EndMetres,
+                        LineOffset = -g.LineOffset, LineTolerance = g.LineTolerance })
+                    .ToList();
         }
 
         void AddAi(ContentCatalogue cat, ContentLibrary lib, IVehicleWorld world, int slot, string id, string team, string role, AiPlacementContext ctx, ref int generic,

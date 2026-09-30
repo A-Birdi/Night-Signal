@@ -48,6 +48,25 @@ namespace NightSignal.Tests.Track
         }
 
         [Test]
+        public void APacingRival_KeepsTheMarkedLaneOpen()
+        {
+            ContentLibrary lib = ContentLibrary.Load();
+            ChallengeTrialDef trial = lib.Catalogue.ChallengeTrials.Find("TR-CH36");
+            LocalEventPlan plan = LocalEvents.Trial(trial, lib.Catalogue.Course(trial.Course).Format);
+            var humans = new List<HumanSlot> { new HumanSlot { EntrantId = "local", DisplayName = "You", CarId = trial.Loaner.Car } };
+            TrackData track = Track(trial.Course);
+            RaceSimulation sim = RaceSimulation.Build(track, lib, plan.Rules, humans, plan.OpposingAi, PlaneVehicleWorld.Flat);
+            RaceEntrant pacer = sim.Entrants[1];
+            Assert.That(pacer.Roster.Role, Is.EqualTo("pacing"));
+            Assert.That(pacer.Ai.Profile.PaceScale, Is.EqualTo(0.9f));
+            RouteGateDef lane = track.Gates.Single(g => g.Kind == "lane" && g.Challenge == "CH36");
+            RouteGateDef held = pacer.Ai.LineZones.Single();
+            Assert.That(held.LineOffset, Is.EqualTo(-lane.LineOffset), "the far side of the outside lane");
+            Assert.That(held.StartMetres, Is.EqualTo(lane.StartMetres));
+            Assert.That(sim.Entrants[0].Ai, Is.Null, "the human drives");
+        }
+
+        [Test]
         public void AFieldCarsPace_AndRole_AreItsOwn()
         {
             ContentLibrary lib = ContentLibrary.Load();

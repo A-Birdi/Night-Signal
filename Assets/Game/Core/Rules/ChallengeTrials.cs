@@ -54,6 +54,11 @@ namespace NightSignal.Core.Rules
         /// 3 s), with no car touched from 2 s before the pass (CH40's marked clean braking-zone overtake).
         /// </summary>
         public bool CleanZonePass;
+        /// <summary>
+        /// A pass of the field car in this role ("pacing": CH36's pacing rival) inside the challenge's marked zone or lane, the
+        /// gain held to its gate ("" = not judged).
+        /// </summary>
+        public string ZonePassRole = "";
     }
 
     /// <summary>Published targets (measured, see the file's method); 0 = not judged.</summary>
@@ -143,6 +148,8 @@ namespace NightSignal.Core.Rules
         public bool CheckpointCut;
         /// <summary>A touch-free pass inside the challenge's marked overtake zone, the place held (see <see cref="TrialRules.CleanZonePass"/>).</summary>
         public bool CleanZonePass;
+        /// <summary>The roles of the field cars passed in the challenge's marked zone or lane with the gain held.</summary>
+        public string[] ZonePassRoles;
     }
 
     public sealed class TrialVerdict
@@ -178,6 +185,8 @@ namespace NightSignal.Core.Rules
                 Check(f.OffPavedSeconds <= 0f, "all tyres on the paved road" + (f.OffPavedSeconds > 0f ? $" (off it {f.OffPavedSeconds:F1} s)" : ""));
             if (t.Rules.BankEveryZone) Check(f.ZonesTotal > 0 && f.ZonesBanked >= f.ZonesTotal, $"a chain banked in every judged zone ({f.ZonesBanked}/{f.ZonesTotal})");
             if (t.Rules.CleanZonePass) Check(f.CleanZonePass, "the marked overtake, clean and held");
+            if (!string.IsNullOrEmpty(t.Rules.ZonePassRole))
+                Check(f.ZonePassRoles != null && Array.IndexOf(f.ZonePassRoles, t.Rules.ZonePassRole) >= 0, $"the {t.Rules.ZonePassRole} car passed in the marked lane, the gain held");
             if (t.Rules.NoCarContact) Check(f.CarContacts == 0, $"no car-to-car contact ({f.CarContacts})");
             if (t.Rules.NoCheckpointCut) Check(!f.CheckpointCut, "no checkpoint cut");
             if (t.Rules.Win) Check(f.Finished && f.Placement == 1, $"first across the line ({(f.Placement > 0 ? "P" + f.Placement : "not classified")})");
@@ -214,7 +223,10 @@ namespace NightSignal.Core.Rules
                 if (!t.JudgesTime && !t.JudgesDrift && !t.IsRace) problems.Add($"{t.Id}: unknown kind {t.Kind}");
                 if (t.IsRace && (t.Field == null || t.Field.Count == 0)) problems.Add($"{t.Id}: a racecraft trial needs its fixed field");
                 if (!t.IsRace && t.Field != null && t.Field.Count > 0) problems.Add($"{t.Id}: only racecraft trials have a field");
-                if (t.IsRace && t.Rules != null && !(t.Rules.Win || t.Rules.CleanZonePass)) problems.Add($"{t.Id}: a racecraft trial judges nothing of the race");
+                if (t.IsRace && t.Rules != null && !(t.Rules.Win || t.Rules.CleanZonePass || !string.IsNullOrEmpty(t.Rules.ZonePassRole)))
+                    problems.Add($"{t.Id}: a racecraft trial judges nothing of the race");
+                if (!string.IsNullOrEmpty(t.Rules?.ZonePassRole) && (t.Field == null || !t.Field.Any(c => c.Role == t.Rules.ZonePassRole)))
+                    problems.Add($"{t.Id}: no {t.Rules.ZonePassRole} car in the field to pass");
                 foreach (TrialFieldCar c in t.Field ?? new List<TrialFieldCar>())
                 {
                     if (!carExists(c.Car ?? "")) problems.Add($"{t.Id}: unknown field car {c.Car}");

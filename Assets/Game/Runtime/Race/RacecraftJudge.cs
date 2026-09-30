@@ -116,9 +116,10 @@ namespace NightSignal.Race
     /// place for 3 s (or finished ahead first).</item>
     /// <item>A follow: the same live, moving car directly ahead, the interval to it inside the 1–2 s window, no touch and
     /// no recovery; the longest unbroken follow is kept.</item>
-    /// <item>A marked-zone pass (CH34): a pass of a live, moving car made inside a route overtake zone tagged with a challenge
-    /// — not on its approach — and the place still held when this car crosses that challenge's retain gate (a timing gate
-    /// with the same tag), neither car recovering in between.</item>
+    /// <item>A marked-zone pass (CH34, CH40, CH36): a pass of a live, moving car made inside a route overtake zone tagged with a
+    /// challenge — not on its approach — or inside a tagged lane with this car within the lane's band, and the place still held
+    /// when this car crosses that challenge's retain gate (a timing gate with the same tag; 3 s without one), neither car
+    /// recovering in between.</item>
     /// </list>
     /// </summary>
     public sealed class RacecraftJudge
@@ -137,7 +138,7 @@ namespace NightSignal.Race
             this.entrants = entrants;
             this.track = track;
             if (track?.Gates == null) return;
-            passZones.AddRange(track.Gates.Where(g => g.Kind == "overtake-zone" && !string.IsNullOrEmpty(g.Challenge) && g.EndMetres > g.StartMetres));
+            passZones.AddRange(track.Gates.Where(g => (g.Kind == "overtake-zone" || g.Kind == "lane") && !string.IsNullOrEmpty(g.Challenge) && g.EndMetres > g.StartMetres));
             retainGates.AddRange(track.Gates.Where(g => g.Kind == "timing" && !string.IsNullOrEmpty(g.Challenge) && passZones.Any(z => z.Challenge == g.Challenge)));
         }
 
@@ -150,13 +151,16 @@ namespace NightSignal.Race
             track != null && track.ClosedLoop ? Mathf.Repeat(raceDistance + track.StartMetres, track.LengthMetres) : raceDistance;
 
         /// <summary>Whether a legal race distance lies inside a marked overtake zone (automation: where the zone tour's autopilot attacks).</summary>
-        public bool InPassZone(float raceDistance) => passZones.Count > 0 && PassZoneAt(RouteDistance(raceDistance)) != null;
+        public bool InPassZone(float raceDistance) => passZones.Count > 0 && PassZoneAt(RouteDistance(raceDistance), float.NaN) != null;
 
         /// <summary>The challenge of the marked overtake zone at a route distance, or null.</summary>
-        string PassZoneAt(float routeDistance)
+        /// <param name="lateral">The passer's offset from the centreline; a marked lane counts only with the car inside its band (NaN = any).</param>
+        string PassZoneAt(float routeDistance, float lateral)
         {
             foreach (RouteGateDef z in passZones)
-                if (routeDistance >= z.StartMetres && routeDistance <= z.EndMetres) return z.Challenge;
+                if (routeDistance >= z.StartMetres && routeDistance <= z.EndMetres &&
+                    (z.Kind != "lane" || float.IsNaN(lateral) || Mathf.Abs(lateral - z.LineOffset) <= Mathf.Max(0.5f, z.LineTolerance)))
+                    return z.Challenge;
             return null;
         }
 
@@ -202,7 +206,7 @@ namespace NightSignal.Race
                         if (j == i || !Live(b) || float.IsNaN(rb.PreviousDistance) || now - rb.LastReset <= CleanWindowSeconds) continue;
                         bool passed = ra.PreviousDistance < rb.PreviousDistance && da >= b.Progress.RaceDistance;
                         if (!passed) continue;
-                        string zone = passZones.Count > 0 ? PassZoneAt(RouteDistance(da)) : null;
+                        string zone = passZones.Count > 0 ? PassZoneAt(RouteDistance(da), a.Progress.Location.Lateral) : null;
                         if (zone != null && b.State.Velocity.magnitude >= MovingMps)
                         {
                             ra.ZonePending.Add((j, zone, now));

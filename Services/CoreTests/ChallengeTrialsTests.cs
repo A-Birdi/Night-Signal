@@ -29,14 +29,16 @@ public sealed class ChallengeTrialsTests
     public void TheAuthoredTrials_LoadIntoTheHashedCatalogue_OnePerChallengeOrOneGroup()
     {
         Assert.Contains(ContentCatalogue.AuthoredFiles, f => f == "challenge-trials.json");
-        Assert.Equal(12, Trials.Trials.Count);
-        Assert.Equal(new[] { "CH11", "CH13", "CH15", "CH25", "CH28", "CH30", "CH40", "CH41", "CH51", "CH54", "CH55" }, Trials.Trials.Select(t => t.Challenge).Distinct().OrderBy(c => c));
+        Assert.Equal(13, Trials.Trials.Count);
+        Assert.Equal(new[] { "CH11", "CH13", "CH15", "CH25", "CH28", "CH30", "CH36", "CH40", "CH41", "CH51", "CH54", "CH55" }, Trials.Trials.Select(t => t.Challenge).Distinct().OrderBy(c => c));
+        ChallengeTrialDef ch36 = Trials.Find("TR-CH36")!;
+        Assert.True(ch36.IsRace && ch36.Rules.ZonePassRole == "pacing" && ch36.Field.Single().Role == "pacing");
         // The racecraft trials: fixed fields in the loaner's class, the player starting last.
         ChallengeTrialDef ch41 = Trials.Find("TR-CH41")!, ch40 = Trials.Find("TR-CH40")!;
         Assert.True(ch41.IsRace && ch41.PlayerStartsLast && ch41.Field.Count == 5 && ch41.Rules.Win && ch41.Rules.NoReset && ch41.Rules.NoCarContact);
         Assert.All(ch41.Field, c => Assert.Equal(ch41.Loaner.Car, c.Car)); // class-equalized: six identical stock cars
         Assert.True(ch40.IsRace && ch40.Rules.CleanZonePass && ch40.Rules.NoCarContact && ch40.Rules.NoCheckpointCut && !ch40.Rules.Win);
-        foreach (ChallengeTrialDef race in new[] { ch40, ch41 })
+        foreach (ChallengeTrialDef race in new[] { ch40, ch41, ch36 })
             Assert.All(race.Field, c => Assert.True(Cat.Car(c.Car).BasePI <= race.Loaner.PiCap, $"{race.Id}: {c.Car} outside the class"));
         Assert.All(Trials.Trials.Where(t => !t.IsRace), t => Assert.Empty(t.Field));
         Assert.True(Trials.Find("TR-CH15")!.Rules.AllChallengeGates && Trials.Find("TR-CH15")!.Rules.NoReset);
@@ -130,6 +132,11 @@ public sealed class ChallengeTrialsTests
         Assert.False(TrialJudge.Judge(race, Run() with { Placement = 1, CarContacts = 1 }).Passed);
         Assert.False(TrialJudge.Judge(race, Run(resets: 1) with { Placement = 1 }).Passed);
 
+        race.Rules = new TrialRules { ZonePassRole = "pacing" };
+        Assert.True(TrialJudge.Judge(race, Run() with { ZonePassRoles = new[] { "field", "pacing" } }).Passed);
+        Assert.False(TrialJudge.Judge(race, Run() with { ZonePassRoles = new[] { "field" } }).Passed, "another car passed");
+        Assert.False(TrialJudge.Judge(race, Run()).Passed, "no marked pass");
+
         race.Rules = new TrialRules { CleanZonePass = true, NoCheckpointCut = true };
         Assert.True(TrialJudge.Judge(race, Run() with { Placement = 3, CleanZonePass = true }).Passed);
         Assert.False(TrialJudge.Judge(race, Run() with { Placement = 1 }).Passed, "no marked overtake");
@@ -151,6 +158,11 @@ public sealed class ChallengeTrialsTests
         Assert.Contains("TR-C: unknown field role boss", p);
         Assert.Contains("TR-C: field pace 3 out of range", p);
         Assert.Contains("TR-C: a racecraft trial judges nothing of the race", p);
+
+        var noPacer = new ChallengeTrialsFile();
+        noPacer.Trials.Add(new ChallengeTrialDef { Id = "TR-D", Challenge = "CH36", Course = "C04", Kind = "race", Loaner = new TrialLoaner { Car = "V01" },
+            Field = { new TrialFieldCar { Car = "V01" } }, Rules = new TrialRules { ZonePassRole = "pacing" } });
+        Assert.Contains("TR-D: no pacing car in the field to pass", TrialJudge.Problems(noPacer, id => id == "C04", id => true, id => id == "V01"));
     }
 
     [Fact]

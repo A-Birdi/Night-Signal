@@ -222,6 +222,8 @@ namespace NightSignal.Front
                     CarContacts = me.Entrant.Progress.VehicleContacts,
                     CheckpointCut = me.Entrant.Progress.CorridorCut,
                     CleanZonePass = me.Entrant.Racecraft != null && me.Entrant.Racecraft.ZonePasses.Any(z => z.Challenge == trial.Challenge && z.TouchFree),
+                    ZonePassRoles = me.Entrant.Racecraft == null ? new string[0] : me.Entrant.Racecraft.ZonePasses.Where(z => z.Challenge == trial.Challenge)
+                        .Select(z => results.FirstOrDefault(r => r.Entrant.Roster.Index == z.Passed)?.Entrant.Roster.Role ?? "").ToArray(),
                 });
                 facts.TrialId = trial.Id;
                 facts.TrialPassed = LastTrialVerdict.Passed;

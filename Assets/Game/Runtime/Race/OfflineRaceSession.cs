@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using NightSignal.AI;
 using NightSignal.Art;
 using NightSignal.Cameras;
@@ -56,6 +57,8 @@ namespace NightSignal.Race
         public static float AutopilotFollowSeconds;
         /// <summary>Automation only: with <see cref="AutopilotFollowSeconds"/>, the autopilot stops holding back inside a marked overtake zone (CH34's hairpin exit) and races.</summary>
         public static bool AutopilotAttacksMarkedZones;
+        /// <summary>Automation only: the autopilot drives each challenge-tagged lane on its marked line (CH36's outside lane).</summary>
+        public static bool AutopilotHoldsMarkedLanes;
         public int CountdownTicks = 60 * 3;
 
         public RaceSimulation Sim { get; private set; }
@@ -179,7 +182,8 @@ namespace NightSignal.Race
             {
                 DriftZones = AutopilotDrivesChallengeZones && Sim.ZoneChains != null ? Sim.ZoneChains.AutopilotSpans() : Sim.DriftZonesForAi,
                 ApexGates = Sim.Contracts?.ApexGates ?? (AutopilotAimsChallengeGates ? Sim.Gates?.TouchGates : null),
-                LineZones = AutopilotDrivesChallengeZones ? Sim.ZoneChains?.AutopilotLines(ZoneSlideClipInset) : null,
+                LineZones = AutopilotDrivesChallengeZones ? Sim.ZoneChains?.AutopilotLines(ZoneSlideClipInset)
+                    : AutopilotHoldsMarkedLanes ? course.Track.Gates.Where(g => g.Kind == "lane" && !string.IsNullOrEmpty(g.Challenge)).ToList() : null,
                 ResetWhenStuck = true, SurfaceGrip = CourseRuntime.SurfaceGrip(Rules.Surface),
             };
             if (AutopilotDrivesChallengeZones)

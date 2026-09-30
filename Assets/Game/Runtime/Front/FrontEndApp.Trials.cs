@@ -127,8 +127,10 @@ namespace NightSignal.Front
                     pendingAutopilotEdgeMargin = t.Targets.ReferenceEdgeMargin;
                     OfflineRaceSession.AutopilotAimsChallengeGates = t.Rules.AllChallengeGates;
                     // A marked overtake (CH40): follow the car ahead and attack only inside the marked zone, as the racecraft tour does.
-                    OfflineRaceSession.AutopilotFollowSeconds = t.Rules.CleanZonePass ? 0.5f : 0f;
-                    OfflineRaceSession.AutopilotAttacksMarkedZones = t.Rules.CleanZonePass;
+                    bool zonePass = t.Rules.CleanZonePass || !string.IsNullOrEmpty(t.Rules.ZonePassRole);
+                    OfflineRaceSession.AutopilotFollowSeconds = zonePass ? 0.5f : 0f;
+                    OfflineRaceSession.AutopilotAttacksMarkedZones = zonePass;
+                    OfflineRaceSession.AutopilotHoldsMarkedLanes = !string.IsNullOrEmpty(t.Rules.ZonePassRole);
                     LocalEvents.LastTrialVerdict = null;
                     if (!Click("StartTrial")) break;
                     yield return Until(() => activeRace != null, 60f);
@@ -144,6 +146,7 @@ namespace NightSignal.Front
                     OfflineRaceSession.AutopilotAimsChallengeGates = false;
                     OfflineRaceSession.AutopilotFollowSeconds = 0f;
                     OfflineRaceSession.AutopilotAttacksMarkedZones = false;
+                    OfflineRaceSession.AutopilotHoldsMarkedLanes = false;
                     v = LocalEvents.LastTrialVerdict;
                     if (v == null) { Fail(t.Id + " was not judged"); break; }
                     Note($"{t.Id} ({t.Challenge} {t.Tier}){(t.JudgesDrift ? $" at drift skill {skill:F2}{(skill == refSkill ? " (the reference's)" : "")}" : "")}: " +
