@@ -1,0 +1,13 @@
+# Challenge trial targets, measured by ChallengeTrialReferenceTests (PlayMode, explicit): each trial's loaner resolved like a
+# garage build, solo, validator autopilot, the trial's course and conditions; drift trials: the cleanest of three drift skills. Automation.
+# this run measured only: TR-CH51, TR-CH57
+
+## TR-CH51 (CH51, silver) on C08 (wet): Arata Shigure GT TYR-T3-RAINSPORT, PI 485
+time 169.614 s; banked 0 raw (earned 0) in 0/4 zones; walls 0, resets 0, handbrake 0.0 s, off the paved road 1.8 s
+→ silver time 186.6 s (1.10 ×)
+
+## TR-CH57 (CH57, gold) on C15 (damp): Shinmei Crestline 26 AER-T3-GTWING, PI 504
+time 148.456 s; banked 0 raw (earned 0) in 0/4 zones; walls 0, resets 0, handbrake 0.0 s, off the paved road 3.1 s
+→ gold time 151.5 s (1.02 ×)
+
+# every trial measured

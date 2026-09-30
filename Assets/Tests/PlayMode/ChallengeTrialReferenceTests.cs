@@ -92,7 +92,7 @@ namespace NightSignal.Tests
             {
                 Kind = "freeplay", Contact = ContactPolicy.NonContact, StageNumber = 10,
                 CarCapPi = t.Loaner.PiCap > 0 ? t.Loaner.PiCap : PerformanceIndex.Max,
-                Surface = t.Conditions == "course" ? null : t.Conditions, DriftRanking = t.JudgesDrift,
+                Surface = t.Conditions == "course" ? CourseRuntime.Active?.Route?.Surface ?? "dry" : t.Conditions, DriftRanking = t.JudgesDrift,
                 SectionStartGate = t.HasSection ? t.SectionStartGate : null, SectionEndGate = t.HasSection ? t.SectionEndGate : null,
             };
             session.OpposingAi = new System.Collections.Generic.List<string>();
@@ -149,7 +149,7 @@ namespace NightSignal.Tests
             session.Headless = true;
             session.SimulationSpeed = 30;
             session.Rules = new RaceEventRules { Kind = "freeplay", Contact = ContactPolicy.LightContact, StageNumber = 10,
-                CarCapPi = t.Loaner.PiCap > 0 ? t.Loaner.PiCap : PerformanceIndex.Max, Surface = t.Conditions == "course" ? null : t.Conditions };
+                CarCapPi = t.Loaner.PiCap > 0 ? t.Loaner.PiCap : PerformanceIndex.Max, Surface = t.Conditions == "course" ? CourseRuntime.Active?.Route?.Surface ?? "dry" : t.Conditions };
             session.OpposingAi = new System.Collections.Generic.List<string>();
             yield return null;
             float t0 = Time.realtimeSinceStartup;

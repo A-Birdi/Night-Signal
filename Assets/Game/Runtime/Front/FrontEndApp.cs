@@ -1474,6 +1474,9 @@ namespace NightSignal.Front
                 rules.Surface = RaceConditions.Surface(cat, rules.Kind, rules.StageId, rules.Mode, CourseRuntime.Active);
                 CourseRuntime.Active?.ApplyConditions(RaceConditions.TimeOfDay(cat, rules.Kind, rules.StageId, rules.Mode, CourseRuntime.Active));
             }
+            // An event in its course's own conditions (a challenge trial or cup leg set to "course"): the course's surface, as
+            // the online server races it. A null surface once meant dry grip here, so C15 raced dry offline and damp online.
+            if (rules.Surface == null) rules.Surface = CourseRuntime.Active?.Route?.Surface ?? "dry";
             var go = new GameObject("OfflineRace");
             activeRace = go.AddComponent<OfflineRaceSession>();
             activeRace.CarId = carId;

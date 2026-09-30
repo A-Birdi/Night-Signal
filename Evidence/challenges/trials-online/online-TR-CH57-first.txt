@@ -1,0 +1,25 @@
+# ui-tour-online.ps1 -Intent 5 -ChallengeTrial TR-CH57 (built player of ea3e54b; control plane restarted on ea3e54b; server bound/advertised 127.0.0.1; dev account 0; validator autopilot). The tuned setup went through: validated at Event Ready, frozen per member, re-resolved by the game server (hash verified), judged legal — but the run was damp online (the course's surface) while the offline measurement and tours had raced C15 dry (a null surface meant dry grip offline): not passed, 2:26.909 against 2:24.300. Fixed in the next commit; re-measured and rerun.
+## client
+[NightSignal.Trial] TR-CH57 online setup saved (parts tyres=TYR-T1-TOURING; tune AeroBalance=450, AeroLevel=900)
+[NightSignal.UiTour] TR-CH57 online setup: legal, PI 522; kept on this PC: True
+[NightSignal.UiTourOnline] shared table: progress 7.14 -> 1005.60, still event ready True
+[NightSignal.UiTourOnline] challenge trial receipt: not passed
+[NightSignal.UiTourOnline] online route chart: 5.88 km · climb 100 m · 9 braking points
+[NightSignal.UiTourOnline] PASS; last result: <color=#9A968D>LAST RACE</color> | P1 of 1   02:26.909 | <color=#F2A541>Challenge trial not passed</color> | <size=80%>ok: the supplied loaner · ok: your setup legal and within PI 530 (PI 522) · ok: neither front nor rear aero at its maximum (the wing level below its top, the balance inside its range) · ok: a valid finish · MISSED: faster than 2:24.300 (2:26.909)</size> | Credits +11,466   ·   balance 606,098 cr | 
+## server
+[NightSignal.Server] network boundary: bind 127.0.0.1 (local), advertise 127.0.0.1, UDP 7777, LAN opt-in no
+[NightSignal.Server] registered as dev-local; build 0.1.0; content 812b4c4a3c3d; 1 ticket key(s)
+[NightSignal.Server] Driver 1 races the frozen build 4fabc32160a0 of loaner:TR-CH57 (applied revision 0, 2 part(s), PI 522) — hash verified
+[NightSignal.Server] challenge trial TR-CH57 (CH57) on C15: loaner V09 ac96835da22c
+[NightSignal.Server] listening UDP 127.0.0.1:7777 (local), advertised 127.0.0.1:7777, LAN opt-in no, pid 34608
+[NightSignal.Server] phase Loading at tick 0
+[NightSignal.Server] match m_f473760f9fc5f1b3baf53319 on C15: 1 humans, 0 AI, contact non-contact, port 7777
+[NightSignal.Server] entrant 0 (Driver 1) connected as client 1
+[NightSignal.Server] phase Countdown at tick 197, start tick 437
+[NightSignal.Server] phase Racing at tick 437
+[NightSignal.Server] first human finish; finish window closes at race time 236.9 s
+[NightSignal.Server] phase Results at tick 9252
+[NightSignal.Server] 00000000-0000-4000-8000-000000000001 challenge trial TR-CH57: not passed — ok: the supplied loaner · ok: your setup legal and within PI 530 (PI 522) · ok: neither front nor rear aero at its maximum (the wing level below its top, the balance inside its range) · ok: a valid finish · MISSED: faster than 2:24.300 (2:26.909)
+[NightSignal.Server] ghost for 00000000-0000-4000-8000-000000000001: 1470 samples, 99 KB, result 146.909 s -> 200
+[NightSignal.Server] results for m_f473760f9fc5f1b3baf53319: 200 {"status":"settled","receipts":[{"matchId":"m_f473760f9fc5f1b3baf53319","accountId":"00000000-0000-4000-8000-000000000001","status":"settled","eventKind":"FreeplayTimeTrial","mode":null,"stageId":null,"courseId":"C15","outcome":"Finished","placement":1,"tied":false,"finishTimeMs":146909,"stage":null,"payout":{"base":9100,"difficultyX100":100,"placementX100":120,"cleanlinessX100":105,"utilityX1…
+[NightSignal.Server] entrant 0 disconnected → Finished
