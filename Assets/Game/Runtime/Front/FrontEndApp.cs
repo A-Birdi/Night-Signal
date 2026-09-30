@@ -1263,6 +1263,10 @@ namespace NightSignal.Front
                 pendingGhosts.Add(reference);
             // A trial with a fixed Gold ghost (CH13) races it — its time is the target.
             if (plan.TrialId != null && TrialGhosts.For(plan.TrialId) is Core.Ghosts.GhostRecording gold) pendingGhosts.Add(gold);
+            // A trial that races its course's authored rival reference (CH74): that ghost on the road, its time the target.
+            if (plan.TrialId != null && NightSignal.Content.ContentLibrary.Load()?.Catalogue?.ChallengeTrials.Find(plan.TrialId)?.RaceRivalReference == true
+                && RivalReferenceGhosts.For(plan.CourseId) is Core.Ghosts.GhostRecording rivalReference)
+                pendingGhosts.Add(rivalReference);
 
             // The stage's introductory scene (spec §5.3), shortened on a rematch; skippable.
             Core.Story.StoryText story = NightSignal.Content.ContentLibrary.Load()?.Story;

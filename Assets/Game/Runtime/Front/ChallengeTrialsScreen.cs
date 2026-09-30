@@ -158,6 +158,11 @@ namespace NightSignal.Front
             if (t.Rules.AllChallengeGates) said.Add("every marked gate touched");
             if (t.Rules.NoCarContact) said.Add("no car-to-car contact");
             if (t.Rules.NoCheckpointCut) said.Add("no checkpoint cut");
+            if (t.RequiredStoryRecords > 0)
+            {
+                int have = LocalSession.Current?.Profile != null ? DiaryScreen.Build(LocalSession.Current.Profile, Lib).Count(e => e.Kind == "record") : 0;
+                said.Add($"first, the {t.RequiredStoryRecords} story records collected through Normal progression (you have {have})");
+            }
             if (t.Rules.AllDefenceZones) said.Add("every marked defence gate inside the legal corridor");
             if (t.Rules.AllChallengeGates && t.IsDrill)
             {

@@ -181,6 +181,16 @@ namespace NightSignal.Tests
             foreach (ChallengeTrialDef t in file.Trials)
             {
                 if (only != null && !only.Contains(t.Id)) continue;
+                if (t.RaceRivalReference)
+                {
+                    // The authored rival reference's own time is the target (CH74's "C24 post-story reference trial").
+                    NightSignal.Core.Ghosts.GhostRecording g = RivalReferenceGhosts.For(t.Course);
+                    t.Targets.TimeMs = g != null ? g.Header.ResultMicros / 1000 : 0;
+                    report.AppendLine().AppendLine($"## {t.Id} ({t.Challenge}, {t.Tier}) on {t.Course}: the authored rival reference — {g?.Header.Driver} in {g?.Header.CarModelId}, " +
+                                                   $"{(g != null ? (g.Header.ResultMicros / 1e6).ToString("F3") + " s" : "MISSING")} — is the target");
+                    if (g == null) problems.Add($"{t.Id}: no rival reference on {t.Course}");
+                    continue;
+                }
                 if (t.IsCup)
                 {
                     // A challenge cup: the loaner alone on each leg, the time × the cup's published leg factor (0 = untimed legs).

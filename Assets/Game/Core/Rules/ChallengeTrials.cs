@@ -165,6 +165,13 @@ namespace NightSignal.Core.Rules
         /// route gates that start and end it ("" = the finish time is judged). The time target is the section's.
         /// </summary>
         public string SectionStartGate = "", SectionEndGate = "";
+        /// <summary>
+        /// The story records that must already be collected through Normal progression (CH74: all six radio / timing-slip
+        /// records; 0 = none). Judged from the profile's campaign clears, as the race diary shows them.
+        /// </summary>
+        public int RequiredStoryRecords;
+        /// <summary>The trial races its course's authored rival reference ghost, whose time is its target (CH74's C24 reference).</summary>
+        public bool RaceRivalReference;
         public bool HasSection => !string.IsNullOrEmpty(SectionStartGate) && !string.IsNullOrEmpty(SectionEndGate);
         /// <summary>A racecraft trial's fixed AI field, in grid order (empty for time and drift trials, which run alone).</summary>
         public List<TrialFieldCar> Field = new List<TrialFieldCar>();
@@ -247,6 +254,8 @@ namespace NightSignal.Core.Rules
         public int DefenceZones;
         /// <summary>A section trial: the first time the section was driven start to end without a reset (ms; 0 = never).</summary>
         public long SectionMs;
+        /// <summary>The story records the player has collected through Normal progression (for a trial that requires them).</summary>
+        public int StoryRecords;
         /// <summary>The slowest exit over each of the challenge's exit gates (km/h; a gate never crossed is absent).</summary>
         public string[] ExitGates;
         public float[] ExitKmh;
@@ -276,6 +285,9 @@ namespace NightSignal.Core.Rules
             var v = new TrialVerdict();
             void Check(bool ok, string what) => v.Checks.Add(new KeyValuePair<bool, string>(ok, what));
             Check(f.DroveLoaner, "the supplied loaner");
+            if (t.RequiredStoryRecords > 0)
+                Check(f.StoryRecords >= t.RequiredStoryRecords,
+                    $"the {t.RequiredStoryRecords} story records collected through Normal progression ({f.StoryRecords} of {t.RequiredStoryRecords})");
             if (t.IsCup) return JudgeCup(t, f, v);
             Check(f.Finished, "a valid finish");
             if (t.Targets.TimeMs > 0 && t.HasSection)
@@ -412,6 +424,8 @@ namespace NightSignal.Core.Rules
                 if (!string.IsNullOrEmpty(t.ReferenceRival) && !t.JudgesTime) problems.Add($"{t.Id}: a rival's reference is a time");
                 if (string.IsNullOrEmpty(t.SectionStartGate) != string.IsNullOrEmpty(t.SectionEndGate)) problems.Add($"{t.Id}: a section needs its start and end gates");
                 if (t.HasSection && !t.JudgesTime) problems.Add($"{t.Id}: a section is timed");
+                if (t.RequiredStoryRecords < 0) problems.Add($"{t.Id}: negative story records");
+                if (t.RaceRivalReference && !t.JudgesTime) problems.Add($"{t.Id}: a rival reference is raced against its time");
                 }
                 else if (t.Legs != null && t.Legs.Count > 0) problems.Add($"{t.Id}: only challenge cups have legs");
                 if (t.IsRace && (t.Field == null || t.Field.Count == 0)) problems.Add($"{t.Id}: a racecraft trial needs its fixed field");

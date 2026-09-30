@@ -61,7 +61,9 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": false,
-      "published": true
+      "published": true,
+      "requiredStoryRecords": 0,
+      "raceRivalReference": false
     },
     {
       "id": "TR-CH15",
@@ -122,7 +124,9 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": false,
-      "published": true
+      "published": true,
+      "requiredStoryRecords": 0,
+      "raceRivalReference": false
     },
     {
       "id": "TR-CH43",
@@ -183,7 +187,9 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": false,
-      "published": true
+      "published": true,
+      "requiredStoryRecords": 0,
+      "raceRivalReference": false
     },
     {
       "id": "TR-CH55",
@@ -244,7 +250,9 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": false,
-      "published": true
+      "published": true,
+      "requiredStoryRecords": 0,
+      "raceRivalReference": false
     },
     {
       "id": "TR-CH11",
@@ -305,7 +313,9 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": false,
-      "published": true
+      "published": true,
+      "requiredStoryRecords": 0,
+      "raceRivalReference": false
     },
     {
       "id": "TR-CH51",
@@ -368,7 +378,9 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": false,
-      "published": true
+      "published": true,
+      "requiredStoryRecords": 0,
+      "raceRivalReference": false
     },
     {
       "id": "TR-CH54-FWD",
@@ -429,7 +441,9 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": false,
-      "published": true
+      "published": true,
+      "requiredStoryRecords": 0,
+      "raceRivalReference": false
     },
     {
       "id": "TR-CH54-RWD",
@@ -490,7 +504,9 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": false,
-      "published": true
+      "published": true,
+      "requiredStoryRecords": 0,
+      "raceRivalReference": false
     },
     {
       "id": "TR-CH25",
@@ -553,7 +569,9 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": false,
-      "published": true
+      "published": true,
+      "requiredStoryRecords": 0,
+      "raceRivalReference": false
     },
     {
       "id": "TR-CH28",
@@ -616,7 +634,9 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": false,
-      "published": true
+      "published": true,
+      "requiredStoryRecords": 0,
+      "raceRivalReference": false
     },
     {
       "id": "TR-CH30",
@@ -679,7 +699,9 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": false,
-      "published": true
+      "published": true,
+      "requiredStoryRecords": 0,
+      "raceRivalReference": false
     },
     {
       "id": "TR-CH40",
@@ -759,7 +781,9 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": false,
-      "published": true
+      "published": true,
+      "requiredStoryRecords": 0,
+      "raceRivalReference": false
     },
     {
       "id": "TR-CH41",
@@ -851,7 +875,9 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": false,
-      "published": true
+      "published": true,
+      "requiredStoryRecords": 0,
+      "raceRivalReference": false
     },
     {
       "id": "TR-CH36",
@@ -919,7 +945,9 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": false,
-      "published": true
+      "published": true,
+      "requiredStoryRecords": 0,
+      "raceRivalReference": false
     },
     {
       "id": "TR-CH39",
@@ -987,7 +1015,9 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": false,
-      "published": true
+      "published": true,
+      "requiredStoryRecords": 0,
+      "raceRivalReference": false
     },
     {
       "id": "TR-CH14",
@@ -1064,7 +1094,9 @@
       "isDrill": false,
       "isCup": true,
       "hasSection": false,
-      "published": true
+      "published": true,
+      "requiredStoryRecords": 0,
+      "raceRivalReference": false
     },
     {
       "id": "TR-CH42",
@@ -1141,7 +1173,9 @@
       "isDrill": false,
       "isCup": true,
       "hasSection": false,
-      "published": true
+      "published": true,
+      "requiredStoryRecords": 0,
+      "raceRivalReference": false
     },
     {
       "id": "TR-CH69",
@@ -1218,7 +1252,9 @@
       "isDrill": false,
       "isCup": true,
       "hasSection": false,
-      "published": true
+      "published": true,
+      "requiredStoryRecords": 0,
+      "raceRivalReference": false
     },
     {
       "id": "TR-CH72",
@@ -1295,7 +1331,9 @@
       "isDrill": false,
       "isCup": true,
       "hasSection": false,
-      "published": true
+      "published": true,
+      "requiredStoryRecords": 0,
+      "raceRivalReference": false
     },
     {
       "id": "TR-CH52-LIGHT",
@@ -1358,7 +1396,9 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": true,
-      "published": true
+      "published": true,
+      "requiredStoryRecords": 0,
+      "raceRivalReference": false
     },
     {
       "id": "TR-CH52-HEAVY",
@@ -1419,7 +1459,9 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": true,
-      "published": true
+      "published": true,
+      "requiredStoryRecords": 0,
+      "raceRivalReference": false
     },
     {
       "id": "TR-CH58-FWD",
@@ -1480,7 +1522,9 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": true,
-      "published": true
+      "published": true,
+      "requiredStoryRecords": 0,
+      "raceRivalReference": false
     },
     {
       "id": "TR-CH58-RWD",
@@ -1541,7 +1585,9 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": true,
-      "published": true
+      "published": true,
+      "requiredStoryRecords": 0,
+      "raceRivalReference": false
     },
     {
       "id": "TR-CH58-AWD",
@@ -1602,7 +1648,9 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": true,
-      "published": true
+      "published": true,
+      "requiredStoryRecords": 0,
+      "raceRivalReference": false
     },
     {
       "id": "TR-CH53-OPEN",
@@ -1672,7 +1720,9 @@
       "isDrill": true,
       "isCup": false,
       "hasSection": false,
-      "published": true
+      "published": true,
+      "requiredStoryRecords": 0,
+      "raceRivalReference": false
     },
     {
       "id": "TR-CH53-RACE",
@@ -1744,7 +1794,9 @@
       "isDrill": true,
       "isCup": false,
       "hasSection": false,
-      "published": true
+      "published": true,
+      "requiredStoryRecords": 0,
+      "raceRivalReference": false
     },
     {
       "id": "TR-CH07",
@@ -1813,7 +1865,9 @@
       "isDrill": true,
       "isCup": false,
       "hasSection": false,
-      "published": true
+      "published": true,
+      "requiredStoryRecords": 0,
+      "raceRivalReference": false
     },
     {
       "id": "TR-CH23",
@@ -1874,7 +1928,65 @@
       "isDrill": true,
       "isCup": false,
       "hasSection": false,
-      "published": true
+      "published": true,
+      "requiredStoryRecords": 0,
+      "raceRivalReference": false
+    },
+    {
+      "id": "TR-CH74",
+      "challenge": "CH74",
+      "title": "The Radio Remembered",
+      "course": "C24",
+      "tier": "gold",
+      "kind": "time",
+      "legs": [],
+      "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
+      "sectionStartGate": "",
+      "sectionEndGate": "",
+      "field": [],
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V14",
+        "parts": {},
+        "piCap": 0
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": false,
+        "allDefenceZones": false,
+        "challengeExits": false,
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false
+      },
+      "targets": {
+        "timeMs": 240846,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0,
+        "referencePaceScale": 0.0,
+        "sectorTimeMs": 0,
+        "exitFloors": [],
+        "brakes": []
+      },
+      "group": "",
+      "brief": "After the story: collect all six radio and timing-slip records through Normal progression, then beat the C24 reference — Satoshi Mibe's run in the V14, on the road beside you as a ghost — in the same car.",
+      "ghost": false,
+      "requiredStoryRecords": 6,
+      "raceRivalReference": true
     }
   ]
 }

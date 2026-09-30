@@ -133,7 +133,10 @@ namespace NightSignal.Front
                 // Drift trials: the reference's own drift skill first, then the other measured skills until one run passes
                 // (whether the published targets can be reached at all); time trials: one run.
                 float refSkill = t.Targets.ReferenceDriftSkill > 0f ? t.Targets.ReferenceDriftSkill : 0.95f;
-                float[] skills = t.JudgesDrift || t.Rules.AlternatingRecoveries ? new[] { refSkill }.Concat(new[] { 0.95f, 0.8f, 0.65f }.Where(k => Math.Abs(k - refSkill) > 0.001f)).ToArray() : new[] { 0f };
+                float[] skills = t.JudgesDrift || t.Rules.AlternatingRecoveries ? new[] { refSkill }.Concat(new[] { 0.95f, 0.8f, 0.65f }.Where(k => Math.Abs(k - refSkill) > 0.001f)).ToArray()
+                    : t.RequiredStoryRecords > 0 ? new[] { 0f, 0f } // once locked (the tour's fresh profile has no records), then with the records seeded
+                    : new[] { 0f };
+                bool seededRecords = false;
                 TrialVerdict v = null;
                 foreach (float skill in skills)
                 {
@@ -193,6 +196,15 @@ namespace NightSignal.Front
                     if (t.IsRace)
                         foreach (string line in LocalEvents.LastTrialRacecraftLog) Note($"{t.Id}:   {line}");
                     if (v.Passed) break;
+                    if (t.RequiredStoryRecords > 0 && !seededRecords)
+                    {
+                        // The lock first: without the records the trial cannot pass, however fast the run.
+                        if (!v.Summary.Contains($"MISSED: the {t.RequiredStoryRecords} story records")) Fail($"{t.Id} did not report its missing story records");
+                        // Then the tour's own profile gets the Normal clears that award the records (as the diary tour seeds them).
+                        for (int n = 1; n <= 25; n++) if (!s.Profile.Campaign.For(CampaignMode.Normal).Contains(n)) s.Profile.Campaign.For(CampaignMode.Normal).Add(n);
+                        seededRecords = true;
+                        Note($"{t.Id}: seeded Normal S01–S25 as cleared on the tour's profile — the diary now holds {DiaryScreen.Build(s.Profile, ContentLibrary.Load()).Count(e => e.Kind == "record")} records");
+                    }
                 }
                 if (v == null) continue;
                 bool kept = s.Profile.TrialsPassed.Contains(t.Id);
