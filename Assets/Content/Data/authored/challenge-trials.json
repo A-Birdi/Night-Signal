@@ -2234,6 +2234,74 @@
         "T00-GEAR-2",
         "T00-GEAR-3"
       ]
+    },
+    {
+      "id": "TR-CH46",
+      "challenge": "CH46",
+      "title": "Your First Setup",
+      "course": "T00",
+      "tier": "bronze",
+      "kind": "time",
+      "legs": [],
+      "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
+      "sectionStartGate": "T00-ACCEL-START",
+      "sectionEndGate": "T00-ACCEL-END",
+      "field": [],
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V01",
+        "parts": {},
+        "piCap": 0,
+        "choices": {
+          "gearbox": [
+            "GBX-T1-FINAL"
+          ]
+        },
+        "tunable": true,
+        "piBudget": 0
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": false,
+        "allDefenceZones": false,
+        "challengeExits": false,
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false,
+        "cleanMerge": false,
+        "shiftWindows": false,
+        "finalDriveChanged": true
+      },
+      "targets": {
+        "timeMs": 20000,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0,
+        "referencePaceScale": 0.0,
+        "sectorTimeMs": 0,
+        "exitFloors": [],
+        "brakes": []
+      },
+      "group": "",
+      "brief": "The Driving School's workshop, in the supplied starter Hachi RS: fit the free final-drive kit on Tune the Loaner, change the final drive and save the setup, then run the acceleration lane with it — its board to its end board inside the lesson's 20 seconds. The kit and the tools are free; the setup is saved for this trial only.",
+      "ghost": false,
+      "requiredStoryRecords": 0,
+      "raceRivalReference": false,
+      "manualGearbox": false,
+      "shiftGates": []
     }
   ]
 }

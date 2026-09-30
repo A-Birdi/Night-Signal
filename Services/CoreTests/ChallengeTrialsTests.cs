@@ -29,8 +29,8 @@ public sealed class ChallengeTrialsTests
     public void TheAuthoredTrials_LoadIntoTheHashedCatalogue_OnePerChallengeOrOneGroup()
     {
         Assert.Contains(ContentCatalogue.AuthoredFiles, f => f == "challenge-trials.json");
-        Assert.Equal(31, Trials.Trials.Count);
-        Assert.Equal(new[] { "CH07", "CH11", "CH13", "CH14", "CH15", "CH23", "CH25", "CH28", "CH30", "CH36", "CH37", "CH39", "CH40", "CH41", "CH42", "CH43", "CH49", "CH51", "CH52", "CH53", "CH54", "CH55", "CH58", "CH69", "CH72", "CH74" }, Trials.Trials.Select(t => t.Challenge).Distinct().OrderBy(c => c));
+        Assert.Equal(32, Trials.Trials.Count);
+        Assert.Equal(new[] { "CH07", "CH11", "CH13", "CH14", "CH15", "CH23", "CH25", "CH28", "CH30", "CH36", "CH37", "CH39", "CH40", "CH41", "CH42", "CH43", "CH46", "CH49", "CH51", "CH52", "CH53", "CH54", "CH55", "CH58", "CH69", "CH72", "CH74" }, Trials.Trials.Select(t => t.Challenge).Distinct().OrderBy(c => c));
         ChallengeTrialDef ch36 = Trials.Find("TR-CH36")!;
         Assert.True(ch36.IsRace && ch36.Rules.ZonePassRole == "pacing" && ch36.Field.Single().Role == "pacing");
         // The racecraft trials: fixed fields in the loaner's class, the player starting last.
@@ -57,8 +57,8 @@ public sealed class ChallengeTrialsTests
         using var t00 = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(TestContent.RepoRoot, "Assets", "Content", "Courses", "T00", "route.json")));
         var t00Gates = t00.RootElement.GetProperty("gates").EnumerateArray().ToDictionary(g => g.GetProperty("id").GetString()!, g => g.TryGetProperty("challenge", out var c) ? c.GetString() : "");
         List<ChallengeTrialDef> sections = Trials.Trials.Where(t => t.HasSection).ToList();
-        Assert.Equal(new[] { "TR-CH52-LIGHT", "TR-CH52-HEAVY", "TR-CH58-FWD", "TR-CH58-RWD", "TR-CH58-AWD" }, sections.Select(t => t.Id));
-        Assert.All(sections, t => Assert.True(t.Course == "T00" && t.Group == t.Challenge && t.JudgesTime
+        Assert.Equal(new[] { "TR-CH52-LIGHT", "TR-CH52-HEAVY", "TR-CH58-FWD", "TR-CH58-RWD", "TR-CH58-AWD", "TR-CH46" }, sections.Select(t => t.Id));
+        Assert.All(sections, t => Assert.True(t.Course == "T00" && (t.Group == t.Challenge || Trials.Trials.Count(x => x.Challenge == t.Challenge) == 1) && t.JudgesTime
             && t00Gates.TryGetValue(t.SectionStartGate, out string? a) && a == t.Challenge && t00Gates.TryGetValue(t.SectionEndGate, out string? b) && b == t.Challenge, t.Id));
         Assert.Equal(new[] { "FWD", "RWD", "AWD" }, sections.Where(t => t.Challenge == "CH58").Select(t => Cat.Car(t.Loaner.Car).Drive));
         // CH53: two diff setups of one car, each a drill on C03's marked apexes and exits.
@@ -78,6 +78,14 @@ public sealed class ChallengeTrialsTests
         Assert.True(ch49.IsDrill && ch49.ManualGearbox && ch49.Rules.ShiftWindows && ch49.Course == "T00");
         Assert.Equal(new[] { "T00-GEAR-1", "T00-GEAR-2", "T00-GEAR-3" }, ch49.ShiftGates);
         Assert.All(ch49.ShiftGates, g => Assert.Equal("CH49", t00Gates[g]));
+        // CH46: the acceleration lane in a tunable starter loaner — the free final-drive kit, the lane inside the lesson's own 20 s.
+        ChallengeTrialDef ch46 = Trials.Find("TR-CH46")!;
+        Assert.True(ch46.Loaner.Tunable && ch46.Loaner.Parts.Count == 0 && ch46.Loaner.PiBudget == 0 && ch46.Rules.FinalDriveChanged && ch46.Loaner.Car == "V01");
+        Assert.Equal(new[] { "GBX-T1-FINAL" }, ch46.Loaner.Choices["gearbox"]);
+        Assert.Equal(("T00-ACCEL-START", "T00-ACCEL-END"), (ch46.SectionStartGate, ch46.SectionEndGate));
+        using var lessons = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(TestContent.RepoRoot, "Assets", "Content", "Data", "authored", "tutorial", "lessons.json")));
+        System.Text.Json.JsonElement gearing = lessons.RootElement.GetProperty("lessons").EnumerateArray().Single(l => l.GetProperty("id").GetString() == "exits-gearing").GetProperty("check");
+        Assert.Equal(gearing.GetProperty("seconds").GetInt32() * 1000L, ch46.Targets.TimeMs);
         ChallengeTrialDef ch37 = Trials.Find("TR-CH37")!;
         Assert.True(ch37.IsRace && ch37.Course == "T00" && ch37.Rules.CleanMerge && ch37.Field.Single().Role == "merge" && !ch37.PlayerStartsLast);
         ChallengeTrialDef ch23 = Trials.Find("TR-CH23")!;
@@ -342,6 +350,13 @@ public sealed class ChallengeTrialsTests
         Assert.True(Setup(loaner, aero).AeroAtExtreme, "front aero at its maximum");
         aero.Tuning.Values[TuningKeys.AeroBalance] = bal.Min;
         Assert.True(Setup(loaner, aero).AeroAtExtreme, "rear aero at its maximum");
+        aero.Tuning.Values[TuningKeys.AeroBalance] = bal.Default;
+        TuningControlInfo level = b.Controls.Single(c => c.Key == TuningKeys.AeroLevel);
+        aero.Tuning.Values[TuningKeys.AeroLevel] = level.Max;
+        Assert.True(Setup(loaner, aero).AeroAtExtreme, "the wing at its top: front and rear both at their maximum");
+        aero.Tuning.Values[TuningKeys.AeroLevel] = level.Max - level.Step;
+        Assert.False(Setup(loaner, aero).AeroAtExtreme);
+        aero.Tuning.Values.Remove(TuningKeys.AeroLevel);
 
         int pi = b.Pi.Value;
         loaner.PiBudget = pi - 1;
@@ -427,6 +442,34 @@ public sealed class ChallengeTrialsTests
     }
 
     // ---------------- the Local profile ----------------
+
+    [Fact]
+    public void ATunableTrialsSetup_IsSavedWithTheProfile_OnlyWhenLegal()
+    {
+        LocalProfile p = LocalProgressionTests.NewProfile();
+        var kit = new MechanicalSnapshot { Parts = { ["gearbox"] = "GBX-T1-FINAL" } };
+        kit.Tuning.Values[TuningKeys.FinalDrive] = 1060;
+        Assert.Equal(LocalOperationStatus.Rejected, LocalProgression.SaveTrialSetup(p, Cat, parts.Value, "TR-CH49", kit).Status); // supplied as it is
+        Assert.Equal(LocalOperationStatus.Rejected, LocalProgression.SaveTrialSetup(p, Cat, parts.Value, "TR-NONE", kit).Status);
+        var dog = new MechanicalSnapshot { Parts = { ["gearbox"] = "GBX-T4-DOG" } };
+        LocalProgressionResult refused = LocalProgression.SaveTrialSetup(p, Cat, parts.Value, "TR-CH46", dog);
+        Assert.Equal(LocalOperationStatus.Rejected, refused.Status);
+        Assert.Contains("GBX-T4-DOG is not one of this trial's parts", refused.Reason);
+        var wild = new MechanicalSnapshot { Parts = { ["gearbox"] = "GBX-T1-FINAL" } };
+        wild.Tuning.Values[TuningKeys.FinalDrive] = 1500;
+        Assert.Equal(LocalOperationStatus.Rejected, LocalProgression.SaveTrialSetup(p, Cat, parts.Value, "TR-CH46", wild).Status);
+
+        LocalProgressionResult saved = LocalProgression.SaveTrialSetup(p, Cat, parts.Value, "TR-CH46", kit);
+        Assert.Equal(LocalOperationStatus.Applied, saved.Status);
+        LocalProfile q = saved.Profile;
+        Assert.Equal("GBX-T1-FINAL", q.TrialSetups["TR-CH46"].Parts["gearbox"]);
+        Assert.Equal(1060, q.TrialSetups["TR-CH46"].Tuning.Values[TuningKeys.FinalDrive]);
+        Assert.Equal(p.WalletBalance, q.WalletBalance); // the kit and the tools are free
+        Assert.Empty(q.Validate());
+        kit.Tuning.Values[TuningKeys.FinalDrive] = 1000; // the saved copy is the profile's own
+        Assert.Equal(1060, q.TrialSetups["TR-CH46"].Tuning.Values[TuningKeys.FinalDrive]);
+        Assert.True(Setup(Trials.Find("TR-CH46")!.Loaner, q.TrialSetups["TR-CH46"]).FinalDriveChanged);
+    }
 
     static LocalEventFacts TrialRun(LocalProfile p, string trialId, bool passed, RunOutcome outcome = RunOutcome.Finished)
     {

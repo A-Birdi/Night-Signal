@@ -1,5 +1,5 @@
-# -nsTrialTour (built player of 527601e, buttons only, isolated profile; validator autopilot; cups through the cup page; run with -nsBoundsAudit at 1280x720, Text 150 % / HUD 130 %; automation)
-[NightSignal.TrialTour] page 2 of 2: its first row opens TR-CH40
+# -nsTrialTour (built player of ac6429d, all 29 trials, buttons only, isolated profile; validator autopilot; cups through the cup page; run with -nsBoundsAudit at 1280x720, Text 150 % / HUD 130 %; automation). Every verdict line equals V-127's full tour and the targeted runs since (V-128–V-133).
+[NightSignal.TrialTour] page 2 of 3: its first row opens TR-CH30
 [NightSignal.Trial] TR-CH13: V14 stock, PI 680, build 53f0713d354f, on C21 (course)
 [NightSignal.Ghost] C21 trial-TR-CH13: 1365 samples, result 136.347 s, resets 0, valid True; raced ghost none — your first ghost here; against the ghost: −0.00 s at the first checkpoint, −0.00 s at the finish
 [NightSignal.Trial] TR-CH13: Trial not passed — ok: the supplied loaner · ok: a valid finish · MISSED: faster than 2:16.346 (2:16.346) · MISSED: all tyres on the paved road (off it 0.5 s)
@@ -10,6 +10,11 @@
 [NightSignal.Trial] TR-CH15: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 4:33.700 (4:28.259) · ok: no reset (0) · ok: every marked gate touched (3 of them)
 [NightSignal.TrialTour] TR-CH15 (CH15 gold): PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 4:33.700 (4:28.259) · ok: no reset (0) · ok: every marked gate touched (3 of them)
 [NightSignal.TrialTour] TR-CH15: profile keeps it: True; challenge earned: True
+[NightSignal.Trial] TR-CH43: V16 stock, PI 790, build 76a2a513eb49, on C20 (course)
+[NightSignal.Ghost] C20 trial-TR-CH43: 1753 samples, result 175.140 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH43: Trial not passed — ok: the supplied loaner · ok: a valid finish · MISSED: faster than 2:47.220 (2:55.140) · ok: every marked defence gate inside the legal corridor (2 of them)
+[NightSignal.TrialTour] TR-CH43 (CH43 gold): not passed — ok: the supplied loaner · ok: a valid finish · MISSED: faster than 2:47.220 (2:55.140) · ok: every marked defence gate inside the legal corridor (2 of them)
+[NightSignal.TrialTour] TR-CH43: profile keeps it: False; challenge earned: False
 [NightSignal.Trial] TR-CH55: V01 stock, PI 220, build c12c2bea1a67, on C04 (course)
 [NightSignal.Ghost] C04 trial-TR-CH55: 1368 samples, result 136.697 s, resets 0, valid True; raced ghost none — your first ghost here
 [NightSignal.Trial] TR-CH55: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: faster than 2:30.400 (2:16.696)
@@ -173,6 +178,69 @@
 [NightSignal.TrialTour] TR-CH72 leg 3: ok: the supplied loaner · ok: all 3 legs finished in one session (3 of 3) · ok: C21 faster than 2:47.100 (2:19.195) · ok: C22 faster than 3:22.600 (2:48.790) · ok: C23 faster than 4:26.800 (3:42.287) · ok: no reset in any leg (0)
 [NightSignal.TrialTour] TR-CH72 (CH72 gold): PASSED — ok: the supplied loaner · ok: all 3 legs finished in one session (3 of 3) · ok: C21 faster than 2:47.100 (2:19.195) · ok: C22 faster than 3:22.600 (2:48.790) · ok: C23 faster than 4:26.800 (3:42.287) · ok: no reset in any leg (0)
 [NightSignal.TrialTour] TR-CH72: profile keeps it: True; challenge earned: True
-[NightSignal.TrialTour] 13 of 18 trials passed by the autopilot; challenges earned: CH15, CH55, CH11, CH51, CH54, CH25, CH30, CH39, CH14, CH42, CH69, CH72; wallet 517,367 cr
+[NightSignal.Trial] TR-CH52-LIGHT: V07 WGT-T2-PANELS, PI 448, build 9de6fd2e3bf2, on T00 (course)
+[NightSignal.Ghost] T00 trial-TR-CH52-LIGHT: 1172 samples, result 117.006 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH52-LIGHT: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: T00-CMP-A-START to T00-CMP-A-END faster than 0:14.600 (0:13.183)
+[NightSignal.TrialTour] TR-CH52-LIGHT (CH52 silver): PASSED — ok: the supplied loaner · ok: a valid finish · ok: T00-CMP-A-START to T00-CMP-A-END faster than 0:14.600 (0:13.183)
+[NightSignal.TrialTour] TR-CH52-LIGHT: profile keeps it: True; challenge earned: False
+[NightSignal.Trial] TR-CH52-HEAVY: V07 stock, PI 430, build 235cbbb3bffd, on T00 (course)
+[NightSignal.Ghost] T00 trial-TR-CH52-HEAVY: 1178 samples, result 117.636 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH52-HEAVY: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: T00-CMP-B-START to T00-CMP-B-END faster than 0:21.400 (0:19.366)
+[NightSignal.TrialTour] TR-CH52-HEAVY (CH52 silver): PASSED — ok: the supplied loaner · ok: a valid finish · ok: T00-CMP-B-START to T00-CMP-B-END faster than 0:21.400 (0:19.366)
+[NightSignal.TrialTour] TR-CH52-HEAVY: profile keeps it: True; challenge earned: True
+[NightSignal.Trial] TR-CH58-FWD: V06 stock, PI 405, build 249f587db6f0, on T00 (course)
+[NightSignal.Ghost] T00 trial-TR-CH58-FWD: 1177 samples, result 117.550 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH58-FWD: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: T00-CFG1-START to T00-CFG1-END faster than 0:15.800 (0:15.433)
+[NightSignal.TrialTour] TR-CH58-FWD (CH58 gold): PASSED — ok: the supplied loaner · ok: a valid finish · ok: T00-CFG1-START to T00-CFG1-END faster than 0:15.800 (0:15.433)
+[NightSignal.TrialTour] TR-CH58-FWD: profile keeps it: True; challenge earned: False
+[NightSignal.Trial] TR-CH58-RWD: V05 stock, PI 380, build aa8ab98b0b40, on T00 (course)
+[NightSignal.Ghost] T00 trial-TR-CH58-RWD: 1185 samples, result 118.355 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH58-RWD: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: T00-CFG2-START to T00-CFG2-END faster than 0:16.900 (0:16.550)
+[NightSignal.TrialTour] TR-CH58-RWD (CH58 gold): PASSED — ok: the supplied loaner · ok: a valid finish · ok: T00-CFG2-START to T00-CFG2-END faster than 0:16.900 (0:16.550)
+[NightSignal.TrialTour] TR-CH58-RWD: profile keeps it: True; challenge earned: False
+[NightSignal.Trial] TR-CH58-AWD: V07 stock, PI 430, build 235cbbb3bffd, on T00 (course)
+[NightSignal.Ghost] T00 trial-TR-CH58-AWD: 1178 samples, result 117.636 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH58-AWD: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: T00-CFG3-START to T00-CFG3-END faster than 0:20.000 (0:19.516)
+[NightSignal.TrialTour] TR-CH58-AWD (CH58 gold): PASSED — ok: the supplied loaner · ok: a valid finish · ok: T00-CFG3-START to T00-CFG3-END faster than 0:20.000 (0:19.516)
+[NightSignal.TrialTour] TR-CH58-AWD: profile keeps it: True; challenge earned: True
+[NightSignal.Trial] TR-CH53-OPEN: V05 stock, PI 380, build aa8ab98b0b40, on C03 (course)
+[NightSignal.Ghost] C03 trial-TR-CH53-OPEN: 1784 samples, result 178.275 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH53-OPEN: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: every marked gate touched (2 of them) · ok: C03-DIFF-EXIT-1 exit at least 122.4 km/h (128.9) · ok: C03-DIFF-EXIT-2 exit at least 96.9 km/h (102.1)
+[NightSignal.TrialTour] TR-CH53-OPEN (CH53 silver): PASSED — ok: the supplied loaner · ok: a valid finish · ok: every marked gate touched (2 of them) · ok: C03-DIFF-EXIT-1 exit at least 122.4 km/h (128.9) · ok: C03-DIFF-EXIT-2 exit at least 96.9 km/h (102.1)
+[NightSignal.TrialTour] TR-CH53-OPEN: profile keeps it: True; challenge earned: False
+[NightSignal.Trial] TR-CH53-RACE: V05 DIF-T3-RWD-RACE, PI 381, build 262ebc02fba5, on C03 (course)
+[NightSignal.Ghost] C03 trial-TR-CH53-RACE: 1784 samples, result 178.261 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH53-RACE: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: every marked gate touched (2 of them) · ok: C03-DIFF-EXIT-1 exit at least 122.4 km/h (128.9) · ok: C03-DIFF-EXIT-2 exit at least 96.9 km/h (102.0)
+[NightSignal.TrialTour] TR-CH53-RACE (CH53 silver): PASSED — ok: the supplied loaner · ok: a valid finish · ok: every marked gate touched (2 of them) · ok: C03-DIFF-EXIT-1 exit at least 122.4 km/h (128.9) · ok: C03-DIFF-EXIT-2 exit at least 96.9 km/h (102.0)
+[NightSignal.TrialTour] TR-CH53-RACE: profile keeps it: True; challenge earned: True
+[NightSignal.Trial] TR-CH07: V01 stock, PI 220, build c12c2bea1a67, on T00 (course)
+[NightSignal.Ghost] T00 trial-TR-CH07: 1290 samples, result 128.858 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH07: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: no handbrake after the start · ok: the trail-brake envelope at T00-TRAIL-BRAKE: on by 1528 m (1512), held to 1608 m (1624), exit 52–71 km/h (62)
+[NightSignal.TrialTour] TR-CH07 (CH07 silver): PASSED — ok: the supplied loaner · ok: a valid finish · ok: no handbrake after the start · ok: the trail-brake envelope at T00-TRAIL-BRAKE: on by 1528 m (1512), held to 1608 m (1624), exit 52–71 km/h (62)
+[NightSignal.TrialTour] TR-CH07: profile keeps it: True; challenge earned: True
+[NightSignal.Trial] TR-CH23: V04 stock, PI 295, build 15d516f2dd27, on T00 (course)
+[NightSignal.Ghost] T00 trial-TR-CH23: 1396 samples, result 142.410 s, resets 1, valid False; raced ghost none — a reset run is never a ghost target
+[NightSignal.Trial] TR-CH23: Trial not passed — ok: the supplied loaner · ok: a valid finish · MISSED: alternating recoveries, one in each marked zone in turn, no spin or reset between them (10 recoveries in the run)
+[NightSignal.TrialTour] TR-CH23 (CH23 silver) at drift skill 0.65 (the reference's): not passed — ok: the supplied loaner · ok: a valid finish · MISSED: alternating recoveries, one in each marked zone in turn, no spin or reset between them (10 recoveries in the run)
+[NightSignal.Trial] TR-CH23: V04 stock, PI 295, build 15d516f2dd27, on T00 (course)
+[NightSignal.Ghost] T00 trial-TR-CH23: 1692 samples, result 175.046 s, resets 2, valid False; raced ghost none — a reset run is never a ghost target
+[NightSignal.Trial] TR-CH23: Trial not passed — ok: the supplied loaner · ok: a valid finish · MISSED: alternating recoveries, one in each marked zone in turn, no spin or reset between them (19 recoveries in the run)
+[NightSignal.TrialTour] TR-CH23 (CH23 silver) at drift skill 0.95: not passed — ok: the supplied loaner · ok: a valid finish · MISSED: alternating recoveries, one in each marked zone in turn, no spin or reset between them (19 recoveries in the run)
+[NightSignal.Trial] TR-CH23: V04 stock, PI 295, build 15d516f2dd27, on T00 (course)
+[NightSignal.Ghost] T00 trial-TR-CH23: 1531 samples, result 158.904 s, resets 2, valid False; raced ghost none — a reset run is never a ghost target
+[NightSignal.Trial] TR-CH23: Trial not passed — ok: the supplied loaner · ok: a valid finish · MISSED: alternating recoveries, one in each marked zone in turn, no spin or reset between them (11 recoveries in the run)
+[NightSignal.TrialTour] TR-CH23 (CH23 silver) at drift skill 0.80: not passed — ok: the supplied loaner · ok: a valid finish · MISSED: alternating recoveries, one in each marked zone in turn, no spin or reset between them (11 recoveries in the run)
+[NightSignal.TrialTour] TR-CH23: profile keeps it: False; challenge earned: False
+[NightSignal.Trial] TR-CH74: V14 stock, PI 680, build 53f0713d354f, on C24 (course)
+[NightSignal.Ghost] C24 trial-TR-CH74: 2370 samples, result 236.838 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH74: Trial not passed — ok: the supplied loaner · MISSED: the 6 story records collected through Normal progression (0 of 6) · ok: a valid finish · ok: faster than 4:00.846 (3:56.838)
+[NightSignal.TrialTour] TR-CH74 (CH74 gold): not passed — ok: the supplied loaner · MISSED: the 6 story records collected through Normal progression (0 of 6) · ok: a valid finish · ok: faster than 4:00.846 (3:56.838)
+[NightSignal.TrialTour] TR-CH74: seeded Normal S01–S25 as cleared on the tour's profile — the diary now holds 6 records
+[NightSignal.Trial] TR-CH74: V14 stock, PI 680, build 53f0713d354f, on C24 (course)
+[NightSignal.Ghost] C24 trial-TR-CH74: 2370 samples, result 236.838 s, resets 0, valid True; raced ghost 236.838 s — your ghost stays the 236.838 s run; against the ghost: −0.00 s at the first checkpoint, −0.00 s at the finish
+[NightSignal.Trial] TR-CH74: TRIAL PASSED — ok: the supplied loaner · ok: the 6 story records collected through Normal progression (6 of 6) · ok: a valid finish · ok: faster than 4:00.846 (3:56.838)
+[NightSignal.TrialTour] TR-CH74 (CH74 gold): PASSED — ok: the supplied loaner · ok: the 6 story records collected through Normal progression (6 of 6) · ok: a valid finish · ok: faster than 4:00.846 (3:56.838)
+[NightSignal.TrialTour] TR-CH74: profile keeps it: True; challenge earned: True
+[NightSignal.TrialTour] 22 of 29 trials passed by the autopilot; challenges earned: CH15, CH55, CH11, CH51, CH54, CH25, CH30, CH39, CH14, CH42, CH69, CH72, CH52, CH58, CH53, CH07, CH74; wallet 651,546 cr
 [NightSignal.TrialTour] PASS
-[NightSignal.Bounds] bounds-TrialTour-1280x720-text150: 79 labels over 269 moments — 0 overflow, 0 missing glyph, 13 edge spill, 0 fixed-size overflow, 2 at minimum size
+[NightSignal.Bounds] bounds-TrialTour-1280x720-text150: 79 labels over 382 moments — 0 overflow, 0 missing glyph, 20 edge spill, 0 fixed-size overflow, 3 at minimum size

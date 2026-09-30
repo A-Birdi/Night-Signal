@@ -72,6 +72,25 @@ namespace NightSignal.Front
         /// verdicts report; a grouped challenge (CH54) is earned only once both of its trials are passed. Whether the
         /// autopilot beats each target is reported as measured. Automation, not a person.
         /// </summary>
+        /// <summary>
+        /// The tour's own setup of each tunable trial's loaner, as a player would make it on Tune the Loaner: clicks on each slot
+        /// button (each click installs the slot's next part), then tuning steps by control.
+        /// </summary>
+        static void TourSetup(string trialId, out int[] slotClicks, out Dictionary<string, int> steps)
+        {
+            switch (trialId)
+            {
+                case "TR-CH46": // the final-drive kit, 6% shorter
+                    slotClicks = new[] { 1 };
+                    steps = new Dictionary<string, int> { [TuningKeys.FinalDrive] = 6 };
+                    return;
+                default:
+                    slotClicks = new int[0];
+                    steps = new Dictionary<string, int>();
+                    return;
+            }
+        }
+
         IEnumerator TrialTour()
         {
             string dir = System.IO.Path.GetFullPath(System.IO.Path.Combine("Builds", "Screenshots", "trials"));
@@ -149,11 +168,42 @@ namespace NightSignal.Front
                 float refSkill = t.Targets.ReferenceDriftSkill > 0f ? t.Targets.ReferenceDriftSkill : 0.95f;
                 float[] skills = t.JudgesDrift || t.Rules.AlternatingRecoveries ? new[] { refSkill }.Concat(new[] { 0.95f, 0.8f, 0.65f }.Where(k => Math.Abs(k - refSkill) > 0.001f)).ToArray()
                     : t.RequiredStoryRecords > 0 ? new[] { 0f, 0f } // once locked (the tour's fresh profile has no records), then with the records seeded
+                    : t.Loaner.IsTunable ? new[] { 0f, 0f } // as supplied first (its tuning rules bite), then with the tour's own saved setup
                     : new[] { 0f };
-                bool seededRecords = false;
+                bool seededRecords = false, tuned = false;
                 TrialVerdict v = null;
                 foreach (float skill in skills)
                 {
+                    if (t.Loaner.IsTunable && v != null && !tuned)
+                    {
+                        // Tune the Loaner, buttons only: the tour's setup for this trial (TourSetup), checked legal, saved with the profile.
+                        tuned = true;
+                        if (!Trials.SelectTrial(t.Id)) break;
+                        yield return new WaitForSeconds(0.4f);
+                        if (!Click("TuneLoaner")) break;
+                        yield return Until(() => Router.Current == TrialTune, 10f);
+                        yield return new WaitForSeconds(0.6f);
+                        yield return Snap($"02-{t.Id}-tune-supplied");
+                        TourSetup(t.Id, out int[] slotClicks, out Dictionary<string, int> steps);
+                        for (int i = 0; i < slotClicks.Length; i++)
+                            for (int k = 0; k < slotClicks[i]; k++) { Click("TuneSlot" + i); yield return null; }
+                        foreach (KeyValuePair<string, int> step in steps)
+                        {
+                            int row = TrialTune.Current.Controls.FindIndex(c => c.Key == step.Key);
+                            if (row < 0) { Fail($"{t.Id}: no {step.Key} control to tune"); continue; }
+                            for (int k = 0; k < Math.Abs(step.Value); k++) { if (!Click((step.Value > 0 ? "TrialTunePlus" : "TrialTuneMinus") + row)) break; yield return null; }
+                        }
+                        TrialLoanerBuild tb = TrialTune.Current;
+                        Note($"{t.Id} tune: {(tb.Ok ? "legal" : "NOT LEGAL: " + string.Join("; ", tb.Problems))}; parts {string.Join(", ", tb.Build.Parts.Select(kv => kv.Key + "=" + kv.Value))}; " +
+                             $"tune {string.Join(", ", tb.Build.Tuning.Values.Select(kv => kv.Key + "=" + kv.Value))}; PI {tb.Pi?.Value}; final drive changed {tb.FinalDriveChanged}; aero at an end {tb.AeroAtExtreme}");
+                        Click("TrialTuneSave");
+                        yield return new WaitForSeconds(0.6f);
+                        yield return Snap($"02-{t.Id}-tune-saved");
+                        if (s.Profile.TrialSetups == null || !s.Profile.TrialSetups.ContainsKey(t.Id)) Fail($"{t.Id}: the setup was not saved with the profile");
+                        Click("TrialTuneBack");
+                        yield return Until(() => Router.Current == Trials, 10f);
+                        yield return new WaitForSeconds(0.4f);
+                    }
                     if (!Trials.SelectTrial(t.Id)) break;
                     yield return new WaitForSeconds(0.4f);
                     pendingAutopilotDriftSkill = skill;
@@ -169,6 +219,7 @@ namespace NightSignal.Front
                     OfflineRaceSession.AutopilotFollowSeconds = zonePass ? 0.5f : 0f;
                     OfflineRaceSession.AutopilotAttacksMarkedZones = zonePass;
                     OfflineRaceSession.AutopilotHoldsMarkedLanes = !string.IsNullOrEmpty(t.Rules.ZonePassRole) || t.Rules.CleanMerge;
+                    OfflineRaceSession.AutopilotLaneHoldMetres = t.Rules.CleanMerge ? 25f : 0f; // a merge lane is judged to its last metre
                     LocalEvents.LastTrialVerdict = null;
                     OfflineRaceSession previousRace = activeRace;
                     if (!Click("StartTrial")) break;
@@ -202,6 +253,7 @@ namespace NightSignal.Front
                     OfflineRaceSession.AutopilotFollowSeconds = 0f;
                     OfflineRaceSession.AutopilotAttacksMarkedZones = false;
                     OfflineRaceSession.AutopilotHoldsMarkedLanes = false;
+                    OfflineRaceSession.AutopilotLaneHoldMetres = 0f;
                     OfflineRaceSession.AutopilotApexHoldMetres = 0f;
                     OfflineRaceSession.AutopilotSlidesZonesOf = null;
                     OfflineRaceSession.AutopilotShiftAtGates = null;
@@ -211,7 +263,9 @@ namespace NightSignal.Front
                          $"{(v.Passed ? "PASSED" : "not passed")} — {v.Summary}");
                     if (t.IsRace)
                         foreach (string line in LocalEvents.LastTrialRacecraftLog) Note($"{t.Id}:   {line}");
-                    if (v.Passed) break;
+                    if (t.Loaner.IsTunable && !tuned && t.Rules.FinalDriveChanged && !v.Summary.Contains("MISSED: your tune changes the final drive"))
+                        Fail($"{t.Id}: the loaner as supplied was not held to its final-drive rule");
+                    if (v.Passed && (!t.Loaner.IsTunable || tuned)) break;
                     if (t.RequiredStoryRecords > 0 && !seededRecords)
                     {
                         // The lock first: without the records the trial cannot pass, however fast the run.

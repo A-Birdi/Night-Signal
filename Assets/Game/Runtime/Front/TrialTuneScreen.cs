@@ -157,9 +157,10 @@ namespace NightSignal.Front
             if (s?.Profile == null || trial == null) { note.text = "Open a Local profile to keep a setup."; return; }
             LocalProgressionResult r = LocalProgression.SaveTrialSetup(s.Profile, Lib.Catalogue, Lib.Parts, trial.Id, setup);
             string saveNote = "";
-            if (r.Status == LocalOperationStatus.Applied && !s.Commit(r, out saveNote)) saveNote = "Not saved: " + saveNote;
-            note.text = r.Status == LocalOperationStatus.Applied ? "Saved: every run of this trial now races this setup." + (saveNote.Length > 0 ? " " + saveNote : "") : r.Reason;
-            Debug.Log($"[NightSignal.Trial] {trial.Id} setup {(r.Status == LocalOperationStatus.Applied ? "saved" : "refused")}: {r.Reason} " +
+            bool kept = r.Status == LocalOperationStatus.Applied && s.Commit(r, out saveNote);
+            note.text = kept ? "Saved: every run of this trial now races this setup."
+                : r.Status == LocalOperationStatus.Applied ? "Not saved: " + saveNote : r.Reason;
+            Debug.Log($"[NightSignal.Trial] {trial.Id} setup {(kept ? "saved" : "not saved: " + (r.Status == LocalOperationStatus.Applied ? saveNote : r.Reason))} " +
                       $"(parts {string.Join(", ", setup.Parts.Select(kv => kv.Key + "=" + kv.Value))}; tune {string.Join(", ", setup.Tuning.Values.Select(kv => kv.Key + "=" + kv.Value))})");
             Render();
         }
@@ -170,7 +171,8 @@ namespace NightSignal.Front
             CarDef car = Lib.Catalogue.Car(trial.Loaner.Car);
             heading.text = $"TUNE THE LOANER · {trial.Challenge}";
             string pi = current?.Pi != null ? current.Pi.Value.ToString() : "?";
-            summary.text = $"{car.Name} ({car.Drive}) — PI {pi}{(trial.Loaner.PiBudget > 0 ? $" of a budget of {trial.Loaner.PiBudget}" : "")}; the parts here are free." +
+            summary.text = $"{car.Name} ({car.Drive}) — PI {pi}{(trial.Loaner.PiBudget > 0 ? $" of a budget of {trial.Loaner.PiBudget}" : "")}; the parts here are free" +
+                           (slots.Count > 0 ? " (each part button fits that slot's next part)." : ".") +
                            (current != null && !current.Ok ? $"\n<color=#F2A541>Not legal: {Esc(string.Join("; ", current.Problems.Distinct()))}</color>" : "\n<color=#3EC6D8>A legal setup.</color>");
             for (int i = 0; i < slotButtons.Count; i++)
             {
@@ -179,7 +181,7 @@ namespace NightSignal.Front
                 if (!on) continue;
                 string id = Installed(slots[i]);
                 string name = string.IsNullOrEmpty(id) ? "stock" : Lib.Parts.TryPart(id, out PartDef pd) ? pd.Name : id;
-                slotButtons[i].GetComponentInChildren<TextMeshProUGUI>().text = $"{slots[i]}: {name}  ▸";
+                slotButtons[i].GetComponentInChildren<TextMeshProUGUI>().text = $"{slots[i]}: {name}";
             }
             List<TuningControlInfo> controls = trial.Loaner.Tunable && current != null ? current.Controls : new List<TuningControlInfo>();
             for (int i = 0; i < tuneRows.Count; i++)

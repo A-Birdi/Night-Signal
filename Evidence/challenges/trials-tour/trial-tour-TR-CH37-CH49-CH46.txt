@@ -1,0 +1,30 @@
+# -nsTrialTour -nsTrialOnly TR-CH37,TR-CH49,TR-CH46 (built player of 0a20b9e + the CH46 trial, the tunable-trial tour step, the merge-lane hold and the board shifts of the next commit; buttons only, isolated profile; validator autopilot; 1280x720; automation). The first build of these changes: CH37 broke its merge at the lane's last metre and CH49 had one upshift of 3 (the loaner entered the lane in 4th of 5) — both fixed as described in VALIDATION V-134/V-135 before this run.
+[NightSignal.TrialTour] page 2 of 4: its first row opens TR-CH30
+[NightSignal.TrialTour] only: TR-CH37, TR-CH49, TR-CH46
+[NightSignal.Trial] TR-CH37: V01 stock, PI 220, build c12c2bea1a67, on T00 (course)
+[NightSignal.Ghost] T00 trial-TR-CH37: 1294 samples, result 129.224 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH37: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: the merge beside the pace car, both in their lanes, no contact
+[NightSignal.TrialTour] TR-CH37 (CH37 silver): PASSED — ok: the supplied loaner · ok: a valid finish · ok: the merge beside the pace car, both in their lanes, no contact
+[NightSignal.TrialTour] TR-CH37:   9.7 s: CH37 merge kept, both cars in their lanes, no touch
+[NightSignal.TrialTour] TR-CH37:   65.7 s: CH37 merge broken at 77 m — the pace car not beside it (-19 m apart)
+[NightSignal.TrialTour] TR-CH37:   70.4 s: CH37 merge not kept
+[NightSignal.TrialTour] TR-CH37:   car contacts 2, walls 0, resets 0, marshal recoveries 0, placement P2
+[NightSignal.TrialTour] TR-CH37: profile keeps it: True; challenge earned: True
+[NightSignal.Trial] TR-CH49: V01 stock, PI 220, build c12c2bea1a67, on T00 (course)
+[NightSignal.Ghost] T00 trial-TR-CH49: 1378 samples, result 137.642 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH49: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: an upshift at each marked board, 25 m before to 10 m after it, on one lap (3 of 3: -4 m, -4 m, -4 m)
+[NightSignal.TrialTour] TR-CH49 (CH49 bronze): PASSED — ok: the supplied loaner · ok: a valid finish · ok: an upshift at each marked board, 25 m before to 10 m after it, on one lap (3 of 3: -4 m, -4 m, -4 m)
+[NightSignal.TrialTour] TR-CH49: profile keeps it: True; challenge earned: True
+[NightSignal.Trial] TR-CH46: V01 as supplied — parts ; tune ; PI 220
+[NightSignal.Ghost] T00 trial-TR-CH46: 1290 samples, result 128.858 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH46: Trial not passed — ok: the supplied loaner · ok: your setup legal (PI 220) · MISSED: your tune changes the final drive · ok: a valid finish · ok: T00-ACCEL-START to T00-ACCEL-END faster than 0:20.000 (0:12.700)
+[NightSignal.TrialTour] TR-CH46 (CH46 bronze): not passed — ok: the supplied loaner · ok: your setup legal (PI 220) · MISSED: your tune changes the final drive · ok: a valid finish · ok: T00-ACCEL-START to T00-ACCEL-END faster than 0:20.000 (0:12.700)
+[NightSignal.TrialTour] TR-CH46 tune: legal; parts gearbox=GBX-T1-FINAL; tune FinalDrive=1060; PI 219; final drive changed True; aero at an end False
+[NightSignal.Trial] TR-CH46 setup saved (parts gearbox=GBX-T1-FINAL; tune FinalDrive=1060)
+[NightSignal.Trial] TR-CH46: V01 with your setup — parts gearbox=GBX-T1-FINAL; tune FinalDrive=1060; PI 219
+[NightSignal.Ghost] T00 trial-TR-CH46: 1316 samples, result 131.489 s, resets 0, valid True; raced ghost 128.858 s — your ghost stays the 128.858 s run; against the ghost: −0.02 s at the first checkpoint, +2.63 s at the finish
+[NightSignal.Trial] TR-CH46: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal (PI 219) · ok: your tune changes the final drive · ok: a valid finish · ok: T00-ACCEL-START to T00-ACCEL-END faster than 0:20.000 (0:12.633)
+[NightSignal.TrialTour] TR-CH46 (CH46 bronze): PASSED — ok: the supplied loaner · ok: your setup legal (PI 219) · ok: your tune changes the final drive · ok: a valid finish · ok: T00-ACCEL-START to T00-ACCEL-END faster than 0:20.000 (0:12.633)
+[NightSignal.TrialTour] TR-CH46: profile keeps it: True; challenge earned: True
+[NightSignal.TrialTour] 3 of 32 trials passed by the autopilot; challenges earned: CH37, CH49, CH46; wallet 29,000 cr
+[NightSignal.TrialTour] PASS

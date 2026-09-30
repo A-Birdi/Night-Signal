@@ -2882,3 +2882,61 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   S01–S25 on its own profile (as the V-102 diary tour does; logged), the diary holds 6 records, and the same run **PASSED**;
   CH74 earned. `Evidence/challenges/trials-tour/trial-tour-TR-CH74.txt`.
 - **Limits:** the positive case rests on seeded clears (the automation does not play the campaign to S25).
+
+## V-134 — the 29-trial regression tour; CH37: the T00 merge beside a pace car (spec §11, slice 3) (2026-09-30)
+- Revision: documented with the commit of this entry; the player builds named below.
+- **Regression (built player of `ac6429d`, `bounds-audit.ps1 -Only 720p-large -Tours TrialTour`, all 29 trials, Text 150 % /
+  HUD 130 %):** **PASS**, exit 0; every trial verdict line is identical to V-127's full tour (21 lines) and to the targeted
+  runs since (V-128–V-133, 14 lines) — sorted and diffed. 22 of 29 trials passed by the autopilot; bounds: 79 labels over
+  382 moments, 0 overflow, 0 missing glyphs, 0 fixed-size overflow. `Evidence/challenges/trials-tour/trial-tour.txt`.
+- **What (CH37, committed in `fa5fa46`):** a merge judge in the racecraft judge — T00's two marked MERGE lanes (76–240 m,
+  ±2.8 m, tolerance 1.6 m) are one merge span: entered over its start in the lane nearer the car, then every step to its end
+  the car in that lane, the "merge" pace car within 15 m along the road and, while inside the span, in the other lane, and no
+  touch. **TR-CH37** (Silver): the starter V01 beside one V01 pace car in the "merge" role (it holds the right-hand lane).
+- **First built-player run** (build of this work before the fix): **not passed** — the merge broke at 240 m, the lane's last
+  metre ("out of T00-MERGE-L (−1.1 m)"): the autopilot aims ahead of the car, so its held lane ended early. **Fix:** a line
+  zone may be held a set distance past its end (`RouteFollower.LineZoneHoldMetres`) — 25 m for the merge pace car (it is
+  judged to the lane's end, `RaceSimulation.MergeLaneHoldMetres`) and, in automation only, for the tour's autopilot
+  (`OfflineRaceSession.AutopilotLaneHoldMetres`).
+- **Built player (`tour.ps1 -TrialOnly TR-CH37,TR-CH49,TR-CH46`, the fixed build):** **PASSED** — "CH37 merge kept, both
+  cars in their lanes, no touch" on lap 1 (lap 2's merge was not kept: the pace car was 19 m behind); CH37 earned. The two
+  cars touched twice later in the race, outside the merge span — the rule judges the merge. Tests: EditMode `MergeTests`
+  (side by side kept; out of lane, left behind, a touch not) — 2 of 2 passed in the editor at this revision. Offline only (a racecraft trial).
+  `Evidence/challenges/trials-tour/trial-tour-TR-CH37-CH49-CH46.txt`.
+
+## V-135 — CH49: an upshift at each of T00's three GEAR boards on one lap, manual gearbox — a drill (2026-09-30)
+- Revision: documented with the commit of this entry (the drill itself in `419ed04`).
+- **What:** the simulation records each upshift (lap, route metres); a trial may give the player a **manual gearbox**
+  (`manualGearbox`, overriding the assist); **TR-CH49** (Bronze) in the starter V01 passes when one lap has an upshift in
+  each board's window — 25 m before to 10 m after T00-GEAR-1/2/3 (1113, 1247, 1381 m). No targets.
+- **First built-player run:** **not passed** — 1 of 3 (−4 m, missed, missed): the V01 has five gears and the autopilot
+  took the lane in 4th, leaving one upshift. **Fix (automation only):** before the first board the autopilot takes the lane
+  in a gear that leaves one upshift per board (top gear − 3 = 2nd), as a player would, and a board crossed during a shift
+  waits for the gearbox instead of being lost.
+- **Built player (the fixed build):** **PASSED** — 3 of 3 (−4 m, −4 m, −4 m); CH49 earned. Offline only (a Driving School
+  trial). `Evidence/challenges/trials-tour/trial-tour-TR-CH37-CH49-CH46.txt`.
+
+## V-136 — tunable trial loaners; CH46: a saved final-drive setup up T00's acceleration lane (spec §11, slice 5) (2026-09-30)
+- Revision: `0a20b9e` (the model and the screen) and the commit of this entry (CH46).
+- **What:** a trial loaner may be **tunable**: free alternative parts by slot (`choices`; the supplied part always stays
+  allowed), the installed parts' tuning the player's to set (`tunable`), and a locked **PI budget** (`piBudget`). Core
+  `TrialLoaners.ResolveSetup` resolves the player's setup like a garage build and lists why it is not legal (a part not among
+  the trial's, a fixed loaner's tune, the resolver's issues, a PI over the budget), and what it sets (the final drive changed;
+  aero at an end — the wing level at its top or the balance at either end of its range, for CH57). **Tune the Loaner**
+  (`TrialTuneScreen`, from the trial's page): each part button fits that slot's next part, −/+ rows for the installed parts'
+  controls, the PI against the budget, "Save This Setup" enabled only for a legal setup. The Local profile keeps one setup per
+  trial (`TrialSetups`, validated; `LocalProgression.SaveTrialSetup`, change kind `TrialSetupSaved`, no money); every run of
+  the trial races the saved setup (an illegal one races as supplied and fails "your setup legal"). Tunable trials are offline
+  only for now (`OnlineTrial`). **TR-CH46** (Bronze): the starter V01 with the free final-drive kit (GBX-T1-FINAL) as its
+  choice; rules: a legal setup, the final drive changed; T00-ACCEL-START → T00-ACCEL-END inside **20 s** — the Driving
+  School gearing lesson's own bar for that timed straight (a Core test reads it from `lessons.json`).
+- **Tests:** Core (a tunable loaner takes the player's parts and tune within its rules; the budget and the aero ends incl. the
+  wing level; a setup saved only when legal, copied, free) — Core 207; Services 369 (one full run had an intermittent failure
+  in `SocialStoreTests.HandleUniqueness_IsCaseInsensitive_AndAtomicUnderConcurrentClaims`, unrelated to this work: it passed
+  alone three times and in two further full runs).
+- **Built player (the fixed build, above):** the loaner as supplied — "MISSED: your tune changes the final drive" (lane
+  0:12.700); then Tune the Loaner by buttons only: the kit fitted, FinalDrive 1000 → 1060 (6 steps), PI 220 → 219, legal,
+  saved with the profile; the next run raced it — **PASSED** (lane 0:12.633); CH46 earned. Screens: `02-TR-CH46-tune-*.png`,
+  `04-TR-CH46-verdict.png`. `Evidence/challenges/trials-tour/trial-tour-TR-CH37-CH49-CH46.txt`.
+- **Limits:** the 20 s bar is loose for the autopilot (12.6 s); it is the lesson's published standard, kept as CH46's
+  "complete the lane". The aero-level part of "aero at an end" was added after that build (Core-tested; no aero trial yet).

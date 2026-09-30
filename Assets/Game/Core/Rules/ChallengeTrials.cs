@@ -350,7 +350,7 @@ namespace NightSignal.Core.Rules
             if (t.Loaner != null && t.Loaner.IsTunable)
                 Check(f.SetupLegal, t.Loaner.PiBudget > 0 ? $"your setup legal and within PI {t.Loaner.PiBudget} (PI {f.SetupPi})" : $"your setup legal (PI {f.SetupPi})");
             if (t.Rules.FinalDriveChanged) Check(f.FinalDriveChanged, "your tune changes the final drive");
-            if (t.Rules.AeroNotAtExtreme) Check(!f.AeroAtExtreme, "neither front nor rear aero at its maximum");
+            if (t.Rules.AeroNotAtExtreme) Check(!f.AeroAtExtreme, "neither front nor rear aero at its maximum (the wing level below its top, the balance inside its range)");
             if (t.RequiredStoryRecords > 0)
                 Check(f.StoryRecords >= t.RequiredStoryRecords,
                     $"the {t.RequiredStoryRecords} story records collected through Normal progression ({f.StoryRecords} of {t.RequiredStoryRecords})");

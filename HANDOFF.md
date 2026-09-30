@@ -169,18 +169,20 @@ Render Cockpit Sheets* renders the mounted views of every car.
 
 Pipeline in dependency order (items at one level do not wait for later ones; human checks are listed where they gate).
 
-0. **Next — the last 9 challenges** (R11.3: 66 of 75 judged; `docs/CHALLENGE_TRIALS.md`). Done so far in the trial work:
+0. **Next — the last 6 challenges** (R11.3: 69 of 75 judged; `docs/CHALLENGE_TRIALS.md`). Done so far in the trial work:
    slice 1 (V-119/V-120, online too), slice 2 (CH13 V-121, CH15 V-122, zone chains CH17/19/22/27 V-123), slice 3 (CH34 in
    ordinary races V-124; racecraft trials with a fixed AI field CH40/41 V-125, CH36/39 V-126), slice 4 (challenge cups
    CH14/42/69/72 V-127), CH43 (R32's own run, V-128), Driving School section trials CH52/58 (V-129), drills CH53 (V-130),
-   CH07 (V-131), CH23 (V-132, not reached), CH74 (story-gated, V-133). Not shown reachable by the autopilot: CH13, CH17,
-   CH22, CH23, CH27, CH28, CH34, CH36, CH40, CH41, CH43 (see each entry). **Remaining:** CH37 (T00 merge beside a pace car
-   in the two MERGE lanes — a racecraft trial on T00 with a "merge" role); CH49 (gear-shift windows at T00's GEAR gates —
-   the simulation has manual shifting, the game never turns it on); CH02 and CH47 (the Test Yard's braking lane: three stops
-   from 100 km/h in the 8 m box; a stock-versus-loaned-tyre comparison, then the braking lesson — the Test Yard records
-   nothing in the profile today); CH46 (a saved loadout with a changed final drive, then T00's acceleration lane); CH56,
-   CH57, CH59, CH60 (tuning inside a PI / parts budget — no budget concept exists yet; tuning keys in
-   `Assets/Game/Core/Builds/BuildTypes.cs`). Targeted built-player runs: `Tools/run/tour.ps1 -Tour TrialTour -TrialOnly
+   CH07 (V-131), CH23 (V-132, not reached), CH74 (story-gated, V-133), CH37 (merge, V-134 — with the 29-trial regression
+   tour, identical verdicts), CH49 (manual gearbox, V-135), tunable loaners and CH46 (V-136: `choices`/`tunable`/`piBudget`,
+   Tune the Loaner, `TrialSetups` in the Local profile). Not shown reachable by the autopilot: CH13, CH17, CH22, CH23, CH27,
+   CH28, CH34, CH36, CH40, CH41, CH43 (see each entry). **Remaining:** CH57 (C15, the tune-budget loaner, aero not at an end —
+   the rule and the aero-level end are in Core; C15 has no CH57-tagged gates, so "combined grip/exit" is its measured Gold
+   time unless gates are added); CH56 (C23 within a locked PI budget, beat the Gold reference); CH59 (C19 six-slot equal-PI
+   race with a self-tuned loaner — a racecraft trial with a tunable loaner); CH02 and CH47 (the Test Yard's braking lane:
+   three stops from 100 km/h in the 8 m box; a stock-versus-loaned-tyre comparison, then the braking lesson — the Test Yard
+   records nothing in the profile today); CH60 (ten tuning demonstrations). The tour's setup of each tunable trial is
+   `FrontEndApp.TourSetup`. Targeted built-player runs: `Tools/run/tour.ps1 -Tour TrialTour -TrialOnly
    <ids>`; a trial's measurement: `Builds/diag/measure-trials.txt` + `ChallengeTrialReferenceTests.MeasureChallengeTrials`.
    Racecraft, cup, Driving School and story-gated trials are offline only (`ConvoyDirectory.OnlineTrial`). The control
    plane (task b2kshjyh5) still serves the content of `0777df53…`; the trials JSON changed since — restart it before any

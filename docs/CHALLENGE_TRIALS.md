@@ -59,9 +59,19 @@ an event whose conditions are fixed by the content, not by the player's garage. 
    done in ordinary C02 races (V-124): a pass inside the marked hairpin exit zone, held to the retain gate. CH40 (C17's
    fixed race) and CH41 (six identical V07s on C18, from last) — done offline as racecraft trials (V-125); CH36 (a pacing
    rival that keeps C10's outside lane open) and CH39 (a pressure car within 1 s through C14's second sector at a measured
-   Silver pace) — V-126. The merge role (CH37) has no behaviour yet.
+   Silver pace) — V-126. CH37 (the T00 merge beside a "merge" pace car, each in its own MERGE lane, no touch) — V-134.
 4. Fixed cups (CH14, CH42, CH69, CH72) — done offline (V-127): the "cup" kind — three legs in the loaner, one continuous
    session through the Custom Cup page, judged as a whole (every leg finished in order, each inside its measured time ×
    the cup's published factor, walls and resets summed); leaving ends the cup.
 5. T00 challenge drills and workshop trials (CH02, CH07, CH23, CH46, CH47, CH49, CH52, CH53, CH56, CH57, CH58, CH60),
-   and CH74 (the six story records, then the C24 reference trial).
+   and CH74 (the six story records, then the C24 reference trial). Done: CH52/CH58 sections (V-129), CH53 (V-130), CH07
+   (V-131), CH23 (V-132, not reached), CH74 (V-133), CH49 with a manual gearbox (V-135), CH46 (V-136).
+
+### Tunable loaners (V-136)
+
+A loaner may carry `choices` (free alternative parts by slot; the supplied part stays allowed), `tunable` (the installed
+parts' tuning is the player's) and `piBudget` (0 = none). The player sets it up on **Tune the Loaner** and saves it with the
+Local profile (`TrialSetups`, one per trial, no money); every run races the saved setup, resolved by Core
+`TrialLoaners.ResolveSetup` exactly like a garage build. The judge adds "your setup legal (within the budget)", and the rules
+`finalDriveChanged` (CH46) and `aeroNotAtExtreme` (CH57: the wing level below its top and the balance inside its range).
+Tunable trials are offline only until the game server can take a player's setup.

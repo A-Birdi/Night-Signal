@@ -155,6 +155,11 @@ namespace NightSignal.AI
         /// </summary>
         public IReadOnlyList<RouteGateDef> LineZones;
         /// <summary>
+        /// Holds each line zone's line this far past its end (0 = none): the aim point runs ahead of the car, so without it the
+        /// car leaves the marked line before the zone ends (CH37's merge lanes are judged to their last metre).
+        /// </summary>
+        public float LineZoneHoldMetres;
+        /// <summary>
         /// The event's weather grip (CourseRuntime.SurfaceGrip: dry 1, damp 0.88, wet 0.76). The speed plan and braking use it,
         /// as a driver reads the conditions — planning wet corners with dry grip put every car into the walls.
         /// </summary>
@@ -445,7 +450,7 @@ namespace NightSignal.AI
             if (LineZones != null)
                 foreach (RouteGateDef g in LineZones)
                 {
-                    if (distance < g.StartMetres - ApexBlendMetres || distance > g.EndMetres) continue;
+                    if (distance < g.StartMetres - ApexBlendMetres || distance > g.EndMetres + LineZoneHoldMetres) continue;
                     float w = distance < g.StartMetres ? 1f - (g.StartMetres - distance) / ApexBlendMetres : 1f;
                     lateral = Mathf.Lerp(lateral, Mathf.Clamp(g.LineOffset, -half, half), w);
                 }

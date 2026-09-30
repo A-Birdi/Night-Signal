@@ -52,9 +52,12 @@ namespace NightSignal.Core.Builds
             result.Controls = TuningModel.Controls(installed, stock.Get);
             TuningControlInfo fd = result.Controls.FirstOrDefault(c => c.Key == TuningKeys.FinalDrive);
             result.FinalDriveChanged = fd != null && TuningModel.ValueOrDefault(result.Build.Tuning, fd) != fd.Default;
+            // CH57 "Balanced, Not Maximum": aero is at an end when the wing level is at its top (front and rear downforce both at
+            // their maximum) or the balance is at either end of its range (the front, or the rear, at its maximum share).
             TuningControlInfo ab = result.Controls.FirstOrDefault(c => c.Key == TuningKeys.AeroBalance);
+            TuningControlInfo al = result.Controls.FirstOrDefault(c => c.Key == TuningKeys.AeroLevel);
             int abv = ab == null ? 0 : TuningModel.ValueOrDefault(result.Build.Tuning, ab);
-            result.AeroAtExtreme = ab != null && (abv <= ab.Min || abv >= ab.Max);
+            result.AeroAtExtreme = (ab != null && (abv <= ab.Min || abv >= ab.Max)) || (al != null && TuningModel.ValueOrDefault(result.Build.Tuning, al) >= al.Max);
             return result;
         }
 

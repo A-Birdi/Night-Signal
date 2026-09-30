@@ -145,8 +145,19 @@ namespace NightSignal.Front
             string parts = t.Loaner.Parts.Count == 0 ? "stock" : string.Join(", ", t.Loaner.Parts.Values.Select(id => Lib.Parts.TryPart(id, out PartDef p) ? p.Name : id));
             title.text = $"{t.Challenge} · {t.Title}";
             predicate.text = $"{(ch?.Tier ?? t.Tier).ToUpperInvariant()} — {ch?.PredicateText}";
+            string yours = "";
+            if (t.Loaner.IsTunable)
+            {
+                // A tunable loaner: the player's saved setup, if any, is what the next run races.
+                MechanicalSnapshot saved = null;
+                LocalSession.Current?.Profile?.TrialSetups?.TryGetValue(t.Id, out saved);
+                TrialLoanerBuild b = saved == null ? null : TrialLoaners.ResolveSetup(t.Loaner, saved, car, cat.CarTunings[car.Id], Lib.Parts);
+                yours = b == null ? "; not set up yet"
+                    : $"; your setup: {(b.Build.Parts.Count == 0 ? "stock" : string.Join(", ", b.Build.Parts.Values.Select(id => Lib.Parts.TryPart(id, out PartDef p) ? p.Name : id)))}" +
+                      $"{(b.Build.Tuning.Values.Count > 0 ? ", " + string.Join(", ", b.Build.Tuning.Values.Select(kv => $"{kv.Key} {kv.Value}")) : "")}, PI {b.Pi?.Value}{(b.Ok ? "" : " (not legal)")}";
+            }
             loaner.text = $"Supplied loaner: {car.Name} ({car.Drive}) — {parts}; PI {(r.Ok ? pi.Value.ToString() : "?")}" +
-                          (t.Loaner.PiCap > 0 ? $" (cap {t.Loaner.PiCap})" : "") +
+                          (t.Loaner.PiCap > 0 ? $" (cap {t.Loaner.PiCap})" : "") + yours +
                           (t.IsCup ? $"\nCup: {string.Join(" → ", t.Legs.Select(l => $"{l.Course} {cat.Course(l.Course).Name}"))}, each in its own conditions. "
                               : $"\nCourse {t.Course} {cat.Course(t.Course).Name}, " + (t.Conditions == "course" ? "its own conditions" : t.Conditions) + ". ") + t.Brief;
             var said = new List<string>();
@@ -165,6 +176,10 @@ namespace NightSignal.Front
                 said.Add($"first, the {t.RequiredStoryRecords} story records collected through Normal progression (you have {have})");
             }
             if (t.Rules.AllDefenceZones) said.Add("every marked defence gate inside the legal corridor");
+            if (t.Loaner.IsTunable)
+                said.Add("set the loaner up on Tune the Loaner" +
+                         (t.Loaner.Choices.Count > 0 ? " (free parts: " + string.Join(", ", t.Loaner.Choices.SelectMany(kv => kv.Value).Select(id => Lib.Parts.TryPart(id, out PartDef p) ? p.Name : id)) + ")" : "") +
+                         (t.Loaner.PiBudget > 0 ? $" within PI {t.Loaner.PiBudget}" : "") + "; a legal setup is required");
             if (t.Rules.AllChallengeGates && t.IsDrill)
             {
                 said.Remove("every marked gate touched");
@@ -180,6 +195,8 @@ namespace NightSignal.Front
             if (t.Rules.Win) goals.Add("win");
             if (t.Rules.ShiftWindows) goals.Add($"a manual gearbox: shift up at each of the {t.ShiftGates.Count} marked boards ({ChallengeTrialDef.ShiftWindowBefore:F0} m before to {ChallengeTrialDef.ShiftWindowAfter:F0} m after it)");
             if (t.Rules.CleanMerge) goals.Add("drive the marked merge beside the pace car, each in its own lane, without touching");
+            if (t.Rules.FinalDriveChanged) goals.Add("your saved tune changes the final drive");
+            if (t.Rules.AeroNotAtExtreme) goals.Add("neither front nor rear aero at its maximum");
             if (t.Rules.AlternatingRecoveries) goals.Add("slide and catch the car in each marked zone in turn, left and right alternately, without a spin");
             if (t.Rules.BrakeEnvelope)
                 goals.Add(t.Targets.Brakes.Count > 0 && t.Targets.Brakes.All(x => x.BrakeByMetres > 0f)

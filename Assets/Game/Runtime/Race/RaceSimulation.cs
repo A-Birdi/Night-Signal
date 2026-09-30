@@ -265,6 +265,8 @@ namespace NightSignal.Race
         }
 
         /// <summary>How far behind (s) a pressure car keeps beyond a car length — inside CH39's 1 s, clear of a hard-braking car ahead.</summary>
+        /// <summary>How far past a marked merge lane's end the merge pace car keeps to it (it is judged to the lane's last metre).</summary>
+        public const float MergeLaneHoldMetres = 25f;
         public const float PressureGapSeconds = 0.25f;
 
         /// <summary>A racecraft trial's scripted car: its own stock car, identity, role and pace (never chosen by the cap).</summary>
@@ -289,7 +291,10 @@ namespace NightSignal.Race
             e.Ai = new RouteFollower(Track, e.Params, profile) { DriftZones = DriftZonesForAi, SurfaceGrip = CourseRuntime.SurfaceGrip(Rules.Surface), Seed = slot };
             // A merge pace car holds the right-hand lane of each marked pair, on its line (CH37: the player takes the other).
             if (fc.Role == "merge")
+            {
                 e.Ai.LineZones = Track.Gates.Where(g => g.Kind == "lane" && !string.IsNullOrEmpty(g.Challenge) && g.LineOffset > 0f).ToList();
+                e.Ai.LineZoneHoldMetres = MergeLaneHoldMetres;
+            }
             // A pressure car closes up and follows, never passing (CH39).
             if (fc.Role == "pressure")
             {

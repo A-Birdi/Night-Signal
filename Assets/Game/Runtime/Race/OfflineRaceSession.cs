@@ -65,6 +65,8 @@ namespace NightSignal.Race
         public static bool AutopilotAttacksMarkedZones;
         /// <summary>Automation only: the autopilot drives each challenge-tagged lane on its marked line (CH36's outside lane).</summary>
         public static bool AutopilotHoldsMarkedLanes;
+        /// <summary>Automation only: how far past a held marked lane's end the autopilot keeps to it (CH37's merge; 0 = none).</summary>
+        public static float AutopilotLaneHoldMetres;
         /// <summary>Automation only: the autopilot holds each marked apex's line this far past the gate (drills; 0 = the tuned line).</summary>
         public static float AutopilotApexHoldMetres;
         /// <summary>Automation only: the autopilot slides each zone of this challenge as a separate drift and catches it (CH23; null = off).</summary>
@@ -75,6 +77,7 @@ namespace NightSignal.Race
         /// </summary>
         public static string[] AutopilotShiftAtGates;
         float[] shiftBoards;
+        bool boardUpshiftPending;
         float autopilotLastDistance = -1f;
         public int CountdownTicks = 60 * 3;
 
@@ -208,6 +211,7 @@ namespace NightSignal.Race
                 ResetWhenStuck = true, SurfaceGrip = CourseRuntime.SurfaceGrip(Rules.Surface),
             };
             pilot.ApexHoldMetres = AutopilotApexHoldMetres;
+            pilot.LineZoneHoldMetres = AutopilotHoldsMarkedLanes ? AutopilotLaneHoldMetres : 0f;
             if (AutopilotDrivesChallengeZones)
             {
                 // Sustained slides: a shallower target in the middle of CH19's band and slip-rate damping against overshoot.
@@ -293,16 +297,21 @@ namespace NightSignal.Race
         {
             float here = e.Progress.Location.Distance, last = autopilotLastDistance;
             autopilotLastDistance = here;
-            if (e.State.ShiftTimer > 0f || e.State.Gear < 1) return d;
-            bool up = false, down = false;
             if (shiftBoards == null && AutopilotShiftAtGates != null)
                 shiftBoards = AutopilotShiftAtGates.Select(id => Sim.Track.Gates.FirstOrDefault(g => g.Id == id)?.StartMetres ?? -1e6f).ToArray();
             float[] boards = shiftBoards;
             bool guided = boards != null && boards.Length > 0 && here >= boards.Min() - 150f && here <= boards.Max() + 20f;
+            // A board crossed during a shift is not lost: the upshift waits for the gearbox.
+            if (guided)
+                foreach (float m in boards)
+                    if (last >= 0f && last < m - 5f && here >= m - 5f) boardUpshiftPending = true;
+            if (e.State.ShiftTimer > 0f || e.State.Gear < 1) return d;
+            bool up = false, down = false;
             if (guided)
             {
-                foreach (float m in boards)
-                    if (last >= 0f && last < m - 5f && here >= m - 5f) up = true;
+                if (boardUpshiftPending) { up = e.State.Gear < e.Params.TopGear; boardUpshiftPending = false; }
+                // Before the first board, take the lane in a gear that leaves one upshift for each board (as a player would).
+                else if (here < boards.Min() - 5f && e.State.Gear > Mathf.Max(1, e.Params.TopGear - boards.Length)) down = true;
             }
             else
             {
