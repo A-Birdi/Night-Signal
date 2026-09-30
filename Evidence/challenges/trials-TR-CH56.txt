@@ -1,0 +1,9 @@
+# Challenge trial targets, measured by ChallengeTrialReferenceTests (PlayMode, explicit): each trial's loaner resolved like a
+# garage build, solo, validator autopilot, the trial's course and conditions; drift trials: the cleanest of three drift skills. Automation.
+# this run measured only: TR-CH56
+
+## TR-CH56 (CH56, gold) on C23 (dry): Mizuno Vector MR, PI 590
+time 220.232 s; banked 0 raw (earned 0) in 0/4 zones; walls 0, resets 0, handbrake 0.0 s, off the paved road 4.9 s
+→ gold time 224.7 s (1.02 ×)
+
+# every trial measured

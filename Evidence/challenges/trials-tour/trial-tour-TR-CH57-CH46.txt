@@ -1,0 +1,27 @@
+# -nsTrialTour -nsTrialOnly TR-CH57,TR-CH46 (built player of 2226e38 + the CH57 trial, tune-control pages and the tour's CH57 setup of the next commit; buttons only, isolated profile; validator autopilot; 1280x720; automation).
+[NightSignal.TrialTour] page 2 of 4: its first row opens TR-CH30
+[NightSignal.TrialTour] only: TR-CH57, TR-CH46
+[NightSignal.Trial] TR-CH46: V01 as supplied — parts ; tune ; PI 220
+[NightSignal.Ghost] T00 trial-TR-CH46: 1290 samples, result 128.858 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH46: Trial not passed — ok: the supplied loaner · ok: your setup legal (PI 220) · MISSED: your tune changes the final drive · ok: a valid finish · ok: T00-ACCEL-START to T00-ACCEL-END faster than 0:20.000 (0:12.700)
+[NightSignal.TrialTour] TR-CH46 (CH46 bronze): not passed — ok: the supplied loaner · ok: your setup legal (PI 220) · MISSED: your tune changes the final drive · ok: a valid finish · ok: T00-ACCEL-START to T00-ACCEL-END faster than 0:20.000 (0:12.700)
+[NightSignal.TrialTour] TR-CH46 tune: legal; parts gearbox=GBX-T1-FINAL; tune FinalDrive=1060; PI 219; final drive changed True; aero at an end False
+[NightSignal.Trial] TR-CH46 setup saved (parts gearbox=GBX-T1-FINAL; tune FinalDrive=1060)
+[NightSignal.Trial] TR-CH46: V01 with your setup — parts gearbox=GBX-T1-FINAL; tune FinalDrive=1060; PI 219
+[NightSignal.Ghost] T00 trial-TR-CH46: 1316 samples, result 131.489 s, resets 0, valid True; raced ghost 128.858 s — your ghost stays the 128.858 s run; against the ghost: −0.02 s at the first checkpoint, +2.63 s at the finish
+[NightSignal.Trial] TR-CH46: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal (PI 219) · ok: your tune changes the final drive · ok: a valid finish · ok: T00-ACCEL-START to T00-ACCEL-END faster than 0:20.000 (0:12.633)
+[NightSignal.TrialTour] TR-CH46 (CH46 bronze): PASSED — ok: the supplied loaner · ok: your setup legal (PI 219) · ok: your tune changes the final drive · ok: a valid finish · ok: T00-ACCEL-START to T00-ACCEL-END faster than 0:20.000 (0:12.633)
+[NightSignal.TrialTour] TR-CH46: profile keeps it: True; challenge earned: True
+[NightSignal.Trial] TR-CH57: V09 as supplied — parts aero=AER-T3-GTWING; tune ; PI 504
+[NightSignal.Ghost] C15 trial-TR-CH57: 1416 samples, result 141.416 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH57: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal and within PI 530 (PI 504) · ok: neither front nor rear aero at its maximum (the wing level below its top, the balance inside its range) · ok: a valid finish · ok: faster than 2:24.300 (2:21.415)
+[NightSignal.TrialTour] TR-CH57 (CH57 gold): PASSED — ok: the supplied loaner · ok: your setup legal and within PI 530 (PI 504) · ok: neither front nor rear aero at its maximum (the wing level below its top, the balance inside its range) · ok: a valid finish · ok: faster than 2:24.300 (2:21.415)
+[NightSignal.TrialTour] TR-CH57 tune: legal; parts aero=AER-T3-GTWING, tyres=TYR-T1-TOURING; tune AeroBalance=450, AeroLevel=900; PI 522; final drive changed False; aero at an end False
+[NightSignal.Trial] TR-CH57 setup saved (parts tyres=TYR-T1-TOURING; tune AeroBalance=450, AeroLevel=900)
+[NightSignal.Trial] TR-CH57: V09 with your setup — parts aero=AER-T3-GTWING, tyres=TYR-T1-TOURING; tune AeroBalance=450, AeroLevel=900; PI 522
+[NightSignal.Ghost] C15 trial-TR-CH57: 1403 samples, result 140.187 s, resets 0, valid True; raced ghost 141.416 s — new ghost, 1.229 s faster; against the ghost: −0.05 s at the first checkpoint, −1.23 s at the finish
+[NightSignal.Trial] TR-CH57: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal and within PI 530 (PI 522) · ok: neither front nor rear aero at its maximum (the wing level below its top, the balance inside its range) · ok: a valid finish · ok: faster than 2:24.300 (2:20.187)
+[NightSignal.TrialTour] TR-CH57 (CH57 gold): PASSED — ok: the supplied loaner · ok: your setup legal and within PI 530 (PI 522) · ok: neither front nor rear aero at its maximum (the wing level below its top, the balance inside its range) · ok: a valid finish · ok: faster than 2:24.300 (2:20.187)
+[NightSignal.TrialTour] TR-CH57: profile keeps it: True; challenge earned: True
+[NightSignal.TrialTour] 2 of 33 trials passed by the autopilot; challenges earned: CH46, CH57; wallet 55,932 cr
+[NightSignal.TrialTour] PASS

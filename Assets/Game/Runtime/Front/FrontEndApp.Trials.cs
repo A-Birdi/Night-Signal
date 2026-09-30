@@ -84,6 +84,18 @@ namespace NightSignal.Front
                     slotClicks = new[] { 1 };
                     steps = new Dictionary<string, int> { [TuningKeys.FinalDrive] = 6 };
                     return;
+                case "TR-CH56": // the intake and the final-drive kit, 4% shorter for the climb (slots in order: engine, gearbox, suspension, tyres)
+                    slotClicks = new[] { 1, 1, 0, 0 };
+                    steps = new Dictionary<string, int> { [TuningKeys.FinalDrive] = 4 };
+                    return;
+                case "TR-CH59": // the adjustable diff and the final-drive kit, 6% shorter — PI 580, inside the field's (3% would be 584); slots in order: aero, brakes, differential, gearbox
+                    slotClicks = new[] { 0, 0, 1, 1 };
+                    steps = new Dictionary<string, int> { [TuningKeys.FinalDrive] = 6 };
+                    return;
+                case "TR-CH57": // touring tyres (slots in order: suspension, tyres — both parts would go over the budget); the wing a little lower, the balance a touch forward
+                    slotClicks = new[] { 0, 1 };
+                    steps = new Dictionary<string, int> { [TuningKeys.AeroLevel] = -2, [TuningKeys.AeroBalance] = 2 };
+                    return;
                 default:
                     slotClicks = new int[0];
                     steps = new Dictionary<string, int>();
@@ -191,6 +203,9 @@ namespace NightSignal.Front
                         {
                             int row = TrialTune.Current.Controls.FindIndex(c => c.Key == step.Key);
                             if (row < 0) { Fail($"{t.Id}: no {step.Key} control to tune"); continue; }
+                            // Its page of controls first (More Controls), then its row there.
+                            for (int turn = 0; turn < 8 && TrialTune.TunePage != row / TrialTuneScreen.TuneRows; turn++) { Click("TrialTunePage"); yield return null; }
+                            row %= TrialTuneScreen.TuneRows;
                             for (int k = 0; k < Math.Abs(step.Value); k++) { if (!Click((step.Value > 0 ? "TrialTunePlus" : "TrialTuneMinus") + row)) break; yield return null; }
                         }
                         TrialLoanerBuild tb = TrialTune.Current;

@@ -15,6 +15,10 @@
       "referenceStage": 0,
       "sectionStartGate": "",
       "sectionEndGate": "",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -22,7 +26,11 @@
       "loaner": {
         "car": "V14",
         "parts": {},
-        "piCap": 0
+        "piCap": 0,
+        "choices": {},
+        "tunable": false,
+        "piBudget": 0,
+        "isTunable": false
       },
       "rules": {
         "noReset": false,
@@ -42,7 +50,9 @@
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
         "cleanMerge": false,
-        "shiftWindows": false
+        "shiftWindows": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
       },
       "targets": {
         "timeMs": 136346,
@@ -63,11 +73,7 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": false,
-      "published": true,
-      "requiredStoryRecords": 0,
-      "raceRivalReference": false,
-      "manualGearbox": false,
-      "shiftGates": []
+      "published": true
     },
     {
       "id": "TR-CH15",
@@ -82,6 +88,10 @@
       "referenceStage": 0,
       "sectionStartGate": "",
       "sectionEndGate": "",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -89,7 +99,11 @@
       "loaner": {
         "car": "V17",
         "parts": {},
-        "piCap": 0
+        "piCap": 0,
+        "choices": {},
+        "tunable": false,
+        "piBudget": 0,
+        "isTunable": false
       },
       "rules": {
         "noReset": true,
@@ -109,7 +123,9 @@
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
         "cleanMerge": false,
-        "shiftWindows": false
+        "shiftWindows": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
       },
       "targets": {
         "timeMs": 273700,
@@ -130,11 +146,7 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": false,
-      "published": true,
-      "requiredStoryRecords": 0,
-      "raceRivalReference": false,
-      "manualGearbox": false,
-      "shiftGates": []
+      "published": true
     },
     {
       "id": "TR-CH43",
@@ -149,6 +161,10 @@
       "referenceStage": 28,
       "sectionStartGate": "",
       "sectionEndGate": "",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -156,7 +172,11 @@
       "loaner": {
         "car": "V16",
         "parts": {},
-        "piCap": 0
+        "piCap": 0,
+        "choices": {},
+        "tunable": false,
+        "piBudget": 0,
+        "isTunable": false
       },
       "rules": {
         "noReset": false,
@@ -176,7 +196,9 @@
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
         "cleanMerge": false,
-        "shiftWindows": false
+        "shiftWindows": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
       },
       "targets": {
         "timeMs": 167220,
@@ -197,11 +219,7 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": false,
-      "published": true,
-      "requiredStoryRecords": 0,
-      "raceRivalReference": false,
-      "manualGearbox": false,
-      "shiftGates": []
+      "published": true
     },
     {
       "id": "TR-CH55",
@@ -216,6 +234,10 @@
       "referenceStage": 0,
       "sectionStartGate": "",
       "sectionEndGate": "",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -223,7 +245,11 @@
       "loaner": {
         "car": "V01",
         "parts": {},
-        "piCap": 0
+        "piCap": 0,
+        "choices": {},
+        "tunable": false,
+        "piBudget": 0,
+        "isTunable": false
       },
       "rules": {
         "noReset": false,
@@ -243,7 +269,9 @@
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
         "cleanMerge": false,
-        "shiftWindows": false
+        "shiftWindows": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
       },
       "targets": {
         "timeMs": 150400,
@@ -264,11 +292,7 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": false,
-      "published": true,
-      "requiredStoryRecords": 0,
-      "raceRivalReference": false,
-      "manualGearbox": false,
-      "shiftGates": []
+      "published": true
     },
     {
       "id": "TR-CH11",
@@ -283,6 +307,10 @@
       "referenceStage": 0,
       "sectionStartGate": "",
       "sectionEndGate": "",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -290,7 +318,11 @@
       "loaner": {
         "car": "V12",
         "parts": {},
-        "piCap": 699
+        "piCap": 699,
+        "choices": {},
+        "tunable": false,
+        "piBudget": 0,
+        "isTunable": false
       },
       "rules": {
         "noReset": true,
@@ -310,7 +342,9 @@
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
         "cleanMerge": false,
-        "shiftWindows": false
+        "shiftWindows": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
       },
       "targets": {
         "timeMs": 194300,
@@ -331,11 +365,7 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": false,
-      "published": true,
-      "requiredStoryRecords": 0,
-      "raceRivalReference": false,
-      "manualGearbox": false,
-      "shiftGates": []
+      "published": true
     },
     {
       "id": "TR-CH51",
@@ -350,6 +380,10 @@
       "referenceStage": 0,
       "sectionStartGate": "",
       "sectionEndGate": "",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -359,7 +393,11 @@
         "parts": {
           "tyres": "TYR-T3-RAINSPORT"
         },
-        "piCap": 0
+        "piCap": 0,
+        "choices": {},
+        "tunable": false,
+        "piBudget": 0,
+        "isTunable": false
       },
       "rules": {
         "noReset": false,
@@ -379,7 +417,9 @@
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
         "cleanMerge": false,
-        "shiftWindows": false
+        "shiftWindows": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
       },
       "targets": {
         "timeMs": 169200,
@@ -400,11 +440,7 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": false,
-      "published": true,
-      "requiredStoryRecords": 0,
-      "raceRivalReference": false,
-      "manualGearbox": false,
-      "shiftGates": []
+      "published": true
     },
     {
       "id": "TR-CH54-FWD",
@@ -419,6 +455,10 @@
       "referenceStage": 0,
       "sectionStartGate": "",
       "sectionEndGate": "",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -426,7 +466,11 @@
       "loaner": {
         "car": "V06",
         "parts": {},
-        "piCap": 450
+        "piCap": 450,
+        "choices": {},
+        "tunable": false,
+        "piBudget": 0,
+        "isTunable": false
       },
       "rules": {
         "noReset": false,
@@ -446,7 +490,9 @@
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
         "cleanMerge": false,
-        "shiftWindows": false
+        "shiftWindows": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
       },
       "targets": {
         "timeMs": 158400,
@@ -467,11 +513,7 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": false,
-      "published": true,
-      "requiredStoryRecords": 0,
-      "raceRivalReference": false,
-      "manualGearbox": false,
-      "shiftGates": []
+      "published": true
     },
     {
       "id": "TR-CH54-RWD",
@@ -486,6 +528,10 @@
       "referenceStage": 0,
       "sectionStartGate": "",
       "sectionEndGate": "",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -493,7 +539,11 @@
       "loaner": {
         "car": "V05",
         "parts": {},
-        "piCap": 450
+        "piCap": 450,
+        "choices": {},
+        "tunable": false,
+        "piBudget": 0,
+        "isTunable": false
       },
       "rules": {
         "noReset": false,
@@ -513,7 +563,9 @@
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
         "cleanMerge": false,
-        "shiftWindows": false
+        "shiftWindows": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
       },
       "targets": {
         "timeMs": 160500,
@@ -534,11 +586,7 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": false,
-      "published": true,
-      "requiredStoryRecords": 0,
-      "raceRivalReference": false,
-      "manualGearbox": false,
-      "shiftGates": []
+      "published": true
     },
     {
       "id": "TR-CH25",
@@ -553,6 +601,10 @@
       "referenceStage": 0,
       "sectionStartGate": "",
       "sectionEndGate": "",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -562,7 +614,11 @@
         "parts": {
           "tyres": "TYR-T2-DRIFT"
         },
-        "piCap": 0
+        "piCap": 0,
+        "choices": {},
+        "tunable": false,
+        "piBudget": 0,
+        "isTunable": false
       },
       "rules": {
         "noReset": false,
@@ -582,7 +638,9 @@
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
         "cleanMerge": false,
-        "shiftWindows": false
+        "shiftWindows": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
       },
       "targets": {
         "timeMs": 0,
@@ -603,11 +661,7 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": false,
-      "published": true,
-      "requiredStoryRecords": 0,
-      "raceRivalReference": false,
-      "manualGearbox": false,
-      "shiftGates": []
+      "published": true
     },
     {
       "id": "TR-CH28",
@@ -622,6 +676,10 @@
       "referenceStage": 0,
       "sectionStartGate": "",
       "sectionEndGate": "",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -631,7 +689,11 @@
         "parts": {
           "tyres": "TYR-T2-DRIFT"
         },
-        "piCap": 0
+        "piCap": 0,
+        "choices": {},
+        "tunable": false,
+        "piBudget": 0,
+        "isTunable": false
       },
       "rules": {
         "noReset": false,
@@ -651,7 +713,9 @@
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
         "cleanMerge": false,
-        "shiftWindows": false
+        "shiftWindows": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
       },
       "targets": {
         "timeMs": 274100,
@@ -672,11 +736,7 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": false,
-      "published": true,
-      "requiredStoryRecords": 0,
-      "raceRivalReference": false,
-      "manualGearbox": false,
-      "shiftGates": []
+      "published": true
     },
     {
       "id": "TR-CH30",
@@ -691,6 +751,10 @@
       "referenceStage": 0,
       "sectionStartGate": "",
       "sectionEndGate": "",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -700,7 +764,11 @@
         "parts": {
           "tyres": "TYR-T2-DRIFT"
         },
-        "piCap": 0
+        "piCap": 0,
+        "choices": {},
+        "tunable": false,
+        "piBudget": 0,
+        "isTunable": false
       },
       "rules": {
         "noReset": false,
@@ -720,7 +788,9 @@
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
         "cleanMerge": false,
-        "shiftWindows": false
+        "shiftWindows": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
       },
       "targets": {
         "timeMs": 0,
@@ -741,11 +811,7 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": false,
-      "published": true,
-      "requiredStoryRecords": 0,
-      "raceRivalReference": false,
-      "manualGearbox": false,
-      "shiftGates": []
+      "published": true
     },
     {
       "id": "TR-CH40",
@@ -760,6 +826,10 @@
       "referenceStage": 0,
       "sectionStartGate": "",
       "sectionEndGate": "",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": false,
       "field": [
         {
           "car": "V05",
@@ -786,7 +856,11 @@
       "loaner": {
         "car": "V07",
         "parts": {},
-        "piCap": 499
+        "piCap": 499,
+        "choices": {},
+        "tunable": false,
+        "piBudget": 0,
+        "isTunable": false
       },
       "rules": {
         "noReset": false,
@@ -806,7 +880,9 @@
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
         "cleanMerge": false,
-        "shiftWindows": false
+        "shiftWindows": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
       },
       "targets": {
         "timeMs": 0,
@@ -827,11 +903,7 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": false,
-      "published": true,
-      "requiredStoryRecords": 0,
-      "raceRivalReference": false,
-      "manualGearbox": false,
-      "shiftGates": []
+      "published": true
     },
     {
       "id": "TR-CH41",
@@ -846,6 +918,10 @@
       "referenceStage": 0,
       "sectionStartGate": "",
       "sectionEndGate": "",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": false,
       "field": [
         {
           "car": "V07",
@@ -884,7 +960,11 @@
       "loaner": {
         "car": "V07",
         "parts": {},
-        "piCap": 499
+        "piCap": 499,
+        "choices": {},
+        "tunable": false,
+        "piBudget": 0,
+        "isTunable": false
       },
       "rules": {
         "noReset": true,
@@ -904,7 +984,9 @@
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
         "cleanMerge": false,
-        "shiftWindows": false
+        "shiftWindows": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
       },
       "targets": {
         "timeMs": 0,
@@ -925,11 +1007,7 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": false,
-      "published": true,
-      "requiredStoryRecords": 0,
-      "raceRivalReference": false,
-      "manualGearbox": false,
-      "shiftGates": []
+      "published": true
     },
     {
       "id": "TR-CH36",
@@ -944,6 +1022,10 @@
       "referenceStage": 0,
       "sectionStartGate": "",
       "sectionEndGate": "",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": false,
       "field": [
         {
           "car": "V06",
@@ -958,7 +1040,11 @@
       "loaner": {
         "car": "V07",
         "parts": {},
-        "piCap": 499
+        "piCap": 499,
+        "choices": {},
+        "tunable": false,
+        "piBudget": 0,
+        "isTunable": false
       },
       "rules": {
         "noReset": false,
@@ -978,7 +1064,9 @@
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
         "cleanMerge": false,
-        "shiftWindows": false
+        "shiftWindows": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
       },
       "targets": {
         "timeMs": 0,
@@ -999,11 +1087,7 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": false,
-      "published": true,
-      "requiredStoryRecords": 0,
-      "raceRivalReference": false,
-      "manualGearbox": false,
-      "shiftGates": []
+      "published": true
     },
     {
       "id": "TR-CH39",
@@ -1018,6 +1102,10 @@
       "referenceStage": 0,
       "sectionStartGate": "",
       "sectionEndGate": "",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": false,
       "field": [
         {
           "car": "V07",
@@ -1032,7 +1120,11 @@
       "loaner": {
         "car": "V07",
         "parts": {},
-        "piCap": 499
+        "piCap": 499,
+        "choices": {},
+        "tunable": false,
+        "piBudget": 0,
+        "isTunable": false
       },
       "rules": {
         "noReset": false,
@@ -1052,7 +1144,9 @@
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
         "cleanMerge": false,
-        "shiftWindows": false
+        "shiftWindows": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
       },
       "targets": {
         "timeMs": 0,
@@ -1073,11 +1167,7 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": false,
-      "published": true,
-      "requiredStoryRecords": 0,
-      "raceRivalReference": false,
-      "manualGearbox": false,
-      "shiftGates": []
+      "published": true
     },
     {
       "id": "TR-CH14",
@@ -1108,6 +1198,10 @@
       "referenceStage": 0,
       "sectionStartGate": "",
       "sectionEndGate": "",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -1115,7 +1209,11 @@
       "loaner": {
         "car": "V07",
         "parts": {},
-        "piCap": 0
+        "piCap": 0,
+        "choices": {},
+        "tunable": false,
+        "piBudget": 0,
+        "isTunable": false
       },
       "rules": {
         "noReset": false,
@@ -1135,7 +1233,9 @@
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
         "cleanMerge": false,
-        "shiftWindows": false
+        "shiftWindows": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
       },
       "targets": {
         "timeMs": 0,
@@ -1156,11 +1256,7 @@
       "isDrill": false,
       "isCup": true,
       "hasSection": false,
-      "published": true,
-      "requiredStoryRecords": 0,
-      "raceRivalReference": false,
-      "manualGearbox": false,
-      "shiftGates": []
+      "published": true
     },
     {
       "id": "TR-CH42",
@@ -1191,6 +1287,10 @@
       "referenceStage": 0,
       "sectionStartGate": "",
       "sectionEndGate": "",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -1198,7 +1298,11 @@
       "loaner": {
         "car": "V12",
         "parts": {},
-        "piCap": 0
+        "piCap": 0,
+        "choices": {},
+        "tunable": false,
+        "piBudget": 0,
+        "isTunable": false
       },
       "rules": {
         "noReset": false,
@@ -1218,7 +1322,9 @@
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
         "cleanMerge": false,
-        "shiftWindows": false
+        "shiftWindows": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
       },
       "targets": {
         "timeMs": 0,
@@ -1239,11 +1345,7 @@
       "isDrill": false,
       "isCup": true,
       "hasSection": false,
-      "published": true,
-      "requiredStoryRecords": 0,
-      "raceRivalReference": false,
-      "manualGearbox": false,
-      "shiftGates": []
+      "published": true
     },
     {
       "id": "TR-CH69",
@@ -1274,6 +1376,10 @@
       "referenceStage": 0,
       "sectionStartGate": "",
       "sectionEndGate": "",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -1281,7 +1387,11 @@
       "loaner": {
         "car": "V01",
         "parts": {},
-        "piCap": 0
+        "piCap": 0,
+        "choices": {},
+        "tunable": false,
+        "piBudget": 0,
+        "isTunable": false
       },
       "rules": {
         "noReset": false,
@@ -1301,7 +1411,9 @@
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
         "cleanMerge": false,
-        "shiftWindows": false
+        "shiftWindows": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
       },
       "targets": {
         "timeMs": 0,
@@ -1322,11 +1434,7 @@
       "isDrill": false,
       "isCup": true,
       "hasSection": false,
-      "published": true,
-      "requiredStoryRecords": 0,
-      "raceRivalReference": false,
-      "manualGearbox": false,
-      "shiftGates": []
+      "published": true
     },
     {
       "id": "TR-CH72",
@@ -1357,6 +1465,10 @@
       "referenceStage": 0,
       "sectionStartGate": "",
       "sectionEndGate": "",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -1364,7 +1476,11 @@
       "loaner": {
         "car": "V12",
         "parts": {},
-        "piCap": 0
+        "piCap": 0,
+        "choices": {},
+        "tunable": false,
+        "piBudget": 0,
+        "isTunable": false
       },
       "rules": {
         "noReset": true,
@@ -1384,7 +1500,9 @@
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
         "cleanMerge": false,
-        "shiftWindows": false
+        "shiftWindows": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
       },
       "targets": {
         "timeMs": 0,
@@ -1405,11 +1523,7 @@
       "isDrill": false,
       "isCup": true,
       "hasSection": false,
-      "published": true,
-      "requiredStoryRecords": 0,
-      "raceRivalReference": false,
-      "manualGearbox": false,
-      "shiftGates": []
+      "published": true
     },
     {
       "id": "TR-CH52-LIGHT",
@@ -1424,6 +1538,10 @@
       "referenceStage": 0,
       "sectionStartGate": "T00-CMP-A-START",
       "sectionEndGate": "T00-CMP-A-END",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -1433,7 +1551,11 @@
         "parts": {
           "weight-reduction": "WGT-T2-PANELS"
         },
-        "piCap": 0
+        "piCap": 0,
+        "choices": {},
+        "tunable": false,
+        "piBudget": 0,
+        "isTunable": false
       },
       "rules": {
         "noReset": false,
@@ -1453,7 +1575,9 @@
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
         "cleanMerge": false,
-        "shiftWindows": false
+        "shiftWindows": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
       },
       "targets": {
         "timeMs": 14600,
@@ -1474,11 +1598,7 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": true,
-      "published": true,
-      "requiredStoryRecords": 0,
-      "raceRivalReference": false,
-      "manualGearbox": false,
-      "shiftGates": []
+      "published": true
     },
     {
       "id": "TR-CH52-HEAVY",
@@ -1493,6 +1613,10 @@
       "referenceStage": 0,
       "sectionStartGate": "T00-CMP-B-START",
       "sectionEndGate": "T00-CMP-B-END",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -1500,7 +1624,11 @@
       "loaner": {
         "car": "V07",
         "parts": {},
-        "piCap": 0
+        "piCap": 0,
+        "choices": {},
+        "tunable": false,
+        "piBudget": 0,
+        "isTunable": false
       },
       "rules": {
         "noReset": false,
@@ -1520,7 +1648,9 @@
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
         "cleanMerge": false,
-        "shiftWindows": false
+        "shiftWindows": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
       },
       "targets": {
         "timeMs": 21400,
@@ -1541,11 +1671,7 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": true,
-      "published": true,
-      "requiredStoryRecords": 0,
-      "raceRivalReference": false,
-      "manualGearbox": false,
-      "shiftGates": []
+      "published": true
     },
     {
       "id": "TR-CH58-FWD",
@@ -1560,6 +1686,10 @@
       "referenceStage": 0,
       "sectionStartGate": "T00-CFG1-START",
       "sectionEndGate": "T00-CFG1-END",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -1567,7 +1697,11 @@
       "loaner": {
         "car": "V06",
         "parts": {},
-        "piCap": 0
+        "piCap": 0,
+        "choices": {},
+        "tunable": false,
+        "piBudget": 0,
+        "isTunable": false
       },
       "rules": {
         "noReset": false,
@@ -1587,7 +1721,9 @@
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
         "cleanMerge": false,
-        "shiftWindows": false
+        "shiftWindows": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
       },
       "targets": {
         "timeMs": 15800,
@@ -1608,11 +1744,7 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": true,
-      "published": true,
-      "requiredStoryRecords": 0,
-      "raceRivalReference": false,
-      "manualGearbox": false,
-      "shiftGates": []
+      "published": true
     },
     {
       "id": "TR-CH58-RWD",
@@ -1627,6 +1759,10 @@
       "referenceStage": 0,
       "sectionStartGate": "T00-CFG2-START",
       "sectionEndGate": "T00-CFG2-END",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -1634,7 +1770,11 @@
       "loaner": {
         "car": "V05",
         "parts": {},
-        "piCap": 0
+        "piCap": 0,
+        "choices": {},
+        "tunable": false,
+        "piBudget": 0,
+        "isTunable": false
       },
       "rules": {
         "noReset": false,
@@ -1654,7 +1794,9 @@
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
         "cleanMerge": false,
-        "shiftWindows": false
+        "shiftWindows": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
       },
       "targets": {
         "timeMs": 16900,
@@ -1675,11 +1817,7 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": true,
-      "published": true,
-      "requiredStoryRecords": 0,
-      "raceRivalReference": false,
-      "manualGearbox": false,
-      "shiftGates": []
+      "published": true
     },
     {
       "id": "TR-CH58-AWD",
@@ -1694,6 +1832,10 @@
       "referenceStage": 0,
       "sectionStartGate": "T00-CFG3-START",
       "sectionEndGate": "T00-CFG3-END",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -1701,7 +1843,11 @@
       "loaner": {
         "car": "V07",
         "parts": {},
-        "piCap": 0
+        "piCap": 0,
+        "choices": {},
+        "tunable": false,
+        "piBudget": 0,
+        "isTunable": false
       },
       "rules": {
         "noReset": false,
@@ -1721,7 +1867,9 @@
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
         "cleanMerge": false,
-        "shiftWindows": false
+        "shiftWindows": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
       },
       "targets": {
         "timeMs": 20000,
@@ -1742,11 +1890,7 @@
       "isDrill": false,
       "isCup": false,
       "hasSection": true,
-      "published": true,
-      "requiredStoryRecords": 0,
-      "raceRivalReference": false,
-      "manualGearbox": false,
-      "shiftGates": []
+      "published": true
     },
     {
       "id": "TR-CH53-OPEN",
@@ -1761,6 +1905,10 @@
       "referenceStage": 0,
       "sectionStartGate": "",
       "sectionEndGate": "",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -1768,7 +1916,11 @@
       "loaner": {
         "car": "V05",
         "parts": {},
-        "piCap": 0
+        "piCap": 0,
+        "choices": {},
+        "tunable": false,
+        "piBudget": 0,
+        "isTunable": false
       },
       "rules": {
         "noReset": false,
@@ -1788,7 +1940,9 @@
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
         "cleanMerge": false,
-        "shiftWindows": false
+        "shiftWindows": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
       },
       "targets": {
         "timeMs": 0,
@@ -1818,11 +1972,7 @@
       "isDrill": true,
       "isCup": false,
       "hasSection": false,
-      "published": true,
-      "requiredStoryRecords": 0,
-      "raceRivalReference": false,
-      "manualGearbox": false,
-      "shiftGates": []
+      "published": true
     },
     {
       "id": "TR-CH53-RACE",
@@ -1837,6 +1987,10 @@
       "referenceStage": 0,
       "sectionStartGate": "",
       "sectionEndGate": "",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -1846,7 +2000,11 @@
         "parts": {
           "differential": "DIF-T3-RWD-RACE"
         },
-        "piCap": 0
+        "piCap": 0,
+        "choices": {},
+        "tunable": false,
+        "piBudget": 0,
+        "isTunable": false
       },
       "rules": {
         "noReset": false,
@@ -1866,7 +2024,9 @@
         "brakeEnvelope": false,
         "alternatingRecoveries": false,
         "cleanMerge": false,
-        "shiftWindows": false
+        "shiftWindows": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
       },
       "targets": {
         "timeMs": 0,
@@ -1896,11 +2056,7 @@
       "isDrill": true,
       "isCup": false,
       "hasSection": false,
-      "published": true,
-      "requiredStoryRecords": 0,
-      "raceRivalReference": false,
-      "manualGearbox": false,
-      "shiftGates": []
+      "published": true
     },
     {
       "id": "TR-CH07",
@@ -1915,6 +2071,10 @@
       "referenceStage": 0,
       "sectionStartGate": "",
       "sectionEndGate": "",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -1922,7 +2082,11 @@
       "loaner": {
         "car": "V01",
         "parts": {},
-        "piCap": 0
+        "piCap": 0,
+        "choices": {},
+        "tunable": false,
+        "piBudget": 0,
+        "isTunable": false
       },
       "rules": {
         "noReset": false,
@@ -1942,7 +2106,9 @@
         "brakeEnvelope": true,
         "alternatingRecoveries": false,
         "cleanMerge": false,
-        "shiftWindows": false
+        "shiftWindows": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
       },
       "targets": {
         "timeMs": 0,
@@ -1971,11 +2137,7 @@
       "isDrill": true,
       "isCup": false,
       "hasSection": false,
-      "published": true,
-      "requiredStoryRecords": 0,
-      "raceRivalReference": false,
-      "manualGearbox": false,
-      "shiftGates": []
+      "published": true
     },
     {
       "id": "TR-CH23",
@@ -1990,6 +2152,10 @@
       "referenceStage": 0,
       "sectionStartGate": "",
       "sectionEndGate": "",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": false,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -1997,7 +2163,11 @@
       "loaner": {
         "car": "V04",
         "parts": {},
-        "piCap": 0
+        "piCap": 0,
+        "choices": {},
+        "tunable": false,
+        "piBudget": 0,
+        "isTunable": false
       },
       "rules": {
         "noReset": false,
@@ -2017,7 +2187,9 @@
         "brakeEnvelope": false,
         "alternatingRecoveries": true,
         "cleanMerge": false,
-        "shiftWindows": false
+        "shiftWindows": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
       },
       "targets": {
         "timeMs": 0,
@@ -2038,11 +2210,7 @@
       "isDrill": true,
       "isCup": false,
       "hasSection": false,
-      "published": true,
-      "requiredStoryRecords": 0,
-      "raceRivalReference": false,
-      "manualGearbox": false,
-      "shiftGates": []
+      "published": true
     },
     {
       "id": "TR-CH74",
@@ -2057,6 +2225,10 @@
       "referenceStage": 0,
       "sectionStartGate": "",
       "sectionEndGate": "",
+      "requiredStoryRecords": 6,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": true,
       "field": [],
       "playerStartsLast": false,
       "conditions": "course",
@@ -2064,205 +2236,11 @@
       "loaner": {
         "car": "V14",
         "parts": {},
-        "piCap": 0
-      },
-      "rules": {
-        "noReset": false,
-        "maxWallImpacts": -1,
-        "noHandbrake": false,
-        "bankEveryZone": false,
-        "allTyresPaved": false,
-        "allChallengeGates": false,
-        "win": false,
-        "noCarContact": false,
-        "noCheckpointCut": false,
-        "cleanZonePass": false,
-        "zonePassRole": "",
-        "pressureSector": false,
-        "allDefenceZones": false,
-        "challengeExits": false,
-        "brakeEnvelope": false,
-        "alternatingRecoveries": false,
-        "cleanMerge": false,
-        "shiftWindows": false
-      },
-      "targets": {
-        "timeMs": 240846,
-        "driftRaw": 0,
-        "referenceDriftSkill": 0.0,
-        "referenceEdgeMargin": 0.0,
-        "referencePaceScale": 0.0,
-        "sectorTimeMs": 0,
-        "exitFloors": [],
-        "brakes": []
-      },
-      "group": "",
-      "brief": "After the story: collect all six radio and timing-slip records through Normal progression, then beat the C24 reference — Satoshi Mibe's run in the V14, on the road beside you as a ghost — in the same car.",
-      "ghost": false,
-      "requiredStoryRecords": 6,
-      "raceRivalReference": true,
-      "manualGearbox": false,
-      "shiftGates": []
-    },
-    {
-      "id": "TR-CH37",
-      "challenge": "CH37",
-      "title": "Keep the Door Open",
-      "course": "T00",
-      "tier": "silver",
-      "kind": "race",
-      "legs": [],
-      "legFactor": 0.0,
-      "referenceRival": "",
-      "referenceStage": 0,
-      "sectionStartGate": "",
-      "sectionEndGate": "",
-      "field": [
-        {
-          "car": "V01",
-          "rival": "",
-          "role": "merge",
-          "pace": 1.0
-        }
-      ],
-      "playerStartsLast": false,
-      "conditions": "course",
-      "laps": 0,
-      "loaner": {
-        "car": "V01",
-        "parts": {},
-        "piCap": 0
-      },
-      "rules": {
-        "noReset": false,
-        "maxWallImpacts": -1,
-        "noHandbrake": false,
-        "bankEveryZone": false,
-        "allTyresPaved": false,
-        "allChallengeGates": false,
-        "win": false,
-        "noCarContact": false,
-        "noCheckpointCut": false,
-        "cleanZonePass": false,
-        "zonePassRole": "",
-        "pressureSector": false,
-        "allDefenceZones": false,
-        "challengeExits": false,
-        "brakeEnvelope": false,
-        "alternatingRecoveries": false,
-        "cleanMerge": true,
-        "shiftWindows": false
-      },
-      "targets": {
-        "timeMs": 0,
-        "driftRaw": 0,
-        "referenceDriftSkill": 0.0,
-        "referenceEdgeMargin": 0.0,
-        "referencePaceScale": 0.0,
-        "sectorTimeMs": 0,
-        "exitFloors": [],
-        "brakes": []
-      },
-      "group": "",
-      "brief": "The Driving School's merge lesson: an instructor's pace car in the same starter car keeps the right-hand merge lane from the start line. Take the left-hand lane and drive the whole marked merge beside it — each car inside its own lane, no contact.",
-      "ghost": false,
-      "requiredStoryRecords": 0,
-      "raceRivalReference": false,
-      "manualGearbox": false,
-      "shiftGates": []
-    },
-    {
-      "id": "TR-CH49",
-      "challenge": "CH49",
-      "title": "A Place for Every Gear",
-      "course": "T00",
-      "tier": "bronze",
-      "kind": "drill",
-      "legs": [],
-      "legFactor": 0.0,
-      "referenceRival": "",
-      "referenceStage": 0,
-      "sectionStartGate": "",
-      "sectionEndGate": "",
-      "field": [],
-      "playerStartsLast": false,
-      "conditions": "course",
-      "laps": 0,
-      "loaner": {
-        "car": "V01",
-        "parts": {},
-        "piCap": 0
-      },
-      "rules": {
-        "noReset": false,
-        "maxWallImpacts": -1,
-        "noHandbrake": false,
-        "bankEveryZone": false,
-        "allTyresPaved": false,
-        "allChallengeGates": false,
-        "win": false,
-        "noCarContact": false,
-        "noCheckpointCut": false,
-        "cleanZonePass": false,
-        "zonePassRole": "",
-        "pressureSector": false,
-        "allDefenceZones": false,
-        "challengeExits": false,
-        "brakeEnvelope": false,
-        "alternatingRecoveries": false,
-        "cleanMerge": false,
-        "shiftWindows": true
-      },
-      "targets": {
-        "timeMs": 0,
-        "driftRaw": 0,
-        "referenceDriftSkill": 0.0,
-        "referenceEdgeMargin": 0.0,
-        "referencePaceScale": 0.0,
-        "sectorTimeMs": 0,
-        "exitFloors": [],
-        "brakes": []
-      },
-      "group": "",
-      "brief": "The Driving School's guided gearing lesson in the supplied starter Hachi RS with a manual gearbox: up the acceleration lane, shift up once at each of the three marked boards — within 25 m before to 10 m after it — on one lap. Nothing to buy.",
-      "ghost": false,
-      "requiredStoryRecords": 0,
-      "raceRivalReference": false,
-      "manualGearbox": true,
-      "shiftGates": [
-        "T00-GEAR-1",
-        "T00-GEAR-2",
-        "T00-GEAR-3"
-      ]
-    },
-    {
-      "id": "TR-CH46",
-      "challenge": "CH46",
-      "title": "Your First Setup",
-      "course": "T00",
-      "tier": "bronze",
-      "kind": "time",
-      "legs": [],
-      "legFactor": 0.0,
-      "referenceRival": "",
-      "referenceStage": 0,
-      "sectionStartGate": "T00-ACCEL-START",
-      "sectionEndGate": "T00-ACCEL-END",
-      "field": [],
-      "playerStartsLast": false,
-      "conditions": "course",
-      "laps": 0,
-      "loaner": {
-        "car": "V01",
-        "parts": {},
         "piCap": 0,
-        "choices": {
-          "gearbox": [
-            "GBX-T1-FINAL"
-          ]
-        },
-        "tunable": true,
-        "piBudget": 0
+        "choices": {},
+        "tunable": false,
+        "piBudget": 0,
+        "isTunable": false
       },
       "rules": {
         "noReset": false,
@@ -2283,7 +2261,242 @@
         "alternatingRecoveries": false,
         "cleanMerge": false,
         "shiftWindows": false,
-        "finalDriveChanged": true
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
+      },
+      "targets": {
+        "timeMs": 240846,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0,
+        "referencePaceScale": 0.0,
+        "sectorTimeMs": 0,
+        "exitFloors": [],
+        "brakes": []
+      },
+      "group": "",
+      "brief": "After the story: collect all six radio and timing-slip records through Normal progression, then beat the C24 reference — Satoshi Mibe's run in the V14, on the road beside you as a ghost — in the same car.",
+      "ghost": false,
+      "judgesTime": true,
+      "judgesDrift": false,
+      "isRace": false,
+      "isDrill": false,
+      "isCup": false,
+      "hasSection": false,
+      "published": true
+    },
+    {
+      "id": "TR-CH37",
+      "challenge": "CH37",
+      "title": "Keep the Door Open",
+      "course": "T00",
+      "tier": "silver",
+      "kind": "race",
+      "legs": [],
+      "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
+      "sectionStartGate": "",
+      "sectionEndGate": "",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": false,
+      "field": [
+        {
+          "car": "V01",
+          "rival": "",
+          "role": "merge",
+          "pace": 1.0
+        }
+      ],
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V01",
+        "parts": {},
+        "piCap": 0,
+        "choices": {},
+        "tunable": false,
+        "piBudget": 0,
+        "isTunable": false
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": false,
+        "allDefenceZones": false,
+        "challengeExits": false,
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false,
+        "cleanMerge": true,
+        "shiftWindows": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
+      },
+      "targets": {
+        "timeMs": 0,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0,
+        "referencePaceScale": 0.0,
+        "sectorTimeMs": 0,
+        "exitFloors": [],
+        "brakes": []
+      },
+      "group": "",
+      "brief": "The Driving School's merge lesson: an instructor's pace car in the same starter car keeps the right-hand merge lane from the start line. Take the left-hand lane and drive the whole marked merge beside it — each car inside its own lane, no contact.",
+      "ghost": false,
+      "judgesTime": false,
+      "judgesDrift": false,
+      "isRace": true,
+      "isDrill": false,
+      "isCup": false,
+      "hasSection": false,
+      "published": true
+    },
+    {
+      "id": "TR-CH49",
+      "challenge": "CH49",
+      "title": "A Place for Every Gear",
+      "course": "T00",
+      "tier": "bronze",
+      "kind": "drill",
+      "legs": [],
+      "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
+      "sectionStartGate": "",
+      "sectionEndGate": "",
+      "requiredStoryRecords": 0,
+      "manualGearbox": true,
+      "shiftGates": [
+        "T00-GEAR-1",
+        "T00-GEAR-2",
+        "T00-GEAR-3"
+      ],
+      "raceRivalReference": false,
+      "field": [],
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V01",
+        "parts": {},
+        "piCap": 0,
+        "choices": {},
+        "tunable": false,
+        "piBudget": 0,
+        "isTunable": false
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": false,
+        "allDefenceZones": false,
+        "challengeExits": false,
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false,
+        "cleanMerge": false,
+        "shiftWindows": true,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
+      },
+      "targets": {
+        "timeMs": 0,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0,
+        "referencePaceScale": 0.0,
+        "sectorTimeMs": 0,
+        "exitFloors": [],
+        "brakes": []
+      },
+      "group": "",
+      "brief": "The Driving School's guided gearing lesson in the supplied starter Hachi RS with a manual gearbox: up the acceleration lane, shift up once at each of the three marked boards — within 25 m before to 10 m after it — on one lap. Nothing to buy.",
+      "ghost": false,
+      "judgesTime": false,
+      "judgesDrift": false,
+      "isRace": false,
+      "isDrill": true,
+      "isCup": false,
+      "hasSection": false,
+      "published": true
+    },
+    {
+      "id": "TR-CH46",
+      "challenge": "CH46",
+      "title": "Your First Setup",
+      "course": "T00",
+      "tier": "bronze",
+      "kind": "time",
+      "legs": [],
+      "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
+      "sectionStartGate": "T00-ACCEL-START",
+      "sectionEndGate": "T00-ACCEL-END",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": false,
+      "field": [],
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V01",
+        "parts": {},
+        "piCap": 0,
+        "choices": {
+          "gearbox": [
+            "GBX-T1-FINAL"
+          ]
+        },
+        "tunable": true,
+        "piBudget": 0,
+        "isTunable": true
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": false,
+        "allDefenceZones": false,
+        "challengeExits": false,
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false,
+        "cleanMerge": false,
+        "shiftWindows": false,
+        "finalDriveChanged": true,
+        "aeroNotAtExtreme": false
       },
       "targets": {
         "timeMs": 20000,
@@ -2296,12 +2509,303 @@
         "brakes": []
       },
       "group": "",
-      "brief": "The Driving School's workshop, in the supplied starter Hachi RS: fit the free final-drive kit on Tune the Loaner, change the final drive and save the setup, then run the acceleration lane with it — its board to its end board inside the lesson's 20 seconds. The kit and the tools are free; the setup is saved for this trial only.",
+      "brief": "The Driving School workshop in the starter Hachi RS: fit the free final-drive kit on Tune the Loaner, change the final drive, save it, then run the acceleration lane inside the gearing lesson's 20 seconds.",
       "ghost": false,
+      "judgesTime": true,
+      "judgesDrift": false,
+      "isRace": false,
+      "isDrill": false,
+      "isCup": false,
+      "hasSection": true,
+      "published": true
+    },
+    {
+      "id": "TR-CH56",
+      "challenge": "CH56",
+      "title": "A Tune for the Hill",
+      "course": "C23",
+      "tier": "gold",
+      "kind": "time",
+      "legs": [],
+      "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
+      "sectionStartGate": "",
+      "sectionEndGate": "",
       "requiredStoryRecords": 0,
-      "raceRivalReference": false,
       "manualGearbox": false,
-      "shiftGates": []
+      "shiftGates": [],
+      "raceRivalReference": false,
+      "field": [],
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V11",
+        "parts": {},
+        "piCap": 0,
+        "choices": {
+          "engine": [
+            "ENG-T1-INTAKE",
+            "ENG-T1-EXHAUST"
+          ],
+          "gearbox": [
+            "GBX-T1-FINAL",
+            "GBX-T2-CLOSE"
+          ],
+          "suspension": [
+            "SUS-T2-SPORT"
+          ],
+          "tyres": [
+            "TYR-T1-STREET"
+          ]
+        },
+        "tunable": true,
+        "piBudget": 615,
+        "isTunable": true
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": false,
+        "allDefenceZones": false,
+        "challengeExits": false,
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false,
+        "cleanMerge": false,
+        "shiftWindows": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
+      },
+      "targets": {
+        "timeMs": 224700,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0,
+        "referencePaceScale": 0.0,
+        "sectorTimeMs": 0,
+        "exitFloors": [],
+        "brakes": []
+      },
+      "group": "",
+      "brief": "Signal Tower Climb in the supplied Vector MR: choose from the free challenge parts and tune them inside a locked PI 615 — every installed part and setting is checked — then beat the Gold time up the hill.",
+      "ghost": false,
+      "judgesTime": true,
+      "judgesDrift": false,
+      "isRace": false,
+      "isDrill": false,
+      "isCup": false,
+      "hasSection": false,
+      "published": true
+    },
+    {
+      "id": "TR-CH57",
+      "challenge": "CH57",
+      "title": "Balanced, Not Maximum",
+      "course": "C15",
+      "tier": "gold",
+      "kind": "time",
+      "legs": [],
+      "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
+      "sectionStartGate": "",
+      "sectionEndGate": "",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": false,
+      "field": [],
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V09",
+        "parts": {
+          "aero": "AER-T3-GTWING"
+        },
+        "piCap": 0,
+        "choices": {
+          "tyres": [
+            "TYR-T1-TOURING",
+            "TYR-T2-SPORT"
+          ],
+          "suspension": [
+            "SUS-T3-COILOVER"
+          ]
+        },
+        "tunable": true,
+        "piBudget": 530,
+        "isTunable": true
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": false,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": false,
+        "allDefenceZones": false,
+        "challengeExits": false,
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false,
+        "cleanMerge": false,
+        "shiftWindows": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": true
+      },
+      "targets": {
+        "timeMs": 144300,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0,
+        "referencePaceScale": 0.0,
+        "sectorTimeMs": 0,
+        "exitFloors": [],
+        "brakes": []
+      },
+      "group": "",
+      "brief": "Tide Lantern Coast, damp, in the supplied Crestline 26 with an adjustable GT wing: tune it and choose from the free tyres and coilovers inside PI 530, then beat the Gold time with the wing below its top and the balance inside its range.",
+      "ghost": false,
+      "judgesTime": true,
+      "judgesDrift": false,
+      "isRace": false,
+      "isDrill": false,
+      "isCup": false,
+      "hasSection": false,
+      "published": true
+    },
+    {
+      "id": "TR-CH59",
+      "challenge": "CH59",
+      "title": "Build Under Pressure",
+      "course": "C19",
+      "tier": "gold",
+      "kind": "race",
+      "legs": [],
+      "legFactor": 0.0,
+      "referenceRival": "",
+      "referenceStage": 0,
+      "sectionStartGate": "",
+      "sectionEndGate": "",
+      "requiredStoryRecords": 0,
+      "manualGearbox": false,
+      "shiftGates": [],
+      "raceRivalReference": false,
+      "field": [
+        {
+          "car": "V10",
+          "rival": "",
+          "role": "field",
+          "pace": 0.0
+        },
+        {
+          "car": "V10",
+          "rival": "",
+          "role": "field",
+          "pace": 0.0
+        },
+        {
+          "car": "V10",
+          "rival": "",
+          "role": "field",
+          "pace": 0.0
+        },
+        {
+          "car": "V10",
+          "rival": "",
+          "role": "field",
+          "pace": 0.0
+        },
+        {
+          "car": "V10",
+          "rival": "",
+          "role": "field",
+          "pace": 0.0
+        }
+      ],
+      "playerStartsLast": false,
+      "conditions": "course",
+      "laps": 0,
+      "loaner": {
+        "car": "V10",
+        "parts": {},
+        "piCap": 0,
+        "choices": {
+          "aero": [
+            "AER-T1-LIP"
+          ],
+          "brakes": [
+            "BRK-T2-KIT"
+          ],
+          "differential": [
+            "DIF-T2-RWD-ADJ"
+          ],
+          "gearbox": [
+            "GBX-T1-FINAL",
+            "GBX-T2-CLOSE"
+          ]
+        },
+        "tunable": true,
+        "piBudget": 580
+      },
+      "rules": {
+        "noReset": false,
+        "maxWallImpacts": -1,
+        "noHandbrake": false,
+        "bankEveryZone": false,
+        "allTyresPaved": false,
+        "allChallengeGates": false,
+        "win": true,
+        "noCarContact": false,
+        "noCheckpointCut": false,
+        "cleanZonePass": false,
+        "zonePassRole": "",
+        "pressureSector": false,
+        "allDefenceZones": false,
+        "challengeExits": false,
+        "brakeEnvelope": false,
+        "alternatingRecoveries": false,
+        "cleanMerge": false,
+        "shiftWindows": false,
+        "finalDriveChanged": false,
+        "aeroNotAtExtreme": false
+      },
+      "targets": {
+        "timeMs": 0,
+        "driftRaw": 0,
+        "referenceDriftSkill": 0.0,
+        "referenceEdgeMargin": 0.0,
+        "referencePaceScale": 0.0,
+        "sectorTimeMs": 0,
+        "exitFloors": [],
+        "brakes": []
+      },
+      "group": "",
+      "brief": "Switchyard Skyline against five stock Spiral RXs at one PI: tune yours from the provided parts — final drive or close gears, an adjustable diff, a brake kit, a lip — inside PI 580, the field's own, then win.",
+      "ghost": false,
+      "judgesTime": false,
+      "judgesDrift": false,
+      "isRace": true,
+      "isDrill": false,
+      "isCup": false,
+      "hasSection": false,
+      "published": true
     }
   ]
 }

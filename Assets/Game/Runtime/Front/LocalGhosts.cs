@@ -46,11 +46,28 @@ namespace NightSignal.Front
                 note = $"your ghost stays the {stored.Header.ResultMicros / 1e6:F3} s run";
                 return false;
             }
-            Directory.CreateDirectory(Folder(s));
             string f = FileFor(s, run.Header.CourseId, run.Header.Format), tmp = f + ".tmp";
-            File.WriteAllText(tmp, run.ToJson());
-            if (File.Exists(f)) File.Replace(tmp, f, null);
-            else File.Move(tmp, f);
+            try
+            {
+                Directory.CreateDirectory(Folder(s));
+                File.WriteAllText(tmp, run.ToJson());
+                if (!File.Exists(f)) File.Move(tmp, f);
+                else
+                {
+                    // Another process (a scanner, an indexer) may briefly hold the stored ghost: Replace refuses then, a
+                    // copy over it usually does not. A ghost that cannot be written is reported, never thrown into the
+                    // race-finish flow (it once ended a trial's results page before it was shown).
+                    try { File.Replace(tmp, f, null); }
+                    catch (IOException) { File.Copy(tmp, f, true); File.Delete(tmp); }
+                }
+            }
+            catch (Exception e) when (e is IOException || e is UnauthorizedAccessException)
+            {
+                try { if (File.Exists(tmp)) File.Delete(tmp); } catch (Exception) { }
+                note = "ghost not saved: " + e.Message;
+                Debug.LogWarning($"[NightSignal.Ghost] {Path.GetFileName(f)} not saved: {e.GetType().Name}: {e.Message}");
+                return false;
+            }
             note = stored == null ? "your first ghost here" : stored.CompatibleWith(run.Header) ? $"new ghost, {(stored.Header.ResultMicros - run.Header.ResultMicros) / 1e6:F3} s faster"
                 : "new ghost (the old one was recorded under other rules)";
             return true;

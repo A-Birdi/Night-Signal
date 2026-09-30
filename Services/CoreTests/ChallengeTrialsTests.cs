@@ -29,8 +29,8 @@ public sealed class ChallengeTrialsTests
     public void TheAuthoredTrials_LoadIntoTheHashedCatalogue_OnePerChallengeOrOneGroup()
     {
         Assert.Contains(ContentCatalogue.AuthoredFiles, f => f == "challenge-trials.json");
-        Assert.Equal(32, Trials.Trials.Count);
-        Assert.Equal(new[] { "CH07", "CH11", "CH13", "CH14", "CH15", "CH23", "CH25", "CH28", "CH30", "CH36", "CH37", "CH39", "CH40", "CH41", "CH42", "CH43", "CH46", "CH49", "CH51", "CH52", "CH53", "CH54", "CH55", "CH58", "CH69", "CH72", "CH74" }, Trials.Trials.Select(t => t.Challenge).Distinct().OrderBy(c => c));
+        Assert.Equal(35, Trials.Trials.Count);
+        Assert.Equal(new[] { "CH07", "CH11", "CH13", "CH14", "CH15", "CH23", "CH25", "CH28", "CH30", "CH36", "CH37", "CH39", "CH40", "CH41", "CH42", "CH43", "CH46", "CH49", "CH51", "CH52", "CH53", "CH54", "CH55", "CH56", "CH57", "CH58", "CH59", "CH69", "CH72", "CH74" }, Trials.Trials.Select(t => t.Challenge).Distinct().OrderBy(c => c));
         ChallengeTrialDef ch36 = Trials.Find("TR-CH36")!;
         Assert.True(ch36.IsRace && ch36.Rules.ZonePassRole == "pacing" && ch36.Field.Single().Role == "pacing");
         // The racecraft trials: fixed fields in the loaner's class, the player starting last.
@@ -86,6 +86,45 @@ public sealed class ChallengeTrialsTests
         using var lessons = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(TestContent.RepoRoot, "Assets", "Content", "Data", "authored", "tutorial", "lessons.json")));
         System.Text.Json.JsonElement gearing = lessons.RootElement.GetProperty("lessons").EnumerateArray().Single(l => l.GetProperty("id").GetString() == "exits-gearing").GetProperty("check");
         Assert.Equal(gearing.GetProperty("seconds").GetInt32() * 1000L, ch46.Targets.TimeMs);
+        // CH56: C23 with free challenge parts inside a locked PI 615 — the exhaust alone, or the intake with street tyres, go over it.
+        ChallengeTrialDef ch56 = Trials.Find("TR-CH56")!;
+        Assert.True(ch56.Course == "C23" && ch56.Loaner.Tunable && ch56.Loaner.PiBudget == 615 && ch56.Loaner.Parts.Count == 0 && ch56.Published);
+        Assert.True(Setup(ch56.Loaner, null).Ok);
+        Assert.Contains(Setup(ch56.Loaner, new MechanicalSnapshot { Parts = { ["engine"] = "ENG-T1-EXHAUST" } }).Problems, x => x.Contains("over the budget of 615"));
+        Assert.Contains(Setup(ch56.Loaner, new MechanicalSnapshot { Parts = { ["engine"] = "ENG-T1-INTAKE", ["tyres"] = "TYR-T1-STREET" } }).Problems, x => x.Contains("over the budget of 615"));
+        var hill = new MechanicalSnapshot { Parts = { ["engine"] = "ENG-T1-INTAKE", ["gearbox"] = "GBX-T1-FINAL" } };
+        hill.Tuning.Values[TuningKeys.FinalDrive] = 1040;
+        TrialLoanerBuild hill56 = Setup(ch56.Loaner, hill);
+        Assert.True(hill56.Ok && hill56.FinalDriveChanged, string.Join("; ", hill56.Problems));
+        // CH59: six V10s at one PI on C19 — the player's own tune of the provided parts inside the field's PI, then a win.
+        ChallengeTrialDef ch59 = Trials.Find("TR-CH59")!;
+        Assert.True(ch59.IsRace && ch59.Rules.Win && ch59.Course == "C19" && ch59.Field.Count == 5 && ch59.Loaner.Tunable && !ch59.PlayerStartsLast);
+        Assert.All(ch59.Field, c => Assert.Equal(ch59.Loaner.Car, c.Car));
+        Assert.Equal(Cat.Car("V10").BasePI, ch59.Loaner.PiBudget); // equal PI: the budget is the field's own
+        Assert.Contains(Setup(ch59.Loaner, new MechanicalSnapshot { Parts = { ["brakes"] = "BRK-T2-KIT" } }).Problems, x => x.Contains("over the budget of 580"));
+        Assert.True(Setup(ch59.Loaner, new MechanicalSnapshot { Parts = { ["brakes"] = "BRK-T2-KIT", ["aero"] = "AER-T1-LIP" } }).Ok, "the lip pays for the brake kit");
+        var race59 = new MechanicalSnapshot { Parts = { ["differential"] = "DIF-T2-RWD-ADJ", ["gearbox"] = "GBX-T1-FINAL" } };
+        race59.Tuning.Values[TuningKeys.FinalDrive] = 1030;
+        Assert.Contains(Setup(ch59.Loaner, race59).Problems, x => x.Contains("over the budget of 580")); // 3% shorter: PI 584
+        race59.Tuning.Values[TuningKeys.FinalDrive] = 1060;
+        Assert.True(Setup(ch59.Loaner, race59).Ok, string.Join("; ", Setup(ch59.Loaner, race59).Problems));
+        // CH57: C15 in a tune-budget loaner with an adjustable wing — as supplied inside PI 530 and balanced; the sport tyres go
+        // over it; touring tyres and coilovers together fit only with the wing at its top, which the aero rule forbids.
+        ChallengeTrialDef ch57 = Trials.Find("TR-CH57")!;
+        Assert.True(ch57.Course == "C15" && ch57.Loaner.Tunable && ch57.Loaner.PiBudget == 530 && ch57.Rules.AeroNotAtExtreme && ch57.Published && !ch57.HasSection);
+        TrialLoanerBuild supplied = Setup(ch57.Loaner, null);
+        Assert.True(supplied.Ok && !supplied.AeroAtExtreme && supplied.Pi.Value <= 530, string.Join("; ", supplied.Problems));
+        Assert.Contains(Setup(ch57.Loaner, new MechanicalSnapshot { Parts = { ["tyres"] = "TYR-T2-SPORT" } }).Problems, x => x.Contains("over the budget of 530"));
+        var touring = new MechanicalSnapshot { Parts = { ["tyres"] = "TYR-T1-TOURING" } };
+        touring.Tuning.Values[TuningKeys.AeroLevel] = 900;
+        touring.Tuning.Values[TuningKeys.AeroBalance] = 450;
+        TrialLoanerBuild ok57 = Setup(ch57.Loaner, touring);
+        Assert.True(ok57.Ok && !ok57.AeroAtExtreme, string.Join("; ", ok57.Problems));
+        touring.Parts["suspension"] = "SUS-T3-COILOVER";
+        Assert.Contains(Setup(ch57.Loaner, touring).Problems, x => x.Contains("over the budget of 530"));
+        touring.Tuning.Values[TuningKeys.AeroLevel] = 1300;
+        TrialLoanerBuild topWing = Setup(ch57.Loaner, touring);
+        Assert.True(topWing.Ok && topWing.AeroAtExtreme, "both parts fit only with the wing at its top — at an end");
         ChallengeTrialDef ch37 = Trials.Find("TR-CH37")!;
         Assert.True(ch37.IsRace && ch37.Course == "T00" && ch37.Rules.CleanMerge && ch37.Field.Single().Role == "merge" && !ch37.PlayerStartsLast);
         ChallengeTrialDef ch23 = Trials.Find("TR-CH23")!;

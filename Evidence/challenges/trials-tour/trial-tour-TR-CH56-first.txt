@@ -1,0 +1,21 @@
+# -nsTrialTour -nsTrialOnly TR-CH56 (built player of 2226e38 + CH56/CH57 of the next commit; buttons only, isolated profile; validator autopilot; 1280x720; automation). Both runs judged PASSED, but the tour FAILED: after the tuned run LocalGhosts.Offer threw an IOException replacing the C23 ghost file (below, paths redacted), which ended the race-finish flow before the results page — fixed in the next commit and rerun.
+[NightSignal.TrialTour] page 2 of 4: its first row opens TR-CH30
+[NightSignal.TrialTour] only: TR-CH56
+[NightSignal.Trial] TR-CH56: V11 as supplied — parts ; tune ; PI 590
+[NightSignal.Local] le-6470ca8bdc3e43b2b1bf: V11 races build f063d5a4f3aa (PI ), livery stock
+[NightSignal.Local] FreeplayTimeTrial C23: Applied  wallet 12000 -> 44238; 9 change(s) Saved.
+[NightSignal.Ghost] C23 trial-TR-CH56: 2204 samples, result 220.232 s, resets 0, valid True; raced ghost none — your first ghost here
+[NightSignal.Trial] TR-CH56: TRIAL PASSED — ok: the supplied loaner · ok: your setup legal and within PI 615 (PI 590) · ok: a valid finish · ok: faster than 3:44.700 (3:40.232)
+[NightSignal.TrialTour] TR-CH56 (CH56 gold): PASSED — ok: the supplied loaner · ok: your setup legal and within PI 615 (PI 590) · ok: a valid finish · ok: faster than 3:44.700 (3:40.232)
+[NightSignal.TrialTour] TR-CH56 tune: legal; parts engine=ENG-T1-INTAKE, gearbox=GBX-T1-FINAL; tune FinalDrive=1040; PI 613; final drive changed True; aero at an end False
+[NightSignal.Trial] TR-CH56 setup saved (parts engine=ENG-T1-INTAKE, gearbox=GBX-T1-FINAL; tune FinalDrive=1040)
+[NightSignal.Trial] TR-CH56: V11 with your setup — parts engine=ENG-T1-INTAKE, gearbox=GBX-T1-FINAL; tune FinalDrive=1040; PI 613
+[NightSignal.Local] le-0207e1c96a404834a221: V11 races build 9ba59ae601f9 (PI ), livery stock
+[NightSignal.Local] FreeplayTimeTrial C23: Applied  wallet 44238 -> 58476; 1 change(s) Saved.
+IOException: Unable to remove the file to be replaced
+  at NightSignal.Front.LocalGhosts.Offer (NightSignal.Front.LocalSession s, NightSignal.Core.Ghosts.GhostRecording run, System.String& note) [0x00132] in <b7ce6dec105a4a2ea52cc77e54d97b29>:0 
+[NightSignal.TrialTour] FAIL button not available: Continue (screen Challenge Trials)
+[NightSignal.TrialTour] TR-CH56 (CH56 gold): PASSED — ok: the supplied loaner · ok: your setup legal and within PI 615 (PI 613) · ok: a valid finish · ok: faster than 3:44.700 (3:39.516)
+[NightSignal.TrialTour] TR-CH56: profile keeps it: True; challenge earned: True
+[NightSignal.TrialTour] 1 of 34 trials passed by the autopilot; challenges earned: CH56; wallet 58,476 cr
+[NightSignal.TrialTour] FAILED: button not available: Continue (screen Challenge Trials)

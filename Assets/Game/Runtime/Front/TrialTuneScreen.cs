@@ -30,8 +30,14 @@ namespace NightSignal.Front
         TextMeshProUGUI heading, summary, note;
         readonly List<Button> slotButtons = new List<Button>();
         readonly List<(GameObject Root, TextMeshProUGUI Label, Button Minus, Button Plus)> tuneRows = new List<(GameObject, TextMeshProUGUI, Button, Button)>();
-        Button save, back;
+        Button save, back, page;
         string pendingNote;
+        int tunePage;
+
+        /// <summary>The page of tuning controls shown (<see cref="TuneRows"/> a page; tours read it).</summary>
+        public int TunePage => tunePage;
+        List<TuningControlInfo> Controls => trial != null && trial.Loaner.Tunable && current != null ? current.Controls : new List<TuningControlInfo>();
+        int TunePages => Mathf.Max(1, (Controls.Count + TuneRows - 1) / TuneRows);
 
         static ContentLibrary Lib => ContentLibrary.Load();
 
@@ -46,6 +52,7 @@ namespace NightSignal.Front
             MechanicalSnapshot saved = null;
             LocalSession.Current?.Profile?.TrialSetups?.TryGetValue(t.Id, out saved);
             setup = Clone(saved) ?? new MechanicalSnapshot();
+            tunePage = 0;
             slots.Clear();
             slots.AddRange((t.Loaner.Choices ?? new Dictionary<string, List<string>>()).Keys.OrderBy(k => k, System.StringComparer.Ordinal).Take(SlotRows));
             Resolve();
@@ -93,6 +100,7 @@ namespace NightSignal.Front
                 row.gameObject.SetActive(false);
                 tuneRows.Add((row.gameObject, label, minus, plus));
             }
+            page = UIFactory.Button("TrialTunePage", col, "", () => { tunePage = (tunePage + 1) % TunePages; Render(); }, 520, 44);
             note = UIFactory.Row("TuneNote", col, "", SignalTheme.Small, SignalTheme.LabelDim, 1000, 60);
             note.textWrappingMode = TextWrappingModes.Normal;
             save = UIFactory.Button("TrialTuneSave", col, "Save This Setup", Save, 520, 52);
@@ -142,6 +150,7 @@ namespace NightSignal.Front
         /// <summary>One step of a tuning control (tours click it).</summary>
         public void Nudge(int i, int direction)
         {
+            i += tunePage * TuneRows;
             if (trial == null || !trial.Loaner.Tunable || current == null || i >= current.Controls.Count) return;
             TuningControlInfo c = current.Controls[i];
             int v = Mathf.Clamp(TuningModel.ValueOrDefault(setup.Tuning, c) + direction * c.Step, c.Min, c.Max);
@@ -183,13 +192,17 @@ namespace NightSignal.Front
                 string name = string.IsNullOrEmpty(id) ? "stock" : Lib.Parts.TryPart(id, out PartDef pd) ? pd.Name : id;
                 slotButtons[i].GetComponentInChildren<TextMeshProUGUI>().text = $"{slots[i]}: {name}";
             }
-            List<TuningControlInfo> controls = trial.Loaner.Tunable && current != null ? current.Controls : new List<TuningControlInfo>();
+            List<TuningControlInfo> controls = Controls;
+            if (tunePage >= TunePages) tunePage = 0;
+            page.gameObject.SetActive(TunePages > 1);
+            page.GetComponentInChildren<TextMeshProUGUI>().text = $"More Controls ({tunePage + 1} of {TunePages})";
             for (int i = 0; i < tuneRows.Count; i++)
             {
-                bool on = i < controls.Count;
+                int k = tunePage * TuneRows + i;
+                bool on = k < controls.Count;
                 tuneRows[i].Root.SetActive(on);
                 if (!on) continue;
-                TuningControlInfo c = controls[i];
+                TuningControlInfo c = controls[k];
                 int v = TuningModel.ValueOrDefault(setup.Tuning, c);
                 tuneRows[i].Label.text = $"<b>{Esc(c.Key)}</b>  {v} <size=80%>{Esc(c.Unit)}</size>{(v != c.Default ? "  (changed)" : "")}  <size=75%><color=#9A968D>{c.Min}–{c.Max}, default {c.Default}</color></size>";
                 tuneRows[i].Minus.interactable = v > c.Min;
