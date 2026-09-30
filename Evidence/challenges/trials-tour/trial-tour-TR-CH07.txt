@@ -1,0 +1,9 @@
+# -nsTrialTour -nsTrialOnly TR-CH07 (built player of b9989ac via Tools/run/tour.ps1 -TrialOnly: isolated prefs and profile, 1280x720; validator autopilot; automation)
+[NightSignal.TrialTour] page 2 of 3: its first row opens TR-CH30
+[NightSignal.TrialTour] only: TR-CH07
+[NightSignal.Trial] TR-CH07: V01 stock, PI 220, build c12c2bea1a67, on T00 (course)
+[NightSignal.Trial] TR-CH07: TRIAL PASSED — ok: the supplied loaner · ok: a valid finish · ok: no handbrake after the start · ok: the trail-brake envelope at T00-TRAIL-BRAKE: on by 1528 m (1512), held to 1608 m (1624), exit 52–71 km/h (62)
+[NightSignal.TrialTour] TR-CH07 (CH07 silver): PASSED — ok: the supplied loaner · ok: a valid finish · ok: no handbrake after the start · ok: the trail-brake envelope at T00-TRAIL-BRAKE: on by 1528 m (1512), held to 1608 m (1624), exit 52–71 km/h (62)
+[NightSignal.TrialTour] TR-CH07: profile keeps it: True; challenge earned: True
+[NightSignal.TrialTour] 1 of 27 trials passed by the autopilot; challenges earned: CH07; wallet 23,000 cr
+[NightSignal.TrialTour] PASS

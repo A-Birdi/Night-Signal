@@ -2828,3 +2828,21 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   128.9 / 102.0 km/h against 122.4 / 96.9; CH53 earned after the second. `Evidence/challenges/trials-tour/trial-tour-TR-CH53.txt`.
 - **Limits:** the two setups drive almost the same on this car (the published floors are equal); online, drills run as time
   trials do but no online run was made.
+
+## V-131 — CH07: the trail-brake envelope in T00's test bend — a drill (spec §11, slice 5) (2026-09-30)
+- Revision: `b9989ac`, documented with the commit of this entry; the player build of `b9989ac`.
+- **What:** a drill rule judges every braking zone tagged with the challenge against a **trail-brake envelope** measured from
+  the loaner's own trace in it (the gate judge's facts: brake-on point, last release, entry and exit speeds): braking begun by
+  the reference's brake-on point + 15 m, some brake still held until its release point − 15 m (trailed into the bend; still
+  braking at the zone's end counts), the exit speed inside 0.85–1.15 × the reference's, no reset inside. **TR-CH07** (Silver):
+  the Driving School's braking lesson in its fixed loaner, the starter V01, T00-TRAIL-BRAKE (1512–1627 m), no handbrake. The
+  reference (entered at 151.9 km/h, brake on at 1512.3 m, released at 1623.7 m, exit 61.6 km/h) publishes: **on by 1528 m,
+  held to 1608 m, exit 52–71 km/h** (`Evidence/challenges/trials-TR-CH07.txt`).
+- **Tests:** Core (inside the envelope; still braking at the end; braking late, releasing early, exiting fast, the handbrake,
+  not crossed) — Core 202.
+- **Built player (`tour.ps1 -TrialOnly TR-CH07`):** **PASSED** — on at 1512 m, held to 1624 m, exit 62 km/h, no handbrake;
+  CH07 earned. `Evidence/challenges/trials-tour/trial-tour-TR-CH07.txt`.
+- **Online:** refused, and kept off the online list — every trial on the Driving School is offline only (the control plane's
+  `OnlineTrial`: no racecraft trials, cups, sections or tutorial-course trials online yet; found while writing this entry —
+  the drill was not yet covered by the section refusal) — Services `ARacecraftTrial_IsRefusedOnline_ForNow` (+ TR-CH07), 369.
+- **Limits:** it runs as a challenge trial beside the Driving School's own braking lesson (which stays a lesson).

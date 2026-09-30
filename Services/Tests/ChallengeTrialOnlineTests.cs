@@ -42,7 +42,7 @@ public sealed class ChallengeTrialOnlineTests : ConvoyTestBase
         Assert.Equal("non-contact", s.GetProperty("collision").GetString());
         Assert.Equal(0, s.GetProperty("aiCount").GetInt32());
         Assert.Equal("TR-CH51", s.GetProperty("challengeTrialId").GetString());
-        Assert.Equal(TestData.Content.Catalogue.ChallengeTrials.Trials.Count(t => t.Published && t.Conditions == "course" && !t.IsRace && !t.IsCup && !t.HasSection), // racecraft, cup and section trials are offline-only
+        Assert.Equal(TestData.Content.Catalogue.ChallengeTrials.Trials.Count(t => t.Published && t.Conditions == "course" && !t.IsRace && !t.IsCup && !t.HasSection && t.Course != "T00"), // racecraft, cup and Driving School trials are offline-only
             State(1).GetProperty("challengeTrials").GetArrayLength());
 
         // A new member who owns nothing does not withdraw it (the trial supplies its course).
@@ -70,6 +70,7 @@ public sealed class ChallengeTrialOnlineTests : ConvoyTestBase
         Assert.Equal("trial_unsupported", dir.ProposeEvent(Id(1), TrialRequest("TR-CH41")).Error?.Code);
         Assert.Equal("trial_unsupported", dir.ProposeEvent(Id(1), TrialRequest("TR-CH14")).Error?.Code); // a challenge cup
         Assert.Equal("trial_unsupported", dir.ProposeEvent(Id(1), TrialRequest("TR-CH58-FWD")).Error?.Code); // a Driving School section
+        Assert.Equal("trial_unsupported", dir.ProposeEvent(Id(1), TrialRequest("TR-CH07")).Error?.Code); // a drill on the Driving School
     }
 
     [Fact]

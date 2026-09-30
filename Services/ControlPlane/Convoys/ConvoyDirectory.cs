@@ -43,6 +43,12 @@ public sealed class CryptoRandomSource : IRandomSource
 /// </summary>
 public sealed class ConvoyDirectory
 {
+    /// <summary>
+    /// A challenge trial the game server can run online today: a solo trial on an online course — not a racecraft trial (fixed AI
+    /// field), a cup, a Driving School section or anything on the tutorial course (offline only for now).
+    /// </summary>
+    bool OnlineTrial(ChallengeTrialDef t) => !t.IsRace && !t.IsCup && !t.HasSection && Catalogue.Course(t.Course)?.Kind != "tutorial";
+
     readonly TimeProvider clock;
     readonly ContentService content;
     readonly IConvoyNotifier notifier;
@@ -1773,10 +1779,11 @@ public sealed class ConvoyDirectory
                     return ConvoyResult.Fail("trial_unpublished", $"{challengeTrial.Id}'s targets are not published yet.");
                 if (challengeTrial.Conditions != "course")
                     return ConvoyResult.Fail("trial_unsupported", $"{challengeTrial.Id} sets its own conditions, which online trials do not support yet.");
-                if (challengeTrial.IsRace || challengeTrial.IsCup || challengeTrial.HasSection)
+                if (!OnlineTrial(challengeTrial))
                     return ConvoyResult.Fail("trial_unsupported", challengeTrial.IsCup
                         ? $"{challengeTrial.Id} is a three-leg challenge cup, which online trials do not support yet."
-                        : challengeTrial.HasSection ? $"{challengeTrial.Id} times a Driving School section, which online trials do not support yet."
+                        : challengeTrial.HasSection || Catalogue.Course(challengeTrial.Course)?.Kind == "tutorial"
+                            ? $"{challengeTrial.Id} runs on the Driving School, which online trials do not support yet."
                         : $"{challengeTrial.Id} is raced against a fixed AI field, which online trials do not support yet.");
                 if (r.AiCount is not null || r.AiRivals is not null || r.CarCapPi is not null || (r.Collision is not null && r.Collision != "non-contact"))
                     return ConvoyResult.Fail("invalid_request", "A challenge trial's car, rules and field are fixed by the trial.");
@@ -2434,7 +2441,7 @@ public sealed class ConvoyDirectory
             eventProposal = c.EventProposal is { } e ? EventProposalWire(c, e) : null,
             postEvent = PostEventWire(c),
             challengeTrials = c.Intent is { Kind: IntentKind.Challenges }
-                ? Catalogue.ChallengeTrials.Trials.Where(t => t.Published && t.Conditions == "course" && !t.IsRace && !t.IsCup && !t.HasSection).Select(t => new
+                ? Catalogue.ChallengeTrials.Trials.Where(t => t.Published && t.Conditions == "course" && OnlineTrial(t)).Select(t => new
                 {
                     id = t.Id, challenge = t.Challenge, title = t.Title, tier = t.Tier, course = t.Course, car = t.Loaner.Car, piCap = t.Loaner.PiCap,
                     kind = t.Kind, timeMs = t.Targets.TimeMs, driftRaw = t.Targets.DriftRaw, group = t.Group, brief = t.Brief,
