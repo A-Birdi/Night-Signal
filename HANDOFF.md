@@ -221,8 +221,13 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
    LODGroup chooses; measure a level under the GPU Resident Drawer with the frozen-frame bracketed holds of
    `-nsCarLodTour`, never `Renderer.isVisible`); the §14 profile is measured on this machine (V-151: `-nsPerfProfileTour`,
    `Evidence/perf/`; race allocations cut ~93 %, ≈ 130 B/frame still unattributed — the editor's deep-profile recipe is in
-   V-151); character LOD tiers remain. Test isolation: race tests depend on static state left by earlier tests in the
-   same domain (V-151) — run a race test from a fresh domain when comparing results.
+   V-151); character LOD tiers remain. Test isolation (in progress, paused 2026-10-01 at the owner's request): the
+   editor enters Play Mode with domain and scene reload disabled (Enter Play Mode Options), so statics persist between
+   Play Mode runs. 52 writable statics listed (19 autopilot/zone-slide knobs on OfflineRaceSession). The one 57-contact
+   FullGridContactTests result of V-151 did NOT reproduce: fresh domain 41, after the full EditMode suite 41, and in the
+   Drift/FullGrid/Recovery batch 41 (7 walls each time). Next: find what differed in that run (it followed the
+   deep-profiled RaceAllocationProbe session and a profiler toggle) before resetting statics; compare from a fresh
+   domain meanwhile.
 5. **Gate 4/5**: `docs/GATE4.md` is the audit (V-114: every party size 1–6 run; a crash mid-settlement rolls back) — open:
    challenge loaners (offline-only kinds online), pad-only walkthrough, the §14 performance profile; release
    validation (string bounds are done: every built screen measured at 720p / Text 150 % — V-118, V-149, V-150);
