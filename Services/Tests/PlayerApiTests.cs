@@ -167,6 +167,24 @@ public sealed class PlayerApiTests : IDisposable
     }
 
     [Fact]
+    public async Task Records_DriftAttack_KeepsTheBestRawScore_AndCanBeShowcased()
+    {
+        HttpClient c = await Me();
+        Settled("m_drift1", "{\"eventKind\":\"FreeplayDriftAttack\",\"courseId\":\"C01\",\"outcome\":\"Finished\",\"finishTimeMs\":120444,\"rawDriftScore\":12000}");
+        Settled("m_drift2", "{\"eventKind\":\"FreeplayDriftAttack\",\"courseId\":\"C01\",\"outcome\":\"Finished\",\"finishTimeMs\":110000,\"rawDriftScore\":15500}");
+        Settled("m_drift3", "{\"eventKind\":\"FreeplayDriftAttack\",\"courseId\":\"C01\",\"outcome\":\"Finished\",\"finishTimeMs\":100000,\"rawDriftScore\":9000}");
+        Settled("m_drift_old", "{\"eventKind\":\"FreeplayDriftAttack\",\"courseId\":\"C04\",\"outcome\":\"Finished\",\"finishTimeMs\":100000}");
+        JsonElement records = (await c.GetFromJsonAsync<JsonElement>("/v1/me/records")).GetProperty("records");
+        var byKey = records.EnumerateArray().ToDictionary(r => r.GetProperty("key").GetString()!, r => r.GetProperty("value").GetString());
+        Assert.Equal("15,500 raw", byKey["course:C01:drift-attack"]); // the highest score, not the fastest run
+        Assert.False(byKey.ContainsKey("course:C04:drift-attack"), "a receipt without a stored score is no drift record");
+        Assert.False(byKey.Keys.Any(k => k.StartsWith("course:C01:sprint")), "a Drift Attack is not a sprint time");
+        JsonElement saved = await (await c.PostAsJsonAsync("/v1/me/card", new { displayName = "Aki Night", showcase = new[] { "course:C01:drift-attack" } }))
+            .Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(1, saved.GetProperty("showcase").GetArrayLength());
+    }
+
+    [Fact]
     public async Task Card_Showcase_OwnRecordsOnly_PublicWithCurrentValues()
     {
         HttpClient c = await Me();

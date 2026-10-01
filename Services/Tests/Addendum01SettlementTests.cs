@@ -122,6 +122,19 @@ public sealed class Addendum01SettlementTests
     }
 
     [Fact]
+    public void DriftAttack_ReceiptsKeepTheRawScore_OtherEventsDoNot()
+    {
+        // The online showcase's Drift Attack best is read back from the receipt (V-149).
+        (MatchSettlement? s, string? e) = Compute(Freeplay("drift-attack", 2, 0),
+            new[] { F(H(1), true, RunOutcome.Finished, 150_000, 1, drift: 15_500), F(H(2), true, RunOutcome.Finished, 140_000, 2, drift: 9_000) });
+        Assert.Null(e);
+        Assert.Equal(15_500, For(s!, H(1)).Receipt.RawDriftScore);
+        Assert.Equal(9_000, For(s!, H(2)).Receipt.RawDriftScore);
+        (MatchSettlement? sprint, _) = Compute(Freeplay("sprint", 1, 0), new[] { F(H(1), true, RunOutcome.Finished, 150_000, 1, drift: 4_000) });
+        Assert.Null(For(sprint!, H(1)).Receipt.RawDriftScore);
+    }
+
+    [Fact]
     public void FourthToTwelfthPlaces_PayTheParticipationModifier_AndAiNeverGetReceipts()
     {
         // 3 humans + 9 AI = 12 vehicles; humans place 4th, 8th and 12th.

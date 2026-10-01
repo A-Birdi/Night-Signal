@@ -3247,3 +3247,32 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   four-entry Format row. `Evidence/ui/bounds/bounds-FreeplayDriftTour-1280x720-text150.txt`.
 - **Limits:** the online showcase lists no Freeplay Drift Attack bests (its query keeps times only); personal ghosts of a
   Drift Attack run are kept by the format but compared by time, as every ghost.
+
+## V-149 — String bounds of the online screens; online Drift Attack bests (2026-10-01)
+- Revision: `6c4db98` (the audit tooling and the HUD fix) for the eight online runs; the online Drift Attack record change
+  is in the commit of this entry (control plane restarted on it for the last run).
+- **Suites after V-148 (`76b0661`):** EditMode **497 passed, 2 skipped** (the explicit V-087 contact-prediction experiments)
+  of 499; .NET Core 210, Builds 232, Toys 92, Services 379 + 1 skipped (the opt-in SQLite stress test) — all pass.
+- **Tooling:** `ui-tour-online.ps1 -BoundsAudit` runs the online client at 1280x720 with Text 150 % / HUD 130 % and
+  `-nsBoundsAudit` (every tour screenshot and the race HUD measured; an overflow fails the run). The online client now always
+  gets a fresh `-nsPrefsFolder`: before this it read the player's own driving/presentation settings (it wrote none).
+- **Found and fixed:** the race HUD's progress band (checkpoints, then "FINISH WINDOW m:ss" once a finish window opens) was
+  18 px tall at HUD 130 % — two lines need 29 px at the minimum size, so it overflowed in an online campaign race where
+  another car finished first (four findings, one label). The position panel is 22 px taller (band 34.8 px by its anchors),
+  and the gap-to-car-ahead line moved down with it; offline tours had not met it because the player usually finished first.
+- **Eight online runs (control plane + one game server + one client on 127.0.0.1, buttons only), all PASS with 0 overflow,
+  0 missing glyph:** campaign (sign-in, convoy, Mode/Event Ready, While We Wait table, race, route chart, post-event;
+  121 labels over 66 moments), course vote (135/42), Freeplay Time Attack on C01 with **Fog, damp** (114/42; 1:30.123),
+  challenge trial TR-CH51 (117/59; passed 2:54.147), Team Trial TT_BEST (123/43; victory), online Garage tyre change and
+  livery (244/73), Drift Attack on C01 (128/43) and the three-leg Custom Cup (136/116). Whether the finish-window line was on
+  screen at an audited moment of the rerun is not confirmed — the fix is also sized by geometry (above).
+  `Evidence/ui/bounds/bounds-UiTourOnline-<run>-1280x720-text150.txt` (8 reports).
+- **Online Drift Attack bests:** the online showcase's personal records kept times only, so a Drift Attack best never
+  appeared. Settlement now stores the banked raw score on a Drift Attack receipt (`Receipt.RawDriftScore`, finished runs,
+  null elsewhere) and the records list keeps the highest per course ("course:C01:drift-attack", "15,500 raw"); receipts
+  from before carry no score and are skipped. Tests: `PlayerApiTests.Records_DriftAttack_KeepsTheBestRawScore_AndCanBeShowcased`,
+  `Addendum01SettlementTests.DriftAttack_ReceiptsKeepTheRawScore_OtherEventsDoNot`. Built player on the restarted control
+  plane (`-Intent 6 -Course C01`): P1 with 4,750 drift points; its stored receipt carries `rawDriftScore 4750` (the two
+  earlier Drift Attack receipts have none) — read from the local dev database, read-only.
+- **Limits:** the meet's screens are still not audited at 720p / Text 150 %; online challenge-trial kinds that are
+  offline-only stay offline-only.

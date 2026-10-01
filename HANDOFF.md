@@ -221,8 +221,8 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
    LODGroup chooses; measure a level under the GPU Resident Drawer with the frozen-frame bracketed holds of
    `-nsCarLodTour`, never `Renderer.isVisible`); character LOD tiers and the §14 performance profile remain.
 5. **Gate 4/5**: `docs/GATE4.md` is the audit (V-114: every party size 1–6 run; a crash mid-settlement rolls back) — open:
-   challenge loaners, pad-only walkthrough, string bounds of the online screens, the
-   §14 performance profile; release validation;
+   challenge loaners (offline-only kinds online), pad-only walkthrough, string bounds of the meet (the online screens
+   pass at 720p / Text 150 %: V-149), the §14 performance profile; release validation;
    blocked parts stay blocked (local Supabase/Postgres stack, Linux server module, WAN test with real people).
 
 Human checks outstanding (cannot be automated): S29 run, featured-rival pace feel after calibration, camera/comfort

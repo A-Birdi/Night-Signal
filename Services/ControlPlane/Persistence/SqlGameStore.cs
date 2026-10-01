@@ -275,16 +275,28 @@ public abstract partial class SqlGameStore : IPlayerStore, IResultLedger, ISocia
         ReadAsync<IReadOnlyList<PersonalRecord>>(async (c, tx) =>
         {
             static string Time(long ms) => $"{ms / 60000}:{ms / 1000 % 60:00}.{ms % 1000:000}";
+            // Times: lower is better. Drift Attack: the banked raw score it was ranked by, higher is better (receipts from
+            // before the score was stored have none and are skipped).
             var best = new Dictionary<string, (long Ms, string Label)>(StringComparer.Ordinal);
+            var drift = new Dictionary<string, (long Raw, string Label)>(StringComparer.Ordinal);
             foreach (string json in await c.QueryAsync(tx, "SELECT receipt_json FROM match_results WHERE account_id = @a", r => r.Str(0), ("@a", accountId)))
             {
                 using var doc = System.Text.Json.JsonDocument.Parse(json);
                 System.Text.Json.JsonElement root = doc.RootElement;
                 string Get(string name) => root.TryGetProperty(name, out var v) && v.ValueKind == System.Text.Json.JsonValueKind.String ? v.GetString() ?? "" : "";
-                if (Get("outcome") != "Finished" || !root.TryGetProperty("finishTimeMs", out var t) || t.ValueKind != System.Text.Json.JsonValueKind.Number) continue;
-                long ms = t.GetInt64();
+                if (Get("outcome") != "Finished") continue;
                 string kind = Get("eventKind"), course = Get("courseId"), stage = Get("stageId"), mode = Get("mode").ToLowerInvariant();
                 string courseName = catalogue.TryCourse(course, out CourseDef cd) ? cd.Name : course;
+                if (kind == "FreeplayDriftAttack")
+                {
+                    if (!root.TryGetProperty("rawDriftScore", out var d) || d.ValueKind != System.Text.Json.JsonValueKind.Number) continue;
+                    long raw = d.GetInt64();
+                    string key = $"course:{course}:drift-attack";
+                    if (!drift.TryGetValue(key, out var bd) || raw > bd.Raw) drift[key] = (raw, $"{course} {courseName} · drift attack");
+                    continue;
+                }
+                if (!root.TryGetProperty("finishTimeMs", out var t) || t.ValueKind != System.Text.Json.JsonValueKind.Number) continue;
+                long ms = t.GetInt64();
                 (string Key, string Label)? rec = kind switch
                 {
                     "CampaignStage" when stage.Length > 0 && mode is "normal" or "hard" => ($"stage:{stage}:{mode}", $"{stage} {(mode == "hard" ? "Hard" : "Normal")} · {courseName}"),
@@ -296,7 +308,9 @@ public abstract partial class SqlGameStore : IPlayerStore, IResultLedger, ISocia
                 if (rec is not { } r) continue;
                 if (!best.TryGetValue(r.Key, out var b) || ms < b.Ms) best[r.Key] = (ms, r.Label);
             }
-            var list = best.OrderBy(x => x.Key, StringComparer.Ordinal).Select(x => new PersonalRecord(x.Key, x.Value.Label, Time(x.Value.Ms))).ToList();
+            var list = best.Select(x => new PersonalRecord(x.Key, x.Value.Label, Time(x.Value.Ms)))
+                .Concat(drift.Select(x => new PersonalRecord(x.Key, x.Value.Label, x.Value.Raw.ToString("N0", System.Globalization.CultureInfo.InvariantCulture) + " raw")))
+                .OrderBy(r => r.Key, StringComparer.Ordinal).ToList();
             foreach (var tb in await c.QueryAsync(tx, "SELECT trial_id, difficulty, humans, kind, team_value FROM team_trial_bests WHERE account_id = @a ORDER BY trial_id, difficulty, humans",
                          r => (Trial: r.Str(0), Difficulty: r.Str(1), Humans: r.Long(2), Kind: r.Str(3), Value: r.Long(4)), ("@a", accountId)))
                 list.Add(new PersonalRecord($"team:{tb.Trial}:{tb.Difficulty}:{tb.Humans}", $"{tb.Trial} {tb.Difficulty} · team of {tb.Humans}",

@@ -399,6 +399,7 @@ public sealed class SettlementService(IResultLedger ledger, IPlayerStore players
                 MatchId = config.MatchId, AccountId = e.EntrantId, EventKind = trial ? "TeamTrial" : kind.ToString(), Mode = config.Mode,
                 StageId = config.StageId, CourseId = config.CourseId, Outcome = e.Outcome.ToString(), Placement = placing.Place,
                 Tied = placing.Tied, FinishTimeMs = e.Outcome == RunOutcome.Finished ? finishMs : null,
+                RawDriftScore = !trial && kind == EventKind.FreeplayDriftAttack && e.Outcome == RunOutcome.Finished ? e.RawDriftScore : null,
             };
             if (config.GuestPasses.FirstOrDefault(p => p.AccountId == e.EntrantId) is { } pass)
                 receipt.GuestPass = new GuestPassInfo { CourseId = pass.CourseId, SponsorId = pass.SponsorId };

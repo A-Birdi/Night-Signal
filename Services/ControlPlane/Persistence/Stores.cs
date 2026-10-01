@@ -13,8 +13,9 @@ public sealed record PlayerCard(string DisplayName, long Revision, string? LookJ
 
 /// <summary>
 /// One of a player's own records, derived from their settled results (spec §11 "chosen showcase records"): a campaign
-/// stage's best finish per mode, a freeplay course's best finish per format, a Team Trial's team best. <see cref="Key"/>
-/// is stable ("stage:S07:normal", "course:C01:sprint", "team:TT_BEST:normal:2"); label and value are display text.
+/// stage's best finish per mode, a freeplay course's best finish per format (Drift Attack: the best banked raw score), a
+/// Team Trial's team best. <see cref="Key"/> is stable ("stage:S07:normal", "course:C01:sprint", "course:C01:drift-attack",
+/// "team:TT_BEST:normal:2"); label and value are display text.
 /// </summary>
 public sealed record PersonalRecord(string Key, string Label, string Value);
 
@@ -285,6 +286,8 @@ public sealed class Receipt
     public int Placement { get; set; }
     public bool Tied { get; set; }
     public long? FinishTimeMs { get; set; }
+    /// <summary>Drift Attack: the banked raw drift score the event was ranked by (finished runs only; null elsewhere).</summary>
+    public long? RawDriftScore { get; set; }
     public StageVerdictInfo? Stage { get; set; }
     public PayoutInfo Payout { get; set; } = new();
     public List<CreditLine> Credits { get; set; } = new();
