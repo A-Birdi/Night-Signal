@@ -126,7 +126,7 @@ namespace NightSignal.Front
             try
             {
                 string[] args = Environment.GetCommandLineArgs();
-                string tour = args.FirstOrDefault(a => a.StartsWith("-ns") && a.EndsWith("Tour"))?.Substring(3) ?? "run";
+                string tour = args.FirstOrDefault(a => a.StartsWith("-ns") && (a.EndsWith("Tour") || a.EndsWith("TourOnline")))?.Substring(3) ?? "run";
                 DrivingPreferences p = DrivingPreferences.Current;
                 string name = $"bounds-{tour}-{Screen.width}x{Screen.height}-text{Mathf.RoundToInt(p.TextScale * 100)}";
                 string dir = System.IO.Path.GetFullPath(System.IO.Path.Combine("Builds", "Screenshots", "bounds"));

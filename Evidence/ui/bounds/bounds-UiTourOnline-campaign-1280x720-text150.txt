@@ -1,0 +1,17 @@
+# String bounds audit — UiTourOnline at 1280x720, text size 150 %, HUD size 130 %
+# 66 moments audited, 121 distinct labels, 1390 measurements
+# moments: Title · 01-title · Sign In · 02-sign-in · Convoy · 03-online · 04-mode-ready · 05-event-selection · 06-event-ready · While We Wait · Pocket Circuit · 06b-table-while-ready · race HUD · race / Story · race / Convoy · 07-online-race · 07b-route-chart · RouteChart · 08-post-event · 09-after-advance
+
+## Labels too big at their minimum size, or spilling more than 5 % past their box (failures): 0
+
+## Labels with a character the font lacks, drawn as a box (failures): 0
+
+## Fitting labels whose glyph edges reach a few pixels past the box (TMP fits by advance widths; within 5 %): 4
+- [Title] Body/Screens/Title/Shade/Title — "NIGHT SIGNAL" box 834x188, drawn 847x110 (spill 12 px), size 98.6 (min 63.0)
+- [04-mode-ready] Screens/Convoy/Flow/ModeReady/Label — "MODE READY: YES   (SELECT TO UNREADY)" box 596x56, drawn 598x27 (spill 2 px), size 24.3 (min 16.5)
+- [Pocket Circuit] Screens/Pocket Circuit/Info/InfoColumn/Title — "POCKET CIRCUIT" box 480x90, drawn 484x56 (spill 4 px), size 50.2 (min 30.0)
+- [Convoy] Convoy/Roster/RosterColumn/OnlineRouteChart/Label — "ROUTE CHART — LAST RACE" box 496x48, drawn 498x34 (spill 2 px), size 30.6 (min 16.5)
+
+## Fixed-size live figures drawn beyond their box (they never clip; inspect for collisions): 0
+
+## Labels that fit only at their minimum size (legible, but the smallest allowed): 0

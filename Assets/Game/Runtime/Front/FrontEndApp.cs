@@ -779,7 +779,11 @@ namespace NightSignal.Front
             System.IO.Directory.CreateDirectory(dir);
             var failures = new List<string>();
             OnlineAutopilot = true;
-            void Shot(string name) => ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(dir, name + ".png"));
+            void Shot(string name)
+            {
+                ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(dir, name + ".png"));
+                AuditBounds(name); // -nsBoundsAudit only: the online screens' labels at this moment
+            }
             void Note(string s) => Debug.Log("[NightSignal.UiTourOnline] " + s);
             bool Click(string name)
             {
@@ -1192,6 +1196,7 @@ namespace NightSignal.Front
                 if (!finalTable.StartsWith("legs raced 3")) failures.Add("the cup did not complete three legs: " + finalTable);
                 if (State()?["cup"]?.Type == Newtonsoft.Json.Linq.JTokenType.Object) failures.Add("the cup was still open after its last leg");
             }
+            if (BoundsAuditOn && BoundsAutoSizeOverflows > 0) failures.Add($"{BoundsAutoSizeOverflows} label(s) do not fit their box (see the bounds report)");
             string summary = failures.Count == 0 ? "PASS" : "FAILED: " + string.Join("; ", failures);
             Note($"{summary}; last result: {(LastOnlineResult ?? "").Replace("\n", " | ")}");
             yield return new WaitForSeconds(1f);

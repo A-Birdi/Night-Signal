@@ -93,22 +93,24 @@ namespace NightSignal.UI
         void Build(Transform root)
         {
             // Top-left: position and progress.
-            Image posPanel = UIFactory.Panel("Position", root, new Vector2(0, 1), new Vector2(0, 1), new Vector2(32, -150), new Vector2(300, -32), new Color(0, 0, 0, 0.55f));
+            // 140 px tall so the progress band holds two lines (checkpoints, then the finish window) at HUD 130 % — at 118 px
+            // the second line overflowed its band once a finish window opened (online bounds audit, 720p, Text 150 %).
+            Image posPanel = UIFactory.Panel("Position", root, new Vector2(0, 1), new Vector2(0, 1), new Vector2(32, -172), new Vector2(300, -32), new Color(0, 0, 0, 0.55f));
             // Position above, progress below: separate bands so larger text shrinks within its own band, never over the other.
             position = UIFactory.Label("Pos", posPanel.transform, "P–", SignalTheme.HudNumeral, SignalTheme.Label, TextAlignmentOptions.TopLeft, true);
             UIFactory.Stretch(position.rectTransform, 12);
-            position.rectTransform.anchorMin = new Vector2(0f, 0.36f);
+            position.rectTransform.anchorMin = new Vector2(0f, 0.42f);
             position.rectTransform.offsetMin = new Vector2(12f, 0f);
             progress = UIFactory.Label("Progress", posPanel.transform, "", SignalTheme.Small, SignalTheme.LabelDim, TextAlignmentOptions.BottomLeft);
             UIFactory.Stretch(progress.rectTransform, 12);
-            progress.rectTransform.anchorMax = new Vector2(1f, 0.36f);
+            progress.rectTransform.anchorMax = new Vector2(1f, 0.42f);
             progress.textWrappingMode = TextWrappingModes.Normal; // the finish-window line goes under the checkpoint count
             // Under it: the interval to the car ahead (racecraft: CH32 follows inside the 1–2 s window shown here).
             gap = UIFactory.Label("GapAhead", root, "", SignalTheme.Small, SignalTheme.Label, TextAlignmentOptions.TopLeft);
             gap.rectTransform.anchorMin = gap.rectTransform.anchorMax = new Vector2(0, 1);
             gap.rectTransform.pivot = new Vector2(0, 1);
             gap.rectTransform.sizeDelta = new Vector2(420, 30);
-            gap.rectTransform.anchoredPosition = new Vector2(34, -158);
+            gap.rectTransform.anchoredPosition = new Vector2(34, -180);
 
             // Top-centre: race clock and banner.
             time = UIFactory.Numeral("Time", root, SignalTheme.Numeral, SignalTheme.Timing, TextAlignmentOptions.Top);
