@@ -77,7 +77,8 @@ public static class ConvoyRules
     /// <summary>Addendum 02 §0.1: the five approved diversions plus the private Garage Test Yard (coarse participation only).</summary>
     public static readonly string[] Diversions = { "cap-clash", "pit-crew", "greenlight", "pocket-circuit", "convoy-canvas", "test-yard" };
 
-    public static readonly string[] Weathers = { "stage-default", "dry-night", "wet-night", "dawn", "blue-hour", "fog" };
+    /// <summary>The lighting/weather presets (Core <see cref="ConditionPresets"/>); only Freeplay may choose one.</summary>
+    public static readonly string[] Weathers = ConditionPresets.Ids;
     /// <summary>Derived from the mode, never chosen freely (Addendum 01 §2): Time Attack is non-contact, all else light contact.</summary>
     public static readonly string[] CollisionRules = { "light-contact", "non-contact" };
     public static string CollisionFor(string? freeplayMode) => freeplayMode == "time-attack" ? "non-contact" : "light-contact";

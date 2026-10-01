@@ -235,8 +235,8 @@ namespace NightSignal.Net
         /// The livery the other drivers will see: relayed only when it decodes for this car against this server's catalogue
         /// (the control plane validated ownership when it was applied); anything else races with the palette colour.
         /// </summary>
-        string EventTimeOfDay() => RaceConditions.TimeOfDay(lib?.Catalogue, assignment.Kind, assignment.StageId,
-            assignment.Mode == "hard" ? CampaignMode.Hard : CampaignMode.Normal, CourseRuntime.Active);
+        string EventTimeOfDay() => ConditionPresets.Lighting(assignment.Weather, RaceConditions.TimeOfDay(lib?.Catalogue, assignment.Kind,
+            assignment.StageId, assignment.Mode == "hard" ? CampaignMode.Hard : CampaignMode.Normal, CourseRuntime.Active));
 
         static string RelayLivery(ContentLibrary lib, AssignmentEntrant h)
         {
@@ -260,9 +260,10 @@ namespace NightSignal.Net
                 BenchmarkTargetMs = assignment.Benchmark?.TargetTimeMs ?? 0,
                 HardTimeoutMs = assignment.Benchmark?.HardTimeoutMs ?? assignment.Trial?.HardTimeoutMs ?? 0,
                 RequiresBeatingFeaturedRival = assignment.Kind == "campaign" && StageBenchmark.IsFeaturedEncounter(assignment.StageType),
-                // Weather preset wins; "stage-default" uses the stage side's authored conditions (else the course's surface).
-                Surface = assignment.Weather != null && assignment.Weather.Contains("wet") ? "wet"
-                    : RaceConditions.Surface(lib.Catalogue, assignment.Kind, assignment.StageId, assignment.Mode == "hard" ? CampaignMode.Hard : CampaignMode.Normal, CourseRuntime.Active),
+                // A Freeplay lighting/weather preset fixes the surface (Core ConditionPresets); "stage-default" uses the stage
+                // side's authored conditions, else the course's. The control plane offers presets only to Freeplay.
+                Surface = ConditionPresets.Surface(assignment.Weather, RaceConditions.Surface(lib.Catalogue, assignment.Kind, assignment.StageId,
+                    assignment.Mode == "hard" ? CampaignMode.Hard : CampaignMode.Normal, CourseRuntime.Active)),
             };
             var humans = new List<HumanSlot>();
             foreach (AssignmentEntrant h in assignment.Entrants.Where(x => x.Role == "racer"))

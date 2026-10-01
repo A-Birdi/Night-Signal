@@ -57,7 +57,26 @@ namespace NightSignal.Tests.Vehicle
             {
                 Assert.IsNull(LocalEvents.Freeplay(cat, cat.Course(id), false, 3, 999, Car).Rules.Surface, id + " race");
                 Assert.IsNull(LocalEvents.Freeplay(cat, cat.Course(id), true, 0, 999, Car).Rules.Surface, id + " time attack");
+                Assert.IsNull(LocalEvents.Freeplay(cat, cat.Course(id), true, 0, 999, Car).Rules.Lighting, id + " lighting");
             }
+        }
+
+        [Test]
+        public void Freeplay_APreset_FixesSurfaceAndLighting_AsTheGameServerDoes()
+        {
+            // The Offline hub's Conditions row and the Convoy page offer the same Core table; the game server resolves a preset
+            // with ConditionPresets.Surface/Lighting, so a Local plan carries exactly the preset's surface and lighting.
+            ContentCatalogue cat = Cat;
+            foreach (ConditionPreset p in ConditionPresets.All)
+            {
+                LocalEventPlan plan = LocalEvents.Freeplay(cat, cat.Course("C15"), false, 3, 999, Car, conditions: p.Id);
+                Assert.AreEqual(p.Surface, plan.Rules.Surface, p.Id + " surface");
+                Assert.AreEqual(p.Lighting, plan.Rules.Lighting, p.Id + " lighting");
+                if (p.Lighting != null)
+                    Assert.AreEqual(p.Lighting, NightSignal.Atmosphere.LightingPresets.For(p.Lighting).Id, p.Id + " has a lighting preset");
+            }
+            Assert.AreEqual("wet", LocalEvents.Freeplay(cat, cat.Course("C12"), true, 0, 999, Car, conditions: "wet-night").Rules.Surface);
+            Assert.IsTrue(NightSignal.Atmosphere.LightingPresets.For("fog").PracticalLights, "headlights on in fog");
         }
     }
 }

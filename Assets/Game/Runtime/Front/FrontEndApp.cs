@@ -936,6 +936,9 @@ namespace NightSignal.Front
             if (tourTrial != null) Convoy.SelectIntent(5); // Challenges · Team or Challenge Trial
             int challengeTrialArg = Array.IndexOf(tourArgs, "-nsUiTourChallengeTrial");
             string tourChallengeTrial = challengeTrialArg >= 0 && challengeTrialArg + 1 < tourArgs.Length ? tourArgs[challengeTrialArg + 1] : null;
+            // Freeplay's lighting/weather preset (Core ConditionPresets), chosen with the Convoy page's Conditions row.
+            int conditionsArg = Array.IndexOf(tourArgs, "-nsUiTourConditions");
+            string tourConditions = conditionsArg >= 0 && conditionsArg + 1 < tourArgs.Length ? tourArgs[conditionsArg + 1] : null;
             if (tourChallengeTrial != null) Convoy.SelectIntent(5);
             Click("ProposeIntent");
             yield return Until(() => State()?["intent"]?.Type == Newtonsoft.Json.Linq.JTokenType.Object, 20f, "intent set");
@@ -981,6 +984,13 @@ namespace NightSignal.Front
                     yield return Until(() => Convoy.SelectCourse(tourCourse), 10f, "course " + tourCourse + " offered");
                     yield return new WaitForSeconds(0.5f);
                 }
+                if (tourConditions != null)
+                {
+                    yield return Until(() => Convoy.SelectConditions(tourConditions), 10f, "conditions " + tourConditions + " offered");
+                    yield return new WaitForSeconds(0.6f);
+                    Note("conditions row: " + (GameObject.Find("Conditions/Value")?.GetComponent<TMPro.TextMeshProUGUI>()?.text ?? "missing"));
+                    Shot("05w-conditions");
+                }
                 if (cupLegs != null)
                 {
                     yield return Until(() => Convoy.SelectCourse(cupLegs[0]) && Convoy.SelectCupLegs(cupLegs[1], cupLegs[2]), 10f, "cup legs offered");
@@ -1003,6 +1013,14 @@ namespace NightSignal.Front
             }
             yield return Until(() => State()?["eventProposal"]?.Type == Newtonsoft.Json.Linq.JTokenType.Object, 25f, "event proposed");
             yield return new WaitForSeconds(0.8f);
+            {
+                // Every event's conditions are on the proposal before anyone readies (spec §8).
+                string proposalShown = GameObject.Find("Proposal")?.GetComponent<TMPro.TextMeshProUGUI>()?.text ?? "";
+                string proposedWeather = (string)State()?["eventProposal"]?["settings"]?["weather"];
+                Note($"proposal: weather {proposedWeather}; shows \"{System.Text.RegularExpressions.Regex.Replace(proposalShown, "<[^>]+>", "").Replace("\n", " / ")}\"");
+                if (!proposalShown.Contains("Conditions: ")) failures.Add("the proposal does not show its conditions");
+                if (tourConditions != null && proposedWeather != tourConditions) failures.Add($"proposed weather {proposedWeather}, chose {tourConditions}");
+            }
             // A tunable challenge trial (CH56, CH57): Tune the Loaner from the convoy page, buttons only, with the tour's own
             // setup (the one the offline tour uses); it is kept on this PC and goes with Event Ready, where the server checks it.
             NightSignal.Core.Rules.ChallengeTrialDef tunableTrial = tourChallengeTrial != null ? NightSignal.Content.ContentLibrary.Load()?.Catalogue?.ChallengeTrials.Find(tourChallengeTrial) : null;
@@ -1059,6 +1077,16 @@ namespace NightSignal.Front
             yield return Until(() => onlineRace == null || onlineRace.Phase == MatchPhase.Racing, 60f, "race started");
             yield return new WaitForSeconds(12f);
             Shot("07-online-race");
+            if (tourConditions != null && onlineRace != null)
+            {
+                // The game server resolved the preset (surface and lighting) and the client lit the course for it.
+                NightSignal.Core.Rules.ConditionPreset preset = NightSignal.Core.Rules.ConditionPresets.Find(tourConditions);
+                Note($"online race conditions: server surface {onlineRace.Info?.Surface}, lighting {onlineRace.Info?.TimeOfDay}; " +
+                     $"course lit for {CourseRuntime.Active?.TimeOfDay}, headlights {(CourseRuntime.Active != null && CourseRuntime.Active.Dark ? "on" : "off")}");
+                if (preset?.Surface != null && onlineRace.Info?.Surface != preset.Surface) failures.Add($"online race surface {onlineRace.Info?.Surface}, preset {preset.Surface}");
+                if (preset?.Lighting != null && (onlineRace.Info?.TimeOfDay != preset.Lighting || CourseRuntime.Active?.TimeOfDay != preset.Lighting))
+                    failures.Add($"online race lighting {onlineRace.Info?.TimeOfDay} / course {CourseRuntime.Active?.TimeOfDay}, preset {preset.Lighting}");
+            }
             if (onlineLivery != null)
             {
                 // The roster came from the game server's match message: it relays the livery the control plane froze.
@@ -1476,6 +1504,9 @@ namespace NightSignal.Front
                 rules.Surface = RaceConditions.Surface(cat, rules.Kind, rules.StageId, rules.Mode, CourseRuntime.Active);
                 CourseRuntime.Active?.ApplyConditions(RaceConditions.TimeOfDay(cat, rules.Kind, rules.StageId, rules.Mode, CourseRuntime.Active));
             }
+            // A Freeplay lighting/weather preset (Core ConditionPresets) lights the course as the online client does; its surface
+            // is already in the rules. Without one the course keeps the default time of day it was generated with.
+            if (!string.IsNullOrEmpty(rules.Lighting)) CourseRuntime.Active?.ApplyConditions(rules.Lighting);
             // An event in its course's own conditions (a challenge trial or cup leg set to "course"): the course's surface, as
             // the online server races it. A null surface once meant dry grip here, so C15 raced dry offline and damp online.
             if (rules.Surface == null) rules.Surface = CourseRuntime.Active?.Route?.Surface ?? "dry";

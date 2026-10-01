@@ -167,7 +167,7 @@ public sealed class ConvoyDirectoryTests : ConvoyTestBase
         Convoy(2);
         long first = OpenEvent();
         clock.Advance(TimeSpan.FromSeconds(15));
-        long second = Value(dir.ProposeEvent(Id(1), new EventRequest("S01", null, null, "wet-night", null, null, null)), "proposalRevision");
+        long second = Value(dir.ProposeEvent(Id(1), new EventRequest("S01", null, null, null, null, null, null)), "proposalRevision"); // the same stage again: a new revision
         Assert.True(second > first);
         Assert.Equal("stale_revision", dir.SetReady(Id(2), first, 1, true).Error?.Code);  // old proposal revision
         Assert.Equal("stale_revision", dir.SetReady(Id(2), second, 0, true).Error?.Code); // old loadout revision
@@ -182,7 +182,8 @@ public sealed class ConvoyDirectoryTests : ConvoyTestBase
         ReadyAll(rev);
         Assert.True(Ready(1) && Ready(2) && Ready(3));
         clock.Advance(TimeSpan.FromSeconds(15));
-        Assert.True(dir.ProposeEvent(Id(1), new EventRequest("S01", null, null, "fog", null, null, null)).Ok);
+        // A re-proposal (a campaign stage has no preset to change: ConditionPresetTests.AChangedPreset_UnreadiesEveryone).
+        Assert.True(dir.ProposeEvent(Id(1), new EventRequest("S01", null, null, null, null, null, null)).Ok);
         Assert.False(Ready(1) || Ready(2) || Ready(3));
     }
 

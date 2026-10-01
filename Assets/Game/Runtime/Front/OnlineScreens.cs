@@ -46,7 +46,7 @@ namespace NightSignal.Front
         float ballotDeadlineAt;
         long ballotSeenRevision = -1;
         TMP_InputField codeField;
-        Stepper starter, intent, stage, course, aiCount, trial, difficulty, challengeTrial, leadRival, cupLeg2, cupLeg3;
+        Stepper starter, intent, stage, course, aiCount, trial, difficulty, challengeTrial, leadRival, cupLeg2, cupLeg3, conditions;
         /// <summary>The challenge trials the snapshot offers under the Challenges intent (docs/CHALLENGE_TRIALS.md).</summary>
         List<JObject> challengeTrialDefs = new List<JObject>();
         TextMeshProUGUI cupLine;
@@ -134,6 +134,8 @@ namespace NightSignal.Front
             // Custom Cup: the Course row is leg 1; legs 2 and 3 from the same offered courses (the schedule is published).
             cupLeg2 = new Stepper(col, "Leg 2", 1, i => i < courseIds.Count ? CourseName(courseIds[i]) : "—", 1, 1000);
             cupLeg3 = new Stepper(col, "Leg 3", 1, i => i < courseIds.Count ? CourseName(courseIds[i]) : "—", 2, 1000);
+            // Freeplay's lighting/weather preset (spec §8; Core ConditionPresets — the Offline hub offers the same table).
+            conditions = new Stepper(col, "Conditions", ConditionPresets.All.Count, i => i == 0 ? "Course's own" : ConditionPresets.All[i].Label, 0, 1000);
             aiCount = new Stepper(col, "Opponents", Limits.MaxRaceVehicles, i => i == 0 ? "none" : $"{i} AI", 3, 1000);
             if (cat != null) rivalChoices.AddRange(cat.Rivals.Where(r => FinalRivals.Allowed(r.Id, AiPlacementContext.FreeplayOpponent)).OrderBy(r => r.Id, System.StringComparer.Ordinal));
             leadRival = new Stepper(col, "Lead rival", rivalChoices.Count + 1,
@@ -151,7 +153,7 @@ namespace NightSignal.Front
             proposeEvent = UIFactory.Button("ProposeEvent", col, "Propose Event", ProposeEvent, 620, 56);
             // Freeplay vote (Addendum 01 §6): server deadline, one ticket per ballot, a server draw; the leader can still choose.
             votingToggle = UIFactory.Button("VotingToggle", col, "Voting: Off", ToggleVoting, 620, 48);
-            openVote = UIFactory.Button("OpenVote", col, "Open a Course Vote", () => Send("ballot.open", new { durationSeconds = (int?)(S.Convoy?["voting"] as JObject)?["durationSeconds"] ?? 30, aiCount = aiCount.Index }), 620, 52);
+            openVote = UIFactory.Button("OpenVote", col, "Open a Course Vote", () => Send("ballot.open", new { durationSeconds = (int?)(S.Convoy?["voting"] as JObject)?["durationSeconds"] ?? 30, aiCount = aiCount.Index, weather = ConditionPresets.All[conditions.Index].Id }), 620, 52);
             ballotCourse = new Stepper(col, "Your vote", 1, i => i < ballotIds.Count ? CourseName(ballotIds[i]) : "—", 0, 1000);
             castVote = UIFactory.Button("CastVote", col, "Cast / Change Vote", CastVote, 620, 52);
             drawVote = UIFactory.Button("DrawVote", col, "Draw the Course", () => Send("ballot.draw", new { ballotRevision = (long?)(S.Convoy?["ballot"] as JObject)?["revision"] ?? 0 }), 620, 52);
@@ -160,7 +162,7 @@ namespace NightSignal.Front
             ballotLine.richText = true;
             cupLine = UIFactory.Row("CupTable", col, "", SignalTheme.Small, SignalTheme.Label, 1000, 110);
             cupLine.richText = true;
-            proposalLine = UIFactory.Row("Proposal", col, "", SignalTheme.Small, SignalTheme.Label, 1000, 84);
+            proposalLine = UIFactory.Row("Proposal", col, "", SignalTheme.Small, SignalTheme.Label, 1000, 112);
             proposalLine.richText = true;
             // A tunable challenge trial: the player's own setup of the loaner, kept on this PC and sent with Event Ready.
             tuneLoaner = UIFactory.Button("OnlineTuneLoaner", col, "Tune the Loaner", () =>
@@ -409,6 +411,7 @@ namespace NightSignal.Front
             bool cupSetup = selecting && kind == "freeplay" && (string)intentObj?["submode"] == "cup";
             cupLeg2.Root.SetActive(cupSetup);
             cupLeg3.Root.SetActive(cupSetup);
+            conditions.Root.SetActive(selecting && kind == "freeplay");
             JObject cupState = inConvoy ? c["cup"] as JObject : null;
             cupLine.gameObject.SetActive(cupState != null);
             if (cupState != null) cupLine.text = CupText(cupState);
@@ -530,7 +533,25 @@ namespace NightSignal.Front
             string target = (long?)s?["benchmarkTargetMs"] is long ms && ms > 0
                 ? $"   target {ResultsScreen.FormatRaceTime(ms * 1000)}{((bool?)s["benchmarkProvisional"] == true ? " (provisional)" : "")}" : "";
             string grid = r != null ? $"{(int?)r["humans"]} driver{((int?)r["humans"] == 1 ? "" : "s")} + {(int?)r["opposingAi"]} AI · {(string)r["contact"]}" : "";
-            return $"<b>{Esc(what)}</b>\n<size=85%>{grid}{target}</size>";
+            return $"<b>{Esc(what)}</b>\n<size=85%>{grid}{target}\nConditions: {Esc(ConditionsText(s))}</size>";
+        }
+
+        /// <summary>
+        /// The conditions the proposed event races under, shown to everyone before Event Ready (spec: "keep all conditions
+        /// visible before readiness"): a campaign side's authored ones, a Freeplay preset, else the course's own.
+        /// </summary>
+        string ConditionsText(JObject s)
+        {
+            if (s == null) return "";
+            string weather = (string)s["weather"];
+            if ((string)s["kind"] == "campaign")
+            {
+                StageConditions sc = cat?.Conditions((string)s["stageId"], (string)s["mode"] == "hard" ? CampaignMode.Hard : CampaignMode.Normal);
+                return sc != null ? ConditionPresets.Words(sc.TimeOfDay, sc.Surface) : "the stage's own";
+            }
+            if ((string)s["freeplayMode"] == "cup" && ConditionPresets.IsDefault(weather)) return "each leg's own";
+            string courseId = (string)s["courseId"];
+            return ConditionPresets.Describe(weather, courseId != null && cat != null && cat.TryCourse(courseId, out CourseDef cd) ? cd.DefaultConditions : null);
         }
 
         string StageName(int number)
@@ -640,6 +661,15 @@ namespace NightSignal.Front
             {
                 Debug.LogWarning("[NightSignal.Online] archetype progress unavailable: " + e.Message);
             }
+        }
+
+        /// <summary>Automation hook (tours): Freeplay's lighting/weather preset by id, as the stepper would.</summary>
+        public bool SelectConditions(string presetId)
+        {
+            int i = System.Array.IndexOf(ConditionPresets.Ids, presetId);
+            if (i < 0) return false;
+            conditions.Set(i);
+            return true;
         }
 
         /// <summary>Automation hook (tours): name the lead rival for a Freeplay race, as the stepper would.</summary>
@@ -829,7 +859,8 @@ namespace NightSignal.Front
                 string[] named = sub != "time-attack" && aiCount.Index > 0 && leadRival.Index > 0 && leadRival.Index <= rivalChoices.Count
                     ? new[] { rivalChoices[leadRival.Index - 1].Id } : null;
                 string[] legs = sub == "cup" ? new[] { courseIds[course.Index], courseIds[Mathf.Min(cupLeg2.Index, courseIds.Count - 1)], courseIds[Mathf.Min(cupLeg3.Index, courseIds.Count - 1)] } : null;
-                Send("event.propose", new { courseId = courseIds[course.Index], freeplayMode = sub, aiCount = sub == "time-attack" ? 0 : aiCount.Index, aiRivals = named, cupLegs = legs });
+                Send("event.propose", new { courseId = courseIds[course.Index], freeplayMode = sub, aiCount = sub == "time-attack" ? 0 : aiCount.Index, aiRivals = named, cupLegs = legs,
+                    weather = ConditionPresets.All[conditions.Index].Id });
             }
         }
 

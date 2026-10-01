@@ -90,6 +90,11 @@ namespace NightSignal.Race
         public bool MeasureContracts;
         /// <summary>dry | damp | wet — one grip rule for races and the Garage Test Yard (CourseRuntime.SurfaceGrip).</summary>
         public string Surface = "dry";
+        /// <summary>
+        /// A Freeplay lighting/weather preset's lighting (Core ConditionPresets, e.g. "night", "fog"); null = the event's own
+        /// time of day. Presentation only: the preset's grip is in <see cref="Surface"/>.
+        /// </summary>
+        public string Lighting;
         /// <summary>Drift Attack (freeplay, or a drift Team Trial): finishers rank by banked raw drift score, not time.</summary>
         public bool DriftRanking;
         /// <summary>

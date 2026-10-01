@@ -1588,7 +1588,8 @@ public sealed class ConvoyDirectory
                 convoy.Cup = null;
             if (d.Destination.StageId is { } stageId)
             {
-                ConvoyResult built = BuildSettings(convoy, new EventRequest(stageId, null, null, d.Source.Weather, null, null, null));
+                // The next stage races its own authored conditions (presets are Freeplay's only).
+                ConvoyResult built = BuildSettings(convoy, new EventRequest(stageId, null, null, null, null, null, null));
                 if (!built.Ok) return built;
                 briefing = (EventSettings)built.Value!;
             }
@@ -1731,8 +1732,14 @@ public sealed class ConvoyDirectory
     ConvoyResult BuildSettings(Convoy convoy, EventRequest r)
     {
         ConvoyIntent intent = convoy.Intent!;
-        string weather = r.Weather ?? "stage-default";
+        string weather = r.Weather ?? ConditionPresets.Default;
         if (!ConvoyRules.Weathers.Contains(weather)) return ConvoyResult.Fail("invalid_request", "Unknown weather preset.");
+        // A lighting/weather preset is Freeplay's choice (spec §8). Stages, Team Trials and challenge trials race their own
+        // conditions: their benchmarks and targets are certified in them, and a preset would change the surface (grip).
+        if (intent.Kind != IntentKind.Freeplay && !ConditionPresets.IsDefault(weather))
+            return ConvoyResult.Fail("conditions_fixed", intent.Kind == IntentKind.Challenges
+                ? "A trial races its course's own conditions; its targets are measured in them."
+                : "A campaign stage races its own authored conditions; its benchmark is certified in them.");
 
         switch (intent.Kind)
         {

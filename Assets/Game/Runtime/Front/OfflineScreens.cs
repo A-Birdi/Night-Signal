@@ -92,7 +92,7 @@ namespace NightSignal.Front
     {
         public override string ScreenName => "Offline";
         public override string MusicCue => "MUS_MENU_A";
-        Stepper course, car, format, ai, rival, leg2, leg3;
+        Stepper course, car, format, ai, rival, leg2, leg3, conditions;
         // Custom Cup legs 2 and 3 (leg 1 is the Course row): sprint and circuit courses only.
         List<CourseDef> cupCourses = new List<CourseDef>();
         Button start, campaign;
@@ -142,6 +142,9 @@ namespace NightSignal.Front
             leg3 = new Stepper(fcol, "Leg 3", Math.Max(1, cupCourses.Count), i => CupLabel(i), Math.Min(2, Math.Max(0, cupCourses.Count - 1)), 820);
             leg2.Changed += _ => RefreshStart();
             leg3.Changed += _ => RefreshStart();
+            // The lighting/weather preset (spec §8), the same table the Convoy page offers: the course's own, or fixed conditions.
+            conditions = new Stepper(fcol, "Conditions", ConditionPresets.All.Count, i => i == 0 ? "Course's own" : ConditionPresets.All[i].Label, 0, 820);
+            conditions.Changed += _ => RefreshStart();
             ai = new Stepper(fcol, "Opponents", Limits.MaxRaceVehicles, i => i == 0 ? "none" : $"{i} AI", 5, 820);
             rival = new Stepper(fcol, "Lead rival", rivals.Count + 1, i => i == 0 || i > rivals.Count ? "random authored rivals" : RivalLabel(rivals[i - 1]), 0, 820);
             archetypeLine = UIFactory.Row("Archetypes", fcol, "", SignalTheme.Small, SignalTheme.LabelDim, 820, 28);
@@ -186,6 +189,18 @@ namespace NightSignal.Front
             }
             archetypeLine.gameObject.SetActive(race);
             archetypeLine.text = ArchetypeChallenges.ProgressLine(s);
+        }
+
+        string Preset => ConditionPresets.All[conditions.Index].Id;
+
+        /// <summary>Automation hook (tours): the lighting/weather preset by id, as the stepper would.</summary>
+        public bool SelectConditions(string presetId)
+        {
+            int i = ConditionPresets.Ids.ToList().IndexOf(presetId);
+            if (i < 0) return false;
+            conditions.Set(i);
+            RefreshStart();
+            return true;
         }
 
         /// <summary>Automation hook (tours): pick the lead rival as the stepper would.</summary>
@@ -254,9 +269,12 @@ namespace NightSignal.Front
             }
             start.interactable = ok;
             start.GetComponentInChildren<TextMeshProUGUI>().text = Cup ? "Start the Cup" : "Start Freeplay Race";
-            // Conditions: the course's own, as an online Freeplay race has them.
-            note.text = ok ? (Cup ? $"Custom Cup: {string.Join(" → ", legs)} — each leg pays race money; the cup table has no stake. Each leg in its course's own conditions."
-                               : $"Freeplay pays race money and keeps Local personal records. Conditions: {s.Catalogue.Course(legs[0])?.DefaultConditions ?? "the course's own"}.")
+            // Conditions as an online Freeplay race has them: the chosen preset, or the course's own (named before the start).
+            string conditionsText = Cup
+                ? (ConditionPresets.IsDefault(Preset) ? "Each leg in its course's own conditions." : $"Every leg: {ConditionPresets.Describe(Preset, null)}.")
+                : $"Conditions: {ConditionPresets.Describe(Preset, s.Catalogue.Course(legs[0])?.DefaultConditions)}.";
+            note.text = ok ? (Cup ? $"Custom Cup: {string.Join(" → ", legs)} — each leg pays race money; the cup table has no stake. {conditionsText}"
+                               : $"Freeplay pays race money and keeps Local personal records. {conditionsText}")
                 : reason + (blocked != null ? " " + LocalProgression.AccessHint(s.Catalogue, blocked) : "");
         }
 
@@ -270,14 +288,14 @@ namespace NightSignal.Front
             int pi = owned != null ? s.AppliedPi(owned) : s.Catalogue.Car(chosen.ModelId).BasePI;
             // Opponents in the class of the player's APPLIED build, not the fastest cars in the game.
             string named = rival.Index > 0 && rival.Index <= rivals.Count ? rivals[rival.Index - 1].Id : null;
-            LocalEventPlan plan = LocalEvents.Freeplay(s.Catalogue, playable[course.Index], timeAttack, ai.Index, ClassCeiling(pi), chosen, named);
+            LocalEventPlan plan = LocalEvents.Freeplay(s.Catalogue, playable[course.Index], timeAttack, ai.Index, ClassCeiling(pi), chosen, named, conditions: Preset);
             if (Cup)
             {
                 // One field for the whole cup: every leg races the first leg's authored rivals.
                 var plans = new List<LocalEventPlan> { plan };
                 foreach (string id in CupSchedule().Skip(1))
                 {
-                    LocalEventPlan leg = LocalEvents.Freeplay(s.Catalogue, s.Catalogue.Course(id), false, ai.Index, ClassCeiling(pi), chosen);
+                    LocalEventPlan leg = LocalEvents.Freeplay(s.Catalogue, s.Catalogue.Course(id), false, ai.Index, ClassCeiling(pi), chosen, conditions: Preset);
                     leg.OpposingAi = plan.OpposingAi.ToList();
                     plans.Add(leg);
                 }
