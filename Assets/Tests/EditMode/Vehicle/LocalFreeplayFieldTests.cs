@@ -62,6 +62,23 @@ namespace NightSignal.Tests.Vehicle
         }
 
         [Test]
+        public void Freeplay_DriftAttack_IsRankedByDrift_WithLightContactAndAnAuthoredField()
+        {
+            // As online (V-047): light contact, opponents allowed, finishers ranked by banked raw drift score; the format names
+            // the record and the challenge predicates (CH21, CH24, CH26 read "drift-attack").
+            ContentCatalogue cat = Cat;
+            LocalEventPlan plan = LocalEvents.Freeplay(cat, cat.Course("C12"), false, 3, 999, Car, conditions: "wet-night", driftAttack: true);
+            Assert.AreEqual(EventKind.FreeplayDriftAttack, plan.Kind);
+            Assert.AreEqual("drift-attack", plan.FreeplayFormat);
+            Assert.IsTrue(plan.Rules.DriftRanking);
+            Assert.AreEqual(ContactPolicy.LightContact, plan.Rules.Contact);
+            Assert.AreEqual(3, plan.OpposingAi.Count);
+            Assert.AreEqual("wet", plan.Rules.Surface);
+            Assert.IsFalse(LocalEvents.Freeplay(cat, cat.Course("C12"), false, 3, 999, Car).Rules.DriftRanking);
+            Assert.Throws<System.ArgumentException>(() => LocalEvents.Freeplay(cat, cat.Course("C12"), true, 0, 999, Car, driftAttack: true));
+        }
+
+        [Test]
         public void Freeplay_APreset_FixesSurfaceAndLighting_AsTheGameServerDoes()
         {
             // The Offline hub's Conditions row and the Convoy page offer the same Core table; the game server resolves a preset

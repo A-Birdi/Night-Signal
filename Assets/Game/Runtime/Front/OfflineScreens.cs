@@ -137,7 +137,9 @@ namespace NightSignal.Front
             UIFactory.Row("FreeplayHeading", fcol, "FREEPLAY", SignalTheme.Small, SignalTheme.LabelDim, 820, 28, true);
             course = new Stepper(fcol, "Course", playable.Count, CourseLabel, 0, 820);
             car = new Stepper(fcol, "Car", 1, i => cars.Count == 0 ? "—" : CarLabel(cars[i]), 0, 820);
-            format = new Stepper(fcol, "Format", 3, i => i == 0 ? "Race — light contact" : i == 1 ? "Time Attack — no contact, no AI" : "Custom Cup — three legs, one field", 0, 820);
+            // Drift Attack last, so the other formats keep their positions (tours step to them by count).
+            format = new Stepper(fcol, "Format", 4, i => i == 0 ? "Race — light contact" : i == 1 ? "Time Attack — no contact, no AI"
+                : i == 2 ? "Custom Cup — three legs, one field" : "Drift Attack — judged zones", 0, 820);
             leg2 = new Stepper(fcol, "Leg 2", Math.Max(1, cupCourses.Count), i => CupLabel(i), Math.Min(1, Math.Max(0, cupCourses.Count - 1)), 820);
             leg3 = new Stepper(fcol, "Leg 3", Math.Max(1, cupCourses.Count), i => CupLabel(i), Math.Min(2, Math.Max(0, cupCourses.Count - 1)), 820);
             leg2.Changed += _ => RefreshStart();
@@ -162,6 +164,8 @@ namespace NightSignal.Front
         string CupLabel(int i) => i < cupCourses.Count ? $"{cupCourses[i].Id}  {cupCourses[i].Name}" : "—";
 
         bool Cup => format.Index == 2;
+
+        bool Drift => format.Index == 3;
 
         /// <summary>Automation hook (tours): the cup's second and third legs by course id.</summary>
         public bool SelectCupLegs(string second, string third)
@@ -267,13 +271,20 @@ namespace NightSignal.Front
                 ok = false;
                 reason = "A cup needs three different sprint or circuit courses.";
             }
+            if (Drift && ok && !s.Catalogue.SupportsDriftAttack(legs[0]))
+            {
+                ok = false;
+                reason = $"{legs[0]} has no judged drift zones. Drift Attack runs on " +
+                         string.Join(", ", playable.Where(c => c.Kind != "tutorial" && s.Catalogue.SupportsDriftAttack(c.Id)).Select(c => c.Id)) + ".";
+            }
             start.interactable = ok;
-            start.GetComponentInChildren<TextMeshProUGUI>().text = Cup ? "Start the Cup" : "Start Freeplay Race";
+            start.GetComponentInChildren<TextMeshProUGUI>().text = Cup ? "Start the Cup" : Drift ? "Start Drift Attack" : "Start Freeplay Race";
             // Conditions as an online Freeplay race has them: the chosen preset, or the course's own (named before the start).
             string conditionsText = Cup
                 ? (ConditionPresets.IsDefault(Preset) ? "Each leg in its course's own conditions." : $"Every leg: {ConditionPresets.Describe(Preset, null)}.")
                 : $"Conditions: {ConditionPresets.Describe(Preset, s.Catalogue.Course(legs[0])?.DefaultConditions)}.";
             note.text = ok ? (Cup ? $"Custom Cup: {string.Join(" → ", legs)} — each leg pays race money; the cup table has no stake. {conditionsText}"
+                               : Drift ? $"Finishers rank by banked drift score; race money and a Local best score. {conditionsText}"
                                : $"Freeplay pays race money and keeps Local personal records. {conditionsText}")
                 : reason + (blocked != null ? " " + LocalProgression.AccessHint(s.Catalogue, blocked) : "");
         }
@@ -288,7 +299,8 @@ namespace NightSignal.Front
             int pi = owned != null ? s.AppliedPi(owned) : s.Catalogue.Car(chosen.ModelId).BasePI;
             // Opponents in the class of the player's APPLIED build, not the fastest cars in the game.
             string named = rival.Index > 0 && rival.Index <= rivals.Count ? rivals[rival.Index - 1].Id : null;
-            LocalEventPlan plan = LocalEvents.Freeplay(s.Catalogue, playable[course.Index], timeAttack, ai.Index, ClassCeiling(pi), chosen, named, conditions: Preset);
+            LocalEventPlan plan = LocalEvents.Freeplay(s.Catalogue, playable[course.Index], timeAttack, ai.Index, ClassCeiling(pi), chosen, named,
+                conditions: Preset, driftAttack: Drift);
             if (Cup)
             {
                 // One field for the whole cup: every leg races the first leg's authored rivals.
@@ -423,6 +435,8 @@ namespace NightSignal.Front
         /// <summary>Continue plays this first (the campaign's ending after its first finale clear), which then returns as usual.</summary>
         public void SetEnding(Action play) => pendingEnding = play;
         List<RaceEntrantResult> pendingResults;
+        // Drift-ranked (Drift Attack, a drift trial): the table shows banked drift points, the order they were ranked by.
+        bool pendingDrift;
 
         /// <summary>Stores the classification; the page renders it when shown (it may not be built yet).</summary>
         public void Set(string courseId, RaceEventRules rules, List<RaceEntrantResult> results,
@@ -430,6 +444,7 @@ namespace NightSignal.Front
         {
             pendingCourse = courseId;
             pendingResults = results;
+            pendingDrift = rules?.DriftRanking == true;
             applied = progression;
             saveNote = note ?? "";
             returnTo = back;
@@ -491,16 +506,19 @@ namespace NightSignal.Front
                 return;
             }
             RaceEntrantResult me = results.FirstOrDefault(r => r.Entrant.Human);
-            summary.text = (me == null ? "" : me.Outcome == RunOutcome.Finished ? $"You placed {me.Placement} of {results.Count}. " : "You did not finish. ")
+            summary.text = (me == null ? "" : me.Outcome != RunOutcome.Finished ? "You did not finish. "
+                    : pendingDrift ? $"You placed {me.Placement} of {results.Count} with {me.RawDriftScore:N0} drift points ({FormatRaceTime(me.FinishTimeMicros)}). "
+                    : $"You placed {me.Placement} of {results.Count}. ")
                 + (applied != null ? "Local / Offline result: kept on this PC only, never an online result." : "Local / Offline practice — not recorded.");
             progress.text = ProgressionText(applied, saveNote);
             var sb = new System.Text.StringBuilder();
             // Column stops via TMP <pos> so a proportional font still lines up.
             const string cols = "<pos=0%>{0}<pos=6%>{1}<pos=38%>{2}<pos=47%>{3}<pos=64%>{4}<pos=79%>{5}<pos=90%>{6}";
-            sb.Append("<color=#9A968D>").Append(string.Format(cols, "POS", "DRIVER", "CAR", "TIME", "CONTACTS", "WALLS", "RESETS")).Append("</color>\n");
+            sb.Append("<color=#9A968D>").Append(string.Format(cols, "POS", "DRIVER", "CAR", pendingDrift ? "DRIFT" : "TIME", "CONTACTS", "WALLS", "RESETS")).Append("</color>\n");
             foreach (RaceEntrantResult r in results.OrderBy(x => x.Placement == 0 ? 99 : x.Placement))
             {
-                string time = r.Outcome == RunOutcome.Finished ? FormatRaceTime(r.FinishTimeMicros) : r.Outcome == RunOutcome.DidNotFinish ? "DNF" : "DQ";
+                string time = r.Outcome != RunOutcome.Finished ? (r.Outcome == RunOutcome.DidNotFinish ? "DNF" : "DQ")
+                    : pendingDrift ? $"{r.RawDriftScore:N0} pts" : FormatRaceTime(r.FinishTimeMicros);
                 string name = Escape(r.Entrant.Roster.DisplayName);
                 string line = string.Format(cols, r.Placement == 0 ? "-" : r.Placement.ToString(), name, r.Entrant.Roster.CarId, time,
                     r.Entrant.Progress.VehicleContacts, r.Entrant.Progress.WallIncidents, r.Entrant.Progress.Resets);
@@ -543,9 +561,15 @@ namespace NightSignal.Front
                         sb.Append("<color=#3EC6D8>+</color> ").Append(Escape(c.Detail)).Append("\n");
                         break;
                 }
+            // In the record's own metric (Core RecordFormat): a Drift Attack best is a raw score, a team best a mean time —
+            // a raw 9,885 once read "00:09.885" here.
             foreach (Core.Profiles.RecordUpdateResult rec in r.Records)
                 if (rec.IsNewPersonalBest)
-                    sb.Append($"<color=#D7263D>New personal best</color>  {FormatRaceTime(rec.Value * 1000)}  <size=80%>(Local, unverified)</size>\n");
+                {
+                    Core.Profiles.MetricKind metric = rec.Key?.Metric ?? Core.Profiles.MetricKind.ElapsedTime;
+                    string value = metric == Core.Profiles.MetricKind.RawDriftScore ? $"{rec.Value:N0} drift pts" : Core.Profiles.RecordFormat.Value(metric, rec.Value);
+                    sb.Append($"<color=#D7263D>New personal best</color>  {value}  <size=80%>(Local, unverified)</size>\n");
+                }
             foreach (string n in r.Notes) sb.Append("<size=85%><color=#9A968D>").Append(Escape(n)).Append("</color></size>\n");
             if (!string.IsNullOrEmpty(note)) sb.Append("<size=85%><color=#F2A541>").Append(Escape(note)).Append("</color></size>\n");
             return sb.ToString();

@@ -78,19 +78,22 @@ namespace NightSignal.Front
         /// player picked one (the lead — CH38/CH73 read its archetype), then a shuffled pool without the finale-only rivals.
         /// Conditions as online (spec §8): a lighting/weather preset (<paramref name="conditions"/>, Core ConditionPresets) fixes
         /// the surface and lighting; the default leaves both to the course, resolved once it is loaded — Local Freeplay once
-        /// raced every course dry.
+        /// raced every course dry. <paramref name="driftAttack"/>: Drift Attack as online (V-047, V-079) — light contact, finishers
+        /// ranked by banked raw drift score, the AI and the autopilot drifting the judged zones; only where zones exist.
         /// </summary>
         public static LocalEventPlan Freeplay(ContentCatalogue catalogue, CourseDef course, bool timeAttack, int opponents, int carCapPi, LocalCarChoice car,
-            string namedRival = null, Random random = null, string conditions = null)
+            string namedRival = null, Random random = null, string conditions = null, bool driftAttack = false)
         {
+            if (driftAttack && timeAttack) throw new ArgumentException("Drift Attack and Time Attack are different formats.");
             ConditionPreset preset = ConditionPresets.Find(conditions) ?? ConditionPresets.Find(null);
             var plan = new LocalEventPlan
             {
                 EventId = NewEventId(),
-                Kind = timeAttack ? EventKind.FreeplayTimeTrial : course.Format == "circuit" ? EventKind.FreeplayCircuit : EventKind.FreeplaySprint,
+                Kind = timeAttack ? EventKind.FreeplayTimeTrial : driftAttack ? EventKind.FreeplayDriftAttack
+                    : course.Format == "circuit" ? EventKind.FreeplayCircuit : EventKind.FreeplaySprint,
                 CourseId = course.Id,
                 Car = car,
-                FreeplayFormat = timeAttack ? "time-attack" : course.Format,
+                FreeplayFormat = timeAttack ? "time-attack" : driftAttack ? "drift-attack" : course.Format,
                 Rules = new RaceEventRules
                 {
                     Kind = "freeplay",
@@ -99,6 +102,7 @@ namespace NightSignal.Front
                     CarCapPi = carCapPi,
                     Surface = preset.Surface, // null: the course's own (C08 wet; C11, C15, C20 damp) — see RunOfflineRace
                     Lighting = preset.Lighting,
+                    DriftRanking = driftAttack,
                 },
             };
             int count = timeAttack ? 0 : Math.Max(0, Math.Min(opponents, Limits.MaxRaceVehicles - 1));
@@ -327,13 +331,15 @@ namespace NightSignal.Front
                 facts.ChallengesCompleted.Add(Core.Story.DiaryChallenges.OtherSideOfTheCard);
             if (plan.Kind == EventKind.Tutorial || plan.TrialId != null) return facts; // lessons and trials keep no personal record
             RecordRuleset rules = Ruleset(plan.Rules, courseRevision);
+            // Drift Attack keeps the best banked raw score (higher is better), every other event the best time.
+            bool drift = plan.Kind == EventKind.FreeplayDriftAttack;
             RecordKey key = plan.Kind == EventKind.CampaignStage
                 ? RecordKey.ForCampaignStage(ProgressionDomain.Local, plan.Stage, course, plan.Mode, MetricKind.ElapsedTime, rules)
-                : RecordKey.ForFreeplay(ProgressionDomain.Local, course.Id, plan.FreeplayFormat, MetricKind.ElapsedTime, rules);
+                : RecordKey.ForFreeplay(ProgressionDomain.Local, course.Id, plan.FreeplayFormat, drift ? MetricKind.RawDriftScore : MetricKind.ElapsedTime, rules);
             facts.Records.Add(new RecordCandidate
             {
                 Key = key,
-                Value = me.Outcome == RunOutcome.Finished ? RaceClassification.ToReportedMillis(me.FinishTimeMicros) : (long?)null,
+                Value = me.Outcome != RunOutcome.Finished ? (long?)null : drift ? me.RawDriftScore : RaceClassification.ToReportedMillis(me.FinishTimeMicros),
             });
             return facts;
         }

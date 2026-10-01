@@ -19,7 +19,7 @@ $exe = Join-Path $repo 'Builds\Game\NightSignal.exe'
 if (-not (Test-Path $exe)) { throw "Game build not found: $exe (build it first)" }
 
 $every = 'UiTour', 'InstrumentTour', 'DriverCardTour', 'DiaryTour', 'CupTour', 'TutorialTour', 'StoryTour', 'AppearanceTour', 'TrialTour', 'ZoneTour',
-    'FreeplayConditionsTour'
+    'FreeplayConditionsTour', 'FreeplayDriftTour'
 $runs = @(
     @{ Name = '720p-large'; Width = 1280; Height = 720; Text = 1.5; Hud = 1.3; Tours = $every },
     @{ Name = 'ultrawide-large'; Width = 2560; Height = 1080; Text = 1.5; Hud = 1.3; Tours = @('UiTour', 'InstrumentTour') },

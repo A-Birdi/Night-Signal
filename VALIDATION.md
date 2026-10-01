@@ -3205,8 +3205,45 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   build before the HUD fix; its hub screenshot shows the Custom Cup layout with the Conditions row inside the panel).
   `Evidence/ui/bounds/bounds-FreeplayConditionsTour-1280x720-text150.txt` (and the UiTour/CupTour reports).
 - **Consequence:** CH26 (Gold drift on **wet** C12, a dry course) can now be set up from the client online — Freeplay Drift
-  Attack on C12 with Night, wet — where before only the protocol could ask for it (V-113); not raced here. Offline there
-  is still no Drift Attack format (V-079), so CH21/CH24/CH26 remain online-only.
+  Attack on C12 with Night, wet — where before only the protocol could ask for it (V-113); not raced here. (Corrected in
+  V-148: this line first said CH21/CH24/CH26 stayed online-only for want of an offline Drift Attack. Drift is scored in
+  every format, so only CH20 and CH21 read the Drift Attack format; CH26 needed only wet C12, which the preset now gives
+  offline as well.)
 - **Limits:** Night, wet looks like Night, dry — no wet-road visuals (spray, reflections) exist for any wet course; the
   presets are a fixed table (no free time-of-day or mid-race weather, which the spec rules out anyway). Online screens at
   720p / Text 150 % are still unaudited (Gate 5 item).
+
+## V-148 — Drift Attack in Local Freeplay (2026-10-01)
+- Revision: documented with the commit of this entry (the change is in it); the built player of that tree.
+- **The gap:** spec §8 lists Drift Attack among the Freeplay modes; online has it since V-047 (only where judged zones exist,
+  V-079), but the Offline hub never offered it, so CH20 (25,000 raw in C01's Drift Attack) and CH21 (70,000 raw in C08's wet
+  Drift Attack) could not be earned Local. The offline race already scored drift for every car and could rank by it.
+- **Change:** the hub's Format row has a fourth entry, "Drift Attack — judged zones" (after Race, Time Attack and Custom
+  Cup, so the others keep their positions). It is refused where the course has no judged zones, with the list of courses
+  that have them; light contact, authored opponents and a lead rival as a race; any lighting/weather preset (V-147).
+  `LocalEvents.Freeplay(…, driftAttack)` gives `EventKind.FreeplayDriftAttack`, format "drift-attack" and
+  `RaceEventRules.DriftRanking` (the AI and the autopilot drift the judged zones, the HUD shows the drift feed, finishers rank
+  by banked raw score). The Local record keeps the best raw score (`MetricKind.RawDriftScore`, higher is better); payout is by
+  that placement, as online; `LocalProgression` refuses a Drift Attack on a course without zones. Results: drift-ranked
+  events show a DRIFT column in points and the summary "You placed 1 of 3 with 9,338 drift points (01:56.126)".
+- **Found by the run and fixed:** the Results page printed every new personal best as a time — a raw 9,885 read
+  "00:09.885", and a Team Trial best would have shown its team sum as one time. It now uses the record's own metric
+  (Core `RecordFormat`): "New personal best 9,338 drift pts".
+- **Tests:** CoreTests `LocalProgressionTests.DriftAttack_RunsWhereZonesAreJudged_PaysByPlacement_AndKeepsTheBestRawScore`
+  (C02 refused; same pay as a race at the same placement; 12,000 → 9,000 not a best → 15,000 a best) — Core 210/210.
+  EditMode `LocalFreeplayFieldTests.Freeplay_DriftAttack_IsRankedByDrift_WithLightContactAndAnAuthoredField` with the class,
+  `StageConditionsTests` and `CatalogueTests` — 11/11.
+- **Built player (`tour.ps1 -Tour FreeplayDriftTour`, new, buttons only, isolated profile, C08/C12 seeded as owned, autopilot
+  drift skill 0.95 as the challenge references were measured):** C02 refused ("C02 has no judged drift zones. Drift Attack
+  runs on C01, C04, C08, C12, C15, C16, C23, C24, C25, FP01."); C01 with two authored AI in its own conditions — P1 9,338,
+  P2 3,468, P3 2,781, finishers ordered by banked score, the DRIFT column, Local record C01/drift-attack 9,338 (dry); C08
+  in its own wet — 2,972, record (wet); C12 under Night, wet — 1,116 (5 wall touches), record (wet). **PASS.** Earned on the
+  way: CH33, CH35 (C01) and CH08 (C08) — no drift challenge: the autopilot's banked scores are far below CH20's 25,000 and
+  CH21's 70,000 (the known limit: its attempts end at the road edge), so a Local drift challenge is judged but not shown
+  earned here. `Evidence/ui/drift/freeplay-drift-tour.txt`, `01-C02-no-zones.jpg`, `02-C12-wet-night-hub.jpg`,
+  `03-C01-results.jpg`.
+- **Bounds (1280x720, Text 150 % / HUD 130 %):** FreeplayDriftTour (added to the audit) PASS **0 overflow, 0 missing glyph**
+  (88 labels over 29 moments, on the build before the personal-best wording fix); CupTour 0/0 (100 over 22) with the
+  four-entry Format row. `Evidence/ui/bounds/bounds-FreeplayDriftTour-1280x720-text150.txt`.
+- **Limits:** the online showcase lists no Freeplay Drift Attack bests (its query keeps times only); personal ghosts of a
+  Drift Attack run are kept by the format but compared by time, as every ghost.

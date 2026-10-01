@@ -179,9 +179,10 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
    Not shown reachable by the autopilot: CH13, CH17, CH22, CH23, CH27, CH28, CH34, CH36, CH40, CH41, CH43 (see each entry).
    CH02 and CH47 as Driving School braking-lane lessons (V-140; kind "lane", `LocalProgression.ApplyLessonTrial`), CH60's
    ten tuning demonstrations (V-141); tunable trials online and trials racing their course's own surface offline (V-142:
-   CH51/CH57 re-measured); the 47-trial regression with its bounds audit (V-143: the CH60 list rows fitted). **Open:** the eleven challenges not shown reachable by the autopilot; Drift Attack is online-only (V-079: no offline
-   format), so CH21/CH24/CH26 cannot be earned Local. Freeplay's lighting/weather presets are in both clients (V-147: one
-   Core table, Freeplay only — stages and trials race their own conditions). (The intermittent Services test was a Microsoft.Data.Sqlite pool double hand-out — the SQLite store no longer
+   CH51/CH57 re-measured); the 47-trial regression with its bounds audit (V-143: the CH60 list rows fitted). **Open:** the eleven challenges not shown reachable by the autopilot. Freeplay's lighting/weather presets are in both
+   clients (V-147: one Core table, Freeplay only — stages and trials race their own conditions) and Local Freeplay has Drift
+   Attack (V-148), so every drift challenge can be attempted in both domains; the autopilot's drifting stays far below the
+   CH20/CH21 bars. (The intermittent Services test was a Microsoft.Data.Sqlite pool double hand-out — the SQLite store no longer
    pools, V-145.) The control
    plane (a task started this session) serves the V-147 code and content — restart it after any trials JSON or Services
    change before an online run. The tour's setup of each tunable trial is `FrontEndApp.TourSetup`. Targeted built-player

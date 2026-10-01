@@ -154,6 +154,8 @@ namespace NightSignal.Front
                 StartCoroutine(GhostTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsFreeplayConditionsTour") >= 0)
                 StartCoroutine(FreeplayConditionsTour());
+            if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsFreeplayDriftTour") >= 0)
+                StartCoroutine(FreeplayDriftTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsCrewTelemetryTour") >= 0)
                 StartCoroutine(CrewTelemetryTour());
             if (Array.IndexOf(Environment.GetCommandLineArgs(), "-nsFreeplayRivalTour") >= 0)

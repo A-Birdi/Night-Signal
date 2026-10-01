@@ -121,6 +121,35 @@ public sealed class LocalProgressionTests
     }
 
     [Fact]
+    public void DriftAttack_RunsWhereZonesAreJudged_PaysByPlacement_AndKeepsTheBestRawScore()
+    {
+        LocalProfile p = NewProfile();
+        // C02 has no judged drift zones: no Drift Attack (as the control plane's FreeplayRules.Supports).
+        Assert.Equal(LocalOperationStatus.Rejected, LocalProgression.ApplyEvent(p, Cat, null, FreeplayRun(p, "C02", 1, kind: EventKind.FreeplayDriftAttack)).Status);
+
+        RecordKey key = RecordKey.ForFreeplay(ProgressionDomain.Local, "C01", "drift-attack", MetricKind.RawDriftScore, TestContent.Rules);
+        LocalEventFacts Run(long raw)
+        {
+            LocalEventFacts f = FreeplayRun(p, "C01", 1, kind: EventKind.FreeplayDriftAttack);
+            f.RawDriftScore = raw;
+            f.Records.Add(new RecordCandidate { Key = key, Value = raw });
+            return f;
+        }
+        LocalProgressionResult first = LocalProgression.ApplyEvent(p, Cat, null, Run(12_000));
+        Assert.Equal(LocalOperationStatus.Applied, first.Status);
+        // Ranked by drift score, paid by that placement exactly as a race at the same placement.
+        Assert.Equal(LocalProgression.ApplyEvent(p, Cat, null, FreeplayRun(p, "C01", 1)).Payout.EventCredits, first.Payout.EventCredits);
+        Assert.Equal(RecordUpdateOutcome.NewPersonalBest, Assert.Single(first.Records).Outcome);
+        p = first.Profile;
+        LocalProgressionResult lower = LocalProgression.ApplyEvent(p, Cat, null, Run(9_000));
+        Assert.NotEqual(RecordUpdateOutcome.NewPersonalBest, Assert.Single(lower.Records).Outcome); // higher is better
+        p = lower.Profile;
+        LocalProgressionResult higher = LocalProgression.ApplyEvent(p, Cat, null, Run(15_000));
+        Assert.Equal(RecordUpdateOutcome.NewPersonalBest, Assert.Single(higher.Records).Outcome);
+        Assert.Equal(15_000, higher.Profile.Records.Best(key).Value);
+    }
+
+    [Fact]
     public void DidNotFinish_Quit_AndTimeAttack_FollowTheSameEconomy()
     {
         LocalProfile p = NewProfile();

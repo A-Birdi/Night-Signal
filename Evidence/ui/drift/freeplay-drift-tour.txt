@@ -1,0 +1,15 @@
+# Local Drift Attack - built player of this commit's tree (2026-10-01), automation, not a person
+# Tools/run/tour.ps1 -Tour FreeplayDriftTour (1280x720, buttons only, isolated profile; autopilot drift skill 0.95)
+[NightSignal.FreeplayDriftTour] seeded: C08 marked owned on the tour's profile
+[NightSignal.FreeplayDriftTour] seeded: C12 marked owned on the tour's profile
+[NightSignal.FreeplayDriftTour] C02 Drift Attack: start unavailable — "C02 has no judged drift zones. Drift Attack runs on C01, C04, C08, C12, C15, C16, C23, C24, C25, FP01."
+[NightSignal.FreeplayDriftTour] C01-stage-default hub: Drift Attack — judged zones · C01  Tea Lantern Road · Course's own · 2 AI — start "Start Drift Attack"; "Finishers rank by banked drift score; race money and a Local best score. Conditions: Late afternoon, dry."
+[NightSignal.FreeplayDriftTour] C01-stage-default: results say "New personal best  9,338 drift pts  (Local, unverified)"
+[NightSignal.FreeplayDriftTour] C01-stage-default: drift-ranked True, surface dry; P1 Drift Driver 9,338, P2 Maya Kuroda 3,468, P3 Natsumi Hori 2,781; me Finished 9,338 raw, walls 0, chains 4; table DRIFT column True; Local record C01/drift-attack RawDriftScore 9,338 (dry); challenges earned: CH33, CH35
+[NightSignal.FreeplayDriftTour] C08-stage-default hub: Drift Attack — judged zones · C08  Rain Thread Pass · Course's own · none — start "Start Drift Attack"; "Finishers rank by banked drift score; race money and a Local best score. Conditions: Light rain at night."
+[NightSignal.FreeplayDriftTour] C08-stage-default: results say "New personal best  2,972 drift pts  (Local, unverified)"
+[NightSignal.FreeplayDriftTour] C08-stage-default: drift-ranked True, surface wet; P1 Drift Driver 2,972; me Finished 2,972 raw, walls 0, chains 4; table DRIFT column True; Local record C08/drift-attack RawDriftScore 2,972 (wet); challenges earned: CH08
+[NightSignal.FreeplayDriftTour] C12-wet-night hub: Drift Attack — judged zones · C12  Blackwater Hairpins · Night, wet · none — start "Start Drift Attack"; "Finishers rank by banked drift score; race money and a Local best score. Conditions: Night, wet."
+[NightSignal.FreeplayDriftTour] C12-wet-night: results say "New personal best  1,116 drift pts  (Local, unverified)"
+[NightSignal.FreeplayDriftTour] C12-wet-night: drift-ranked True, surface wet; P1 Drift Driver 1,116; me Finished 1,116 raw, walls 5, chains 1; table DRIFT column True; Local record C12/drift-attack RawDriftScore 1,116 (wet); challenges earned: none
+[NightSignal.FreeplayDriftTour] PASS

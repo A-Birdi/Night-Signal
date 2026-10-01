@@ -904,6 +904,8 @@ namespace NightSignal.Core.Profiles
                 default:
                     // Challenge trials may time a Driving School section on the tutorial course (CH52, CH58); Freeplay may not race it.
                     if (course.Kind == "tutorial" && string.IsNullOrEmpty(f.TrialId)) return "The tutorial course is not a Freeplay course.";
+                    if (f.Kind == EventKind.FreeplayDriftAttack && f.TeamTrial == null && !catalogue.SupportsDriftAttack(course.Id))
+                        return $"{course.Id} has no judged drift zones, so it has no Drift Attack.";
                     if (f.StageId != null) return "Only campaign events name a stage.";
                     if (f.TeamTrial != null)
                     {
