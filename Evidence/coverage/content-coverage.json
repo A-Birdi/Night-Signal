@@ -1,0 +1,2433 @@
+{
+  "schema": "night-signal/content-coverage@1",
+  "generatedUtc": "2026-10-01T05:07:34Z",
+  "revision": "b3e502d",
+  "note": "Counts what exists beside the catalogue (files, entries, renderable definitions); a catalogue row alone is never \u0027delivered\u0027.",
+  "categories": {
+    "courses": {
+      "defined": 29,
+      "delivered": 29,
+      "deliveredMeans": "route.json and its scene exist",
+      "withRivalReferenceGhost": 28,
+      "withThreeRouteLandmarks": 29,
+      "items": [
+        {
+          "id": "T00",
+          "kind": "tutorial",
+          "route": true,
+          "scene": true,
+          "routeLandmarks": 3,
+          "catalogueLandmarks": 3,
+          "gates": 26,
+          "rivalReferenceGhost": false,
+          "stages": [],
+          "trials": 22,
+          "delivered": true
+        },
+        {
+          "id": "C01",
+          "kind": "regular",
+          "route": true,
+          "scene": true,
+          "routeLandmarks": 3,
+          "catalogueLandmarks": 3,
+          "gates": 3,
+          "rivalReferenceGhost": true,
+          "stages": [
+            "S01"
+          ],
+          "trials": 1,
+          "delivered": true
+        },
+        {
+          "id": "C02",
+          "kind": "regular",
+          "route": true,
+          "scene": true,
+          "routeLandmarks": 3,
+          "catalogueLandmarks": 3,
+          "gates": 5,
+          "rivalReferenceGhost": true,
+          "stages": [
+            "S02"
+          ],
+          "trials": 0,
+          "delivered": true
+        },
+        {
+          "id": "C03",
+          "kind": "regular",
+          "route": true,
+          "scene": true,
+          "routeLandmarks": 5,
+          "catalogueLandmarks": 3,
+          "gates": 11,
+          "rivalReferenceGhost": true,
+          "stages": [
+            "S03"
+          ],
+          "trials": 2,
+          "delivered": true
+        },
+        {
+          "id": "C04",
+          "kind": "regular",
+          "route": true,
+          "scene": true,
+          "routeLandmarks": 3,
+          "catalogueLandmarks": 3,
+          "gates": 3,
+          "rivalReferenceGhost": true,
+          "stages": [
+            "S04",
+            "S07"
+          ],
+          "trials": 1,
+          "delivered": true
+        },
+        {
+          "id": "C05",
+          "kind": "regular",
+          "route": true,
+          "scene": true,
+          "routeLandmarks": 4,
+          "catalogueLandmarks": 3,
+          "gates": 7,
+          "rivalReferenceGhost": true,
+          "stages": [
+            "S05"
+          ],
+          "trials": 0,
+          "delivered": true
+        },
+        {
+          "id": "C06",
+          "kind": "regular",
+          "route": true,
+          "scene": true,
+          "routeLandmarks": 3,
+          "catalogueLandmarks": 3,
+          "gates": 1,
+          "rivalReferenceGhost": true,
+          "stages": [
+            "S06"
+          ],
+          "trials": 1,
+          "delivered": true
+        },
+        {
+          "id": "C07",
+          "kind": "regular",
+          "route": true,
+          "scene": true,
+          "routeLandmarks": 3,
+          "catalogueLandmarks": 3,
+          "gates": 0,
+          "rivalReferenceGhost": true,
+          "stages": [
+            "S08"
+          ],
+          "trials": 0,
+          "delivered": true
+        },
+        {
+          "id": "C08",
+          "kind": "regular",
+          "route": true,
+          "scene": true,
+          "routeLandmarks": 4,
+          "catalogueLandmarks": 3,
+          "gates": 6,
+          "rivalReferenceGhost": true,
+          "stages": [
+            "S09",
+            "S14"
+          ],
+          "trials": 1,
+          "delivered": true
+        },
+        {
+          "id": "C09",
+          "kind": "regular",
+          "route": true,
+          "scene": true,
+          "routeLandmarks": 4,
+          "catalogueLandmarks": 3,
+          "gates": 4,
+          "rivalReferenceGhost": true,
+          "stages": [
+            "S10"
+          ],
+          "trials": 2,
+          "delivered": true
+        },
+        {
+          "id": "C10",
+          "kind": "regular",
+          "route": true,
+          "scene": true,
+          "routeLandmarks": 4,
+          "catalogueLandmarks": 3,
+          "gates": 2,
+          "rivalReferenceGhost": true,
+          "stages": [
+            "S11"
+          ],
+          "trials": 1,
+          "delivered": true
+        },
+        {
+          "id": "C11",
+          "kind": "regular",
+          "route": true,
+          "scene": true,
+          "routeLandmarks": 5,
+          "catalogueLandmarks": 3,
+          "gates": 2,
+          "rivalReferenceGhost": true,
+          "stages": [
+            "S12"
+          ],
+          "trials": 0,
+          "delivered": true
+        },
+        {
+          "id": "C12",
+          "kind": "regular",
+          "route": true,
+          "scene": true,
+          "routeLandmarks": 3,
+          "catalogueLandmarks": 3,
+          "gates": 5,
+          "rivalReferenceGhost": true,
+          "stages": [
+            "S13",
+            "S21"
+          ],
+          "trials": 1,
+          "delivered": true
+        },
+        {
+          "id": "C13",
+          "kind": "regular",
+          "route": true,
+          "scene": true,
+          "routeLandmarks": 4,
+          "catalogueLandmarks": 3,
+          "gates": 3,
+          "rivalReferenceGhost": true,
+          "stages": [
+            "S15"
+          ],
+          "trials": 0,
+          "delivered": true
+        },
+        {
+          "id": "C14",
+          "kind": "regular",
+          "route": true,
+          "scene": true,
+          "routeLandmarks": 5,
+          "catalogueLandmarks": 3,
+          "gates": 2,
+          "rivalReferenceGhost": true,
+          "stages": [
+            "S16"
+          ],
+          "trials": 1,
+          "delivered": true
+        },
+        {
+          "id": "C15",
+          "kind": "regular",
+          "route": true,
+          "scene": true,
+          "routeLandmarks": 4,
+          "catalogueLandmarks": 3,
+          "gates": 7,
+          "rivalReferenceGhost": true,
+          "stages": [
+            "S17"
+          ],
+          "trials": 1,
+          "delivered": true
+        },
+        {
+          "id": "C16",
+          "kind": "regular",
+          "route": true,
+          "scene": true,
+          "routeLandmarks": 4,
+          "catalogueLandmarks": 3,
+          "gates": 5,
+          "rivalReferenceGhost": true,
+          "stages": [
+            "S18"
+          ],
+          "trials": 1,
+          "delivered": true
+        },
+        {
+          "id": "C17",
+          "kind": "regular",
+          "route": true,
+          "scene": true,
+          "routeLandmarks": 4,
+          "catalogueLandmarks": 3,
+          "gates": 2,
+          "rivalReferenceGhost": true,
+          "stages": [
+            "S19"
+          ],
+          "trials": 2,
+          "delivered": true
+        },
+        {
+          "id": "C18",
+          "kind": "regular",
+          "route": true,
+          "scene": true,
+          "routeLandmarks": 4,
+          "catalogueLandmarks": 3,
+          "gates": 1,
+          "rivalReferenceGhost": true,
+          "stages": [
+            "S20"
+          ],
+          "trials": 1,
+          "delivered": true
+        },
+        {
+          "id": "C19",
+          "kind": "regular",
+          "route": true,
+          "scene": true,
+          "routeLandmarks": 4,
+          "catalogueLandmarks": 3,
+          "gates": 7,
+          "rivalReferenceGhost": true,
+          "stages": [
+            "S22"
+          ],
+          "trials": 1,
+          "delivered": true
+        },
+        {
+          "id": "C20",
+          "kind": "regular",
+          "route": true,
+          "scene": true,
+          "routeLandmarks": 4,
+          "catalogueLandmarks": 3,
+          "gates": 6,
+          "rivalReferenceGhost": true,
+          "stages": [
+            "S23",
+            "S28"
+          ],
+          "trials": 1,
+          "delivered": true
+        },
+        {
+          "id": "C21",
+          "kind": "regular",
+          "route": true,
+          "scene": true,
+          "routeLandmarks": 4,
+          "catalogueLandmarks": 3,
+          "gates": 1,
+          "rivalReferenceGhost": true,
+          "stages": [
+            "S24"
+          ],
+          "trials": 2,
+          "delivered": true
+        },
+        {
+          "id": "C22",
+          "kind": "regular",
+          "route": true,
+          "scene": true,
+          "routeLandmarks": 4,
+          "catalogueLandmarks": 3,
+          "gates": 3,
+          "rivalReferenceGhost": true,
+          "stages": [
+            "S25"
+          ],
+          "trials": 0,
+          "delivered": true
+        },
+        {
+          "id": "C23",
+          "kind": "regular",
+          "route": true,
+          "scene": true,
+          "routeLandmarks": 4,
+          "catalogueLandmarks": 3,
+          "gates": 7,
+          "rivalReferenceGhost": true,
+          "stages": [
+            "S26"
+          ],
+          "trials": 2,
+          "delivered": true
+        },
+        {
+          "id": "C24",
+          "kind": "regular",
+          "route": true,
+          "scene": true,
+          "routeLandmarks": 6,
+          "catalogueLandmarks": 3,
+          "gates": 13,
+          "rivalReferenceGhost": true,
+          "stages": [
+            "S27",
+            "S29"
+          ],
+          "trials": 1,
+          "delivered": true
+        },
+        {
+          "id": "C25",
+          "kind": "finale",
+          "route": true,
+          "scene": true,
+          "routeLandmarks": 3,
+          "catalogueLandmarks": 3,
+          "gates": 9,
+          "rivalReferenceGhost": true,
+          "stages": [
+            "S30"
+          ],
+          "trials": 2,
+          "delivered": true
+        },
+        {
+          "id": "FP01",
+          "kind": "freeplay",
+          "route": true,
+          "scene": true,
+          "routeLandmarks": 4,
+          "catalogueLandmarks": 3,
+          "gates": 2,
+          "rivalReferenceGhost": true,
+          "stages": [],
+          "trials": 0,
+          "delivered": true
+        },
+        {
+          "id": "FP02",
+          "kind": "freeplay",
+          "route": true,
+          "scene": true,
+          "routeLandmarks": 3,
+          "catalogueLandmarks": 3,
+          "gates": 5,
+          "rivalReferenceGhost": true,
+          "stages": [],
+          "trials": 0,
+          "delivered": true
+        },
+        {
+          "id": "FP03",
+          "kind": "freeplay",
+          "route": true,
+          "scene": true,
+          "routeLandmarks": 3,
+          "catalogueLandmarks": 3,
+          "gates": 2,
+          "rivalReferenceGhost": true,
+          "stages": [],
+          "trials": 0,
+          "delivered": true
+        }
+      ]
+    },
+    "stages": {
+      "defined": 30,
+      "delivered": 30,
+      "deliveredMeans": "course and both leads resolve; Normal and Hard conditions, published benchmark targets, story and live opposition",
+      "items": [
+        {
+          "id": "S01",
+          "course": "C01",
+          "type": "regular",
+          "leadsResolve": true,
+          "conditionsBothSides": true,
+          "benchmarkNormal": true,
+          "benchmarkHard": true,
+          "story": true,
+          "liveOpposition": true,
+          "delivered": true
+        },
+        {
+          "id": "S02",
+          "course": "C02",
+          "type": "regular",
+          "leadsResolve": true,
+          "conditionsBothSides": true,
+          "benchmarkNormal": true,
+          "benchmarkHard": true,
+          "story": true,
+          "liveOpposition": true,
+          "delivered": true
+        },
+        {
+          "id": "S03",
+          "course": "C03",
+          "type": "regular",
+          "leadsResolve": true,
+          "conditionsBothSides": true,
+          "benchmarkNormal": true,
+          "benchmarkHard": true,
+          "story": true,
+          "liveOpposition": true,
+          "delivered": true
+        },
+        {
+          "id": "S04",
+          "course": "C04",
+          "type": "regular",
+          "leadsResolve": true,
+          "conditionsBothSides": true,
+          "benchmarkNormal": true,
+          "benchmarkHard": true,
+          "story": true,
+          "liveOpposition": true,
+          "delivered": true
+        },
+        {
+          "id": "S05",
+          "course": "C05",
+          "type": "regular",
+          "leadsResolve": true,
+          "conditionsBothSides": true,
+          "benchmarkNormal": true,
+          "benchmarkHard": true,
+          "story": true,
+          "liveOpposition": true,
+          "delivered": true
+        },
+        {
+          "id": "S06",
+          "course": "C06",
+          "type": "regular",
+          "leadsResolve": true,
+          "conditionsBothSides": true,
+          "benchmarkNormal": true,
+          "benchmarkHard": true,
+          "story": true,
+          "liveOpposition": true,
+          "delivered": true
+        },
+        {
+          "id": "S07",
+          "course": "C04",
+          "type": "lieutenant",
+          "leadsResolve": true,
+          "conditionsBothSides": true,
+          "benchmarkNormal": true,
+          "benchmarkHard": true,
+          "story": true,
+          "liveOpposition": true,
+          "delivered": true
+        },
+        {
+          "id": "S08",
+          "course": "C07",
+          "type": "regular",
+          "leadsResolve": true,
+          "conditionsBothSides": true,
+          "benchmarkNormal": true,
+          "benchmarkHard": true,
+          "story": true,
+          "liveOpposition": true,
+          "delivered": true
+        },
+        {
+          "id": "S09",
+          "course": "C08",
+          "type": "regular",
+          "leadsResolve": true,
+          "conditionsBothSides": true,
+          "benchmarkNormal": true,
+          "benchmarkHard": true,
+          "story": true,
+          "liveOpposition": true,
+          "delivered": true
+        },
+        {
+          "id": "S10",
+          "course": "C09",
+          "type": "regular",
+          "leadsResolve": true,
+          "conditionsBothSides": true,
+          "benchmarkNormal": true,
+          "benchmarkHard": true,
+          "story": true,
+          "liveOpposition": true,
+          "delivered": true
+        },
+        {
+          "id": "S11",
+          "course": "C10",
+          "type": "regular",
+          "leadsResolve": true,
+          "conditionsBothSides": true,
+          "benchmarkNormal": true,
+          "benchmarkHard": true,
+          "story": true,
+          "liveOpposition": true,
+          "delivered": true
+        },
+        {
+          "id": "S12",
+          "course": "C11",
+          "type": "regular",
+          "leadsResolve": true,
+          "conditionsBothSides": true,
+          "benchmarkNormal": true,
+          "benchmarkHard": true,
+          "story": true,
+          "liveOpposition": true,
+          "delivered": true
+        },
+        {
+          "id": "S13",
+          "course": "C12",
+          "type": "regular",
+          "leadsResolve": true,
+          "conditionsBothSides": true,
+          "benchmarkNormal": true,
+          "benchmarkHard": true,
+          "story": true,
+          "liveOpposition": true,
+          "delivered": true
+        },
+        {
+          "id": "S14",
+          "course": "C08",
+          "type": "lieutenant",
+          "leadsResolve": true,
+          "conditionsBothSides": true,
+          "benchmarkNormal": true,
+          "benchmarkHard": true,
+          "story": true,
+          "liveOpposition": true,
+          "delivered": true
+        },
+        {
+          "id": "S15",
+          "course": "C13",
+          "type": "regular",
+          "leadsResolve": true,
+          "conditionsBothSides": true,
+          "benchmarkNormal": true,
+          "benchmarkHard": true,
+          "story": true,
+          "liveOpposition": true,
+          "delivered": true
+        },
+        {
+          "id": "S16",
+          "course": "C14",
+          "type": "regular",
+          "leadsResolve": true,
+          "conditionsBothSides": true,
+          "benchmarkNormal": true,
+          "benchmarkHard": true,
+          "story": true,
+          "liveOpposition": true,
+          "delivered": true
+        },
+        {
+          "id": "S17",
+          "course": "C15",
+          "type": "regular",
+          "leadsResolve": true,
+          "conditionsBothSides": true,
+          "benchmarkNormal": true,
+          "benchmarkHard": true,
+          "story": true,
+          "liveOpposition": true,
+          "delivered": true
+        },
+        {
+          "id": "S18",
+          "course": "C16",
+          "type": "regular",
+          "leadsResolve": true,
+          "conditionsBothSides": true,
+          "benchmarkNormal": true,
+          "benchmarkHard": true,
+          "story": true,
+          "liveOpposition": true,
+          "delivered": true
+        },
+        {
+          "id": "S19",
+          "course": "C17",
+          "type": "regular",
+          "leadsResolve": true,
+          "conditionsBothSides": true,
+          "benchmarkNormal": true,
+          "benchmarkHard": true,
+          "story": true,
+          "liveOpposition": true,
+          "delivered": true
+        },
+        {
+          "id": "S20",
+          "course": "C18",
+          "type": "regular",
+          "leadsResolve": true,
+          "conditionsBothSides": true,
+          "benchmarkNormal": true,
+          "benchmarkHard": true,
+          "story": true,
+          "liveOpposition": true,
+          "delivered": true
+        },
+        {
+          "id": "S21",
+          "course": "C12",
+          "type": "lieutenant",
+          "leadsResolve": true,
+          "conditionsBothSides": true,
+          "benchmarkNormal": true,
+          "benchmarkHard": true,
+          "story": true,
+          "liveOpposition": true,
+          "delivered": true
+        },
+        {
+          "id": "S22",
+          "course": "C19",
+          "type": "regular",
+          "leadsResolve": true,
+          "conditionsBothSides": true,
+          "benchmarkNormal": true,
+          "benchmarkHard": true,
+          "story": true,
+          "liveOpposition": true,
+          "delivered": true
+        },
+        {
+          "id": "S23",
+          "course": "C20",
+          "type": "regular",
+          "leadsResolve": true,
+          "conditionsBothSides": true,
+          "benchmarkNormal": true,
+          "benchmarkHard": true,
+          "story": true,
+          "liveOpposition": true,
+          "delivered": true
+        },
+        {
+          "id": "S24",
+          "course": "C21",
+          "type": "regular",
+          "leadsResolve": true,
+          "conditionsBothSides": true,
+          "benchmarkNormal": true,
+          "benchmarkHard": true,
+          "story": true,
+          "liveOpposition": true,
+          "delivered": true
+        },
+        {
+          "id": "S25",
+          "course": "C22",
+          "type": "regular",
+          "leadsResolve": true,
+          "conditionsBothSides": true,
+          "benchmarkNormal": true,
+          "benchmarkHard": true,
+          "story": true,
+          "liveOpposition": true,
+          "delivered": true
+        },
+        {
+          "id": "S26",
+          "course": "C23",
+          "type": "regular",
+          "leadsResolve": true,
+          "conditionsBothSides": true,
+          "benchmarkNormal": true,
+          "benchmarkHard": true,
+          "story": true,
+          "liveOpposition": true,
+          "delivered": true
+        },
+        {
+          "id": "S27",
+          "course": "C24",
+          "type": "regular",
+          "leadsResolve": true,
+          "conditionsBothSides": true,
+          "benchmarkNormal": true,
+          "benchmarkHard": true,
+          "story": true,
+          "liveOpposition": true,
+          "delivered": true
+        },
+        {
+          "id": "S28",
+          "course": "C20",
+          "type": "lieutenant",
+          "leadsResolve": true,
+          "conditionsBothSides": true,
+          "benchmarkNormal": true,
+          "benchmarkHard": true,
+          "story": true,
+          "liveOpposition": true,
+          "delivered": true
+        },
+        {
+          "id": "S29",
+          "course": "C24",
+          "type": "penultimate",
+          "leadsResolve": true,
+          "conditionsBothSides": true,
+          "benchmarkNormal": true,
+          "benchmarkHard": true,
+          "story": true,
+          "liveOpposition": true,
+          "delivered": true
+        },
+        {
+          "id": "S30",
+          "course": "C25",
+          "type": "finale",
+          "leadsResolve": true,
+          "conditionsBothSides": true,
+          "benchmarkNormal": true,
+          "benchmarkHard": true,
+          "story": true,
+          "liveOpposition": true,
+          "delivered": true
+        }
+      ]
+    },
+    "rivals": {
+      "defined": 48,
+      "delivered": 48,
+      "deliveredMeans": "an authored look and a story sheet with lines; the car resolves",
+      "featuredInAStage": 48,
+      "inAnyStage": 48,
+      "items": [
+        {
+          "id": "R01",
+          "crew": "tea-hour",
+          "look": true,
+          "storySheet": true,
+          "lines": 17,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R02",
+          "crew": "tea-hour",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R03",
+          "crew": "tea-hour",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R04",
+          "crew": "tea-hour",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R05",
+          "crew": "tea-hour",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R06",
+          "crew": "tea-hour",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R07",
+          "crew": "tea-hour",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R08",
+          "crew": "tea-hour",
+          "look": true,
+          "storySheet": true,
+          "lines": 27,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R09",
+          "crew": "rainline",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R10",
+          "crew": "rainline",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R11",
+          "crew": "rainline",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R12",
+          "crew": "rainline",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R13",
+          "crew": "rainline",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R14",
+          "crew": "rainline",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R15",
+          "crew": "rainline",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R16",
+          "crew": "rainline",
+          "look": true,
+          "storySheet": true,
+          "lines": 27,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R17",
+          "crew": "reservoir",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R18",
+          "crew": "reservoir",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R19",
+          "crew": "reservoir",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R20",
+          "crew": "reservoir",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R21",
+          "crew": "reservoir",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R22",
+          "crew": "reservoir",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R23",
+          "crew": "reservoir",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R24",
+          "crew": "reservoir",
+          "look": true,
+          "storySheet": true,
+          "lines": 27,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R25",
+          "crew": "breakwater",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R26",
+          "crew": "breakwater",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R27",
+          "crew": "breakwater",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R28",
+          "crew": "breakwater",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R29",
+          "crew": "breakwater",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R30",
+          "crew": "breakwater",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R31",
+          "crew": "breakwater",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R32",
+          "crew": "breakwater",
+          "look": true,
+          "storySheet": true,
+          "lines": 27,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R33",
+          "crew": "datum",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R34",
+          "crew": "datum",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R35",
+          "crew": "datum",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R36",
+          "crew": "datum",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R37",
+          "crew": "datum",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R38",
+          "crew": "datum",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R39",
+          "crew": "datum",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R40",
+          "crew": "datum",
+          "look": true,
+          "storySheet": true,
+          "lines": 28,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R41",
+          "crew": "zero-frequency",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R42",
+          "crew": "zero-frequency",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R43",
+          "crew": "zero-frequency",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R44",
+          "crew": "zero-frequency",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R45",
+          "crew": "zero-frequency",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R46",
+          "crew": "zero-frequency",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R47",
+          "crew": "zero-frequency",
+          "look": true,
+          "storySheet": true,
+          "lines": 16,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        },
+        {
+          "id": "R48",
+          "crew": "zero-frequency",
+          "look": true,
+          "storySheet": true,
+          "lines": 28,
+          "carResolves": true,
+          "featuredInAStage": true,
+          "inAnyStage": true,
+          "delivered": true
+        }
+      ]
+    },
+    "cars": {
+      "defined": 18,
+      "delivered": 18,
+      "deliveredMeans": "a body definition and tuning data exist",
+      "withUpgradeRecipe": 18,
+      "items": [
+        {
+          "id": "V01",
+          "name": "Kogane Hachi RS",
+          "body": true,
+          "tuning": true,
+          "upgradeRecipe": true,
+          "delivered": true
+        },
+        {
+          "id": "V02",
+          "name": "Mizuno Kite GT",
+          "body": true,
+          "tuning": true,
+          "upgradeRecipe": true,
+          "delivered": true
+        },
+        {
+          "id": "V03",
+          "name": "Arata Rainfox 4",
+          "body": true,
+          "tuning": true,
+          "upgradeRecipe": true,
+          "delivered": true
+        },
+        {
+          "id": "V04",
+          "name": "Kogane Kestrel S",
+          "body": true,
+          "tuning": true,
+          "upgradeRecipe": true,
+          "delivered": true
+        },
+        {
+          "id": "V05",
+          "name": "Shinmei Linea 20",
+          "body": true,
+          "tuning": true,
+          "upgradeRecipe": true,
+          "delivered": true
+        },
+        {
+          "id": "V06",
+          "name": "Mizuno Sparrow Type-S",
+          "body": true,
+          "tuning": true,
+          "upgradeRecipe": true,
+          "delivered": true
+        },
+        {
+          "id": "V07",
+          "name": "Arata Shigure GT",
+          "body": true,
+          "tuning": true,
+          "upgradeRecipe": true,
+          "delivered": true
+        },
+        {
+          "id": "V08",
+          "name": "Hokusei Lanceray R",
+          "body": true,
+          "tuning": true,
+          "upgradeRecipe": true,
+          "delivered": true
+        },
+        {
+          "id": "V09",
+          "name": "Shinmei Crestline 26",
+          "body": true,
+          "tuning": true,
+          "upgradeRecipe": true,
+          "delivered": true
+        },
+        {
+          "id": "V10",
+          "name": "Kogane Spiral RX",
+          "body": true,
+          "tuning": true,
+          "upgradeRecipe": true,
+          "delivered": true
+        },
+        {
+          "id": "V11",
+          "name": "Mizuno Vector MR",
+          "body": true,
+          "tuning": true,
+          "upgradeRecipe": true,
+          "delivered": true
+        },
+        {
+          "id": "V12",
+          "name": "Shinmei Stormline 32",
+          "body": true,
+          "tuning": true,
+          "upgradeRecipe": true,
+          "delivered": true
+        },
+        {
+          "id": "V13",
+          "name": "Arata Comet S6",
+          "body": true,
+          "tuning": true,
+          "upgradeRecipe": true,
+          "delivered": true
+        },
+        {
+          "id": "V14",
+          "name": "Hokusei Vale R",
+          "body": true,
+          "tuning": true,
+          "upgradeRecipe": true,
+          "delivered": true
+        },
+        {
+          "id": "V15",
+          "name": "Kogane Halo T",
+          "body": true,
+          "tuning": true,
+          "upgradeRecipe": true,
+          "delivered": true
+        },
+        {
+          "id": "V16",
+          "name": "Mizuno Meridian X",
+          "body": true,
+          "tuning": true,
+          "upgradeRecipe": true,
+          "delivered": true
+        },
+        {
+          "id": "V17",
+          "name": "Shinmei Aurora 4S",
+          "body": true,
+          "tuning": true,
+          "upgradeRecipe": true,
+          "delivered": true
+        },
+        {
+          "id": "V18",
+          "name": "Hokusei Solstice Z",
+          "body": true,
+          "tuning": true,
+          "upgradeRecipe": true,
+          "delivered": true
+        }
+      ]
+    },
+    "challenges": {
+      "defined": 75,
+      "delivered": 45,
+      "deliveredMeans": "the reward cosmetic has a renderable definition (customization.json)",
+      "trialBacked": 33,
+      "rewardsDataOnly": 30,
+      "items": [
+        {
+          "id": "CH01",
+          "family": "precision",
+          "tier": "bronze",
+          "reward": "COS-CH01",
+          "rewardCategory": "decal",
+          "rewardRenderable": true,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH02",
+          "family": "precision",
+          "tier": "bronze",
+          "reward": "COS-CH02",
+          "rewardCategory": "decal",
+          "rewardRenderable": true,
+          "trials": 1,
+          "trialsPublished": 1
+        },
+        {
+          "id": "CH03",
+          "family": "precision",
+          "tier": "bronze",
+          "reward": "COS-CH03",
+          "rewardCategory": "decal",
+          "rewardRenderable": true,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH04",
+          "family": "precision",
+          "tier": "bronze",
+          "reward": "COS-CH04",
+          "rewardCategory": "decal",
+          "rewardRenderable": true,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH05",
+          "family": "precision",
+          "tier": "bronze",
+          "reward": "COS-CH05",
+          "rewardCategory": "decal",
+          "rewardRenderable": true,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH06",
+          "family": "precision",
+          "tier": "silver",
+          "reward": "COS-CH06",
+          "rewardCategory": "decal",
+          "rewardRenderable": true,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH07",
+          "family": "precision",
+          "tier": "silver",
+          "reward": "COS-CH07",
+          "rewardCategory": "decal",
+          "rewardRenderable": true,
+          "trials": 1,
+          "trialsPublished": 1
+        },
+        {
+          "id": "CH08",
+          "family": "precision",
+          "tier": "silver",
+          "reward": "COS-CH08",
+          "rewardCategory": "decal",
+          "rewardRenderable": true,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH09",
+          "family": "precision",
+          "tier": "silver",
+          "reward": "COS-CH09",
+          "rewardCategory": "decal",
+          "rewardRenderable": true,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH10",
+          "family": "precision",
+          "tier": "silver",
+          "reward": "COS-CH10",
+          "rewardCategory": "decal",
+          "rewardRenderable": true,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH11",
+          "family": "precision",
+          "tier": "gold",
+          "reward": "COS-CH11",
+          "rewardCategory": "decal",
+          "rewardRenderable": true,
+          "trials": 1,
+          "trialsPublished": 1
+        },
+        {
+          "id": "CH12",
+          "family": "precision",
+          "tier": "gold",
+          "reward": "COS-CH12",
+          "rewardCategory": "decal",
+          "rewardRenderable": true,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH13",
+          "family": "precision",
+          "tier": "gold",
+          "reward": "COS-CH13",
+          "rewardCategory": "decal",
+          "rewardRenderable": true,
+          "trials": 1,
+          "trialsPublished": 1
+        },
+        {
+          "id": "CH14",
+          "family": "precision",
+          "tier": "gold",
+          "reward": "COS-CH14",
+          "rewardCategory": "decal",
+          "rewardRenderable": true,
+          "trials": 1,
+          "trialsPublished": 1
+        },
+        {
+          "id": "CH15",
+          "family": "precision",
+          "tier": "gold",
+          "reward": "COS-CH15",
+          "rewardCategory": "decal",
+          "rewardRenderable": true,
+          "trials": 1,
+          "trialsPublished": 1
+        },
+        {
+          "id": "CH16",
+          "family": "drift",
+          "tier": "bronze",
+          "reward": "COS-CH16",
+          "rewardCategory": "paint",
+          "rewardRenderable": true,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH17",
+          "family": "drift",
+          "tier": "bronze",
+          "reward": "COS-CH17",
+          "rewardCategory": "paint",
+          "rewardRenderable": true,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH18",
+          "family": "drift",
+          "tier": "bronze",
+          "reward": "COS-CH18",
+          "rewardCategory": "paint",
+          "rewardRenderable": true,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH19",
+          "family": "drift",
+          "tier": "bronze",
+          "reward": "COS-CH19",
+          "rewardCategory": "paint",
+          "rewardRenderable": true,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH20",
+          "family": "drift",
+          "tier": "bronze",
+          "reward": "COS-CH20",
+          "rewardCategory": "paint",
+          "rewardRenderable": true,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH21",
+          "family": "drift",
+          "tier": "silver",
+          "reward": "COS-CH21",
+          "rewardCategory": "paint",
+          "rewardRenderable": true,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH22",
+          "family": "drift",
+          "tier": "silver",
+          "reward": "COS-CH22",
+          "rewardCategory": "paint",
+          "rewardRenderable": true,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH23",
+          "family": "drift",
+          "tier": "silver",
+          "reward": "COS-CH23",
+          "rewardCategory": "paint",
+          "rewardRenderable": true,
+          "trials": 1,
+          "trialsPublished": 1
+        },
+        {
+          "id": "CH24",
+          "family": "drift",
+          "tier": "silver",
+          "reward": "COS-CH24",
+          "rewardCategory": "paint",
+          "rewardRenderable": true,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH25",
+          "family": "drift",
+          "tier": "silver",
+          "reward": "COS-CH25",
+          "rewardCategory": "paint",
+          "rewardRenderable": true,
+          "trials": 1,
+          "trialsPublished": 1
+        },
+        {
+          "id": "CH26",
+          "family": "drift",
+          "tier": "gold",
+          "reward": "COS-CH26",
+          "rewardCategory": "paint",
+          "rewardRenderable": true,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH27",
+          "family": "drift",
+          "tier": "gold",
+          "reward": "COS-CH27",
+          "rewardCategory": "paint",
+          "rewardRenderable": true,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH28",
+          "family": "drift",
+          "tier": "gold",
+          "reward": "COS-CH28",
+          "rewardCategory": "paint",
+          "rewardRenderable": true,
+          "trials": 1,
+          "trialsPublished": 1
+        },
+        {
+          "id": "CH29",
+          "family": "drift",
+          "tier": "gold",
+          "reward": "COS-CH29",
+          "rewardCategory": "paint",
+          "rewardRenderable": true,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH30",
+          "family": "drift",
+          "tier": "gold",
+          "reward": "COS-CH30",
+          "rewardCategory": "paint",
+          "rewardRenderable": true,
+          "trials": 1,
+          "trialsPublished": 1
+        },
+        {
+          "id": "CH31",
+          "family": "racecraft",
+          "tier": "bronze",
+          "reward": "COS-CH31",
+          "rewardCategory": "driver_clothing",
+          "rewardRenderable": false,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH32",
+          "family": "racecraft",
+          "tier": "bronze",
+          "reward": "COS-CH32",
+          "rewardCategory": "driver_clothing",
+          "rewardRenderable": false,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH33",
+          "family": "racecraft",
+          "tier": "bronze",
+          "reward": "COS-CH33",
+          "rewardCategory": "driver_clothing",
+          "rewardRenderable": false,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH34",
+          "family": "racecraft",
+          "tier": "bronze",
+          "reward": "COS-CH34",
+          "rewardCategory": "driver_clothing",
+          "rewardRenderable": false,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH35",
+          "family": "racecraft",
+          "tier": "bronze",
+          "reward": "COS-CH35",
+          "rewardCategory": "driver_clothing",
+          "rewardRenderable": false,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH36",
+          "family": "racecraft",
+          "tier": "silver",
+          "reward": "COS-CH36",
+          "rewardCategory": "driver_clothing",
+          "rewardRenderable": false,
+          "trials": 1,
+          "trialsPublished": 1
+        },
+        {
+          "id": "CH37",
+          "family": "racecraft",
+          "tier": "silver",
+          "reward": "COS-CH37",
+          "rewardCategory": "driver_clothing",
+          "rewardRenderable": false,
+          "trials": 1,
+          "trialsPublished": 1
+        },
+        {
+          "id": "CH38",
+          "family": "racecraft",
+          "tier": "silver",
+          "reward": "COS-CH38",
+          "rewardCategory": "driver_clothing",
+          "rewardRenderable": false,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH39",
+          "family": "racecraft",
+          "tier": "silver",
+          "reward": "COS-CH39",
+          "rewardCategory": "driver_clothing",
+          "rewardRenderable": false,
+          "trials": 1,
+          "trialsPublished": 1
+        },
+        {
+          "id": "CH40",
+          "family": "racecraft",
+          "tier": "silver",
+          "reward": "COS-CH40",
+          "rewardCategory": "driver_clothing",
+          "rewardRenderable": false,
+          "trials": 1,
+          "trialsPublished": 1
+        },
+        {
+          "id": "CH41",
+          "family": "racecraft",
+          "tier": "gold",
+          "reward": "COS-CH41",
+          "rewardCategory": "driver_clothing",
+          "rewardRenderable": false,
+          "trials": 1,
+          "trialsPublished": 1
+        },
+        {
+          "id": "CH42",
+          "family": "racecraft",
+          "tier": "gold",
+          "reward": "COS-CH42",
+          "rewardCategory": "driver_clothing",
+          "rewardRenderable": false,
+          "trials": 1,
+          "trialsPublished": 1
+        },
+        {
+          "id": "CH43",
+          "family": "racecraft",
+          "tier": "gold",
+          "reward": "COS-CH43",
+          "rewardCategory": "driver_clothing",
+          "rewardRenderable": false,
+          "trials": 1,
+          "trialsPublished": 1
+        },
+        {
+          "id": "CH44",
+          "family": "racecraft",
+          "tier": "gold",
+          "reward": "COS-CH44",
+          "rewardCategory": "driver_clothing",
+          "rewardRenderable": false,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH45",
+          "family": "racecraft",
+          "tier": "gold",
+          "reward": "COS-CH45",
+          "rewardCategory": "driver_clothing",
+          "rewardRenderable": false,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH46",
+          "family": "workshop",
+          "tier": "bronze",
+          "reward": "COS-CH46",
+          "rewardCategory": "card_customization",
+          "rewardRenderable": true,
+          "trials": 1,
+          "trialsPublished": 1
+        },
+        {
+          "id": "CH47",
+          "family": "workshop",
+          "tier": "bronze",
+          "reward": "COS-CH47",
+          "rewardCategory": "card_customization",
+          "rewardRenderable": true,
+          "trials": 1,
+          "trialsPublished": 1
+        },
+        {
+          "id": "CH48",
+          "family": "workshop",
+          "tier": "bronze",
+          "reward": "COS-CH48",
+          "rewardCategory": "card_customization",
+          "rewardRenderable": true,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH49",
+          "family": "workshop",
+          "tier": "bronze",
+          "reward": "COS-CH49",
+          "rewardCategory": "card_customization",
+          "rewardRenderable": true,
+          "trials": 1,
+          "trialsPublished": 1
+        },
+        {
+          "id": "CH50",
+          "family": "workshop",
+          "tier": "bronze",
+          "reward": "COS-CH50",
+          "rewardCategory": "card_customization",
+          "rewardRenderable": true,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH51",
+          "family": "workshop",
+          "tier": "silver",
+          "reward": "COS-CH51",
+          "rewardCategory": "card_customization",
+          "rewardRenderable": true,
+          "trials": 1,
+          "trialsPublished": 1
+        },
+        {
+          "id": "CH52",
+          "family": "workshop",
+          "tier": "silver",
+          "reward": "COS-CH52",
+          "rewardCategory": "card_customization",
+          "rewardRenderable": true,
+          "trials": 2,
+          "trialsPublished": 2
+        },
+        {
+          "id": "CH53",
+          "family": "workshop",
+          "tier": "silver",
+          "reward": "COS-CH53",
+          "rewardCategory": "card_customization",
+          "rewardRenderable": true,
+          "trials": 2,
+          "trialsPublished": 2
+        },
+        {
+          "id": "CH54",
+          "family": "workshop",
+          "tier": "silver",
+          "reward": "COS-CH54",
+          "rewardCategory": "card_customization",
+          "rewardRenderable": true,
+          "trials": 2,
+          "trialsPublished": 2
+        },
+        {
+          "id": "CH55",
+          "family": "workshop",
+          "tier": "silver",
+          "reward": "COS-CH55",
+          "rewardCategory": "card_customization",
+          "rewardRenderable": true,
+          "trials": 1,
+          "trialsPublished": 1
+        },
+        {
+          "id": "CH56",
+          "family": "workshop",
+          "tier": "gold",
+          "reward": "COS-CH56",
+          "rewardCategory": "card_customization",
+          "rewardRenderable": true,
+          "trials": 1,
+          "trialsPublished": 1
+        },
+        {
+          "id": "CH57",
+          "family": "workshop",
+          "tier": "gold",
+          "reward": "COS-CH57",
+          "rewardCategory": "card_customization",
+          "rewardRenderable": true,
+          "trials": 1,
+          "trialsPublished": 1
+        },
+        {
+          "id": "CH58",
+          "family": "workshop",
+          "tier": "gold",
+          "reward": "COS-CH58",
+          "rewardCategory": "card_customization",
+          "rewardRenderable": true,
+          "trials": 3,
+          "trialsPublished": 3
+        },
+        {
+          "id": "CH59",
+          "family": "workshop",
+          "tier": "gold",
+          "reward": "COS-CH59",
+          "rewardCategory": "card_customization",
+          "rewardRenderable": true,
+          "trials": 1,
+          "trialsPublished": 1
+        },
+        {
+          "id": "CH60",
+          "family": "workshop",
+          "tier": "gold",
+          "reward": "COS-CH60",
+          "rewardCategory": "card_customization",
+          "rewardRenderable": true,
+          "trials": 10,
+          "trialsPublished": 10
+        },
+        {
+          "id": "CH61",
+          "family": "touring",
+          "tier": "bronze",
+          "reward": "COS-CH61",
+          "rewardCategory": "accessory_or_avatar",
+          "rewardRenderable": false,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH62",
+          "family": "touring",
+          "tier": "bronze",
+          "reward": "COS-CH62",
+          "rewardCategory": "accessory_or_avatar",
+          "rewardRenderable": false,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH63",
+          "family": "touring",
+          "tier": "bronze",
+          "reward": "COS-CH63",
+          "rewardCategory": "accessory_or_avatar",
+          "rewardRenderable": false,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH64",
+          "family": "touring",
+          "tier": "bronze",
+          "reward": "COS-CH64",
+          "rewardCategory": "accessory_or_avatar",
+          "rewardRenderable": false,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH65",
+          "family": "touring",
+          "tier": "bronze",
+          "reward": "COS-CH65",
+          "rewardCategory": "accessory_or_avatar",
+          "rewardRenderable": false,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH66",
+          "family": "touring",
+          "tier": "silver",
+          "reward": "COS-CH66",
+          "rewardCategory": "accessory_or_avatar",
+          "rewardRenderable": false,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH67",
+          "family": "touring",
+          "tier": "silver",
+          "reward": "COS-CH67",
+          "rewardCategory": "accessory_or_avatar",
+          "rewardRenderable": false,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH68",
+          "family": "touring",
+          "tier": "silver",
+          "reward": "COS-CH68",
+          "rewardCategory": "accessory_or_avatar",
+          "rewardRenderable": false,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH69",
+          "family": "touring",
+          "tier": "silver",
+          "reward": "COS-CH69",
+          "rewardCategory": "accessory_or_avatar",
+          "rewardRenderable": false,
+          "trials": 1,
+          "trialsPublished": 1
+        },
+        {
+          "id": "CH70",
+          "family": "touring",
+          "tier": "silver",
+          "reward": "COS-CH70",
+          "rewardCategory": "accessory_or_avatar",
+          "rewardRenderable": false,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH71",
+          "family": "touring",
+          "tier": "gold",
+          "reward": "COS-CH71",
+          "rewardCategory": "accessory_or_avatar",
+          "rewardRenderable": false,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH72",
+          "family": "touring",
+          "tier": "gold",
+          "reward": "COS-CH72",
+          "rewardCategory": "accessory_or_avatar",
+          "rewardRenderable": false,
+          "trials": 1,
+          "trialsPublished": 1
+        },
+        {
+          "id": "CH73",
+          "family": "touring",
+          "tier": "gold",
+          "reward": "COS-CH73",
+          "rewardCategory": "accessory_or_avatar",
+          "rewardRenderable": false,
+          "trials": 0,
+          "trialsPublished": 0
+        },
+        {
+          "id": "CH74",
+          "family": "touring",
+          "tier": "gold",
+          "reward": "COS-CH74",
+          "rewardCategory": "accessory_or_avatar",
+          "rewardRenderable": false,
+          "trials": 1,
+          "trialsPublished": 1
+        },
+        {
+          "id": "CH75",
+          "family": "touring",
+          "tier": "gold",
+          "reward": "COS-CH75",
+          "rewardCategory": "accessory_or_avatar",
+          "rewardRenderable": false,
+          "trials": 0,
+          "trialsPublished": 0
+        }
+      ],
+      "judgedNote": "Which challenges are judged where (races, the meet, the diary, trials) is runtime code, not data \u2014 see REQUIREMENTS R11.3."
+    },
+    "musicCues": {
+      "defined": 24,
+      "delivered": 24,
+      "deliveredMeans": "the cue\u0027s score file exists",
+      "items": [
+        {
+          "id": "MUS_TITLE",
+          "score": "Assets/Content/Audio/Scores/mus_title.json",
+          "scoreExists": true,
+          "delivered": true
+        },
+        {
+          "id": "MUS_MENU_A",
+          "score": "Assets/Content/Audio/Scores/mus_menu_a.json",
+          "scoreExists": true,
+          "delivered": true
+        },
+        {
+          "id": "MUS_MENU_B",
+          "score": "Assets/Content/Audio/Scores/mus_menu_b.json",
+          "scoreExists": true,
+          "delivered": true
+        },
+        {
+          "id": "MUS_GARAGE",
+          "score": "Assets/Content/Audio/Scores/mus_garage.json",
+          "scoreExists": true,
+          "delivered": true
+        },
+        {
+          "id": "MUS_MEET",
+          "score": "Assets/Content/Audio/Scores/mus_meet.json",
+          "scoreExists": true,
+          "delivered": true
+        },
+        {
+          "id": "MUS_TUTORIAL",
+          "score": "Assets/Content/Audio/Scores/mus_tutorial.json",
+          "scoreExists": true,
+          "delivered": true
+        },
+        {
+          "id": "MUS_RESULTS_WIN",
+          "score": "Assets/Content/Audio/Scores/mus_results_win.json",
+          "scoreExists": true,
+          "delivered": true
+        },
+        {
+          "id": "MUS_RESULTS_LOSS",
+          "score": "Assets/Content/Audio/Scores/mus_results_loss.json",
+          "scoreExists": true,
+          "delivered": true
+        },
+        {
+          "id": "MUS_RACE_MIZUHANA",
+          "score": "Assets/Content/Audio/Scores/mus_race_mizuhana.json",
+          "scoreExists": true,
+          "delivered": true
+        },
+        {
+          "id": "MUS_RACE_KASUMI",
+          "score": "Assets/Content/Audio/Scores/mus_race_kasumi.json",
+          "scoreExists": true,
+          "delivered": true
+        },
+        {
+          "id": "MUS_RACE_KUROGAWA",
+          "score": "Assets/Content/Audio/Scores/mus_race_kurogawa.json",
+          "scoreExists": true,
+          "delivered": true
+        },
+        {
+          "id": "MUS_RACE_AKEBONO",
+          "score": "Assets/Content/Audio/Scores/mus_race_akebono.json",
+          "scoreExists": true,
+          "delivered": true
+        },
+        {
+          "id": "MUS_RACE_HOSHIMI",
+          "score": "Assets/Content/Audio/Scores/mus_race_hoshimi.json",
+          "scoreExists": true,
+          "delivered": true
+        },
+        {
+          "id": "MUS_RACE_TSUKISHIRO",
+          "score": "Assets/Content/Audio/Scores/mus_race_tsukishiro.json",
+          "scoreExists": true,
+          "delivered": true
+        },
+        {
+          "id": "MUS_LT_DAIGO",
+          "score": "Assets/Content/Audio/Scores/mus_lt_daigo.json",
+          "scoreExists": true,
+          "delivered": true
+        },
+        {
+          "id": "MUS_LT_EMI",
+          "score": "Assets/Content/Audio/Scores/mus_lt_emi.json",
+          "scoreExists": true,
+          "delivered": true
+        },
+        {
+          "id": "MUS_LT_JUN",
+          "score": "Assets/Content/Audio/Scores/mus_lt_jun.json",
+          "scoreExists": true,
+          "delivered": true
+        },
+        {
+          "id": "MUS_LT_MAKO",
+          "score": "Assets/Content/Audio/Scores/mus_lt_mako.json",
+          "scoreExists": true,
+          "delivered": true
+        },
+        {
+          "id": "MUS_PENULTIMATE",
+          "score": "Assets/Content/Audio/Scores/mus_penultimate.json",
+          "scoreExists": true,
+          "delivered": true
+        },
+        {
+          "id": "MUS_FINAL_REINA",
+          "score": "Assets/Content/Audio/Scores/mus_final_reina.json",
+          "scoreExists": true,
+          "delivered": true
+        },
+        {
+          "id": "MUS_FINAL_SHIORI",
+          "score": "Assets/Content/Audio/Scores/mus_final_shiori.json",
+          "scoreExists": true,
+          "delivered": true
+        },
+        {
+          "id": "MUS_TT_MEAN",
+          "score": "Assets/Content/Audio/Scores/mus_tt_mean.json",
+          "scoreExists": true,
+          "delivered": true
+        },
+        {
+          "id": "MUS_TT_BEST",
+          "score": "Assets/Content/Audio/Scores/mus_tt_best.json",
+          "scoreExists": true,
+          "delivered": true
+        },
+        {
+          "id": "MUS_TT_DRIFT",
+          "score": "Assets/Content/Audio/Scores/mus_tt_drift.json",
+          "scoreExists": true,
+          "delivered": true
+        }
+      ]
+    },
+    "challengeTrials": {
+      "defined": 47,
+      "published": 47,
+      "challengesCovered": 33,
+      "problems": []
+    },
+    "lessons": {
+      "defined": 14,
+      "drive": 8,
+      "demonstrationGhost": true
+    }
+  },
+  "validator": {
+    "passed": true,
+    "errors": 0,
+    "issues": []
+  },
+  "unresolvedReferences": []
+}
