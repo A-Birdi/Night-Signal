@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Content coverage report (spec §17: "Store machine-readable coverage reports"; R17.1). Reads the same catalogue the game
+    and the control plane load (Core, linked through Services/SharedCore) plus the delivered files beside it, and writes
+    Evidence/coverage/content-coverage.json and .md. It counts what exists, never what a catalogue row promises.
+      Run: dotnet run (project Tools/qa/ContentCoverage)
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../../Services/SharedCore/NightSignal.Core.csproj" />
+  </ItemGroup>
+
+</Project>
