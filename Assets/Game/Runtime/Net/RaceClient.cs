@@ -411,19 +411,24 @@ namespace NightSignal.Net
 
         UI.RaceHud hud;
         readonly UI.HudState hudState = new UI.HudState();
-        public bool ShowDebugOverlay;
+        // Standings order and finished times, reused every frame (spec §14: no per-frame allocations in the hot path; V-151).
+        readonly List<Car> hudOrder = new List<Car>();
+        readonly Dictionary<Car, string> finishedStatus = new Dictionary<Car, string>();
+        static readonly IComparer<Car> ByStanding = Comparer<Car>.Create((a, b) =>
+        {
+            bool fa = a.FinishMillis > 0, fb = b.FinishMillis > 0;
+            if (fa && fb) return a.FinishMillis.CompareTo(b.FinishMillis);
+            if (fa != fb) return fa ? -1 : 1;
+            return b.RaceDistance.CompareTo(a.RaceDistance);
+        });
 
         void RenderHud()
         {
             if (hud == null || Info == null) return;
-            var order = new List<Car>(cars.Values);
-            order.Sort((a, b) =>
-            {
-                bool fa = a.FinishMillis > 0, fb = b.FinishMillis > 0;
-                if (fa && fb) return a.FinishMillis.CompareTo(b.FinishMillis);
-                if (fa != fb) return fa ? -1 : 1;
-                return b.RaceDistance.CompareTo(a.RaceDistance);
-            });
+            List<Car> order = hudOrder;
+            order.Clear();
+            foreach (Car c in cars.Values) order.Add(c);
+            SmallSort.Insertion(order, ByStanding);
             hudState.Field.Clear();
             int myPos = 0;
             for (int i = 0; i < order.Count; i++)
@@ -432,7 +437,7 @@ namespace NightSignal.Net
                 bool me = c.Roster.Index == (Spectating ? watching : Info.YourIndex);
                 if (me) myPos = i + 1;
                 Vector3 pos = me ? ownState.Position : c.Buffer.Count > 0 ? c.Buffer[c.Buffer.Count - 1].state.Position : Vector3.zero;
-                string status = c.Status == EntrantStatus.Finished ? (c.FinishMillis / 1000f).ToString("F3") + " s"
+                string status = c.Status == EntrantStatus.Finished ? FinishedStatus(c)
                     : c.Status == EntrantStatus.DqDisconnected ? "DQ" : c.Status == EntrantStatus.Dnf ? "DNF" : c.Roster.Human ? "" : "AI";
                 hudState.Field.Add(new UI.HudEntrant { Name = c.Roster.DisplayName, Status = status, Position = pos, IsYou = me, Distance = c.RaceDistance });
             }
@@ -531,7 +536,7 @@ namespace NightSignal.Net
                 rs.SecondsToAuto = Mathf.Max(0f, RaceSimulation.OverturnedRescueSeconds - overturnedShown);
             }
             UI.RaceHud.SetRecovery(hudState, rs, controls != null ? controls.BindingLabel("Reset") : "R", true);
-            string offer = rs.Kind == RecoveryKind.None ? "" : rs.Kind.ToString();
+            string offer = rs.Kind == RecoveryKind.None ? "" : rs.Kind == RecoveryKind.OffRoute ? "OffRoute" : rs.Kind == RecoveryKind.Overturned ? "Overturned" : "Stopped";
             if (offer != lastOfferLogged) { lastOfferLogged = offer; if (offer.Length > 0) Debug.Log($"[NightSignal.Client] recovery offer shown: {offer} ({rs.SecondsToAuto:F1} s to the marshal)"); }
             hudState.RecoveryNotice = Time.unscaledTime < recoveryNoticeUntil
                 ? (recoveryNotice.Length > 0 ? recoveryNotice : "RECOVERED  <size=80%><color=#9A968D>+3.000 s · clock running</color></size>") : "";
@@ -973,19 +978,12 @@ namespace NightSignal.Net
             car.View.Render(e, e, 0f, default, Time.deltaTime);
         }
 
-        void OnGUI()
+        // (An OnGUI debug overlay lived here behind a flag nothing set; Unity still called it every frame. Removed in V-151.)
+
+        string FinishedStatus(Car c)
         {
-            if (headless || Info == null || !ShowDebugOverlay) return;
-            string phaseText = Phase == MatchPhase.Countdown && nm != null
-                ? $"START IN {Mathf.CeilToInt((startTick - nm.ServerTime.Tick) / 60f)}"
-                : Phase.ToString();
-            GUI.Label(new Rect(12, 12, 700, 24), $"{Info.CourseId}  {phaseText}  {ownState.SpeedKmh:F0} km/h  gear {ownState.Gear}  rtt {Rtt()} ms  corrections {Corrections}");
-            int y = 34;
-            foreach (Car c in cars.Values)
-            {
-                GUI.Label(new Rect(12, y, 700, 22), $"#{c.Roster.Index} {c.Roster.DisplayName} ({c.Roster.CarId}) {c.Status} cp {c.CheckpointsPassed} {(c.FinishMillis > 0 ? (c.FinishMillis / 1000f).ToString("F3") + " s" : "")}");
-                y += 20;
-            }
+            if (!finishedStatus.TryGetValue(c, out string s)) finishedStatus[c] = s = (c.FinishMillis / 1000f).ToString("F3") + " s";
+            return s;
         }
 
         /// <summary>

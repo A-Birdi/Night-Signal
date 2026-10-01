@@ -103,7 +103,52 @@ namespace NightSignal.Race
         public readonly Dictionary<RaceEntrant, string> FirstCorridorExit = new Dictionary<RaceEntrant, string>();
         /// <summary>Per car: the 150 ticks leading up to its first corridor exit (diagnostics).</summary>
         public readonly Dictionary<RaceEntrant, string[]> ExitTraces = new Dictionary<RaceEntrant, string[]>();
-        readonly Dictionary<RaceEntrant, Queue<string>> recentTrace = new Dictionary<RaceEntrant, Queue<string>>();
+        // The last 150 ticks of each car, kept as numbers and formatted only when the car first leaves the corridor: a
+        // formatted line per car per tick allocated about 100 KB/s in every race (spec §14: no per-frame allocations in the
+        // driving hot path; V-151).
+        readonly Dictionary<RaceEntrant, TraceRing> recentTrace = new Dictionary<RaceEntrant, TraceRing>();
+
+        struct TraceSample
+        {
+            public int Tick, Contacts, Walls;
+            public float Distance, Lateral, Vertical, UpY;
+            public Vector3 Velocity;
+        }
+
+        sealed class TraceRing
+        {
+            readonly TraceSample[] samples = new TraceSample[150];
+            int next, count;
+
+            public void Add(TraceSample s)
+            {
+                samples[next] = s;
+                next = (next + 1) % samples.Length;
+                if (count < samples.Length) count++;
+            }
+
+            public string[] Format()
+            {
+                var lines = new string[count];
+                for (int i = 0; i < count; i++)
+                {
+                    TraceSample s = samples[(next - count + i + samples.Length) % samples.Length];
+                    lines[i] = $"{s.Tick}: d={s.Distance:F1} lat={s.Lateral:F2} vert={s.Vertical:F2} vel=({s.Velocity.x:F1},{s.Velocity.y:F1},{s.Velocity.z:F1}) up={s.UpY:F2} contacts={s.Contacts} walls={s.Walls}";
+                }
+                return lines;
+            }
+        }
+
+        // Standings order and finished times, reused every frame (a new list and a new time string per car per frame before).
+        readonly List<RaceEntrant> hudOrder = new List<RaceEntrant>();
+        readonly Dictionary<RaceEntrant, string> finishedStatus = new Dictionary<RaceEntrant, string>();
+        static readonly IComparer<RaceEntrant> ByStanding = Comparer<RaceEntrant>.Create((a, b) =>
+        {
+            bool fa = a.Progress.Finished, fb = b.Progress.Finished;
+            if (fa && fb) return a.Progress.FinishTimeMicros.CompareTo(b.Progress.FinishTimeMicros);
+            if (fa != fb) return fa ? -1 : 1;
+            return b.Progress.RaceDistance.CompareTo(a.Progress.RaceDistance);
+        });
 
         readonly Dictionary<RaceEntrant, VehicleState> previous = new Dictionary<RaceEntrant, VehicleState>();
         readonly Dictionary<RaceEntrant, VehicleView> views = new Dictionary<RaceEntrant, VehicleView>();
@@ -391,13 +436,16 @@ namespace NightSignal.Race
                 if (!MaxVerticalByEntrant.TryGetValue(e, out Vector4 worst) || vy > worst.w)
                     MaxVerticalByEntrant[e] = new Vector4(e.State.Position.x, e.State.Position.y, e.State.Position.z, vy);
                 TrackLocation loc = e.Progress.Location;
-                if (!recentTrace.TryGetValue(e, out Queue<string> trace)) recentTrace[e] = trace = new Queue<string>();
-                trace.Enqueue($"{CurrentTick}: d={loc.Distance:F1} lat={loc.Lateral:F2} vert={loc.Vertical:F2} vel=({e.State.Velocity.x:F1},{e.State.Velocity.y:F1},{e.State.Velocity.z:F1}) up={(e.State.Rotation * Vector3.up).y:F2} contacts={e.Progress.VehicleContacts} walls={e.Progress.WallIncidents}");
-                if (trace.Count > 150) trace.Dequeue();
+                if (!recentTrace.TryGetValue(e, out TraceRing trace)) recentTrace[e] = trace = new TraceRing();
+                trace.Add(new TraceSample
+                {
+                    Tick = CurrentTick, Distance = loc.Distance, Lateral = loc.Lateral, Vertical = loc.Vertical, Velocity = e.State.Velocity,
+                    UpY = (e.State.Rotation * Vector3.up).y, Contacts = e.Progress.VehicleContacts, Walls = e.Progress.WallIncidents,
+                });
                 if (!loc.InCorridor && !FirstCorridorExit.ContainsKey(e))
                 {
                     FirstCorridorExit[e] = $"t={Sim.RaceMicros(CurrentTick) / 1e6:F1}s d={loc.Distance:F0} lat={loc.Lateral:F1} vert={loc.Vertical:F1} v={e.State.SpeedKmh:F0}km/h contacts={e.Progress.VehicleContacts}";
-                    ExitTraces[e] = trace.ToArray();
+                    ExitTraces[e] = trace.Format();
                 }
                 if (!IsFinite(e.State.Position) || !IsFinite(e.State.Velocity)) AnyNonFinite = true;
             }
@@ -445,14 +493,10 @@ namespace NightSignal.Race
         void RenderHud()
         {
             if (hud == null) return;
-            var order = new List<RaceEntrant>(Sim.Entrants);
-            order.Sort((a, b) =>
-            {
-                bool fa = a.Progress.Finished, fb = b.Progress.Finished;
-                if (fa && fb) return a.Progress.FinishTimeMicros.CompareTo(b.Progress.FinishTimeMicros);
-                if (fa != fb) return fa ? -1 : 1;
-                return b.Progress.RaceDistance.CompareTo(a.Progress.RaceDistance);
-            });
+            List<RaceEntrant> order = hudOrder;
+            order.Clear();
+            order.AddRange(Sim.Entrants);
+            SmallSort.Insertion(order, ByStanding);
             hudState.Field.Clear();
             int myPos = 0;
             for (int i = 0; i < order.Count; i++)
@@ -460,7 +504,7 @@ namespace NightSignal.Race
                 RaceEntrant c = order[i];
                 bool me = c == Player;
                 if (me) myPos = i + 1;
-                string status = c.Status == EntrantStatus.Finished ? (c.Progress.FinishTimeMicros / 1e6).ToString("F3") + " s"
+                string status = c.Status == EntrantStatus.Finished ? FinishedStatus(c)
                     : c.Status == EntrantStatus.Dnf ? "DNF" : c.Human ? "" : c.Roster.Team == "player" ? "ALLY" : "AI";
                 hudState.Field.Add(new UI.HudEntrant { Name = c.Roster.DisplayName, Status = status, Position = c.State.Position, IsYou = me, Distance = c.Progress.RaceDistance });
             }
@@ -503,6 +547,12 @@ namespace NightSignal.Race
         }
 
         /// <summary>Recovery offer/countdown/hold progress from the simulation, and a brief notice after each completed recovery.</summary>
+        string FinishedStatus(RaceEntrant c)
+        {
+            if (!finishedStatus.TryGetValue(c, out string s)) finishedStatus[c] = s = (c.Progress.FinishTimeMicros / 1e6).ToString("F3") + " s";
+            return s;
+        }
+
         void RecoveryHud()
         {
             int count = Player.Progress.Recoveries.Count;

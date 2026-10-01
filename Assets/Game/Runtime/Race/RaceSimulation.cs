@@ -405,7 +405,10 @@ namespace NightSignal.Race
                 bool reset = false;
                 if (e.ResetHeld >= ResetHoldSeconds && !e.Progress.Finished)
                 {
-                    e.State = Tracker.ResetPose(e.Progress, e.Params, raceMicros, "manual", p => Occupied(e, p));
+                    // The lambda captures a block-local copy: capturing the loop variable made C# allocate the closure for
+                    // every entrant on every tick, whether or not a recovery happened (spec §14; V-151).
+                    RaceEntrant self = e;
+                    e.State = Tracker.ResetPose(e.Progress, e.Params, raceMicros, "manual", p => Occupied(self, p));
                     e.ResetHeld = 0f;
                     e.ResetNeedsRelease = true;
                     e.GhostUntilTick = tick + GhostWindowTicks;
@@ -418,7 +421,8 @@ namespace NightSignal.Race
                     // penalty and protection as a player reset; judged by the route, its road layer and the car's own
                     // orientation, never by one world height.
                     string why = e.Progress.OffRouteSeconds >= AutoRescueSeconds ? "off-route" : e.OverturnedSeconds >= OverturnedRescueSeconds ? "overturned" : "stuck";
-                    e.State = Tracker.ResetPose(e.Progress, e.Params, raceMicros, why, p => Occupied(e, p));
+                    RaceEntrant self = e;
+                    e.State = Tracker.ResetPose(e.Progress, e.Params, raceMicros, why, p => Occupied(self, p));
                     e.GhostUntilTick = tick + GhostWindowTicks;
                     e.AutoRecoveries++;
                     reset = true;
@@ -448,8 +452,13 @@ namespace NightSignal.Race
 
             // Finish early only when every remaining entrant (AI included) is done; otherwise run to the deadline. If no
             // human is left racing and none finished, nobody can be rewarded, so settle now.
-            bool anyActive = Entrants.Any(e => e.Status == EntrantStatus.Racing);
-            bool anyHumanActive = Entrants.Any(e => e.Human && e.Status == EntrantStatus.Racing);
+            bool anyActive = false, anyHumanActive = false; // loops, not Any(): no enumerator boxed every tick
+            foreach (RaceEntrant e in Entrants)
+            {
+                if (e.Status != EntrantStatus.Racing) continue;
+                anyActive = true;
+                if (e.Human) anyHumanActive = true;
+            }
             bool noHumanCanFinish = !anyHumanActive && FirstHumanFinishMicros < 0;
             if (!anyActive || noHumanCanFinish || raceMicros >= DeadlineMicros || raceMicros > 15L * 60 * 1_000_000)
                 Finish();
@@ -541,8 +550,9 @@ namespace NightSignal.Race
             foreach (RaceEntrant e in Entrants)
                 if (e.GhostUntilTick >= 0 && tick >= e.GhostUntilTick)
                 {
-                    bool overlapping = Entrants.Any(o => o != e && o.Collides && VehicleContact.Overlapping(e.State, e.Params, o.State, o.Params));
-                    if (overlapping) e.State = Tracker.AnchorPose(e.Progress, e.Params, p => Occupied(e, p), out float _);
+                    RaceEntrant self = e; // a block-local capture: the closure is made only when a ghost window ends
+                    bool overlapping = Entrants.Any(o => o != self && o.Collides && VehicleContact.Overlapping(self.State, self.Params, o.State, o.Params));
+                    if (overlapping) e.State = Tracker.AnchorPose(e.Progress, e.Params, p => Occupied(self, p), out float _);
                     e.GhostUntilTick = -1;
                 }
             for (int i = 0; i < Entrants.Count; i++)

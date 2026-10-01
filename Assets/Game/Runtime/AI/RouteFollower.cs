@@ -190,6 +190,14 @@ namespace NightSignal.AI
 
         public DriverInput Drive(VehicleState s) => Drive(s, null);
 
+        // A loop, not a lambda over `here`: capturing that local made C# allocate a closure on every AI call (spec §14; V-151).
+        bool ApexAhead(float at)
+        {
+            for (int i = 0; i < ApexGates.Count; i++) // indexed: foreach over the interface boxes an enumerator
+                if (ApexGates[i].StartMetres - at > -5f && ApexGates[i].StartMetres - at < ApexBlendMetres + 20f) return true;
+            return false;
+        }
+
         /// <summary>
         /// Drives the racing line. With <paramref name="traffic"/> (other cars that can be touched) the driver matches a
         /// slower car ahead in its lane with a safe gap and moves to the side with more room to pass — racecraft, not
@@ -231,7 +239,7 @@ namespace NightSignal.AI
                     if (otherSpeed < speed - 0.5f) wantSide = otherLateral <= 0f ? 1 : -1; // pass on the side with more room
                 }
             }
-            if (ApexGates != null && ApexGates.Any(g => g.StartMetres - here.Distance > -5f && g.StartMetres - here.Distance < ApexBlendMetres + 20f))
+            if (ApexGates != null && ApexAhead(here.Distance))
                 wantSide = 0; // committing to a marked apex: no passing move now
             if (NoPassing) wantSide = 0;
             if (wantSide != 0 && passHoldTicks <= 0) { passSide = wantSide; passHoldTicks = 150; }
@@ -448,15 +456,17 @@ namespace NightSignal.AI
                 lateral = Mathf.Clamp(lateral, -half, half);
             }
             if (LineZones != null)
-                foreach (RouteGateDef g in LineZones)
+                for (int i = 0; i < LineZones.Count; i++) // indexed: foreach over the interface boxes an enumerator per tick
                 {
+                    RouteGateDef g = LineZones[i];
                     if (distance < g.StartMetres - ApexBlendMetres || distance > g.EndMetres + LineZoneHoldMetres) continue;
                     float w = distance < g.StartMetres ? 1f - (g.StartMetres - distance) / ApexBlendMetres : 1f;
                     lateral = Mathf.Lerp(lateral, Mathf.Clamp(g.LineOffset, -half, half), w);
                 }
             if (ApexGates != null)
-                foreach (RouteGateDef g in ApexGates)
+                for (int i = 0; i < ApexGates.Count; i++)
                 {
+                    RouteGateDef g = ApexGates[i];
                     // Blended in over ApexBlendMetres before the gate and out after it — after holding the gate's line for
                     // ApexHoldMetres past it (0: none), so the aim point, which runs ahead of the car, still carries it at the gate.
                     float past = distance - g.StartMetres;

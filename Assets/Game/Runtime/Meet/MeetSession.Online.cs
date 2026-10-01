@@ -30,6 +30,9 @@ namespace NightSignal.Meet
             public string Emote;
             public int ChatIndex = -1;
             public long ChatAt;
+            /// <summary>The nameplate as last built and what it showed (rebuilt only when that changes, not every frame).</summary>
+            public string Plate, PlateName;
+            public int PlateLine = int.MinValue;
             public int Pi, Likes;
             public string PiClass = "", Tune = "";
             public bool LikedByMe, Blocked;
@@ -583,10 +586,17 @@ namespace NightSignal.Meet
             {
                 if (r.Rig == null) continue;
                 bool visible = show && r.Rig.gameObject.activeSelf && !r.Blocked;
-                string line = r.State == "disconnected" ? "<size=70%>connection lost</size>"
-                    : r.ChatIndex >= 0 && Net.ServerNowMs - r.ChatAt < 4000 && r.ChatIndex < Text.QuickChat.Count ? $"<size=80%>“{Text.QuickChat[r.ChatIndex]}”</size>"
-                    : "<size=70%>driver</size>";
-                Hud.Nameplate(r, cam, r.Rig.transform.position + Vector3.up * (r.Rig.Skeleton.H + 0.35f), $"{r.Name}\n{line}", visible);
+                int lineKind = r.State == "disconnected" ? -2
+                    : r.ChatIndex >= 0 && Net.ServerNowMs - r.ChatAt < 4000 && r.ChatIndex < Text.QuickChat.Count ? r.ChatIndex : -1;
+                if (r.Plate == null || lineKind != r.PlateLine || !ReferenceEquals(r.PlateName, r.Name))
+                {
+                    string line = lineKind == -2 ? "<size=70%>connection lost</size>"
+                        : lineKind >= 0 ? $"<size=80%>“{Text.QuickChat[lineKind]}”</size>" : "<size=70%>driver</size>";
+                    r.Plate = $"{r.Name}\n{line}";
+                    r.PlateLine = lineKind;
+                    r.PlateName = r.Name;
+                }
+                Hud.Nameplate(r, cam, r.Rig.transform.position + Vector3.up * (r.Rig.Skeleton.H + 0.35f), r.Plate, visible);
             }
         }
 

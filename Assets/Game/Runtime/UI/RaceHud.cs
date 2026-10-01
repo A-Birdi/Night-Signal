@@ -45,6 +45,9 @@ namespace NightSignal.UI
         /// toward an automatic recovery (−1 = none pending) and a brief notice after a completed recovery.
         /// </summary>
         public string RecoveryPrompt = "";
+        // What RecoveryPrompt was built for (SetRecovery rebuilds it only when this changes, not every frame).
+        internal int promptKey = int.MinValue;
+        internal string promptLabel;
         public float ResetHoldFraction;
         public float RecoveryAutoFraction = -1f;
         public string RecoveryNotice = "";
@@ -189,21 +192,35 @@ namespace NightSignal.UI
             SpeedUnit u = s.UseMph ? SpeedUnit.Mph : prefs.Unit;
             cluster.Configure(prefs.Dial, SpeedDisplay.ScaleFor(s.EnvelopeMps, u));
             cluster.Render(s.RoadSpeedMps, s.Rpm, s.Redline, s.Gear, s.SpeedAvailable, Time.unscaledDeltaTime);
-            position.text = s.Entrants > 0 ? $"P{s.Position}<size=45%><color=#9A968D> / {s.Entrants}</color></size>" : "";
-            progress.text = (s.TotalCheckpoints > 0 ? $"CHECKPOINT {s.Checkpoints} / {s.TotalCheckpoints}" : "")
-                + (s.FinishWindowSeconds >= 0 ? $"\n<color=#{ColorUtility.ToHtmlStringRGB(SignalTheme.Caution)}>FINISH WINDOW {FormatClock(s.FinishWindowSeconds)}</color>" : "");
-            time.text = Tabular(FormatTime(s.RaceSeconds));
+            // Every label is rebuilt only when what it shows changes, and the running clock is written into a reused
+            // buffer: building them all each frame was most of the race's per-frame garbage (spec §14; V-151).
+            if (Changed(ref keyPosition, s.Entrants > 0 ? s.Position * 100 + s.Entrants : -1))
+                position.text = s.Entrants > 0 ? $"P{s.Position}<size=45%><color=#9A968D> / {s.Entrants}</color></size>" : "";
+            int windowSeconds = s.FinishWindowSeconds >= 0 ? (int)s.FinishWindowSeconds : -1;
+            if (Changed(ref keyProgress, ((long)s.Checkpoints << 40) ^ ((long)s.TotalCheckpoints << 20) ^ (windowSeconds + 1)))
+                progress.text = (s.TotalCheckpoints > 0 ? $"CHECKPOINT {s.Checkpoints} / {s.TotalCheckpoints}" : "")
+                    + (s.FinishWindowSeconds >= 0 ? $"\n<color=#{ColorUtility.ToHtmlStringRGB(SignalTheme.Caution)}>FINISH WINDOW {FormatClock(s.FinishWindowSeconds)}</color>" : "");
+            if (Changed(ref keyTime, (long)System.Math.Round(System.Math.Max(0, s.RaceSeconds) * 1000.0))) WriteClock(time, keyTime);
             ghost.text = s.GhostDelta ?? "";
             bool window = s.GapAheadSeconds >= 1f && s.GapAheadSeconds <= 2f;
-            gap.text = s.GapAheadSeconds < 0f ? ""
-                : $"GAP AHEAD  <color=#{ColorUtility.ToHtmlStringRGB(window ? SignalTheme.Timing : SignalTheme.Label)}>{Tabular(s.GapAheadSeconds.ToString("0.0"))} s</color>" +
-                  $"  <color=#9A968D>{s.GapAheadName}</color>";
+            if (Changed(ref keyGap, s.GapAheadSeconds < 0f ? -1 : Mathf.RoundToInt(s.GapAheadSeconds * 10f) * 2 + (window ? 1 : 0)) | !ReferenceEquals(gapName, s.GapAheadName))
+            {
+                gapName = s.GapAheadName;
+                gap.text = s.GapAheadSeconds < 0f ? ""
+                    : $"GAP AHEAD  <color=#{ColorUtility.ToHtmlStringRGB(window ? SignalTheme.Timing : SignalTheme.Label)}>{Tabular(s.GapAheadSeconds.ToString("0.0"))} s</color>" +
+                      $"  <color=#9A968D>{s.GapAheadName}</color>";
+            }
             banner.text = s.Banner;
-            drift.text = !s.DriftEvent ? ""
-                : $"DRIFT {Tabular(s.DriftBanked.ToString("N0"))}"
-                  + (s.DriftUnbanked > 0 ? $"   <color=#{ColorUtility.ToHtmlStringRGB(SignalTheme.Caution)}>+{Tabular(s.DriftUnbanked.ToString("N0"))}  ×{s.DriftChain:0.00}</color>" : "")
-                  + (s.DriftNote.Length > 0 ? "\n<size=80%>" + s.DriftNote + "</size>" : "");
-            incidents.text = s.WallIncidents > 0 || s.Resets > 0 ? $"WALL CONTACTS {s.WallIncidents}   RESETS {s.Resets}" : "";
+            if (Changed(ref keyDrift, !s.DriftEvent ? -1 : (s.DriftBanked * 31 + s.DriftUnbanked) * 1009 + Mathf.RoundToInt(s.DriftChain * 100f)) | !ReferenceEquals(driftNote, s.DriftNote))
+            {
+                driftNote = s.DriftNote;
+                drift.text = !s.DriftEvent ? ""
+                    : $"DRIFT {Tabular(s.DriftBanked.ToString("N0"))}"
+                      + (s.DriftUnbanked > 0 ? $"   <color=#{ColorUtility.ToHtmlStringRGB(SignalTheme.Caution)}>+{Tabular(s.DriftUnbanked.ToString("N0"))}  ×{s.DriftChain:0.00}</color>" : "")
+                      + (s.DriftNote.Length > 0 ? "\n<size=80%>" + s.DriftNote + "</size>" : "");
+            }
+            if (Changed(ref keyIncidents, s.WallIncidents * 100000L + s.Resets))
+                incidents.text = s.WallIncidents > 0 || s.Resets > 0 ? $"WALL CONTACTS {s.WallIncidents}   RESETS {s.Resets}" : "";
             bool holding = s.ResetHoldFraction > 0.01f;
             string offer = holding ? "RESETTING TO THE TRACK" : s.RecoveryPrompt.Length > 0 ? s.RecoveryPrompt : s.RecoveryNotice;
             recoveryPanel.SetActive(offer.Length > 0);
@@ -214,7 +231,7 @@ namespace NightSignal.UI
                 recoveryBar.parent.gameObject.SetActive(bar >= 0f);
                 recoveryBar.anchorMax = new Vector2(Mathf.Clamp01(bar), 1f);
             }
-            connection.text = s.RttMs > 180 ? $"CONNECTION  {s.RttMs} MS" : "";
+            if (Changed(ref keyRtt, s.RttMs > 180 ? s.RttMs : 0)) connection.text = s.RttMs > 180 ? $"CONNECTION  {s.RttMs} MS" : "";
 
             while (dots.Count < s.Field.Count)
             {
@@ -241,11 +258,53 @@ namespace NightSignal.UI
             }
             for (int i = 0; i < standings.Count; i++)
             {
-                if (i >= s.Field.Count) { standings[i].text = ""; continue; }
+                if (i >= s.Field.Count) { if (rowName[i] != null || rowEmpty[i] == false) { standings[i].text = ""; rowName[i] = null; rowEmpty[i] = true; } continue; }
                 HudEntrant e = s.Field[i];
+                if (!rowEmpty[i] && ReferenceEquals(rowName[i], e.Name) && ReferenceEquals(rowStatus[i], e.Status) && rowYou[i] == e.IsYou && rowReplay[i] == e.IsReplay) continue;
+                rowEmpty[i] = false;
+                rowName[i] = e.Name;
+                rowStatus[i] = e.Status;
+                rowYou[i] = e.IsYou;
+                rowReplay[i] = e.IsReplay;
                 string tag = e.IsReplay ? " <color=#3EC6D8>REPLAY</color>" : e.Status == "" ? "" : $" <color=#9A968D>{e.Status}</color>";
                 standings[i].text = e.IsReplay ? $"—  {StandingsGhost(e.Name)}{tag}" : $"{i + 1}  {(e.IsYou ? "<color=#D7263D>" : "")}{e.Name}{(e.IsYou ? "</color>" : "")}{tag}";
             }
+        }
+
+        // Last shown inputs per label (long.MinValue: never shown) and per standings row.
+        long keyPosition = long.MinValue, keyProgress = long.MinValue, keyTime = long.MinValue, keyGap = long.MinValue, keyDrift = long.MinValue,
+            keyIncidents = long.MinValue, keyRtt = long.MinValue;
+        string gapName, driftNote;
+        readonly string[] rowName = new string[7], rowStatus = new string[7];
+        readonly bool[] rowYou = new bool[7], rowReplay = new bool[7], rowEmpty = { true, true, true, true, true, true, true };
+        readonly char[] clock = new char[48];
+
+        static bool Changed(ref long last, long now)
+        {
+            if (last == now) return false;
+            last = now;
+            return true;
+        }
+
+        /// <summary>The race clock "m:ss.mmm" as <see cref="Tabular"/> digits, written into a reused buffer (no string).</summary>
+        void WriteClock(TextMeshProUGUI label, long millis)
+        {
+            const string open = "<mspace=0.58em>", close = "</mspace>";
+            int n = 0;
+            foreach (char c in open) clock[n++] = c;
+            long minutes = millis / 60000;
+            int seconds = (int)(millis / 1000 % 60), ms = (int)(millis % 1000);
+            if (minutes >= 10) clock[n++] = (char)('0' + minutes / 10 % 10);
+            clock[n++] = (char)('0' + minutes % 10);
+            clock[n++] = ':';
+            clock[n++] = (char)('0' + seconds / 10);
+            clock[n++] = (char)('0' + seconds % 10);
+            clock[n++] = '.';
+            clock[n++] = (char)('0' + ms / 100);
+            clock[n++] = (char)('0' + ms / 10 % 10);
+            clock[n++] = (char)('0' + ms % 10);
+            foreach (char c in close) clock[n++] = c;
+            label.SetCharArray(clock, 0, n);
         }
 
         /// <summary>
@@ -263,6 +322,18 @@ namespace NightSignal.UI
             string cost = penalty ? "  ·  +3.000 s" : "";
             h.ResetHoldFraction = r.HoldFraction;
             h.RecoveryAutoFraction = -1f;
+            if (r.Kind == Race.RecoveryKind.OffRoute || r.Kind == Race.RecoveryKind.Overturned)
+            {
+                float window = r.Kind == Race.RecoveryKind.OffRoute ? Race.RaceSimulation.AutoRescueSeconds
+                    : Race.RaceSimulation.OverturnedRescueSeconds - Race.RaceSimulation.OverturnedPromptSeconds;
+                if (r.SecondsToAuto >= 0f) h.RecoveryAutoFraction = Mathf.Clamp01(1f - r.SecondsToAuto / window);
+            }
+            // The prompt text changes with the kind, the countdown's tenths, the key and the penalty: rebuilt only then (it
+            // was a new string every frame while shown; spec §14, V-151).
+            int key = (int)r.Kind * 100000 + (r.SecondsToAuto < 0f ? 99999 : Mathf.Clamp(Mathf.RoundToInt(r.SecondsToAuto * 10f), 0, 99998)) * 2 + (penalty ? 1 : 0);
+            if (key == h.promptKey && ReferenceEquals(resetLabel, h.promptLabel)) return;
+            h.promptKey = key;
+            h.promptLabel = resetLabel;
             switch (r.Kind)
             {
                 case Race.RecoveryKind.OffRoute:
@@ -274,9 +345,6 @@ namespace NightSignal.UI
                         break;
                     }
                     h.RecoveryPrompt = $"{what} — RECOVERING IN {r.SecondsToAuto:0.0} s\n<size=70%><color=#9A968D>Hold {resetLabel} to reset now{cost}</color></size>";
-                    float window = r.Kind == Race.RecoveryKind.OffRoute ? Race.RaceSimulation.AutoRescueSeconds
-                        : Race.RaceSimulation.OverturnedRescueSeconds - Race.RaceSimulation.OverturnedPromptSeconds;
-                    h.RecoveryAutoFraction = Mathf.Clamp01(1f - r.SecondsToAuto / window);
                     break;
                 case Race.RecoveryKind.Stopped:
                     h.RecoveryPrompt = $"STUCK?  Hold {resetLabel} to reset to the track<size=70%><color=#9A968D>{cost}</color></size>";

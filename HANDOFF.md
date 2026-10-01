@@ -219,7 +219,10 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
    manoeuvres and chain contacts); S29 autopilot racecraft
    (optional — the rule is implemented and V03 passes). Car LOD levels are done (V-086: full/mid/far bodies, Unity's
    LODGroup chooses; measure a level under the GPU Resident Drawer with the frozen-frame bracketed holds of
-   `-nsCarLodTour`, never `Renderer.isVisible`); character LOD tiers and the §14 performance profile remain.
+   `-nsCarLodTour`, never `Renderer.isVisible`); the §14 profile is measured on this machine (V-151: `-nsPerfProfileTour`,
+   `Evidence/perf/`; race allocations cut ~93 %, ≈ 130 B/frame still unattributed — the editor's deep-profile recipe is in
+   V-151); character LOD tiers remain. Test isolation: race tests depend on static state left by earlier tests in the
+   same domain (V-151) — run a race test from a fresh domain when comparing results.
 5. **Gate 4/5**: `docs/GATE4.md` is the audit (V-114: every party size 1–6 run; a crash mid-settlement rolls back) — open:
    challenge loaners (offline-only kinds online), pad-only walkthrough, the §14 performance profile; release
    validation (string bounds are done: every built screen measured at 720p / Text 150 % — V-118, V-149, V-150);

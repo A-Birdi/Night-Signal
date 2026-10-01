@@ -72,6 +72,8 @@ namespace NightSignal.Meet
             public VehicleView Car;
             public float NextEmote;
             public bool Liked;
+            /// <summary>The nameplate text, built once (it was rebuilt for every NPC every frame).</summary>
+            public string Tag;
         }
 
         sealed class Spot
@@ -1055,9 +1057,9 @@ namespace NightSignal.Meet
             bool show = State == Phase.Walking || State == Phase.Panel || State == Phase.Wheel;
             foreach (Npc n in npcs)
             {
-                string tag = n == host ? $"{n.Name}\n<size=70%>Terrace host</size>" : $"{n.Name}\n<size=70%>{CrewName(n.Crew)} · rival</size>";
+                if (n.Tag == null) n.Tag = n == host ? $"{n.Name}\n<size=70%>Terrace host</size>" : $"{n.Name}\n<size=70%>{CrewName(n.Crew)} · rival</size>";
                 Vector3 p = n.Rig.transform.position;
-                Hud.Nameplate(n, cam, p + Vector3.up * (n.Rig.Skeleton.H + 0.35f), tag, show);
+                Hud.Nameplate(n, cam, p + Vector3.up * (n.Rig.Skeleton.H + 0.35f), n.Tag, show);
             }
             if (Net != null) RemoteLabels(cam, show);
             if (Player != null)

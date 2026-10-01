@@ -95,17 +95,29 @@ namespace NightSignal.GameAudio
         }
 
         /// <summary>Once per frame: your car plus the nearest cars within range synthesize; the rest are silent.</summary>
+        sealed class EarOrder : IComparer<CarAudio>
+        {
+            public Vector3 Ear;
+
+            public int Compare(CarAudio a, CarAudio b)
+            {
+                if (a.Own != b.Own) return a.Own ? -1 : 1;
+                return (a.transform.position - Ear).sqrMagnitude.CompareTo((b.transform.position - Ear).sqrMagnitude);
+            }
+        }
+
+        static readonly EarOrder ByEar = new EarOrder();
+
         static void Budget()
         {
             if (budgetFrame == Time.frameCount) return;
             budgetFrame = Time.frameCount;
             if (listener == null || !listener.isActiveAndEnabled) listener = Object.FindAnyObjectByType<AudioListener>();
             Vector3 ear = listener != null ? listener.transform.position : Vector3.zero;
-            all.Sort((a, b) =>
-            {
-                if (a.Own != b.Own) return a.Own ? -1 : 1;
-                return (a.transform.position - ear).sqrMagnitude.CompareTo((b.transform.position - ear).sqrMagnitude);
-            });
+            // Your car first, then nearest first. A reused comparer and an insertion sort: the sort with a lambda over `ear`
+            // allocated a closure, a delegate and a comparer every frame (spec §14; V-151).
+            ByEar.Ear = ear;
+            Race.SmallSort.Insertion(all, ByEar);
             int n = 0;
             for (int i = 0; i < all.Count; i++)
             {

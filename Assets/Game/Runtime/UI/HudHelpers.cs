@@ -19,10 +19,12 @@ namespace NightSignal.UI
         }
 
         /// <summary>3-2-1-GO text from seconds remaining until the start tick.</summary>
+        static readonly string[] CountdownDigits = { "0", "1", "2", "3" };
+
         public static string Countdown(float secondsToStart)
         {
             if (secondsToStart > 3f) return "";
-            if (secondsToStart > 0f) return Mathf.CeilToInt(secondsToStart).ToString();
+            if (secondsToStart > 0f) return CountdownDigits[Mathf.Clamp(Mathf.CeilToInt(secondsToStart), 1, 3)];
             return secondsToStart > -1f ? "GO" : "";
         }
     }

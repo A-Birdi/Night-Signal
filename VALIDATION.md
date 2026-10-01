@@ -3297,3 +3297,43 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - **With V-118 and V-149, every built screen has now been measured at 720p with Text 150 % / HUD 130 %.** Limits: the
   boombox body is legible but small at that size (above the minimum); world-space text that is not on a canvas is not
   measured; this is an audit of what the tours pass, not of every possible string (spec §15 localisation is English only).
+
+## V-151 — The §14 performance profile; per-frame allocations in the driving hot path cut by about 93 % (2026-10-01)
+- Revision: documented with the commit of this entry (the changes are in it); the built player of that tree.
+- **Profile (`tour.ps1 -Tour PerfProfileTour`, new, isolated profile):** measured separately as §14 asks — cold course loads
+  (the first regular course of each of the six regions, then one warm reload), six racers (autopilot + five authored AI,
+  light contact, real speed, 30 s of racing per course) and the populated offline meet (host + rivals at their cars, the
+  avatar walking a loop with the camera sweeping, 45 s). Labelled with the machine (CPU, GPU, RAM, OS — no device or user
+  name), the build, the window, quality and vSync: **a measurement on this machine, not a universal frame-rate claim**.
+  This non-development player offers no exact allocation counter (Unity's "GC Allocated In Frame" is not valid here and
+  `GC.GetAllocatedBytesForCurrentThread` returns nothing), so allocation is the managed heap's positive steps — approximate,
+  but the same measure before and after. About 40 B/frame of it is the tour's own sample lists growing (the countdown
+  windows show that with almost no allocating frames).
+- **Results (i7-11700K, RTX 3080, 1280x720, vSync off; `Evidence/perf/perf-profile.md`/`.csv`):** cold load to the grid
+  2.4–3.7 s, warm 2.1 s; the worst frame of a cold load 25 ms (C01, the first load of the session — shader first use), the
+  others ≤ 8 ms. Six racers: p50 ≈ 2.0 ms, p99 3.6–3.9 ms, max ≤ 6.4 ms, no frame over 16.7 ms. Meet: p50 1.2 ms, p99 2.6 ms.
+- **The allocation rule (§14 "no per-frame allocations in the main driving/network hot path") was broken:** the first run
+  measured ≈ 2.5 KB/frame and ≈ 24 collections per 30 s of racing, 1.5 KB/frame in the meet
+  (`Evidence/perf/perf-profile-before-v151.md`; its "physics 50 Hz" line was Unity's unused FixedUpdate default — the race
+  ticks at 60 Hz on its own clock, corrected in the final report). Attribution: an editor capture with deep profiling of a
+  six-car race (`RaceAllocationProbe`, an explicit PlayMode tool) — every game-side `GC.Alloc` by method. Fixed:
+  a diagnostic line formatted per car per tick (now numbers in a ring buffer, formatted only when a car leaves the
+  corridor); the race HUD rebuilding every label each frame (now only on change; the clock written into a reused buffer);
+  a new standings list and finished-time strings per frame, offline and online; closures created every tick by lambdas that
+  captured the loop variable (recoveries, ghost-window overlap) or a method local (the AI's apex check) — C# allocates the
+  closure where the variable lives, taken or not; `Any()` enumerators per tick; `List.Sort` with a comparer, which this
+  Mono wraps in a new delegate per call (now an allocation-free insertion sort for the dozen cars: standings and the
+  car-audio budget, whose lambda also captured the listener position); the countdown digit; meet nameplates rebuilt per NPC
+  per frame; an online `OnGUI` debug overlay nobody enabled that Unity still called every frame (removed); the recovery
+  prompt rebuilt per frame while shown.
+- **After (same measure):** six racers **≈ 170–235 B/frame, 1–2 collections per 30 s** (≈ 96 % of frames allocate nothing);
+  meet ≈ 140–170 B/frame, 3–4 collections per 45 s; frame times unchanged. **Not yet zero:** ≈ 130 B/frame in races and
+  ≈ 120 B/frame in the meet remain unattributed in the player (the editor capture's game-side sources are all fixed); the
+  ghost recorder's growing lists are a known, intended part. Open: attribute the rest.
+- **Behaviour unchanged, proven:** the deterministic twelve-car contact race (`FullGridContactTests`, fixed field) gives the
+  identical result on the committed code and on this code, each from a fresh domain (41 contacts, 7 wall incidents, every
+  entrant's line identical). A first comparison differed (57 contacts) because that run followed other tests in the same
+  domain: **the race tests depend on static state that earlier tests leave behind** — a test-isolation weakness, noted for a
+  follow-up. The Drift Attack tests draw a random field and count per frame, so they cannot be compared run to run.
+- **Suites:** EditMode 497 passed + 2 explicit (V-087); PlayMode `FullGridContactTests`, `RecoveryPhysicalTests`,
+  `DriftAttackTests` 10/10; the meet and race tours of V-148 … V-150 are unaffected in code paths other than the text caches.
