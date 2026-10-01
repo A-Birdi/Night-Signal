@@ -135,6 +135,9 @@ namespace NightSignal.Front
                     int slot = s;
                     showcaseSteps[s] = StyleStep(b, $"Showcase {s + 1}", 1, i => i == 0 || i > records.Count ? "None" : $"{records[i - 1].Label} {records[i - 1].Value}",
                         i => showcase[slot] = i == 0 || i > records.Count ? "" : records[i - 1].Key);
+                    // A record reads "C01 Tea Lantern Road · time attack 1:25.957": two lines in the 56 px row rather than past
+                    // its box (it spilled 80 px at 720p with Text 150 %).
+                    showcaseSteps[s].Value.textWrappingMode = TMPro.TextWrappingModes.Normal;
                 }
 
             }

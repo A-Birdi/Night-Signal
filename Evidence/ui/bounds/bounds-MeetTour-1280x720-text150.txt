@@ -1,0 +1,27 @@
+# String bounds audit — MeetTour at 1280x720, text size 150 %, HUD size 130 %
+# 31 moments audited, 347 distinct labels, 801 measurements
+# moments: Title · Settings · Controls · 00a-controls-walking · 00b-controls-interact-on-f · Local profiles · New profile · Offline · Player Card · 00c-driver-card · 01-arrival · 02-out-of-car · 03-jog · 04-west-edge · 05-host-dialogue · 06-wave-returned · 07-emote-1-Wave · 07-emote-2-CameraPose · 07-emote-3-Cheer · 07-emote-4-Admire · 08-quick-chat · 09-timing-board · 10-boombox · 11-in-car · 12-photo-marker · 12b-photo-composed · 13-plaza · 14-back-in-hub
+
+## Labels too big at their minimum size, or spilling more than 5 % past their box (failures): 0
+
+## Labels with a character the font lacks, drawn as a box (failures): 0
+
+## Fitting labels whose glyph edges reach a few pixels past the box (TMP fits by advance widths; within 5 %): 14
+- [Title] Body/Screens/Title/Shade/Title — "NIGHT SIGNAL" box 834x188, drawn 847x110 (spill 12 px), size 98.6 (min 63.0)
+- [Settings] Settings/CameraPanel/CameraOptions/Motion preset/Label — "MOTION PRESET" box 238x56, drawn 240x28 (spill 2 px), size 25.5 (min 12.8)
+- [Controls] Panel/Bindings/Buttons/ControlsMode/Label — "WALKING (MEET)" box 276x52, drawn 278x32 (spill 2 px), size 29.1 (min 16.5)
+- [00a-controls-walking] Screens/Controls/Panel/Bindings/Heading — "CONTROLS · WALKING (MEET)" box 980x90, drawn 985x65 (spill 5 px), size 57.9 (min 30.0)
+- [00a-controls-walking] Panel/Bindings/Walk.Jog (hold)/Walk.Jog/Controller/Label — "LEFT STICK PRESS" box 276x42, drawn 278x29 (spill 2 px), size 26.0 (min 16.5)
+- [New profile] Screens/New profile/Panel/Column/Heading — "NEW LOCAL PROFILE" box 640x90, drawn 645x60 (spill 5 px), size 53.8 (min 30.0)
+- [Offline] Offline/Panel/Setup/ChallengeTrials/Label — "CHALLENGE TRIALS (SUPPLIED LOANERS)" box 596x52, drawn 598x28 (spill 2 px), size 25.1 (min 16.5)
+- [Offline] Offline/Panel/Setup/DrivingSchool/Label — "DRIVING SCHOOL (T00 LESSONS)" box 596x52, drawn 598x36 (spill 2 px), size 31.8 (min 16.5)
+- [Player Card] Player Card/Panel/Who/Expression/Label — "EXPRESSION" box 186x56, drawn 188x28 (spill 2 px), size 25.5 (min 12.8)
+- [05-host-dialogue] MeetHud/Panel/Buttons/MeetAction0/Label — "HOW DO GREETINGS WORK?" box 536x44, drawn 538x37 (spill 2 px), size 32.9 (min 16.5)
+- [10-boombox] MeetHud/Panel/Buttons/MeetAction3/Label — "QUEUE: CONVOY FREQUENCY" box 536x36, drawn 538x35 (spill 2 px), size 31.7 (min 16.5)
+- [10-boombox] MeetHud/Panel/Buttons/MeetAction7/Label — "QUEUE: HINODE PRACTICE LOOP" box 536x36, drawn 538x32 (spill 2 px), size 28.7 (min 16.5)
+- [10-boombox] MeetHud/Panel/Buttons/MeetAction9/Label — "QUEUE: TIMING SLIP — NEXT TIME" box 536x36, drawn 538x31 (spill 2 px), size 27.6 (min 16.5)
+- [10-boombox] MeetHud/Panel/Buttons/MeetAction8/Label — "QUEUE: TIMING SLIP — VICTORY" box 536x36, drawn 538x33 (spill 2 px), size 29.2 (min 16.5)
+
+## Fixed-size live figures drawn beyond their box (they never clip; inspect for collisions): 0
+
+## Labels that fit only at their minimum size (legible, but the smallest allowed): 0

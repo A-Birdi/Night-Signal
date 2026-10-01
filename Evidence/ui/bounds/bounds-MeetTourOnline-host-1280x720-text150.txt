@@ -1,0 +1,18 @@
+# String bounds audit — MeetTourOnline-host at 1280x720, text size 150 %, HUD size 130 %
+# 7 moments audited, 54 distinct labels, 82 measurements
+# moments: Title · Sign In · Convoy · 01-arrived · 02-host-sees-wave · 03-boombox · 05-departures
+
+## Labels too big at their minimum size, or spilling more than 5 % past their box (failures): 0
+
+## Labels with a character the font lacks, drawn as a box (failures): 0
+
+## Fitting labels whose glyph edges reach a few pixels past the box (TMP fits by advance widths; within 5 %): 5
+- [Title] Body/Screens/Title/Shade/Title — "NIGHT SIGNAL" box 834x188, drawn 847x110 (spill 12 px), size 98.6 (min 63.0)
+- [03-boombox] MeetHud/Panel/Buttons/MeetAction7/Label — "QUEUE: HINODE PRACTICE LOOP" box 536x36, drawn 538x32 (spill 2 px), size 28.7 (min 16.5)
+- [03-boombox] MeetHud/Panel/Buttons/MeetAction9/Label — "QUEUE: TIMING SLIP — NEXT TIME" box 536x36, drawn 538x31 (spill 2 px), size 27.6 (min 16.5)
+- [03-boombox] MeetHud/Panel/Buttons/MeetAction8/Label — "QUEUE: TIMING SLIP — VICTORY" box 536x36, drawn 538x33 (spill 2 px), size 29.2 (min 16.5)
+- [03-boombox] MeetHud/Panel/Buttons/MeetAction3/Label — "QUEUE: CONVOY FREQUENCY" box 536x36, drawn 538x35 (spill 2 px), size 31.7 (min 16.5)
+
+## Fixed-size live figures drawn beyond their box (they never clip; inspect for collisions): 0
+
+## Labels that fit only at their minimum size (legible, but the smallest allowed): 0

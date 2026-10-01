@@ -24,6 +24,8 @@ param([int]$HostAccount = 0, [int]$Guest1Account = 1, [int]$Guest2Account = 2, [
     [switch]$Livery,
     # Latency on every client's control channel, 'delayMs,jitterMs' each way (e.g. '80,20'): the meet under impairment.
     [string]$ImpairControl = '',
+    # String bounds of the meet (Gate 4/5): every client at Text 150 % / HUD 130 % in its own fresh prefs folder, audited.
+    [switch]$BoundsAudit,
     # Addendum 04: loopback unless a separately authorized LAN test passes -AllowLan with its addresses.
     [string]$BindHost = '127.0.0.1', [string]$PublicHost = '127.0.0.1', [switch]$AllowLan)
 
@@ -44,14 +46,23 @@ Remove-Item (Join-Path $shots '*.png') -ErrorAction SilentlyContinue
 if ($Race -and -not $Convoy) { throw '-Race needs -Convoy.' }
 if ($Livery -and $Convoy) { throw '-Livery is a public-meet leg (no -Convoy).' }
 $tour = if ($Convoy) { '-nsMeetTourConvoy' } else { '-nsMeetTourOnline' }
+function Prefs([string]$role) {
+    if (-not $BoundsAudit) { return "Builds/NetRuns/meet-online/prefs-$role" }
+    $p = "Builds/NetRuns/meet-online/prefs-bounds-$role"
+    Remove-Item -Recurse -Force $p -ErrorAction SilentlyContinue
+    New-Item -ItemType Directory -Force $p | Out-Null
+    @{ Schema = 1; TextScale = 1.5; HudScale = 1.3 } | ConvertTo-Json | Set-Content -Encoding utf8 (Join-Path $p 'driving.json')
+    return $p
+}
 function Start-Client([string]$role, [int]$account, [int]$x) {
     $a = @($tour, $role, '-nsDevAccount', "$account",
         '-screen-fullscreen', '0', '-screen-width', '1280', '-screen-height', '720', '-monitor', '1',
-        '-nsPrefsFolder', "`"Builds/NetRuns/meet-online/prefs-$role`"",
+        '-nsPrefsFolder', "`"$(Prefs $role)`"",
         '-logFile', "`"$logs\$role.log`"")
     if ($Race) { $a += '-nsMeetTourConvoyRace' }
     if ($Livery) { $a += '-nsMeetTourLivery' }
     if ($ImpairControl) { $a += @('-nsImpairControl', $ImpairControl) }
+    if ($BoundsAudit) { $a += '-nsBoundsAudit' }
     Start-Process -FilePath $exe -PassThru -WorkingDirectory $repo -ArgumentList $a
 }
 $server = $null
@@ -83,4 +94,4 @@ if ($server) {
     Write-Output ("udp $Port released: " + (Wait-PortReleased -Port $Port))
 }
 $files = if ($Convoy) { @("$logs\host.log", "$logs\guest.log") } else { @("$logs\host.log", "$logs\guest1.log", "$logs\guest2.log") }
-Select-String -Path $files -Pattern 'NightSignal.Meet(Online|Convoy)' | ForEach-Object { $_.Line }
+Select-String -Path $files -Pattern 'NightSignal.Meet(Online|Convoy)|NightSignal.Bounds]' | ForEach-Object { $_.Line }

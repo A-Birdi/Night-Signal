@@ -112,6 +112,7 @@ namespace NightSignal.Front
             void Fail(string f) { failures.Add(f); Note("FAIL " + f); }
             IEnumerator Snap(string name)
             {
+                AuditBounds(name); // -nsBoundsAudit only
                 ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(dir, $"{role}-{name}.png"));
                 yield return new WaitForEndOfFrame();
                 yield return null;
@@ -351,6 +352,7 @@ namespace NightSignal.Front
 
             void Finish()
             {
+                if (BoundsAuditOn && BoundsAutoSizeOverflows > 0) Fail($"{BoundsAutoSizeOverflows} label(s) do not fit their box (see the bounds report)");
                 Note(failures.Count == 0 ? "PASS" : "FAILED: " + string.Join("; ", failures));
                 Application.Quit(failures.Count == 0 ? 0 : 1);
             }
@@ -419,6 +421,7 @@ namespace NightSignal.Front
             void Fail(string f) { failures.Add(f); Note("FAIL " + f); }
             IEnumerator Snap(string name)
             {
+                AuditBounds(name); // -nsBoundsAudit only
                 ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(dir, $"{role}-{name}.png"));
                 yield return new WaitForEndOfFrame();
                 yield return null;
@@ -625,6 +628,7 @@ namespace NightSignal.Front
 
             void Finish()
             {
+                if (BoundsAuditOn && BoundsAutoSizeOverflows > 0) Fail($"{BoundsAutoSizeOverflows} label(s) do not fit their box (see the bounds report)");
                 Note(failures.Count == 0 ? "PASS" : "FAILED: " + string.Join("; ", failures));
                 Application.Quit(failures.Count == 0 ? 0 : 1);
             }

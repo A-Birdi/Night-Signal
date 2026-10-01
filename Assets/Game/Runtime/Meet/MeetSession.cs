@@ -858,7 +858,9 @@ namespace NightSignal.Meet
             foreach (string id in MusicCueIdsAll())
                 if (!OwnsCue(id)) locked.Add(BoomboxState.IsProtected(id) ? $"Locked encounter theme — {Hint(id)}" : $"Locked: {Title(id)} — {Hint(id)}");
             AddCuePage(actions, Title, Queue, RefreshBoombox);
-            if (locked.Count > 0) sb.AppendLine("<color=#9A968D>" + string.Join("\n", locked.Take(8)) + (locked.Count > 8 ? $"\n… and {locked.Count - 8} more" : "") + "</color>");
+            // Three locked cues and a count: eight lines left the panel's text at its minimum size and still spilling at
+            // Text 150 % (meet bounds audit, 720p).
+            if (locked.Count > 0) sb.AppendLine("<color=#9A968D>" + string.Join("\n", locked.Take(3)) + (locked.Count > 3 ? $"\n… and {locked.Count - 3} more locked" : "") + "</color>");
             sb.AppendLine();
             sb.AppendLine($"One request each · up to {BoomboxState.MaxQueue} queued · a change at most every {BoomboxState.MinChangeIntervalMs / 1000} s.");
             actions.Insert(0, ("Skip to the next request", () => { Hud.Notify(Status(Boombox.Skip(PlayerName, NowMs)), null); RefreshBoombox(); }));

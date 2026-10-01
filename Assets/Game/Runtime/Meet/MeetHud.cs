@@ -279,6 +279,8 @@ namespace NightSignal.Meet
                 t.rectTransform.sizeDelta = new Vector2(320, 30);
                 t.outlineWidth = 0.18f;
                 t.outlineColor = new Color32(0, 0, 0, 200);
+                // World labels under every HUD panel: a nameplate made after the panel once drew over its text.
+                t.transform.SetAsFirstSibling();
                 nameplates[key] = t;
             }
             Vector3 sp = cam != null ? cam.WorldToScreenPoint(world) : Vector3.back;

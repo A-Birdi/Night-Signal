@@ -184,7 +184,7 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
    Attack (V-148), so every drift challenge can be attempted in both domains; the autopilot's drifting stays far below the
    CH20/CH21 bars. (The intermittent Services test was a Microsoft.Data.Sqlite pool double hand-out — the SQLite store no longer
    pools, V-145.) The control
-   plane (a task started this session) serves the V-147 code and content — restart it after any trials JSON or Services
+   plane (a task started this session) serves the V-149 code and content — restart it after any trials JSON or Services
    change before an online run. The tour's setup of each tunable trial is `FrontEndApp.TourSetup`. Targeted built-player
    runs: `Tools/run/tour.ps1 -Tour TrialTour -TrialOnly <ids>`; online: `Tools/run/ui-tour-online.ps1 -Intent 5
    -ChallengeTrial <id>`; a trial's measurement: `Builds/diag/measure-trials.txt` (one id per line) +
@@ -221,8 +221,8 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
    LODGroup chooses; measure a level under the GPU Resident Drawer with the frozen-frame bracketed holds of
    `-nsCarLodTour`, never `Renderer.isVisible`); character LOD tiers and the §14 performance profile remain.
 5. **Gate 4/5**: `docs/GATE4.md` is the audit (V-114: every party size 1–6 run; a crash mid-settlement rolls back) — open:
-   challenge loaners (offline-only kinds online), pad-only walkthrough, string bounds of the meet (the online screens
-   pass at 720p / Text 150 %: V-149), the §14 performance profile; release validation;
+   challenge loaners (offline-only kinds online), pad-only walkthrough, the §14 performance profile; release
+   validation (string bounds are done: every built screen measured at 720p / Text 150 % — V-118, V-149, V-150);
    blocked parts stay blocked (local Supabase/Postgres stack, Linux server module, WAN test with real people).
 
 Human checks outstanding (cannot be automated): S29 run, featured-rival pace feel after calibration, camera/comfort

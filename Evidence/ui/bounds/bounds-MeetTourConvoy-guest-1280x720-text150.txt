@@ -1,0 +1,16 @@
+# String bounds audit — MeetTourConvoy-guest at 1280x720, text size 150 %, HUD size 130 %
+# 9 moments audited, 69 distinct labels, 121 measurements
+# moments: Title · Sign In · Convoy · 01a-host-driver-card · 01-convoy-header-ready · 02-meet-invitation · Friends · 03-back-at-friends-meet
+
+## Labels too big at their minimum size, or spilling more than 5 % past their box (failures): 0
+
+## Labels with a character the font lacks, drawn as a box (failures): 0
+
+## Fitting labels whose glyph edges reach a few pixels past the box (TMP fits by advance widths; within 5 %): 3
+- [Title] Body/Screens/Title/Shade/Title — "NIGHT SIGNAL" box 834x188, drawn 847x110 (spill 12 px), size 98.6 (min 63.0)
+- [02-meet-invitation] Friends/FriendList/Friend0/Friend0A/Label — "JOIN MEET" box 164x48, drawn 166x30 (spill 2 px), size 27.2 (min 16.5)
+- [02-meet-invitation] Social/SocialColumn/Invite0/Invite0A/Label — "JOIN MEET" box 164x48, drawn 166x30 (spill 2 px), size 27.2 (min 16.5)
+
+## Fixed-size live figures drawn beyond their box (they never clip; inspect for collisions): 0
+
+## Labels that fit only at their minimum size (legible, but the smallest allowed): 0

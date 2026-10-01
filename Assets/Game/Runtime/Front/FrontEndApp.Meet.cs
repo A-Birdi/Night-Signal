@@ -128,6 +128,7 @@ namespace NightSignal.Front
             // A capture lands at the end of the frame: wait for it before the next step changes the scene.
             IEnumerator Snap(string name)
             {
+                AuditBounds(name); // -nsBoundsAudit only
                 ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(dir, name + ".png"));
                 yield return new WaitForEndOfFrame();
                 yield return null;
@@ -425,6 +426,7 @@ namespace NightSignal.Front
 
             void Finish()
             {
+                if (BoundsAuditOn && BoundsAutoSizeOverflows > 0) Fail($"{BoundsAutoSizeOverflows} label(s) do not fit their box (see the bounds report)");
                 Note(failures.Count == 0 ? "PASS" : "FAILED: " + string.Join("; ", failures));
                 Application.Quit(failures.Count == 0 ? 0 : 1);
             }

@@ -3276,3 +3276,24 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   earlier Drift Attack receipts have none) — read from the local dev database, read-only.
 - **Limits:** the meet's screens are still not audited at 720p / Text 150 %; online challenge-trial kinds that are
   offline-only stay offline-only.
+
+## V-150 — String bounds of the meet, offline and online (2026-10-01)
+- Revision: documented with the commit of this entry (the fixes are in it); the built player of that tree.
+- **Tooling:** the meet tours audit every screenshot and fail on an overflow; `bounds-audit.ps1` includes `MeetTour`;
+  `meet-online.ps1 -BoundsAudit` gives every client Text 150 % / HUD 130 % in its own fresh prefs folder (1280x720, as the
+  script already ran); a multi-client report carries the client's role (`bounds-MeetTourOnline-host-…`), so the three
+  clients no longer write one file.
+- **Found and fixed (three defects):** (1) the offline boombox panel listed up to eight locked cues: at Text 150 % its text
+  sat at the minimum size and still spilled 25 px (needing 209 px of a 184 px box) — it now lists three and "… and 13 more
+  locked"; (2) the Player Card's showcase pickers (online and Local) drew a record ("C01 Tea Lantern Road · time attack
+  1:25.957") 80 px past its 248 px box at the minimum size — the value now wraps to two lines in its 56 px row; (3) a meet
+  nameplate created after a panel drew over the panel's text (Genzo Karasawa's over the boombox) — nameplates are now the
+  HUD's first children, under every panel (seen in the screenshot; the audit measures boxes, not overlap).
+- **Runs (all PASS, 0 overflow, 0 missing glyph, 0 at minimum size):** offline `MeetTour` 347 labels over 31 moments
+  (walking controls, the card, emotes, photo mode, the boombox, the car and the meet's panels); online public meet with
+  three clients — host 54 / 7, guest1 39 / 5, guest2 38 / 5; online convoy meet — host 175 / 10 (the Player Card with two
+  showcase records), guest 69 / 9. `Evidence/ui/bounds/bounds-MeetTour-…`, `bounds-MeetTourOnline-{host,guest1,guest2}-…`,
+  `bounds-MeetTourConvoy-{host,guest}-…`, `meet-boombox-720p-text150.jpg`, `meet-convoy-card-showcase-720p-text150.jpg`.
+- **With V-118 and V-149, every built screen has now been measured at 720p with Text 150 % / HUD 130 %.** Limits: the
+  boombox body is legible but small at that size (above the minimum); world-space text that is not on a canvas is not
+  measured; this is an audit of what the tours pass, not of every possible string (spec §15 localisation is English only).
