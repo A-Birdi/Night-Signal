@@ -1,0 +1,22 @@
+# Freeplay lighting/weather presets - built player of 413968c + the fog sky/ambient fix (2026-10-01), automation, not a person
+# Offline: Tools/run/tour.ps1 -Tour FreeplayConditionsTour (1280x720, buttons only, isolated profile)
+[NightSignal.FreeplayConditionsTour] seeded: C15 marked owned on the tour's profile
+[NightSignal.FreeplayConditionsTour] C15-stage-default hub: C15  Tide Lantern Coast · Time Attack — no contact, no AI · Course's own — "Freeplay pays race money and keeps Local personal records. Conditions: Early night, damp."
+[NightSignal.FreeplayConditionsTour] C15-stage-default: raced surface damp, lit for evening, headlights on; ghost surface damp (159.429 s); Local record C15/time-attack conditions damp
+[NightSignal.FreeplayConditionsTour] C01-stage-default hub: C01  Tea Lantern Road · Time Attack — no contact, no AI · Course's own — "Freeplay pays race money and keeps Local personal records. Conditions: Late afternoon, dry."
+[NightSignal.FreeplayConditionsTour] C01-stage-default: raced surface dry, lit for late-afternoon, headlights off; ghost surface dry (86.501 s); Local record C01/time-attack conditions dry
+[NightSignal.FreeplayConditionsTour] C01-wet-night hub: C01  Tea Lantern Road · Time Attack — no contact, no AI · Night, wet — "Freeplay pays race money and keeps Local personal records. Conditions: Night, wet."
+[NightSignal.FreeplayConditionsTour] C01-wet-night: raced surface wet, lit for night, headlights on; ghost surface wet (97.084 s); Local record C01/time-attack conditions wet
+[NightSignal.FreeplayConditionsTour] C01-fog hub: C01  Tea Lantern Road · Time Attack — no contact, no AI · Fog, damp — "Freeplay pays race money and keeps Local personal records. Conditions: Fog, damp."
+[NightSignal.FreeplayConditionsTour] C01-fog: raced surface damp, lit for fog, headlights on; ghost surface damp (90.906 s); Local record C01/time-attack conditions damp
+[NightSignal.FreeplayConditionsTour] PASS
+
+# Online: Tools/run/ui-tour-online.ps1 -Intent 4 -Course C01 -Conditions wet-night (control plane + one game server on 127.0.0.1, one client, buttons only)
+[NightSignal.UiTourOnline] conditions row: Night, wet
+[NightSignal.UiTourOnline] proposal: weather wet-night; shows "C01  Tea Lantern Road · time-attack / 1 driver + 0 AI · non-contact / Conditions: Night, wet"
+[NightSignal.UiTourOnline] shared table: progress 7.14 -> 1005.60, still event ready True
+[NightSignal.UiTourOnline] online race conditions: server surface wet, lighting night; course lit for night, headlights on
+[NightSignal.UiTourOnline] online route chart: 3.01 km · climb 80 m · 5 braking points
+[NightSignal.UiTourOnline] PASS; last result: <color=#9A968D>LAST RACE</color> | P1 of 1   01:35.699   <color=#3EC6D8>drift 444 pts</color> | Credits +8,139   ·   balance 681,407 cr | 
+# Server side:
+[NightSignal.Server] match m_9828c308132ee1392ffc7bb6 on C01: 1 humans, 0 AI, contact non-contact, port 7777

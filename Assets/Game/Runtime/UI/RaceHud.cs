@@ -168,6 +168,7 @@ namespace NightSignal.UI
                 s.rectTransform.anchorMin = s.rectTransform.anchorMax = new Vector2(1, 1);
                 s.rectTransform.sizeDelta = new Vector2(240, 26);
                 s.rectTransform.anchoredPosition = new Vector2(-152, -292 - i * 26);
+                s.overflowMode = TextOverflowModes.Ellipsis; // a long name ends in "…" at the minimum size, never past the panel
                 standings.Add(s);
             }
         }
@@ -241,9 +242,15 @@ namespace NightSignal.UI
                 if (i >= s.Field.Count) { standings[i].text = ""; continue; }
                 HudEntrant e = s.Field[i];
                 string tag = e.IsReplay ? " <color=#3EC6D8>REPLAY</color>" : e.Status == "" ? "" : $" <color=#9A968D>{e.Status}</color>";
-                standings[i].text = e.IsReplay ? $"—  {e.Name}{tag}" : $"{i + 1}  {(e.IsYou ? "<color=#D7263D>" : "")}{e.Name}{(e.IsYou ? "</color>" : "")}{tag}";
+                standings[i].text = e.IsReplay ? $"—  {StandingsGhost(e.Name)}{tag}" : $"{i + 1}  {(e.IsYou ? "<color=#D7263D>" : "")}{e.Name}{(e.IsYou ? "</color>" : "")}{tag}";
             }
         }
+
+        /// <summary>
+        /// A ghost's overlay label in the narrow standings column: the REPLAY tag already says it is a ghost, so "Ghost · Sora
+        /// Matsuda's reference 87.025 s" reads "Sora Matsuda ref 87.025 s" (it overflowed at 720p with HUD 130 %).
+        /// </summary>
+        static string StandingsGhost(string label) => (label ?? "").Replace("Ghost · ", "").Replace("'s reference", " ref");
 
         /// <summary>
         /// Fills the recovery fields from the simulation's offer for the driven car. <paramref name="resetLabel"/> is the

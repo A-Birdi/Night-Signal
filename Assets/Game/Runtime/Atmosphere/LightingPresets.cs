@@ -39,9 +39,11 @@ namespace NightSignal.Atmosphere
                 case "pre-dawn": return P("pre-dawn", -8, 80, new Color(0.55f, 0.6f, 0.9f), 0.26f, new Color(0.12f, 0.16f, 0.35f), 0.35f, 1f, new Color(0.12f, 0.15f, 0.26f), 0.0015f, 0.38f, true);
                 case "dawn": return P("dawn", 3, 85, new Color(1f, 0.66f, 0.46f), 0.95f, new Color(0.55f, 0.5f, 0.62f), 0.95f, 1.3f, new Color(0.72f, 0.6f, 0.62f), 0.0015f, 0.6f, true);
                 case "first-light": return P("first-light", 8, 90, new Color(1f, 0.78f, 0.6f), 1.15f, new Color(0.62f, 0.62f, 0.7f), 1.05f, 1.15f, new Color(0.78f, 0.72f, 0.72f), 0.0012f, 0.75f, false);
-                // Freeplay's "Fog, damp" preset (Core ConditionPresets): a low, diffuse morning sun in dense valley fog — about a
-                // third of the scene left at 250 m — with headlights and practical lights on.
-                case "fog": return P("fog", 9, 100, new Color(0.84f, 0.85f, 0.86f), 0.7f, new Color(0.6f, 0.63f, 0.66f), 0.75f, 2.4f, new Color(0.62f, 0.65f, 0.68f), 0.0042f, 0.8f, true);
+                // Freeplay's "Fog, damp" preset (Core ConditionPresets): a weak, diffuse morning sun in dense valley fog — about a
+                // third of the scene left at 250 m — with headlights and practical lights on. The sky tint makes the procedural
+                // sky's scattering wavelengths equal (0.80 - 0.30 x tint per channel, gamma), so the sky is a neutral grey that the
+                // fog colour matches instead of a blue sky or a red low-sun sky.
+                case "fog": return P("fog", 18, 100, new Color(0.9f, 0.9f, 0.88f), 0.55f, new Color(1f, 0.733f, 0.417f), 0.9f, 1f, new Color(0.66f, 0.68f, 0.7f), 0.0042f, 1f, true);
                 default: throw new ArgumentException($"Unknown time of day '{timeOfDay}'");
             }
         }
@@ -80,6 +82,9 @@ namespace NightSignal.Atmosphere
             RenderSettings.fogMode = FogMode.ExponentialSquared;
             RenderSettings.fogColor = p.FogColor;
             RenderSettings.fogDensity = p.FogDensity;
+            // Recompute the skybox ambient for the sky just set (Unity's documented step after a runtime skybox change); on the
+            // built player it moved C01's default and night frames by only 1-3 levels, so earlier looks are unchanged.
+            DynamicGI.UpdateEnvironment();
         }
     }
 }

@@ -3159,3 +3159,54 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - **Bounds (the hub note's longer text, Text 150 %):** UiTour and CupTour at 1280x720, Text 150 % / HUD 130 % (built player of `b6546b5`): both PASS, **0 overflow, 0 missing glyph** (UiTour 288 labels over 69 moments, including the Offline hub with the Freeplay note; CupTour 97 over 22, including the hub and the Custom Cup page — whether the cup variant of the note was on screen at an audited moment is not confirmed). `Evidence/ui/bounds/bounds-UiTour-1280x720-text150.txt`, `bounds-CupTour-1280x720-text150.txt`.
 - **Open (both sides, spec §8 "lighting/weather preset"):** neither client offers a weather or lighting preset, and the
   server applies only a wet surface from the presets — a later feature for both domains together.
+
+## V-147 — Freeplay lighting/weather presets in both domains (spec §8) (2026-10-01)
+- Revision: documented with the commit of this entry; the code is `413968c` plus the fog sky, the ambient refresh, the
+  tours' conditions steps and the HUD standings fix in this commit — the built player of that tree.
+- **The gap (V-146):** spec §8 has the host select a "lighting/weather preset" in Freeplay. Neither client offered one; the
+  control plane listed six preset ids, and the game server honoured only `wet-night` (a wet surface; no lighting).
+- **Rule — one Core table, `ConditionPresets`:** Course conditions (`stage-default`: the event's own surface and time of
+  day), Night dry, Night wet, Dawn dry, Blue hour dry, Fog damp. Each preset other than the default fixes both the surface
+  (grip) and the lighting. The game server resolves it (`ConditionPresets.Surface/Lighting` over `RaceConditions`) and
+  sends the lighting to clients; Local Freeplay carries it as `RaceEventRules.Surface/Lighting`, and `RunOfflineRace` lights
+  the course for it. **Only Freeplay chooses:** the control plane refuses a preset for a campaign stage, a Team Trial or a
+  challenge trial (`conditions_fixed` — their benchmarks and targets are certified in their own conditions). Before this, a
+  campaign proposal with `wet-night` was accepted and raced wet against a dry-certified benchmark; no client sent one. A
+  new `fog` lighting preset: a neutral grey procedural sky (tint chosen so the sky's scattering wavelengths are equal) and
+  dense fog, about a third of the scene left at 250 m, headlights on. `LightingPresets.Apply` now also recomputes the
+  skybox ambient (`DynamicGI.UpdateEnvironment`); on the built player that moved C01's default and night frames by only
+  1–3 levels.
+- **UI:** the Offline hub's Freeplay panel and the Convoy page each have a Conditions row ("Course's own" or a preset); the
+  hub's note names the resolved conditions ("Conditions: Fog, damp."; a cup: each leg's own, or "Every leg: …"). Every
+  online proposal now shows its conditions before Event Ready ("Conditions: Night, wet"; a campaign side's authored ones,
+  e.g. "Dawn, damp"). A course vote carries the chosen preset. Records and ghosts already key on the surface.
+- **Tests:** .NET `ConditionPresetTests` (7: one table, Freeplay carries the preset into the proposal and the match plan,
+  a changed preset unreadies everyone, stages / Team Trials / challenge trials refuse one) and two convoy tests that had
+  proposed weather for a campaign stage now re-propose without one — Services 379 + 1 skipped, Core 209, Builds 232,
+  Toys 92, all pass. EditMode `LocalFreeplayFieldTests` 4/4 (new: each preset's surface and lighting on a Local plan, and
+  every preset lighting exists) with `StageConditionsTests`.
+- **Built player, offline (`tour.ps1 -Tour FreeplayConditionsTour`, extended, buttons only, isolated profile):** C15 and C01
+  in their own conditions as in V-146 (damp 159.429 s; dry 86.501 s, lit late afternoon, headlights off); C01 with
+  **Night, wet**: raced wet, lit for night, headlights on, ghost and Local record "wet" (97.084 s); C01 with **Fog, damp**:
+  raced damp, lit for fog, headlights on, ghost and record "damp" (90.906 s). **PASS.** The first fog build showed a deep
+  red low-sun sky and a dark scene; the sky tint was corrected and the run repeated (the PASS above).
+  `Evidence/ui/conditions/freeplay-presets-tour.txt`, `03-C01-fog-hub.jpg`, `04-…`/`05-…`/`06-C01-*-racing.jpg`.
+- **Built player, online (`ui-tour-online.ps1 -Intent 4 -Course C01 -Conditions wet-night`, control plane restarted on this
+  code, one game server and one client on 127.0.0.1):** the Convoy page's Conditions row "Night, wet"; the proposal
+  "C01 Tea Lantern Road · time-attack / 1 driver + 0 AI · non-contact / Conditions: Night, wet"; the game server raced
+  **wet** under **night** lighting, the client lit the course for night with headlights on; 1:35.699, settled. **PASS.**
+  `07-online-convoy-conditions-row.jpg`, `08-online-proposal-conditions.jpg`.
+- **Bounds (1280x720, Text 150 % / HUD 130 %):** the audit now includes `FreeplayConditionsTour` (each hub screenshot and
+  race HUD measured). Its first run found **one overflow, not in the new rows**: the race HUD standings row of the rival
+  reference ghost ("— Ghost · Sora Matsuda's reference 87.025 s REPLAY", 317 px in a 240 px box) — a Time Attack against
+  that ghost had not been audited at 720p before. Fixed: ghost rows in the standings read "Sora Matsuda ref 87.025 s
+  REPLAY", and standings rows end in "…" at their minimum size rather than spilling. Rerun: FreeplayConditionsTour PASS
+  **0 overflow, 0 missing glyph** (80 labels over 40 moments), UiTour PASS 0/0 (292 over 69); CupTour 0/0 (101 over 22, the
+  build before the HUD fix; its hub screenshot shows the Custom Cup layout with the Conditions row inside the panel).
+  `Evidence/ui/bounds/bounds-FreeplayConditionsTour-1280x720-text150.txt` (and the UiTour/CupTour reports).
+- **Consequence:** CH26 (Gold drift on **wet** C12, a dry course) can now be set up from the client online — Freeplay Drift
+  Attack on C12 with Night, wet — where before only the protocol could ask for it (V-113); not raced here. Offline there
+  is still no Drift Attack format (V-079), so CH21/CH24/CH26 remain online-only.
+- **Limits:** Night, wet looks like Night, dry — no wet-road visuals (spray, reflections) exist for any wet course; the
+  presets are a fixed table (no free time-of-day or mid-race weather, which the spec rules out anyway). Online screens at
+  720p / Text 150 % are still unaudited (Gate 5 item).

@@ -1,5 +1,5 @@
 # String bounds audit — UiTour at 1280x720, text size 150 %, HUD size 130 %
-# 69 moments audited, 288 distinct labels, 1685 measurements
+# 69 moments audited, 292 distinct labels, 1709 measurements
 # moments: Title · 01-title · Local profiles · 02-profiles · New profile · 03-new-profile · Offline · 04-offline-hub · Campaign · 05-campaign-map · 06-stage-panel · Story · race HUD · race / Campaign · 07-race · Results · 08-results · 09-campaign-after · While We Wait · 10a-while-we-wait · Pocket Circuit · 10-pocket-circuit-table · 11-pocket-circuit-chase · 12-pocket-circuit-laps · Greenlight · 13-greenlight · 14-greenlight-results · Cap Clash · 15-cap-clash · 16-cap-clash-standings · Pit-Crew · 17-pit-crew · 18-pit-crew-model · Convoy Canvas · 19-convoy-canvas · Garage · 20-garage · 21-garage-draft · 22-garage-quote · 23-garage-bought · 24-garage-restore · 27-test-yard-b · 28-test-yard-a · 29-garage-after-yard · 25-stage-upgraded-car · 26-results-upgraded
 
 ## Labels too big at their minimum size, or spilling more than 5 % past their box (failures): 0
@@ -9,17 +9,17 @@
 ## Fitting labels whose glyph edges reach a few pixels past the box (TMP fits by advance widths; within 5 %): 13
 - [Title] Body/Screens/Title/Shade/Title — "NIGHT SIGNAL" box 834x188, drawn 847x110 (spill 12 px), size 98.6 (min 63.0)
 - [New profile] Screens/New profile/Panel/Column/Heading — "NEW LOCAL PROFILE" box 640x90, drawn 645x60 (spill 5 px), size 53.8 (min 30.0)
-- [Offline] Offline/Panel/Setup/DrivingSchool/Label — "DRIVING SCHOOL (T00 LESSONS)" box 596x52, drawn 598x36 (spill 2 px), size 31.8 (min 16.5)
 - [Offline] Offline/Panel/Setup/ChallengeTrials/Label — "CHALLENGE TRIALS (SUPPLIED LOANERS)" box 596x52, drawn 598x28 (spill 2 px), size 25.1 (min 16.5)
+- [Offline] Offline/Panel/Setup/DrivingSchool/Label — "DRIVING SCHOOL (T00 LESSONS)" box 596x52, drawn 598x36 (spill 2 px), size 31.8 (min 16.5)
 - [Campaign] Campaign/Header/Controls/FindNext/Label — "FIND NEXT STAGE" box 276x56, drawn 278x30 (spill 2 px), size 27.3 (min 16.5)
 - [Pocket Circuit] Screens/Pocket Circuit/Info/InfoColumn/Title — "POCKET CIRCUIT" box 480x90, drawn 484x56 (spill 4 px), size 50.2 (min 30.0)
 - [Greenlight] Body/Screens/Greenlight/Station/Prompt — "PRESS START, THEN REACT WITH SPACE / RIGHT TRIGGER / CLICK" box 1229x112, drawn 1231x36 (spill 2 px), size 32.6 (min 30.0)
 - [Pit-Crew] Screens/Pit-Crew/Info/InfoColumn/Title — "PIT-CREW PROJECT" box 580x90, drawn 584x58 (spill 4 px), size 51.8 (min 30.0)
 - [Convoy Canvas] Convoy Canvas/Tools/ToolColumn/Sheet/Label — "SHEET" box 88x56, drawn 90x27 (spill 2 px), size 24.0 (min 12.8)
-- [Convoy Canvas] Convoy Canvas/Tools/ToolColumn/Stamp/Label — "STAMP" box 88x56, drawn 90x27 (spill 2 px), size 23.8 (min 12.8)
 - [Convoy Canvas] Screens/Convoy Canvas/Tools/ToolColumn/Title — "CONVOY CANVAS" box 400x90, drawn 403x46 (spill 3 px), size 41.3 (min 30.0)
-- [Convoy Canvas] Convoy Canvas/Tools/ToolColumn/Width/Label — "WIDTH" box 88x56, drawn 90x27 (spill 2 px), size 24.0 (min 12.8)
+- [Convoy Canvas] Convoy Canvas/Tools/ToolColumn/Stamp/Label — "STAMP" box 88x56, drawn 90x27 (spill 2 px), size 23.8 (min 12.8)
 - [Convoy Canvas] Convoy Canvas/Tools/ToolColumn/Back/Label — "LEAVE THE CANVAS" box 356x48, drawn 359x36 (spill 3 px), size 32.3 (min 16.5)
+- [Convoy Canvas] Convoy Canvas/Tools/ToolColumn/Width/Label — "WIDTH" box 88x56, drawn 90x27 (spill 2 px), size 24.0 (min 12.8)
 
 ## Fixed-size live figures drawn beyond their box (they never clip; inspect for collisions): 0
 

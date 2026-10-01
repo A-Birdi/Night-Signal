@@ -1,6 +1,6 @@
-# String bounds audit — CupTour at 1280x720, text size 150 %, HUD size 130 %
-# 22 moments audited, 101 distinct labels, 408 measurements
-# moments: Title · Local profiles · New profile · Offline · race HUD · Results · CustomCup
+# String bounds audit — FreeplayConditionsTour at 1280x720, text size 150 %, HUD size 130 %
+# 40 moments audited, 80 distinct labels, 869 measurements
+# moments: Title · Local profiles · New profile · Offline · 01-C15-stage-default-hub · race HUD · 02-C15-stage-default-racing · Results · 03-C15-stage-default-results · 01-C01-stage-default-hub · 02-C01-stage-default-racing · 03-C01-stage-default-results · 01-C01-wet-night-hub · 02-C01-wet-night-racing · 03-C01-wet-night-results · 01-C01-fog-hub · 02-C01-fog-racing · 03-C01-fog-results
 
 ## Labels too big at their minimum size, or spilling more than 5 % past their box (failures): 0
 

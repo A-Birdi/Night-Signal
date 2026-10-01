@@ -43,6 +43,7 @@ namespace NightSignal.Front
             }
             IEnumerator Snap(string name)
             {
+                AuditBounds(name); // with -nsBoundsAudit: every label on screen must fit (the hub's Conditions row and note)
                 ScreenCapture.CaptureScreenshot(System.IO.Path.Combine(dir, name + ".png"));
                 yield return new WaitForEndOfFrame();
                 yield return null;
@@ -119,6 +120,7 @@ namespace NightSignal.Front
 
             void Finish()
             {
+                if (BoundsAuditOn && BoundsAutoSizeOverflows > 0) Fail($"{BoundsAutoSizeOverflows} label(s) do not fit their box (see the bounds report)");
                 Note(failures.Count == 0 ? "PASS" : "FAILED: " + string.Join("; ", failures));
                 Application.Quit(failures.Count == 0 ? 0 : 1);
             }
