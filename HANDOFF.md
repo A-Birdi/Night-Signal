@@ -209,7 +209,8 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
    edge. Every reward is drawn in game (V-153): the 23 wearable rewards are the driver's reward wardrobe (Player Card →
    Wardrobe; `customization.json` "wardrobe", Core `WardrobeCatalogue`, `CharacterBuilder.Worn`) and the 7 avatar rewards
    are card avatars (`CardAvatarArt`); sheets in `Evidence/characters/wardrobe/` (render: Night Signal/Art/Render Wardrobe
-   Sheets). Left: an online meet with a dressed visitor, a human look.
+   Sheets). Online: a reward earned online is worn and another visitor's client builds it (V-156). Left: the online avatar
+   emblem path in a client run (the dev host account owns no avatar reward yet), a human look.
 3. **Gameplay backlog**: ghosts — personal (V-103, V-104), a convoy member's (V-107, V-109) and the authored rival
    reference (V-109) are raced offline and online; the route/elevation chart offline (V-110) and online (V-112); left: re-recording
    the references (`RivalReferenceGhostTests`) whenever physics, scoring or a route changes. The story is on screen offline and online (V-099, V-100); left: portraits or a

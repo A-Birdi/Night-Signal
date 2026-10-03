@@ -1,0 +1,14 @@
+[NightSignal.MeetConvoy:host] rewards owned online: Cedar Lantern Keychain True, Cherry-Branch avatar False
+[NightSignal.MeetConvoy:host] showcase chosen: course:C07:time-trial, course:C21:time-trial (of 28 records)
+[NightSignal.MeetConvoy:host] card look saved: locs hoodie athletic; status 'Saved. Other drivers see this look at the meet.'
+[NightSignal.MeetConvoy:host] card style saved: {"background":"tea-rows","frame":"double","motif":"lantern","title":"night-driver","layout":"standard","region":"JP","preferredCar":"V01"}; showcase 2
+[NightSignal.MeetConvoy:host] card wardrobe saved: [cedar-lantern-keys], avatar ""
+[NightSignal.MeetConvoy:host] CH61 on the account: True (ribbon notice this visit: False)
+[NightSignal.MeetConvoy:host] room convoy-cs_82ac1e47240fa3662651 bay 1; convoy event ready: True
+[NightSignal.MeetConvoy:host] PASS
+[NightSignal.MeetConvoy:guest] the host's avatar look: locs hoodie athletic
+[NightSignal.MeetConvoy:guest] host's driver card: <b>Driver 1</b>   @nsdriver0 |  | Rank: Pass Specialist · 2,700 RP | Campaign: Normal 15/30 · Hard 0/30 | Challenges: 17/75 | Here with: V01 Kogane Hachi RS · PI 220 class D |  | Best: C07 Mistglass Hollow · time attack 1:59.534 | Best: C21 Moonridge Contour · time attack 2:17.196
+[NightSignal.MeetConvoy:guest] host's card style as drawn here: {"background":"tea-rows","frame":"double","motif":"lantern","title":"night-driver","layout":"standard","region":"JP","preferredCar":"V01"}; card shown True; showcase: Best: C07 Mistglass Hollow · time attack 1:59.534 | Best: C21 Moonridge Contour · time attack 2:17.196
+[NightSignal.MeetConvoy:guest] host wears [cedar-lantern-keys] avatar ""; replicated [cedar-lantern-keys], built here [cedar-lantern-keys] (12 materials), avatar drawn initial
+[NightSignal.MeetConvoy:guest] room convoy-cs_82ac1e47240fa3662651 bay 2; convoy event ready: True
+[NightSignal.MeetConvoy:guest] PASS

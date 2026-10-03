@@ -3478,3 +3478,19 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   render: Night Signal/Art/Render Character LOD Sheet), `character-lods-zoom.jpg`, `character-lods.txt`.
 - **Not measured:** a frame-time difference — the populated meet already runs at p50 1.20 ms on this machine (V-151); the
   levels are for weaker hardware and larger crowds.
+
+## V-156 — A reward earned online, worn, and seen by another visitor at the meet (2026-10-03)
+- Revision: documented with the commit of this entry (the tour change is in it); control plane restarted on this tree first
+  (it predated V-153 and would have dropped the wardrobe and refused the avatar), built player of this tree, loopback only
+  (`Tools/run/meet-online.ps1 -Convoy`: control plane and clients on 127.0.0.1, no game server needed for this leg).
+- **Closes V-153's "not executed":** an online meet with a dressed visitor. The convoy meet tour's host now wears what
+  its development account has earned online — the Cedar Lantern Keychain (COS-CH61, granted by the meet room for CH61 in
+  an earlier run) — and shows the Cherry-Branch avatar when the account owns COS-CH64 (it does not: CH64 has only been
+  completed offline, so the online avatar path remains covered by the API test of V-153). The guest reads what the host saved
+  and checks the meet room's replicated look and the avatar it builds for the host.
+- **Executed:** host **PASS** — "rewards owned online: Cedar Lantern Keychain True", card saved through the Player Card with
+  wardrobe [cedar-lantern-keys] (the server validated ownership), CH61 on the account. Guest **PASS** — host wears
+  [cedar-lantern-keys]; replicated [cedar-lantern-keys], built here [cedar-lantern-keys] with 12 materials (the base 10 + the
+  keychain's two); the host's driver card, style and showcase drawn as before.
+- **Evidence:** `Evidence/meet/convoy-wardrobe-log.txt` (both clients' tour lines), `card-wardrobe-online-host-preview.jpg`
+  (the host's saved look on the Player Card turntable — the keychain at the right hip).

@@ -407,6 +407,9 @@ namespace NightSignal.Meet
         /// <summary>The look a remote visitor's avatar was built from (null = the default look); tours check replication.</summary>
         public CharacterLook RemoteLook(string accountId) => remotes.TryGetValue(accountId, out Remote r) ? r.Look : null;
 
+        /// <summary>The avatar built here for another visitor (null when they are not here).</summary>
+        public CharacterRig RemoteRig(string accountId) => remotes.TryGetValue(accountId ?? "", out Remote r) ? r.Rig : null;
+
         void SpawnRemote(Remote r)
         {
             var carMats = Resources.Load<CarMaterialSet>("CarMaterialSet");

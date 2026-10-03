@@ -107,6 +107,8 @@ namespace NightSignal.Front
             System.IO.Directory.CreateDirectory(dir);
             System.IO.Directory.CreateDirectory(share);
             string codeFile = System.IO.Path.Combine(share, "convoy-code.txt");
+            // What the host wears from the reward wardrobe and which avatar the card shows ("items|avatar"), for the guest to check.
+            string wearFile = System.IO.Path.Combine(share, "host-wardrobe.txt");
             var failures = new List<string>();
             void Note(string n) => Debug.Log($"[NightSignal.MeetConvoy:{role}] {n}");
             void Fail(string f) { failures.Add(f); Note("FAIL " + f); }
@@ -140,6 +142,7 @@ namespace NightSignal.Front
             bool race = Array.IndexOf(Environment.GetCommandLineArgs(), "-nsMeetTourConvoyRace") >= 0;
             if (race) OnlineAutopilot = true;
             if (host && System.IO.File.Exists(codeFile)) System.IO.File.Delete(codeFile);
+            if (host && System.IO.File.Exists(wearFile)) System.IO.File.Delete(wearFile);
             string ReadCode()
             {
                 try { return System.IO.File.Exists(codeFile) ? System.IO.File.ReadAllText(codeFile).Trim() : ""; }
@@ -167,6 +170,12 @@ namespace NightSignal.Front
                 yield return new WaitForSeconds(1.2f);
                 PlayerCard.ChooseStart(CardPreset);
                 PlayerCard.SetField("Hair", Array.IndexOf(Characters.CharacterVocabulary.Hair, "locs"));
+                // Rewards this account earned online: CH61 (this meet) grants the Cedar Lantern Keychain, CH64 the Cherry-Branch
+                // avatar. Worn and shown when owned; on an account's first run they arrive during the visit, for the next one.
+                var ownedRewards = new HashSet<string>(((S().Me?["cosmeticsOwned"] as JArray) ?? new JArray()).Select(x => (string)x));
+                bool keys = ownedRewards.Contains("COS-CH61"), cherry = ownedRewards.Contains("COS-CH64");
+                if (keys && !PlayerCard.Wear("cedar-lantern-keys")) Fail("no keychain row on the Player Card");
+                Note($"rewards owned online: Cedar Lantern Keychain {keys}, Cherry-Branch avatar {cherry}");
                 yield return new WaitForSeconds(1.5f);
                 yield return Snap("00a-player-card");
                 // The card's style (free items), then back to the look.
@@ -174,7 +183,7 @@ namespace NightSignal.Front
                 PlayerCard.SetStyle(new Core.Customization.CardStyle
                 {
                     Background = "tea-rows", Frame = "double", Motif = "lantern", Title = "night-driver", Layout = "standard", Region = "JP",
-                    PreferredCar = S().StarterCarId ?? "",
+                    PreferredCar = S().StarterCarId ?? "", Avatar = cherry ? "cherry-branch" : "",
                 });
                 yield return Until(() => PlayerCard.RecordCount > 0, 10f, "own records for the showcase");
                 // Slot 1 takes the first record, slot 2 the second (the same record twice is refused by the server).
@@ -194,6 +203,11 @@ namespace NightSignal.Front
                 Note($"card style saved: {savedStyle?.Canonical() ?? "none"}; showcase {((S().Me?["card"] as JObject)?["showcase"] as JArray)?.Count ?? 0}");
                 if ((((S().Me?["card"] as JObject)?["showcase"] as JArray)?.Count ?? 0) != PlayerCard.Showcase.Count) Fail("the showcase was not saved");
                 if (savedStyle == null || !savedStyle.ContentEquals(PlayerCard.Style)) Fail("the saved card style is not the chosen one");
+                string wornNow = string.Join(",", saved?.Wardrobe ?? new List<string>());
+                Note($"card wardrobe saved: [{wornNow}], avatar \"{savedStyle?.Avatar}\"");
+                if (keys && wornNow != "cedar-lantern-keys") Fail("the earned keychain was not saved on the card");
+                System.IO.File.WriteAllText(wearFile + ".tmp", wornNow + "|" + (savedStyle?.Avatar ?? ""));
+                System.IO.File.Move(wearFile + ".tmp", wearFile);
                 yield return new WaitForSeconds(1.5f);
                 yield return Snap("00b-player-card-saved");
                 PlayerCard.SavePreview(System.IO.Path.Combine(dir, "host-00c-card-preview.png"));
@@ -289,6 +303,17 @@ namespace NightSignal.Front
                 if (seen == null || seen.Background != "tea-rows" || seen.Frame != "double" || seen.Motif != "lantern" || seen.Title != "night-driver" ||
                     seen.Region != "JP" || seen.PreferredCar.Length == 0 || m.Hud.Card?.Shown?.ContentEquals(seen) != true)
                     Fail("the host's card style did not reach the guest's view");
+                // The host's reward wardrobe and avatar, as the host saved them: on the avatar built here and on the card drawn here.
+                string wear = System.IO.File.Exists(wearFile) ? System.IO.File.ReadAllText(wearFile).Trim() : "";
+                string[] want = wear.Split('|');
+                string wantWorn = want[0], wantAvatar = want.Length > 1 ? want[1] : "";
+                Characters.CharacterRig hostRig = m.RemoteRig(hostAccount);
+                string seenWorn = string.Join(",", hl?.Wardrobe ?? new List<string>());
+                string builtWorn = hostRig?.Look?.Worn == null ? "" : string.Join(",", hostRig.Look.Worn.ConvertAll(w => w.Item));
+                Note($"host wears [{wantWorn}] avatar \"{wantAvatar}\"; replicated [{seenWorn}], built here [{builtWorn}] " +
+                     $"({hostRig?.Body?.sharedMaterials?.Length ?? 0} materials), avatar drawn {m.Hud.Card?.ShownAvatar?.Id}");
+                if (seenWorn != wantWorn || builtWorn != wantWorn) Fail("the host's reward wardrobe did not reach the guest's avatar of the host");
+                if (wantAvatar.Length > 0 && (seen?.Avatar != wantAvatar || m.Hud.Card?.ShownAvatar?.Id != wantAvatar)) Fail("the host's avatar emblem did not reach the guest's view");
                 yield return Snap("01a-host-driver-card");
                 m.ClosePanel();
                 yield return new WaitForSeconds(0.4f);
