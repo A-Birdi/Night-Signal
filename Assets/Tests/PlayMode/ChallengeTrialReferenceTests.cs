@@ -29,6 +29,7 @@ namespace NightSignal.Tests
     /// Automation with legal inputs, not a human.
     /// </summary>
     [Explicit("measures and publishes the challenge trials' targets")]
+    [ResetAutomationStatics]
     public sealed class ChallengeTrialReferenceTests
     {
         const string FileName = "Assets/Content/Data/authored/challenge-trials.json";

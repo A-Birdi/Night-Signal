@@ -35,6 +35,7 @@ namespace NightSignal.Tests
     /// Writes the authored-format file and per-stage evidence to Evidence/progression/benchmarks/ (copied into
     /// Assets/Content/Data/authored/stage-benchmarks.json after review). Automation with legal inputs, not a human run.
     /// </summary>
+    [ResetAutomationStatics]
     public sealed class BenchmarkCertificationTests
     {
         static readonly string[] Starters = { "V01", "V02", "V03" };

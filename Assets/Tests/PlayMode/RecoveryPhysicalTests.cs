@@ -21,6 +21,7 @@ namespace NightSignal.Tests
     /// recovered upright; a human car merely stopped is offered the reset but never taken away. Scripted inputs in the
     /// human seat — not a human playtest.
     /// </summary>
+    [ResetAutomationStatics]
     public sealed class RecoveryPhysicalTests
     {
         OfflineRaceSession session;

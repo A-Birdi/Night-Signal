@@ -26,6 +26,7 @@ namespace NightSignal.Tests
     /// become incompatible and stay off the road). Automation: AI driving, not a human run.
     /// </summary>
     [Explicit("records the authored rival reference ghosts (spec §8)")]
+    [ResetAutomationStatics]
     public sealed class RivalReferenceGhostTests
     {
         const string Folder = "Assets/Content/Resources/RivalGhosts";

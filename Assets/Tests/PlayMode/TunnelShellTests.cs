@@ -18,6 +18,7 @@ namespace NightSignal.Tests
     /// corridor), the road still drivable under it, lights along it, and portal/interior renders for review
     /// (Builds/Screenshots/tunnels/). Structural checks by physics queries, not a visual judgement.
     /// </summary>
+    [ResetAutomationStatics]
     public sealed class TunnelShellTests
     {
         static readonly string[] Courses = { "C08", "C12", "C21", "C22", "C24", "C25", "FP02" };

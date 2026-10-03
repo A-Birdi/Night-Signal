@@ -29,6 +29,7 @@ namespace NightSignal.Tests
     /// deterministic, so a retry without a change repeats the same result. Evidence per starter in
     /// Evidence/progression/campaign/. Nothing is written as a clear.
     /// </summary>
+    [ResetAutomationStatics]
     public sealed class StarterCampaignRunTests
     {
         const int MaxAttempts = 4;

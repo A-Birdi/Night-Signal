@@ -10,6 +10,7 @@ using UnityEngine.TestTools;
 
 namespace NightSignal.Tests
 {
+    [ResetAutomationStatics]
     public sealed class SmokeScenePlayModeTests
     {
         const string SmokeScenePath = "Assets/Tests/Verification/SetupSmoke.unity";

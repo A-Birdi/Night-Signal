@@ -17,6 +17,7 @@ namespace NightSignal.Tests
     /// Builds/Diagnostics/drift-sweep.txt. Automation, not a human.
     /// </summary>
     [Explicit("diagnostic sweep")]
+    [ResetAutomationStatics]
     public sealed class DriftTuningSweep
     {
         static readonly (string Name, System.Action<RouteFollower> Set)[] Configs =

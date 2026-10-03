@@ -17,6 +17,7 @@ namespace NightSignal.Tests
     /// zones on purpose, the shared race simulation scores every car with Core DriftScorer (banked raw score) and ranks the
     /// finishers by it. Evidence per course in Evidence/courses/drift/. Automation, not a human playtest.
     /// </summary>
+    [ResetAutomationStatics]
     public sealed class DriftAttackTests
     {
         static IEnumerable<string> Courses() => new[] { "C01", "C08", "C12" };

@@ -16,6 +16,7 @@ namespace NightSignal.Tests
     /// Evidence/courses/sweep/&lt;ID&gt;.json. Proves checkpoint legality and that the generated road is drivable end to end
     /// by a scripted driver — not that the course is finished art, fun, or human-tested.
     /// </summary>
+    [ResetAutomationStatics]
     public sealed class CourseSweepTests
     {
         static IEnumerable<string> Courses()

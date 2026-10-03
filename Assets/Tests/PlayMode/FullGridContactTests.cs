@@ -18,6 +18,7 @@ namespace NightSignal.Tests
     /// Evidence/courses/C01-12car-contact.json. Proves the start layout, bounded contact and AI traffic handling at the
     /// largest allowed grid in-process; it is not a network run and not a human playtest.
     /// </summary>
+    [ResetAutomationStatics]
     public sealed class FullGridContactTests
     {
         [UnityTest, Timeout(900000)]

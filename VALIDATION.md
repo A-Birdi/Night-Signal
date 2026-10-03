@@ -3337,3 +3337,46 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   follow-up. The Drift Attack tests draw a random field and count per frame, so they cannot be compared run to run.
 - **Suites:** EditMode 497 passed + 2 explicit (V-087); PlayMode `FullGridContactTests`, `RecoveryPhysicalTests`,
   `DriftAttackTests` 10/10; the meet and race tours of V-148 … V-150 are unaffected in code paths other than the text caches.
+
+## V-152 — Race tests isolated from leftover static state (2026-10-02)
+- Revision: documented with the commit of this entry (the change is in it); EditMode/PlayMode in the editor, and the built
+  player of that tree.
+- **Why statics carried over:** the project enters Play Mode with domain and scene reload disabled (Enter Play Mode
+  Options, `m_EnterPlayModeOptions: 3`, committed since the project was created — Unity 6's default), so C# statics are
+  not re-initialised between Play Mode sessions, and one PlayMode run executes all its tests in one session. 52 writable
+  statics in the game's assemblies were listed; the race-relevant ones are 19 automation knobs on `OfflineRaceSession`
+  (autopilot hold/follow/lane/apex/gate/zone/shift settings and the zone-slide tuning) that tours and measuring tests set to
+  replay references — and put back only on the happy path (a failed assertion skipped the restore lines).
+- **Shown, before the fix:** a test that leaves `AutopilotHoldSeconds = 5` (and two other knobs) set, then
+  `FullGridContactTests`' twelve-car race in the same run: the player held its brakes after GO and finished P4 in 91.49 s,
+  42 contacts / 5 walls — instead of the fresh-domain P1 86.50 s, 41 / 7.
+- **Fix:** `Race.AutomationStatics.Reset()` puts every automation knob (defaults now defined once, as constants), the
+  lesson-autopilot flag and the Local trial/cup session state back to their defaults. It runs on every Play Mode entry
+  (`RuntimeInitializeOnLoadMethod(SubsystemRegistration)`, Unity's documented remedy with domain reload disabled; in a
+  player, once at start-up when all is default anyway) and before every PlayMode test through `[ResetAutomationStatics]`
+  on every PlayMode fixture. An assembly-level test action does nothing here: the Unity Test Framework gathers actions only
+  from the test method and its fixture classes (`BeforeAfterTestCommandBase.GetTestActions`) — tried first, the leak
+  stayed. A guard test fails if any PlayMode fixture lacks the attribute.
+- **After:** the same leaking test then the race: P1 86.50 s, 41 / 7 — identical to fresh. Knobs set in edit mode (hold 5,
+  slip 99) read 0 / 28 inside Play Mode. `AutomationKnobIsolationTests` 4/4 (leaks on purpose; the next test sees the
+  defaults; Reset restores every knob; every fixture carries the attribute).
+- **Determinism, measured:** `RaceDeterminismProbe` (explicit) runs the twelve-car race six times in one session — fresh,
+  again, after loading C12, after a non-headless C12 drift race, after a C01 drift race, again: all 41 contacts / 7 walls /
+  P1 86.50 s, with only C01's own 108 barrier/drivable colliders present each time. `PhysicsQueryOrderProbe` (explicit):
+  the order in which `OverlapBox` returns C01's colliders (890 multi-collider samples along both road edges) is identical
+  fresh and after C12 was loaded. Batches `AutomationKnobIsolation|DriftAttack|FullGrid`, `FullGrid` alone and
+  `isolation|FullGrid` all give 41 / 7.
+- **Not explained (stated plainly):** two earlier runs of the same batch composition gave 57 (2026-10-01, after a long
+  session with deep profiling) and 62 contacts (2026-10-02, after a cancelled certification run, in a fresh domain);
+  neither reproduced. Ruled out by code reading or measurement: frame timing (the race reads no clock), rigidbodies and
+  animated colliders (none), leftover colliders (none), shared random state (none), mutated catalogue objects (none),
+  contact order from `OverlapBox` (identical), test-set physics/time settings (none). The remaining suspect is editor-level
+  state that survives a domain reload (PhysX scene-query history after long sessions), unproven; a fix would change
+  contact resolution and require re-measuring the references, so it is not made on suspicion. Compare physics results from
+  a freshly started editor when they matter.
+- **Also found:** a full PlayMode run includes the benchmark/certification measurements (hours; they rewrite
+  `Evidence/progression/benchmarks/`) — the run started here was cancelled through the Test Runner API, its evidence
+  rewrites reverted, and the MCP bridge's stale job cleared with its own `TestJobManager.ClearStuckJob()` plus a script
+  reload. Run targeted PlayMode groups, not the whole assembly.
+- **Suites:** EditMode 497 + 2 explicit; PlayMode targeted set (isolation, FullGrid, Recovery, DriftAttack, Smoke) 14/14;
+  built player `FreeplayConditionsTour` PASS with the V-147 times to the millisecond (159.429 / 86.501 / 97.084 / 90.906 s).

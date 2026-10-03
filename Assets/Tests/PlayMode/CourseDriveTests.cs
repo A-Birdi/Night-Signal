@@ -14,6 +14,7 @@ namespace NightSignal.Tests
     /// player, no teleporting) and checks every checkpoint legality. Evidence: Evidence/courses/&lt;ID&gt;-autopilot.json.
     /// This proves drivability and checkpoint data, not that the course is fun or that a human has played it.
     /// </summary>
+    [ResetAutomationStatics]
     public sealed class CourseDriveTests
     {
         [UnityTest, Timeout(600000)]

@@ -19,6 +19,7 @@ namespace NightSignal.Tests
     /// beneath (overpasses, the two-level bridge). Side and approach renders for review (Builds/Screenshots/bridges/).
     /// Structural checks by physics queries, not a visual judgement.
     /// </summary>
+    [ResetAutomationStatics]
     public sealed class BridgeTests
     {
         static readonly string[] Courses = { "C03", "C11", "C13", "C17", "C20", "C25" };

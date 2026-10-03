@@ -25,6 +25,7 @@ namespace NightSignal.Tests
     /// must finish, be cap-legal, and meet the side's certified target: a favourite car that cannot is a compulsory model
     /// change in disguise. Evidence: Evidence/progression/favourite-cars.json.
     /// </summary>
+    [ResetAutomationStatics]
     public sealed class FavouriteCarDrivingTests
     {
         [UnityTest, Timeout(3600000)]

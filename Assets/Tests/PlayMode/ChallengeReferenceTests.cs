@@ -34,6 +34,7 @@ namespace NightSignal.Tests
     /// car change. Automation with legal inputs, not a human.
     /// </summary>
     [Explicit("measures and publishes the challenge references")]
+    [ResetAutomationStatics]
     public sealed class ChallengeReferenceTests
     {
         const string FileName = "Assets/Content/Data/authored/challenge-references.json";

@@ -17,6 +17,7 @@ namespace NightSignal.Tests
     /// demonstration car and skill.
     /// </summary>
     [Explicit("T00 drift demonstration measurement")]
+    [ResetAutomationStatics]
     public sealed class LessonDemonstrationTests
     {
         [UnityTest, Timeout(900000)]

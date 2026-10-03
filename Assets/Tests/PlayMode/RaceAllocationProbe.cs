@@ -18,6 +18,7 @@ namespace NightSignal.Tests
     /// Profiler recording (deep profiling for method-level attribution) to see where the bytes come from. Explicit: a
     /// measuring tool, not a regression test.
     /// </summary>
+    [ResetAutomationStatics]
     public sealed class RaceAllocationProbe
     {
         [UnityTest, Explicit("measurement tool: run with the Profiler recording"), Timeout(300000)]

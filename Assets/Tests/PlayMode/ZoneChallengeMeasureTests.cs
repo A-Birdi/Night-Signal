@@ -26,6 +26,7 @@ namespace NightSignal.Tests
     /// predicates have no measured targets). Explicit. Automation, not a person.
     /// </summary>
     [Explicit("drives the challenge-zone courses with the autopilot")]
+    [ResetAutomationStatics]
     public sealed class ZoneChallengeMeasureTests
     {
         const string ReportPath = "Evidence/challenges/zones.txt";

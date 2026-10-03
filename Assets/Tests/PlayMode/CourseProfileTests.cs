@@ -18,6 +18,7 @@ namespace NightSignal.Tests
     /// Evidence/courses/profile/. Full-size courses must have an intentional non-flat surface (height range or real
     /// banking); the road collider must follow the centreline.
     /// </summary>
+    [ResetAutomationStatics]
     public sealed class CourseProfileTests
     {
         static IEnumerable<string> Courses()

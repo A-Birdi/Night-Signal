@@ -22,6 +22,7 @@ namespace NightSignal.Tests
     /// Evidence/progression/reference/. Automation with legal inputs, not a human run: benchmarks derived from these are
     /// labelled as such.
     /// </summary>
+    [ResetAutomationStatics]
     public sealed class ReferenceRunTests
     {
         static readonly string[] Starters = { "V01", "V02", "V03" };

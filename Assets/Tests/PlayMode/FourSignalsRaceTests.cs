@@ -21,6 +21,7 @@ namespace NightSignal.Tests
     /// Arc), judged by the same ContractJudge as the dedicated server. Evidence: Evidence/progression/four-signals.json.
     /// Automation, not a human run.
     /// </summary>
+    [ResetAutomationStatics]
     public sealed class FourSignalsRaceTests
     {
         [UnityTest, Timeout(1800000)]

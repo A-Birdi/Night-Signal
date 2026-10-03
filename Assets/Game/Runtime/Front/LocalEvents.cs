@@ -155,6 +155,14 @@ namespace NightSignal.Front
         public static string CupTrialId { get; private set; }
         public static readonly List<TrialCupLegFacts> CupLegsRun = new List<TrialCupLegFacts>();
 
+        /// <summary>The last trial verdict and any challenge cup in progress forgotten (a new Play Mode session; V-152).</summary>
+        public static void ResetSession()
+        {
+            LastTrialVerdict = null;
+            LastTrialRacecraftLog = new List<string>();
+            AbandonCup();
+        }
+
         /// <summary>Starts a challenge cup's session (its first leg follows).</summary>
         public static void BeginCup(string trialId)
         {

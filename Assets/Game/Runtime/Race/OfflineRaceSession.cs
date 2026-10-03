@@ -55,8 +55,12 @@ namespace NightSignal.Race
         /// </summary>
         public static bool AutopilotDrivesChallengeZones;
         /// <summary>The zone tour's slide knobs (diagnostics may tune them): target slip, slip-rate countersteer and throttle lift.</summary>
-        public static float ZoneSlideSlipDeg = 28f, ZoneSlideRateSteer = 0.15f, ZoneSlideRateThrottle = 0.02f, ZoneSlidePathFollow = 0.6f, ZoneSlidePathThrottle,
-            ZoneSlideEntrySpeed = 25f, ZoneSlideTransitionGrace = 1f, ZoneSlideClipInset = 0.8f;
+        public static float ZoneSlideSlipDeg = DefaultZoneSlideSlipDeg, ZoneSlideRateSteer = DefaultZoneSlideRateSteer,
+            ZoneSlideRateThrottle = DefaultZoneSlideRateThrottle, ZoneSlidePathFollow = DefaultZoneSlidePathFollow, ZoneSlidePathThrottle,
+            ZoneSlideEntrySpeed = DefaultZoneSlideEntrySpeed, ZoneSlideTransitionGrace = DefaultZoneSlideTransitionGrace,
+            ZoneSlideClipInset = DefaultZoneSlideClipInset;
+        const float DefaultZoneSlideSlipDeg = 28f, DefaultZoneSlideRateSteer = 0.15f, DefaultZoneSlideRateThrottle = 0.02f,
+            DefaultZoneSlidePathFollow = 0.6f, DefaultZoneSlideEntrySpeed = 25f, DefaultZoneSlideTransitionGrace = 1f, DefaultZoneSlideClipInset = 0.8f;
         /// <summary>Automation only: the autopilot holds the brakes this long after GO, so the field goes ahead (racecraft tour).</summary>
         public static float AutopilotHoldSeconds;
         /// <summary>Automation only: the autopilot keeps about this interval (s) behind the car ahead; 0 = it races normally.</summary>
@@ -76,6 +80,29 @@ namespace NightSignal.Race
         /// no other shift from 150 m before the first to 20 m after the last; elsewhere it shifts by rpm as the automatic does.
         /// </summary>
         public static string[] AutopilotShiftAtGates;
+
+        /// <summary>
+        /// Every automation knob above (and <see cref="SoakSkipRender"/>) back to its default. The editor enters Play Mode
+        /// without a domain reload, so a knob a tour or test set and did not put back (a failed assertion skips the reset
+        /// lines) carried into every later race of the editor session (V-152). Called through <see cref="AutomationStatics"/>.
+        /// </summary>
+        public static void ResetAutomationKnobs()
+        {
+            AutopilotAimsChallengeGates = AutopilotDrivesChallengeZones = false;
+            ZoneSlideSlipDeg = DefaultZoneSlideSlipDeg;
+            ZoneSlideRateSteer = DefaultZoneSlideRateSteer;
+            ZoneSlideRateThrottle = DefaultZoneSlideRateThrottle;
+            ZoneSlidePathFollow = DefaultZoneSlidePathFollow;
+            ZoneSlidePathThrottle = 0f;
+            ZoneSlideEntrySpeed = DefaultZoneSlideEntrySpeed;
+            ZoneSlideTransitionGrace = DefaultZoneSlideTransitionGrace;
+            ZoneSlideClipInset = DefaultZoneSlideClipInset;
+            AutopilotHoldSeconds = AutopilotFollowSeconds = AutopilotLaneHoldMetres = AutopilotApexHoldMetres = 0f;
+            AutopilotAttacksMarkedZones = AutopilotHoldsMarkedLanes = false;
+            AutopilotSlidesZonesOf = null;
+            AutopilotShiftAtGates = null;
+            SoakSkipRender = false;
+        }
         float[] shiftBoards;
         bool boardUpshiftPending;
         float autopilotLastDistance = -1f;
