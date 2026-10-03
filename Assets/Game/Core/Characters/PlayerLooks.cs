@@ -16,7 +16,9 @@ namespace NightSignal.Characters
     {
         /// <summary>At most this many accessories/modifiers on a player look (the rivals' sheets stay unrestricted).</summary>
         public const int MaxAccessories = 4;
-        /// <summary>Upper bound on the stored JSON (a full look is ≈ 450 bytes).</summary>
+        /// <summary>At most this many reward wardrobe items worn at once (one per wardrobe slot; there are fewer slots).</summary>
+        public const int MaxWardrobe = 16;
+        /// <summary>Upper bound on the stored JSON (a full look is ≈ 450 bytes; a fully dressed wardrobe adds ≈ 350).</summary>
         public const int MaxJsonLength = 2048;
 
         static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
@@ -42,6 +44,12 @@ namespace NightSignal.Characters
             List<string> acc = look.Accessories ?? new List<string>();
             if (acc.Count > MaxAccessories) bad.Add($"at most {MaxAccessories} accessories");
             if (acc.Distinct().Count() != acc.Count) bad.Add("an accessory is listed twice");
+            // Reward wardrobe ids are only checked for shape here; which exist and which are owned is the catalogue's call
+            // (Core.Customization.WardrobeCatalogue.Problems), made by whoever saves the card.
+            List<string> worn = look.Wardrobe ?? new List<string>();
+            if (worn.Count > MaxWardrobe) bad.Add($"at most {MaxWardrobe} wardrobe items");
+            if (worn.Distinct().Count() != worn.Count) bad.Add("a wardrobe item is listed twice");
+            if (worn.Any(w => !Core.Customization.CatalogueIds.IsValid(w))) bad.Add("a wardrobe item id is malformed");
             return bad;
         }
 

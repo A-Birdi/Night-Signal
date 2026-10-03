@@ -81,6 +81,13 @@ public static partial class PlayerEndpoints
                 {
                     NightSignal.Characters.CharacterLook? parsed = lj.ValueKind == JsonValueKind.Object ? NightSignal.Characters.PlayerLooks.Parse(lj.GetRawText()) : null;
                     List<string> problems = NightSignal.Characters.PlayerLooks.Problems(parsed);
+                    // Reward wardrobe pieces (customization.json "wardrobe"): only ones the account owns, one per place.
+                    if (problems.Count == 0 && parsed!.Wardrobe is { Count: > 0 })
+                    {
+                        PlayerSnapshot wearer = await store.GetSnapshotAsync(user.AccountId(), ct);
+                        var owned = new HashSet<string>(wearer.Cosmetics, StringComparer.Ordinal);
+                        problems = customization.Catalogue.Wardrobe.Problems(parsed, owned.Contains);
+                    }
                     if (problems.Count > 0) return Problem(400, "invalid_look", "That appearance cannot be used: " + string.Join("; ", problems.Take(3)));
                     look = NightSignal.Characters.PlayerLooks.Canonical(parsed!);
                 }

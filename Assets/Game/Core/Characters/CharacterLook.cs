@@ -56,6 +56,27 @@ namespace NightSignal.Characters
         public string Posture = "neutral";
         /// <summary>calm | grin | serious | smile | sleepy</summary>
         public string Face = "calm";
+        /// <summary>
+        /// Reward wardrobe items worn (ids from customization.json "wardrobe"; players only, each one owned). A worn garment
+        /// replaces the matching part of the outfit above while it is worn; see <c>WardrobeCatalogue.Apply</c>.
+        /// </summary>
+        public List<string> Wardrobe = new List<string>();
+        /// <summary>The stored form leaves the list out when nothing is worn, so looks saved before the wardrobe read the same.</summary>
+        public bool ShouldSerializeWardrobe() => Wardrobe != null && Wardrobe.Count > 0;
+        /// <summary>
+        /// The worn pieces resolved for the builder (shape tokens with each piece's own two colours) — derived from
+        /// <see cref="Wardrobe"/> and the catalogue when a character is built; never stored or sent.
+        /// </summary>
+        [Newtonsoft.Json.JsonIgnore] public List<WornPiece> Worn = new List<WornPiece>();
+    }
+
+    /// <summary>One worn reward piece as the builder draws it: its shapes and its own two colours (#RRGGBB).</summary>
+    [Serializable]
+    public sealed class WornPiece
+    {
+        public string Item = "";
+        public List<string> Shapes = new List<string>();
+        public string ColourA = "#808080", ColourB = "#404040";
     }
 
     [Serializable]

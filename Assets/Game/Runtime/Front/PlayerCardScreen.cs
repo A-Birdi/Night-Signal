@@ -16,7 +16,8 @@ namespace NightSignal.Front
     /// <summary>
     /// The Player Card (spec §11): display name, optional pronouns and the driver's appearance, chosen from accessible
     /// starting looks and simple steps (build, height, skin, face, posture, hair, clothes, colours, two accessories) with a
-    /// live turntable preview. Visual only — never hitboxes, steering or performance. Online it is saved to the server-owned
+    /// live turntable preview; the reward wardrobe (challenge garments and accessories, one per place on the body, locked
+    /// until earned) and the card's style including its avatar emblem. Visual only — never hitboxes, steering or performance. Online it is saved to the server-owned
     /// card with a revision; the server validates the look and hands it to the meet, where other drivers see the same
     /// person. Offline (a Local profile, no online session) the same card is saved in the profile and used at the offline meet.
     /// </summary>
@@ -44,7 +45,17 @@ namespace NightSignal.Front
         readonly Dictionary<Stepper, Image> swatches = new Dictionary<Stepper, Image>();
         Stepper preset;
         // The card's style (spec §11): background, frame, motif, title, layout, region, preferred car.
-        Stepper editing, bgStep, frameStep, motifStep, titleStep, layoutStep, regionStep, carStep;
+        Stepper editing, bgStep, frameStep, motifStep, titleStep, layoutStep, regionStep, carStep, avatarStep;
+        /// <summary>The wardrobe rows: a label and the wardrobe slots it chooses for (customization.json "wardrobe").</summary>
+        static readonly (string Label, string[] Slots)[] WardrobeGroups =
+        {
+            ("Jacket or suit", new[] { "upper", "full" }), ("Trousers", new[] { "lower" }), ("Boots", new[] { "feet" }),
+            ("Gloves", new[] { "hands" }), ("Cap", new[] { "head" }), ("Scarf", new[] { "neck" }),
+            ("Lapel badge", new[] { "chest" }), ("Wrist", new[] { "wrist" }), ("Keychain", new[] { "hip" }), ("Charm", new[] { "charm" }),
+            ("Bag", new[] { "bag" }), ("In hand", new[] { "carry" }), ("Belt", new[] { "belt" }),
+        };
+        readonly List<GameObject> wardrobeRows = new List<GameObject>();
+        static Core.Customization.WardrobeCatalogue Wardrobe => Content.ContentLibrary.Load()?.Customization?.Wardrobe;
         // Showcase (spec §11 chosen records): up to three of the player's own records, online.
         readonly Stepper[] showcaseSteps = new Stepper[3];
         List<(string Key, string Label, string Value)> records = new List<(string, string, string)>();
@@ -86,7 +97,7 @@ namespace NightSignal.Front
             RectTransform a = UIFactory.Column("Who", panel.transform, new Vector2(0, 0.13f), new Vector2(0.5f, 0.79f), new Vector2(56, 0), new Vector2(-12, 0), 4f);
             RectTransform b = UIFactory.Column("Wear", panel.transform, new Vector2(0.5f, 0.13f), new Vector2(1f, 0.79f), new Vector2(12, 0), new Vector2(-32, 0), 4f);
 
-            editing = new Stepper(b, "Editing", 2, i => i == 0 ? "Driver look" : "Card style", 0, 570, 0.34f);
+            editing = new Stepper(b, "Editing", 3, i => i == 0 ? "Driver look" : i == 1 ? "Card style" : "Wardrobe", 0, 570, 0.34f);
             editing.Changed += ShowSection;
             preset = new Stepper(a, "Start from", PlayerLooks.Presets.Length + 1, i => i == 0 ? "Your look" : $"Look {i}", 0, 570, 0.34f);
             preset.Changed += i =>
@@ -118,15 +129,36 @@ namespace NightSignal.Front
             lookRows.Add(preset.Root);
             foreach (var f in fields) lookRows.Add(f.Step.Root);
 
+            // Wardrobe rows (hidden until "Wardrobe" is chosen above): the challenge reward garments and accessories by place.
+            Core.Customization.WardrobeCatalogue wardrobe = Wardrobe;
+            if (wardrobe != null)
+            {
+                int first = fields.Count;
+                for (int gi = 0; gi < WardrobeGroups.Length; gi++)
+                {
+                    string[] slots = WardrobeGroups[gi].Slots;
+                    List<Core.Customization.WardrobeItemDef> items = wardrobe.Items.Where(x => slots.Contains(x.Slot)).ToList();
+                    Field(gi < 6 ? a : b, WardrobeGroups[gi].Label, items.Count + 1, i => i == 0 || i > items.Count ? "None" : Locked(items[i - 1].Name, items[i - 1].CosmeticId),
+                        i => SetWorn(items, i), () => WornIndex(items));
+                }
+                for (int f = first; f < fields.Count; f++)
+                {
+                    wardrobeRows.Add(fields[f].Step.Root);
+                    fields[f].Step.Root.SetActive(false);
+                }
+            }
+
             // Card style rows (hidden until "Card style" is chosen above): reward items say when they are not owned yet.
             CardStyleCatalogue cat = Cat;
             if (cat != null)
             {
-                string Lock(string name, string cosmetic) => cosmetic == null || ownedCosmetics.Contains(cosmetic) ? name : name + "  (locked)";
+                Func<string, string, string> Lock = Locked;
                 bgStep = StyleStep(a, "Background", cat.Backgrounds.Count, i => Lock(cat.Backgrounds[i].Name, cat.Backgrounds[i].CosmeticId), i => style.Background = cat.Backgrounds[i].Id);
                 frameStep = StyleStep(a, "Frame", cat.Frames.Count, i => Lock(cat.Frames[i].Name, cat.Frames[i].CosmeticId), i => style.Frame = cat.Frames[i].Id);
                 motifStep = StyleStep(a, "Motif", cat.Motifs.Count, i => Lock(cat.Motifs[i].Name, cat.Motifs[i].CosmeticId), i => style.Motif = cat.Motifs[i].Id);
                 titleStep = StyleStep(a, "Title", cat.Titles.Count, i => Lock(cat.Titles[i].Name, cat.Titles[i].CosmeticId), i => style.Title = cat.Titles[i].Id);
+                avatarStep = StyleStep(a, "Avatar", Math.Max(1, cat.Avatars.Count), i => i < cat.Avatars.Count ? Lock(cat.Avatars[i].Name, cat.Avatars[i].CosmeticId) : "Default",
+                    i => style.Avatar = i < cat.Avatars.Count ? cat.Avatars[i].Id : "");
                 layoutStep = StyleStep(b, "Layout", cat.Layouts.Count, i => Lock(cat.Layouts[i].Name, cat.Layouts[i].CosmeticId), i => style.Layout = cat.Layouts[i].Id);
                 regionStep = StyleStep(b, "Region", RegionCodes.All.Count + 1, i => i == 0 ? "None" : RegionCodes.All[i - 1], i => style.Region = i == 0 ? "" : RegionCodes.All[i - 1]);
                 carStep = StyleStep(b, "Preferred car", 1, i => i == 0 || i > ownedCars.Count ? "None" : CarName(ownedCars[i - 1]), i => style.PreferredCar = i == 0 || i > ownedCars.Count ? "" : ownedCars[i - 1]);
@@ -200,15 +232,53 @@ namespace NightSignal.Front
 
         static string CarName(string carId) => Content.ContentLibrary.Load()?.Catalogue?.TryCar(carId, out Core.Content.CarDef car) == true ? car.Name : carId;
 
-        /// <summary>"Driver look" (0) or "Card style" (1): which rows and which preview show.</summary>
+        /// <summary>"Driver look" (0), "Card style" (1) or "Wardrobe" (2): which rows and which preview show.</summary>
         public void ShowSection(int index)
         {
             if (editing.Index != index) editing.Set(index);
             foreach (GameObject g in lookRows) g.SetActive(index == 0);
             foreach (GameObject g in styleRows) g.SetActive(index == 1);
-            preview.gameObject.SetActive(index == 0);
+            foreach (GameObject g in wardrobeRows) g.SetActive(index == 2);
+            preview.gameObject.SetActive(index != 1);
             cardView.Root.gameObject.SetActive(index == 1);
             if (index == 1) RefreshCard();
+            if (index == 2 && !busy)
+                status.text = "Challenge rewards you can wear. A reward garment replaces that part of your own outfit; locked items preview but save once earned.";
+        }
+
+        /// <summary>A reward item's name, marked when this player does not own it yet.</summary>
+        string Locked(string name, string cosmetic) => cosmetic == null || ownedCosmetics.Contains(cosmetic) ? name : name + "  (locked)";
+
+        /// <summary>Wears item <paramref name="index"/> (1-based; 0 = none) of a wardrobe row, replacing whatever that row had on.</summary>
+        void SetWorn(List<Core.Customization.WardrobeItemDef> items, int index)
+        {
+            var ids = new HashSet<string>(items.Select(x => x.Id), StringComparer.Ordinal);
+            look.Wardrobe = (look.Wardrobe ?? new List<string>()).Where(x => !ids.Contains(x)).ToList();
+            if (index > 0 && index <= items.Count) look.Wardrobe.Add(items[index - 1].Id);
+        }
+
+        int WornIndex(List<Core.Customization.WardrobeItemDef> items)
+        {
+            foreach (string id in look.Wardrobe ?? new List<string>())
+            {
+                int i = items.FindIndex(x => x.Id == id);
+                if (i >= 0) return i + 1;
+            }
+            return 0;
+        }
+
+        /// <summary>Automation: wear (or take off) one wardrobe item as its row would.</summary>
+        public bool Wear(string itemId, bool on = true)
+        {
+            Core.Customization.WardrobeItemDef d = Wardrobe?.Item(itemId);
+            if (d == null || look == null) return false;
+            foreach (var g in WardrobeGroups)
+            {
+                if (!g.Slots.Contains(d.Slot)) continue;
+                List<Core.Customization.WardrobeItemDef> items = Wardrobe.Items.Where(x => g.Slots.Contains(x.Slot)).ToList();
+                return SetField(g.Label, on ? items.IndexOf(d) + 1 : 0);
+            }
+            return false;
         }
 
         /// <summary>Automation: choose a whole style as the steppers would.</summary>
@@ -233,6 +303,7 @@ namespace NightSignal.Front
             motifStep.Set(Of(cat.Motifs, x => x.Id, style.Motif));
             titleStep.Set(Of(cat.Titles, x => x.Id, style.Title));
             layoutStep.Set(Of(cat.Layouts, x => x.Id, style.Layout));
+            avatarStep.Set(Of(cat.Avatars, x => x.Id, string.IsNullOrEmpty(style.Avatar) ? cat.Default.Avatar : style.Avatar));
             int r = style.Region.Length == 0 ? 0 : 1 + Math.Max(0, RegionCodes.All.ToList().IndexOf(style.Region));
             regionStep.Set(r);
             carStep.SetCount(ownedCars.Count + 1);
@@ -393,6 +464,7 @@ namespace NightSignal.Front
                     $"Challenges {((S.Me?["challengesCompleted"] as JArray)?.Count ?? 0)}/75",
                 };
             }
+            Sync(); // the wardrobe rows say "(locked)" by what this player owns, known only now
             for (int s = 0; s < showcase.Length; s++) showcase[s] = "";
             records = new List<(string, string, string)>();
             if (Local != null)
@@ -470,7 +542,7 @@ namespace NightSignal.Front
             {
                 // Offline: the Local profile's card, validated like the online one and saved atomically.
                 Core.Profiles.LocalProgressionResult r = Core.Profiles.LocalProgression.SetCard(Local.Profile, nameField.text,
-                    PlayerLooks.Canonical(look), pronounsField.text, style, Cat, Showcase, Content.ContentLibrary.Load()?.Catalogue);
+                    PlayerLooks.Canonical(look), pronounsField.text, style, Cat, Showcase, Content.ContentLibrary.Load()?.Catalogue, Wardrobe);
                 if (r.Status == Core.Profiles.LocalOperationStatus.AlreadyApplied)
                 {
                     status.text = "Nothing changed.";

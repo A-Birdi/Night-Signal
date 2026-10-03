@@ -21,10 +21,10 @@ namespace NightSignal.Characters
 
         public static CharacterMaterialSet Load() => Resources.Load<CharacterMaterialSet>("CharacterMaterialSet");
 
-        /// <summary>One material per <see cref="CharacterBuilder.Slot"/>.</summary>
+        /// <summary>One material per <see cref="CharacterBuilder.Slot"/>, then colours A and B of each worn reward piece.</summary>
         public Material[] For(CharacterLook look)
         {
-            var m = new Material[(int)CharacterBuilder.Slot.Count];
+            var m = new Material[CharacterBuilder.SlotCount(look)];
             m[(int)CharacterBuilder.Slot.Skin] = Tint(Skin, look.Skin, "#E3B996");
             m[(int)CharacterBuilder.Slot.Hair] = Tint(Hair, look.HairColour, "#2A2220");
             m[(int)CharacterBuilder.Slot.Top] = Tint(Cloth, look.Primary, "#3A5A7A");
@@ -35,6 +35,11 @@ namespace NightSignal.Characters
             m[(int)CharacterBuilder.Slot.Dark] = Dark;
             m[(int)CharacterBuilder.Slot.Light] = Light;
             m[(int)CharacterBuilder.Slot.Metal] = Metal;
+            for (int i = 0; i < (look.Worn?.Count ?? 0); i++)
+            {
+                m[CharacterBuilder.GearSlot(i, false)] = Tint(Cloth, look.Worn[i].ColourA, "#808080");
+                m[CharacterBuilder.GearSlot(i, true)] = Tint(Cloth, look.Worn[i].ColourB, "#404040");
+            }
             return m;
         }
 

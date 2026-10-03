@@ -8,8 +8,8 @@ using UnityEngine.UI;
 namespace NightSignal.Front
 {
     /// <summary>
-    /// A Player Card drawn with its style (spec §11 background, frame, motif, title, layout; the self-selected region as a
-    /// code badge; the preferred car) — the Player Card screen's preview and the public card at the meet. Backgrounds and
+    /// A Player Card drawn with its style (spec §11 avatar emblem, background, frame, motif, title, layout; the self-selected
+    /// region as a code badge; the preferred car) — the Player Card screen's preview and the public card at the meet. Backgrounds and
     /// motifs are procedural textures (an animated background redraws a small texture a few times a second); frames are UI
     /// strips. Text is literal (never markup).
     /// </summary>
@@ -18,7 +18,11 @@ namespace NightSignal.Front
         const int TexW = 320, TexH = 180, MotifSize = 96;
 
         public RectTransform Root { get; }
-        readonly RawImage background, motif;
+        readonly RawImage background, motif, avatar;
+        readonly Texture2D avatarTex;
+        readonly Color32[] avatarPixels = new Color32[CardAvatarArt.Size * CardAvatarArt.Size];
+        readonly TextMeshProUGUI initial;
+        CardAvatarDef shownAvatar;
         readonly Image band, nameplate, header, regionBox;
         readonly RectTransform frameRoot;
         readonly TextMeshProUGUI name, sub, lines, lines2, region, car, headerText;
@@ -30,6 +34,11 @@ namespace NightSignal.Front
 
         /// <summary>The style last drawn (tests and evidence read it).</summary>
         public CardStyle Shown { get; private set; }
+        /// <summary>The avatar emblem last drawn.</summary>
+        public CardAvatarDef ShownAvatar => shownAvatar;
+        /// <summary>The avatar texture (evidence reads it).</summary>
+        public Texture2D AvatarTexture => avatarTex;
+
         /// <summary>The public lines last drawn (tests and evidence read it).</summary>
         public IReadOnlyList<string> ShownLines { get; private set; } = new List<string>();
 
@@ -64,6 +73,23 @@ namespace NightSignal.Front
             motif.raycastTarget = false;
             motifTex = new Texture2D(MotifSize, MotifSize, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, name = "CardMotif" };
             motif.texture = motifTex;
+
+            // The avatar emblem, top left beside the name.
+            var avatarGo = new GameObject("Avatar", typeof(RectTransform), typeof(RawImage));
+            avatarGo.transform.SetParent(Root, false);
+            var art = (RectTransform)avatarGo.transform;
+            art.anchorMin = art.anchorMax = new Vector2(0f, 1f);
+            art.pivot = new Vector2(0f, 1f);
+            art.sizeDelta = new Vector2(104, 104);
+            art.anchoredPosition = new Vector2(20, -20);
+            avatar = avatarGo.GetComponent<RawImage>();
+            avatar.raycastTarget = false;
+            avatarTex = new Texture2D(CardAvatarArt.Size, CardAvatarArt.Size, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, name = "CardAvatar" };
+            avatar.texture = avatarTex;
+            initial = UIFactory.Label("Initial", art, "", 52f, SignalTheme.Label, TextAlignmentOptions.Center, true);
+            initial.richText = false;
+            initial.raycastTarget = false;
+            Stretch(initial.rectTransform, Vector2.zero, Vector2.one);
 
             name = Text("Name", SignalTheme.Heading, SignalTheme.Label, true);
             sub = Text("Sub", SignalTheme.Small, SignalTheme.Caution, false);
@@ -114,6 +140,19 @@ namespace NightSignal.Front
             shownBackground = bg;
             phase = 0f;
             DrawBackground(bg, 0f);
+            CardAvatarDef av = cat.AvatarOf(style);
+            if (av != shownAvatar)
+            {
+                shownAvatar = av;
+                CardAvatarArt.Draw(av, avatarPixels);
+                avatarTex.SetPixels32(avatarPixels);
+                avatarTex.Apply(false);
+            }
+            bool letter = av == null || av.Art == "initial";
+            initial.gameObject.SetActive(letter);
+            string trimmed = (displayName ?? "").Trim();
+            initial.text = trimmed.Length > 0 ? char.ToUpperInvariant(trimmed[0]).ToString() : "?";
+            initial.color = av != null && av.Colors.Count > 2 ? Hex(av.Colors[2], SignalTheme.Label) : SignalTheme.Label;
             DrawMotif(mo);
             Color frameColour = Hex(frame?.Color, SignalTheme.Timing);
             BuildFrame(frame?.Style ?? "thin", frameColour);
@@ -133,11 +172,14 @@ namespace NightSignal.Front
             band.gameObject.SetActive(kind == "two-state" || kind == "sectors");
             band.rectTransform.anchorMax = new Vector2(1, kind == "sectors" ? 0.36f : 0.46f);
             float top = kind == "passport" ? 0.84f : 0.96f;
-            Place(name.rectTransform, 0.05f, top - 0.2f, 0.7f, top);
-            Place(sub.rectTransform, 0.05f, top - 0.29f, 0.8f, top - 0.2f);
+            // The avatar sits under the passport header when there is one; the name and title start right of it.
+            ((RectTransform)avatar.transform).anchoredPosition = new Vector2(20, kind == "passport" ? -(Root.rect.height * 0.14f + 8f) : -20f);
+            const float textLeft = 0.26f;
+            Place(name.rectTransform, textLeft, top - 0.2f, 0.7f, top);
+            Place(sub.rectTransform, textLeft, top - 0.29f, 0.8f, top - 0.2f);
             Place(region.rectTransform, 0.72f, top - 0.17f, 0.8f, top - 0.04f);
             Place(regionBox.rectTransform, 0.72f, top - 0.17f, 0.8f, top - 0.04f);
-            Place(nameplate.rectTransform, 0.03f, top - 0.21f, 0.71f, top + 0.005f);
+            Place(nameplate.rectTransform, textLeft - 0.02f, top - 0.21f, 0.71f, top + 0.005f);
             var list = stats ?? new List<string>();
             if (kind == "twin")
             {
@@ -182,6 +224,7 @@ namespace NightSignal.Front
         {
             Object.Destroy(bgTex);
             Object.Destroy(motifTex);
+            Object.Destroy(avatarTex);
         }
 
         // ------------------------------------------------------------------ procedural art

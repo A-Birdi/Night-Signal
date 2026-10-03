@@ -236,6 +236,8 @@ namespace NightSignal.Core.Customization
         public List<ChassisAppearanceDef> Chassis = new List<ChassisAppearanceDef>();
         /// <summary>The Player Card's style items (backgrounds, frames, motifs, titles, layouts) and the default style.</summary>
         public CardStyleSection Card;
+        /// <summary>The driver's reward wardrobe: the driver_clothing and worn accessory_or_avatar challenge rewards.</summary>
+        public WardrobeSection Wardrobe;
     }
 
     /// <summary>Thrown when customization.json is structurally invalid; <see cref="Errors"/> holds the exact list.</summary>
@@ -271,6 +273,8 @@ namespace NightSignal.Core.Customization
         public IReadOnlyList<PaintFinishDef> PaintFinishes { get; private set; }
         /// <summary>The Player Card's style catalogue (spec §11 background, frame, motif, title; layouts).</summary>
         public CardStyleCatalogue Card { get; private set; }
+        /// <summary>The driver's reward wardrobe (customization.json "wardrobe").</summary>
+        public WardrobeCatalogue Wardrobe { get; private set; } = new WardrobeCatalogue();
         public IReadOnlyList<TwoToneDef> TwoToneStyles { get; private set; }
         public IReadOnlyList<PaintSwatchDef> PaintSwatches { get; private set; }
         public IReadOnlyList<RimDesignDef> RimDesigns { get; private set; }
@@ -381,6 +385,10 @@ namespace NightSignal.Core.Customization
             cat.Chassis = file.Chassis ?? new List<ChassisAppearanceDef>();
             if (cat.Chassis.Count == 0) errors.Add("No chassis entries");
             cat.Card = CardStyleCatalogue.Validate(file.Card, errors);
+            cat.Wardrobe = WardrobeCatalogue.Validate(file.Wardrobe, errors);
+            foreach (var dup in cat.Card.Items().Where(x => x.CosmeticId != null).Select(x => x.CosmeticId)
+                         .Intersect(cat.Wardrobe.Items.Select(x => x.CosmeticId), StringComparer.Ordinal))
+                errors.Add($"Cosmetic {dup} unlocks both a card item and a wardrobe item");
 
             if (errors.Count > 0) return false;
             cat.Hash = BuildHashing.Sha256Hex(json.Replace("\r\n", "\n"));
@@ -713,10 +721,32 @@ namespace NightSignal.Core.Customization
                 if (paintUnlocks.ContainsKey(s.CosmeticId)) e.Add($"Cosmetic {s.CosmeticId} unlocks more than one paint swatch");
                 else paintUnlocks.Add(s.CosmeticId, s.Id);
             }
+            // Card items unlock card_customization rewards, except avatars (accessory_or_avatar); wardrobe items unlock
+            // driver_clothing and the worn accessory_or_avatar rewards.
+            var wearUnlocks = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var item in Card.Items().Where(x => x.CosmeticId != null))
+            {
+                string want = item.Kind == "avatar" ? "accessory_or_avatar" : "card_customization";
+                if (!content.TryCosmetic(item.CosmeticId, out CosmeticDef cos)) e.Add($"Card {item.Kind} {item.Id} names unknown cosmetic {item.CosmeticId}");
+                else if (cos.Category != want) e.Add($"Card {item.Kind} {item.Id}: cosmetic {item.CosmeticId} is a {cos.Category}, not a {want}");
+                wearUnlocks.Add(item.CosmeticId);
+            }
+            foreach (WardrobeItemDef w in Wardrobe.Items)
+            {
+                if (!content.TryCosmetic(w.CosmeticId, out CosmeticDef cos)) e.Add($"Wardrobe item {w.Id} names unknown cosmetic {w.CosmeticId}");
+                else if (cos.Category != "driver_clothing" && cos.Category != "accessory_or_avatar")
+                    e.Add($"Wardrobe item {w.Id}: cosmetic {w.CosmeticId} is a {cos.Category}, not driver_clothing or accessory_or_avatar");
+                else if (cos.Category == "driver_clothing" && (w.Slot == "neck" || w.Slot == "chest" || w.Slot == "wrist" || w.Slot == "hip" ||
+                                                                 w.Slot == "charm" || w.Slot == "bag" || w.Slot == "carry" || w.Slot == "belt"))
+                    e.Add($"Wardrobe item {w.Id}: a driver_clothing reward is a garment, cap or gloves, not a {w.Slot} accessory");
+                wearUnlocks.Add(w.CosmeticId);
+            }
             foreach (CosmeticDef cos in content.Cosmetics)
             {
                 if (cos.Category == "decal" && !decalUnlocks.ContainsKey(cos.Id)) e.Add($"Decal cosmetic {cos.Id} ({cos.Name}) has no decal shape");
                 if (cos.Category == "paint" && !paintUnlocks.ContainsKey(cos.Id)) e.Add($"Paint cosmetic {cos.Id} ({cos.Name}) has no paint swatch");
+                if ((cos.Category == "card_customization" || cos.Category == "driver_clothing" || cos.Category == "accessory_or_avatar") && !wearUnlocks.Contains(cos.Id))
+                    e.Add($"{cos.Category} cosmetic {cos.Id} ({cos.Name}) has no card item or wardrobe item");
             }
             return e;
         }

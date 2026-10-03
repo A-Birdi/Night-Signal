@@ -324,10 +324,11 @@ namespace NightSignal.Core.Profiles
         /// </summary>
         public static LocalProgressionResult SetCard(LocalProfile profile, string displayName, string lookJson, string pronouns,
             Customization.CardStyle style = null, Customization.CardStyleCatalogue card = null, IReadOnlyList<string> showcase = null,
-            ContentCatalogue content = null)
+            ContentCatalogue content = null, Customization.WardrobeCatalogue wardrobe = null)
         {
             LocalProgressionResult result = Begin(profile);
             if (!LocalDisplayName.TryNormalize(displayName, out string name, out string error)) return Reject(result, error);
+            var ownedCosmetics = new HashSet<string>((profile.Cosmetics ?? new List<OwnedCosmetic>()).Select(c => c.CosmeticId), StringComparer.Ordinal);
             string look = "";
             if (!string.IsNullOrEmpty(lookJson))
             {
@@ -335,6 +336,13 @@ namespace NightSignal.Core.Profiles
                 if (parsed == null) return Reject(result, "That look could not be read.");
                 List<string> problems = Characters.PlayerLooks.Problems(parsed).ToList();
                 if (problems.Count > 0) return Reject(result, problems[0]);
+                // Reward wardrobe pieces: only ones this profile owns, one per place (as the online card).
+                if (parsed.Wardrobe != null && parsed.Wardrobe.Count > 0)
+                {
+                    if (wardrobe == null) return Reject(result, "No wardrobe catalogue.");
+                    List<string> worn = wardrobe.Problems(parsed, ownedCosmetics.Contains);
+                    if (worn.Count > 0) return Reject(result, worn[0]);
+                }
                 look = Characters.PlayerLooks.Canonical(parsed);
             }
             string words = (pronouns ?? "").Trim();
@@ -344,8 +352,7 @@ namespace NightSignal.Core.Profiles
             if (style != null)
             {
                 if (card == null) return Reject(result, "No card style catalogue.");
-                var owned = new HashSet<string>((profile.Cosmetics ?? new List<OwnedCosmetic>()).Select(c => c.CosmeticId), StringComparer.Ordinal);
-                List<string> bad = card.Problems(style, owned.Contains, car => (profile.Cars ?? new List<OwnedCar>()).Any(c => c.ModelId == car));
+                List<string> bad = card.Problems(style, ownedCosmetics.Contains, car => (profile.Cars ?? new List<OwnedCar>()).Any(c => c.ModelId == car));
                 if (bad.Count > 0) return Reject(result, bad[0]);
             }
             bool sameStyle = style == null || StyleOf(profile.Card, null).ContentEquals(styled);
@@ -368,6 +375,7 @@ namespace NightSignal.Core.Profiles
                 p.Card.LayoutId = styled.Layout;
                 p.Card.Region = styled.Region;
                 p.Card.PreferredCar = styled.PreferredCar;
+                p.Card.AvatarId = styled.Avatar;
             }
             if (showcase != null) p.Card.Showcase = showcase.ToList();
             Add(result, ProgressionChangeKind.CardChanged, name, 0, "Driver card changed.");
@@ -391,6 +399,7 @@ namespace NightSignal.Core.Profiles
                 Layout = Or(card?.LayoutId, defaults?.Layout),
                 Region = card?.Region ?? "",
                 PreferredCar = card?.PreferredCar ?? "",
+                Avatar = Or(card?.AvatarId, defaults?.Avatar),
             };
         }
 

@@ -18,7 +18,7 @@ namespace NightSignal.Editor.ArtTools
     /// pair's front+side silhouette (intersection over union at a fixed metric scale) and colour layout.
     /// Output: Builds/Screenshots/characters/.
     /// </summary>
-    public static class CharacterSheet
+    public static partial class CharacterSheet
     {
         public const string LooksPath = "Assets/Content/Data/authored/story/rivals.look.json";
 

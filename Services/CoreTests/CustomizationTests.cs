@@ -774,11 +774,15 @@ public sealed class CardStyleTests
     public void EveryCardReward_UnlocksExactlyOneItem_AndTheDefaultIsFree()
     {
         var rewards = TestContent.Catalogue.Cosmetics.Where(c => c.Category == "card_customization").Select(c => c.Id).OrderBy(x => x).ToList();
-        var locked = Card.Items().Where(i => i.CosmeticId != null).Select(i => i.CosmeticId).OrderBy(x => x).ToList();
+        var locked = Card.Items().Where(i => i.CosmeticId != null && i.Kind != "avatar").Select(i => i.CosmeticId).OrderBy(x => x).ToList();
         Assert.Equal(15, rewards.Count);
         Assert.Equal(rewards, locked);
+        // The seven avatar rewards (accessory_or_avatar "… Avatar Emblem / Crest / Icon / Mosaic / Avatar") are card avatars.
+        var avatarRewards = Card.Avatars.Where(a => a.CosmeticId != null).Select(a => a.CosmeticId).OrderBy(x => x).ToList();
+        Assert.Equal(new[] { "COS-CH64", "COS-CH66", "COS-CH68", "COS-CH70", "COS-CH71", "COS-CH73", "COS-CH75" }, avatarRewards);
+        Assert.All(avatarRewards, id => Assert.Equal("accessory_or_avatar", TestContent.Catalogue.Cosmetics.Single(c => c.Id == id).Category));
         Assert.Empty(Card.Problems(Card.Default, _ => false, _ => false));
-        foreach (var kind in new[] { "background", "frame", "motif", "title", "layout" })
+        foreach (var kind in new[] { "background", "frame", "motif", "title", "layout", "avatar" })
             Assert.True(Card.Items().Count(i => i.Kind == kind && i.CosmeticId == null) >= 1, $"a free {kind}");
     }
 
@@ -805,14 +809,34 @@ public sealed class CardStyleTests
     }
 
     [Fact]
+    public void Avatars_AreEachTheirOwnDrawing_AndLockedUntilOwned()
+    {
+        Assert.Equal(9, Card.Avatars.Count);
+        Assert.Equal(Card.Avatars.Count, Card.Avatars.Select(a => a.Art).Distinct().Count());
+        Assert.Equal(CardStyleCatalogue.AvatarArts.OrderBy(x => x), Card.Avatars.Select(a => a.Art).OrderBy(x => x));
+        CardStyle s = Card.Default.Copy();
+        s.Avatar = "ghostline";
+        Assert.Equal(new[] { "Not owned yet: Ghostline Avatar Icon." }, Card.Problems(s, _ => false, _ => false));
+        Assert.Empty(Card.Problems(s, id => id == "COS-CH68", _ => false));
+        s.Avatar = "no-such-avatar";
+        Assert.Equal(new[] { "Unknown card avatar no-such-avatar." }, Card.Problems(s, _ => true, _ => false));
+        s.Avatar = "";
+        Assert.Empty(Card.Problems(s, _ => false, _ => false));
+    }
+
+    [Fact]
     public void Canonical_RoundTrips_AndParseRefusesUnknownMembers()
     {
         CardStyle s = Card.Default.Copy();
         s.Motif = "lantern";
         s.Region = "GB";
         string wire = s.Canonical();
-        Assert.Equal("{\"background\":\"night\",\"frame\":\"thin\",\"motif\":\"lantern\",\"title\":\"none\",\"layout\":\"standard\",\"region\":\"GB\",\"preferredCar\":\"\"}", wire);
+        Assert.Equal("{\"background\":\"night\",\"frame\":\"thin\",\"motif\":\"lantern\",\"title\":\"none\",\"layout\":\"standard\",\"region\":\"GB\",\"preferredCar\":\"\",\"avatar\":\"initial\"}", wire);
         Assert.True(CardStyle.Parse(wire)!.ContentEquals(s));
+        // A style saved before avatars existed reads and writes exactly as it did (no avatar member).
+        const string older = "{\"background\":\"night\",\"frame\":\"thin\",\"motif\":\"none\",\"title\":\"none\",\"layout\":\"standard\",\"region\":\"\",\"preferredCar\":\"\"}";
+        Assert.Equal(older, CardStyle.Parse(older)!.Canonical());
+        Assert.Equal("initial", Card.AvatarOf(CardStyle.Parse(older))!.Id);
         Assert.Null(CardStyle.Parse("{\"background\":\"night\",\"sparkles\":true}"));
         Assert.Null(CardStyle.Parse("not json"));
         Assert.Equal("", CardStyle.Parse("{\"background\":\"dusk\"}")!.Frame);

@@ -22,10 +22,19 @@ namespace NightSignal.Characters
     /// skinned mesh, a submesh per colour <see cref="Slot"/>. Model space: feet at y = 0, facing +z, arms in a relaxed
     /// A-pose. Deterministic; purely visual.
     /// </summary>
-    public static class CharacterBuilder
+    public static partial class CharacterBuilder
     {
-        /// <summary>Material slots (submeshes).</summary>
+        /// <summary>
+        /// Material slots (submeshes). After <see cref="Slot.Count"/> come two slots per worn reward piece
+        /// (<see cref="CharacterLook.Worn"/>, in order): its own colours A and B (<see cref="GearSlot"/>).
+        /// </summary>
         public enum Slot { Skin, Hair, Top, Under, Accent, Lower, Shoes, Dark, Light, Metal, Count }
+
+        /// <summary>The submesh of worn piece <paramref name="piece"/>'s colour A (<paramref name="b"/> = false) or B.</summary>
+        public static int GearSlot(int piece, bool b) => (int)Slot.Count + 2 * piece + (b ? 1 : 0);
+
+        /// <summary>Submeshes a look's mesh has: the fixed slots and two per worn piece.</summary>
+        public static int SlotCount(CharacterLook look) => (int)Slot.Count + 2 * (look.Worn?.Count ?? 0);
 
         public static readonly Bone[] Parent =
         {
@@ -150,12 +159,21 @@ namespace NightSignal.Characters
             public float H => Sk.H;
             public float S => Sk.H / 1.72f;
             public bool Has(string accessory) => Look.Accessories != null && Look.Accessories.Contains(accessory);
+
+            /// <summary>Colour slot A of the worn piece that has <paramref name="shape"/>, or −1 when none does.</summary>
+            public int Gear(string shape)
+            {
+                if (Look.Worn == null) return -1;
+                for (int i = 0; i < Look.Worn.Count; i++)
+                    if (Look.Worn[i].Shapes != null && Look.Worn[i].Shapes.Contains(shape)) return GearSlot(i, false);
+                return -1;
+            }
         }
 
         /// <summary>The character's skinned mesh (bone weights and bind poses in <see cref="Bone"/> order).</summary>
         public static Mesh Build(CharacterLook look, Skeleton sk)
         {
-            var c = new Ctx { Mb = new MeshBuilder((int)Slot.Count), Look = look, Sk = sk, G = Dress(look) };
+            var c = new Ctx { Mb = new MeshBuilder(SlotCount(look)), Look = look, Sk = sk, G = Dress(look) };
             Torso(c);
             Outer(c);
             Arms(c);
@@ -163,6 +181,7 @@ namespace NightSignal.Characters
             Head(c);
             Hair(c);
             Accessories(c);
+            WornPieces(c);
             c.Mb.RemoveUnused();
             Mesh m = c.Mb.Build($"Character_{look.Id}");
             m.boneWeights = c.Mb.BoneWeights();
@@ -619,7 +638,8 @@ namespace NightSignal.Characters
                 }
                 // Hand: palm and fingers as a mitt, a thumb.
                 bool glove = c.Has("gloves") || c.Has("glove-one") && !left;
-                Slot hs = glove ? Slot.Dark : Slot.Skin;
+                int drivingGloves = c.Gear("driving-gloves");
+                Slot hs = drivingGloves >= 0 ? (Slot)drivingGloves : glove ? Slot.Dark : Slot.Skin;
                 Quaternion hr = Quaternion.FromToRotation(Vector3.up, -down);
                 Blob(c, hs, hand, wr + down * 0.05f * c.S, new Vector3(0.024f, 0.055f, 0.042f) * c.S * Mathf.Lerp(1f, sk.Girth, 0.4f), hr * Quaternion.Euler(0f, side * -10f, 0f), 5, 8);
                 Blob(c, hs, hand, wr + down * 0.032f * c.S + new Vector3(-side * 0.004f, 0f, 0.028f) * c.S, new Vector3(0.011f, 0.03f, 0.011f) * c.S, Quaternion.FromToRotation(Vector3.up, (down + Vector3.forward * 0.8f).normalized), 4, 6);

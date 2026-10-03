@@ -151,6 +151,37 @@ public sealed class PlayerApiTests : IDisposable
         Assert.Equal(JsonValueKind.Null, (await c.GetFromJsonAsync<JsonElement>("/v1/me")).GetProperty("card").GetProperty("style").ValueKind);
     }
 
+    [Fact]
+    public async Task Card_WardrobeAndAvatar_OnlyOwnedRewards_OnePerPlace_PublicOnTheCard()
+    {
+        HttpClient c = await Me();
+        var jacket = new { build = "athletic", outfit = "hoodie", wardrobe = new[] { "signal-track-jacket" } };
+        HttpResponseMessage locked = await c.PostAsJsonAsync("/v1/me/card", new { displayName = "Aki Night", look = jacket });
+        JsonElement why = await locked.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("invalid_look", why.GetProperty("error").GetString());
+        Assert.Contains("Not owned yet: Signal Track Jacket.", why.GetProperty("message").GetString());
+        Assert.Equal("invalid_look", await Error(await c.PostAsJsonAsync("/v1/me/card", new { displayName = "Aki Night", look = new { wardrobe = new[] { "no-such-coat" } } })));
+
+        // Earned (challenge rewards CH33 and CH39): the jacket is worn and public; two jackets at once are refused.
+        Own("COS-CH33");
+        Own("COS-CH39");
+        JsonElement saved = await (await c.PostAsJsonAsync("/v1/me/card", new { displayName = "Aki Night", look = jacket })).Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("signal-track-jacket", saved.GetProperty("look").GetProperty("wardrobe")[0].GetString());
+        HttpResponseMessage twice = await c.PostAsJsonAsync("/v1/me/card", new { displayName = "Aki Night", look = new { wardrobe = new[] { "signal-track-jacket", "harbour-marshal-coat" } } });
+        Assert.Contains("worn in the same place", (await twice.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("message").GetString());
+
+        // The avatar emblem (accessory_or_avatar rewards CH64…CH75) is part of the card style, owned or refused.
+        var ghost = new { background = "night", frame = "thin", motif = "none", title = "none", layout = "standard", avatar = "ghostline" };
+        HttpResponseMessage noAvatar = await c.PostAsJsonAsync("/v1/me/card", new { displayName = "Aki Night", style = ghost });
+        Assert.Contains("Not owned yet: Ghostline Avatar Icon.", (await noAvatar.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("message").GetString());
+        Own("COS-CH68");
+        (await c.PostAsJsonAsync("/v1/me/card", new { displayName = "Aki Night", style = ghost })).EnsureSuccessStatusCode();
+        string id = (await c.GetFromJsonAsync<JsonElement>("/v1/me")).GetProperty("accountId").GetString()!;
+        JsonElement pub = await c.GetFromJsonAsync<JsonElement>($"/v1/players/{id}/card");
+        Assert.Equal("ghostline", pub.GetProperty("style").GetProperty("avatar").GetString());
+        Assert.Equal("signal-track-jacket", (await c.GetFromJsonAsync<JsonElement>("/v1/me")).GetProperty("card").GetProperty("look").GetProperty("wardrobe")[0].GetString());
+    }
+
     void Settled(string matchId, string receiptJson)
     {
         using var c = new SqliteConnection($"Data Source={dir.File("controlplane.db")}");

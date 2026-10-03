@@ -62,6 +62,23 @@ namespace NightSignal.Core.Customization
         public string CosmeticId;
     }
 
+    /// <summary>
+    /// The card's avatar: an original emblem drawn beside the name (the free ones, and the seven accessory_or_avatar
+    /// challenge rewards — spec "avatar icons are original art … not a generic icon renamed fifteen times").
+    /// </summary>
+    public sealed class CardAvatarDef
+    {
+        public string Id;
+        public string Name;
+        /// <summary>The drawing (<see cref="CardStyleCatalogue.AvatarArts"/>); each is its own composition.</summary>
+        public string Art;
+        /// <summary>Three colours (upper-case #RRGGBB): ground, main ink, highlight.</summary>
+        public List<string> Colors = new List<string>();
+        public string CosmeticId;
+        /// <summary>What the drawing shows, for reviews.</summary>
+        public string Description;
+    }
+
     /// <summary>customization.json "card": the style items and the style everyone starts with.</summary>
     public sealed class CardStyleSection
     {
@@ -71,6 +88,7 @@ namespace NightSignal.Core.Customization
         public List<CardMotifDef> Motifs = new List<CardMotifDef>();
         public List<CardTitleDef> Titles = new List<CardTitleDef>();
         public List<CardLayoutDef> Layouts = new List<CardLayoutDef>();
+        public List<CardAvatarDef> Avatars = new List<CardAvatarDef>();
         public CardStyle Default = new CardStyle();
     }
 
@@ -86,6 +104,10 @@ namespace NightSignal.Core.Customization
         public string Region = "";
         /// <summary>A car model the player owns ("" = none).</summary>
         public string PreferredCar = "";
+        /// <summary>The avatar emblem ("" = the catalogue default); left out of the stored form when unset.</summary>
+        public string Avatar = "";
+
+        public bool ShouldSerializeAvatar() => !string.IsNullOrEmpty(Avatar);
 
         static readonly JsonSerializerSettings Json = new JsonSerializerSettings
         {
@@ -114,6 +136,7 @@ namespace NightSignal.Core.Customization
                 s.Layout = s.Layout ?? "";
                 s.Region = s.Region ?? "";
                 s.PreferredCar = s.PreferredCar ?? "";
+                s.Avatar = s.Avatar ?? "";
                 return s;
             }
             catch (JsonException)
@@ -132,6 +155,9 @@ namespace NightSignal.Core.Customization
         public static readonly string[] FrameStyles = { "thin", "double", "columns", "nameplate", "balance-ticks", "balance-point" };
         public static readonly string[] Glyphs = { "none", "lantern", "bars", "ladder", "dial", "three-drive" };
         public static readonly string[] LayoutKinds = { "standard", "two-state", "twin", "sectors", "passport" };
+        /// <summary>The avatar drawings (Runtime CardView.DrawAvatar): two free, seven reward compositions.</summary>
+        public static readonly string[] AvatarArts =
+            { "initial", "night-road", "cherry-branch", "six-region", "ghostline", "radio-dial", "road-crest", "mosaic", "dawn-horizon" };
         public const int MaxTitleLength = 32;
 
         public IReadOnlyList<CardBackgroundDef> Backgrounds { get; private set; } = new List<CardBackgroundDef>();
@@ -139,6 +165,7 @@ namespace NightSignal.Core.Customization
         public IReadOnlyList<CardMotifDef> Motifs { get; private set; } = new List<CardMotifDef>();
         public IReadOnlyList<CardTitleDef> Titles { get; private set; } = new List<CardTitleDef>();
         public IReadOnlyList<CardLayoutDef> Layouts { get; private set; } = new List<CardLayoutDef>();
+        public IReadOnlyList<CardAvatarDef> Avatars { get; private set; } = new List<CardAvatarDef>();
         /// <summary>The style a new card starts with (every item free).</summary>
         public CardStyle Default { get; private set; } = new CardStyle();
 
@@ -147,14 +174,18 @@ namespace NightSignal.Core.Customization
         public CardMotifDef Motif(string id) => Motifs.FirstOrDefault(x => x.Id == id);
         public CardTitleDef Title(string id) => Titles.FirstOrDefault(x => x.Id == id);
         public CardLayoutDef Layout(string id) => Layouts.FirstOrDefault(x => x.Id == id);
+        public CardAvatarDef Avatar(string id) => Avatars.FirstOrDefault(x => x.Id == id);
+        /// <summary>The avatar a style shows: its own, or the default when unset or unknown.</summary>
+        public CardAvatarDef AvatarOf(CardStyle style) => Avatar(style?.Avatar) ?? Avatar(Default.Avatar);
 
-        /// <summary>Every item's unlocking cosmetic (item id → cosmetic id), across all five kinds.</summary>
+        /// <summary>Every item's unlocking cosmetic (item id → cosmetic id), across all six kinds.</summary>
         public IEnumerable<(string Kind, string Id, string Name, string CosmeticId)> Items() =>
             Backgrounds.Select(x => ("background", x.Id, x.Name, x.CosmeticId))
                 .Concat(Frames.Select(x => ("frame", x.Id, x.Name, x.CosmeticId)))
                 .Concat(Motifs.Select(x => ("motif", x.Id, x.Name, x.CosmeticId)))
                 .Concat(Titles.Select(x => ("title", x.Id, x.Name, x.CosmeticId)))
-                .Concat(Layouts.Select(x => ("layout", x.Id, x.Name, x.CosmeticId)));
+                .Concat(Layouts.Select(x => ("layout", x.Id, x.Name, x.CosmeticId)))
+                .Concat(Avatars.Select(x => ("avatar", x.Id, x.Name, x.CosmeticId)));
 
         internal static CardStyleCatalogue Validate(CardStyleSection section, List<string> errors)
         {
@@ -212,11 +243,24 @@ namespace NightSignal.Core.Customization
                 Common("layout", l.Id, l.Name, l.CosmeticId, seenL);
                 if (!LayoutKinds.Contains(l.Layout ?? "")) errors.Add($"card layout {l.Id}: unknown layout {l.Layout}");
             }
+            var seenA = new HashSet<string>(StringComparer.Ordinal);
+            foreach (CardAvatarDef av in section.Avatars ?? new List<CardAvatarDef>())
+            {
+                if (av == null) { errors.Add("card: empty avatar"); continue; }
+                Common("avatar", av.Id, av.Name, av.CosmeticId, seenA);
+                if (!AvatarArts.Contains(av.Art ?? "")) errors.Add($"card avatar {av.Id}: unknown art {av.Art}");
+                if (string.IsNullOrWhiteSpace(av.Description)) errors.Add($"card avatar {av.Id}: no description");
+                if (av.Colors == null || av.Colors.Count != 3) errors.Add($"card avatar {av.Id}: three colours");
+                else foreach (string c in av.Colors) Colour("avatar", av.Id, c);
+            }
+            var arts = (section.Avatars ?? new List<CardAvatarDef>()).Where(x => x != null).GroupBy(x => x.Art).Where(g => g.Count() > 1);
+            foreach (var g in arts) errors.Add($"card: avatar art {g.Key} is used by more than one avatar (each is its own drawing)");
             cat.Backgrounds = section.Backgrounds ?? new List<CardBackgroundDef>();
             cat.Frames = section.Frames ?? new List<CardFrameDef>();
             cat.Motifs = section.Motifs ?? new List<CardMotifDef>();
             cat.Titles = section.Titles ?? new List<CardTitleDef>();
             cat.Layouts = section.Layouts ?? new List<CardLayoutDef>();
+            cat.Avatars = section.Avatars ?? new List<CardAvatarDef>();
             var cosmetics = cat.Items().Where(x => x.CosmeticId != null).GroupBy(x => x.CosmeticId).Where(g => g.Count() > 1);
             foreach (var dup in cosmetics) errors.Add($"card: cosmetic {dup.Key} unlocks more than one item");
             CardStyle d = section.Default ?? new CardStyle();
@@ -228,6 +272,7 @@ namespace NightSignal.Core.Customization
             if (!Free(cat.Motif(d.Motif), x => x.CosmeticId)) errors.Add("card default: motif must be a free item");
             if (!Free(cat.Title(d.Title), x => x.CosmeticId)) errors.Add("card default: title must be a free item");
             if (!Free(cat.Layout(d.Layout), x => x.CosmeticId)) errors.Add("card default: layout must be a free item");
+            if (!Free(cat.Avatar(d.Avatar), x => x.CosmeticId)) errors.Add("card default: avatar must be a free item");
             if (!string.IsNullOrEmpty(d.Region) || !string.IsNullOrEmpty(d.PreferredCar)) errors.Add("card default: no region or car");
             return cat;
         }
@@ -255,6 +300,11 @@ namespace NightSignal.Core.Customization
             Item("title", style.Title, t?.Name, t?.CosmeticId, t != null);
             CardLayoutDef l = Layout(style.Layout);
             Item("layout", style.Layout, l?.Name, l?.CosmeticId, l != null);
+            if (!string.IsNullOrEmpty(style.Avatar))
+            {
+                CardAvatarDef av = Avatar(style.Avatar);
+                Item("avatar", style.Avatar, av?.Name, av?.CosmeticId, av != null);
+            }
             if (style.Region.Length > 0 && !RegionCodes.IsValid(style.Region)) bad.Add($"Unknown region {style.Region}.");
             if (style.PreferredCar.Length > 0 && (ownsCar == null || !ownsCar(style.PreferredCar))) bad.Add("The preferred car must be one you own.");
             return bad;

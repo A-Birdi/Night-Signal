@@ -33,9 +33,21 @@ namespace NightSignal.Characters
             return m;
         }
 
+        /// <summary>
+        /// The look as it is built: reward wardrobe items worn (customization.json "wardrobe") replace or add to the outfit.
+        /// A look without a wardrobe — every rival, most players — is returned as it is.
+        /// </summary>
+        public static CharacterLook Dressed(CharacterLook look)
+        {
+            if (look?.Wardrobe == null || look.Wardrobe.Count == 0) return look;
+            Core.Customization.WardrobeCatalogue wardrobe = Content.ContentLibrary.Load()?.Customization?.Wardrobe;
+            return wardrobe != null ? wardrobe.Apply(look) : look;
+        }
+
         public static CharacterRig Create(CharacterLook look, CharacterMaterialSet mats = null, Transform parent = null, string name = null, int layer = GameLayers.Avatar,
             bool cacheMesh = true)
         {
+            look = Dressed(look);
             var go = new GameObject(name ?? $"Character_{look.Id}") { layer = layer };
             if (parent != null) go.transform.SetParent(parent, false);
             var rig = go.AddComponent<CharacterRig>();
