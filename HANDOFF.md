@@ -224,7 +224,7 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
    LODGroup chooses; measure a level under the GPU Resident Drawer with the frozen-frame bracketed holds of
    `-nsCarLodTour`, never `Renderer.isVisible`); the §14 profile is measured on this machine (V-151: `-nsPerfProfileTour`,
    `Evidence/perf/`; race allocations cut ~93 %, ≈ 130 B/frame still unattributed — the editor's deep-profile recipe is in
-   V-151); character LOD tiers remain. Test isolation (V-152): Play Mode runs without a domain reload, so the race
+   V-151); character levels of detail are done (V-155: full/mid/far bodies under a LODGroup on one skeleton). Test isolation (V-152): Play Mode runs without a domain reload, so the race
    automation statics are reset on every Play Mode entry and before every PlayMode test (`[ResetAutomationStatics]` on every
    fixture — a guard test enforces it). Two outlier twelve-car results after long editor sessions (57, 62 contacts vs 41)
    stay unexplained; compare physics results from a freshly started editor. Never run the whole PlayMode assembly: it

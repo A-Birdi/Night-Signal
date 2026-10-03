@@ -80,7 +80,7 @@ namespace NightSignal.Characters
         static void Strip(Ctx c, Slot slot, Bone bone, Vector3 a, Vector3 b, Vector3 normal, float halfWidth, float lift = 0.002f)
         {
             Vector3 d = b - a;
-            if (d.sqrMagnitude < 1e-8f) return;
+            if (d.sqrMagnitude < 1e-8f || c.TooSmall(halfWidth * 2f)) return;
             Vector3 n = Vector3.ProjectOnPlane(normal, d.normalized);
             if (n.sqrMagnitude < 1e-6f) n = Vector3.Cross(d, Vector3.right);
             n.Normalize();

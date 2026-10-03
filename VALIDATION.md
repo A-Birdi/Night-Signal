@@ -3456,3 +3456,25 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   `signature-paint-flip-race.jpg`, `appearance-tour-log.txt`.
 - **Not executed:** an online race with a flip-tinted livery (the roster carries the swatch id and every client resolves the
   same appearance through the code tested here); a human look at night lighting.
+
+## V-155 — Character levels of detail (2026-10-03)
+- Revision: documented with the commit of this entry (the change is in it); EditMode in the editor, the built player of it.
+- **Gap closed:** HANDOFF "character LOD tiers remain" (spec §15 "Use level of detail and bounds/culling"); cars have had
+  levels since V-086, people had one body at every distance — and a fully dressed driver (V-153) reaches ~6,000 vertices.
+- **Change:** `CharacterBuilder.Build(look, skeleton, lod)` builds the same person at three levels: mid (0.6× the segments
+  of every curved part, parts under 3.5 mm left out — eye highlights, perforations, stitching) and far (0.35×, parts under
+  2 cm left out — the face's features among them). Same submeshes, bones and bind poses, so one skeleton and one set of
+  materials serve all three. A cached `CharacterRig` (the meet's visitors, NPCs and the player) carries the three bodies
+  under a LODGroup — full to a screen height of 0.18 (≈ 8 m for a 1.75 m person at 60°), mid to 0.06 (≈ 25 m), far to
+  0.008 (≈ 190 m), then culled; the Player Card's turntable keeps one full body.
+- **Measured** (`Evidence/characters/character-lods.txt`): rivals 55–57 % / 32–36 % of the full body's vertices (R01
+  2,274 → 1,256 → 762), a dressed driver 4,977 → 3,035 → 1,811.
+- **Executed:** EditMode `NightSignal.Tests.Characters` 175/175 (new `CharacterLodTests`: every rival's and a dressed
+  driver's mid and far bodies — same submeshes, ≤ 65 % / ≤ 40 % of the vertices, unit normals, soles on the ground, height
+  within 3 %, width/depth within 8–10 %; the rig's LODGroup holds the three bodies on one skeleton with one material set; a
+  preview rig has one body). Built player: `-nsDriverCardTour` PASS (the dressed avatar at the offline meet) and
+  `-nsMeetTour` PASS (the populated offline meet: interactions, CH61/CH64, rescue), no errors in the player log.
+- **Evidence:** `Evidence/characters/character-lods.jpg` (five rivals and a dressed driver, full / mid / far side by side;
+  render: Night Signal/Art/Render Character LOD Sheet), `character-lods-zoom.jpg`, `character-lods.txt`.
+- **Not measured:** a frame-time difference — the populated meet already runs at p50 1.20 ms on this machine (V-151); the
+  levels are for weaker hardware and larger crowds.

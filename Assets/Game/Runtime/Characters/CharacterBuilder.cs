@@ -159,6 +159,13 @@ namespace NightSignal.Characters
             public float H => Sk.H;
             public float S => Sk.H / 1.72f;
             public bool Has(string accessory) => Look.Accessories != null && Look.Accessories.Contains(accessory);
+            /// <summary>Level of detail: 0 full, 1 mid (fewer segments, the tiniest parts left out), 2 far (silhouette and colours).</summary>
+            public int Lod;
+            /// <summary>Segment-count factor at this level of detail.</summary>
+            public float Res => Lod == 0 ? 1f : Lod == 1 ? 0.6f : 0.35f;
+            /// <summary>A part whose largest extent (metres) is this small is left out at this level of detail.</summary>
+            public bool TooSmall(float size) => Lod > 0 && size < (Lod == 1 ? 0.0035f : 0.02f);
+            public int Segments(int n, int min) => Lod == 0 ? n : Mathf.Max(min, Mathf.CeilToInt(n * Res));
 
             /// <summary>Colour slot A of the worn piece that has <paramref name="shape"/>, or −1 when none does.</summary>
             public int Gear(string shape)
@@ -170,10 +177,17 @@ namespace NightSignal.Characters
             }
         }
 
-        /// <summary>The character's skinned mesh (bone weights and bind poses in <see cref="Bone"/> order).</summary>
-        public static Mesh Build(CharacterLook look, Skeleton sk)
+        /// <summary>Levels of detail a character is built at (<see cref="Build"/>'s <c>lod</c>).</summary>
+        public const int LodCount = 3;
+
+        /// <summary>
+        /// The character's skinned mesh (bone weights and bind poses in <see cref="Bone"/> order). <paramref name="lod"/> 1 and 2
+        /// are the same person with fewer segments and without the tiniest parts (eye highlights, stitching, perforations):
+        /// the same submeshes, bones and silhouette, for the distance (spec §15 levels of detail).
+        /// </summary>
+        public static Mesh Build(CharacterLook look, Skeleton sk, int lod = 0)
         {
-            var c = new Ctx { Mb = new MeshBuilder(SlotCount(look)), Look = look, Sk = sk, G = Dress(look) };
+            var c = new Ctx { Mb = new MeshBuilder(SlotCount(look)), Look = look, Sk = sk, G = Dress(look), Lod = Mathf.Clamp(lod, 0, LodCount - 1) };
             Torso(c);
             Outer(c);
             Arms(c);
@@ -183,7 +197,7 @@ namespace NightSignal.Characters
             Accessories(c);
             WornPieces(c);
             c.Mb.RemoveUnused();
-            Mesh m = c.Mb.Build($"Character_{look.Id}");
+            Mesh m = c.Mb.Build(lod == 0 ? $"Character_{look.Id}" : $"Character_{look.Id}_LOD{lod}");
             m.boneWeights = c.Mb.BoneWeights();
             var bind = new Matrix4x4[(int)Bone.Count];
             for (int i = 0; i < bind.Length; i++) bind[i] = Matrix4x4.Translate(-sk.Rest[i]);
@@ -248,6 +262,8 @@ namespace NightSignal.Characters
         /// <summary>A tapered segment from a to b with elliptical rings (the second radius = r × squash), optionally capped.</summary>
         static void Tube(Ctx c, Slot slot, Bone bone, Vector3 a, Vector3 b, float ra, float rb, float squash = 1f, int n = 10, bool capA = false, bool capB = false)
         {
+            if (c.TooSmall(Mathf.Max(ra, rb))) return;
+            n = c.Segments(n, 5);
             MeshBuilder mb = c.Mb;
             mb.Bone = (int)bone;
             Vector3 axis = (b - a).normalized;
@@ -262,6 +278,9 @@ namespace NightSignal.Characters
         static void Blob(Ctx c, Slot slot, Bone bone, Vector3 centre, Vector3 radii, Quaternion rot, int lat = 8, int lon = 12, float from = 0f, float to = 1f,
             Func<float, float, bool> keep = null)
         {
+            if (c.TooSmall(Mathf.Max(radii.x, Mathf.Max(radii.y, radii.z)))) return;
+            lat = c.Segments(lat, 2);
+            lon = c.Segments(lon, 5);
             MeshBuilder mb = c.Mb;
             mb.Bone = (int)bone;
             int start = mb.VertexCount;
@@ -302,12 +321,14 @@ namespace NightSignal.Characters
 
         static void Box(Ctx c, Slot slot, Bone bone, Vector3 centre, Vector3 half, Quaternion rot)
         {
+            if (c.TooSmall(Mathf.Max(half.x, Mathf.Max(half.y, half.z)))) return;
             c.Mb.Bone = (int)bone;
             c.Mb.AddBox((int)slot, centre, half, rot, 0.5f);
         }
 
         static void Beam(Ctx c, Slot slot, Bone bone, Vector3 a, Vector3 b, float half)
         {
+            if (c.TooSmall(half * 2f)) return;
             Vector3 d = b - a;
             if (d.sqrMagnitude < 1e-8f) return;
             c.Mb.Bone = (int)bone;
@@ -322,6 +343,7 @@ namespace NightSignal.Characters
         /// </summary>
         static void Sheet(Ctx c, Slot slot, Bone bone, Vector2 axis, float y0, Vector2 r0, Func<float, float> y1, Vector2 r1, float a0, float a1, int segs)
         {
+            segs = c.Segments(segs, 3);
             MeshBuilder mb = c.Mb;
             mb.Bone = (int)bone;
             for (int side = 0; side < 2; side++)
