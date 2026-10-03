@@ -13,8 +13,10 @@ namespace NightSignal.Front
         /// Offline Driver Card evidence (<c>-nsDriverCardTour</c>), buttons only (no keyboard, so no window focus is needed):
         /// a fresh Local profile in an isolated folder → Driver Card → pronouns with markup refused → a starting look and
         /// pronouns saved → a card style with a locked frame refused → two records showcased → the profile re-read from disk
-        /// → the offline meet builds the avatar from that look. The profile is new, so its two records are seeded into it
-        /// (a raced record reaches the profile through ApplyEvent, covered by the .NET progression tests).
+        /// → reward wardrobe: a locked item refused by name, two owned items worn and saved → an owned avatar emblem on the card
+        /// → the offline meet builds the avatar from that look, dressed. The profile is new, so its two records and three
+        /// challenge rewards are seeded into it (records and rewards reach a profile through ApplyEvent, covered by the .NET
+        /// progression tests).
         /// </summary>
         IEnumerator DriverCardTour()
         {
@@ -65,6 +67,8 @@ namespace NightSignal.Front
                     },
                     Value = seed.Item3,
                 });
+            foreach (string cosmetic in new[] { "COS-CH39", "COS-CH72", "COS-CH68" })
+                LocalSession.Current.Profile.Cosmetics.Add(new Core.Profiles.OwnedCosmetic { CosmeticId = cosmetic, Source = "CH" + cosmetic.Substring(6), AcquiredUtc = DateTime.UtcNow });
 
             Click("DriverCard");
             yield return Until(() => Router.Current == PlayerCard, 5f);
@@ -126,6 +130,40 @@ namespace NightSignal.Front
             if (chosen.Count != 2 || string.Join(",", stored) != string.Join(",", chosen)) Fail("the showcase was not saved");
             if (best.Count != 2) Fail("the card does not draw the showcased records");
 
+            // The reward wardrobe: a satchel not earned yet is refused by name; the earned marshal coat and travel scarf are
+            // worn and saved; the earned Ghostline avatar goes on the card.
+            PlayerCard.ShowSection(2);
+            yield return new WaitForSeconds(0.6f);
+            if (!PlayerCard.Wear("workshop-satchel")) Fail("the satchel row is missing");
+            yield return new WaitForSeconds(0.6f);
+            yield return Snap("01d-wardrobe-locked");
+            AuditBounds("Player Card / wardrobe");
+            Click("SaveCard");
+            yield return new WaitForSeconds(0.5f);
+            string satchelWhy = PlayerCard.Status;
+            Note($"locked satchel: \"{satchelWhy}\"");
+            if (!satchelWhy.StartsWith("Not owned yet: Workshop Cloth Satchel")) Fail("a locked wardrobe item was not refused");
+            PlayerCard.Wear("workshop-satchel", false);
+            if (!PlayerCard.Wear("harbour-marshal-coat") || !PlayerCard.Wear("highland-scarf")) Fail("the coat or scarf rows are missing");
+            Click("SaveCard");
+            yield return new WaitForSeconds(1f);
+            yield return Snap("01e-wardrobe-worn");
+            CharacterLook dressed = PlayerLooks.Parse(LocalSession.Current.Profile.Card.Look);
+            string worn = string.Join(",", dressed?.Wardrobe ?? new List<string>());
+            Note($"wardrobe saved: [{worn}] (\"{PlayerCard.Status}\")");
+            if (worn != "harbour-marshal-coat,highland-scarf") Fail("the worn wardrobe was not saved");
+            saved = LocalSession.Current.Profile.Card.Look;
+            PlayerCard.ShowSection(1);
+            yield return new WaitForSeconds(0.4f);
+            styleWanted.Avatar = "ghostline";
+            PlayerCard.SetStyle(styleWanted);
+            Click("SaveCard");
+            yield return new WaitForSeconds(0.8f);
+            yield return Snap("01f-card-avatar");
+            AuditBounds("Player Card / card style");
+            Note($"avatar: stored \"{LocalSession.Current.Profile.Card.AvatarId}\", drawn {PlayerCard.Card?.ShownAvatar?.Id}");
+            if (LocalSession.Current.Profile.Card.AvatarId != "ghostline" || PlayerCard.Card?.ShownAvatar?.Id != "ghostline") Fail("the avatar emblem was not saved and drawn");
+
             string id = LocalSession.Current.Profile.ProfileId;
             bool reread = LocalSession.Current.Open(id, out string reopen);
             bool same = reread && LocalSession.Current.Profile.Card.Look == saved && LocalSession.Current.Profile.Card.Pronouns == "she/they" &&
@@ -145,6 +183,10 @@ namespace NightSignal.Front
             bool used = ActiveMeet.PlayerLook != null && PlayerLooks.Canonical(ActiveMeet.PlayerLook) == saved;
             Note($"the offline meet's avatar is built from the Driver Card's look: {used}");
             if (!used) Fail("the offline meet did not use the Driver Card's look");
+            CharacterRig avatar = GameObject.Find("PlayerAvatar")?.GetComponent<CharacterRig>();
+            string pieces = avatar?.Look?.Worn == null ? "none" : string.Join(",", avatar.Look.Worn.ConvertAll(w => w.Item));
+            Note($"the meet avatar wears: [{pieces}], {avatar?.Body?.sharedMaterials?.Length ?? 0} materials");
+            if (pieces != "harbour-marshal-coat,highland-scarf") Fail("the meet avatar is not dressed in the saved wardrobe");
             Finish();
 
             void Finish()

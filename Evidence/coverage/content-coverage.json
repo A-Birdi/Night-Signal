@@ -1,7 +1,7 @@
 {
   "schema": "night-signal/content-coverage@1",
-  "generatedUtc": "2026-10-01T05:07:34Z",
-  "revision": "b3e502d",
+  "generatedUtc": "2026-10-03T04:18:10Z",
+  "revision": "7c2b01f",
   "note": "Counts what exists beside the catalogue (files, entries, renderable definitions); a catalogue row alone is never \u0027delivered\u0027.",
   "categories": {
     "courses": {
@@ -1503,10 +1503,10 @@
     },
     "challenges": {
       "defined": 75,
-      "delivered": 45,
-      "deliveredMeans": "the reward cosmetic has a renderable definition (customization.json)",
+      "delivered": 75,
+      "deliveredMeans": "the reward cosmetic is drawn by a validated customization.json item (decal shape, paint swatch, card item or worn wardrobe item)",
       "trialBacked": 33,
-      "rewardsDataOnly": 30,
+      "rewardsDataOnly": 0,
       "items": [
         {
           "id": "CH01",
@@ -1515,6 +1515,7 @@
           "reward": "COS-CH01",
           "rewardCategory": "decal",
           "rewardRenderable": true,
+          "rewardDrawnBy": "decal shape tea-line-pinstripe",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -1525,6 +1526,7 @@
           "reward": "COS-CH02",
           "rewardCategory": "decal",
           "rewardRenderable": true,
+          "rewardDrawnBy": "decal shape brake-marker-bars",
           "trials": 1,
           "trialsPublished": 1
         },
@@ -1535,6 +1537,7 @@
           "reward": "COS-CH03",
           "rewardCategory": "decal",
           "rewardRenderable": true,
+          "rewardDrawnBy": "decal shape orchard-apex-arcs",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -1545,6 +1548,7 @@
           "reward": "COS-CH04",
           "rewardCategory": "decal",
           "rewardRenderable": true,
+          "rewardDrawnBy": "decal shape rising-tea-arrow",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -1555,6 +1559,7 @@
           "reward": "COS-CH05",
           "rewardCategory": "decal",
           "rewardRenderable": true,
+          "rewardDrawnBy": "decal shape bellmaker-thread",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -1565,6 +1570,7 @@
           "reward": "COS-CH06",
           "rewardCategory": "decal",
           "rewardRenderable": true,
+          "rewardDrawnBy": "decal shape cedar-chevron",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -1575,6 +1581,7 @@
           "reward": "COS-CH07",
           "rewardCategory": "decal",
           "rewardRenderable": true,
+          "rewardDrawnBy": "decal shape release-trace",
           "trials": 1,
           "trialsPublished": 1
         },
@@ -1585,6 +1592,7 @@
           "reward": "COS-CH08",
           "rewardCategory": "decal",
           "rewardRenderable": true,
+          "rewardDrawnBy": "decal shape rain-window",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -1595,6 +1603,7 @@
           "reward": "COS-CH09",
           "rewardCategory": "decal",
           "rewardRenderable": true,
+          "rewardDrawnBy": "decal shape viaduct-twin-lines",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -1605,6 +1614,7 @@
           "reward": "COS-CH10",
           "rewardCategory": "decal",
           "rewardRenderable": true,
+          "rewardDrawnBy": "decal shape reservoir-twinmark",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -1615,6 +1625,7 @@
           "reward": "COS-CH11",
           "rewardCategory": "decal",
           "rewardRenderable": true,
+          "rewardDrawnBy": "decal shape blackwater-needle",
           "trials": 1,
           "trialsPublished": 1
         },
@@ -1625,6 +1636,7 @@
           "reward": "COS-CH12",
           "rewardCategory": "decal",
           "rewardRenderable": true,
+          "rewardDrawnBy": "decal shape quarry-last-marker",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -1635,6 +1647,7 @@
           "reward": "COS-CH13",
           "rewardCategory": "decal",
           "rewardRenderable": true,
+          "rewardDrawnBy": "decal shape moonridge-edgework",
           "trials": 1,
           "trialsPublished": 1
         },
@@ -1645,6 +1658,7 @@
           "reward": "COS-CH14",
           "rewardCategory": "decal",
           "rewardRenderable": true,
+          "rewardDrawnBy": "decal shape datum-continuum",
           "trials": 1,
           "trialsPublished": 1
         },
@@ -1655,6 +1669,7 @@
           "reward": "COS-CH15",
           "rewardCategory": "decal",
           "rewardRenderable": true,
+          "rewardDrawnBy": "decal shape amanagi-dawnseal",
           "trials": 1,
           "trialsPublished": 1
         },
@@ -1665,6 +1680,7 @@
           "reward": "COS-CH16",
           "rewardCategory": "paint",
           "rewardRenderable": true,
+          "rewardDrawnBy": "paint swatch P-CH16",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -1675,6 +1691,7 @@
           "reward": "COS-CH17",
           "rewardCategory": "paint",
           "rewardRenderable": true,
+          "rewardDrawnBy": "paint swatch P-CH17",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -1685,6 +1702,7 @@
           "reward": "COS-CH18",
           "rewardCategory": "paint",
           "rewardRenderable": true,
+          "rewardDrawnBy": "paint swatch P-CH18",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -1695,6 +1713,7 @@
           "reward": "COS-CH19",
           "rewardCategory": "paint",
           "rewardRenderable": true,
+          "rewardDrawnBy": "paint swatch P-CH19",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -1705,6 +1724,7 @@
           "reward": "COS-CH20",
           "rewardCategory": "paint",
           "rewardRenderable": true,
+          "rewardDrawnBy": "paint swatch P-CH20",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -1715,6 +1735,7 @@
           "reward": "COS-CH21",
           "rewardCategory": "paint",
           "rewardRenderable": true,
+          "rewardDrawnBy": "paint swatch P-CH21",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -1725,6 +1746,7 @@
           "reward": "COS-CH22",
           "rewardCategory": "paint",
           "rewardRenderable": true,
+          "rewardDrawnBy": "paint swatch P-CH22",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -1735,6 +1757,7 @@
           "reward": "COS-CH23",
           "rewardCategory": "paint",
           "rewardRenderable": true,
+          "rewardDrawnBy": "paint swatch P-CH23",
           "trials": 1,
           "trialsPublished": 1
         },
@@ -1745,6 +1768,7 @@
           "reward": "COS-CH24",
           "rewardCategory": "paint",
           "rewardRenderable": true,
+          "rewardDrawnBy": "paint swatch P-CH24",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -1755,6 +1779,7 @@
           "reward": "COS-CH25",
           "rewardCategory": "paint",
           "rewardRenderable": true,
+          "rewardDrawnBy": "paint swatch P-CH25",
           "trials": 1,
           "trialsPublished": 1
         },
@@ -1765,6 +1790,7 @@
           "reward": "COS-CH26",
           "rewardCategory": "paint",
           "rewardRenderable": true,
+          "rewardDrawnBy": "paint swatch P-CH26",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -1775,6 +1801,7 @@
           "reward": "COS-CH27",
           "rewardCategory": "paint",
           "rewardRenderable": true,
+          "rewardDrawnBy": "paint swatch P-CH27",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -1785,6 +1812,7 @@
           "reward": "COS-CH28",
           "rewardCategory": "paint",
           "rewardRenderable": true,
+          "rewardDrawnBy": "paint swatch P-CH28",
           "trials": 1,
           "trialsPublished": 1
         },
@@ -1795,6 +1823,7 @@
           "reward": "COS-CH29",
           "rewardCategory": "paint",
           "rewardRenderable": true,
+          "rewardDrawnBy": "paint swatch P-CH29",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -1805,6 +1834,7 @@
           "reward": "COS-CH30",
           "rewardCategory": "paint",
           "rewardRenderable": true,
+          "rewardDrawnBy": "paint swatch P-CH30",
           "trials": 1,
           "trialsPublished": 1
         },
@@ -1814,7 +1844,8 @@
           "tier": "bronze",
           "reward": "COS-CH31",
           "rewardCategory": "driver_clothing",
-          "rewardRenderable": false,
+          "rewardRenderable": true,
+          "rewardDrawnBy": "wardrobe hands tea-hour-gloves",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -1824,7 +1855,8 @@
           "tier": "bronze",
           "reward": "COS-CH32",
           "rewardCategory": "driver_clothing",
-          "rewardRenderable": false,
+          "rewardRenderable": true,
+          "rewardDrawnBy": "wardrobe head cedar-crew-cap",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -1834,7 +1866,8 @@
           "tier": "bronze",
           "reward": "COS-CH33",
           "rewardCategory": "driver_clothing",
-          "rewardRenderable": false,
+          "rewardRenderable": true,
+          "rewardDrawnBy": "wardrobe upper signal-track-jacket",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -1844,7 +1877,8 @@
           "tier": "bronze",
           "reward": "COS-CH34",
           "rewardCategory": "driver_clothing",
-          "rewardRenderable": false,
+          "rewardRenderable": true,
+          "rewardDrawnBy": "wardrobe lower mizuhana-trousers",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -1854,7 +1888,8 @@
           "tier": "bronze",
           "reward": "COS-CH35",
           "rewardCategory": "driver_clothing",
-          "rewardRenderable": false,
+          "rewardRenderable": true,
+          "rewardDrawnBy": "wardrobe feet recovery-boots",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -1864,7 +1899,8 @@
           "tier": "silver",
           "reward": "COS-CH36",
           "rewardCategory": "driver_clothing",
-          "rewardRenderable": false,
+          "rewardRenderable": true,
+          "rewardDrawnBy": "wardrobe upper rainline-jacket",
           "trials": 1,
           "trialsPublished": 1
         },
@@ -1874,7 +1910,8 @@
           "tier": "silver",
           "reward": "COS-CH37",
           "rewardCategory": "driver_clothing",
-          "rewardRenderable": false,
+          "rewardRenderable": true,
+          "rewardDrawnBy": "wardrobe upper reflector-cuff-shirt",
           "trials": 1,
           "trialsPublished": 1
         },
@@ -1884,7 +1921,8 @@
           "tier": "silver",
           "reward": "COS-CH38",
           "rewardCategory": "driver_clothing",
-          "rewardRenderable": false,
+          "rewardRenderable": true,
+          "rewardDrawnBy": "wardrobe upper reservoir-pit-vest",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -1894,7 +1932,8 @@
           "tier": "silver",
           "reward": "COS-CH39",
           "rewardCategory": "driver_clothing",
-          "rewardRenderable": false,
+          "rewardRenderable": true,
+          "rewardDrawnBy": "wardrobe upper harbour-marshal-coat",
           "trials": 1,
           "trialsPublished": 1
         },
@@ -1904,7 +1943,8 @@
           "tier": "silver",
           "reward": "COS-CH40",
           "rewardCategory": "driver_clothing",
-          "rewardRenderable": false,
+          "rewardRenderable": true,
+          "rewardDrawnBy": "wardrobe full quarry-overalls",
           "trials": 1,
           "trialsPublished": 1
         },
@@ -1914,7 +1954,8 @@
           "tier": "gold",
           "reward": "COS-CH41",
           "rewardCategory": "driver_clothing",
-          "rewardRenderable": false,
+          "rewardRenderable": true,
+          "rewardDrawnBy": "wardrobe full datum-racing-suit",
           "trials": 1,
           "trialsPublished": 1
         },
@@ -1924,7 +1965,8 @@
           "tier": "gold",
           "reward": "COS-CH42",
           "rewardCategory": "driver_clothing",
-          "rewardRenderable": false,
+          "rewardRenderable": true,
+          "rewardDrawnBy": "wardrobe upper highland-windbreaker",
           "trials": 1,
           "trialsPublished": 1
         },
@@ -1934,7 +1976,8 @@
           "tier": "gold",
           "reward": "COS-CH43",
           "rewardCategory": "driver_clothing",
-          "rewardRenderable": false,
+          "rewardRenderable": true,
+          "rewardDrawnBy": "wardrobe upper red-horizon-coat",
           "trials": 1,
           "trialsPublished": 1
         },
@@ -1944,7 +1987,8 @@
           "tier": "gold",
           "reward": "COS-CH44",
           "rewardCategory": "driver_clothing",
-          "rewardRenderable": false,
+          "rewardRenderable": true,
+          "rewardDrawnBy": "wardrobe full surveyor-line-suit",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -1954,7 +1998,8 @@
           "tier": "gold",
           "reward": "COS-CH45",
           "rewardCategory": "driver_clothing",
-          "rewardRenderable": false,
+          "rewardRenderable": true,
+          "rewardDrawnBy": "wardrobe upper zero-frequency-coat",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -1965,6 +2010,7 @@
           "reward": "COS-CH46",
           "rewardCategory": "card_customization",
           "rewardRenderable": true,
+          "rewardDrawnBy": "card background workshop-grid",
           "trials": 1,
           "trialsPublished": 1
         },
@@ -1975,6 +2021,7 @@
           "reward": "COS-CH47",
           "rewardCategory": "card_customization",
           "rewardRenderable": true,
+          "rewardDrawnBy": "card frame comparison-columns",
           "trials": 1,
           "trialsPublished": 1
         },
@@ -1985,6 +2032,7 @@
           "reward": "COS-CH48",
           "rewardCategory": "card_customization",
           "rewardRenderable": true,
+          "rewardDrawnBy": "card frame signed-build",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -1995,6 +2043,7 @@
           "reward": "COS-CH49",
           "rewardCategory": "card_customization",
           "rewardRenderable": true,
+          "rewardDrawnBy": "card motif ratio-ladder",
           "trials": 1,
           "trialsPublished": 1
         },
@@ -2005,6 +2054,7 @@
           "reward": "COS-CH50",
           "rewardCategory": "card_customization",
           "rewardRenderable": true,
+          "rewardDrawnBy": "card layout two-state",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -2015,6 +2065,7 @@
           "reward": "COS-CH51",
           "rewardCategory": "card_customization",
           "rewardRenderable": true,
+          "rewardDrawnBy": "card background rain-chart",
           "trials": 1,
           "trialsPublished": 1
         },
@@ -2025,6 +2076,7 @@
           "reward": "COS-CH52",
           "rewardCategory": "card_customization",
           "rewardRenderable": true,
+          "rewardDrawnBy": "card frame mass-balance",
           "trials": 2,
           "trialsPublished": 2
         },
@@ -2035,6 +2087,7 @@
           "reward": "COS-CH53",
           "rewardCategory": "card_customization",
           "rewardRenderable": true,
+          "rewardDrawnBy": "card motif differential-dial",
           "trials": 2,
           "trialsPublished": 2
         },
@@ -2045,6 +2098,7 @@
           "reward": "COS-CH54",
           "rewardCategory": "card_customization",
           "rewardRenderable": true,
+          "rewardDrawnBy": "card layout twin-chassis",
           "trials": 2,
           "trialsPublished": 2
         },
@@ -2055,6 +2109,7 @@
           "reward": "COS-CH55",
           "rewardCategory": "card_customization",
           "rewardRenderable": true,
+          "rewardDrawnBy": "card title stock-line",
           "trials": 1,
           "trialsPublished": 1
         },
@@ -2065,6 +2120,7 @@
           "reward": "COS-CH56",
           "rewardCategory": "card_customization",
           "rewardRenderable": true,
+          "rewardDrawnBy": "card background hill-dyno",
           "trials": 1,
           "trialsPublished": 1
         },
@@ -2075,6 +2131,7 @@
           "reward": "COS-CH57",
           "rewardCategory": "card_customization",
           "rewardRenderable": true,
+          "rewardDrawnBy": "card frame balance-point",
           "trials": 1,
           "trialsPublished": 1
         },
@@ -2085,6 +2142,7 @@
           "reward": "COS-CH58",
           "rewardCategory": "card_customization",
           "rewardRenderable": true,
+          "rewardDrawnBy": "card motif three-drive",
           "trials": 3,
           "trialsPublished": 3
         },
@@ -2095,6 +2153,7 @@
           "reward": "COS-CH59",
           "rewardCategory": "card_customization",
           "rewardRenderable": true,
+          "rewardDrawnBy": "card layout engineer-sectors",
           "trials": 1,
           "trialsPublished": 1
         },
@@ -2105,6 +2164,7 @@
           "reward": "COS-CH60",
           "rewardCategory": "card_customization",
           "rewardRenderable": true,
+          "rewardDrawnBy": "card layout technical-passport",
           "trials": 10,
           "trialsPublished": 10
         },
@@ -2114,7 +2174,8 @@
           "tier": "bronze",
           "reward": "COS-CH61",
           "rewardCategory": "accessory_or_avatar",
-          "rewardRenderable": false,
+          "rewardRenderable": true,
+          "rewardDrawnBy": "wardrobe hip cedar-lantern-keys",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -2124,7 +2185,8 @@
           "tier": "bronze",
           "reward": "COS-CH62",
           "rewardCategory": "accessory_or_avatar",
-          "rewardRenderable": false,
+          "rewardRenderable": true,
+          "rewardDrawnBy": "wardrobe chest route-pin-badge",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -2134,7 +2196,8 @@
           "tier": "bronze",
           "reward": "COS-CH63",
           "rewardCategory": "accessory_or_avatar",
-          "rewardRenderable": false,
+          "rewardRenderable": true,
+          "rewardDrawnBy": "wardrobe wrist woven-wrist-cuff",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -2144,7 +2207,8 @@
           "tier": "bronze",
           "reward": "COS-CH64",
           "rewardCategory": "accessory_or_avatar",
-          "rewardRenderable": false,
+          "rewardRenderable": true,
+          "rewardDrawnBy": "card avatar cherry-branch",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -2154,7 +2218,8 @@
           "tier": "bronze",
           "reward": "COS-CH65",
           "rewardCategory": "accessory_or_avatar",
-          "rewardRenderable": false,
+          "rewardRenderable": true,
+          "rewardDrawnBy": "wardrobe charm timing-slip-charm",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -2164,7 +2229,8 @@
           "tier": "silver",
           "reward": "COS-CH66",
           "rewardCategory": "accessory_or_avatar",
-          "rewardRenderable": false,
+          "rewardRenderable": true,
+          "rewardDrawnBy": "card avatar six-region",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -2174,7 +2240,8 @@
           "tier": "silver",
           "reward": "COS-CH67",
           "rewardCategory": "accessory_or_avatar",
-          "rewardRenderable": false,
+          "rewardRenderable": true,
+          "rewardDrawnBy": "wardrobe bag workshop-satchel",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -2184,7 +2251,8 @@
           "tier": "silver",
           "reward": "COS-CH68",
           "rewardCategory": "accessory_or_avatar",
-          "rewardRenderable": false,
+          "rewardRenderable": true,
+          "rewardDrawnBy": "card avatar ghostline",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -2194,7 +2262,8 @@
           "tier": "silver",
           "reward": "COS-CH69",
           "rewardCategory": "accessory_or_avatar",
-          "rewardRenderable": false,
+          "rewardRenderable": true,
+          "rewardDrawnBy": "wardrobe carry road-atlas",
           "trials": 1,
           "trialsPublished": 1
         },
@@ -2204,7 +2273,8 @@
           "tier": "silver",
           "reward": "COS-CH70",
           "rewardCategory": "accessory_or_avatar",
-          "rewardRenderable": false,
+          "rewardRenderable": true,
+          "rewardDrawnBy": "card avatar radio-dial",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -2214,7 +2284,8 @@
           "tier": "gold",
           "reward": "COS-CH71",
           "rewardCategory": "accessory_or_avatar",
-          "rewardRenderable": false,
+          "rewardRenderable": true,
+          "rewardDrawnBy": "card avatar road-crest",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -2224,7 +2295,8 @@
           "tier": "gold",
           "reward": "COS-CH72",
           "rewardCategory": "accessory_or_avatar",
-          "rewardRenderable": false,
+          "rewardRenderable": true,
+          "rewardDrawnBy": "wardrobe neck highland-scarf",
           "trials": 1,
           "trialsPublished": 1
         },
@@ -2234,7 +2306,8 @@
           "tier": "gold",
           "reward": "COS-CH73",
           "rewardCategory": "accessory_or_avatar",
-          "rewardRenderable": false,
+          "rewardRenderable": true,
+          "rewardDrawnBy": "card avatar twelve-voice",
           "trials": 0,
           "trialsPublished": 0
         },
@@ -2244,7 +2317,8 @@
           "tier": "gold",
           "reward": "COS-CH74",
           "rewardCategory": "accessory_or_avatar",
-          "rewardRenderable": false,
+          "rewardRenderable": true,
+          "rewardDrawnBy": "wardrobe belt old-frequency-radio",
           "trials": 1,
           "trialsPublished": 1
         },
@@ -2254,7 +2328,8 @@
           "tier": "gold",
           "reward": "COS-CH75",
           "rewardCategory": "accessory_or_avatar",
-          "rewardRenderable": false,
+          "rewardRenderable": true,
+          "rewardDrawnBy": "card avatar dawn-horizon",
           "trials": 0,
           "trialsPublished": 0
         }

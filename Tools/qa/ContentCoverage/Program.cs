@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using NightSignal.Core.Content;
+using NightSignal.Core.Customization;
 using NightSignal.Core.Rules;
 
 // Content coverage (spec §17, R17.1): for every catalogue entry, whether the things that make it real exist — a course's
@@ -134,7 +135,14 @@ foreach (CarDef c in cat.Cars)
 categories["cars"] = Summary(cat.Cars.Count, carsDelivered, "a body definition and tuning data exist", carItems, ("withUpgradeRecipe", carItems.Count(i => (bool)i!["upgradeRecipe"]!)));
 
 // ---- challenges and their rewards: a renderable definition in customization.json; trial-backed or not
-string customization = Text("Assets", "Content", "Data", "authored", "customization.json");
+// The validated appearance catalogue says what draws each reward: a decal shape, a paint swatch, a card item (background,
+// frame, motif, title, layout, avatar) or a wardrobe item worn on the driver. An id merely mentioned in the file is not one.
+CustomizationCatalogue appearance = CustomizationCatalogue.Load(Text("Assets", "Content", "Data", "authored", "customization.json"));
+var drawnBy = new Dictionary<string, string>(StringComparer.Ordinal);
+foreach (DecalShapeDef s in appearance.DecalShapes.Where(s => s.CosmeticId != null)) drawnBy[s.CosmeticId] = "decal shape " + s.Id;
+foreach (PaintSwatchDef s in appearance.PaintSwatches.Where(s => s.CosmeticId != null)) drawnBy[s.CosmeticId] = "paint swatch " + s.Id;
+foreach (var i in appearance.Card.Items().Where(i => i.CosmeticId != null)) drawnBy[i.CosmeticId] = $"card {i.Kind} {i.Id}";
+foreach (WardrobeItemDef w in appearance.Wardrobe.Items) drawnBy[w.CosmeticId] = $"wardrobe {w.Slot} {w.Id}";
 var trialsByChallenge = cat.ChallengeTrials.Trials.GroupBy(t => t.Challenge).ToDictionary(g => g.Key, g => g.ToList());
 var challengeItems = new JsonArray();
 int rewardsRenderable = 0;
@@ -142,17 +150,18 @@ foreach (ChallengeDef ch in cat.Challenges)
 {
     bool rewardDefined = !string.IsNullOrEmpty(ch.Reward) && cat.Cosmetics.Any(x => x.Id == ch.Reward);
     if (!string.IsNullOrEmpty(ch.Reward) && !rewardDefined) unresolved.Add($"challenge {ch.Id}: reward {ch.Reward}");
-    bool renderable = rewardDefined && customization.Contains("\"" + ch.Reward + "\"");
+    bool renderable = rewardDefined && drawnBy.ContainsKey(ch.Reward);
     if (renderable) rewardsRenderable++;
     trialsByChallenge.TryGetValue(ch.Id, out var trials);
     challengeItems.Add(new JsonObject
     {
         ["id"] = ch.Id, ["family"] = ch.Family, ["tier"] = ch.Tier, ["reward"] = ch.Reward,
         ["rewardCategory"] = cat.Cosmetics.FirstOrDefault(x => x.Id == ch.Reward)?.Category, ["rewardRenderable"] = renderable,
+        ["rewardDrawnBy"] = renderable ? drawnBy[ch.Reward] : null,
         ["trials"] = trials?.Count ?? 0, ["trialsPublished"] = trials?.Count(t => t.Published) ?? 0,
     });
 }
-categories["challenges"] = Summary(cat.Challenges.Count, rewardsRenderable, "the reward cosmetic has a renderable definition (customization.json)", challengeItems,
+categories["challenges"] = Summary(cat.Challenges.Count, rewardsRenderable, "the reward cosmetic is drawn by a validated customization.json item (decal shape, paint swatch, card item or worn wardrobe item)", challengeItems,
     ("trialBacked", challengeItems.Count(i => (int)i!["trials"]! > 0)),
     ("rewardsDataOnly", challengeItems.Count(i => !(bool)i!["rewardRenderable"]!)));
 categories["challenges"]!["judgedNote"] = "Which challenges are judged where (races, the meet, the diary, trials) is runtime code, not data — see REQUIREMENTS R11.3.";

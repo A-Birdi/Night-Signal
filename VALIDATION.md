@@ -3380,3 +3380,53 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   reload. Run targeted PlayMode groups, not the whole assembly.
 - **Suites:** EditMode 497 + 2 explicit; PlayMode targeted set (isolation, FullGrid, Recovery, DriftAttack, Smoke) 14/14;
   built player `FreeplayConditionsTour` PASS with the V-147 times to the millisecond (159.429 / 86.501 / 97.084 / 90.906 s).
+
+## V-153 — The reward wardrobe and card avatars: all 75 challenge rewards drawn in game (2026-10-03)
+- Revision: documented with the commit of this entry (the code is in it and in 7c2b01f); EditMode in the editor, .NET suites
+  in a scratch copy of that tree, the built player (`Builds/Game/NightSignal.exe`, `BuildCommands.BuildGame()`) of it.
+- **Gap closed:** 30 challenge rewards were catalogue rows only (`Evidence/coverage/content-coverage.md`: 45 of 75
+  renderable) — the 15 driver_clothing rewards (CH31–CH45) and the 15 accessory_or_avatar rewards (CH61–CH75). Spec: R11.3
+  "equippable rewards"; "Clothing/accessories must render on the driver's avatar"; "avatar icons are original art … not a
+  generic icon renamed fifteen times".
+- **Content** (`customization.json`): a `wardrobe` section — the 15 garments (a cap, driving gloves, eight jackets/coats/
+  shirts/vests, three one-piece or two-piece suits, trousers, boots) and the 8 worn accessories (keychain, lapel pin, wrist
+  cuff, timing-slip charm, satchel, road atlas, travel scarf, receiver), each with its catalogue name, its place on the body,
+  its cut (outfit/sleeves/length/lower/shoes in the character vocabulary), its colours and trim, its own construction (35
+  builder shapes; no two items share a shape set) and the look accessories it replaces; card `avatars` — two free (Initial
+  Disc, Night Road) and the seven reward emblems (CH64 Cherry-Branch, CH66 Six-Region Crest, CH68 Ghostline, CH70
+  Radio-Dial, CH71 26-Road Crest, CH73 Twelve-Voice Mosaic, CH75 Dawn Horizon), each its own drawing.
+- **Rules** (Core, shared by the game, the game server's meet and the control plane): `WardrobeCatalogue` validates the
+  section, refuses items not owned (named), two items in one place (a full suit is upper and lower) and reward trousers
+  under a one-piece outfit, and resolves the look as it is built — a worn garment replaces that part of the player's own
+  outfit, blocked accessories are left out, each piece keeps its own two colours. The look stores only the item ids
+  (`wardrobe`, left out of the stored form when empty, so earlier looks read and hash the same). `CardStyle.Avatar`
+  (likewise omitted when unset) with ownership. `ValidateAgainst` now requires every card_customization, driver_clothing and
+  accessory_or_avatar cosmetic to unlock exactly one card or wardrobe item of the right category. The control plane's
+  `/v1/me/card` and the Local profile's `SetCard` refuse unowned wardrobe items and avatars.
+- **Drawing:** `CharacterBuilder.Worn` builds the shapes over the dressed body (stripes and bands follow the torso loft and
+  the sleeves/legs, accessories hang from the belt line, the hands or the shoulders; flat strips are single quads), two
+  submeshes per worn piece tinted by `CharacterMaterialSet`; `CharacterRig.Create` dresses every look it builds (Player
+  Card preview, offline and online meet, remote visitors). `CardAvatarArt` draws the emblems (signed-distance shapes, soft
+  edges, static so reduced motion needs nothing); `CardView` shows the avatar beside the name. The Player Card has a third
+  section, Wardrobe (thirteen rows by place; unowned items marked "(locked)", previewable, refused on save), and an Avatar
+  row in Card style.
+- **Executed:** Core xUnit 217/217 (new `WardrobeTests` ×6: every wearable reward is exactly one item with the catalogue's
+  name, distinct constructions, ownership/place/one-piece problems, the resolved look, the stored form, the Local card; and
+  the avatar tests); Services 382/382 + 1 skipped (new: unowned jacket refused by name, two coats refused, owned jacket
+  stored, avatar refused then saved and public); Builds 232, Toys 92; EditMode `NightSignal.Tests.Characters` 125/125
+  (new `WardrobeBuildTests`: every one of the 35 shapes adds geometry; each of the 23 items worn alone builds a sound body —
+  unit normals, soles on the ground, ≤ 4,500 vertices — drawing in its own two colours with matching materials; a driver
+  wearing 13 pieces at once builds soundly at 5,924 vertices (≤ 6,000) and the rig carries 36 materials); the whole EditMode
+  suite 522/522 + 2 explicit (was 497).
+- **Built player:** `-nsDriverCardTour` **PASS** — a locked satchel refused ("Not owned yet: Workshop Cloth Satchel."), the
+  owned Harbour Marshal Coat and Highland Travel Scarf worn and saved, the owned Ghostline avatar stored and drawn, the profile
+  re-read from disk, and the offline meet's avatar wearing both pieces (14 materials). The same tour at 720p / Text 150 %:
+  219 labels over 7 moments, 0 overflow, 4 sub-5 % edge spills (two older ones, the card name 3 px). The three rewards are
+  seeded into the new profile, as its records are (rewards reach a profile through `ApplyEvent`, covered by the .NET tests).
+- **Evidence:** `Evidence/characters/wardrobe/` (front/back/quarter/close-up sheets of every item, the avatar sheet,
+  per-item geometry), `Evidence/meet/card-wardrobe-*-offline.jpg`, `card-avatar-offline.jpg`,
+  `card-wardrobe-at-offline-meet.jpg`, `driver-card-offline-log.txt`; coverage regenerated: challenge rewards **75/75** drawn
+  by a validated item — the tool now asks the validated catalogue what draws each reward instead of searching the file for
+  its id.
+- **Not executed:** an online meet with a dressed visitor (the same rig code builds remote looks; the server path is covered
+  by the API tests); a human look at the sheets.

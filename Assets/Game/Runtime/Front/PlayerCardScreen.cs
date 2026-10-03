@@ -51,7 +51,7 @@ namespace NightSignal.Front
         {
             ("Jacket or suit", new[] { "upper", "full" }), ("Trousers", new[] { "lower" }), ("Boots", new[] { "feet" }),
             ("Gloves", new[] { "hands" }), ("Cap", new[] { "head" }), ("Scarf", new[] { "neck" }),
-            ("Lapel badge", new[] { "chest" }), ("Wrist", new[] { "wrist" }), ("Keychain", new[] { "hip" }), ("Charm", new[] { "charm" }),
+            ("Lapel pin", new[] { "chest" }), ("Wrist", new[] { "wrist" }), ("Keychain", new[] { "hip" }), ("Charm", new[] { "charm" }),
             ("Bag", new[] { "bag" }), ("In hand", new[] { "carry" }), ("Belt", new[] { "belt" }),
         };
         readonly List<GameObject> wardrobeRows = new List<GameObject>();

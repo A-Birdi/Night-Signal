@@ -206,7 +206,10 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
    published references are measured by `ChallengeReferenceTests` (V-113) and the trial targets by
    `ChallengeTrialReferenceTests` (V-119 … V-142; rerun both after a physics, route, part, car or conditions change); eleven
    are judged but not shown reachable by the autopilot (item 0), CH28 among them until the drift controller manages the road
-   edge; the reward assets are not built.
+   edge. Every reward is drawn in game (V-153): the 23 wearable rewards are the driver's reward wardrobe (Player Card →
+   Wardrobe; `customization.json` "wardrobe", Core `WardrobeCatalogue`, `CharacterBuilder.Worn`) and the 7 avatar rewards
+   are card avatars (`CardAvatarArt`); sheets in `Evidence/characters/wardrobe/` (render: Night Signal/Art/Render Wardrobe
+   Sheets). Left: an online meet with a dressed visitor, a human look.
 3. **Gameplay backlog**: ghosts — personal (V-103, V-104), a convoy member's (V-107, V-109) and the authored rival
    reference (V-109) are raced offline and online; the route/elevation chart offline (V-110) and online (V-112); left: re-recording
    the references (`RivalReferenceGhostTests`) whenever physics, scoring or a route changes. The story is on screen offline and online (V-099, V-100); left: portraits or a

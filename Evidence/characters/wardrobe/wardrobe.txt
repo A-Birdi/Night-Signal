@@ -1,0 +1,26 @@
+Reward wardrobe: each item worn alone over starting look 1 (CharacterBuilder, rest pose).
+item                       slot   shapes                                        own-colour tris  added tris  submeshes
+tea-hour-gloves            hands  driving-gloves                                            240         328         12
+cedar-crew-cap             head   crew-cap                                                  350         398         12
+signal-track-jacket        upper  track-stripes                                             100         152         12
+mizuhana-trousers          lower  turn-ups+knee-panels                                      120         120         12
+recovery-boots             feet   recovery-boots                                            152         312         12
+rainline-jacket            upper  storm-hood+taped-seams+chest-zip                           68         360         12
+reflector-cuff-shirt       upper  reflector-cuffs+button-placket                            256         248         12
+reservoir-pit-vest         upper  pit-vest                                                   12           4         12
+harbour-marshal-coat       upper  marshal-chevrons+double-breasted                          128         416         12
+quarry-overalls            full   knee-pads+chest-pocket+name-patch                         184         168         12
+datum-racing-suit          full   racing-stripes+racing-collar+shoulder-boards              156         212         12
+highland-windbreaker       upper  yoke-block+hem-toggles                                    348         396         12
+red-horizon-coat           upper  horizon-band+coat-belt                                    160         344         12
+surveyor-line-suit         full   survey-ticks+chest-pocket                                 192         228         12
+zero-frequency-coat        upper  flat-line+storm-collar                                    120         240         12
+cedar-lantern-keys         hip    lantern-keychain                                          104         168         12
+route-pin-badge            chest  route-pin                                                 108         108         12
+woven-wrist-cuff           wrist  woven-cuff                                                 64          64         12
+timing-slip-charm          charm  timing-slip-charm                                          48         180         12
+workshop-satchel           bag    workshop-satchel                                           78         150         12
+road-atlas                 carry  road-atlas                                                 30         146         12
+highland-scarf             neck   travel-scarf                                              488         488         12
+old-frequency-radio        belt   receiver                                                   60         168         12
+everything                 all    crew-cap+driving-gloves+horizon-band+coat-...            2002        3088         36

@@ -1,11 +1,13 @@
-# -nsDriverCardTour (offline, buttons only, isolated profile folder) on the player build of the commit that adds this file (V-095).
-# Tagged lines from the player log; absolute paths removed.
 [NightSignal.DriverCardTour] markup in pronouns: "Pronouns: up to 24 plain characters."; stored look still ""
 [NightSignal.DriverCardTour] saved: "Saved. You look like this at the offline meet." look 368 chars (starting look 5: True), pronouns "she/they"
 [NightSignal.DriverCardTour] locked frame: "Not owned yet: Balance Point Frame."
 [NightSignal.DriverCardTour] style saved: {"background":"dusk","frame":"double","motif":"signal-bars","title":"touring-driver","layout":"standard","region":"PT","preferredCar":"V01"} (preview {"background":"dusk","frame":"double","motif":"signal-bars","title":"touring-driver","layout":"standard","region":"PT","preferredCar":"V01"})
 [NightSignal.DriverCardTour] records offered: 2
 [NightSignal.DriverCardTour] showcase chosen course:C01:sprint, course:C08:drift-attack; stored course:C01:sprint, course:C08:drift-attack; drawn: Best: C01 Tea Lantern Road · sprint 2:29.000 | Best: C08 Rain Thread Pass · drift attack 71,250 raw ("Saved. You look like this at the offline meet.")
+[NightSignal.DriverCardTour] locked satchel: "Not owned yet: Workshop Cloth Satchel."
+[NightSignal.DriverCardTour] wardrobe saved: [harbour-marshal-coat,highland-scarf] ("Saved. You look like this at the offline meet.")
+[NightSignal.DriverCardTour] avatar: stored "ghostline", drawn ghostline
 [NightSignal.DriverCardTour] re-read from disk: True 
 [NightSignal.DriverCardTour] the offline meet's avatar is built from the Driver Card's look: True
+[NightSignal.DriverCardTour] the meet avatar wears: [harbour-marshal-coat,highland-scarf], 14 materials
 [NightSignal.DriverCardTour] PASS

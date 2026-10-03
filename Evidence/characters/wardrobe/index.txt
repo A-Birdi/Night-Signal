@@ -1,0 +1,14 @@
+Reward wardrobe and card avatars (V-153). Editor renders by CharacterSheet.RenderWardrobe (menu Night Signal/Art/Render
+Wardrobe Sheets) and CardAvatarArt; rest pose.
+Order in the wardrobe sheets: row-major, 12 per row — the 23 wardrobe items in customization.json order, each worn alone
+over starting look 1 (CH31 gloves, CH32 cap, CH33 track jacket, CH34 trousers, CH35 boots, CH36 rain jacket, CH37 shirt,
+CH38 pit vest, CH39 marshal coat, CH40 overalls, CH41 racing suit, CH42 windbreaker / CH43 driver coat, CH44 surveyor
+suit, CH45 driving coat, CH61 keychain, CH62 lapel pin, CH63 wrist cuff, CH65 timing-slip charm, CH67 satchel, CH69 road
+atlas, CH72 travel scarf, CH74 receiver), then one driver (starting look 4) wearing a garment in every place and all
+eight accessories.
+wardrobe-front / -back: orthographic at a common scale; wardrobe-quarter: three-quarter perspective;
+wardrobe-closeup: each item from the side it is worn on (6 per row).
+wardrobe.txt: per item, its slot and shapes, the triangles drawn in its own two colours and the triangles it adds.
+card-avatars.png: the nine avatar emblems — Initial Disc (free; the letter is text laid over it), Night Road (free),
+Cherry-Branch CH64, Six-Region CH66, Ghostline CH68, Radio-Dial CH70, 26-Road Crest CH71, Twelve-Voice Mosaic CH73,
+Dawn Horizon CH75.
