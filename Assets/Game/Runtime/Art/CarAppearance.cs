@@ -27,6 +27,14 @@ namespace NightSignal.Art
         public Color PlateBackground = new Color(0.95f, 0.95f, 0.93f), PlateTextColor = new Color(0.08f, 0.08f, 0.1f);
         /// <summary>gloss | metallic | pearl | matte | satin</summary>
         public string Finish = "gloss";
+        /// <summary>
+        /// A signature swatch's flip tint — the colour the body paint shifts to at glancing angles (customization.json
+        /// paintSwatches "flipTint", only when the swatch is owned); null = none. Drawn by the Car Paint shader.
+        /// </summary>
+        public Color? FlipTint;
+
+        /// <summary>How far the paint turns to its flip tint at the silhouette, and how tightly to the edge (pearl spreads wider).</summary>
+        public static (float Strength, float Falloff) FlipValues(string finish) => finish == "pearl" ? (0.85f, 1.8f) : finish == "matte" ? (0.45f, 3.5f) : (0.7f, 2.6f);
         /// <summary>none | lower | roof | hood-stripe | side-stripe</summary>
         public string TwoTone = "none";
         /// <summary>clear | amber | smoke-light</summary>

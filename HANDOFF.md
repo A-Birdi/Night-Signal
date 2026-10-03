@@ -215,7 +215,7 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
    the references (`RivalReferenceGhostTests`) whenever physics, scoring or a route changes. The story is on screen offline and online (V-099, V-100); left: portraits or a
    staged scene instead of text over the backdrop. Then a drift controller that manages the road edge (every AI attempt still ends at the edge; the
    per-driver drift skill of V-080 raises scores on average, not per course) and a re-measure of S29 with it (group
-   Time Attack and the hosted tables with 4 and 6 humans passed — V-081, V-082); (reconnect/rejoin/DQ under load — V-095 — is done); customization follow-up: pearl flip tint (meet livery refresh — V-089 — and preset rename/delete — V-088 — are done). (Drift Attack is now limited to courses with judged zones — V-079.)
+   Time Attack and the hosted tables with 4 and 6 humans passed — V-081, V-082); (reconnect/rejoin/DQ under load — V-095 — is done); customization follow-ups are done: the signature paints' flip tint (V-154, `Night Signal/Car Paint`, regenerate with `Tools/art/gen_carpaint.py` after a URP upgrade), the meet livery refresh (V-089), preset rename/delete (V-088). (Drift Attack is now limited to courses with judged zones — V-079.)
 4. **Open technical items**: heavy-contact prediction hitch at ~190 ms RTT (V-061 inconclusive; V-087: the one-sided
    contact predictor is within millimetres of the server in sustained side contact offline and a two-sided alternative
    was no better — next, a controlled built-player contact scenario to separate real hits from unpredicted remote

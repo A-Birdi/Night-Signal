@@ -1,0 +1,28 @@
+[NightSignal.AppearanceTour] car V01: liftback
+[NightSignal.AppearanceTour] 01-appearance-stock: view Front ¾: car at (0.00, 0.41, 0.00) facing (0.00, 0.00, 1.00), camera at (4.29, 1.81, 5.90) looking (-0.58, -0.18, -0.80)
+[NightSignal.AppearanceTour] 02-body-kit: view Front ¾: car at (0.00, 0.41, 0.00) facing (0.00, 0.00, 1.00), camera at (4.29, 1.81, 5.90) looking (-0.58, -0.18, -0.80)
+[NightSignal.AppearanceTour] body: front aero, rear diffuser, side skirt, rearAero wing, exhaust dual
+[NightSignal.AppearanceTour] 03-wheels: view Right side: car at (0.00, 0.41, 0.00) facing (-0.81, 0.00, 0.59), camera at (4.29, 1.81, 5.90) looking (-0.58, -0.18, -0.80)
+[NightSignal.AppearanceTour] wheels: R08 16 in, offset 1, finish bronze
+[NightSignal.AppearanceTour] 04-paint: view Front ¾: car at (0.00, 0.41, 0.00) facing (0.00, 0.00, 1.00), camera at (4.29, 1.81, 5.90) looking (-0.58, -0.18, -0.80)
+[NightSignal.AppearanceTour] paint:  #1F4E8C pearl, two-tone lower #111111
+[NightSignal.AppearanceTour] 05-lights-plate: view Rear ¾: car at (0.00, 0.41, 0.00) facing (0.00, 0.00, -1.00), camera at (4.29, 1.81, 5.90) looking (-0.58, -0.18, -0.80)
+[NightSignal.AppearanceTour] lamps: head amber, tail clear, glass light, plate 'NS 24' (night)
+[NightSignal.AppearanceTour] 06-decals-above: view From above: car at (0.00, 0.41, 0.00) facing (0.34, 0.00, 0.94), camera at (3.05, 7.05, 4.38) looking (-0.35, -0.79, -0.50)
+[NightSignal.AppearanceTour] 07-decals-front: view Front ¾: car at (0.00, 0.41, 0.00) facing (0.00, 0.00, 1.00), camera at (4.29, 1.81, 5.90) looking (-0.58, -0.18, -0.80)
+[NightSignal.AppearanceTour] decals: stripe #141518 left 0.50,0.50 0.70 m mirrored; num-0 #141518 hood 0.50,0.50 0.35 m; undo steps 46
+[NightSignal.AppearanceTour] 08-locked-refused: view Front ¾: car at (0.00, 0.41, 0.00) facing (0.00, 0.00, 1.00), camera at (4.29, 1.81, 5.90) looking (-0.58, -0.18, -0.80)
+[NightSignal.AppearanceTour] locked P-CH16: Not owned yet: Canal Jade Metallic. Remove them or earn them to apply.
+[NightSignal.AppearanceTour] signature paint chosen: P-CH30
+[NightSignal.AppearanceTour] 09-applied: view Front ¾: car at (0.00, 0.41, 0.00) facing (0.00, 0.00, 1.00), camera at (4.29, 1.81, 5.90) looking (-0.58, -0.18, -0.80)
+[NightSignal.AppearanceTour] applied: Appearance applied — it shows in your next race. hash 2fb719a997d58186f70a949e48164141754fa02ab887585b2491fd1f4186400d (711 chars)
+[NightSignal.AppearanceTour] 10-presets: view Front ¾: car at (0.00, 0.41, 0.00) facing (0.00, 0.00, 1.00), camera at (4.29, 1.81, 5.90) looking (-0.58, -0.18, -0.80)
+[NightSignal.AppearanceTour] presets: 2 (Livery 1, Livery 2); draft dirty after loading preset 1: False
+[NightSignal.AppearanceTour] rename: Renamed "Livery 2" to "Night Run". → presets Livery 1, Night Run
+[NightSignal.AppearanceTour] 10b-delete-asked: view Front ¾: car at (0.00, 0.41, 0.00) facing (0.00, 0.00, 1.00), camera at (4.29, 1.81, 5.90) looking (-0.58, -0.18, -0.80)
+[NightSignal.AppearanceTour] delete: asked "Delete "Livery 1"? Its saved look is lost. Press Delete again to confirm." (2 presets kept until confirmed), then Deleted "Livery 1". → presets Night Run
+[NightSignal.AppearanceTour] 10c-presets-after: view Front ¾: car at (0.00, 0.41, 0.00) facing (0.00, 0.00, 1.00), camera at (4.29, 1.81, 5.90) looking (-0.58, -0.18, -0.80)
+[NightSignal.AppearanceTour] persisted: True
+[NightSignal.AppearanceTour] race car: front aero, rear aero wing, rim 3-spoke, plate 'NS 24', 2 decals, livery 264 bytes
+[NightSignal.AppearanceTour] race paint: swatch P-CH30, shader Night Signal/Car Paint, flip tint 3FA7A0 strength 0.85
+[NightSignal.AppearanceTour] PASS

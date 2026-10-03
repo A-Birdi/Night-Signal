@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using NightSignal.Art;
 using NightSignal.Content;
 using NightSignal.Vehicle;
@@ -59,9 +60,37 @@ namespace NightSignal.Editor.ArtTools
             }
         }
 
+        /// <summary>
+        /// The signature paints' flip tint (customization.json paintSwatches with a "flipTint"): one car in every such swatch,
+        /// top row without the tint (plain Complex Lit), bottom row with it (the Car Paint shader) — the colour shift shows
+        /// toward the silhouette and on surfaces turned away from the camera.
+        /// </summary>
+        [MenuItem("Night Signal/Art/Render Flip Tint Sheet")]
+        public static void RenderFlipDefault() => RenderFlipTints(Path.GetFullPath(Path.Combine("Builds", "Screenshots", "cars", "flip-tints.png")));
+
+        public static string RenderFlipTints(string path, string car = "V04")
+        {
+            NightSignal.Core.Customization.CustomizationCatalogue look = ContentLibrary.Load().Customization;
+            var swatches = look.PaintSwatches.Where(s => s.FlipTint != null).ToList();
+            var cars = new List<string>();
+            var looks = new List<CarAppearance>();
+            foreach (bool flip in new[] { false, true })
+                foreach (var s in swatches)
+                {
+                    ColorUtility.TryParseHtmlString(s.Color, out Color c);
+                    ColorUtility.TryParseHtmlString(s.FlipTint, out Color t);
+                    cars.Add(car);
+                    looks.Add(new CarAppearance { Primary = c, Finish = s.Finish, FlipTint = flip ? t : (Color?)null });
+                }
+            Directory.CreateDirectory(Path.GetDirectoryName(path));
+            Render(path, View.FrontQuarter, cars, swatches.Count, 300, 200, appearances: looks);
+            return string.Join("\n", swatches.Select(s => $"{s.Id} {s.Name} {s.Finish} {s.Color} -> {s.FlipTint} ({s.CosmeticId})"));
+        }
+
         /// <param name="forceLod">A level of detail to draw regardless of distance (−1: the level the camera picks).</param>
+        /// <param name="appearances">Per tile, the appearance to draw instead of the plain paint (null: the plain paint).</param>
         public static void Render(string path, View view, List<string> cars = null, int columns = 6, int tileWidth = 520, int tileHeight = 320,
-            Color? paint = null, int forceLod = -1)
+            Color? paint = null, int forceLod = -1, List<CarAppearance> appearances = null)
         {
             ContentLibrary lib = ContentLibrary.Load();
             CarMaterialSet mats = Resources.Load<CarMaterialSet>("CarMaterialSet");
@@ -116,7 +145,8 @@ namespace NightSignal.Editor.ArtTools
                 for (int i = 0; i < cars.Count; i++)
                 {
                     VehicleParams p = lib.Params(cars[i], AssistSettings.Default);
-                    VehicleView car = VehicleView.Create("SheetCar", p, lib.Body(cars[i]), mats, paint ?? new Color(0.46f, 0.56f, 0.66f));
+                    VehicleView car = VehicleView.Create("SheetCar", p, lib.Body(cars[i]), mats, paint ?? new Color(0.46f, 0.56f, 0.66f),
+                        appearances != null && i < appearances.Count ? appearances[i] : null);
                     SceneManager.MoveGameObjectToScene(car.gameObject, scene);
                     car.ShowParked(Vector3.zero, Quaternion.identity, view == View.FrontQuarter ? 12f : 0f);
                     if (forceLod >= 0) car.HoldLod(forceLod);

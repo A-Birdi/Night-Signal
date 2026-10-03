@@ -3430,3 +3430,29 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   its id.
 - **Not executed:** an online meet with a dressed visitor (the same rig code builds remote looks; the server path is covered
   by the API tests); a human look at the sheets.
+
+## V-154 — Signature paints' flip tint rendered (2026-10-03)
+- Revision: documented with the commit of this entry (the change is in it); EditMode in the editor, the built player of it.
+- **Gap closed:** the eleven signature paint swatches (paint rewards CH17, CH18, CH21–CH24, CH26–CH30) carry a `flipTint`
+  — the colour a pearl or metallic paint shifts to at glancing angles — which the resolver passed on but nothing drew (V-046
+  limit: "URP Lit has no view-dependent tint").
+- **Change:** a `Night Signal/Car Paint` shader (`Assets/Art/Shaders/CarPaint/`), generated from URP 17's own
+  `ComplexLit.shader` and `LitInput.hlsl` by `Tools/art/gen_carpaint.py`: every pass is the package's (clear coat kept),
+  the per-material constant buffer (and its DOTS-instancing twin, so the SRP Batcher / GPU Resident Drawer path is unchanged)
+  gains `_FlipColor` / `_FlipPower`, and the forward fragment blends the albedo toward the tint by a Fresnel term before
+  lighting. `CarAppearance.FlipTint` (mapped only when the swatch is owned, as before), strength/falloff by finish (pearl
+  0.85 / 1.8, others 0.7 / 2.6, matte 0.45 / 3.5); `VehicleView` puts only a flip-tinted body paint on the new material
+  (`CarMaterialSet.PaintFlip`, created from the shared paint so it ships in builds); every other paint stays on the shared
+  Complex Lit material. Rebuild the shader with the generator after a URP upgrade.
+- **Executed:** the shader compiles with no messages (9 passes, supported); EditMode `NightSignal.Tests.Vehicle` 145/145
+  (new: the tint reaches the renderer only when owned, the material is on the Car Paint shader with the clear coat on, a
+  flip car's paint carries the swatch's tint and a plain car keeps the shared shader). Built player `-nsAppearanceTour`
+  **PASS** — the tour now seeds the CH30 reward into its new profile, chooses Zero-Signal Indigo Shift after the locked
+  swatch is refused, applies, persists, and S01's car paint is on `Night Signal/Car Paint` with flip tint #3FA7A0 at 0.85.
+  The player grew 2.5 MB (the shader's variants); the first build after adding it took 10.5 min (shader compilation).
+- **Evidence:** `Evidence/art/customization/flip-tints.jpg` (one car in all eleven signature paints, top without the tint,
+  bottom with it; render: Night Signal/Art/Render Flip Tint Sheet), `flip-tints-zoom.jpg`,
+  `Evidence/ui/appearance/signature-paint-flip-preview.jpg` (the garage preview: indigo facing, teal on the flank and roof),
+  `signature-paint-flip-race.jpg`, `appearance-tour-log.txt`.
+- **Not executed:** an online race with a flip-tinted livery (the roster carries the swatch id and every client resolves the
+  same appearance through the code tested here); a human look at night lighting.

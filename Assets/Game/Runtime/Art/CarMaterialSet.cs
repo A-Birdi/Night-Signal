@@ -7,6 +7,8 @@ namespace NightSignal.Art
     public sealed class CarMaterialSet : ScriptableObject
     {
         public Material Paint;
+        /// <summary>The body paint on the Night Signal/Car Paint shader (Complex Lit + a glancing flip tint) for signature swatches.</summary>
+        public Material PaintFlip;
         public Material Glass;
         public Material Trim;
         public Material HeadLamp;

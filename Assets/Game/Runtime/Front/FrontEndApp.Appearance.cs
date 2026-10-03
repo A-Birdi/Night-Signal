@@ -13,8 +13,10 @@ namespace NightSignal.Front
         /// <summary>
         /// Appearance evidence run (<c>-nsAppearanceTour</c>): a fresh Local profile in an isolated folder → Garage → Appearance.
         /// Every section is edited with the real controls (body kit, wheels, paint, lamps and plate, two decal layers), undo and
-        /// redo are exercised, a locked swatch is refused on Apply, the livery is applied and saved as two presets, the profile is
-        /// re-read from disk, and S01 starts with the car showing the applied livery. Automation, labelled as such.
+        /// redo are exercised, a locked swatch is refused on Apply, an owned signature paint (seeded, as a challenge reward would
+        /// be) is chosen, the livery is applied and saved as two presets, the profile is re-read from disk, and S01 starts with
+        /// the car showing the applied livery — its paint on the Car Paint shader with the swatch's flip tint. Automation,
+        /// labelled as such.
         /// </summary>
         IEnumerator AppearanceTour()
         {
@@ -70,6 +72,9 @@ namespace NightSignal.Front
             GameObject.Find("ProfileName").GetComponent<TMPro.TMP_InputField>().text = "Livery Driver";
             Click("Create");
             yield return new WaitForSeconds(1.2f);
+            // A signature paint with a flip tint, owned (rewards reach a profile through ApplyEvent, covered by the .NET tests).
+            const string flipSwatch = "P-CH30";
+            LocalSession.Current?.Profile?.Cosmetics.Add(new Core.Profiles.OwnedCosmetic { CosmeticId = "COS-CH30", Source = "CH30", AcquiredUtc = DateTime.UtcNow });
             Click("Garage");
             yield return new WaitForSeconds(1.5f);
             Click("OpenAppearance");
@@ -196,6 +201,16 @@ namespace NightSignal.Front
             }
             else Note("no locked swatch in the catalogue");
 
+            // The owned signature paint (Zero-Signal Indigo Shift, flip tint #3FA7A0) for the applied livery.
+            {
+                yield return Section(2);
+                // Press the colour stepper until the draft wears that swatch (its position is not re-synced by undo).
+                for (int i = 0; i < cc.PaintSwatches.Count + 2 && Appearance.Editor.Draft.Paint.Swatch != flipSwatch; i++)
+                    yield return Step("Colour", 1);
+                Note($"signature paint chosen: {Appearance.Editor.Draft.Paint.Swatch}");
+                if (Appearance.Editor.Draft.Paint.Swatch != flipSwatch) failures.Add("the owned signature paint could not be chosen");
+            }
+
             // Apply, then two presets (the applied livery, and a variation), then load the first back.
             Click("Appearance-Apply");
             float until = Time.realtimeSinceStartup + 10f;
@@ -288,6 +303,11 @@ namespace NightSignal.Front
                 Note($"race car: front {a.Front}, rear aero {a.RearAero}, rim {a.RimStyle}, plate '{a.PlateText}', {a.Decals.Count} decals, livery {activeRace.PlayerLivery?.Length} bytes");
                 if (applied == null || a.Front != applied.Body.Front || a.RearAero != applied.Body.RearAero || a.PlateText != applied.Plate.Text || a.Decals.Count != applied.Decals.Count)
                     failures.Add("the race car does not show the applied livery");
+                Material paint = activeRace.PlayerView.Paint;
+                Color flipColour = paint != null && paint.HasProperty("_FlipColor") ? paint.GetColor("_FlipColor") : Color.clear;
+                Note($"race paint: swatch {applied?.Paint.Swatch}, shader {paint?.shader?.name}, flip tint {ColorUtility.ToHtmlStringRGB(flipColour)} strength {flipColour.a:0.00}");
+                if (paint == null || paint.shader.name != "Night Signal/Car Paint" || flipColour.a <= 0f || ColorUtility.ToHtmlStringRGB(flipColour) != "3FA7A0")
+                    failures.Add("the signature paint's flip tint is not on the race car");
                 activeRace.Autopilot = true;
                 yield return new WaitForSeconds(8f);
                 Shot("13-race-driving");

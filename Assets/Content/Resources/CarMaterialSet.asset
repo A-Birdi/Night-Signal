@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: CarMaterialSet
   m_EditorClassIdentifier: NightSignal.Runtime::NightSignal.Art.CarMaterialSet
   Paint: {fileID: 2100000, guid: a990e8bf3ca60a244b8994e6763720b8, type: 2}
+  PaintFlip: {fileID: 2100000, guid: 1db1659843355324e947b465c5f2046e, type: 2}
   Glass: {fileID: 2100000, guid: af4e5a6ea9d6d4d4f81f8ac5550ee5b8, type: 2}
   Trim: {fileID: 2100000, guid: 0958f3d9263b1af43a9b195c845a89a5, type: 2}
   HeadLamp: {fileID: 2100000, guid: 8a530743eef69cf47bbf973bb85ed03b, type: 2}

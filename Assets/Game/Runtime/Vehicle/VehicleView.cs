@@ -152,7 +152,16 @@ namespace NightSignal.Vehicle
             Appearance = a;
             Def = def;
             materials = mats;
-            paint = Instance(mats.Paint, $"{def.Id}_Paint", a.Primary, a.Finish);
+            // A signature swatch's flip tint needs the Car Paint shader; every other paint stays on the shared Complex Lit.
+            bool flip = a.FlipTint.HasValue && mats.PaintFlip != null;
+            paint = Instance(flip ? mats.PaintFlip : mats.Paint, $"{def.Id}_Paint", a.Primary, a.Finish);
+            if (flip)
+            {
+                (float strength, float falloff) = CarAppearance.FlipValues(a.Finish);
+                Color t = a.FlipTint.Value;
+                paint.SetColor("_FlipColor", new Color(t.r, t.g, t.b, strength));
+                paint.SetFloat("_FlipPower", falloff);
+            }
             CarMaterials cm = mats.ForPaint(paint);
             cm.Paint2 = Instance(mats.Paint, $"{def.Id}_Paint2", a.Secondary, a.Finish);
             cm.Accent = Instance(mats.Paint, $"{def.Id}_Accent", a.Accent, "satin");

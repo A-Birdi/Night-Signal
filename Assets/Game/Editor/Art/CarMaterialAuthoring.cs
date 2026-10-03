@@ -22,6 +22,7 @@ namespace NightSignal.Editor.Art
             bool create = set == null;
             if (create) set = ScriptableObject.CreateInstance<CarMaterialSet>();
             set.Paint = Paint("CarPaint", new Color(0.8f, 0.1f, 0.1f), 0.72f, 0.35f, clearCoat: true);
+            set.PaintFlip = FlipPaint("CarPaintFlip", set.Paint);
             set.GhostPaint = Transparent("GhostPaint", new Color(0.35f, 0.85f, 1f, 0.28f), 0.8f);
             set.Glass = Transparent("CarGlass", new Color(0.06f, 0.08f, 0.1f, 0.62f), 0.95f);
             set.Trim = Lit("CarTrim", new Color(0.05f, 0.05f, 0.055f), 0.35f, 0f);
@@ -53,6 +54,20 @@ namespace NightSignal.Editor.Art
                 m.SetFloat("_ClearCoatSmoothness", 0.95f);
                 m.EnableKeyword("_CLEARCOAT");
             }
+            m.enableInstancing = true;
+            AssetDatabase.CreateAsset(m, path);
+            return m;
+        }
+
+        /// <summary>The body paint's settings (clear coat included) on the Car Paint shader, flip tint off until a livery sets it.</summary>
+        static Material FlipPaint(string name, Material paint)
+        {
+            string path = $"{Folder}/{name}.mat";
+            var m = AssetDatabase.LoadAssetAtPath<Material>(path);
+            if (m != null) return m;
+            m = new Material(paint) { name = name, shader = Shader.Find("Night Signal/Car Paint") };
+            m.SetColor("_FlipColor", new Color(1f, 1f, 1f, 0f));
+            m.SetFloat("_FlipPower", 2.5f);
             m.enableInstancing = true;
             AssetDatabase.CreateAsset(m, path);
             return m;

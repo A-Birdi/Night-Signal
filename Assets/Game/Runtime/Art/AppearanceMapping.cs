@@ -5,8 +5,8 @@ namespace NightSignal.Art
 {
     /// <summary>
     /// Core's resolved appearance (every id already valid for the chassis, stock where anything fell back) → the renderer's
-    /// <see cref="CarAppearance"/>. Colours arrive as canonical #RRGGBB; nothing here is a simulation input.
-    /// Not rendered yet: a signature swatch's glancing flip tint (URP Lit has no view-dependent tint).
+    /// <see cref="CarAppearance"/>. Colours arrive as canonical #RRGGBB; nothing here is a simulation input. A signature
+    /// swatch's flip tint (resolved only when the swatch is owned) goes to the Car Paint shader.
     /// </summary>
     public static class AppearanceMapping
     {
@@ -25,6 +25,7 @@ namespace NightSignal.Art
                 Secondary = Hex(r.Secondary, stock.Secondary),
                 Accent = Hex(r.Accent, stock.Accent),
                 Finish = string.IsNullOrEmpty(r.Finish) ? "gloss" : r.Finish,
+                FlipTint = string.IsNullOrEmpty(r.FlipTint) ? (Color?)null : Hex(r.FlipTint, Color.white),
                 TwoTone = string.IsNullOrEmpty(r.TwoTone) ? "none" : r.TwoTone,
                 HeadTint = string.IsNullOrEmpty(r.HeadTint) ? "clear" : r.HeadTint,
                 TailTint = string.IsNullOrEmpty(r.TailTint) ? "clear" : r.TailTint,
