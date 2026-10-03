@@ -9,28 +9,31 @@ namespace NightSignal.Front
     /// The Player Card's driver preview: one character on a dark floor far below the world, turning slowly, rendered into a
     /// texture by its own camera each frame with its own lights (switched on only while it renders, like the Garage's
     /// <see cref="AppearanceStage"/>). Built by the same <see cref="CharacterRig"/> the meet uses — what you see is what
-    /// other drivers see.
+    /// other drivers see. In portrait framing (the story's speakers) it holds a head-and-shoulders three-quarter view, idling.
     /// </summary>
     public sealed class CharacterStage
     {
-        static readonly Vector3 Origin = new Vector3(0f, -5200f, 0f);
+        static readonly Vector3 DefaultOrigin = new Vector3(0f, -5200f, 0f);
 
         readonly GameObject root;
         readonly Camera cam;
         readonly Light[] lights;
         readonly RenderTexture target;
         readonly Material floorMaterial;
+        readonly GameObject floor;
         CharacterRig rig;
         CharacterMotion motion;
         float yaw = 205f;
+        bool portrait;
 
         public Texture Texture => target;
 
-        public CharacterStage(int width, int height)
+        /// <param name="origin">Where the stage sits, far from the world (two stages never share a place).</param>
+        public CharacterStage(int width, int height, Vector3? origin = null)
         {
             root = new GameObject("CharacterStage");
             Object.DontDestroyOnLoad(root);
-            root.transform.position = Origin;
+            root.transform.position = origin ?? DefaultOrigin;
 
             var camGo = new GameObject("StageCamera");
             camGo.transform.SetParent(root.transform, false);
@@ -51,7 +54,7 @@ namespace NightSignal.Front
                 Directional("Rim", 0.45f, Quaternion.Euler(10f, 20f, 0f), LightShadows.None),
             };
 
-            var floor = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            floor = GameObject.CreatePrimitive(PrimitiveType.Quad);
             floor.name = "Floor";
             Object.Destroy(floor.GetComponent<Collider>());
             floor.transform.SetParent(root.transform, false);
@@ -77,18 +80,33 @@ namespace NightSignal.Front
             return l;
         }
 
-        /// <summary>Rebuilds the character (its own mesh: previews change often and must not grow the shared cache).</summary>
-        public void Show(CharacterLook look)
+        /// <summary>
+        /// Rebuilds the character. A preview (the Player Card) builds its own mesh: it changes often and must not grow the
+        /// shared cache; a <paramref name="portraitFraming"/> of an authored person (a story speaker) uses the cached one.
+        /// </summary>
+        public void Show(CharacterLook look, bool portraitFraming = false)
         {
             if (rig != null) Object.Destroy(rig.gameObject);
-            rig = CharacterRig.Create(look, null, root.transform, "CardAvatar", GameLayers.Avatar, cacheMesh: false);
+            portrait = portraitFraming;
+            rig = CharacterRig.Create(look, null, root.transform, portrait ? "StoryPortrait" : "CardAvatar", GameLayers.Avatar, cacheMesh: portrait);
             rig.transform.localPosition = Vector3.zero;
+            if (portrait) yaw = 18f; // turned a little toward the line beside the portrait
             rig.transform.localRotation = Quaternion.Euler(0f, yaw, 0f);
             motion = rig.gameObject.AddComponent<CharacterMotion>();
-            // Framed head to toe (and a raised arm) with a margin, whatever the look's height.
             float h = Mathf.Clamp(look.Height, 1.4f, 2f);
-            cam.transform.localPosition = new Vector3(0f, h * 0.62f, 6.4f * (h / 1.72f));
-            cam.transform.LookAt(root.transform.position + new Vector3(0f, h * 0.56f, 0f));
+            floor.SetActive(!portrait); // a portrait has no floor line behind the shoulders
+            if (portrait)
+            {
+                // Head and shoulders: the eye line a third from the top.
+                cam.transform.localPosition = new Vector3(0f, h * 0.9f, 1.3f * (h / 1.72f));
+                cam.transform.LookAt(root.transform.position + new Vector3(0f, h * 0.855f, 0f));
+            }
+            else
+            {
+                // Framed head to toe (and a raised arm) with a margin, whatever the look's height.
+                cam.transform.localPosition = new Vector3(0f, h * 0.62f, 6.4f * (h / 1.72f));
+                cam.transform.LookAt(root.transform.position + new Vector3(0f, h * 0.56f, 0f));
+            }
         }
 
         /// <summary>Plays an emote on the preview (e.g. a wave after saving).</summary>
@@ -98,8 +116,11 @@ namespace NightSignal.Front
         public void Update(float dt)
         {
             if (rig == null) return;
-            yaw += dt * 12f;
-            rig.transform.localRotation = Quaternion.Euler(0f, yaw, 0f);
+            if (!portrait)
+            {
+                yaw += dt * 12f;
+                rig.transform.localRotation = Quaternion.Euler(0f, yaw, 0f);
+            }
             foreach (Light l in lights) l.enabled = true;
             cam.Render();
             foreach (Light l in lights) l.enabled = false;

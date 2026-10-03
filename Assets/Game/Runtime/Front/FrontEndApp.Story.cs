@@ -81,17 +81,30 @@ namespace NightSignal.Front
             int expected = story.Intro("S01", CampaignMode.Normal, false).Count;
             float started = Time.realtimeSinceStartup;
             bool snapped = false;
+            var portraits = new Dictionary<int, string>();
             while (!Story.Finished && Time.realtimeSinceStartup - started < 40f)
             {
+                if (!portraits.ContainsKey(Story.LineIndex)) portraits[Story.LineIndex] = Story.PortraitShown;
                 if (!snapped && Story.LineIndex == 1)
                 {
                     snapped = true;
                     yield return new WaitForSeconds(0.4f);
                     yield return Snap("01-intro-S01");
+                    if (!Story.SavePortrait(System.IO.Path.Combine(dir, "01b-portrait-" + Story.PortraitShown + ".png"))) Fail("no portrait to save on a rival's line");
                 }
                 yield return null;
             }
             float took = Time.realtimeSinceStartup - started;
+            // Each line's portrait is its speaker: the rival's own character, the timing crew's / radio's mark, none for narration.
+            List<StoryLine> authored = story.Intro("S01", CampaignMode.Normal, false);
+            Note("portraits by line: " + string.Join(", ", portraits.OrderBy(k => k.Key).Select(k => $"{k.Key + 1} {authored.ElementAtOrDefault(k.Key)?.Speaker}→{(k.Value.Length == 0 ? "none" : k.Value)}")));
+            foreach (var kv in portraits)
+            {
+                string who = authored.ElementAtOrDefault(kv.Key)?.Speaker ?? "";
+                string wantPortrait = who == "narration" || who == "setting" ? "" : who;
+                if (kv.Value != wantPortrait) Fail($"line {kv.Key + 1} ({who}) showed the portrait \"{kv.Value}\"");
+            }
+            if (!portraits.Values.Any(v => v.StartsWith("R"))) Fail("no rival portrait was shown");
             Note($"S01 intro: {Story.LineCount} lines (authored {expected}), played by itself in {took:F1} s");
             if (Story.LineCount != expected) Fail("the first intro was not the full scene");
             if (took < 9.5f || took > 19.5f) Fail($"the intro took {took:F1} s (target 10–18 s)");

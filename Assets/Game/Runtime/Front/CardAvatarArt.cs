@@ -319,6 +319,23 @@ namespace NightSignal.Front
                             o = Over(o, dark, Cov(Mathf.Max(front, disc)));
                             break;
                         }
+                        case "stopwatch":
+                        {
+                            // The timing crew's mark (story portraits): a stopwatch face, a crown and a sweep hand.
+                            o = Over(o, c0, Cov(disc));
+                            var face = new Vector2(64, 58);
+                            o = Over(o, c1, Cov(Circle(p, face, 40f)));
+                            o = Over(o, c2, Cov(Circle(p, face, 35f)));
+                            o = Over(o, c1, Cov(Box(p, new Vector2(64, 104), new Vector2(7f, 6f), 2f)));
+                            o = Over(o, c1, Cov(Box(p, new Vector2(64, 112), new Vector2(11f, 3f), 1.5f)));
+                            float ta = Mathf.Atan2(p.y - face.y, p.x - face.x), tr = (p - face).magnitude;
+                            float tick = Mathf.Abs(Mathf.Repeat(ta / (Mathf.PI * 2f) * 12f + 0.5f, 1f) - 0.5f) * Mathf.PI * 2f / 12f * tr;
+                            o = Over(o, c0, Cov(Mathf.Max(tick - 1.1f, Mathf.Max(27f - tr, tr - 33f))));
+                            float hand = 62f * Mathf.Deg2Rad;
+                            o = Over(o, Hex("#D7263D", c1), Cov(Segment(p, face, face + new Vector2(Mathf.Cos(hand), Mathf.Sin(hand)) * 30f, 1.6f)));
+                            o = Over(o, c0, Cov(Circle(p, face, 3.5f)));
+                            break;
+                        }
                         default: // initial: a ringed disc; the letter is text laid over it
                             o = Over(o, c0, Cov(disc));
                             o = Over(o, c1, Cov(Mathf.Abs(Circle(p, centre, R - 4f)) - 2.2f));
