@@ -843,3 +843,40 @@ public sealed class CardStyleTests
         Assert.Equal(249, RegionCodes.All.Count);
     }
 }
+
+/// <summary>
+/// Colours in liveries, card styles and the catalogue (#RRGGBB) and the WCAG contrast that keeps plate text legible
+/// (<see cref="CustomizationCatalogue.MinPlateContrast"/>).
+/// </summary>
+public sealed class HexColorTests
+{
+    [Fact]
+    public void TryNormalize_AcceptsEitherCase_AndOnlySixHexDigits()
+    {
+        Assert.True(HexColor.TryNormalize("#a1b2c3", out string c));
+        Assert.Equal("#A1B2C3", c);
+        Assert.True(HexColor.IsCanonical("#A1B2C3"));
+        Assert.False(HexColor.IsCanonical("#a1b2c3"));
+        foreach (string bad in new[] { null!, "", "A1B2C3", "#A1B2C", "#A1B2C3D", "#G1B2C3", "#A1 2C3", "rgb(1,2,3)" })
+        {
+            Assert.False(HexColor.TryNormalize(bad, out string none), bad ?? "null");
+            Assert.Null(none);
+            Assert.False(HexColor.IsCanonical(bad));
+        }
+    }
+
+    [Fact]
+    public void Contrast_FollowsWcag_AndSeparatesTheFourAndAHalfToOneLine()
+    {
+        Assert.Equal(1.0, HexColor.Luminance("#FFFFFF"), 9);
+        Assert.Equal(0.0, HexColor.Luminance("#000000"), 9);
+        Assert.Equal(0.2126, HexColor.Luminance("#FF0000"), 9);
+        Assert.Equal(21.0, HexColor.Contrast("#000000", "#FFFFFF"), 9);
+        Assert.Equal(HexColor.Contrast("#123456", "#FEDCBA"), HexColor.Contrast("#FEDCBA", "#123456"), 12);
+        Assert.Equal(1.0, HexColor.Contrast("#3C3C3C", "#3c3c3c"), 12);
+        // The usual WCAG pair either side of AA: #767676 on white passes (4.54), #777777 does not (4.48).
+        Assert.True(HexColor.Contrast("#767676", "#FFFFFF") >= CustomizationCatalogue.MinPlateContrast);
+        Assert.True(HexColor.Contrast("#777777", "#FFFFFF") < CustomizationCatalogue.MinPlateContrast);
+        Assert.Throws<ArgumentException>(() => HexColor.Luminance("#FFF"));
+    }
+}
