@@ -252,7 +252,10 @@ namespace NightSignal.Core.Toys
         {
             JToken t = Need(name);
             if (t.Type != JTokenType.Float && t.Type != JTokenType.Integer) throw new ToyPayloadException(ToyReason.Malformed, "'" + name + "' is not a number");
-            double v = t.Value<double>();
+            double v;
+            // An integer beyond 64 bits arrives as a BigInteger, which does not convert: out of range, like Long.
+            try { v = t.Value<double>(); }
+            catch (Exception) { throw new ToyPayloadException(ToyReason.OutOfRange, "'" + name + "' out of range"); }
             if (!ToyMath.Finite(v)) throw new ToyPayloadException(ToyReason.Malformed, "'" + name + "' is not finite");
             if (v < min || v > max) throw new ToyPayloadException(ToyReason.OutOfRange, "'" + name + "' out of range");
             return v;
@@ -313,7 +316,9 @@ namespace NightSignal.Core.Toys
             {
                 JToken e = arr[i];
                 if (e.Type != JTokenType.Integer) throw new ToyPayloadException(ToyReason.Malformed, "'" + name + "' element is not an integer");
-                long v = e.Value<long>();
+                long v;
+                try { v = e.Value<long>(); }
+                catch (Exception) { throw new ToyPayloadException(ToyReason.OutOfRange, "'" + name + "' element out of range"); }
                 if (v < min || v > max) throw new ToyPayloadException(ToyReason.OutOfRange, "'" + name + "' element out of range");
                 result[i] = (int)v;
             }
