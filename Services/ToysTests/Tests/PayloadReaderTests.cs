@@ -31,7 +31,7 @@ public sealed class PayloadReaderTests
     [Fact]
     public void Numbers_TypesAndEnums_AreStrict()
     {
-        var p = new PayloadReader(JObject.Parse("{\"a\":[1,2,3],\"f\":1.5,\"s\":\"x\",\"k\":\"Canvas\",\"num\":\"1\",\"two\":\"Canvas, Greenlight\"}"));
+        var p = new PayloadReader(JObject.Parse("{\"a\":[1,2,3],\"f\":1.5,\"s\":\"x\",\"k\":\"Canvas\",\"num\":\"1\",\"two\":\"Canvas, Greenlight\",\"flags\":\"CapClash, PitCrew\",\"pad\":\" Canvas\"}"));
         Assert.Equal(new[] { 1, 2, 3 }, p.IntArray("a", 3, 0, 3));
         Assert.Equal(ToyReason.TooLarge, Refusal(() => p.IntArray("a", 2, 0, 3)));
         Assert.Equal(ToyReason.OutOfRange, Refusal(() => p.IntArray("a", 3, 0, 2)));
@@ -43,5 +43,8 @@ public sealed class PayloadReaderTests
         Assert.Equal(ToyActivityId.Canvas, p.Enum<ToyActivityId>("k"));
         Assert.Equal(ToyReason.Malformed, Refusal(() => p.Enum<ToyActivityId>("num")));
         Assert.Equal(ToyReason.Malformed, Refusal(() => p.Enum<ToyActivityId>("two")));
+        // CapClash | PitCrew is 0 | 1, a defined value: a combination is still not a name.
+        Assert.Equal(ToyReason.Malformed, Refusal(() => p.Enum<ToyActivityId>("flags")));
+        Assert.Equal(ToyReason.Malformed, Refusal(() => p.Enum<ToyActivityId>("pad")));
     }
 }

@@ -328,9 +328,11 @@ namespace NightSignal.Core.Toys
         public T Enum<T>(string name) where T : struct
         {
             string s = String(name, 32);
-            if (!System.Enum.TryParse(s, true, out T v) || !System.Enum.IsDefined(typeof(T), v) || int.TryParse(s, out _))
-                throw new ToyPayloadException(ToyReason.Malformed, "'" + name + "' is not a known value");
-            return v;
+            // A declared name only, in any case: no numbers, combinations ("A, B" can OR to a defined value) or padding.
+            foreach (string declared in System.Enum.GetNames(typeof(T)))
+                if (string.Equals(declared, s, StringComparison.OrdinalIgnoreCase))
+                    return (T)System.Enum.Parse(typeof(T), declared);
+            throw new ToyPayloadException(ToyReason.Malformed, "'" + name + "' is not a known value");
         }
     }
 
