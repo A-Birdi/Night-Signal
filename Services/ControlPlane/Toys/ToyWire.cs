@@ -81,11 +81,14 @@ public static class ToyWire
     public static string Message(ToyResult r) =>
         r.Reason.ToString() + (r.Detail is null ? "" : ": " + r.Detail);
 
-    /// <summary>Strict activity name: a Core <see cref="ToyActivityId"/> name (case-insensitive), never a number.</summary>
+    /// <summary>
+    /// Strict activity name: a Core <see cref="ToyActivityId"/> name (case-insensitive), never a number or a combination
+    /// ("PitCrew, Greenlight" would OR to PocketCircuit).
+    /// </summary>
     public static bool TryActivity(string? name, out ToyActivityId id)
     {
         id = default;
-        return !string.IsNullOrEmpty(name) && !char.IsAsciiDigit(name[0]) && name[0] != '-' &&
-               Enum.TryParse(name, ignoreCase: true, out id) && Enum.IsDefined(id);
+        string? declared = Enum.GetNames<ToyActivityId>().FirstOrDefault(n => string.Equals(n, name, StringComparison.OrdinalIgnoreCase));
+        return declared is not null && Enum.TryParse(declared, out id);
     }
 }
