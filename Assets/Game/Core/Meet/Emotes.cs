@@ -69,9 +69,18 @@ namespace NightSignal.Core.Meet
             }
         }
 
+        /// <summary>
+        /// One of the twelve emote names, in any case (clients send <c>Emote.ToString()</c>). Numbers, combinations
+        /// ("Wave, Bow"), padding and None are refused — the room server parses untrusted requests with this.
+        /// </summary>
         public static bool TryParse(string id, out Emote e)
         {
-            if (Enum.TryParse(id, true, out e) && e != Emote.None) return true;
+            foreach (Emote w in Wheel)
+                if (string.Equals(w.ToString(), id, StringComparison.OrdinalIgnoreCase))
+                {
+                    e = w;
+                    return true;
+                }
             e = Emote.None;
             return false;
         }
