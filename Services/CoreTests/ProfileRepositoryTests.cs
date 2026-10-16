@@ -380,4 +380,64 @@ public sealed class ProfileRepositoryTests
             if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
         }
     }
+
+    static void Refused(Action op, string what)
+    {
+        try
+        {
+            op();
+        }
+        catch (ArgumentException)
+        {
+            return;
+        }
+        Assert.Fail(what + " was accepted");
+    }
+
+    [Fact]
+    public void Storage_RefusesNamesThatCouldLeaveItsFolder_OnEveryOperation()
+    {
+        string scratch = Path.Combine(Path.GetTempPath(), "ns-coretests-" + Guid.NewGuid().ToString("N"));
+        string root = Path.Combine(scratch, "store");
+        string[] bad =
+        {
+            null!, "", "../outside.txt", "profiles/../../outside.txt", "profiles/..", "./p", ".", "/rooted.txt",
+            "profiles//p", "profiles/", "a\\..\\outside.txt", "C:outside.txt", "with space", "caf\u00e9",
+            new string('a', ProfileStorageNames.MaxLength + 1),
+        };
+        const string good = "profiles/p_1/profile.nsave";
+        try
+        {
+            foreach (IProfileStorage s in new IProfileStorage[] { new InMemoryProfileStorage(), new FileSystemProfileStorage(root) })
+            {
+                s.Write(good, new byte[] { 1 });
+                foreach (string name in bad)
+                {
+                    string what = s.GetType().Name + " '" + (name ?? "null") + "'";
+                    Refused(() => s.Read(name), what + " read");
+                    Refused(() => s.Write(name, new byte[] { 2 }), what + " write");
+                    Refused(() => s.Exists(name), what + " exists");
+                    Refused(() => s.Delete(name), what + " delete");
+                    Refused(() => s.Replace(name, good, null), what + " as a replace source");
+                    Refused(() => s.Replace(good, name, null), what + " as a replace destination");
+                    if (name != null) Refused(() => s.Replace(good, good, name), what + " as a replace backup");
+                }
+                Assert.Equal(new[] { good }, s.List(""));
+                Assert.Equal(new byte[] { 1 }, s.Read(good));
+            }
+            Assert.Equal(new[] { "store" }, Directory.GetFileSystemEntries(scratch).Select(Path.GetFileName));
+
+            // A file that could not have been written through the storage is never listed.
+            File.WriteAllText(Path.Combine(root, "profiles", "with space.txt"), "x");
+            Assert.Equal(new[] { good }, new FileSystemProfileStorage(root).List("profiles/"));
+
+            Assert.True(ProfileStorageNames.IsValid(new string('a', ProfileStorageNames.MaxLength)));
+            Assert.True(ProfileStorageNames.IsValid("profiles/p_1/profile.nsave.bak"));
+            Assert.True(ProfileStorageNames.IsValid("a..b"));
+        }
+        finally
+        {
+            if (Directory.Exists(scratch)) Directory.Delete(scratch, recursive: true);
+        }
+    }
 }
