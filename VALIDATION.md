@@ -3515,3 +3515,17 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   narration pages, so no ending portrait was captured.
 - **Not executed:** an online intro with portraits in a run (same screen, same code path); the radio mark in a run (S01 has
   no radio line); a human look at all 48 portraits.
+
+## V-158 — A build manifest: the shipped files and content documents hashed (2026-10-16)
+- Revision: documented with the commit of this entry; the manifest describes the player build of 2026-10-03 01:40, whose
+  source (Assets/, ProjectSettings/, Packages/) is unchanged from a9080980 to this commit (`git diff` empty).
+- **Gate 5 item:** "preserved source/asset hashes" (spec §19). `Tools/qa/release_manifest.py` hashes every shipped file of
+  `Builds/Game` (Unity's do-not-ship debug folder and logs excluded) and every content document the game and the control
+  plane load (`Assets/Content/Data/**/*.json`, each course's `route.json`), with an aggregate hash for each set, and records
+  the repository HEAD, the last commit that changed the source folders and whether they have uncommitted changes.
+- **Executed:** 264 build files, 132.0 MB, aggregate `b1da93b7d1da2739…`; 63 content documents, aggregate
+  `48a286480c87bbae…`; no uncommitted source changes (the TMP font atlases and the crash-recovery scene, both left for the
+  owner, excluded). `Evidence/release/build-manifest.{json,md}`.
+- **Limits (stated in the tool):** it records what the build is byte for byte; it does not prove which revision produced
+  it — Unity builds are not bit-reproducible here, and this build was made from the working tree a minute before its source
+  was committed. A release build should come from a clean checkout of the recorded revision, manifest taken straight after.

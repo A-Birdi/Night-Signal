@@ -1,0 +1,1658 @@
+{
+ "schema": "night-signal/build-manifest@1",
+ "generatedLocal": "2026-10-16T13:06:47",
+ "head": "161c3f63d45bb4400f36078e3378c37ad08f6add",
+ "lastSourceCommit": "a9080980bbf5ee9db072717d7af778408fc2eb05",
+ "lastSourceCommitTime": "2026-10-03T01:41:38-04:00",
+ "sourceUncommittedNow": [],
+ "playerBuiltLocal": "2026-10-03T01:40:35",
+ "build": {
+  "files": 264,
+  "bytes": 132030475,
+  "aggregateSha256": "b1da93b7d1da2739ba0d7f5656ebfe18990aebcb414a81d808dd5ac21204e6a6",
+  "list": [
+   {
+    "path": "Builds/Game/NightSignal.exe",
+    "bytes": 667136,
+    "sha256": "96b492cb271111251fe42b8646e65370a1b7b566773a1e35b34c3f2d1ae70873"
+   },
+   {
+    "path": "Builds/Game/UnityCrashHandler64.exe",
+    "bytes": 1773488,
+    "sha256": "4c2d5f9cbbab38382c39c69f2ccada2beac336b466813df8e2db4e75112aa673"
+   },
+   {
+    "path": "Builds/Game/UnityPlayer.dll",
+    "bytes": 38696368,
+    "sha256": "7c8127007131559a3daa04aa3a3e8d1477975fe449f59917c5c75d86fa1f904f"
+   },
+   {
+    "path": "Builds/Game/dstorage.dll",
+    "bytes": 206904,
+    "sha256": "cae65787f61514bec6f012f44546e68b19e39d8854a9ab52af813370d44b272a"
+   },
+   {
+    "path": "Builds/Game/dstoragecore.dll",
+    "bytes": 1482784,
+    "sha256": "cf85b19a92a8276f8baca0db9bbcd60735bad50768deb303d310e84d5f4fdd11"
+   },
+   {
+    "path": "Builds/Game/D3D12/D3D12Core.dll",
+    "bytes": 4725304,
+    "sha256": "625bd40005b1c3708695d5256ecf230d278e6b8edba5a88af70f3d91324f3052"
+   },
+   {
+    "path": "Builds/Game/MonoBleedingEdge/EmbedRuntime/MonoPosixHelper.dll",
+    "bytes": 611240,
+    "sha256": "3b411bbffc7aee3e98532ef62d37e8d719d8719a86385e95ec446af04062c490"
+   },
+   {
+    "path": "Builds/Game/MonoBleedingEdge/EmbedRuntime/mono-2.0-bdwgc.dll",
+    "bytes": 7834536,
+    "sha256": "bc946390a8037185424650369390b0ff8bea3af709ea640c0bcbe291b02c8b06"
+   },
+   {
+    "path": "Builds/Game/MonoBleedingEdge/etc/mono/browscap.ini",
+    "bytes": 311984,
+    "sha256": "4ddd50f31fb968f30bedefc253a46dc3f2890192d05cdaa9e0a64a056eee807e"
+   },
+   {
+    "path": "Builds/Game/MonoBleedingEdge/etc/mono/config",
+    "bytes": 3815,
+    "sha256": "5776169973a26a387b8b3e5c0f2301a7ab9a6dd7c7d3efa22a96abc47fbf8662"
+   },
+   {
+    "path": "Builds/Game/MonoBleedingEdge/etc/mono/2.0/DefaultWsdlHelpGenerator.aspx",
+    "bytes": 60575,
+    "sha256": "751861040b69ea63a3827507b7c8da9c7f549dc181c1c8af4b7ca78cc97d710a"
+   },
+   {
+    "path": "Builds/Game/MonoBleedingEdge/etc/mono/2.0/machine.config",
+    "bytes": 29066,
+    "sha256": "e91782a27fa39fc6c1d6ee8b08529f5d35052310d0006034b878eb04b8f2af30"
+   },
+   {
+    "path": "Builds/Game/MonoBleedingEdge/etc/mono/2.0/settings.map",
+    "bytes": 2622,
+    "sha256": "49c6160f9d54af4270a3b4e997fc4a8301f79b9e2070118fa46ddbcbbc44f9a2"
+   },
+   {
+    "path": "Builds/Game/MonoBleedingEdge/etc/mono/2.0/web.config",
+    "bytes": 11635,
+    "sha256": "cf2b54339e069b9e42f7d6795eecbf562c50c1011f4ca8f65f578fe52d97ff92"
+   },
+   {
+    "path": "Builds/Game/MonoBleedingEdge/etc/mono/2.0/Browsers/Compat.browser",
+    "bytes": 1605,
+    "sha256": "8a1082057ac5681dcd4e9c227ed7fb8eb42ac1618963b5de3b65739dd77e2741"
+   },
+   {
+    "path": "Builds/Game/MonoBleedingEdge/etc/mono/4.0/DefaultWsdlHelpGenerator.aspx",
+    "bytes": 60575,
+    "sha256": "751861040b69ea63a3827507b7c8da9c7f549dc181c1c8af4b7ca78cc97d710a"
+   },
+   {
+    "path": "Builds/Game/MonoBleedingEdge/etc/mono/4.0/machine.config",
+    "bytes": 33598,
+    "sha256": "e60aec2c5115d65b3acb3c55ea21576dbd770f579166c017125571e46ae560ed"
+   },
+   {
+    "path": "Builds/Game/MonoBleedingEdge/etc/mono/4.0/settings.map",
+    "bytes": 2622,
+    "sha256": "ce1db1ad8a9512073164e3eccdc193f7eda036e1a9733caec4635de21b2865c8"
+   },
+   {
+    "path": "Builds/Game/MonoBleedingEdge/etc/mono/4.0/web.config",
+    "bytes": 18802,
+    "sha256": "e38bb8cc68fe5b4edecdfd288d094b9e8ced7629039b2a347682aba0d8bd7492"
+   },
+   {
+    "path": "Builds/Game/MonoBleedingEdge/etc/mono/4.0/Browsers/Compat.browser",
+    "bytes": 1605,
+    "sha256": "8a1082057ac5681dcd4e9c227ed7fb8eb42ac1618963b5de3b65739dd77e2741"
+   },
+   {
+    "path": "Builds/Game/MonoBleedingEdge/etc/mono/4.5/DefaultWsdlHelpGenerator.aspx",
+    "bytes": 60575,
+    "sha256": "751861040b69ea63a3827507b7c8da9c7f549dc181c1c8af4b7ca78cc97d710a"
+   },
+   {
+    "path": "Builds/Game/MonoBleedingEdge/etc/mono/4.5/machine.config",
+    "bytes": 34056,
+    "sha256": "ee950004b576fb28dc85f4b0435ed04bf96612de2e8b53be84d07afe85a0de6c"
+   },
+   {
+    "path": "Builds/Game/MonoBleedingEdge/etc/mono/4.5/settings.map",
+    "bytes": 2622,
+    "sha256": "ce1db1ad8a9512073164e3eccdc193f7eda036e1a9733caec4635de21b2865c8"
+   },
+   {
+    "path": "Builds/Game/MonoBleedingEdge/etc/mono/4.5/web.config",
+    "bytes": 18811,
+    "sha256": "c4cbddd4fd9347b58cc5a72b36dc4ba1ad2bb699e65869d05cd3fb9865f0d824"
+   },
+   {
+    "path": "Builds/Game/MonoBleedingEdge/etc/mono/4.5/Browsers/Compat.browser",
+    "bytes": 1605,
+    "sha256": "8a1082057ac5681dcd4e9c227ed7fb8eb42ac1618963b5de3b65739dd77e2741"
+   },
+   {
+    "path": "Builds/Game/MonoBleedingEdge/etc/mono/mconfig/config.xml",
+    "bytes": 25817,
+    "sha256": "0c56e34c69124510fa8c19e7b4c2ca6c1c4ff460ae19f798dd0ca035809e396d"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/RuntimeInitializeOnLoads.json",
+    "bytes": 7334,
+    "sha256": "716391b1bcedb1e67bc0c1163524d789d6a17fe02e62523a8ab3b275e400d75a"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/ScriptingAssemblies.json",
+    "bytes": 5212,
+    "sha256": "926003548c132a9eac6ce2cfab1d3b56212af8d939549e5d7789628596365dea"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/app.info",
+    "bytes": 27,
+    "sha256": "011be23aaa5f175a927514b2351bb31430ab5a356d2955fa8a707a4cd74350ce"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/boot.config",
+    "bytes": 156,
+    "sha256": "12fce4d412928a63c711ce428f33a2181674271a2cef7fc488bee48ba2146aa9"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/globalgamemanagers",
+    "bytes": 148788,
+    "sha256": "65c02b688ed25822e73e793475f0708b14cab5c95384389f9898e0611518c15e"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/globalgamemanagers.assets",
+    "bytes": 1573992,
+    "sha256": "87bebce64bf8b8bbf1397295abb52a81d9f87bd74b79b805d8df439227481db4"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/globalgamemanagers.assets.resS",
+    "bytes": 3553504,
+    "sha256": "d39bc2dc060377debd226e7a96002e7d9a37f7dd6a2aeaa324b085972564d143"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/level0",
+    "bytes": 1584,
+    "sha256": "29a71dbd90f37af424696cfae32639a842c8c102f5b609fe8021d50f7b184f59"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/level1",
+    "bytes": 2144,
+    "sha256": "2ab7aa05223992014f332390a474322ea81423562b62aadc4e0907f45ed22785"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/level10",
+    "bytes": 2188,
+    "sha256": "d2c4aaf38e8e64bd1f909b05ef2c34057dc4895db95b2529871f9be510c01803"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/level11",
+    "bytes": 2180,
+    "sha256": "8313149a45ee4f8f509837325cf165be9b2676b2257c2a4ae93a226a09898041"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/level12",
+    "bytes": 2184,
+    "sha256": "3e7b8104297a9833657b76bd2cc9dd081679b87946b39000f42b6a143af762b7"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/level13",
+    "bytes": 2184,
+    "sha256": "6767eed4cfb31c1c9c3762920d3f6bfb6fa93c63c11f1d37a9b7261ce86c8571"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/level14",
+    "bytes": 2184,
+    "sha256": "ed2f6206e6740d0643f608ea8a271ad7aef12e8d057991bb80d7baf87b53cfb2"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/level15",
+    "bytes": 2188,
+    "sha256": "ac10d01a36b4bc74fc879f9e2a1d99fa3866403e4824f19f6cd01af4206213ce"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/level16",
+    "bytes": 2184,
+    "sha256": "d66824aee1ff3599236abb6a4653f1c8f2ca795a9ef02828e159f8441031aa8b"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/level17",
+    "bytes": 2192,
+    "sha256": "f29d489c911f5ec1a03baea5f5808e83357965789077f3f076aa3c902a5cebc9"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/level18",
+    "bytes": 2188,
+    "sha256": "d2b7060fdf4b1ee13aaef3ea577fb69be3b3440ff9c421226ea146a59f2790e9"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/level19",
+    "bytes": 2184,
+    "sha256": "9c81273fa016709cfb6d249ce6256855f933e71acaa1c545457f3f118f37d9e2"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/level2",
+    "bytes": 2188,
+    "sha256": "2bbc2758c9a5b2fcbe1681310477b90dd9bf43db6bd18f37c1b55f274a2719a9"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/level20",
+    "bytes": 2188,
+    "sha256": "042a66e114c42837cde552ba324c80a1f549572daa97096b8fcf0b0881d58e7e"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/level21",
+    "bytes": 2184,
+    "sha256": "0abedf6979cc65e383c20ba17433295e8e847c9a8aee589e13a2717247a1a355"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/level22",
+    "bytes": 2188,
+    "sha256": "f11a8be66f778dc8f222f51fdde97a628549b92e9e7c6e5c1ba6a39f5145876e"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/level23",
+    "bytes": 2184,
+    "sha256": "e3c72f1c20baedf24b280ee381b0f05905f1763bc6e45532cbb2addb7ee819e7"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/level24",
+    "bytes": 2184,
+    "sha256": "4da233c2c88733005e51f481f7709e8d858288817764048bd364fd0ee8c981b3"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/level25",
+    "bytes": 2188,
+    "sha256": "4decc382396ab573869e7a69d3c2f8bf16450f98ed02c79df7b72e05c4842a5c"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/level26",
+    "bytes": 2184,
+    "sha256": "55f698827700276283659fb25fb032225af3b286e57dd7edac753f34f3f4abac"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/level27",
+    "bytes": 2180,
+    "sha256": "5c22f8a92b251c8cfc3c35a11c2169b00d6a9d3277a34c929e76d2aa12fc4be0"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/level28",
+    "bytes": 2188,
+    "sha256": "08f5099cbd70d92473b2af91d6c5b801ae0161cad1693f4aa6512455aa3b41ba"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/level29",
+    "bytes": 2180,
+    "sha256": "9baadf52c9b082672b2360e7f404fb29123c8bbab16a0600b77c750a85ada794"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/level3",
+    "bytes": 2184,
+    "sha256": "b33ec418aaf32d6ecf6c7e3d4d33ddb47c40a9c2a6e648b3a702a5f93986c600"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/level30",
+    "bytes": 2180,
+    "sha256": "a6acedfef21f31f5aee4f91cd111e13e7916a4952c98c35479a3fced4b5065b8"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/level31",
+    "bytes": 2140,
+    "sha256": "0b39b19c1924bcdea2fa51700dcc54dcf9f3b1a9eb0e236ecc29a5f784dba384"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/level4",
+    "bytes": 2188,
+    "sha256": "7a5907414dfae8c2c4a55cc9cd5d91d8abf3b80bc5bd2895862568c4bad41dbd"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/level5",
+    "bytes": 2188,
+    "sha256": "b93fb5bcc3f25e795928094b0f3e710bdd13c87102eac853dee16ef84b86c310"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/level6",
+    "bytes": 2184,
+    "sha256": "08df8eb1ac87a2ef3cb7e8098e60a7b2b1cc57bc2e62777a9d150cbd284144c0"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/level7",
+    "bytes": 2188,
+    "sha256": "39b992e06ecf1743c8e43d4190b1f78b50a7d9073480994ce215be73eed59c8f"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/level8",
+    "bytes": 2188,
+    "sha256": "7ddb8b560bbe4deb6ae12b38585eee3474ebacf557eaed494e86fd1e09ba153e"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/level9",
+    "bytes": 2188,
+    "sha256": "a912702a15b4776796de45e5faab06b1d420b4ab2dcc639c616c8799ca806643"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/resources.assets",
+    "bytes": 13887996,
+    "sha256": "6f416d145549d71b76ad59f7e39af7ff887f1cf8f0c8a3b3583217b8d20957a1"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/resources.assets.resS",
+    "bytes": 1048576,
+    "sha256": "340051f4f506bff5616e93d52c58f37ca04c1495c3b6a057018bac1ae1d0b232"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets0.assets",
+    "bytes": 11168,
+    "sha256": "100065ac5af877e08cca4abe0bb886516f16e8e3afb5379c5155ab25bf528e4a"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets0.assets.resS",
+    "bytes": 524288,
+    "sha256": "393efe6399536384aa91bdfc4e64f244b4d3e1fbb6a4ff145c483ffee64ccb36"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets1.assets",
+    "bytes": 906848,
+    "sha256": "7e567cace1dcfeed1ea9d13ae0cbce50ad7f4979d4daab9ce1c94038379eb697"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets1.assets.resS",
+    "bytes": 5112048,
+    "sha256": "c2185d4e8c2d92c28bfe6da0eb190526f83c5fc1a70b8bb617b67a92cfff6929"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets10.assets",
+    "bytes": 26052,
+    "sha256": "896f65338746961ea511e8bf0be6a1b49d8453273245762eeed1049c99d02689"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets11.assets",
+    "bytes": 16664,
+    "sha256": "424f787dc403ce8830579294cd679e9e1c4dc0bbe2c2bc591325e71a2e934cf5"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets12.assets",
+    "bytes": 35044,
+    "sha256": "2c779b1bef03269fe25b06e733a6647e81386e2565ef27fb7dc24268f40b6388"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets13.assets",
+    "bytes": 23972,
+    "sha256": "fc887aa374b34644dc97438b6810acb6e522842d92dbe665540174fc9baac9cb"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets14.assets",
+    "bytes": 18504,
+    "sha256": "a302c608493cb58a221f624a0922e5618075f5609a367f24e91404739437724e"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets15.assets",
+    "bytes": 25976,
+    "sha256": "1851205f6c71f47cf978a4f5f70b03cbe702fa4210bcfce295f2523c8411f040"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets16.assets",
+    "bytes": 31012,
+    "sha256": "e918a6dcb46ca85e2b7b0d0467a5da50ad41aa335341d23b8b34d35d0bf6eadf"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets17.assets",
+    "bytes": 26372,
+    "sha256": "b7e516b9efff24172a5ff0d1621911beab170aba847e63a7b2f7f91fa695944c"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets18.assets",
+    "bytes": 18180,
+    "sha256": "deebdf4f91d4e3f18f53773045dadb4664d36613cc6e44cf1c724e093c791913"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets19.assets",
+    "bytes": 34152,
+    "sha256": "88b5762c5982bbb44f37704253156ea118f9113d3ea43f76ed4a287ec46024b7"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets2.assets",
+    "bytes": 22916,
+    "sha256": "644157bfdb38cfe821278aeb27176a5ebe5b7045738ee6a31c4c64f5182e2271"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets20.assets",
+    "bytes": 31080,
+    "sha256": "363d93fdddbda170f9bd2ba14d164379b451588e9dd40284f9609f95640cd50c"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets21.assets",
+    "bytes": 25300,
+    "sha256": "42dcf787da9cfab1395246ae97a18f3b3efb7cb9b576c56a5e844c5655e05547"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets22.assets",
+    "bytes": 28372,
+    "sha256": "c7192e1dc4f7d822706067117c837aad51f085bd1b0403d1976ec93eb266e0f8"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets23.assets",
+    "bytes": 39252,
+    "sha256": "a1c794e55af968166e1f3bf44ee68e84c83ab43f049023483882f6d6f96ea531"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets24.assets",
+    "bytes": 38552,
+    "sha256": "ace59cdf090d5163d2f53cb19a2ddf095ebceb60fd1f93327659c431561b084d"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets25.assets",
+    "bytes": 48776,
+    "sha256": "b0bf61bb4cdc01ca96f81c34fc9aa353c23e1b5ad073cbb6bb34ac8df94f8767"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets26.assets",
+    "bytes": 17252,
+    "sha256": "cf09cb1c21baf7f5653e96a8451ba035a3c89449325a8bed4e0decc4aa396389"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets27.assets",
+    "bytes": 27944,
+    "sha256": "65056377acd93ed29466d6557bda2a1161fa9863a9402db86b4e37d178b4fe75"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets28.assets",
+    "bytes": 19912,
+    "sha256": "d4ab5ec2b1e0d868b7b830caa01eec12065d4224b1d0b942ef115015862de9d2"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets29.assets",
+    "bytes": 17336,
+    "sha256": "629058e150af1a11703488f03eb9fac9e79d98f1b4ba14ea4b43396925c32fec"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets3.assets",
+    "bytes": 16948,
+    "sha256": "ad331bb4f5c061696a8282e436f29b1d826bdbf8477cbef5c92e4ebe5a06e95c"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets30.assets",
+    "bytes": 7220,
+    "sha256": "d007e6c59373217b97cb7739ee34a3e05762bcd40dc410c919c52fc8a74b1d56"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets31.assets",
+    "bytes": 2488,
+    "sha256": "6237e44b99b22dd2503fc0f931b5865916895a32815e74ee27829fd177c1c105"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets4.assets",
+    "bytes": 23184,
+    "sha256": "ada6c1a59cf0bf4df7c1eac4e1abee37217f324188134166f87b4b6d0b5e06f3"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets5.assets",
+    "bytes": 21512,
+    "sha256": "2ca9e101ab9764238d47602e63f9fcca9902fd75c5ade229802690ef7889a4de"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets6.assets",
+    "bytes": 25784,
+    "sha256": "5202aa7c71e738a8fb9c85c6b2dbd0addee2f992cb1e606200811a5228f45442"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets7.assets",
+    "bytes": 21720,
+    "sha256": "b0871f62ae51a4ef01fa78a6e27f0c5c3e9f3b994608cdc523fe8afed33e2ab9"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets8.assets",
+    "bytes": 23412,
+    "sha256": "9b6a6011035260a73ddb3733bdf2f541143cce7ee8ff30172599e0f9075af3aa"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/sharedassets9.assets",
+    "bytes": 22696,
+    "sha256": "dcaab771070fe2b45bbeb528961ec9c118deb820bcb30319fc9eff3c8559a84c"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Assembly-CSharp.dll",
+    "bytes": 3584,
+    "sha256": "9f85ce42a322da0efbfa5b7381be29398855d8a33c5f827786744a2dc16d728d"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/MCPForUnity.Runtime.dll",
+    "bytes": 28672,
+    "sha256": "859a441b198fc75dc63e670b7453625ab55ec430f6f66a4421ba3e8f76da81c9"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Mono.Security.dll",
+    "bytes": 241152,
+    "sha256": "a7128a85c5ce748cfcc64be97b7fab4119f4636c917a0303bfa2582f86282ed8"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Newtonsoft.Json.dll",
+    "bytes": 691712,
+    "sha256": "a56146202232958f46bd6a28b5a7da166aea123ee0d646735a46e5c341dfbf1f"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/NightSignal.AudioSynth.dll",
+    "bytes": 102912,
+    "sha256": "f1e39dd941f49cedc478731f310a2b2b8f078607b7e554a0ddf916c791cefc6b"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/NightSignal.Core.dll",
+    "bytes": 711168,
+    "sha256": "82787cd44f63da56167e222675d7b91405a96a2fb13602ccf91afd072add7445"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/NightSignal.Runtime.dll",
+    "bytes": 1805824,
+    "sha256": "c4f82f221349d801984d226cce88201d66f9cc29e19f364ac4bae03f40c59106"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/System.Buffers.dll",
+    "bytes": 4608,
+    "sha256": "762f8fdbe975e05b76be5fe996c53ce7c75e4a2830f2f50b02a5948ef6ba0aeb"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/System.Collections.Immutable.dll",
+    "bytes": 252680,
+    "sha256": "5b1b1c83ba3d135c2fdfe425842fbe9c7432878b7e468623acb554c69b4c130f"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/System.ComponentModel.Composition.dll",
+    "bytes": 257024,
+    "sha256": "d949bd6214c26b38a190e66fe976038e3845aea6c6980d3eb58e78b75edf98a5"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/System.Configuration.dll",
+    "bytes": 124928,
+    "sha256": "7170a8fa3363a8ebd59e8b9931509f595df009f11e1885707a3c3bc0a3ff5648"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/System.Core.dll",
+    "bytes": 1113088,
+    "sha256": "15081eac9f71fd7817a7d42a963651c89c666a4c21499f2076fb3ab7aacd9b9a"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/System.Data.DataSetExtensions.dll",
+    "bytes": 29696,
+    "sha256": "da75ceebbef879968aaa721090df162e7a6fe1c7ba32f4bb5d05523385c53e8c"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/System.Data.dll",
+    "bytes": 2125312,
+    "sha256": "557bd378caa400c4de52bd73225a948f1a1e41586c52e307aaa042f77b33d648"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/System.Drawing.dll",
+    "bytes": 489984,
+    "sha256": "1657e6eb247364cd232fc6c80df1ab6804732b6644639f18c80e48af1174fd63"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/System.EnterpriseServices.dll",
+    "bytes": 44544,
+    "sha256": "7fcc7078f244ab3a5e8549a8acd2905b71aa8a31dda917ab60817c5b13924d64"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/System.IO.Compression.FileSystem.dll",
+    "bytes": 18432,
+    "sha256": "e7f2784c57088326f8de52a79426102a2250c2f31922030e9fed0cb64740e242"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/System.IO.Compression.dll",
+    "bytes": 114688,
+    "sha256": "35242ddc40f673d10767e3ab3381718864170cffbc710501374e911df700fda0"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/System.Memory.dll",
+    "bytes": 4608,
+    "sha256": "c4f030a2cba7da7cdcf493257c24560e203d355904aee490d645a935842f834a"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/System.Net.Http.dll",
+    "bytes": 122880,
+    "sha256": "a6227de2834bc7019a10e69a7ca0bb0908d5092b8bc279ed428b27ecf583a681"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/System.Numerics.dll",
+    "bytes": 119296,
+    "sha256": "711616207139cfbf471f4f344a32ade842077314f03c19a0846a98ecace3fc5d"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/System.Reflection.Metadata.dll",
+    "bytes": 487584,
+    "sha256": "afcfd6c166fe0d59f45cc6363082806f6a7ea8ceed9dc6c75eec9fd79ccb5717"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/System.Runtime.CompilerServices.Unsafe.dll",
+    "bytes": 19256,
+    "sha256": "fd67abc4c4af10affbcd42fd68a2a7bc361b26714afe6965d4d0d139459d8297"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/System.Runtime.Serialization.dll",
+    "bytes": 934400,
+    "sha256": "aa96283b3009b39c4ed8dfcde146b0e0bcafa09f9be24a959d0c16dd6f54ae8a"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/System.Security.dll",
+    "bytes": 320000,
+    "sha256": "21c2cc73f1cecc8b5bfc42171a22412dfd8e04ac42978de90c00ecb507583d62"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/System.ServiceModel.Internals.dll",
+    "bytes": 215040,
+    "sha256": "c90168f6f28b2355c6c11d38ee39fa18f44ea839c877ccce8934bee50e7fb479"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/System.Transactions.dll",
+    "bytes": 35328,
+    "sha256": "e5ff61cc9163810aa4c1fd9a00e929070e6733eca6d6669b7ece5169ec3739ef"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/System.Xml.Linq.dll",
+    "bytes": 136704,
+    "sha256": "638f8c5f44aab1fd5755fdf2873683f3ca0f0fb0a3aaecfdbf1d2c2280c5983e"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/System.Xml.dll",
+    "bytes": 3160064,
+    "sha256": "ee620f038a3a2589a118f0e7a030fe398b082015fbf83ac1474fb55b521d0bd7"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/System.dll",
+    "bytes": 2641920,
+    "sha256": "0c49d192fc91f2eade9c12c3960d8b90161560507d96ebcc9d878a2390a2cac6"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.AI.Navigation.dll",
+    "bytes": 23040,
+    "sha256": "6deec742d31fb923390cefaf46e4619f0c687b41cb099095991424483abe5460"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.Burst.dll",
+    "bytes": 5120,
+    "sha256": "f4f9666a45b6dbd418113023b09a79c7db3ec34d5ad4f5507d176941281009a2"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.Collections.LowLevel.ILSupport.dll",
+    "bytes": 5120,
+    "sha256": "ff50383f807f9692e4913b97e47d86fefcb8faa33d6d48cd3e3fd6fc7ffb448d"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.Collections.Tests.CoreCLR.InternalJobNestedPrivate.dll",
+    "bytes": 4608,
+    "sha256": "249878f69b8537cd1ec1c95eae4ca164077d64cc0170487c6f48ec637e01a858"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.Collections.Tests.CoreCLR.PrivateJobNested.dll",
+    "bytes": 4096,
+    "sha256": "3729cf3de957c9e1aaa8b396ac30cc928b60e43621db59fe38d36b4a23bf9aaa"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.Collections.Tests.CoreCLR.ProtectedJobNested.dll",
+    "bytes": 4096,
+    "sha256": "d682043dcfeebc0d84805f7fbda3accc95838c3ca11cc39bd8339c98be6f5505"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.Collections.Tests.CoreCLR.PublicJobPrivateGeneric.dll",
+    "bytes": 4608,
+    "sha256": "dc1af37c11272db2b3c80a285c1ac9a60d3d60c0301a72f2c8f5b63d8fab18c1"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.Collections.dll",
+    "bytes": 442368,
+    "sha256": "763636acb919e52418a0daa6a369624d0b48fe53e7cd7ee862323591289d4b90"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.InputSystem.ForUI.dll",
+    "bytes": 15360,
+    "sha256": "4552fe07d13f366b3a893e56e1f2826be4d33b6e48d648e1393a79aae10b1674"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.InputSystem.dll",
+    "bytes": 1094656,
+    "sha256": "0672eb7121a20e1e1774fa4356485d131e47643eb28303940c42f2c3d733fcd0"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.InternalAPIEngineBridge.004.dll",
+    "bytes": 4096,
+    "sha256": "7401e18ed362a8507b79fcd043e13236cf87611dd288b285997b035cf267a28b"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.InternalAPIEngineBridge.ObjectDispatcher.Runtime.dll",
+    "bytes": 5632,
+    "sha256": "e5b56390a6fce9abc443fa4082d20458eae0b1f66ca8492e6b99486097bbc465"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.InternalAPIEngineBridge.RenderPipelines.Core.Runtime.Shared.dll",
+    "bytes": 3584,
+    "sha256": "71112a7d6a48047f7ed5a08f42776be784e8d0c558bd9742f388cd211fd3af43"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.Mathematics.dll",
+    "bytes": 5632,
+    "sha256": "aacf7faa1bd86f14731fe043daa662ba1e32a2a48ac0eda641c38fc816943cc0"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.Netcode.Runtime.dll",
+    "bytes": 606720,
+    "sha256": "d6e5e0e9d840a96bbd9fd5d48e10a7330d00c3641b7c368b6f3ae43983a0a1d8"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.Networking.Transport.NetcodeInterop.dll",
+    "bytes": 10240,
+    "sha256": "10d5578e25e1dbb287206863d75248d53e97996bf5a5518e80dacd20af9767d7"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.Networking.Transport.dll",
+    "bytes": 215040,
+    "sha256": "8c5df1502a764f99a1f23be94b3dac27999f3f5459c069c4b5651a472b5e2494"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.PathTracing.Runtime.dll",
+    "bytes": 152576,
+    "sha256": "62e9df5dec70cb0468f0a8eb49d30bbd63e78978658e1930c6ab4dc865272c76"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.Profiling.Core.dll",
+    "bytes": 8192,
+    "sha256": "770b3b994137e11a858f737de729c415913ccff934ff538ed5df9039dc13c9a0"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.RenderPipeline.Universal.ShaderLibrary.dll",
+    "bytes": 7680,
+    "sha256": "ec5eeea2927625f7c3dd19c114ae5c668c0caf67ff5a2065048e01c903ef8535"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.RenderPipelines.Core.Runtime.Shared.dll",
+    "bytes": 11264,
+    "sha256": "a8d719f474813337caccdda83f4092dab6659612a9dbdad597f7745872f7a586"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.RenderPipelines.Core.Runtime.dll",
+    "bytes": 1084928,
+    "sha256": "b5362e704e5a32eaa8e6e19e762a16c9b483504e63815c34216546359a00b9ba"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.RenderPipelines.Core.ShaderLibrary.dll",
+    "bytes": 3584,
+    "sha256": "31a572e6e251b72bb2a8e2a7aa92ca874d8945b3656c87e2abb5c1cbb3ac2925"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.RenderPipelines.GPUDriven.Runtime.dll",
+    "bytes": 274944,
+    "sha256": "856f6ac29e6cf3aaabd3fe97207b364fae887942431d1dc63b3c2324988888e4"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.dll",
+    "bytes": 3584,
+    "sha256": "14e41567185368e7f017145f468855fd00746cb4206bfb88dbf82642a8ba3d7f"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.RenderPipelines.Universal.2D.Runtime.dll",
+    "bytes": 215040,
+    "sha256": "ef2694231cec100171419aa7bcefa26f02c9e998bd41c14350cfab8b49063be0"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.RenderPipelines.Universal.Config.Runtime.dll",
+    "bytes": 4096,
+    "sha256": "4615c62e1457b1a3a81a51470cdd375ee18b011bae01d5bd85fff7de1130e33b"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.RenderPipelines.Universal.Runtime.dll",
+    "bytes": 752128,
+    "sha256": "f66de9943596297356490d1e989f1ac559584ecfab89288d3839491a826dca16"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.RenderPipelines.Universal.Shaders.dll",
+    "bytes": 3584,
+    "sha256": "3b6a7a47e729cadb83489334ca84ff85181d3eb0fc0fdca532eaf12d29e5e9aa"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.Scripting.dll",
+    "bytes": 70568,
+    "sha256": "e30e40501b9a23ab92e6f8fe37ed9490deadf7864f81590743e5f37397fd7e4a"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.SurfaceCache.Runtime.dll",
+    "bytes": 35840,
+    "sha256": "3a0fc15ea46f7c15f0048189e46a2e9249cdc1b5baccf00e6ff72dd561c65244"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.TextMeshPro.dll",
+    "bytes": 438784,
+    "sha256": "39656908d61db4558fe34df318dc33101a8bfc3a0a578b92e1ce48ab654a0cc8"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.Timeline.dll",
+    "bytes": 120832,
+    "sha256": "b7a2c96458bb7daeb4711f7b8ced6c69ff606acf9f47ded8145f369889e498b6"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.UnifiedRayTracing.Runtime.dll",
+    "bytes": 101376,
+    "sha256": "1eb4e540eff1850d36d43119920c1ce1188d7bee53b817c43f62168255438d8a"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.VisualScripting.Antlr3.Runtime.dll",
+    "bytes": 86016,
+    "sha256": "ed7ce205f66eafe39bbb5d084d42e7fe11cb4b386ff208e5d5110891be0b7b37"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.VisualScripting.Core.dll",
+    "bytes": 550400,
+    "sha256": "c142143a1cc453428922c91cd8467c83ce8e6024c92390b6b661d32f913cfa55"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.VisualScripting.DocCodeExamples.dll",
+    "bytes": 6144,
+    "sha256": "af8337bf7f40dff1468ae6a1bec2be83108253eea94adbce6de179bc36ceb6a6"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.VisualScripting.Flow.dll",
+    "bytes": 335872,
+    "sha256": "d2bbb13684bb96dbc4bafa5d8777b702c988f40f78f92e96bf35a8b6e141535c"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/Unity.VisualScripting.State.dll",
+    "bytes": 27136,
+    "sha256": "02972e78bb20f8ce51e9813e0f74f92ac12b48342f139197168197bee0d94b3e"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.AIModule.dll",
+    "bytes": 87464,
+    "sha256": "798ac98b1aa47b49384bae42b85ef6944cd32f8688f77fab824d48d62d1b0c3b"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.AMDModule.dll",
+    "bytes": 21928,
+    "sha256": "7c93756210b0e86d1819b8e295198edd782fceffd6e4c4510e7239a818bf11b0"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.ARModule.dll",
+    "bytes": 27568,
+    "sha256": "6ba59a414c5926881ebc3d3b7d26fea88a3dce4430bce8ebd891d390129d51b6"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.AccessibilityModule.dll",
+    "bytes": 49576,
+    "sha256": "8aab55ab07da905880ffaee111b22549afc5d6a675b1428ddf16fd48afa5b90a"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.AdaptivePerformanceModule.dll",
+    "bytes": 122288,
+    "sha256": "b4c53df1e27f36374f46becc24cac03f35db7a53e37f8a05503911d71f9da357"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.AndroidJNIModule.dll",
+    "bytes": 121264,
+    "sha256": "d39de6763531587061f126b92fd17b28a0045c70bc2ddd5047f6be4098893f66"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.AnimationModule.dll",
+    "bytes": 218032,
+    "sha256": "d82afc0f9de5eb51ab9d923b00d84d33cb910f5a545ed130c3d5b111ebc44ff2"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.AssetBundleModule.dll",
+    "bytes": 42920,
+    "sha256": "2ea807048e94b8b407333a8a8919c62f041c177e8cd68f00b42239a8a3509b85"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.AudioModule.dll",
+    "bytes": 142248,
+    "sha256": "281dad10eaa02f2f5e535d3484849945973d08fbf4188d9310311648a2ff5d8e"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.BurstModule.dll",
+    "bytes": 337832,
+    "sha256": "c1b743e7b48e0114e99cb90e8e261b7b48a79cae0e62fe07f472ab09e7ade7de"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.ClothModule.dll",
+    "bytes": 38312,
+    "sha256": "0c4195d80db467e289c8396d0620d4101e0d3293ba8376dcc33bf9e2c363e089"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.ClusterInputModule.dll",
+    "bytes": 30120,
+    "sha256": "9001ceeb820015bfec5400ce637e3db7b799ceb3981bcb6c46ca0c49eadcb3e3"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.ClusterRendererModule.dll",
+    "bytes": 28584,
+    "sha256": "8ce2137f3700074a877590cad42c8dceb27a0475cec728c23c455c68e38b3131"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.ContentLoadModule.dll",
+    "bytes": 56232,
+    "sha256": "b1b156f7ddb052215cfcf34c7832832baf45b829d84b3a4bc52ce7858b967360"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.CoreModule.dll",
+    "bytes": 2030504,
+    "sha256": "7b2283fdf618b930c48fae5876d5193f569a6afcb8b96d3f550708545e3bed7d"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.CrashReportingModule.dll",
+    "bytes": 28584,
+    "sha256": "3c4d0a712bd4a5a3ecb4a517effd22cc72a94e95c2be50c2dab97189c2d91394"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.DSPGraphModule.dll",
+    "bytes": 33712,
+    "sha256": "1173b49f604b95f2c342636db3e4ab3b4a638389629f31913d785c0bff9e29ca"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.DirectorModule.dll",
+    "bytes": 42928,
+    "sha256": "c03498db689c4eea8597ca81020fcbeaf1d0a71045db98d33a98f9967ed2e4bc"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.GIModule.dll",
+    "bytes": 26024,
+    "sha256": "fdddfe49e7b44560c959cb255f3f162fd2f2375e5b8b3c05d2548e9743c1327e"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.GameCenterModule.dll",
+    "bytes": 46512,
+    "sha256": "5415ba480a6453fa8b667ddc51c9cbd163b4e2e24ba6f1bc81f147a7078f7aa8"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.GraphicsStateCollectionSerializerModule.dll",
+    "bytes": 14256,
+    "sha256": "21624fd3d0d5618dd3ddb91010d0d30905720af83855329817cf1ba2999a17c8"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.GridModule.dll",
+    "bytes": 32688,
+    "sha256": "a14e0933aa28484b9aa0186135228566484a4b627bbe88f45b18cf59f1b1b061"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.HierarchyCoreModule.dll",
+    "bytes": 111528,
+    "sha256": "4c570923b6336e598b167d42d65bd109be312cece000ccf955d1b67516173e6c"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.HierarchyModule.dll",
+    "bytes": 114088,
+    "sha256": "0ccfb7541c665d1572b78dc31c495ebb501ad12d980a46e974725a9769152eb3"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.HotReloadModule.dll",
+    "bytes": 26032,
+    "sha256": "2b9ae23a6fd152389badd33f02fcc2621e1a1b81b9112162d99c3d4e5176fafe"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.IMGUIModule.dll",
+    "bytes": 190888,
+    "sha256": "f2a247e3f235b553bfc9f7eb92cca0a6b1b19846947dd0eec918f66bd5fd5356"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.IdentifiersModule.dll",
+    "bytes": 16808,
+    "sha256": "f316ff0831916464de9e3665340a63590b3ef551b0d2e950dbf551277cb7a9b2"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.ImageConversionModule.dll",
+    "bytes": 34224,
+    "sha256": "213f2dc4e3bfafdb35b775775e6eb28fb8358c5ced2dde324be6d7214f6b30fb"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.InputForUIModule.dll",
+    "bytes": 56744,
+    "sha256": "e4584049f501d85ad6f12c377716b0cd37fc72b6b3904a692c5e20dcfbf39a0f"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.InputLegacyModule.dll",
+    "bytes": 42920,
+    "sha256": "565ea2b501e42c3479a4d7503e55601e80a95f220304caa6b387246d0de9ad5b"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.InputModule.dll",
+    "bytes": 32688,
+    "sha256": "d0c4eb6c0b70212f84ec8b160d54f5df22942b6a57ee207398d3c0eb0e9b0944"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.InsightsModule.dll",
+    "bytes": 15792,
+    "sha256": "1d6a1516d540c547dba02ed678002f318df8693c2476af9bdf4c2ccef1b98db6"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.JSONSerializeModule.dll",
+    "bytes": 29104,
+    "sha256": "2e72d20aa0ae632e5bbc60228a519113a01d3cac4be6385723ec462cb80e2e2f"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.LocalizationModule.dll",
+    "bytes": 29096,
+    "sha256": "53b4947d0cbbc257c90cd2a1798af97c0e4e96a0ba4c03fa0d00272ae7519ccf"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.ManagedKernelModule.dll",
+    "bytes": 14256,
+    "sha256": "301da71f4798c9185c0c1e1900cc857754a334d800778914b8212d44b6b1ee89"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.MarshallingModule.dll",
+    "bytes": 100776,
+    "sha256": "e59073784ec03748832ab56f2717ca94f988777d6232bbfb68331e9d75a1b1c3"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.MathematicsModule.dll",
+    "bytes": 740776,
+    "sha256": "26bc98b7fdff36e227d3a021d12bba5fd47092914f58a261b87f08d5e8aa93b0"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.MultiplayerModule.dll",
+    "bytes": 18344,
+    "sha256": "1a10748475241d870c6cf59a4f281b7c91a37c00443f86d912cc231a063d6a04"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.NVIDIAModule.dll",
+    "bytes": 41392,
+    "sha256": "0c4466c864da36ac349e2099e2500127654294e8525958586a1cc9f102490fd2"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.ParticleSystemModule.dll",
+    "bytes": 169392,
+    "sha256": "0863da581edbed488daf68a210611182db3c8c2d796eeab3b01b3d5d335ffe62"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.PerformanceReportingModule.dll",
+    "bytes": 27056,
+    "sha256": "a3d6ea2e6044b4d68e7b32c04d364a219f22535c8ea802f5b21cbf07fbe36adc"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.Physics2DModule.dll",
+    "bytes": 222640,
+    "sha256": "e0ed1c5f7a4e9cd38b4471860dca0def2d6dc90898cd8740bacfcf107f4f720b"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.PhysicsBackendPhysXModule.dll",
+    "bytes": 14248,
+    "sha256": "45cf7df81df08aa5c487ef1b3b7f640158cfb65acc610fb05666d0b35ec2ea12"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.PhysicsCore2DModule.dll",
+    "bytes": 482736,
+    "sha256": "2112a9f48000c401b650bea035f65da96ff64f65e3dbb3a1b3d4de8b9e4508fc"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.PhysicsModule.dll",
+    "bytes": 181680,
+    "sha256": "b86d032fea09cd377304602615815e1315550de88f63d612eb0e276bc959aeea"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.PropertiesModule.dll",
+    "bytes": 124848,
+    "sha256": "06871fbe818537ac90ade5bc8674b3868bae31017d7254eb7794c8ad209eb638"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.RenderAs2DModule.dll",
+    "bytes": 27560,
+    "sha256": "97bba7a08b158f532ccda6a8d65b3613515e1306c8cf9b4fee50180a51e180df"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.RuntimeInitializeOnLoadManagerInitializerModule.dll",
+    "bytes": 26024,
+    "sha256": "de6d02033acf1d2913f22b443e1f6970d52917d0678bc66e599509cb0a78c528"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.ScreenCaptureModule.dll",
+    "bytes": 28072,
+    "sha256": "698092d0ca9b6cff2268185dc9a78aa101e35e6c3ada49212e4838ed12594184"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.ScriptingModule.dll",
+    "bytes": 65968,
+    "sha256": "066830fd4b0a68992bada2b2472fd000586dbb8f3f63e15881c9890a5cbd6b3e"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.ShaderVariantAnalyticsModule.dll",
+    "bytes": 26024,
+    "sha256": "9645ce10f1f67cb659d579a41d649977d9f93df4f523ecaf644a1477e6299eaf"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.SpriteMaskModule.dll",
+    "bytes": 30632,
+    "sha256": "00dd4357690b1c9fe1c7fa485d091cb6e003094f84f2104637cc90584b9bfa77"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.SpriteShapeModule.dll",
+    "bytes": 34224,
+    "sha256": "1975a308b5db041c78dda13ba6545b017eeaa36d3b025c23559060f6fa2ba992"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.StreamingModule.dll",
+    "bytes": 28072,
+    "sha256": "edf6380384d3eaf70ece7ffd65d2e35134e34ec5cbd139046bb01cbca28d3c99"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.SubstanceModule.dll",
+    "bytes": 31152,
+    "sha256": "447cbc81ae404f99f38d327c679530228c152153bfeb337d84e2af526168e355"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.SubsystemsModule.dll",
+    "bytes": 42928,
+    "sha256": "538d879aafff2bd461bfafef85530a4a7f7830973e119d96f1d1725c610984c8"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.TLSModule.dll",
+    "bytes": 34224,
+    "sha256": "4f840bf93d54df12974f09f269e3a93ddc78512cd59d8b3e6221ce6c8466bd8a"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.TerrainModule.dll",
+    "bytes": 132528,
+    "sha256": "25d0aba7a68c337a161acc2a73f1e65f93b53b3a2c5dd21cc8740ffbca689808"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.TerrainPhysicsModule.dll",
+    "bytes": 27568,
+    "sha256": "2acd0bd19b4687c0840f09a76237b8006fa0c0f0482fa2faae4990da8e97ddb3"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.TetgenModule.dll",
+    "bytes": 26032,
+    "sha256": "f6127b84e25d4a41b993a40dd7e34e68924d37b2c3639bb2aa499e6c5298f2f4"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.TextCoreFontEngineModule.dll",
+    "bytes": 86440,
+    "sha256": "fce588ce89d54a23b214339e4017a5e69bbd3b90e3deac52d3afba9d2aaa0f8f"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.TextCoreTextEngineModule.dll",
+    "bytes": 314280,
+    "sha256": "c7a069c2675b9861a3c343f2a0db3860a403de8f5afbfbdd73cfb535907ff9d5"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.TextRenderingModule.dll",
+    "bytes": 39336,
+    "sha256": "479681567e7cf794edeabf941aa657ab250a981f0f978e98580b77225b6b562c"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.TilemapModule.dll",
+    "bytes": 75696,
+    "sha256": "8d3a54f09ad12945b963ee0b6b38741696d3437f9ec560c21b985e48753799a7"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.TimelineFoundationModule.dll",
+    "bytes": 167344,
+    "sha256": "7180a76e964c2ac1a05d38d9c49320ee1e8fa59e2b79822faed50f590c6d2791"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.U2DRuntimeModule.dll",
+    "bytes": 73640,
+    "sha256": "9370c327260a9be956837f3742dea98104553e5dadaebae7a743b76b139732d9"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.UI.dll",
+    "bytes": 269312,
+    "sha256": "4ca2b85eb2e52ab7a04009ec3751f3c0e9d2b24b20b035a0a728e0396465150d"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.UIElementsModule.dll",
+    "bytes": 2538416,
+    "sha256": "8e193423f7c728f77233846583441ec4a06a3647b20a6faa9ef7153dd26a52d9"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.UIModule.dll",
+    "bytes": 57264,
+    "sha256": "88b5916316f7496b93f63b469a6e5283496710c1952b9e13095e719f95f0e8df"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.UmbraModule.dll",
+    "bytes": 26024,
+    "sha256": "a291ff437ad1eb922b76aeb2a1ab3bc85d1b081fd5a0de13daedd1bc698be3ea"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.UnityAnalyticsCommonModule.dll",
+    "bytes": 36784,
+    "sha256": "2a98c11cd5e18002899e55ca4bac1657ff42a9a5418f7c604c751ca283e3977d"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.UnityAnalyticsModule.dll",
+    "bytes": 61864,
+    "sha256": "4790301e2c6a80989e777154d53e4249bca83a772f1cb48af48e679e59346eb7"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.UnityConnectModule.dll",
+    "bytes": 29616,
+    "sha256": "4a698afc79d1ffdc895fb03d24dbb13d1f713796028e96a81d7d65c23ae6f335"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.UnityConsentModule.dll",
+    "bytes": 16296,
+    "sha256": "e081eecbce244b54cff000a1f20e232673400b5fd405c4848e18d839ed539ebc"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.UnityCurlModule.dll",
+    "bytes": 28072,
+    "sha256": "780a70298a6efc341927057080fed69b3ef613f5da03718d0ce88e9393168ec8"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.UnityWebRequestAssetBundleModule.dll",
+    "bytes": 30632,
+    "sha256": "81183bb508f88b05da71b963b8a5f78030a18dcb9706fe4e869027065c522993"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.UnityWebRequestAudioModule.dll",
+    "bytes": 30632,
+    "sha256": "579d323f6c0610016f716718c280ded9cebb65faaa342200bb186443db5ddfac"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.UnityWebRequestModule.dll",
+    "bytes": 81328,
+    "sha256": "a7108ba8ddc87c745f183f6220953ec849b4df46ab2f66afd8099cdabf67bd35"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.UnityWebRequestTextureModule.dll",
+    "bytes": 29616,
+    "sha256": "d853ad2ec9ba864668ecc257e5767ca87adda426f02ce775691b7d888d314663"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.UnityWebRequestWWWModule.dll",
+    "bytes": 35240,
+    "sha256": "5844fea03c2cce221815cff13a34903e36471fc81446e9b2dd792a569c55392b"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.VFXModule.dll",
+    "bytes": 82352,
+    "sha256": "e66f3a16889bbb3d5a99b68c32d30131116efd39e6f42dbc608f4fbd232fc74f"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.VectorGraphicsModule.dll",
+    "bytes": 229296,
+    "sha256": "4e01dc9a0b7a8dd6be5a2a550d706d8d3118c6de6fe5d13b0e4463754a6aca83"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.VehiclesModule.dll",
+    "bytes": 33192,
+    "sha256": "c5f67cecddc4504b7b79b293cd63b6f38d958c1186ad373a9afc59b795f006a4"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.VideoModule.dll",
+    "bytes": 48560,
+    "sha256": "285ab32c35e17147a4ae85c6625db6755fa61e029eda332eaf5ab899a41543f1"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.VirtualTexturingModule.dll",
+    "bytes": 43944,
+    "sha256": "5c48208df5ad73b4655efd51783956da4768803df481c46c4efb6a0c7b0e46a0"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.WindModule.dll",
+    "bytes": 28592,
+    "sha256": "e5b193c5cc405c7c5608019fb69e06f6ab992bea8f5812e394fcaee5015981a8"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.XRModule.dll",
+    "bytes": 96176,
+    "sha256": "4bc6aac3cf88df66e87d844e7ff788215830360bd398f864cb4808fccb5d964c"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/UnityEngine.dll",
+    "bytes": 225704,
+    "sha256": "c36cda9694a93b41379a00b89c72176ead2d429d97bec46cdabbe433e8ec07a3"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/mscorlib.dll",
+    "bytes": 4632064,
+    "sha256": "acbfa8295da5b5e5a2c68c7b2dbc9cd7a5829c0ae031af22be4f6a49fd626f8f"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Managed/netstandard.dll",
+    "bytes": 90112,
+    "sha256": "6ae62e082dc494a2433984177f60ca4db5fae69b1f360a8b33754172b310b8c5"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Plugins/x86_64/lib_burst_generated.dll",
+    "bytes": 1131520,
+    "sha256": "543574fdc0f8237b2a9b96b291c82fde921daef4aef7c7ff10d62fb36bd25656"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Plugins/x86_64/libonigwrap.dll",
+    "bytes": 551336,
+    "sha256": "c22db1e7be04c50eb47e67362bf705830bb95df30c02c22dd7add835ee777583"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Resources/unity default resources",
+    "bytes": 5919584,
+    "sha256": "696b9afaee02b5d45978634f1450ef18423c19177933b997fd8ee364d70cdd61"
+   },
+   {
+    "path": "Builds/Game/NightSignal_Data/Resources/unity_builtin_extra",
+    "bytes": 539380,
+    "sha256": "23f673b478467b1c437886317f5caf1dd3d74aad591a32c351f3d4bd9ea0e5ff"
+   }
+  ]
+ },
+ "content": {
+  "files": 63,
+  "bytes": 1586113,
+  "aggregateSha256": "48a286480c87bbae8966d029045775a440eb5d06e1ec095e4f3515389386dc36",
+  "list": [
+   {
+    "path": "Assets/Content/Data/authored/build-recipes.json",
+    "bytes": 116685,
+    "sha256": "fa66a254421a9d89794a50b20159b403e33911e3cdde01f93a06cfdef2a9fa38"
+   },
+   {
+    "path": "Assets/Content/Data/authored/cars.body.json",
+    "bytes": 11924,
+    "sha256": "8ee9c5f7ac92c27695b243fae7d111de6e74c2b74abe9af630b99d4401e6d08e"
+   },
+   {
+    "path": "Assets/Content/Data/authored/cars.tuning.json",
+    "bytes": 7784,
+    "sha256": "49332deec8a24524bbd108ee255e636116b2f170d98d9f2162b2c11207ac1566"
+   },
+   {
+    "path": "Assets/Content/Data/authored/challenge-references.json",
+    "bytes": 2909,
+    "sha256": "a2348b591c32dbbb2dc1ff45776039d3b76afa73cbf182cafc57273fcf6111e4"
+   },
+   {
+    "path": "Assets/Content/Data/authored/challenge-trials.json",
+    "bytes": 115742,
+    "sha256": "43b198ae675b4ddbba961904f08ab70af684ee227fa445bb7b8e43dcee92658d"
+   },
+   {
+    "path": "Assets/Content/Data/authored/course-drift-zones.json",
+    "bytes": 1764,
+    "sha256": "e31c77122b048cb9590fb8787daf3f972b243f9a6f313b35cbafd46f3d3e67cf"
+   },
+   {
+    "path": "Assets/Content/Data/authored/courses.addendum.json",
+    "bytes": 3210,
+    "sha256": "1cc23c61f480ebd95e297a89a5f2a55523e916b0e3a280509470c7842f279994"
+   },
+   {
+    "path": "Assets/Content/Data/authored/customization.json",
+    "bytes": 54726,
+    "sha256": "3029a8cf4cac473b114d3b9ee9b1cfb2a970aa9204460cf23333904e3aeaab09"
+   },
+   {
+    "path": "Assets/Content/Data/authored/music.cues.json",
+    "bytes": 23990,
+    "sha256": "d90c7205ecc23449038d78ce48ae51fc8957add9ee6b78ec892b854bbb11ed4f"
+   },
+   {
+    "path": "Assets/Content/Data/authored/music.unlocks.json",
+    "bytes": 3420,
+    "sha256": "40d731880c148f542edfce5b36c6cde8bab74a10346d0ff84d75a1878f743d8c"
+   },
+   {
+    "path": "Assets/Content/Data/authored/parts.json",
+    "bytes": 68578,
+    "sha256": "98480c3bc88d3e42d14fc95524e0a0d51d816daec5fb4bb8a5bd5ee6ddfd6917"
+   },
+   {
+    "path": "Assets/Content/Data/authored/stage-benchmarks.json",
+    "bytes": 17762,
+    "sha256": "f4129e6e3ddd29b57b6e15fe43158946f69c02e2cee3364f9b4020ed48e9ce9a"
+   },
+   {
+    "path": "Assets/Content/Data/authored/stage-conditions.json",
+    "bytes": 11529,
+    "sha256": "5f4038b31aad4abb319302a34588f615e98bf4c1d410fa67341d4c460ec4baef"
+   },
+   {
+    "path": "Assets/Content/Data/authored/stages.opposition.json",
+    "bytes": 5006,
+    "sha256": "681273e0a136fbcb2229d6009c26df1dd26a8a0a8bdd4e5e7e898bd7d13e4757"
+   },
+   {
+    "path": "Assets/Content/Data/authored/story/crews.diary.json",
+    "bytes": 4537,
+    "sha256": "7b6b5cd1dd25f15eac9d2f3786ee33028302a05dcfa3836f5a46018006d23341"
+   },
+   {
+    "path": "Assets/Content/Data/authored/story/endings.json",
+    "bytes": 7719,
+    "sha256": "b53a7e8ff388b701a470b98976a56daf01dc2a694ad56ef51cca04ef4b1b69d6"
+   },
+   {
+    "path": "Assets/Content/Data/authored/story/meet.text.json",
+    "bytes": 4499,
+    "sha256": "df8c3430a240f49296268cd26d504044720cffbae00a47b260eb7d7299a06cfd"
+   },
+   {
+    "path": "Assets/Content/Data/authored/story/npcs.look.json",
+    "bytes": 726,
+    "sha256": "b8ec2707d81bd6df085ae132dd706a0b4245394a828e7105af72aa532e974e90"
+   },
+   {
+    "path": "Assets/Content/Data/authored/story/radio-records.json",
+    "bytes": 4602,
+    "sha256": "ee6270e2d88ac70497fd4d39262e10105bce58ec1096150825cbfddc746628be"
+   },
+   {
+    "path": "Assets/Content/Data/authored/story/rivals.look.json",
+    "bytes": 21214,
+    "sha256": "02244e0845bf33e0463ee31e156d5df315adf4fef5466923af09454f09a85089"
+   },
+   {
+    "path": "Assets/Content/Data/authored/story/rivals.story.json",
+    "bytes": 147402,
+    "sha256": "08f4f02dc88eb377190f2d856fc70da93333d96e6d703238f901f15aba84f9ee"
+   },
+   {
+    "path": "Assets/Content/Data/authored/story/stages.story.json",
+    "bytes": 113024,
+    "sha256": "9c67eccc26588aa7b9c39b5d79395ca0882ca0e94447ff863dbded4ea327e669"
+   },
+   {
+    "path": "Assets/Content/Data/authored/toys/canvas.stamps.json",
+    "bytes": 6041,
+    "sha256": "a31002355654c2019c85955ebd88d4d90babcb44aca8e95956e55f0ea613e8e9"
+   },
+   {
+    "path": "Assets/Content/Data/authored/toys/capclash.arrangements.json",
+    "bytes": 8217,
+    "sha256": "4837fe22fd68b529fa81b20fb5ef168d289a73963a2968e6cf5c2ccc02c6df81"
+   },
+   {
+    "path": "Assets/Content/Data/authored/toys/pitcrew.blueprints.json",
+    "bytes": 28147,
+    "sha256": "82c09009a1b3a01436329f601a9a6aaf9a999ebd3422ee9912c2440e733c47be"
+   },
+   {
+    "path": "Assets/Content/Data/authored/toys/pocketcircuit.layouts.json",
+    "bytes": 5116,
+    "sha256": "40218e5cea58c53e09f7c464501f39b0b58bf7676f556d4ad21e2e60ae5c597e"
+   },
+   {
+    "path": "Assets/Content/Data/authored/tutorial/lessons.json",
+    "bytes": 10136,
+    "sha256": "885e600606fb08d2310fe35ce20bacc9bfccd18d57f338fb1c0f235ab76d39c1"
+   },
+   {
+    "path": "Assets/Content/Data/generated/cars.json",
+    "bytes": 9680,
+    "sha256": "d6be912645dab47277c6c75f38dd4b45b3c3d0e56102680356d02f0e9bb9075b"
+   },
+   {
+    "path": "Assets/Content/Data/generated/challenges.json",
+    "bytes": 25716,
+    "sha256": "5423c2930abc68885822c7c77fe2efd604ee7b2da7e62abc9b87e0bae773ae28"
+   },
+   {
+    "path": "Assets/Content/Data/generated/cosmetics.json",
+    "bytes": 10245,
+    "sha256": "40bbec0d43474a299d5a7c42c91e9edc7220cf23e4af73455224fc71f590f2d1"
+   },
+   {
+    "path": "Assets/Content/Data/generated/courses.json",
+    "bytes": 18669,
+    "sha256": "549e6bfbf10c5a304076ba141691969e60ea3dc1db219449efce2ee2b1ac1de9"
+   },
+   {
+    "path": "Assets/Content/Data/generated/crews.json",
+    "bytes": 3189,
+    "sha256": "bdfee7aeffbbfadc85e1bf0dabe88629c5edf56a8d1e9bda8163d980942ab96b"
+   },
+   {
+    "path": "Assets/Content/Data/generated/rivals.json",
+    "bytes": 30074,
+    "sha256": "298569870813ba4735ddadc08f52f68c3815a390661f17764ceccc12ba17c6ce"
+   },
+   {
+    "path": "Assets/Content/Data/generated/stages.json",
+    "bytes": 20594,
+    "sha256": "6cfa28200ef862b4f21ef5d8eedff5c60b164c231ad01af03ace90f307961742"
+   },
+   {
+    "path": "Assets/Content/Courses/C01/route.json",
+    "bytes": 5296,
+    "sha256": "2ab32cac9b8e815d56863ee7c3990fc6d962afd48419c3bc3e54a69658ec7ee5"
+   },
+   {
+    "path": "Assets/Content/Courses/C02/route.json",
+    "bytes": 20353,
+    "sha256": "be65f36faf6feb393b2d55dd43945928fbff0608af94d5a0065ac58cc0f4a79c"
+   },
+   {
+    "path": "Assets/Content/Courses/C03/route.json",
+    "bytes": 14395,
+    "sha256": "758e9fe968be356a5a28584df195a102534432d1f844d34722ada01afcc564fc"
+   },
+   {
+    "path": "Assets/Content/Courses/C04/route.json",
+    "bytes": 20614,
+    "sha256": "899097c7a1e145606dd6490d4bec92124907d221ddecd65ad25b2f08849a6a20"
+   },
+   {
+    "path": "Assets/Content/Courses/C05/route.json",
+    "bytes": 18949,
+    "sha256": "e8849c313cd60e943c38dd1d0885202c3ed0be1719a4ff5545751533c95a438c"
+   },
+   {
+    "path": "Assets/Content/Courses/C06/route.json",
+    "bytes": 23218,
+    "sha256": "dd231f297073e6af83200b5af54e67a54a626a402310bb995b78c14d76225526"
+   },
+   {
+    "path": "Assets/Content/Courses/C07/route.json",
+    "bytes": 19154,
+    "sha256": "1fab1f023b718d47cf9e214e374853a44654fdb0475391aa18fb4917b42d2284"
+   },
+   {
+    "path": "Assets/Content/Courses/C08/route.json",
+    "bytes": 20858,
+    "sha256": "57a4379f8d89d701b22a74522bd0a543b9c0c3b6b45843bef936c15c82752a98"
+   },
+   {
+    "path": "Assets/Content/Courses/C09/route.json",
+    "bytes": 20137,
+    "sha256": "9f06eff1ec90be0cb6a9565dd33ae9c790d3af2490a84ad6bf1b7b947116c174"
+   },
+   {
+    "path": "Assets/Content/Courses/C10/route.json",
+    "bytes": 23496,
+    "sha256": "bfa87b8287b557076957086f9aa51ebdd9284c110a709d49e0b14291f69443a1"
+   },
+   {
+    "path": "Assets/Content/Courses/C11/route.json",
+    "bytes": 14110,
+    "sha256": "e4237a493c34df6e5542b13e4505a3d2fde5823bec22923734d0ee53d113cc7b"
+   },
+   {
+    "path": "Assets/Content/Courses/C12/route.json",
+    "bytes": 32487,
+    "sha256": "384aabc5f01142de9e038ef2d07783653e5db46515ed75b11b405c6e9c2ff742"
+   },
+   {
+    "path": "Assets/Content/Courses/C13/route.json",
+    "bytes": 21422,
+    "sha256": "023667aec318fb1c08979dde3e2b93c6e74b7077c4044b9538e92527e66f130c"
+   },
+   {
+    "path": "Assets/Content/Courses/C14/route.json",
+    "bytes": 15942,
+    "sha256": "e0434a06167ee2520f3992db8fb33a1d593c7115a58e29a7cd69f351fd39b769"
+   },
+   {
+    "path": "Assets/Content/Courses/C15/route.json",
+    "bytes": 23423,
+    "sha256": "d2a4f5d6f08aebcb97f19e02eadd7213064c5745b8d79e4c5bb526aa5da34f2c"
+   },
+   {
+    "path": "Assets/Content/Courses/C16/route.json",
+    "bytes": 28451,
+    "sha256": "25b713f3e3c3d1ba671797a1f9e1040d3468041c536436a6968944feaecef4b4"
+   },
+   {
+    "path": "Assets/Content/Courses/C17/route.json",
+    "bytes": 23810,
+    "sha256": "23ce67d945805767f86f190e8e9438bb141c728cb3f9ca27f62a57051980214d"
+   },
+   {
+    "path": "Assets/Content/Courses/C18/route.json",
+    "bytes": 15625,
+    "sha256": "905cc0270fe84565eac4c2e387eda2c01a647371070db5a85bf51ba82f523c3f"
+   },
+   {
+    "path": "Assets/Content/Courses/C19/route.json",
+    "bytes": 31596,
+    "sha256": "5f6a0e8516439ae83536a5e421cac8ec279cf37f8195c119aa72b0fd1beadb2a"
+   },
+   {
+    "path": "Assets/Content/Courses/C20/route.json",
+    "bytes": 28517,
+    "sha256": "ef0ea882e7e85bc74a0e5dbd36353924a74ae57f4174c428e10a40603400ec35"
+   },
+   {
+    "path": "Assets/Content/Courses/C21/route.json",
+    "bytes": 22742,
+    "sha256": "d003f3edd2996d8ff238bdd4941aa020db44258798dc9daee7def56bd8e7d86f"
+   },
+   {
+    "path": "Assets/Content/Courses/C22/route.json",
+    "bytes": 25821,
+    "sha256": "97b244513887704774ef5e127fd0557492b54c809909a99a7cfc0c0f08944291"
+   },
+   {
+    "path": "Assets/Content/Courses/C23/route.json",
+    "bytes": 36699,
+    "sha256": "7172281536a82898f88fd58f9770b629c92eec626ca8df95704e81af287db2f7"
+   },
+   {
+    "path": "Assets/Content/Courses/C24/route.json",
+    "bytes": 35986,
+    "sha256": "7cd652d8411496d537f53ac0bd1c5228f6cc3dc1e5094f7c21537cc6a393b2b3"
+   },
+   {
+    "path": "Assets/Content/Courses/C25/route.json",
+    "bytes": 46214,
+    "sha256": "5a924f5556023b4760637b3177ea6244ffdd45c1e7fdd31fe68c7d0076bcb225"
+   },
+   {
+    "path": "Assets/Content/Courses/FP01/route.json",
+    "bytes": 14700,
+    "sha256": "d74029ff03550a77550c8455ded2df8c6d91c4045e3715baf8ad20595c4caccc"
+   },
+   {
+    "path": "Assets/Content/Courses/FP02/route.json",
+    "bytes": 25384,
+    "sha256": "3d3d9fe4c66636eacc2a4a6b94f179a46f68ecba20e61af1e85f48905a1fba7c"
+   },
+   {
+    "path": "Assets/Content/Courses/FP03/route.json",
+    "bytes": 17359,
+    "sha256": "42aacb53e30dbd9038ba4b3f65d4e951df60161f69d2e09c65bd8345a5c23917"
+   },
+   {
+    "path": "Assets/Content/Courses/T00/route.json",
+    "bytes": 14779,
+    "sha256": "570bf5d703e55b5ca6526c0c6fdde5e3b3bf7586808d76d062b51486a4ad8a3a"
+   }
+  ]
+ }
+}
