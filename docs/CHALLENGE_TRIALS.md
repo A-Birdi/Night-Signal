@@ -79,3 +79,16 @@ Local profile (`TrialSetups`, one per trial, no money); every run races the save
 `TrialLoaners.ResolveSetup` exactly like a garage build. The judge adds "your setup legal (within the budget)", and the rules
 `finalDriveChanged` (CH46) and `aeroNotAtExtreme` (CH57: the wing level below its top and the balance inside its range).
 Tunable trials are offline only until the game server can take a player's setup.
+
+## Judged but not yet shown reachable (11)
+
+All 75 challenges are judged; these eleven have not been reached by the validator autopilot in a built player (Gate 5
+"all 75 challenges proven achievable" stays open for them). Not reaching one is an automation limit, not proof it cannot be
+done — a person's run would count. Grouped by the automation gap behind them (compiled 2026-10-16 from the entries cited):
+
+| Gap | Challenges | What the runs showed | The work that would close it |
+|---|---|---|---|
+| Sustained drift that manages the road edge | CH17, CH22, CH27 (zone chains), CH28 (drift trial), CH23 (recovery drill) | CH17 banks LINK-1 + LINK-2 then runs out of road before LINK-3; CH22's slide meets the barrier at the first clip; CH27's slide ends in the first transition (V-123). CH28: best 4:28.657 inside the time but 740 of the 2,000 raw banked, at every skill (V-119). CH23: 10 / 19 / 11 recoveries at three skills, never four alternating without a break (V-132) | a drift controller that holds angle and line to the clip and plans the exit before the edge (HANDOFF item 3); for CH23 a deliberate slide-and-catch drill mode |
+| Overtaking racecraft | CH34 (a pass held through C02's hairpin exit zone), CH36 (a pass in C10's open outside lane), CH40, CH41 (fixed AI fields) | the autopilot makes no pass in C02's marked zone (V-124) or C10's lane (V-126); CH40: no marked overtake and one car contact; CH41: P5 with two contacts (V-125) | pass planning (pick the zone, set up the exit, commit) with contact avoidance in the validator autopilot |
+| Line precision on the paved rule | CH13 | the Gold-pace run leaves the paved road for 0.5 s at two corners (≈4,620 m, ≈4,830 m; up to 0.13 m over); a slower pace, a narrower apex line and a wider edge margin were all measured and all slower (V-121) | an apex line that respects the paved half-width at those two corners without the measured time loss |
+| Pace against a rival's own run | CH43 | both defence gates driven inside the corridor, but 2:55.140 — 7.9 s slower than R32's own run in the same car on damp C20 (V-128) | a faster validator in the damp (line, braking) — R32's profile out-drives it |
