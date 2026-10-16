@@ -1,0 +1,10 @@
+[NightSignal.StoryTour] diary before racing: 0 entries
+[NightSignal.StoryTour] portraits by line: 1 narration→none, 2 R01→R01, 3 R01→R01, 4 timing-crew→timing-crew, 5 R01→R01
+[NightSignal.StoryTour] S01 intro: 5 lines (authored 5), played by itself in 18.0 s
+[NightSignal.StoryTour] S01 cleared; reaction shown: "Sora Matsuda  You read that hairpin better than I did. I'll be thinking about it all through tomorrow's round."; matches the verdict: True
+[NightSignal.StoryTour] diary after S01: stage:S01, crew:tea-hour
+[NightSignal.StoryTour] reading: Tea Hour Motor Club, Mizuhana (656 characters)
+[NightSignal.StoryTour] rematch intro: 2 lines
+[NightSignal.StoryTour] skipped: True after 0.00 s at line 1
+[NightSignal.StoryTour] the rematch race started: True
+[NightSignal.StoryTour] PASS

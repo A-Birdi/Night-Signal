@@ -1,5 +1,5 @@
 # String bounds audit — StoryTour at 1280x720, text size 150 %, HUD size 130 %
-# 19 moments audited, 112 distinct labels, 358 measurements
+# 19 moments audited, 116 distinct labels, 369 measurements
 # moments: Title · Local profiles · New profile · Diary · Offline · Campaign · Story · race HUD · race / Campaign · Results
 
 ## Labels too big at their minimum size, or spilling more than 5 % past their box (failures): 0

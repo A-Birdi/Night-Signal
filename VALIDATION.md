@@ -3494,3 +3494,21 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   keychain's two); the host's driver card, style and showcase drawn as before.
 - **Evidence:** `Evidence/meet/convoy-wardrobe-log.txt` (both clients' tour lines), `card-wardrobe-online-host-preview.jpg`
   (the host's saved look on the Player Card turntable — the keychain at the right hip).
+
+## V-157 — Story portraits: the speaking rival beside each line (2026-10-16)
+- Revision: the code is a9080980 (committed as WIP before the 2026-10-03 pause); this entry documents it. Built player of
+  that tree (built 2026-10-03 01:40, after the last code change); run 2026-10-16 with the editor closed (no rebuild needed).
+- **Gap closed:** HANDOFF "the story is on screen … left: portraits or a staged scene instead of text over the backdrop".
+- **Change:** `StoryScreen` shows the speaker of each line as a live head-and-shoulders portrait — the rival's own 3D
+  character (`CharacterStage` in portrait framing: a three-quarter view, no floor, the cached LOD-0 body), idling, with a nod
+  as each further line by the same person begins (none with reduced motion). The radio and the timing crew are shown as
+  marks (`CardAvatarArt`: the radio dial, a new stopwatch drawing); narration and settings have no portrait. The line sits
+  beside the portrait (from 33 % of the width). Intros, rematch intros and the endings all use it, offline and online.
+- **Executed:** built player `-nsStoryTour` **PASS** — S01's five lines showed narration → none, R01 → R01, R01 → R01,
+  timing-crew → timing-crew, R01 → R01 (each line's portrait checked against its authored speaker), the intro played by
+  itself in 18.0 s, the reaction, diary and the short rematch intro as before. The same tour at 720p / Text 150 %: 116
+  labels over 19 moments, 0 overflow; the 5 sub-5 % edge spills are the same ones as before (none on the story screen).
+- **Evidence:** `Evidence/ui/story/story-portrait-S01-text150.jpg`, `story-portrait-R01.jpg` (the portrait texture),
+  `story-portraits-tour.txt`, `Evidence/ui/bounds/bounds-StoryTour-1280x720-text150.txt`.
+- **Not executed:** an ending scene or an online intro with portraits in a run (same screen, same code path); the radio mark
+  in a run (S01 has no radio line); a human look at all 48 portraits.
