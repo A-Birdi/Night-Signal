@@ -17,6 +17,52 @@ public sealed class WardrobeTests
         File.ReadAllText(Path.Combine(TestContent.RepoRoot, "Assets", "Content", "Data", "authored", CustomizationCatalogue.FileName))));
     static WardrobeCatalogue Wardrobe => customization.Value.Wardrobe;
 
+    static readonly Lazy<string> json = new(() =>
+        File.ReadAllText(Path.Combine(TestContent.RepoRoot, "Assets", "Content", "Data", "authored", CustomizationCatalogue.FileName)));
+
+    static string Mutated(Action<Newtonsoft.Json.Linq.JObject> change)
+    {
+        var o = Newtonsoft.Json.Linq.JObject.Parse(json.Value);
+        change(o);
+        return o.ToString();
+    }
+
+    static Newtonsoft.Json.Linq.JObject Item(Newtonsoft.Json.Linq.JObject root, string id) =>
+        (Newtonsoft.Json.Linq.JObject)root["wardrobe"]!["items"]!.First(i => (string?)i["id"] == id);
+
+    static Newtonsoft.Json.Linq.JObject Avatar(Newtonsoft.Json.Linq.JObject root, string id) =>
+        (Newtonsoft.Json.Linq.JObject)root["card"]!["avatars"]!.First(i => (string?)i["id"] == id);
+
+    [Fact]
+    public void Validation_RefusesMalformedWardrobeItemsAndAvatars_WithExactErrors()
+    {
+        void Expect(string mutated, params string[] errors)
+        {
+            Assert.False(CustomizationCatalogue.TryLoad(mutated, out CustomizationCatalogue c, out List<string> e));
+            Assert.Null(c);
+            Assert.Equal(errors, e);
+        }
+        Expect(Mutated(o => Item(o, "tea-hour-gloves")["slot"] = "ankle"), "wardrobe tea-hour-gloves: unknown slot ankle");
+        Expect(Mutated(o => ((Newtonsoft.Json.Linq.JArray)Item(o, "tea-hour-gloves")["shapes"]!).Add("rocket")), "wardrobe tea-hour-gloves: unknown shape rocket");
+        Expect(Mutated(o => Item(o, "tea-hour-gloves")["gear"]![0] = "#b88a5a"), "wardrobe tea-hour-gloves: gear must be two upper-case #RRGGBB colours");
+        Expect(Mutated(o => Item(o, "signal-track-jacket").Remove("colour")), "wardrobe signal-track-jacket: a garment needs its colour (upper-case #RRGGBB)");
+        Expect(Mutated(o => Item(o, "signal-track-jacket")["outfit"] = "coveralls"), "wardrobe signal-track-jacket: a one-piece outfit is a full item");
+        Expect(Mutated(o => Item(o, "mizuhana-trousers")["accent"] = "#FFFFFF"),
+            "wardrobe mizuhana-trousers: accent is an upper-case #RRGGBB trim on an upper/full item");
+        Expect(Mutated(o => Item(o, "route-pin-badge")["outfit"] = "coat"),
+            "wardrobe route-pin-badge: an accessory does not change the outfit (colour/outfit/sleeves/length/lower/shoes)");
+        Expect(Mutated(o => ((Newtonsoft.Json.Linq.JArray)Item(o, "route-pin-badge")["blocks"]!).Add("monocle")), "wardrobe route-pin-badge: blocks unknown accessory monocle");
+        Expect(Mutated(o => Item(o, "route-pin-badge")["cosmeticId"] = "COS-CH63"), "wardrobe: cosmetic COS-CH63 unlocks more than one item");
+        Expect(Mutated(o => Item(o, "route-pin-badge")["cosmeticId"] = "COS-CH46"), "Cosmetic COS-CH46 unlocks both a card item and a wardrobe item");
+        // Card avatars: a known drawing, each used once, three colours, and the default free.
+        Expect(Mutated(o => Avatar(o, "initial")["art"] = "comet"), "card avatar initial: unknown art comet");
+        Expect(Mutated(o => Avatar(o, "night-road")["art"] = "initial"), "card: avatar art initial is used by more than one avatar (each is its own drawing)");
+        Expect(Mutated(o => ((Newtonsoft.Json.Linq.JArray)Avatar(o, "initial")["colors"]!).RemoveAt(2)), "card avatar initial: three colours");
+        Expect(Mutated(o => o["card"]!["default"]!["avatar"] = "ghostline"), "card default: avatar must be a free item");
+        // The real document is clean.
+        Assert.True(CustomizationCatalogue.TryLoad(json.Value, out _, out List<string> none), string.Join("; ", none));
+    }
+
     static CharacterLook Base()
     {
         CharacterLook l = PlayerLooks.Copy(PlayerLooks.Presets[0]);
