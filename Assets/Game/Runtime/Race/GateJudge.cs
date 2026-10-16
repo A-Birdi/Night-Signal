@@ -85,10 +85,6 @@ namespace NightSignal.Race
             LaneMarginKept = Enumerable.Repeat(true, laneChallenges.Length).ToArray();
         }
 
-        /// <summary>
-        /// Every touch gate serving <paramref name="challenge"/> crossed, and touched on every crossing (each lap of a circuit);
-        /// false when the course has none.
-        /// </summary>
         /// <summary>How many touch gates serve <paramref name="challenge"/> on this course.</summary>
         public int Count(string challenge)
         {
@@ -98,6 +94,10 @@ namespace NightSignal.Race
             return n;
         }
 
+        /// <summary>
+        /// Every touch gate serving <paramref name="challenge"/> crossed, and touched on every crossing (each lap of a circuit);
+        /// false when the course has none.
+        /// </summary>
         public bool AllTouched(string challenge)
         {
             bool any = false;

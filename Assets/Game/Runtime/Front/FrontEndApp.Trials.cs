@@ -153,14 +153,6 @@ namespace NightSignal.Front
         }
 
         /// <summary>
-        /// Challenge trial evidence (<c>-nsTrialTour</c>), buttons only, isolated profile folder: the offline hub → Challenge
-        /// Trials; every trial started from its row with "Start Trial" and driven by the validator autopilot (CH25's without the
-        /// handbrake); a drift trial first at its measured reference's drift skill, then at the other measured skills until
-        /// one run passes — whether its published targets can be reached at all; the verdict read back on the trials screen. Checks: every trial ran and was judged; the profile keeps exactly the passes the
-        /// verdicts report; a grouped challenge (CH54) is earned only once both of its trials are passed. Whether the
-        /// autopilot beats each target is reported as measured. Automation, not a person.
-        /// </summary>
-        /// <summary>
         /// The tour's own setup of each tunable trial's loaner, as a player would make it on Tune the Loaner: clicks on each slot
         /// button (each click installs the slot's next part), then tuning steps by control.
         /// </summary>
@@ -205,6 +197,14 @@ namespace NightSignal.Front
             }
         }
 
+        /// <summary>
+        /// Challenge trial evidence (<c>-nsTrialTour</c>), buttons only, isolated profile folder: the offline hub → Challenge
+        /// Trials; every trial started from its row with "Start Trial" and driven by the validator autopilot (CH25's without the
+        /// handbrake); a drift trial first at its measured reference's drift skill, then at the other measured skills until
+        /// one run passes — whether its published targets can be reached at all; the verdict read back on the trials screen. Checks: every trial ran and was judged; the profile keeps exactly the passes the
+        /// verdicts report; a grouped challenge (CH54) is earned only once both of its trials are passed. Whether the
+        /// autopilot beats each target is reported as measured. Automation, not a person.
+        /// </summary>
         IEnumerator TrialTour()
         {
             string dir = System.IO.Path.GetFullPath(System.IO.Path.Combine("Builds", "Screenshots", "trials"));

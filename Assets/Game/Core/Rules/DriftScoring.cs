@@ -34,6 +34,13 @@ namespace NightSignal.Core.Rules
         public double AmountBankedOrLost;
     }
 
+    /// <summary>One banked drift chain: its raw points and the slowest valid scoring step in it.</summary>
+    public struct BankedChain
+    {
+        public double Raw;
+        public float MinSpeedKmh;
+    }
+
     /// <summary>
     /// Raw drift scoring, spec §7. Per step: rawDelta = legalForwardMetres × 100 × angleFactor × lineFactor × chain.
     /// Documented curves:
@@ -47,13 +54,6 @@ namespace NightSignal.Core.Rules
     /// A chain banks after 1.0 s without a valid step (straightening interval) or at a judged-sector end;
     /// wall impacts, leaving the course, resets and spins lose only the unbanked chain.
     /// </summary>
-    /// <summary>One banked drift chain: its raw points and the slowest valid scoring step in it.</summary>
-    public struct BankedChain
-    {
-        public double Raw;
-        public float MinSpeedKmh;
-    }
-
     public sealed class DriftScorer
     {
         public const float MinimumSpeedKmh = 35f;

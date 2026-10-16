@@ -56,12 +56,12 @@ namespace NightSignal.Net
         /// the calm "waiting for all drivers" view, never to anyone else's start. Null or headless: nothing is played.
         /// </summary>
         public System.Func<MatchInfo, IEnumerator> Presentation;
+        /// <summary>Time Attack ghost offers, each with its label ("your best", "Mika's best"); up to three compatible ones race.</summary>
+        public System.Func<MatchInfo, System.Threading.Tasks.Task<List<KeyValuePair<string, Core.Ghosts.GhostRecording>>>> GhostSource;
         /// <summary>
         /// Ghosts (spec §8) for online Time Attack: the source fetches the player's kept (server-settled) ghosts; only those
         /// recorded under this event's rules race, at most three, placed by interpolation at this client's race time.
         /// </summary>
-        /// <summary>Time Attack ghost offers, each with its label ("your best", "Mika's best"); up to three compatible ones race.</summary>
-        public System.Func<MatchInfo, System.Threading.Tasks.Task<List<KeyValuePair<string, Core.Ghosts.GhostRecording>>>> GhostSource;
         public readonly List<GhostPlayback> Ghosts = new List<GhostPlayback>();
         /// <summary>A convoy member's overlay colour (your own best keeps the standard cyan; a rival reference is red).</summary>
         static readonly Color MemberTint = new Color(1f, 0.72f, 0.3f);

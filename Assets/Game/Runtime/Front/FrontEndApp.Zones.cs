@@ -12,6 +12,9 @@ namespace NightSignal.Front
 {
     public sealed partial class FrontEndApp
     {
+        /// <summary>The zone tour's runs: each course, its challenge, and the drift skill ZoneChallengeMeasureTests found (or its middle one).</summary>
+        static readonly (string Course, string Challenge, float Skill)[] ZoneTourRuns = { ("C03", "CH17", 0.8f), ("C05", "CH19", 0.95f), ("C09", "CH22", 0.8f), ("C19", "CH27", 0.8f) };
+
         /// <summary>
         /// Challenge-zone evidence (<c>-nsZoneTour</c>): offline freeplay races on C03 (CH17 link corners), C05 (CH19
         /// demonstration zone), C09 (CH22 outer clips) and C19 (CH27 transitions to the bank gate), each driven alone in the
@@ -21,9 +24,6 @@ namespace NightSignal.Front
         /// holds and the challenges the race predicates grant, and checks each grant against the raw chain facts read
         /// independently of the predicates' helpers. At least one challenge must be granted. Automation, not a person.
         /// </summary>
-        /// <summary>The zone tour's runs: each course, its challenge, and the drift skill ZoneChallengeMeasureTests found (or its middle one).</summary>
-        static readonly (string Course, string Challenge, float Skill)[] ZoneTourRuns = { ("C03", "CH17", 0.8f), ("C05", "CH19", 0.95f), ("C09", "CH22", 0.8f), ("C19", "CH27", 0.8f) };
-
         IEnumerator ZoneTour()
         {
             var failures = new List<string>();
