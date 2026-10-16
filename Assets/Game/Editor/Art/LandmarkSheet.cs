@@ -70,7 +70,7 @@ namespace NightSignal.Editor.ArtTools
                 {
                     string id = kv.Value[row];
                     EditorSceneManager.OpenScene(CourseSceneAuthoring.ScenePath(id), OpenSceneMode.Single);
-                    CourseRuntime rt = CourseRuntime.Active != null ? CourseRuntime.Active : Object.FindFirstObjectByType<CourseRuntime>();
+                    CourseRuntime rt = CourseRuntime.Active != null ? CourseRuntime.Active : Object.FindAnyObjectByType<CourseRuntime>();
                     if (rt == null) continue;
                     if (rt.Track == null) rt.Generate();
                     var camGo = new GameObject("RegionCamera") { hideFlags = HideFlags.DontSave };
@@ -123,7 +123,7 @@ namespace NightSignal.Editor.ArtTools
             {
                 Application.logMessageReceived -= OnLog;
             }
-            CourseRuntime rt = CourseRuntime.Active != null ? CourseRuntime.Active : Object.FindFirstObjectByType<CourseRuntime>();
+            CourseRuntime rt = CourseRuntime.Active != null ? CourseRuntime.Active : Object.FindAnyObjectByType<CourseRuntime>();
             if (rt == null) return $"{id}: no CourseRuntime";
             if (rt.Track == null) rt.Generate();
             seconds = rt.GenerationSeconds;
