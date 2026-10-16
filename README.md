@@ -78,6 +78,7 @@ folders under `Builds/` (`Tools/run/tour.ps1 -Tour <Name>`, `Tools/run/bounds-au
 - `Assets/Game/Core` — engine-free rules shared with the server; `Assets/Game/Runtime` — the game; `Assets/Game/Editor` —
   tools and builds; `Assets/Tests` — EditMode/PlayMode tests; `Assets/Content` — courses and data.
 - `Services/` — the control plane and its tests; `Backend/` — migrations and seed data; `Tools/` — run scripts, QA reports
-  (content coverage, the build manifest), art generators; `Evidence/` — screenshots, logs and reports cited by
+  and checks (`Tools/qa`: content coverage, the build manifest `release_manifest.py`, the controller-focus scan
+  `focus_scan.py`), art generators (`Tools/art/gen_carpaint.py` regenerates the car paint shader from URP's own); `Evidence/` — screenshots, logs and reports cited by
   `VALIDATION.md`.
 - Asset sources and licences: `docs/PROVENANCE.md`.
