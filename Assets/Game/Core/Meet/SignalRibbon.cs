@@ -64,18 +64,16 @@ namespace NightSignal.Core.Meet
             if (queued.Count >= MaxQueued)
             {
                 // Full: an info notice goes straight to the event list; an arrival/departure displaces the oldest waiting
-                // info notice (there is always one, since each other kind already coalesced above).
-                if (kind == NoticeKind.Info)
+                // info notice. With none to displace (one waiting notice of each of three other kinds — four kinds
+                // coalesce), it goes straight to the event list too, so the queue never holds more than three.
+                Notice info = kind == NoticeKind.Info ? null : queued.FirstOrDefault(n => n.Kind == NoticeKind.Info);
+                if (info == null)
                 {
                     History.Add(notice.Display());
                     return false;
                 }
-                Notice info = queued.FirstOrDefault(n => n.Kind == NoticeKind.Info);
-                if (info != null)
-                {
-                    queued.Remove(info);
-                    History.Add(info.Display());
-                }
+                queued.Remove(info);
+                History.Add(info.Display());
             }
             queued.Add(notice);
             return true;
