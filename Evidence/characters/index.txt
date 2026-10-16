@@ -6,3 +6,8 @@ rivals-silhouette: the unlit masks measured for distinctness (front, side per ri
 motion-strip (R01): idle, walk, jog; wave, bow, thumbs-up, clap, point, camera pose, stretch, cheer, shrug, nod,
 footwork, admire (each emote near mid-way).
 distinctness.txt: pairwise silhouette IoU and colour-layout difference; nearest neighbours per rival.
+character-lods.jpg (V-155): five rivals (R01, R11, R17, R30, R48) and a dressed driver, full / mid / far side by side
+(render: Night Signal/Art/Render Character LOD Sheet); character-lods-zoom.jpg: one rival and the dressed
+driver close up at the three levels (the far body leaves out the face's features);
+character-lods.txt: vertices per level and the mid/far share of the full body.
+wardrobe/ (V-153): the 23 reward wardrobe items worn and the nine card avatars; see wardrobe/index.txt.
