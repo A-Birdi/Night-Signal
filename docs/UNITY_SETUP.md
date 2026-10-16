@@ -19,13 +19,16 @@ separate headless Windows process (`-batchmode -nographics`).
 ## Installed packages (direct)
 
 MCP for Unity 10.0.0 · AI Navigation 2.0.14 · Unity Version Control 2.13.6 · Rider 3.0.38 ·
-Visual Studio 2.0.26 · Input System 1.20.0 · URP 17.6.0 · Test Framework 1.8.0 · Timeline 6.6.0 ·
-uGUI 2.6.0 · Visual Scripting 1.9.12 · built-in modules. Removed in setup: see D-003.
+Visual Studio 2.0.26 · Input System 1.20.0 · Netcode for GameObjects 2.13.3 · Newtonsoft Json 3.2.2 · URP 17.6.0 ·
+Test Framework 1.8.0 · Timeline 6.6.0 · uGUI 2.6.0 · Visual Scripting 1.9.12 · built-in modules (exact versions and the
+MCP package's commit in `Packages/packages-lock.json`). Removed in setup: see D-003.
 
 ## Assemblies
 
 | Assembly | Folder | Notes |
 |---|---|---|
+| `NightSignal.Core` | `Assets/Game/Core` | engine-free shared rules (`noEngineReferences`), also built for the control plane by `Services/SharedCore` |
+| `NightSignal.AudioSynth` | `Assets/Game/Audio` | engine-free audio synthesis (`noEngineReferences`) |
 | `NightSignal.Runtime` | `Assets/Game/Runtime` | gameplay/runtime code |
 | `NightSignal.Editor` | `Assets/Game/Editor` | editor tools, `BuildCommands` |
 | `NightSignal.Tests.EditMode` | `Assets/Tests/EditMode` | baseline guards + rules tests |
