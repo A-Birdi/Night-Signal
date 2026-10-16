@@ -56,8 +56,8 @@ The control plane is a **long-lived development service**: leave it running whil
 TCP listener only on 127.0.0.1:5080, `GET /healthz` ok, no error/restart loop in its log, `contentHash` equal to the
 content the next run uses). Restart it once, cleanly, only when it is unhealthy or its content hash is stale after a
 content change (content documents feed the hash; a mismatched game server is refused), and after a change to its own
-code. Last restart: 2026-09-29 for the V-113 content (published challenge references), race content hash `aff0ce06…`,
-customization `306dd38e…`. Network harnesses go through
+code. Last restart: 2026-10-03 for V-156 (the wardrobe/avatar code and content), customization hash `2b5b408f…`; as of
+2026-10-16 it is **not running** (the machine was restarted) — start it before an online run. Network harnesses go through
 `Tools/run/NetGuard.psm1` (loopback unless `-AllowLan`, free-port check, socket evidence in `network.json`).
 
 Evidence tours (built player, run from the repo root; each uses its own profile/preferences folders under `Builds/`):
@@ -238,8 +238,10 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
 
 Human checks outstanding (cannot be automated): S29 run, featured-rival pace feel after calibration, camera/comfort
 feel, cockpit/visual review including the 18 detailed car bodies (V-070), a look at the 48 rivals (V-072) and a walk
-round the meet (V-073), a listen to a race (engines, tyres, music balance; V-078), a real cross-device LAN test once
-authorized.
+round the meet (V-073), a listen to a race (engines, tyres, music balance; V-078), a look at the reward wardrobe and the
+card avatars (`Evidence/characters/wardrobe/`, V-153), the signature paints' flip tint (V-154), the character levels of
+detail at distance (V-155) and the story portraits (V-157), a real cross-device LAN test once authorized. A
+player-facing `README.md` exists (2026-10-16); check it reads right.
 
 ## Recovery notes
 
