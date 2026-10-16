@@ -1,6 +1,6 @@
 # Gate 4 — integration audit (spec §19)
 
-Status of each Gate 4 item against **executed** evidence (VALIDATION entries, tests), as of 2026-09-29. "Built player" means
+Status of each Gate 4 item against **executed** evidence (VALIDATION entries, tests), as of 2026-10-16 (V-157). "Built player" means
 real player builds driven by automation (the validator autopilot, AutoClients or button tours) on this PC over loopback —
 not people, not a LAN or the internet. Missing human, LAN and WAN checks stay open (see HANDOFF "Human checks").
 
@@ -16,14 +16,33 @@ not people, not a LAN or the internet. Missing human, LAN and WAN checks stay op
 | Crashes during transactions | tests | **V-114** `SettlementCrashTests`: a settlement failing after money, challenge and cosmetic were written leaves nothing; the retry settles once; the replay pays nothing. Purchases idempotent (V-013, V-018, V-037); a race whose server died is aborted by the watchdog (`MatchWatchdogTests`) | a process kill mid-settlement on PostgreSQL |
 | Invalid / tampered requests | tests + built | JWT rejection cases (V-013); ticket signatures, replay and foreign tickets (V-014, `CoreTicketParityTests`); results/ghost signatures, forged money, wrong placement 422 (`EndToEndTests`, V-104, V-107); stale or invalid convoy, garage and meet commands refused (`ConvoyDirectoryTests`, `GarageServiceTests`, `MeetTouringTests`) | — |
 | Meet independence; race launch from the meet | built player | the meet runs apart from convoys; a race started from the meet returns to it (V-073–V-078, V-084, V-097) | 4–12 human visitors (only automation) |
-| Subtitle / font / localization bounds | built player | label overflow and the missing ellipsis glyph found and fixed (V-020); readability at 720p/ultrawide with large text and HUD, line clipping fixed (V-053); **V-118** every visible label on every screen of eight offline tours measured against its box at 720p and ultrawide with Text 150 % / HUD 130 % and at 1080p: 0 failures, 0 at minimum size; **V-149** the online screens in eight online runs (campaign, course vote, Freeplay with a preset, challenge trial, Team Trial, Garage + livery, Drift Attack, Custom Cup) at 720p with Text 150 % / HUD 130 %: 0 overflow after the HUD finish-window fix; **V-150** the meet offline and online (three-client public meet, convoy meet): 0 overflow after the boombox list, card showcase and nameplate fixes | no localisation beyond English |
+| Subtitle / font / localization bounds | built player | label overflow and the missing ellipsis glyph found and fixed (V-020); readability at 720p/ultrawide with large text and HUD, line clipping fixed (V-053); **V-118** every visible label on every screen of eight offline tours measured against its box at 720p and ultrawide with Text 150 % / HUD 130 % and at 1080p: 0 failures, 0 at minimum size; **V-149** the online screens in eight online runs (campaign, course vote, Freeplay with a preset, challenge trial, Team Trial, Garage + livery, Drift Attack, Custom Cup) at 720p with Text 150 % / HUD 130 %: 0 overflow after the HUD finish-window fix; **V-150** the meet offline and online (three-client public meet, convoy meet): 0 overflow after the boombox list, card showcase and nameplate fixes; re-measured after new UI: the Player Card's Wardrobe section and card avatar (V-153) and the story portraits (V-157), 0 overflow | no localisation beyond English |
 | Controller focus | partial | every screen declares a default focus (V-020); remappable controls (V-050); walking controls (V-076); the Canvas pen on a pad (V-083) | a full pad-only walkthrough |
 | Transitions | built player | tours move through every screen and scene change (V-073, V-099–V-112) | — |
-| Frame / memory budgets | partial | camera timing at 30/60/120 fps (V-052); soak memory — generated assets released, per-frame native growth fixed (V-059); car levels of detail (V-086); **V-151** the §14 profile on one labelled machine — cold loads per region, six racers, the populated meet — and per-frame allocations in the driving hot path cut by ~93 % (behaviour proven unchanged) | other hardware tiers; the last ~130 B/frame of race allocation unattributed; character LOD tiers; the 30-minute populated meet soak |
+| Frame / memory budgets | partial | camera timing at 30/60/120 fps (V-052); soak memory — generated assets released, per-frame native growth fixed (V-059); car levels of detail (V-086); **V-151** the §14 profile on one labelled machine — cold loads per region, six racers, the populated meet — and per-frame allocations in the driving hot path cut by ~93 % (behaviour proven unchanged); character levels of detail — full/mid/far bodies, rivals at 32–36 % of the vertices far away (V-155) | other hardware tiers; the last ~130 B/frame of race allocation unattributed; the 30-minute populated meet soak |
 
-## Gate 5 items that are known now
+## Gate 3 content note
 
-Blocked (need the owner or the outside world): an internet test with independent people and devices; a LAN test (needs
-authorisation, Addendum 04); PostgreSQL/Supabase (no local stack); the Linux dedicated-server module (not installed).
-Not yet done: all 75 challenges proven achievable (all 75 are judged; eleven are not yet shown reachable by the automation — HANDOFF item 0), course-by-course replay coverage, a fresh-checkout
-build on a clean machine.
+"All 75 predicates and visible unique rewards": all 75 predicates are judged (R11.3) and since **V-153** all 75 rewards are
+drawn in game, each by its own validated item — 15 decal shapes, 15 paint swatches (the signature ones with their flip tint,
+**V-154**), 15 card style items, the 23 wearable rewards as the driver's reward wardrobe and the 7 avatar rewards as card
+emblems (`Evidence/coverage/content-coverage.md`: 75/75). A human look at them is still open.
+
+## Gate 5 — release validation checklist (spec §19)
+
+Each item of the spec's Gate 5 sentence, with what has actually been executed. Nothing here is a green count from AI tests
+standing in for a human or WAN test: those stay **blocked** or **open** until people run them.
+
+| Gate 5 item | Status | Evidence / what exists | Open |
+|---|---|---|---|
+| Fresh checkout / import / build | **open** | every build so far is from the working checkout (`BuildCommands.BuildGame()`, D-001 editor 6000.6.3f1); `docs/UNITY_SETUP.md` and `HANDOFF.md` "How to run locally" describe the steps | a clone on a clean machine, imported and built from scratch, then its tours run |
+| Standalone clients | **done on this PC** | the non-development Windows player drives every tour and online run (from V-022; V-149 online screens, V-150 the meet, V-153–V-157) | other machines; other hardware tiers (§14) |
+| Dedicated server | **Windows only** | the dedicated game server process (headless race loop, `Tools/run/net-race.ps1`, loopback, NetGuard) in every online race (V-022 onward; six clients V-025/V-035, 4/6 humans V-081/V-082, the long-lived server V-116) | **blocked:** the Linux dedicated-server build module is not installed (HANDOFF "Blockers") |
+| Actual internet test, independent people and devices | **blocked** | only loopback automation; a LAN test needs the owner's authorisation for that run (Addendum 04) | people, devices, WAN — not substitutable by automation |
+| Course-by-course replay coverage | **partial** | every course driven by the autopilot (C.1); stage benchmarks certified from legal reference runs on every stage's course, Normal and Hard (V-065, V-066, recertified V-108); personal, convoy-member and rival-reference ghosts raced (V-103, V-104, V-107, V-109) | a per-course report that every course's replays and ghosts load and play on the shipped build |
+| All 75 challenges proven achievable | **partial** | 75/75 judged; 64 shown reached by the automation (`docs/CHALLENGE_TRIALS.md`, HANDOFF item 0) | CH13, CH17, CH22, CH23, CH27, CH28, CH34, CH36, CH40, CH41, CH43 not yet shown reachable |
+| Preserved source / asset hashes | **partial** | content, garage, customization and toy content hashes published by `/healthz`; a client's content hash checked as part of its version and carried in each match's version; certified benchmark references hashed (V-113); asset sources recorded in `docs/PROVENANCE.md` (fonts pending owner approval) | a release manifest of source and asset hashes for the shipped build |
+| Current instructions | **maintained** | `CLAUDE.md`, `HANDOFF.md`, `docs/UNITY_SETUP.md`, `docs/HOSTING.md`, `docs/NETWORKING.md`, `REQUIREMENTS.md`, `VALIDATION.md` updated with each change | a player-facing readme for a release build |
+| Honest release report | **not started** | — | written at release, from this table and `VALIDATION.md` |
+
+Also blocked: PostgreSQL/Supabase (no local stack; SQLite stands in for every executed run).
