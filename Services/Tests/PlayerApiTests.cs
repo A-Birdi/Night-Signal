@@ -161,6 +161,11 @@ public sealed class PlayerApiTests : IDisposable
         Assert.Equal("invalid_look", why.GetProperty("error").GetString());
         Assert.Contains("Not owned yet: Signal Track Jacket.", why.GetProperty("message").GetString());
         Assert.Equal("invalid_look", await Error(await c.PostAsJsonAsync("/v1/me/card", new { displayName = "Aki Night", look = new { wardrobe = new[] { "no-such-coat" } } })));
+        // Malformed ids are refused before the catalogue is asked; an unknown avatar is named.
+        Assert.Equal("invalid_look", await Error(await c.PostAsJsonAsync("/v1/me/card", new { displayName = "Aki Night", look = new { wardrobe = new[] { "Road Atlas!" } } })));
+        HttpResponseMessage noSuchAvatar = await c.PostAsJsonAsync("/v1/me/card",
+            new { displayName = "Aki Night", style = new { background = "night", frame = "thin", motif = "none", title = "none", layout = "standard", avatar = "moon-face" } });
+        Assert.Contains("Unknown card avatar moon-face.", (await noSuchAvatar.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("message").GetString());
 
         // Earned (challenge rewards CH33 and CH39): the jacket is worn and public; two jackets at once are refused.
         Own("COS-CH33");

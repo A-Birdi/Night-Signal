@@ -203,6 +203,12 @@ public sealed class WardrobeTests
         p.Cosmetics.Add(new OwnedCosmetic { CosmeticId = "COS-CH75", Source = "CH75", AcquiredUtc = TestContent.T0 });
         CardStyleCatalogue card = customization.Value.Card;
         CardStyle style = card.Default.Copy();
+        // An avatar this profile has not earned is refused by name, and nothing is stored.
+        style.Avatar = "ghostline";
+        LocalProgressionResult notEarned = LocalProgression.SetCard(p, "Robin", look, "", style, card, null, null, Wardrobe);
+        Assert.Equal(LocalOperationStatus.Rejected, notEarned.Status);
+        Assert.Equal("Not owned yet: Ghostline Avatar Icon.", notEarned.Reason);
+        Assert.Equal("", p.Card.AvatarId);
         style.Avatar = "dawn-horizon";
         LocalProgressionResult set = LocalProgression.SetCard(p, "Robin", look, "", style, card, null, null, Wardrobe);
         Assert.Equal(LocalOperationStatus.Applied, set.Status);
