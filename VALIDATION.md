@@ -3529,3 +3529,28 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - **Limits (stated in the tool):** it records what the build is byte for byte; it does not prove which revision produced
   it — Unity builds are not bit-reproducible here, and this build was made from the working tree a minute before its source
   was committed. A release build should come from a clean checkout of the recorded revision, manifest taken straight after.
+
+## V-159 — Static checks and editor-less fixes: controller focus, story portraits' speakers, warnings (2026-10-16)
+- Revision: the commits of 2026-10-16 up to this entry. The Unity editor was closed all session (MCP unreachable), so
+  nothing below ran in the editor or a player unless it says so.
+- **Executed:**
+  - `Tools/qa/focus_scan.py` (new, static): every `UIScreen` subclass and whether it declares `DefaultFocus`. Before: 3
+    of 28 without (Appearance, Controls, Player Card) — they opened with nothing selected, so a pad could only go Back.
+    After the fix: 0 of 28.
+  - A literal `Resources.Load` scan (scratch script): 22 literal loads, every path present in a Resources folder.
+  - Core xUnit **218/218** in the scratch mirror, with the new `StoryTextTests.EverySpokenLine_HasAPortrait_…` (every
+    stage intro, reaction and ending line is spoken by a rival with an authored look or by the radio, timing crew or
+    narration; 48 rival looks).
+  - `dotnet build` of Unity's generated `NightSignal.Runtime`, `NightSignal.Editor`, `NightSignal.Tests.EditMode` and
+    `NightSignal.Tests.PlayMode` projects into the scratchpad (nothing written to the repository): all succeed; runtime
+    warnings 27 → 1, editor obsolete-API warnings 2 → 0.
+  - Fresh-checkout readiness, static: pinned editor and packages (one git package locked to a commit), 488 LFS files with
+    none waiting to be pushed, `git lfs fsck` OK (`docs/GATE4.md`).
+- **Changed, compiled, not yet run:** default focus on Appearance (the section row), Controls (the driving/walking switch)
+  and the Player Card (the Editing row), with the EditMode guard
+  `SetupVerificationTests.EveryScreen_DeclaresWhereControllerFocusStarts`; the obsolete `FindObjectsByType(SortMode)` and
+  `FindFirstObjectByType` calls replaced by their unsorted equivalents; nine unserializable public fields marked
+  `[NonSerialized]`; two dead meet fields and a dead tour variable removed. HANDOFF lists the editor steps and tours that
+  will verify them.
+- **Docs:** `README.md` (players and developers), `docs/GATE4.md` (Gate 5 checklist), `docs/CHALLENGE_TRIALS.md` (the
+  eleven unreached challenges by automation gap), the requirement ledger rows for V-153–V-157, the build manifest (V-158).
