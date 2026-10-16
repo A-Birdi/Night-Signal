@@ -3510,5 +3510,8 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   labels over 19 moments, 0 overflow; the 5 sub-5 % edge spills are the same ones as before (none on the story screen).
 - **Evidence:** `Evidence/ui/story/story-portrait-S01-text150.jpg`, `story-portrait-R01.jpg` (the portrait texture),
   `story-portraits-tour.txt`, `Evidence/ui/bounds/bounds-StoryTour-1280x720-text150.txt`.
-- **Not executed:** an ending scene or an online intro with portraits in a run (same screen, same code path); the radio mark
-  in a run (S01 has no radio line); a human look at all 48 portraits.
+- **Also executed (same build):** `-nsEndingTour` **PASS** — the Normal ending (21 pages), the Hard ending (8 lines, by itself
+  in 33.6 s) and the Hard epilogue at the radio bench with CH75, through the portrait code path; its two screenshots fell on
+  narration pages, so no ending portrait was captured.
+- **Not executed:** an online intro with portraits in a run (same screen, same code path); the radio mark in a run (S01 has
+  no radio line); a human look at all 48 portraits.
