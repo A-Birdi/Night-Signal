@@ -196,13 +196,13 @@ Pipeline in dependency order (items at one level do not wait for later ones; hum
    `ChallengeTrialReferenceTests.MeasureChallengeTrials`. Racecraft, cup, Driving School, lane-lesson and story-gated
    trials are offline only (`ConvoyDirectory.OnlineTrial`). `Assets/_Recovery/0.unity` is Unity's crash-recovery copy of
    an unsaved scene from 2026-09-29 18:10 — left untouched for the owner.
-0. **Controller focus defect (found 2026-10-16, not yet fixed — needs the editor):** `py Tools/qa/focus_scan.py` lists
-   3 of 28 screens without a `DefaultFocus` override — `AppearanceScreen`, `ControlsScreen`, `PlayerCardScreen`. The
-   router selects LastFocus, else DefaultFocus, else nothing, and a gamepad cannot move focus from nothing (only Back
-   works), so a pad-only player cannot use them. Fix: `public override Selectable DefaultFocus =>` the Section stepper's
-   left button (`sectionStep.Left`) on Appearance, `modeButton` on Controls, the Editing stepper's left button
-   (`editing.Left`) on the Player Card; add an EditMode guard test that every `UIScreen` subclass declares its own
-   `DefaultFocus` (reflection: the property's DeclaringType is the screen); then the pad-only walkthrough (Gate 4).
+0. **Controller focus (found and fixed 2026-10-16; not yet run in Unity):** `py Tools/qa/focus_scan.py` found 3 of 28
+   screens without a `DefaultFocus` (Appearance, Controls, Player Card) — they opened with nothing selected, so a pad
+   could only go Back. Fixed: Appearance starts on the section row (`sectionStep.Left`), Controls on the driving/walking
+   switch (`modeButton`), the Player Card on the Editing row (`editing.Left`); EditMode guard
+   `SetupVerificationTests.EveryScreen_DeclaresWhereControllerFocusStarts`. Compiled outside Unity (`dotnet build` of
+   the generated Runtime, Editor and EditMode projects into the scratchpad); the scan now reports 0. **Next, in the
+   editor:** run the guard test, rebuild the player, then the pad-only walkthrough (Gate 4).
 0. **After any AI tendency change**: rerun `-nsCrewTelemetryTour` and `CertifyListed` for the stages whose featured
    rival has that tendency (V-108; the crew telemetry was rerun on the V-109 build and passes).
 

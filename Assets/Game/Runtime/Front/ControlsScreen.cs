@@ -19,6 +19,8 @@ namespace NightSignal.Front
     public sealed class ControlsScreen : UIScreen
     {
         public override string ScreenName => "Controls";
+        /// <summary>A pad starts on the driving / walking page switch.</summary>
+        public override Selectable DefaultFocus => modeButton;
 
         sealed class Row
         {

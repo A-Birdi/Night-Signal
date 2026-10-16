@@ -23,6 +23,8 @@ namespace NightSignal.Front
     public sealed class AppearanceScreen : UIScreen
     {
         public override string ScreenName => "Appearance";
+        /// <summary>A pad starts on the section row (body kit, wheels, paint, lights and plate, decals, presets).</summary>
+        public override Selectable DefaultFocus => sectionStep?.Left;
         public override string MusicCue => "MUS_MENU_B";
 
         static readonly string[] Sections = { "Body kit", "Wheels", "Paint", "Lights & plate", "Decals", "Presets" };

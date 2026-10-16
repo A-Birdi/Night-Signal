@@ -17,6 +17,21 @@ namespace NightSignal.Tests
     {
         const string PcPipelineAsset = "Assets/Settings/PC_RPAsset.asset";
 
+        /// <summary>
+        /// Gate 4 controller focus: every screen says where a pad's focus starts. The router selects the last focus, else
+        /// the screen's DefaultFocus, else nothing — and a gamepad cannot move focus from nothing (only Back works). Three
+        /// screens had none (found 2026-10-16 by Tools/qa/focus_scan.py).
+        /// </summary>
+        [Test]
+        public void EveryScreen_DeclaresWhereControllerFocusStarts()
+        {
+            var missing = typeof(NightSignal.Front.UIScreen).Assembly.GetTypes()
+                .Where(t => typeof(NightSignal.Front.UIScreen).IsAssignableFrom(t) && !t.IsAbstract)
+                .Where(t => t.GetProperty("DefaultFocus").DeclaringType != t)
+                .Select(t => t.Name).ToList();
+            Assert.That(missing, Is.Empty, "screens without a DefaultFocus: " + string.Join(", ", missing));
+        }
+
         [Test]
         public void EditorVersion_MatchesPinnedProjectVersion()
         {

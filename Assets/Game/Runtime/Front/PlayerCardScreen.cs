@@ -24,6 +24,8 @@ namespace NightSignal.Front
     public sealed class PlayerCardScreen : UIScreen
     {
         public override string ScreenName => "Player Card";
+        /// <summary>A pad starts on the Editing row (driver look, card style, wardrobe), present in every section.</summary>
+        public override Selectable DefaultFocus => editing?.Left;
 
         OnlineSession S => OnlineSession.Current;
         /// <summary>No online session but a Local profile open: the card belongs to that profile.</summary>
