@@ -57,7 +57,7 @@ TCP listener only on 127.0.0.1:5080, `GET /healthz` ok, no error/restart loop in
 content the next run uses). Restart it once, cleanly, only when it is unhealthy or its content hash is stale after a
 content change (content documents feed the hash; a mismatched game server is refused), and after a change to its own
 code. Last restart: 2026-10-03 for V-156 (the wardrobe/avatar code and content), customization hash `2b5b408f…`; as of
-2026-10-16 it is **not running** (the machine was restarted) — start it before an online run. Network harnesses go through
+2026-10-16 it is **not running** (nor is the Unity editor) — start it before an online run. Network harnesses go through
 `Tools/run/NetGuard.psm1` (loopback unless `-AllowLan`, free-port check, socket evidence in `network.json`).
 
 Evidence tours (built player, run from the repo root; each uses its own profile/preferences folders under `Builds/`):
