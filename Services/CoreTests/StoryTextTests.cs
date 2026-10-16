@@ -19,6 +19,25 @@ public sealed class StoryTextTests
     static ContentCatalogue Cat => TestContent.Catalogue;
 
     [Fact]
+    public void EverySpokenLine_HasAPortrait_TheRivalsOwnLookOrANarratorsMark()
+    {
+        // The story screen (V-157) shows a rival's own character beside their lines, a mark for the radio and the timing
+        // crew, and nothing for narration: a rival speaking without an authored look would lose their portrait.
+        var looks = Newtonsoft.Json.JsonConvert.DeserializeObject<NightSignal.Characters.CharacterLookFile>(Story("rivals.look.json"))!.Looks
+            .Select(l => l.Id).ToHashSet();
+        var marks = new HashSet<string> { "radio", "timing-crew", "narration", "setting" };
+        var lines = Cat.Stages.SelectMany(d => S.TryStage(d.Id, out StageStory st) ? new[] { st.Normal, st.Hard } : Array.Empty<StageStorySide>())
+            .SelectMany(side => side.Intro.Concat(side.Win).Concat(side.Loss).Concat(side.ClearedButLost))
+            .Concat(S.NormalEnding.Concat(S.HardEnding).SelectMany(sc => sc.Lines))
+            .ToList();
+        Assert.NotEmpty(lines);
+        Assert.Empty(lines.Where(l => !marks.Contains(l.Speaker) && !looks.Contains(l.Speaker)).Select(l => l.Speaker).Distinct());
+        Assert.Equal(48, looks.Count(id => id.StartsWith('R')));
+        // Every rival who speaks anywhere in the campaign has a portrait; most of the 48 do speak.
+        Assert.True(lines.Select(l => l.Speaker).Where(looks.Contains).Distinct().Count() >= 40);
+    }
+
+    [Fact]
     public void EveryStage_HasBothSides_WithIntroReactionsAndDiary_SpokenByKnownVoices()
     {
         var narrators = new HashSet<string> { "radio", "timing-crew", "narration" };
