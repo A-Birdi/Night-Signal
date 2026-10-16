@@ -204,8 +204,9 @@ namespace NightSignal.Core.Meet
         }
 
         /// <summary>
-        /// A walking pose from the owner. Accepted when newer, inside the walkable area (fixtures and parked cars excluded) and
-        /// within the speed envelope from the last accepted pose; otherwise the last good pose stands (the client is corrected).
+        /// A walking pose from the owner. Accepted when newer, finite, inside the walkable area (fixtures and parked cars
+        /// excluded) and within the speed envelope from the last accepted pose; otherwise the last good pose stands (the client
+        /// is corrected).
         /// </summary>
         public MeetMoveStatus Move(string account, float x, float z, float yaw, float speed, int seq, long now)
         {
@@ -213,7 +214,7 @@ namespace NightSignal.Core.Meet
             if (m == null || m.State != MeetMemberState.Present) return MeetMoveStatus.Ignored;
             if (seq <= m.PoseSeq) return MeetMoveStatus.Ignored;
             m.PoseSeq = seq;
-            if (float.IsNaN(x) || float.IsNaN(z) || float.IsInfinity(x) || float.IsInfinity(z)) return MeetMoveStatus.Corrected;
+            if (!Finite(x) || !Finite(z) || !Finite(yaw) || !Finite(speed)) return MeetMoveStatus.Corrected;
             float dt = Math.Min(1.5f, Math.Max(0.05f, (now - m.PoseMs) / 1000f));
             float dx = x - m.X, dz = z - m.Z;
             bool tooFar = Math.Sqrt(dx * dx + dz * dz) > MaxSpeed * dt + 0.6f;
@@ -226,6 +227,8 @@ namespace NightSignal.Core.Meet
             m.PoseMs = now;
             return MeetMoveStatus.Accepted;
         }
+
+        static bool Finite(float v) => !float.IsNaN(v) && !float.IsInfinity(v);
 
         /// <summary>Starts an emote now (replicated as ID + start; clients animate locally).</summary>
         public bool PlayEmote(string account, Emote e, long now)

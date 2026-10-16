@@ -3558,7 +3558,8 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   eleven unreached challenges by automation gap), the requirement ledger rows for V-153–V-157, the build manifest (V-158).
 
 ## V-160 — Editor-less tests and three meet-rule fixes: the ribbon's bound, a boombox stall, emote ids (2026-10-16)
-- Revision: the commits of 2026-10-16 after V-159 up to this entry. The Unity editor was closed (MCP unreachable) and
+- Revision: the commits of 2026-10-16 after V-159 up to this entry, and the walking-pose hardening committed with its
+  last revision. The Unity editor was closed (MCP unreachable) and
   the GPU was busy with another job, so everything here ran on .NET outside Unity — `dotnet test` in a scratch mirror of
   `Assets/Game/Core`, `Assets/Content`, `Services` and `Backend` (the SharedCore build of Core). Nothing ran in the
   editor or a player.
@@ -3575,6 +3576,9 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
     played an undefined, zero-length emote (spending the emote gap and pushing the room state) and "1" or "Wave, Bow"
     mapped to defined ones. Only the twelve names are accepted now, in any case; clients already send the names
     (`EmoteTests`).
+  - Walking poses (hardening): a pose with a non-finite heading or speed was stored and replicated (position was
+    already checked). It is corrected now, like a non-finite position (`MeetMoveTests`). The control plane's JSON
+    options already refuse non-finite numbers, so this guards Core's other callers.
 - **New tests, no behaviour change:** wardrobe and card-avatar validation refusing malformed data with exact errors
   (14 cases); an unearned avatar refused on a Local card; the server refusing a malformed wardrobe id and an unknown
   avatar (`PlayerApiTests`); the soundtrack manifest the boombox runs from — 24 cues, each with a title, category and
@@ -3583,10 +3587,10 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   (`HexColorTests`); profile storage refusing names that could leave its folder (`..`, rooted, backslash, drive prefix,
   non-ASCII, over-long) on every operation of the in-memory and on-disk stores — a mutation dropping the `..` rule fails it.
 - **Executed** on the tree of the emote fix: Core xUnit **231/231**, Services **382/382** + 1 skipped, Toys **92/92**,
-  Builds **232/232**.
+  Builds **232/232**; after the pose hardening: Core **232/232**, the Services meet tests 10/10.
 - **Docs and static checks:** `docs/ARCHITECTURE.md` known limits, migrations 0001–0010 and what the card stores;
   `Evidence/characters/index.txt` lists the level-of-detail sheets and the wardrobe folder; every repository path cited in
   backticks in the main documents exists (four shorthand forms such as `families-V01-front|rear.png`, no broken
   reference), and every V-number cited exists (the 159 entries before this one, no gaps).
-- **Not yet run in Unity:** the three Core fixes are compiled and tested under .NET only. HANDOFF's first editor steps now
+- **Not yet run in Unity:** the Core fixes are compiled and tested under .NET only. HANDOFF's first editor steps now
   include the EditMode `MeetRulesTests` and, on a new build, `MeetTour` and an online meet (`Tools/run/meet-online.ps1`).
