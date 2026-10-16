@@ -3593,10 +3593,13 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 - **Executed** on the tree of the emote fix: Core xUnit **231/231**, Services **382/382** + 1 skipped, Toys **92/92**,
   Builds **232/232**; after the pose hardening: Core **232/232**, the Services meet tests 10/10; after the toy payload fix:
   Toys **94/94**, Core 232/232, the Services toy tests 25/25. Unity's generated `NightSignal.Runtime` and
-  `NightSignal.Tests.EditMode` projects build with `dotnet build` into the scratchpad (one pre-existing warning).
+  `NightSignal.Tests.EditMode` projects build with `dotnet build` into the scratchpad (one pre-existing warning). Last,
+  direct consent-proposal tests (`ConsentProposalTests`: Toys **97/97**).
 - **Docs and static checks:** `docs/ARCHITECTURE.md` known limits, migrations 0001–0010 and what the card stores;
   `Evidence/characters/index.txt` lists the level-of-detail sheets and the wardrobe folder; every repository path cited in
   backticks in the main documents exists (four shorthand forms such as `families-V01-front|rear.png`, no broken
-  reference), and every V-number cited exists (the 159 entries before this one, no gaps).
+  reference), and every V-number cited exists (the 159 entries before this one, no gaps). Three requirement rows were
+  behind their evidence and now cite it: R1.9 (group Time Attack with four and six clients, V-081), R2.1 (toy tables
+  with four and six, V-082), R7.1 (drift scoring in races, V-047/V-079/V-148).
 - **Not yet run in Unity:** the Core fixes are compiled and tested under .NET only. HANDOFF's first editor steps now
   include the EditMode `MeetRulesTests` and, on a new build, `MeetTour` and an online meet (`Tools/run/meet-online.ps1`).
