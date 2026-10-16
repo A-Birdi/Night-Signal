@@ -3538,6 +3538,8 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
     of 28 without (Appearance, Controls, Player Card) — they opened with nothing selected, so a pad could only go Back.
     After the fix: 0 of 28.
   - A literal `Resources.Load` scan (scratch script): 22 literal loads, every path present in a Resources folder.
+  - Services xUnit **382/382** + 1 skipped in the scratch mirror after the Core tidy (a first run failed 136 tests with
+    "no such table: accounts" because the recreated mirror lacked `Backend/`, the migrations; with it, all pass).
   - Core xUnit **218/218** in the scratch mirror, with the new `StoryTextTests.EverySpokenLine_HasAPortrait_…` (every
     stage intro, reaction and ending line is spoken by a rival with an authored look or by the radio, timing crew or
     narration; 48 rival looks).
