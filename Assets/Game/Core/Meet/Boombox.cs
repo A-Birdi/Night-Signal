@@ -155,7 +155,10 @@ namespace NightSignal.Core.Meet
             if (changed) Revision++;
         }
 
-        /// <summary>Server tick: expires the lease and moves on when a queued track has played through.</summary>
+        /// <summary>
+        /// Server tick: expires the lease, moves on when a queued track has played through, and starts a request that
+        /// waited over the default bed for the room-wide interval (it was queued within ten seconds of the last change).
+        /// </summary>
         public void Tick(long now)
         {
             if (LeaseHolder.Length > 0 && now >= LeaseUntilMs)
@@ -168,6 +171,10 @@ namespace NightSignal.Core.Meet
             {
                 double len = trackSeconds(TrackId);
                 if (len > 0 && (now - StartedMs) / 1000.0 >= len) Advance(now, false);
+            }
+            else if (queue.Count > 0 && now - LastUserChangeMs >= MinChangeIntervalMs)
+            {
+                Advance(now, true);
             }
         }
 
