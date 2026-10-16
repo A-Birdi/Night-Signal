@@ -379,4 +379,16 @@ public sealed class EndToEndTests : IDisposable
         Assert.Equal("invalid_request", ErrorCode(await c.RequestAsync("event.ready", new { proposalRevision = "seven" })));
         AssertOk(await c.RequestAsync("ping"));
     }
+
+    [Fact]
+    public async Task Presence_IsOneOfItsNames_AndNeverAServerOnlyOne()
+    {
+        using var host = new ControlPlaneHost(dir.Path, Seed);
+        await using ControlClient c = await host.ConnectAsync(await host.SignInAsync(accounts[0]), "build=b&protocol=2&content=c");
+        AssertOk(await c.RequestAsync("presence.set", new { presence = "Garage" }));
+        AssertOk(await c.RequestAsync("presence.set", new { presence = "InMenus" }));
+        foreach (string bad in new[] { "garage", "1", "InMenus, Garage", " Garage", "", "Reconnecting", "Offline" })
+            Assert.Equal("invalid_request", ErrorCode(await c.RequestAsync("presence.set", new { presence = bad })));
+        Assert.Equal("invalid_request", ErrorCode(await c.RequestAsync("presence.set", new { })));
+    }
 }

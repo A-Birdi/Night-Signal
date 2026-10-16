@@ -163,9 +163,13 @@ public sealed class ControlCommandHandler(ConvoyDirectory directory, IPlayerStor
 
             // ---- presence and loadout
             case "presence.set":
-                return Enum.TryParse(Read<PresencePayload>(payload).Presence, ignoreCase: false, out Presence presence) && Enum.IsDefined(presence)
-                    ? directory.SetPresence(a, presence)
+            {
+                // A declared name exactly (clients send them): not a number or a combination such as "InMenus, Garage".
+                string? name = Read<PresencePayload>(payload).Presence;
+                return name is not null && Enum.GetNames<Presence>().Contains(name)
+                    ? directory.SetPresence(a, Enum.Parse<Presence>(name))
                     : Invalid("Unknown presence.");
+            }
             case "loadout.set":
                 return await SetLoadoutAsync(a, Read<LoadoutPayload>(payload), ct);
             case "diversion.set":
