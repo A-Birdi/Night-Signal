@@ -74,6 +74,10 @@ Render Cockpit Sheets* renders the mounted views of every car.
    Dedicated Server Build Support"). Meanwhile the server runs as the Windows player in `-batchmode -nographics`.
 3. **Hosted services / internet test** — a Supabase project, a reachable server and a budget are needed for
    WAN acceptance (§3.5, Gate 5). Not approved; stays BLOCKED, not faked.
+4. **Release identity (a decision, not urgent)** — `ProjectSettings` still has Unity's placeholder company name
+   `DefaultCompany` (product "Night Signal", version 0.1.0). Local profiles and settings live under
+   `AppData\LocalLow\<company>\Night Signal`, so choosing the real name before a release avoids moving saves later;
+   changing it now would leave this machine's existing Local profiles behind. Left unchanged for the owner.
 
 ## Done since the addenda (VALIDATION V-015 … V-071)
 

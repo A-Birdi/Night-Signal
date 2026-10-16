@@ -54,7 +54,7 @@ only: nothing on the Player Card or in the Garage's Appearance screen changes ho
 ### Where things are saved
 
 Local profiles and settings are under Unity's per-user data folder for the game
-(`%USERPROFILE%\AppData\LocalLow\<company>\Night Signal\` on Windows: `LocalProfiles\` and `settings\`). Online progress
+(`%USERPROFILE%\AppData\LocalLow\<company>\Night Signal\` on Windows: `LocalProfiles\` and `settings\`; the company name is still Unity's placeholder `DefaultCompany` until a release name is chosen). Online progress
 lives on the control plane's database.
 
 ## Running locally (development)
