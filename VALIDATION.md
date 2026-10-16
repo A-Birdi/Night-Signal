@@ -3559,7 +3559,8 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
 
 ## V-160 — Editor-less tests and three meet-rule fixes: the ribbon's bound, a boombox stall, emote ids (2026-10-16)
 - Revision: the commits of 2026-10-16 after V-159 up to this entry, and the two fixes committed after it (walking
-  poses, toy payload numbers) with this entry's last revision. The Unity editor was closed (MCP unreachable) and
+  poses, toy payload numbers) and the stricter name parsing after them, recorded with this entry's last revision. The
+  Unity editor was closed (MCP unreachable) and
   the GPU was busy with another job, so everything here ran on .NET outside Unity — `dotnet test` in a scratch mirror of
   `Assets/Game/Core`, `Assets/Content`, `Services` and `Backend` (the SharedCore build of Core). Nothing ran in the
   editor or a player.
@@ -3595,6 +3596,11 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   Toys **94/94**, Core 232/232, the Services toy tests 25/25. Unity's generated `NightSignal.Runtime` and
   `NightSignal.Tests.EditMode` projects build with `dotnet build` into the scratchpad (one pre-existing warning). Last,
   direct consent-proposal tests (`ConsentProposalTests`: Toys **97/97**).
+- **Stricter names, no change for the game's own clients** (each with a test that fails on the previous code): toy
+  payload enum fields, the toy routes' activity name and `presence.set` accept only a declared name — no number and no
+  combination ("PitCrew, Greenlight" had ORed to PocketCircuit, "CapClash, PitCrew" to PitCrew, "InMenus, Garage" to
+  Garage); server-only presences stay refused. Final run on the tree of these commits (`aacb888`): Core **232/232**,
+  Services **384/384** + 1 skipped, Toys **97/97**, Builds **232/232**.
 - **Docs and static checks:** `docs/ARCHITECTURE.md` known limits, migrations 0001–0010 and what the card stores;
   `Evidence/characters/index.txt` lists the level-of-detail sheets and the wardrobe folder; every repository path cited in
   backticks in the main documents exists (four shorthand forms such as `families-V01-front|rear.png`, no broken
