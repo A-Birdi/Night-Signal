@@ -60,10 +60,11 @@ namespace NightSignal.Core.Tutorial
         public string Course = "T00";
         public List<TutorialLesson> Lessons = new List<TutorialLesson>();
 
+        /// <summary>The document as read; JsonConvert fills the fields (the explicit nulls only say so to the compiler).</summary>
         sealed class Doc
         {
-            public string Schema, Course;
-            public List<TutorialLesson> Lessons;
+            public string Schema = null, Course = null;
+            public List<TutorialLesson> Lessons = null;
         }
 
         public static TutorialLessons Parse(string json)
@@ -124,7 +125,7 @@ namespace NightSignal.Core.Tutorial
         readonly LessonCheck c;
         public LessonStatus Status { get; private set; }
         public string Feedback { get; private set; } = "";
-        bool armed, inside, slid;
+        bool armed, slid;
         float entryKmh, minKmh = float.MaxValue, startSeconds = -1f, resetAt = -1f;
         int wallsAtStart = -1, resetsAtStart = -1;
         double driftAtStart = -1;
