@@ -3556,3 +3556,37 @@ Machine: owner's Windows 11 Pro workstation, NVIDIA GeForce RTX 3080, Unity 6000
   will verify them.
 - **Docs:** `README.md` (players and developers), `docs/GATE4.md` (Gate 5 checklist), `docs/CHALLENGE_TRIALS.md` (the
   eleven unreached challenges by automation gap), the requirement ledger rows for V-153–V-157, the build manifest (V-158).
+
+## V-160 — Editor-less tests and three meet-rule fixes: the ribbon's bound, a boombox stall, emote ids (2026-10-16)
+- Revision: the commits of 2026-10-16 after V-159 up to this entry. The Unity editor was closed (MCP unreachable) and
+  the GPU was busy with another job, so everything here ran on .NET outside Unity — `dotnet test` in a scratch mirror of
+  `Assets/Game/Core`, `Assets/Content`, `Services` and `Backend` (the SharedCore build of Core). Nothing ran in the
+  editor or a player.
+- **Fixed in Core (engine-free), each with a test that fails on the previous code:**
+  - The SIGNAL ribbon (spec §12: one current notice, at most three queued). Since "left to race" (V-076) there are four
+    coalescing kinds, so a full queue holding one arrived, one departed and one disconnected notice took a fourth kind
+    anyway — four queued. It now goes straight to the event list, as an info notice does when the queue is full
+    (`SignalRibbonTests`).
+  - The shared boombox (Addendum 01 §11.4). A request queued over the default bed within ten seconds of the last change
+    (for example just after a skip) never started: the tick only moved on from a personal track. The tick now starts it
+    once the room-wide interval allows; the room's revision includes the boombox's, so the control plane pushes the change
+    (`BoomboxTests`).
+  - Emote ids from clients. `Emotes.TryParse`, which the room server applies to `meet.emote`, used `Enum.TryParse`: "200"
+    played an undefined, zero-length emote (spending the emote gap and pushing the room state) and "1" or "Wave, Bow"
+    mapped to defined ones. Only the twelve names are accepted now, in any case; clients already send the names
+    (`EmoteTests`).
+- **New tests, no behaviour change:** wardrobe and card-avatar validation refusing malformed data with exact errors
+  (14 cases); an unearned avatar refused on a Local card; the server refusing a malformed wardrobe id and an unknown
+  avatar (`PlayerApiTests`); the soundtrack manifest the boombox runs from — 24 cues, each with a title, category and
+  length — and exactly one unlock rule per cue (`MusicCuesTests`; music.unlocks.json had been checked against the stages,
+  never against music.cues.json); `#RRGGBB` normalisation and the WCAG contrast either side of the 4.5:1 plate rule
+  (`HexColorTests`); profile storage refusing names that could leave its folder (`..`, rooted, backslash, drive prefix,
+  non-ASCII, over-long) on every operation of the in-memory and on-disk stores — a mutation dropping the `..` rule fails it.
+- **Executed** on the tree of the emote fix: Core xUnit **231/231**, Services **382/382** + 1 skipped, Toys **92/92**,
+  Builds **232/232**.
+- **Docs and static checks:** `docs/ARCHITECTURE.md` known limits, migrations 0001–0010 and what the card stores;
+  `Evidence/characters/index.txt` lists the level-of-detail sheets and the wardrobe folder; every repository path cited in
+  backticks in the main documents exists (four shorthand forms such as `families-V01-front|rear.png`, no broken
+  reference), and every V-number cited exists (the 159 entries before this one, no gaps).
+- **Not yet run in Unity:** the three Core fixes are compiled and tested under .NET only. HANDOFF's first editor steps now
+  include the EditMode `MeetRulesTests` and, on a new build, `MeetTour` and an online meet (`Tools/run/meet-online.ps1`).
