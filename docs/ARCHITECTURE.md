@@ -30,7 +30,7 @@ race clock and results belong to the game server (facts) and the control plane (
 | Spec interface (§3.2) | Implementation | Notes |
 |---|---|---|
 | Identity | `Identity/IdentitySetup.cs` (JwtBearer), `DevAuth/*` | One validation path; only issuer + JWKS source differ between Supabase and DevAuth. |
-| PlayerStore | `Persistence/Stores.cs` `IPlayerStore` → `SqlGameStore` | Card (versioned), wallet, owned cars, clears, challenges, cosmetics. |
+| PlayerStore | `Persistence/Stores.cs` `IPlayerStore` → `SqlGameStore` | Card (versioned: name, pronouns, the driver look with its reward wardrobe, the card style with its avatar, the showcase — rewards checked against owned cosmetics), wallet, owned cars, clears, challenges, cosmetics. |
 | ConvoyDirectory | `Convoys/ConvoyDirectory.cs` | In-memory, single lock, monotonic revisions, injectable clock. Transport-free. |
 | MatchAllocator | `Matches/MatchAllocator.cs`, `GameServerRegistry.cs`, `Tickets.cs`, `MatchWatchdog.cs` | Long-poll assignment, ack before tickets, abort on server loss. |
 | ResultLedger | `IResultLedger` → `SqlGameStore`, `Matches/SettlementService.cs` | One DB transaction per settlement; idempotent. |
@@ -76,7 +76,8 @@ or results secret appears in the captured logs.
 
 ## Data model and consistency
 
-Migrations: `Backend/migrations/{sqlite,postgres}/0001_initial.sql` (equivalent; application SQL is shared).
+Migrations: `Backend/migrations/{sqlite,postgres}/0001`–`0010` (initial, Addendum 01, Addendum 02, toys, garage, player card,
+card style, card showcase, diary reads, ghosts; the two dialects are equivalent and the application SQL is shared).
 
 - `accounts(account_id = JWT sub)`, `player_cards(revision)`, `wallets(balance CHECK 0..9,999,999)`.
 - `ledger_entries` — append-only (UPDATE/DELETE blocked by triggers), `UNIQUE(idempotency_key)`;
@@ -100,9 +101,12 @@ Every change bumps the convoy revision and pushes a snapshot. Rules and timers a
 
 ## Known limits (see also HOSTING.md)
 
-- Stage benchmarks are **provisional** (derived from course `expectedSeconds`, labelled in proposals and receipts)
-  because the content catalogue has no certified reference runs yet (spec §2.5).
-- Utility items, parts, loaners, cosmetic purchases and tutorial completion credits are not modelled yet.
+- Stage benchmarks come from certified reference runs (`stage-benchmarks.json`, all 60 stage sides; V-065, V-066,
+  V-108); a benchmark without one would still be served labelled provisional (`BenchmarkInfo.Provisional`).
+- Parts with tradeoffs and the utility slot (Core `Builds`), challenge-trial loaners and the tutorial completion credit
+  (`Limits.TutorialCompletionCredits`) are modelled; cosmetics are earned from challenges only — there is no cosmetic
+  purchase path.
 - Challenge predicates are evaluated by the game server; the control plane validates IDs, once-only and payout.
-- Convoy state is in memory (single control-plane instance); a restart drops convoys (players re-form them;
-  the ledger and receipts are durable).
+- Convoy state is in memory (single control-plane instance). A room whose members were all lost (dormant, Addendum 02
+  D208) is written as a durable snapshot and restored after a restart (`DormantRoomPersistence`, `RejoinEndToEndTests`);
+  the ledger and receipts are durable.
