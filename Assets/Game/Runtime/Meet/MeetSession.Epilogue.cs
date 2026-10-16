@@ -18,7 +18,7 @@ namespace NightSignal.Meet
         /// talking to her reads the epilogue a line at a time. Reading it to its end (not closing it early) is the touring act
         /// the room — or offline the Local profile — turns into CH75.
         /// </summary>
-        public List<StoryScene> Epilogue;
+        [System.NonSerialized] public List<StoryScene> Epilogue;
         /// <summary>The epilogue was read to its end in this visit (tours read it).</summary>
         public bool EpilogueRead { get; private set; }
         public int EpiloguePage { get; private set; } = -1;

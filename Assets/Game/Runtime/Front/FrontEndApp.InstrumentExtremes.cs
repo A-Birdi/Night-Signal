@@ -128,10 +128,8 @@ namespace NightSignal.Front
             if (afterShown > 3 || afterNeedle < 120f) failures.Add($"reset showed stale speed ({afterShown} km/h, needle {afterNeedle:F1}°)");
 
             // 4) Brake to rest, keep the brake held: reverse engages; the number shows the magnitude, never a minus.
-            bool stopped = false;
             ActiveYard.Script = (st, t) =>
             {
-                if (st.SpeedKmh < 0.5f) stopped = true;
                 return DriverInput.Quantize(0f, 0f, 1f, InputButtons.None);
             };
             ActiveYard.ResetAndDrive(false, 0);

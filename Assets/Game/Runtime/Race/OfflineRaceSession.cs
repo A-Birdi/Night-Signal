@@ -25,7 +25,7 @@ namespace NightSignal.Race
     {
         public string CarId = "V01";
         /// <summary>The player's frozen applied build (null = stock), resolved by Core before the race.</summary>
-        public Core.Builds.ResolvedCarSpec PlayerSpec;
+        [System.NonSerialized] public Core.Builds.ResolvedCarSpec PlayerSpec;
         /// <summary>The player's applied livery (compact wire form; null/"" = the palette colour).</summary>
         public string PlayerLivery;
         public string PlayerName = "You";
@@ -204,7 +204,7 @@ namespace NightSignal.Race
         /// versions are filled in here), the recorded run when the race ends, and up to three replay overlays to show — only
         /// those recorded under this event's rules are shown (<see cref="Core.Ghosts.GhostRecording.CompatibleWith"/>).
         /// </summary>
-        public Core.Ghosts.GhostHeader GhostTemplate;
+        [System.NonSerialized] public Core.Ghosts.GhostHeader GhostTemplate;
         /// <summary>Automation only: called after every racing tick (telemetry tours read the entrants' states).</summary>
         public System.Action<RaceSimulation, int> TickObserver;
         /// <summary>The player's input on the last tick (tutorial lessons read the brake).</summary>

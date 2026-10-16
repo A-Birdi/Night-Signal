@@ -69,7 +69,7 @@ namespace NightSignal.Race
     {
         public string CarId = "V01";
         public Color PaintColor = new Color(0.82f, 0.12f, 0.12f);
-        public TestYardBuild A = new TestYardBuild(), B = new TestYardBuild();
+        [System.NonSerialized] public TestYardBuild A = new TestYardBuild(), B = new TestYardBuild();
         public bool StartWithB;
         public CarMaterialSet CarMaterials;
         /// <summary>Scripted driving for automated evidence runs (state, seconds since the reset) — replaces the controls.</summary>
@@ -80,7 +80,7 @@ namespace NightSignal.Race
         /// supplied car and B (a comparison lesson only) the loaned package, every start kept for the judge. The yard itself
         /// still records nothing (Addendum 02 §10.1); the lesson is judged by the caller. Null: the Test Yard.
         /// </summary>
-        public ChallengeTrialDef Lesson;
+        [System.NonSerialized] public ChallengeTrialDef Lesson;
         /// <summary>Every start of a lesson, in order (the yard keeps only the last three per side).</summary>
         public readonly List<TestYardRun> LessonRuns = new List<TestYardRun>();
         /// <summary>The lesson's speed gate and stop gate along the lane (m from its entry).</summary>

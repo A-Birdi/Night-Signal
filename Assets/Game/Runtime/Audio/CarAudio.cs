@@ -31,7 +31,7 @@ namespace NightSignal.GameAudio
         /// <summary>Your own car: always audible (the others compete for the remaining places by distance).</summary>
         public bool Own { get; private set; }
         /// <summary>The driver's throttle when the session knows it (your car); null = estimated.</summary>
-        public float? Throttle;
+        [System.NonSerialized] public float? Throttle;
         public bool Audible => audible;
         public EngineAudio Engine => engine;
         /// <summary>How many cars are synthesizing right now (evidence runs log it).</summary>

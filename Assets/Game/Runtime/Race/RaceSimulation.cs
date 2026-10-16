@@ -101,7 +101,7 @@ namespace NightSignal.Race
         /// A racecraft challenge trial's fixed field: the opposing AI, in order, are these cars (stock, not chosen by the cap),
         /// identities, roles and paces; null for every other event.
         /// </summary>
-        public List<TrialFieldCar> TrialField;
+        [System.NonSerialized] public List<TrialFieldCar> TrialField;
         /// <summary>The humans start from the back of the grid, behind every AI car (CH41 "from the last grid position").</summary>
         public bool HumansStartLast;
         /// <summary>A section to time for every entrant (a section trial): the route gates that start and end it (null = none).</summary>

@@ -15,7 +15,7 @@ namespace NightSignal.Meet
     public sealed partial class MeetSession
     {
         /// <summary>The online link (null offline). Set before Start.</summary>
-        public MeetNet Net;
+        [System.NonSerialized] public MeetNet Net;
         /// <summary>Automation: remote participants seen, emotes seen on them, ribbon notices shown.</summary>
         public readonly List<string> Seen = new List<string>();
         public int RemoteCount => remotes.Count;
@@ -27,7 +27,6 @@ namespace NightSignal.Meet
             public long Generation;
             public int Bay = -1;
             public long StateSinceMs, EmoteStartMs = -1;
-            public string Emote;
             public int ChatIndex = -1;
             public long ChatAt;
             /// <summary>The nameplate as last built and what it showed (rebuilt only when that changes, not every frame).</summary>
@@ -43,7 +42,6 @@ namespace NightSignal.Meet
             public VehicleView Car;
             public GameObject CarCollider;
             public float LeaveT = -1f;
-            public bool Removed;
         }
 
         readonly Dictionary<string, Remote> remotes = new Dictionary<string, Remote>();

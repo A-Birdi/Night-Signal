@@ -31,7 +31,7 @@ namespace NightSignal.Meet
         public string CarId = "V01";
         public string CarName = "";
         public Color Paint = new Color(0.8f, 0.12f, 0.12f);
-        public CarAppearance Appearance;
+        [System.NonSerialized] public CarAppearance Appearance;
         public int CarPi;
         public string TuneSummary = "Stock factory build";
         public string PlayerName = "You";
