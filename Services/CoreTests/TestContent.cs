@@ -35,8 +35,9 @@ internal static class TestContent
     }
 
     /// <summary>
-    /// A test soundtrack manifest in the control plane's music-unlocks@1 shape (the authored file does not exist yet).
-    /// Cue ids match Assets/Content/Data/authored/music.cues.json.
+    /// A small fixed soundtrack manifest in the control plane's music-unlocks@1 shape, so these tests do not move when the
+    /// authored music.unlocks.json does (that file is checked in MusicCuesTests). Cue ids match
+    /// Assets/Content/Data/authored/music.cues.json.
     /// </summary>
     public const string MusicManifestJson = """
     {
