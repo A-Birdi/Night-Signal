@@ -103,7 +103,7 @@ namespace NightSignal.Race
         public TestYardRun CurrentRun => run;
         /// <summary>Diagnostics for evidence runs: what the chase camera follows and where it is.</summary>
         public string CameraDebug => chase == null ? "no camera" : $"target {(chase.Target != null ? chase.Target.name + " " + chase.Target.transform.position : "none")} cam {chase.transform.position} enabled {chase.enabled}/{chase.gameObject.activeInHierarchy} view {chase.View} car {(view != null ? view.transform.position.ToString() : "none")} state {current.Position} · views: " +
-            string.Join("; ", FindObjectsByType<VehicleView>(FindObjectsSortMode.None).Select(v => $"{v.name} {v.transform.position} active {v.gameObject.activeInHierarchy} " +
+            string.Join("; ", FindObjectsByType<VehicleView>().Select(v => $"{v.name} {v.transform.position} active {v.gameObject.activeInHierarchy} " +
                 string.Join("/", v.GetComponentsInChildren<Renderer>(true).Take(2).Select(r => $"{r.name}:{r.enabled}:{r.bounds.center}"))));
         public readonly List<TestYardRun> RunsA = new List<TestYardRun>(), RunsB = new List<TestYardRun>();
 

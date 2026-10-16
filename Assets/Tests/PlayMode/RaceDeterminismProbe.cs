@@ -34,7 +34,7 @@ namespace NightSignal.Tests
         static string Census()
         {
             var byScene = new Dictionary<string, int>();
-            foreach (Collider c in Object.FindObjectsByType<Collider>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            foreach (Collider c in Object.FindObjectsByType<Collider>(FindObjectsInactive.Include))
             {
                 if (((1 << c.gameObject.layer) & (GameLayers.BarrierMask | GameLayers.DrivableMask)) == 0) continue;
                 string key = (c.gameObject.scene.IsValid() ? c.gameObject.scene.name : "no-scene") + (c.enabled && c.gameObject.activeInHierarchy ? "" : " (inactive)");

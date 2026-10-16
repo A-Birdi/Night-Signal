@@ -117,8 +117,8 @@ namespace NightSignal.Front
                 RaceEntrantResult me = results.FirstOrDefault(r => r.Entrant.Human);
                 List<RaceEntrantResult> finishers = results.Where(r => r.Outcome == RunOutcome.Finished).OrderBy(r => r.Placement).ToList();
                 bool orderedByDrift = finishers.Zip(finishers.Skip(1), (a, b) => a.RawDriftScore >= b.RawDriftScore).All(x => x);
-                bool tableShowsDrift = FindObjectsByType<TMPro.TextMeshProUGUI>(FindObjectsSortMode.None).Any(t => t.isActiveAndEnabled && t.name == "Table" && t.text.Contains(">DRIFT<"));
-                string progression = FindObjectsByType<TMPro.TextMeshProUGUI>(FindObjectsSortMode.None).FirstOrDefault(t => t.isActiveAndEnabled && t.name == "Progression")?.text ?? "";
+                bool tableShowsDrift = FindObjectsByType<TMPro.TextMeshProUGUI>().Any(t => t.isActiveAndEnabled && t.name == "Table" && t.text.Contains(">DRIFT<"));
+                string progression = FindObjectsByType<TMPro.TextMeshProUGUI>().FirstOrDefault(t => t.isActiveAndEnabled && t.name == "Progression")?.text ?? "";
                 string bestLine = progression.Split('\n').FirstOrDefault(l => l.Contains("New personal best")) ?? "";
                 if (bestLine.Length > 0)
                 {

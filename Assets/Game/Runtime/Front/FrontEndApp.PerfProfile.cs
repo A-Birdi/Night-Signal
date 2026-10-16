@@ -186,8 +186,8 @@ namespace NightSignal.Front
             if (m == null || !m.Ready) Fail("the meet did not open");
             else
             {
-                int rigs = FindObjectsByType<Characters.CharacterRig>(FindObjectsSortMode.None).Length;
-                int views = FindObjectsByType<Vehicle.VehicleView>(FindObjectsSortMode.None).Length;
+                int rigs = FindObjectsByType<Characters.CharacterRig>().Length;
+                int views = FindObjectsByType<Vehicle.VehicleView>().Length;
                 // Walk a slow loop round the plaza: forward with the camera turning, so the view sweeps the whole meet.
                 m.ScriptMove = _ => new Vector2(0f, 1f);
                 float yaw = 90f;
