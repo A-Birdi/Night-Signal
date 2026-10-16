@@ -15,15 +15,6 @@ namespace NightSignal.Front
     public sealed partial class FrontEndApp
     {
         /// <summary>
-        /// Soak run (<c>-nsSoakTour [races]</c>, Addendum 03 I04): back-to-back twelve-car races (the player's car on the
-        /// autopilot + eleven AI, light contact) on alternating courses; during each race the view is cycled every 1.5 s
-        /// through all five, look-back is held, speed/units/style are switched, and the player's car is reset by a held
-        /// request every 12 s. Between races, with the menus back, it counts what must not accumulate: cameras,
-        /// driving cameras, vehicle views, race HUD and speed-line canvases, preference listeners, lights, managed memory;
-        /// and per race the frame time and the player's authoritative progress. Isolated preferences/profiles.
-        /// Automation, not a human session.
-        /// </summary>
-        /// <summary>
         /// Soak diagnostic: element counts of every non-empty static collection and handler count of every static delegate in
         /// the game's own assemblies, by field name — anything that accumulates between races and is reachable from a
         /// static shows up by name.
@@ -111,6 +102,15 @@ namespace NightSignal.Front
                  $"({(a2 - a1) / (float)(Frames * PerFrame):F1} B each); {Frames * PerFrame} raycasts {(a3 - a2) / 1024f:F0} KB ({(a3 - a2) / (float)(Frames * PerFrame):F1} B each)");
         }
 
+        /// <summary>
+        /// Soak run (<c>-nsSoakTour [races]</c>, Addendum 03 I04): back-to-back twelve-car races (the player's car on the
+        /// autopilot + eleven AI, light contact) on alternating courses; during each race the view is cycled every 1.5 s
+        /// through all five, look-back is held, speed/units/style are switched, and the player's car is reset by a held
+        /// request every 12 s. Between races, with the menus back, it counts what must not accumulate: cameras,
+        /// driving cameras, vehicle views, race HUD and speed-line canvases, preference listeners, lights, managed memory;
+        /// and per race the frame time and the player's authoritative progress. Isolated preferences/profiles.
+        /// Automation, not a human session.
+        /// </summary>
         IEnumerator SoakTour(int races)
         {
             string dir = System.IO.Path.GetFullPath(System.IO.Path.Combine("Builds", "Screenshots", "soak"));
